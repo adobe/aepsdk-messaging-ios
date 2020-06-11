@@ -11,7 +11,20 @@
  */
 
 import Foundation
+import ACPCore
 
-public final class Messaging {
+public class Messaging {
+    @available(*, unavailable) private init() {}
     
+    public static func registerExtension() {
+        do {
+            try ACPCore.registerExtension(MessagingInternal.self)
+        } catch {
+            ACPCore.log(ACPMobileLogLevel.warning, tag:MessagingConstants.logTag, message: "Extension registration failure.")
+        }
+    }
+    
+    public static func extensionVersion() -> String {
+        return MessagingConstants.version
+    }
 }
