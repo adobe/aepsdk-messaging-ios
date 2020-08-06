@@ -1,0 +1,18 @@
+PODS:
+  - ACPCore (2.6.1):
+    - ACPCore/iOS (= 2.6.1)
+  - ACPCore/iOS (2.6.1)
+
+DEPENDENCIES:
+  - ACPCore
+
+SPEC REPOS:
+  trunk:
+    - ACPCore
+
+SPEC CHECKSUMS:
+  ACPCore: e2f2ff66174350cdc00387a2ca74ac4f77ea3ba0
+
+PODFILE CHECKSUM: 8cc4a5642b8f489b79cb440fa4c1efadb82503de
+
+COCOAPODS: 1.8.4

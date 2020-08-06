@@ -7,10 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		09DF8E992A13B8F3A1726C69 /* Pods_ACPMessaging_ACPMessagingTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D469D0AC13411147A951684E /* Pods_ACPMessaging_ACPMessagingTests.framework */; };
+		133B1F0D0CA846959EBF5319 /* Pods_ACPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F9289E3020F0E6F81551653 /* Pods_ACPMessaging.framework */; };
 		246818E4247DCB7500E0127D /* ACPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 246818DA247DCB7500E0127D /* ACPMessaging.framework */; };
 		246818E9247DCB7500E0127D /* ACPMessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246818E8247DCB7500E0127D /* ACPMessagingTests.swift */; };
 		246818EB247DCB7500E0127D /* ACPMessaging.h in Headers */ = {isa = PBXBuildFile; fileRef = 246818DD247DCB7500E0127D /* ACPMessaging.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		246818F5247DCBFE00E0127D /* Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246818F4247DCBFE00E0127D /* Messaging.swift */; };
+		246818F72485C12600E0127D /* MessagingInternal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246818F62485C12600E0127D /* MessagingInternal.swift */; };
+		246818F92485C20B00E0127D /* MessagingRequestListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246818F82485C20B00E0127D /* MessagingRequestListener.swift */; };
+		246818FB2485C21600E0127D /* MessagingResponseListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246818FA2485C21600E0127D /* MessagingResponseListener.swift */; };
+		246818FD2485C23900E0127D /* MessagingConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246818FC2485C23900E0127D /* MessagingConstants.swift */; };
+		246819042486CA9800E0127D /* AnyCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246819012486CA9800E0127D /* AnyCodable.swift */; };
+		246819052486CA9800E0127D /* OperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246819022486CA9800E0127D /* OperationQueue.swift */; };
+		246819062486CA9800E0127D /* ThreadSafeDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246819032486CA9800E0127D /* ThreadSafeDictionary.swift */; };
+		2468191124885BDB00E0127D /* NamedUserDefaultsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468190824885BDB00E0127D /* NamedUserDefaultsStore.swift */; };
+		2468191224885BDB00E0127D /* AEPServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468190924885BDB00E0127D /* AEPServiceProvider.swift */; };
+		2468191324885BDB00E0127D /* AEPNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468190B24885BDB00E0127D /* AEPNetworkService.swift */; };
+		2468191424885BDB00E0127D /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468190C24885BDB00E0127D /* NetworkService.swift */; };
+		2468191524885BDB00E0127D /* HttpMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468190D24885BDB00E0127D /* HttpMethod.swift */; };
+		2468191624885BDB00E0127D /* HttpConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468190E24885BDB00E0127D /* HttpConnection.swift */; };
+		2468191724885BDB00E0127D /* NetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468190F24885BDB00E0127D /* NetworkRequest.swift */; };
+		2468191824885BDB00E0127D /* KeyValueStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468191024885BDB00E0127D /* KeyValueStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -24,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1B8E01BAD37CED4AA79EDBDE /* Pods-ACPMessaging-ACPMessagingTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ACPMessaging-ACPMessagingTests.release.xcconfig"; path = "Target Support Files/Pods-ACPMessaging-ACPMessagingTests/Pods-ACPMessaging-ACPMessagingTests.release.xcconfig"; sourceTree = "<group>"; };
 		246818DA247DCB7500E0127D /* ACPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ACPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		246818DD247DCB7500E0127D /* ACPMessaging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ACPMessaging.h; sourceTree = "<group>"; };
 		246818DE247DCB7500E0127D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -31,6 +49,26 @@
 		246818E8247DCB7500E0127D /* ACPMessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ACPMessagingTests.swift; sourceTree = "<group>"; };
 		246818EA247DCB7500E0127D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		246818F4247DCBFE00E0127D /* Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Messaging.swift; sourceTree = "<group>"; };
+		246818F62485C12600E0127D /* MessagingInternal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingInternal.swift; sourceTree = "<group>"; };
+		246818F82485C20B00E0127D /* MessagingRequestListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRequestListener.swift; sourceTree = "<group>"; };
+		246818FA2485C21600E0127D /* MessagingResponseListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingResponseListener.swift; sourceTree = "<group>"; };
+		246818FC2485C23900E0127D /* MessagingConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingConstants.swift; sourceTree = "<group>"; };
+		246819012486CA9800E0127D /* AnyCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyCodable.swift; sourceTree = "<group>"; };
+		246819022486CA9800E0127D /* OperationQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationQueue.swift; sourceTree = "<group>"; };
+		246819032486CA9800E0127D /* ThreadSafeDictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThreadSafeDictionary.swift; sourceTree = "<group>"; };
+		2468190824885BDB00E0127D /* NamedUserDefaultsStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NamedUserDefaultsStore.swift; sourceTree = "<group>"; };
+		2468190924885BDB00E0127D /* AEPServiceProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AEPServiceProvider.swift; sourceTree = "<group>"; };
+		2468190B24885BDB00E0127D /* AEPNetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AEPNetworkService.swift; sourceTree = "<group>"; };
+		2468190C24885BDB00E0127D /* NetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		2468190D24885BDB00E0127D /* HttpMethod.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpMethod.swift; sourceTree = "<group>"; };
+		2468190E24885BDB00E0127D /* HttpConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpConnection.swift; sourceTree = "<group>"; };
+		2468190F24885BDB00E0127D /* NetworkRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkRequest.swift; sourceTree = "<group>"; };
+		2468191024885BDB00E0127D /* KeyValueStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyValueStore.swift; sourceTree = "<group>"; };
+		47E532287A4DAFF0F17146BA /* Pods-ACPMessaging.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ACPMessaging.debug.xcconfig"; path = "Target Support Files/Pods-ACPMessaging/Pods-ACPMessaging.debug.xcconfig"; sourceTree = "<group>"; };
+		5F9289E3020F0E6F81551653 /* Pods_ACPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ACPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B7AA4C036FC09F71E97CCD5A /* Pods-ACPMessaging.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ACPMessaging.release.xcconfig"; path = "Target Support Files/Pods-ACPMessaging/Pods-ACPMessaging.release.xcconfig"; sourceTree = "<group>"; };
+		BEABEC668C1738A6B1DEE6EA /* Pods-ACPMessaging-ACPMessagingTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ACPMessaging-ACPMessagingTests.debug.xcconfig"; path = "Target Support Files/Pods-ACPMessaging-ACPMessagingTests/Pods-ACPMessaging-ACPMessagingTests.debug.xcconfig"; sourceTree = "<group>"; };
+		D469D0AC13411147A951684E /* Pods_ACPMessaging_ACPMessagingTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ACPMessaging_ACPMessagingTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				133B1F0D0CA846959EBF5319 /* Pods_ACPMessaging.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,6 +85,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				246818E4247DCB7500E0127D /* ACPMessaging.framework in Frameworks */,
+				09DF8E992A13B8F3A1726C69 /* Pods_ACPMessaging_ACPMessagingTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,6 +98,8 @@
 				246818DC247DCB7500E0127D /* ACPMessaging */,
 				246818E7247DCB7500E0127D /* ACPMessagingTests */,
 				246818DB247DCB7500E0127D /* Products */,
+				C089216DE08017298AC14A4B /* Pods */,
+				346FAD520A99A9DE8DC2258F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -73,8 +115,10 @@
 		246818DC247DCB7500E0127D /* ACPMessaging */ = {
 			isa = PBXGroup;
 			children = (
-				246818DD247DCB7500E0127D /* ACPMessaging.h */,
-				246818F4247DCBFE00E0127D /* Messaging.swift */,
+				246818FF2485C2A400E0127D /* internal */,
+				246818FE2485C28300E0127D /* public */,
+				2468190724885BAF00E0127D /* services */,
+				246819002486CA7500E0127D /* util */,
 				246818DE247DCB7500E0127D /* Info.plist */,
 			);
 			path = ACPMessaging;
@@ -87,6 +131,79 @@
 				246818EA247DCB7500E0127D /* Info.plist */,
 			);
 			path = ACPMessagingTests;
+			sourceTree = "<group>";
+		};
+		246818FE2485C28300E0127D /* public */ = {
+			isa = PBXGroup;
+			children = (
+				246818F4247DCBFE00E0127D /* Messaging.swift */,
+				246818DD247DCB7500E0127D /* ACPMessaging.h */,
+			);
+			path = public;
+			sourceTree = "<group>";
+		};
+		246818FF2485C2A400E0127D /* internal */ = {
+			isa = PBXGroup;
+			children = (
+				246818FC2485C23900E0127D /* MessagingConstants.swift */,
+				246818F62485C12600E0127D /* MessagingInternal.swift */,
+				246818F82485C20B00E0127D /* MessagingRequestListener.swift */,
+				246818FA2485C21600E0127D /* MessagingResponseListener.swift */,
+			);
+			path = internal;
+			sourceTree = "<group>";
+		};
+		246819002486CA7500E0127D /* util */ = {
+			isa = PBXGroup;
+			children = (
+				246819012486CA9800E0127D /* AnyCodable.swift */,
+				246819022486CA9800E0127D /* OperationQueue.swift */,
+				246819032486CA9800E0127D /* ThreadSafeDictionary.swift */,
+			);
+			path = util;
+			sourceTree = "<group>";
+		};
+		2468190724885BAF00E0127D /* services */ = {
+			isa = PBXGroup;
+			children = (
+				2468190A24885BDB00E0127D /* NetworkService */,
+				2468190924885BDB00E0127D /* AEPServiceProvider.swift */,
+				2468191024885BDB00E0127D /* KeyValueStore.swift */,
+				2468190824885BDB00E0127D /* NamedUserDefaultsStore.swift */,
+			);
+			path = services;
+			sourceTree = "<group>";
+		};
+		2468190A24885BDB00E0127D /* NetworkService */ = {
+			isa = PBXGroup;
+			children = (
+				2468190B24885BDB00E0127D /* AEPNetworkService.swift */,
+				2468190C24885BDB00E0127D /* NetworkService.swift */,
+				2468190D24885BDB00E0127D /* HttpMethod.swift */,
+				2468190E24885BDB00E0127D /* HttpConnection.swift */,
+				2468190F24885BDB00E0127D /* NetworkRequest.swift */,
+			);
+			path = NetworkService;
+			sourceTree = "<group>";
+		};
+		346FAD520A99A9DE8DC2258F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5F9289E3020F0E6F81551653 /* Pods_ACPMessaging.framework */,
+				D469D0AC13411147A951684E /* Pods_ACPMessaging_ACPMessagingTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C089216DE08017298AC14A4B /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				47E532287A4DAFF0F17146BA /* Pods-ACPMessaging.debug.xcconfig */,
+				B7AA4C036FC09F71E97CCD5A /* Pods-ACPMessaging.release.xcconfig */,
+				BEABEC668C1738A6B1DEE6EA /* Pods-ACPMessaging-ACPMessagingTests.debug.xcconfig */,
+				1B8E01BAD37CED4AA79EDBDE /* Pods-ACPMessaging-ACPMessagingTests.release.xcconfig */,
+			);
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -107,6 +224,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 246818EE247DCB7500E0127D /* Build configuration list for PBXNativeTarget "ACPMessaging" */;
 			buildPhases = (
+				1FBD190F0F45BBF63AD0B170 /* [CP] Check Pods Manifest.lock */,
 				246818D5247DCB7500E0127D /* Headers */,
 				246818D6247DCB7500E0127D /* Sources */,
 				246818D7247DCB7500E0127D /* Frameworks */,
@@ -125,6 +243,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 246818F1247DCB7500E0127D /* Build configuration list for PBXNativeTarget "ACPMessagingTests" */;
 			buildPhases = (
+				407969A084F36BDA9D06F80B /* [CP] Check Pods Manifest.lock */,
 				246818DF247DCB7500E0127D /* Sources */,
 				246818E0247DCB7500E0127D /* Frameworks */,
 				246818E1247DCB7500E0127D /* Resources */,
@@ -194,12 +313,74 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		1FBD190F0F45BBF63AD0B170 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ACPMessaging-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		407969A084F36BDA9D06F80B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ACPMessaging-ACPMessagingTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		246818D6247DCB7500E0127D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				246819052486CA9800E0127D /* OperationQueue.swift in Sources */,
+				2468191824885BDB00E0127D /* KeyValueStore.swift in Sources */,
+				246818F92485C20B00E0127D /* MessagingRequestListener.swift in Sources */,
+				2468191524885BDB00E0127D /* HttpMethod.swift in Sources */,
+				246819062486CA9800E0127D /* ThreadSafeDictionary.swift in Sources */,
+				2468191724885BDB00E0127D /* NetworkRequest.swift in Sources */,
+				2468191324885BDB00E0127D /* AEPNetworkService.swift in Sources */,
+				246818FB2485C21600E0127D /* MessagingResponseListener.swift in Sources */,
 				246818F5247DCBFE00E0127D /* Messaging.swift in Sources */,
+				246818F72485C12600E0127D /* MessagingInternal.swift in Sources */,
+				246818FD2485C23900E0127D /* MessagingConstants.swift in Sources */,
+				2468191224885BDB00E0127D /* AEPServiceProvider.swift in Sources */,
+				2468191124885BDB00E0127D /* NamedUserDefaultsStore.swift in Sources */,
+				2468191424885BDB00E0127D /* NetworkService.swift in Sources */,
+				246819042486CA9800E0127D /* AnyCodable.swift in Sources */,
+				2468191624885BDB00E0127D /* HttpConnection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -344,6 +525,7 @@
 		};
 		246818EF247DCB7500E0127D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 47E532287A4DAFF0F17146BA /* Pods-ACPMessaging.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -369,6 +551,7 @@
 		};
 		246818F0247DCB7500E0127D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B7AA4C036FC09F71E97CCD5A /* Pods-ACPMessaging.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -393,6 +576,7 @@
 		};
 		246818F2247DCB7500E0127D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BEABEC668C1738A6B1DEE6EA /* Pods-ACPMessaging-ACPMessagingTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -411,6 +595,7 @@
 		};
 		246818F3247DCB7500E0127D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1B8E01BAD37CED4AA79EDBDE /* Pods-ACPMessaging-ACPMessagingTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
