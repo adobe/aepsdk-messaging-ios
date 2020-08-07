@@ -23,7 +23,7 @@ class MessagingRequestListener : ACPExtensionListener {
         }
         
         // Handle SharedState events
-        if event.eventType == MessagingConstants.EventType.hub {
+        if event.eventType == MessagingConstants.EventTypes.hub {
             guard let eventData = event.eventData else {
                 ACPCore.log(ACPMobileLogLevel.debug, tag: MessagingConstants.logTag, message: "Ignoring event with no data (\(event.eventUniqueIdentifier)).")
                 return
@@ -32,14 +32,14 @@ class MessagingRequestListener : ACPExtensionListener {
             let stateOwner = eventData[MessagingConstants.SharedState.stateOwner] as? String
             if stateOwner == MessagingConstants.SharedState.Configuration.name {
                 // kick event queue processing
-                parentExtension.processEventQueue(event)
+                parentExtension.kickRequestQueue()
             }
-        } else if event.eventType == MessagingConstants.EventType.genericIdentity && event.eventSource == MessagingConstants.EventSource.requestContent {
+        } else if event.eventType == MessagingConstants.EventTypes.genericIdentity && event.eventSource == MessagingConstants.EventSources.requestContent {
             // handle set push identifier calls
-            parentExtension.handleSetPushIdentifier(event)
-        } else if event.eventType == MessagingConstants.EventType.genericData && event.eventSource == MessagingConstants.EventSource.os {
+            parentExtension.addToRequestQueue(event)
+        } else if event.eventType == MessagingConstants.EventTypes.genericData && event.eventSource == MessagingConstants.EventSources.os {
             // handle collect message info calls
-            parentExtension.handleCollectMessageInfo(event)
+            parentExtension.addToRequestQueue(event)
         }
     }
 }
