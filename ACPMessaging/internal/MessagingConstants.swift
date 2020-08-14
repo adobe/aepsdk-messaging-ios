@@ -77,12 +77,12 @@ https://github.com/adobe/xdm/blob/master/schemas/context/profile-push-notificati
  */
     
     struct Temp {
-        static let dccsEndpoint = "https://dcs.adobedc.net/collection/a4a946939737c99b4d09d43c570266d42d2ef62546aa84fe894bac71d8bf98f1"
-        static let schemaUrl = "https://ns.adobe.com/acopprod1/schemas/28b3d7114b095f6aff015a71a6d6667a5f466fc7c9826000"
-        static let orgId = "3E2A28175B8ED3720A495E23@AdobeOrg"
-        static let datasetId = "5ee2aa2f239d341915e991ea"
+        static let dccsEndpoint = "https://dcs.adobedc.net/collection/7b0a69f4d9563b792f41c8c7433d37ad5fa58f47ea1719c963c8501bf779e827"
+        static let schemaUrl = "https://ns.adobe.com/acopprod3/schemas/393fe4b3364b0856c909a6476260d45f10b360b058e93caa"
+        static let orgId = "FAF554945B90342F0A495E2C@AdobeOrg"
+        static let datasetId = "5ef3e83e6919231915e11ca1"
         
-        static let postBodyBase = "{\"header\":{\"schemaRef\":{\"id\":\"%@\",\"contentType\":\"application/vnd.adobe.xed-full+json;version=1.28\"},\"imsOrgId\":\"%@\",\"source\":{\"name\":\"mobile\"},\"datasetId\":\"%@\"},\"body\":{\"xdmMeta\":{\"schemaRef\":{\"id\":\"%@\",\"contentType\":\"application/vnd.adobe.xed-full+json;version=1.28\"}},\"xdmEntity\":{\"_acopprod1\":{\"primaryid\":\"%@\"},\"pushNotificationDetails\":[{\"appID\":\"com.mobile.messagingTest\",\"platform\":\"apns\",\"token\":\"%@\",\"blacklisted\":false,\"identiy\":{\"namespace\":{\"code\":\"ECID\"},\"xid\":\"%@\"}}]}}}"
+        static let postBodyBase = "{\"header\":{\"schemaRef\":{\"id\":\"%@\",\"contentType\":\"application/vnd.adobe.xed-full+json;version=1.28\"},\"imsOrgId\":\"%@\",\"source\":{\"name\":\"mobile\"},\"datasetId\":\"%@\"},\"body\":{\"xdmMeta\":{\"schemaRef\":{\"id\":\"%@\",\"contentType\":\"application/vnd.adobe.xed-full+json;version=1.28\"}},\"xdmEntity\":{\"_acopprod3\":{\"ECID\":\"%@\"},\"pushNotificationDetails\":[{\"appID\":\"com.mobile.messagingTest\",\"platform\":\"apns\",\"token\":\"%@\",\"blocklisted\":false,\"identity\":{\"namespace\":{\"code\":\"ECID\"},\"xid\":\"%@\"}}]}}}"
         
         // push
         static let pushNotificationDetails = "pushNotificationDetails"
