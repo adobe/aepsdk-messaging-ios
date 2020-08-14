@@ -139,8 +139,11 @@ class MessagingInternal : ACPExtension {
     }
     
     private func configIsValid(_ config: [AnyHashable : Any]) -> Bool {
+        
+        return true
+        
         // temporary implementation for dccs hack for collecting push tokens
-        return config.keys.contains(MessagingConstants.SharedState.Configuration.dccsHackEndpoint)
+//        return config.keys.contains(MessagingConstants.SharedState.Configuration.dccsHackEndpoint)
     }
     
     /// Helper to get shared state of another extension.
@@ -166,10 +169,11 @@ class MessagingInternal : ACPExtension {
     
     private func tempSendToDccs(_ config: [AnyHashable : Any], identity: [AnyHashable : Any], event: ACPExtensionEvent) -> Bool {
         // get the endpoint
-        guard let dccsEndpoint = config[MessagingConstants.SharedState.Configuration.dccsHackEndpoint] as? String else {
-            ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Cannot process event that does not have a DCCS Endpoint - '\(event.eventUniqueIdentifier)'.")
-            return true
-        }
+        // TODO: if we want to let this be configurable, uncomment below
+//        guard let dccsEndpoint = config[MessagingConstants.SharedState.Configuration.dccsHackEndpoint] as? String else {
+//            ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Cannot process event that does not have a DCCS Endpoint - '\(event.eventUniqueIdentifier)'.")
+//            return true
+//        }
         
         // get ecid
         guard let ecid = identity[MessagingConstants.SharedState.Identity.ecid] as? String else {
@@ -184,7 +188,7 @@ class MessagingInternal : ACPExtension {
         }
         
         // generate the url
-        guard let url = URL(string:dccsEndpoint) else {
+        guard let url = URL(string:MessagingConstants.Temp.dccsEndpoint) else {
             ACPCore.log(ACPMobileLogLevel.warning, tag: MessagingConstants.logTag, message: "DCCS endpoint is invalid. All requests to sync with profile will fail.")
             return true
         }
@@ -202,10 +206,14 @@ class MessagingInternal : ACPExtension {
                                      connectTimeout: 5.0,
                                      readTimeout: 5.0)
         
+        ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Syncing push token to DCCS - url: \(url)  payload: \(postBodyString)")
+        
         AEPServiceProvider.shared.networkService.connectAsync(networkRequest: request) { (connection: HttpConnection) in
             if connection.error != nil {
                 ACPCore.log(ACPMobileLogLevel.warning, tag: MessagingConstants.logTag, message: "Error sending push token to profile - \(connection.error!.localizedDescription).")
                 return
+            } else {
+                ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Push Token \(token) synced for ECID \(ecid)")
             }
         }
         

@@ -5,6 +5,9 @@
       location = "group:ACPMessaging.xcodeproj">
    </FileRef>
    <FileRef
+      location = "group:ACPMessagingTester/ACPMessagingTester.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:Pods/Pods.xcodeproj">
    </FileRef>
 </Workspace>
