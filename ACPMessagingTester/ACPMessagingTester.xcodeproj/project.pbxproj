@@ -17,7 +17,6 @@
 		2468194A24A172D800E0127D /* ACPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2468194824A172D800E0127D /* ACPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2468194D24A172F800E0127D /* Pods_ACPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2468194C24A172F800E0127D /* Pods_ACPMessaging.framework */; };
 		2468194E24A172F800E0127D /* Pods_ACPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2468194C24A172F800E0127D /* Pods_ACPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		922D596F24ECD27E004B1BA9 /* ADBMobileConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 922D596E24ECD27E004B1BA9 /* ADBMobileConfig.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,7 +46,6 @@
 		2468194824A172D800E0127D /* ACPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ACPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2468194C24A172F800E0127D /* Pods_ACPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_ACPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2468194F24A2643F00E0127D /* ACPMessagingTester.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ACPMessagingTester.entitlements; sourceTree = "<group>"; };
-		922D596E24ECD27E004B1BA9 /* ADBMobileConfig.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ADBMobileConfig.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,7 +81,6 @@
 		2468193224A172A800E0127D /* ACPMessagingTester */ = {
 			isa = PBXGroup;
 			children = (
-				922D596D24ECD247004B1BA9 /* Assets */,
 				2468194F24A2643F00E0127D /* ACPMessagingTester.entitlements */,
 				2468193324A172A800E0127D /* AppDelegate.swift */,
 				2468193524A172A800E0127D /* SceneDelegate.swift */,
@@ -103,14 +100,6 @@
 				2468194824A172D800E0127D /* ACPMessaging.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		922D596D24ECD247004B1BA9 /* Assets */ = {
-			isa = PBXGroup;
-			children = (
-				922D596E24ECD27E004B1BA9 /* ADBMobileConfig.json */,
-			);
-			path = Assets;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -173,7 +162,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2468194024A172AF00E0127D /* LaunchScreen.storyboard in Resources */,
-				922D596F24ECD27E004B1BA9 /* ADBMobileConfig.json in Resources */,
 				2468193D24A172AF00E0127D /* Assets.xcassets in Resources */,
 				2468193B24A172A900E0127D /* Main.storyboard in Resources */,
 			);

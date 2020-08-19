@@ -17,11 +17,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         ACPCore.setLogLevel(ACPMobileLogLevel.verbose)
-        //ACPCore.configure(withAppId: "6b950314aeba/d3fa682607f9/launch-ced58e382002-development")
         
-        let filePath = Bundle.main.path(forResource: "ADBMobileConfig", ofType: "json")
-        ACPCore.configureWithFile(inPath: filePath)
-        
+        // Necessary property id for "MessagingSDKTest" which has the edge configuration id needed by aep sdk
+        ACPCore.configure(withAppId: "3805cb8645dd/b8dec0fe156d/launch-7dfbe727ca00-development")
+                
         ACPLifecycle.registerExtension()
         ACPIdentity.registerExtension()
         Messaging.registerExtension()
