@@ -1,0 +1,91 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.1 (swiftlang-1100.0.270.13 clang-1100.0.33.7)
+// swift-module-flags: -target armv7-apple-ios10.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name AEPExperiencePlatform
+import ACPCore
+import Foundation
+import Swift
+public class AEPServiceProvider {
+  public static let shared: AEPExperiencePlatform.AEPServiceProvider
+  public var networkService: AEPExperiencePlatform.NetworkService {
+    get
+    set
+  }
+  @objc deinit
+}
+public protocol XDMSchema : Swift.Encodable {
+  var schemaVersion: Swift.String { get }
+  var schemaIdentifier: Swift.String { get }
+  var datasetIdentifier: Swift.String { get }
+}
+public class ExperiencePlatform {
+  public static func registerExtension()
+  public static func sendEvent(experiencePlatformEvent: AEPExperiencePlatform.ExperiencePlatformEvent, responseHandler: AEPExperiencePlatform.ExperiencePlatformResponseHandler? = nil)
+  @objc deinit
+}
+@objc public enum HttpMethod : Swift.Int {
+  case get
+  case post
+  public typealias RawValue = Swift.Int
+  public init?(rawValue: Swift.Int)
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public protocol NetworkService {
+  func connectAsync(networkRequest: AEPExperiencePlatform.NetworkRequest, completionHandler: ((AEPExperiencePlatform.HttpConnection) -> Swift.Void)?)
+}
+public protocol ExperiencePlatformResponseHandler {
+  func onResponse(data: [Swift.String : Any])
+}
+public enum NetworkServiceError : Swift.Error {
+  case invalidUrl
+  public static func == (a: AEPExperiencePlatform.NetworkServiceError, b: AEPExperiencePlatform.NetworkServiceError) -> Swift.Bool
+  public var hashValue: Swift.Int {
+    get
+  }
+  public func hash(into hasher: inout Swift.Hasher)
+}
+public struct HttpConnection {
+  public let data: Foundation.Data?
+  public let response: Foundation.HTTPURLResponse?
+  public let error: Swift.Error?
+  public init(data: Foundation.Data?, response: Foundation.HTTPURLResponse?, error: Swift.Error?)
+}
+extension HttpConnection {
+  public var responseString: Swift.String? {
+    get
+  }
+  public var responseCode: Swift.Int? {
+    get
+  }
+  public var responseMessage: Swift.String? {
+    get
+  }
+  public func responseHttpHeader(forKey: Swift.String) -> Swift.String?
+}
+public struct NetworkRequest {
+  public let url: Foundation.URL
+  public let httpMethod: AEPExperiencePlatform.HttpMethod
+  public let connectPayload: Swift.String
+  public let httpHeaders: [Swift.String : Swift.String]
+  public let connectTimeout: Foundation.TimeInterval
+  public let readTimeout: Foundation.TimeInterval
+  public init(url: Foundation.URL, httpMethod: AEPExperiencePlatform.HttpMethod = HttpMethod.get, connectPayload: Swift.String = "", httpHeaders: [Swift.String : Swift.String] = [:], connectTimeout: Foundation.TimeInterval = 5, readTimeout: Foundation.TimeInterval = 5)
+}
+public class XDMFormatters {
+  public static func dateToISO8601String(from: Foundation.Date?) -> Swift.String?
+  public static func dateToFullDateString(from: Foundation.Date?) -> Swift.String?
+  @objc deinit
+}
+public struct ExperiencePlatformEvent {
+  public let xdm: [Swift.String : Any]?
+  public let data: [Swift.String : Any]?
+  public let datasetIdentifier: Swift.String?
+  public init(xdm: [Swift.String : Any], data: [Swift.String : Any]? = nil, datasetIdentifier: Swift.String? = nil)
+  public init(xdm: AEPExperiencePlatform.XDMSchema, data: [Swift.String : Any]? = nil)
+}
+extension AEPExperiencePlatform.HttpMethod : Swift.Equatable {}
+extension AEPExperiencePlatform.HttpMethod : Swift.Hashable {}
+extension AEPExperiencePlatform.HttpMethod : Swift.RawRepresentable {}
+extension AEPExperiencePlatform.NetworkServiceError : Swift.Equatable {}
+extension AEPExperiencePlatform.NetworkServiceError : Swift.Hashable {}

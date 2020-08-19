@@ -9,6 +9,7 @@
 import UIKit
 import ACPMessaging
 import ACPCore
+import AEPExperiencePlatform
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,11 +17,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         ACPCore.setLogLevel(ACPMobileLogLevel.verbose)
-        ACPCore.configure(withAppId: "6b950314aeba/d3fa682607f9/launch-ced58e382002-development")
+        //ACPCore.configure(withAppId: "6b950314aeba/d3fa682607f9/launch-ced58e382002-development")
+        
+        let filePath = Bundle.main.path(forResource: "ADBMobileConfig", ofType: "json")
+        ACPCore.configureWithFile(inPath: filePath)
         
         ACPLifecycle.registerExtension()
         ACPIdentity.registerExtension()
         Messaging.registerExtension()
+        ExperiencePlatform.registerExtension()
         
         ACPCore.start {
             
@@ -57,6 +62,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Push Notification handling
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        print(deviceToken)
         ACPCore.setPushIdentifier(deviceToken)
     }
 
