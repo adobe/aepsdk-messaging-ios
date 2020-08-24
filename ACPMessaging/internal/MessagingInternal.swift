@@ -226,7 +226,10 @@ class MessagingInternal : ACPExtension {
         return true
     }
     
-    // Sends an experience event to the platform sdk for tracking the notification click throughs
+    /// Sends an experience event to the platform sdk for tracking the notification click-throughs
+    /// - Parameters:
+    ///   - event: The triggering event with the click through data
+    /// - Returns: A boolean explaining whether the handling of tracking info was successful or not
     private func handleTrackingInfo(event: ACPExtensionEvent) -> Bool {
         guard let eventData = event.eventData else {
             ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Unable to track information. EventData received is null.")
@@ -248,8 +251,11 @@ class MessagingInternal : ACPExtension {
         return true
     }
     
-    // Creates the xdm schema from event data.
-    private func getXdmSchema(eventData: Dictionary<AnyHashable, Any>) -> MobilePushTrackingSchemaTest? {
+    /// Creates the xdm schema from event data
+    /// - Parameters:
+    ///   - eventData: Dictionary with push notification tracking information
+    /// - Returns: MobilePushTrackingSchema xdm schema object which conatins the push click-through tracking informations
+    private func getXdmSchema(eventData: Dictionary<AnyHashable, Any>) -> MobilePushTrackingSchema? {
         let eventType = eventData["eventType"] as? String
         let id = eventData["id"] as? String
         let applicationOpened = eventData["applicationOpened"] as? Bool
@@ -260,7 +266,7 @@ class MessagingInternal : ACPExtension {
             return nil
         }
         
-        var schema = MobilePushTrackingSchemaTest()
+        var schema = MobilePushTrackingSchema()
         var acorprod3 = Acopprod3()
         var track = Track()
         var customAction = CustomAction()

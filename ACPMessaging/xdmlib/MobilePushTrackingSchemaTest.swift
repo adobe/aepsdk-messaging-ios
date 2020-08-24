@@ -25,7 +25,7 @@
 import Foundation
 import AEPExperiencePlatform
 
-public struct MobilePushTrackingSchemaTest : XDMSchema {
+struct MobilePushTrackingSchema : XDMSchema {
 	public let schemaVersion = "1.1"
 	public let schemaIdentifier = "https://ns.adobe.com/acopprod3/schemas/85b5dd380a615a51d4636b23c9b5bfeea0b1ae5514b0869d"
 	public let datasetIdentifier = "5ef4e17127870a1915d1cb95"
@@ -47,7 +47,7 @@ public struct MobilePushTrackingSchemaTest : XDMSchema {
 	}	
 }
 
-extension MobilePushTrackingSchemaTest {
+extension MobilePushTrackingSchema {
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 		if let unwrapped = Acopprod3 { try container.encode(unwrapped, forKey: .Acopprod3) }

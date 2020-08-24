@@ -20,7 +20,7 @@
 import Foundation
 
 
-public struct Track {
+struct Track {
 	public init() {}
 
 	public var applicationOpened: Bool?

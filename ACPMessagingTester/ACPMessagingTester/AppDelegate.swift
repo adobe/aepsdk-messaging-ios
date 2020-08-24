@@ -61,7 +61,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Push Notification handling
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        print(deviceToken)
+        print("Token is - ")
+        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
+        let token = tokenParts.joined()
+        print(token)
         ACPCore.setPushIdentifier(deviceToken)
     }
 

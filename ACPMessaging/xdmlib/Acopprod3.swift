@@ -20,7 +20,7 @@
 import Foundation
 
 
-public struct Acopprod3 {
+struct Acopprod3 {
 	public init() {}
 
 	public var track: Track?

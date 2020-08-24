@@ -20,7 +20,7 @@
 import Foundation
 
 
-public struct IdentityMap {
+struct IdentityMap {
 	public init() {}
 
 	public var items: Items?

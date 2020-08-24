@@ -20,7 +20,7 @@
 import Foundation
 
 
-public struct CustomAction {
+struct CustomAction {
 	public init() {}
 
 	public var actionId: String?

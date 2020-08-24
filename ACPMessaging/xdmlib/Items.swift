@@ -19,7 +19,7 @@
 
 import Foundation
 
-public struct Items {
+struct Items {
 	public init() {}
 
 	public var authenticatedState: AuthenticatedState?
