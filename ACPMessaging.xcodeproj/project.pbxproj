@@ -28,6 +28,15 @@
 		2468191624885BDB00E0127D /* HttpConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468190E24885BDB00E0127D /* HttpConnection.swift */; };
 		2468191724885BDB00E0127D /* NetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468190F24885BDB00E0127D /* NetworkRequest.swift */; };
 		2468191824885BDB00E0127D /* KeyValueStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2468191024885BDB00E0127D /* KeyValueStore.swift */; };
+		922D593D24EC6B2C004B1BA9 /* libAEPExperiencePlatform.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 922D593C24EC6B2C004B1BA9 /* libAEPExperiencePlatform.a */; };
+		922D596524ECA2C2004B1BA9 /* Items.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922D595E24ECA272004B1BA9 /* Items.swift */; };
+		922D596624ECA2C2004B1BA9 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922D595F24ECA272004B1BA9 /* Track.swift */; };
+		922D596724ECA2C2004B1BA9 /* MobilePushTrackingSchemaTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922D596024ECA272004B1BA9 /* MobilePushTrackingSchemaTest.swift */; };
+		922D596824ECA2C2004B1BA9 /* CustomAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922D596124ECA272004B1BA9 /* CustomAction.swift */; };
+		922D596924ECA2C2004B1BA9 /* Acopprod3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922D596224ECA272004B1BA9 /* Acopprod3.swift */; };
+		922D596A24ECA2C2004B1BA9 /* AuthenticatedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922D596324ECA272004B1BA9 /* AuthenticatedState.swift */; };
+		922D596B24ECA2C2004B1BA9 /* IdentityMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922D596424ECA272004B1BA9 /* IdentityMap.swift */; };
+		922D596C24ECA32C004B1BA9 /* libAEPExperiencePlatform.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 922D593A24EC6A5D004B1BA9 /* libAEPExperiencePlatform.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +75,15 @@
 		2468191024885BDB00E0127D /* KeyValueStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyValueStore.swift; sourceTree = "<group>"; };
 		47E532287A4DAFF0F17146BA /* Pods-ACPMessaging.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ACPMessaging.debug.xcconfig"; path = "Target Support Files/Pods-ACPMessaging/Pods-ACPMessaging.debug.xcconfig"; sourceTree = "<group>"; };
 		5F9289E3020F0E6F81551653 /* Pods_ACPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ACPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		922D593A24EC6A5D004B1BA9 /* libAEPExperiencePlatform.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAEPExperiencePlatform.a; path = "../../AdobeExperiencePlatform-ExperienceEdge-MobileSDK/iOS/lib/libAEPExperiencePlatform.a"; sourceTree = "<group>"; };
+		922D593C24EC6B2C004B1BA9 /* libAEPExperiencePlatform.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAEPExperiencePlatform.a; path = libs/libAEPExperiencePlatform.a; sourceTree = "<group>"; };
+		922D595E24ECA272004B1BA9 /* Items.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Items.swift; sourceTree = "<group>"; };
+		922D595F24ECA272004B1BA9 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
+		922D596024ECA272004B1BA9 /* MobilePushTrackingSchemaTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobilePushTrackingSchemaTest.swift; sourceTree = "<group>"; };
+		922D596124ECA272004B1BA9 /* CustomAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAction.swift; sourceTree = "<group>"; };
+		922D596224ECA272004B1BA9 /* Acopprod3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Acopprod3.swift; sourceTree = "<group>"; };
+		922D596324ECA272004B1BA9 /* AuthenticatedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedState.swift; sourceTree = "<group>"; };
+		922D596424ECA272004B1BA9 /* IdentityMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityMap.swift; sourceTree = "<group>"; };
 		B7AA4C036FC09F71E97CCD5A /* Pods-ACPMessaging.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ACPMessaging.release.xcconfig"; path = "Target Support Files/Pods-ACPMessaging/Pods-ACPMessaging.release.xcconfig"; sourceTree = "<group>"; };
 		BEABEC668C1738A6B1DEE6EA /* Pods-ACPMessaging-ACPMessagingTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ACPMessaging-ACPMessagingTests.debug.xcconfig"; path = "Target Support Files/Pods-ACPMessaging-ACPMessagingTests/Pods-ACPMessaging-ACPMessagingTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D469D0AC13411147A951684E /* Pods_ACPMessaging_ACPMessagingTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ACPMessaging_ACPMessagingTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -76,7 +94,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				922D593D24EC6B2C004B1BA9 /* libAEPExperiencePlatform.a in Frameworks */,
 				133B1F0D0CA846959EBF5319 /* Pods_ACPMessaging.framework in Frameworks */,
+				922D596C24ECA32C004B1BA9 /* libAEPExperiencePlatform.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +135,7 @@
 		246818DC247DCB7500E0127D /* ACPMessaging */ = {
 			isa = PBXGroup;
 			children = (
+				922D595D24ECA272004B1BA9 /* xdmlib */,
 				246818FF2485C2A400E0127D /* internal */,
 				246818FE2485C28300E0127D /* public */,
 				2468190724885BAF00E0127D /* services */,
@@ -189,10 +210,26 @@
 		346FAD520A99A9DE8DC2258F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				922D593A24EC6A5D004B1BA9 /* libAEPExperiencePlatform.a */,
+				922D593C24EC6B2C004B1BA9 /* libAEPExperiencePlatform.a */,
 				5F9289E3020F0E6F81551653 /* Pods_ACPMessaging.framework */,
 				D469D0AC13411147A951684E /* Pods_ACPMessaging_ACPMessagingTests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		922D595D24ECA272004B1BA9 /* xdmlib */ = {
+			isa = PBXGroup;
+			children = (
+				922D595E24ECA272004B1BA9 /* Items.swift */,
+				922D595F24ECA272004B1BA9 /* Track.swift */,
+				922D596024ECA272004B1BA9 /* MobilePushTrackingSchemaTest.swift */,
+				922D596124ECA272004B1BA9 /* CustomAction.swift */,
+				922D596224ECA272004B1BA9 /* Acopprod3.swift */,
+				922D596324ECA272004B1BA9 /* AuthenticatedState.swift */,
+				922D596424ECA272004B1BA9 /* IdentityMap.swift */,
+			);
+			path = xdmlib;
 			sourceTree = "<group>";
 		};
 		C089216DE08017298AC14A4B /* Pods */ = {
@@ -365,17 +402,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				922D596524ECA2C2004B1BA9 /* Items.swift in Sources */,
 				246819052486CA9800E0127D /* OperationQueue.swift in Sources */,
 				2468191824885BDB00E0127D /* KeyValueStore.swift in Sources */,
+				922D596724ECA2C2004B1BA9 /* MobilePushTrackingSchemaTest.swift in Sources */,
+				922D596924ECA2C2004B1BA9 /* Acopprod3.swift in Sources */,
+				922D596A24ECA2C2004B1BA9 /* AuthenticatedState.swift in Sources */,
 				246818F92485C20B00E0127D /* MessagingRequestListener.swift in Sources */,
 				2468191524885BDB00E0127D /* HttpMethod.swift in Sources */,
+				922D596624ECA2C2004B1BA9 /* Track.swift in Sources */,
 				246819062486CA9800E0127D /* ThreadSafeDictionary.swift in Sources */,
 				2468191724885BDB00E0127D /* NetworkRequest.swift in Sources */,
 				2468191324885BDB00E0127D /* AEPNetworkService.swift in Sources */,
 				246818FB2485C21600E0127D /* MessagingResponseListener.swift in Sources */,
+				922D596B24ECA2C2004B1BA9 /* IdentityMap.swift in Sources */,
 				246818F5247DCBFE00E0127D /* Messaging.swift in Sources */,
 				246818F72485C12600E0127D /* MessagingInternal.swift in Sources */,
 				246818FD2485C23900E0127D /* MessagingConstants.swift in Sources */,
+				922D596824ECA2C2004B1BA9 /* CustomAction.swift in Sources */,
 				2468191224885BDB00E0127D /* AEPServiceProvider.swift in Sources */,
 				2468191124885BDB00E0127D /* NamedUserDefaultsStore.swift in Sources */,
 				2468191424885BDB00E0127D /* NetworkService.swift in Sources */,
@@ -540,9 +584,14 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/libs",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.ACPMessaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/libs/**";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -566,9 +615,14 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/libs",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.ACPMessaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/libs/**";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

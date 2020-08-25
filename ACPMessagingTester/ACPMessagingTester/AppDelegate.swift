@@ -9,6 +9,7 @@
 import UIKit
 import ACPMessaging
 import ACPCore
+import AEPExperiencePlatform
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,11 +17,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         ACPCore.setLogLevel(ACPMobileLogLevel.verbose)
-        ACPCore.configure(withAppId: "6b950314aeba/d3fa682607f9/launch-ced58e382002-development")
         
+        // Necessary property id for "MessagingSDKTest" which has the edge configuration id needed by aep sdk
+        ACPCore.configure(withAppId: "3805cb8645dd/b8dec0fe156d/launch-7dfbe727ca00-development")
+                
         ACPLifecycle.registerExtension()
         ACPIdentity.registerExtension()
         Messaging.registerExtension()
+        ExperiencePlatform.registerExtension()
         
         ACPCore.start {
             
@@ -57,6 +61,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Push Notification handling
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        print("Token is - ")
+        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
+        let token = tokenParts.joined()
+        print(token)
         ACPCore.setPushIdentifier(deviceToken)
     }
 

@@ -12,6 +12,7 @@
 
 import Foundation
 import ACPCore
+import AEPExperiencePlatform
 
 class MessagingInternal : ACPExtension {
     // =================================================================================================================
@@ -131,6 +132,10 @@ class MessagingInternal : ACPExtension {
             return false
         }
         
+        // Check if the event type is MessagingConstants.EventTypes.genericData and eventSource is MessagingConstants.EventSources.os handle processing of the tracking information
+        if event.eventType == MessagingConstants.EventTypes.genericData && event.eventSource == MessagingConstants.EventSources.os {
+            return handleTrackingInfo(event: event)
+        }
         
         // eventually we'll use platform extension for this, but until ExEdge supports profile updates, we are forced
         // to go directly to dccs
@@ -219,5 +224,65 @@ class MessagingInternal : ACPExtension {
         
         // validate the response
         return true
+    }
+    
+    /// Sends an experience event to the platform sdk for tracking the notification click-throughs
+    /// - Parameters:
+    ///   - event: The triggering event with the click through data
+    /// - Returns: A boolean explaining whether the handling of tracking info was successful or not
+    private func handleTrackingInfo(event: ACPExtensionEvent) -> Bool {
+        guard let eventData = event.eventData else {
+            ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Unable to track information. EventData received is null.")
+            return false
+            
+        }
+        
+        let schema = getXdmSchema(eventData: eventData)
+        if schema == nil {
+            ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Unable to track information. Schema generation from eventData failed.")
+            return false
+        }
+        
+        // Creating experience event 
+        let expEvent = ExperiencePlatformEvent.init(xdm: schema!)
+        // Send experience event to aep sdk.
+        ExperiencePlatform.sendEvent(experiencePlatformEvent: expEvent)
+        
+        return true
+    }
+    
+    /// Creates the xdm schema from event data
+    /// - Parameters:
+    ///   - eventData: Dictionary with push notification tracking information
+    /// - Returns: MobilePushTrackingSchema xdm schema object which conatins the push click-through tracking informations
+    private func getXdmSchema(eventData: Dictionary<AnyHashable, Any>) -> MobilePushTrackingSchema? {
+        let eventType = eventData["eventType"] as? String
+        let id = eventData["id"] as? String
+        let applicationOpened = eventData["applicationOpened"] as? Bool
+        let actionId = eventData["actionId"] as? String
+        
+        if eventType == nil || eventType?.isEmpty == true || id == nil || id?.isEmpty == true {
+            ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Unable to track information. EventType or MessageId received is null.")
+            return nil
+        }
+        
+        var schema = MobilePushTrackingSchema()
+        var acorprod3 = Acopprod3()
+        var track = Track()
+        var customAction = CustomAction()
+        
+        if (applicationOpened == true) {
+            track.applicationOpened = true
+        } else {
+            customAction.actionId = actionId
+            track.customAction = customAction
+        }
+        
+        schema.eventType = eventType
+        track.id = id
+        acorprod3.track = track
+        schema.Acopprod3 = acorprod3
+        
+        return schema
     }
 }

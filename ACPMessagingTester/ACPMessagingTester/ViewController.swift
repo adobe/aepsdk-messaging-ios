@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import ACPMessaging
+import ACPCore
 
 class ViewController: UIViewController {
 
@@ -16,5 +18,9 @@ class ViewController: UIViewController {
     }
 
 
+    @IBAction func collectMessageInfo(_ sender: Any) {
+        let dict = ["eventType":"track.applicationOpened", "id":"31369", "applicationOpened":true] as [String : Any]
+        ACPCore.collectMessageInfo(dict)
+    }
 }
 
