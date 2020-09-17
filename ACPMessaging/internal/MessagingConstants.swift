@@ -76,9 +76,7 @@ https://github.com/adobe/xdm/blob/master/schemas/context/profile-push-notificati
 }
  */
     
-    struct Temp {
-//        static let postBodyBase = "{\"header\":{\"schemaRef\":{\"id\":\"%@\",\"contentType\":\"application/vnd.adobe.xed-full+json;version=1.28\"},\"imsOrgId\":\"%@\",\"source\":{\"name\":\"mobile\"},\"datasetId\":\"%@\"},\"body\":{\"xdmMeta\":{\"schemaRef\":{\"id\":\"%@\",\"contentType\":\"application/vnd.adobe.xed-full+json;version=1.28\"}},\"xdmEntity\":{\"_acopprod3\":{\"ECID\":\"%@\"},\"pushNotificationDetails\":[{\"appID\":\"com.mobile.messagingTest\",\"platform\":\"apns\",\"token\":\"%@\",\"blocklisted\":false,\"identity\":{\"namespace\":{\"code\":\"ECID\"},\"xid\":\"%@\"}}]}}}"
-        
+    struct Temp {        
         static let postBodyBase = "{\n" +
         "    \"header\" : {\n" +
         "        \"imsOrgId\": \"%@\",\n" +
