@@ -77,12 +77,42 @@ https://github.com/adobe/xdm/blob/master/schemas/context/profile-push-notificati
  */
     
     struct Temp {
-        static let dccsEndpoint = "https://dcs.adobedc.net/collection/7b0a69f4d9563b792f41c8c7433d37ad5fa58f47ea1719c963c8501bf779e827"
-        static let schemaUrl = "https://ns.adobe.com/acopprod3/schemas/393fe4b3364b0856c909a6476260d45f10b360b058e93caa"
-        static let orgId = "FAF554945B90342F0A495E2C@AdobeOrg"
-        static let datasetId = "5ef3e83e6919231915e11ca1"
+//        static let postBodyBase = "{\"header\":{\"schemaRef\":{\"id\":\"%@\",\"contentType\":\"application/vnd.adobe.xed-full+json;version=1.28\"},\"imsOrgId\":\"%@\",\"source\":{\"name\":\"mobile\"},\"datasetId\":\"%@\"},\"body\":{\"xdmMeta\":{\"schemaRef\":{\"id\":\"%@\",\"contentType\":\"application/vnd.adobe.xed-full+json;version=1.28\"}},\"xdmEntity\":{\"_acopprod3\":{\"ECID\":\"%@\"},\"pushNotificationDetails\":[{\"appID\":\"com.mobile.messagingTest\",\"platform\":\"apns\",\"token\":\"%@\",\"blocklisted\":false,\"identity\":{\"namespace\":{\"code\":\"ECID\"},\"xid\":\"%@\"}}]}}}"
         
-        static let postBodyBase = "{\"header\":{\"schemaRef\":{\"id\":\"%@\",\"contentType\":\"application/vnd.adobe.xed-full+json;version=1.28\"},\"imsOrgId\":\"%@\",\"source\":{\"name\":\"mobile\"},\"datasetId\":\"%@\"},\"body\":{\"xdmMeta\":{\"schemaRef\":{\"id\":\"%@\",\"contentType\":\"application/vnd.adobe.xed-full+json;version=1.28\"}},\"xdmEntity\":{\"_acopprod3\":{\"ECID\":\"%@\"},\"pushNotificationDetails\":[{\"appID\":\"com.mobile.messagingTest\",\"platform\":\"apns\",\"token\":\"%@\",\"blocklisted\":false,\"identity\":{\"namespace\":{\"code\":\"ECID\"},\"xid\":\"%@\"}}]}}}"
+        static let postBodyBase = "{\n" +
+        "    \"header\" : {\n" +
+        "        \"imsOrgId\": \"%@\",\n" +
+        "        \"source\": {\n" +
+        "            \"name\": \"mobile\"\n" +
+        "        },\n" +
+        "        \"datasetId\": \"%@\"\n" +
+        "    },\n" +
+        "    \"body\": {\n" +
+        "        \"xdmEntity\": {\n" +
+        "            \"identityMap\": {\n" +
+        "                \"ECID\": [\n" +
+        "                    {\n" +
+        "                        \"id\" : \"%@\"\n" +
+        "                    }\n" +
+        "                ]\n" +
+        "            },\n" +
+        "            \"pushNotificationDetails\": [\n" +
+        "                {\n" +
+        "                    \"appID\": \"com.mobile.messagingTest\",\n" +
+        "                    \"platform\": \"apns\",\n" +
+        "                    \"token\": \"%@\",\n" +
+        "                    \"blocklisted\": false,\n" +
+        "                    \"identity\": {\n" +
+        "                        \"namespace\": {\n" +
+        "                            \"code\": \"ECID\"\n" +
+        "                        },\n" +
+        "                        \"xid\": \"%@\"\n" +
+        "                    }\n" +
+        "                }\n" +
+        "            ]\n" +
+        "        }\n" +
+        "    }\n" +
+        "}"
         
         // push
         static let pushNotificationDetails = "pushNotificationDetails"
@@ -113,7 +143,12 @@ https://github.com/adobe/xdm/blob/master/schemas/context/profile-push-notificati
         struct Configuration {
             static let name = "com.adobe.module.configuration"
             static let privacyStatus = "global.privacy"
-            static let dccsHackEndpoint = "messaging.dccsHack"
+            static let dccsEndpoint = "messaging.dccs"
+            static let experienceCloudOrgId = "experienceCloud.org"
+            
+            // Messaging dataset ids
+            static let profileDatasetId = "messaging.profileDataset"
+            static let experienceEventDatasetId = "messaging.eventDataset"
             
             private init() {}
         }
