@@ -206,7 +206,7 @@ class MessagingInternal : ACPExtension {
         }
         
         // send the request
-        let postBodyString = String.init(format: experienceCloudOrgId, profileDatasetId, ecid, token, ecid)
+        let postBodyString = String.init(format: MessagingConstants.Temp.postBodyBase, experienceCloudOrgId, profileDatasetId, ecid, token, ecid)
         let headers = ["Content-Type":"application/json"]
         let request = NetworkRequest(url: dccsUrl,
                                      httpMethod: .post,
