@@ -105,7 +105,7 @@ class MessagingInternal : ACPExtension {
         return handleProcessEvent(event)
     }
     
-    /// Processes the events in the event queue in teh order they were received.
+    /// Processes the events in the event queue in the order they were received.
     ///
     /// A valid Configuration shared state is required for processing events. If one is not available, the event
     /// will remain in the queue to be processed at a later time.
@@ -117,38 +117,39 @@ class MessagingInternal : ACPExtension {
     func handleProcessEvent(_ event: ACPExtensionEvent) -> Bool {
         guard let configSharedState = getSharedState(owner: MessagingConstants.SharedState.Configuration.name, event: event) else {
             ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Event processing is paused, waiting for valid configuration - '\(event.eventUniqueIdentifier)'.")
-            return false
-        }
-
-        // if we don't have valid config, we can't process the event
-        if !configIsValid(configSharedState) {
-            ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Ignoring event that does not have valid configuration - '\(event.eventUniqueIdentifier)'.")
             return true
         }
         
         // hard dependency on identity module for ecid
         guard let identitySharedState = getSharedState(owner: MessagingConstants.SharedState.Identity.name, event: event) else {
             ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Event processing is paused, waiting for valid shared state from identity - '\(event.eventUniqueIdentifier)'.")
-            return false
+            return true
+        }
+        
+        if event.eventType == MessagingConstants.EventTypes.genericIdentity && event.eventSource == MessagingConstants.EventSources.requestContent {
+             // Temp : if we don't have valid config, we can't process the event
+            if !configIsValid(configSharedState) {
+                ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Ignoring event that does not have valid configuration - '\(event.eventUniqueIdentifier)'.")
+                return true
+            }
+            
+            // eventually we'll use platform extension for this, but until ExEdge supports profile updates, we are forced
+            // to go directly to dccs
+            return tempSendToDccs(configSharedState, identity: identitySharedState, event: event)
         }
         
         // Check if the event type is MessagingConstants.EventTypes.genericData and eventSource is MessagingConstants.EventSources.os handle processing of the tracking information
-        if event.eventType == MessagingConstants.EventTypes.genericData && event.eventSource == MessagingConstants.EventSources.os {
-            return handleTrackingInfo(event: event)
+        if event.eventType == MessagingConstants.EventTypes.genericData && event.eventSource == MessagingConstants.EventSources.os && configSharedState.keys.contains(MessagingConstants.SharedState.Configuration.experienceEventDatasetId) {
+            return handleTrackingInfo(event: event, configSharedState)
         }
         
-        // eventually we'll use platform extension for this, but until ExEdge supports profile updates, we are forced
-        // to go directly to dccs
-        
-        return tempSendToDccs(configSharedState, identity: identitySharedState, event: event)
+        return true
     }
     
     private func configIsValid(_ config: [AnyHashable : Any]) -> Bool {
-        
-        return true
-        
-        // temporary implementation for dccs hack for collecting push tokens
-//        return config.keys.contains(MessagingConstants.SharedState.Configuration.dccsHackEndpoint)
+        // Temp : implementation for dccs hack for collecting push tokens
+        // If both the dccs url and profile dataset exists return true
+        return config.keys.contains(MessagingConstants.SharedState.Configuration.dccsEndpoint) && config.keys.contains(MessagingConstants.SharedState.Configuration.profileDatasetId)
     }
     
     /// Helper to get shared state of another extension.
@@ -173,12 +174,24 @@ class MessagingInternal : ACPExtension {
     }
     
     private func tempSendToDccs(_ config: [AnyHashable : Any], identity: [AnyHashable : Any], event: ACPExtensionEvent) -> Bool {
-        // get the endpoint
-        // TODO: if we want to let this be configurable, uncomment below
-//        guard let dccsEndpoint = config[MessagingConstants.SharedState.Configuration.dccsHackEndpoint] as? String else {
-//            ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Cannot process event that does not have a DCCS Endpoint - '\(event.eventUniqueIdentifier)'.")
-//            return true
-//        }
+        // Get the dccs endpoint
+        // TEMP: if we want to let this be configurable, uncomment below
+        guard let dccsUrl = URL(string:config[MessagingConstants.SharedState.Configuration.dccsEndpoint] as? String ?? "") else {
+            ACPCore.log(ACPMobileLogLevel.warning, tag: MessagingConstants.logTag, message: "DCCS endpoint is invalid. All requests to sync with profile will fail.")
+            return true
+        }
+        
+        // TEMP: Send profile DatasetId
+        guard let experienceCloudOrgId = config[MessagingConstants.SharedState.Configuration.experienceCloudOrgId] as? String else {
+            ACPCore.log(ACPMobileLogLevel.warning, tag: MessagingConstants.logTag, message: "Experience Cloud id is invalid. All requests to sync with profile will fail.")
+            return true
+        }
+        
+        // TEMP: Send profile DatasetId
+        guard let profileDatasetId = config[MessagingConstants.SharedState.Configuration.profileDatasetId] as? String else {
+            ACPCore.log(ACPMobileLogLevel.warning, tag: MessagingConstants.logTag, message: "DCCS endpoint is invalid. All requests to sync with profile will fail.")
+            return true
+        }
         
         // get ecid
         guard let ecid = identity[MessagingConstants.SharedState.Identity.ecid] as? String else {
@@ -192,26 +205,17 @@ class MessagingInternal : ACPExtension {
             return true
         }
         
-        // generate the url
-        guard let url = URL(string:MessagingConstants.Temp.dccsEndpoint) else {
-            ACPCore.log(ACPMobileLogLevel.warning, tag: MessagingConstants.logTag, message: "DCCS endpoint is invalid. All requests to sync with profile will fail.")
-            return true
-        }
-        
         // send the request
-        let postBodyString = String.init(format: MessagingConstants.Temp.postBodyBase,
-                                         MessagingConstants.Temp.schemaUrl, MessagingConstants.Temp.orgId,
-                                         MessagingConstants.Temp.datasetId, MessagingConstants.Temp.schemaUrl,
-                                         ecid, token, ecid)
+        let postBodyString = String.init(format: experienceCloudOrgId, profileDatasetId, ecid, token, ecid)
         let headers = ["Content-Type":"application/json"]
-        let request = NetworkRequest(url: url,
+        let request = NetworkRequest(url: dccsUrl,
                                      httpMethod: .post,
                                      connectPayload: postBodyString,
                                      httpHeaders: headers,
                                      connectTimeout: 5.0,
                                      readTimeout: 5.0)
         
-        ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Syncing push token to DCCS - url: \(url)  payload: \(postBodyString)")
+        ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Syncing push token to DCCS - url: \(dccsUrl)  payload: \(postBodyString)")
         
         AEPServiceProvider.shared.networkService.connectAsync(networkRequest: request) { (connection: HttpConnection) in
             if connection.error != nil {
@@ -230,21 +234,31 @@ class MessagingInternal : ACPExtension {
     /// - Parameters:
     ///   - event: The triggering event with the click through data
     /// - Returns: A boolean explaining whether the handling of tracking info was successful or not
-    private func handleTrackingInfo(event: ACPExtensionEvent) -> Bool {
+    private func handleTrackingInfo(event: ACPExtensionEvent, _ config: [AnyHashable : Any]) -> Bool {
         guard let eventData = event.eventData else {
             ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Unable to track information. EventData received is null.")
-            return false
-            
+            return true
+        }
+        
+        // TEMP: Send experience event DatasetId
+        guard let expEventDatasetId = config[MessagingConstants.SharedState.Configuration.experienceEventDatasetId] as? String else {
+            ACPCore.log(ACPMobileLogLevel.warning, tag: MessagingConstants.logTag, message: "DCCS endpoint is invalid. All requests to sync with profile will fail.")
+            return true
         }
         
         let schema = getXdmSchema(eventData: eventData)
         if schema == nil {
             ACPCore.log(ACPMobileLogLevel.verbose, tag: MessagingConstants.logTag, message: "Unable to track information. Schema generation from eventData failed.")
-            return false
+            return true
+        }
+        
+        let jsonXdm = try? JSONEncoder().encode(schema)
+        guard let xdmMap = try? JSONSerialization.jsonObject(with: jsonXdm!, options: []) as? [String: Any] else {
+            return true
         }
         
         // Creating experience event 
-        let expEvent = ExperiencePlatformEvent.init(xdm: schema!)
+        let expEvent = ExperiencePlatformEvent.init(xdm: xdmMap, data: nil, datasetIdentifier: expEventDatasetId)
         // Send experience event to aep sdk.
         ExperiencePlatform.sendEvent(experiencePlatformEvent: expEvent)
         

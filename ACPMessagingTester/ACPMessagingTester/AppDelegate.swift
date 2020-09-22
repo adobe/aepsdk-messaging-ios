@@ -18,8 +18,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         ACPCore.setLogLevel(ACPMobileLogLevel.verbose)
         
-        // Necessary property id for "MessagingSDKTest" which has the edge configuration id needed by aep sdk
-        ACPCore.configure(withAppId: "3805cb8645dd/b8dec0fe156d/launch-7dfbe727ca00-development")
+        // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
+        // which has the edge configuration id needed by aep sdk
+        ACPCore.configure(withAppId: "3805cb8645dd/bc3b07828814/launch-40db03288d1b-development")
+        
+        // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
+        // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
+        ACPCore.updateConfiguration(["messaging.dccs" : "https://dcs.adobedc.net/collection/50e4420c668c3723225f608e21e320870854ef2fdb8008f718c38503bb39e48b"])
                 
         ACPLifecycle.registerExtension()
         ACPIdentity.registerExtension()
