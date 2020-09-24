@@ -104,7 +104,7 @@ https://github.com/adobe/xdm/blob/master/schemas/context/profile-push-notificati
         "                        \"namespace\": {\n" +
         "                            \"code\": \"ECID\"\n" +
         "                        },\n" +
-        "                        \"xid\": \"%@\"\n" +
+        "                        \"id\": \"%@\"\n" +
         "                    }\n" +
         "                }\n" +
         "            ]\n" +
