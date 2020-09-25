@@ -19,11 +19,14 @@ let package = Package(
     name: "ACPMessaging",
     platforms: [.iOS(.v10)],
     products: [
-        .library(name: "ACPMessaging", targets: ["ACPMessaging"])
+        .library(name: "ACPMessaging", targets: ["ACPMessaging"]),
+        .library(name: "AEPExperiencePlatformStatic", type: .static, targets: ["ACPMessaging"]),
+        .library(name: "AEPExperiencePlatformDynamic", type: .dynamic, targets: ["ACPMessaging"]),
     ],
     dependencies: [
         .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main")),
-        .package(url: "https://github.com/adobe/aepsdk-platform-ios.git", .branch("dev"))
+        //.package(url: "https://github.com/adobe/aepsdk-platform-ios.git", .branch("dev"))
+        .package(url: "https://github.com/kevinlind/platform-extension-ios.git", .branch("amsdk-10442-cleanup"))
     ],
     targets: [
         .target(name: "ACPMessaging",

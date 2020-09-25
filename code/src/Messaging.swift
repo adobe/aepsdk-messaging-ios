@@ -211,6 +211,12 @@ public class Messaging : NSObject, Extension {
             return true
         }
         
+        // Check if push token is empty
+        if (token.isEmpty) {
+            Log.debug(label: MessagingConstants.logTag, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
+            return true
+        }
+        
         // send the request
         let postBodyString = String.init(format: MessagingConstants.Temp.postBodyBase, experienceCloudOrgId, profileDatasetId, ecid, token, ecid)
         let headers = ["Content-Type":"application/json"]
