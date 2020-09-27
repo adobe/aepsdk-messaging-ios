@@ -25,15 +25,14 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main")),
-        //.package(url: "https://github.com/adobe/aepsdk-platform-ios.git", .branch("dev"))
-        .package(url: "https://github.com/kevinlind/platform-extension-ios.git", .branch("amsdk-10442-cleanup"))
+        .package(url: "https://github.com/adobe/aepsdk-platform-ios.git", .branch("dev"))
     ],
     targets: [
         .target(name: "ACPMessaging",
                 dependencies: ["AEPCore", "AEPExperiencePlatform"],
                 path: "code/src"),
         .testTarget(name: "MessagingDemoApp",
-                    dependencies: ["ACPMessaging", "AEPExperiencePlatform", "AEPCore"],
+                    dependencies: ["ACPMessaging", "AEPExperiencePlatform", "AEPCore", "AEPIdentity", "AEPLifecycle", "AEPSignal"],
                     path: "demo/MessagingDemoApp"),
         .testTarget(name: "unitTests",
                     dependencies: ["ACPMessaging"],
