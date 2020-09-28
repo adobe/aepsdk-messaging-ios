@@ -20,8 +20,8 @@ let package = Package(
     platforms: [.iOS(.v10)],
     products: [
         .library(name: "AEPMessaging", targets: ["AEPMessaging"]),
-        .library(name: "AEPExperiencePlatformStatic", type: .static, targets: ["AEPMessaging"]),
-        .library(name: "AEPExperiencePlatformDynamic", type: .dynamic, targets: ["AEPMessaging"])
+        .library(name: "AEPMessagingStatic", type: .static, targets: ["AEPMessaging"]),
+        .library(name: "AEPMessagingDynamic", type: .dynamic, targets: ["AEPMessaging"])
     ],
     dependencies: [
         .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main")),
