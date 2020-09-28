@@ -280,6 +280,7 @@
 				925DF4A125227C4700A5DE31 /* Sources */,
 				925DF4A225227C4700A5DE31 /* Frameworks */,
 				925DF4A325227C4700A5DE31 /* Resources */,
+				9249A5052522AEC9009193AB /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -328,8 +329,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				92085981251BEB7100B9C65A /* MessagingDemoApp */,
 				925DF4A425227C4700A5DE31 /* AEPMessaging */,
+				92085981251BEB7100B9C65A /* MessagingDemoApp */,
 			);
 		};
 /* End PBXProject section */
@@ -372,6 +373,23 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		9249A5052522AEC9009193AB /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which swiftlint >/dev/null; then\n    swiftlint lint --config ../.swiftlint.yml Sources\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n\n";
 		};
 		AAAA7926FC33EC38F6912A6F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
