@@ -16,26 +16,26 @@
 import PackageDescription
 
 let package = Package(
-    name: "ACPMessaging",
+    name: "AEPMessaging",
     platforms: [.iOS(.v10)],
     products: [
-        .library(name: "ACPMessaging", targets: ["ACPMessaging"]),
-        .library(name: "AEPExperiencePlatformStatic", type: .static, targets: ["ACPMessaging"]),
-        .library(name: "AEPExperiencePlatformDynamic", type: .dynamic, targets: ["ACPMessaging"]),
+        .library(name: "AEPMessaging", targets: ["AEPMessaging"]),
+        .library(name: "AEPExperiencePlatformStatic", type: .static, targets: ["AEPMessaging"]),
+        .library(name: "AEPExperiencePlatformDynamic", type: .dynamic, targets: ["AEPMessaging"])
     ],
     dependencies: [
         .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main")),
         .package(url: "https://github.com/adobe/aepsdk-platform-ios.git", .branch("dev"))
     ],
     targets: [
-        .target(name: "ACPMessaging",
+        .target(name: "AEPMessaging",
                 dependencies: ["AEPCore", "AEPExperiencePlatform"],
-                path: "code/src"),
+                path: "Sources"),
         .testTarget(name: "MessagingDemoApp",
-                    dependencies: ["ACPMessaging", "AEPExperiencePlatform", "AEPCore", "AEPIdentity", "AEPLifecycle", "AEPSignal"],
-                    path: "demo/MessagingDemoApp"),
-        .testTarget(name: "unitTests",
-                    dependencies: ["ACPMessaging"],
-                    path: "code/unitTests")
+                    dependencies: ["AEPMessaging", "AEPExperiencePlatform", "AEPCore", "AEPIdentity", "AEPLifecycle", "AEPSignal"],
+                    path: "SampleApps/MessagingDemoApp"),
+        .testTarget(name: "UnitTests",
+                    dependencies: ["AEPMessaging"],
+                    path: "Tests/UnitTests")
     ]
 )
