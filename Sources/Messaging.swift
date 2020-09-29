@@ -24,11 +24,6 @@ public class Messaging: NSObject, Extension {
     public var runtime: ExtensionRuntime
 
     // =================================================================================================================
-    // MARK: - private constants
-    // =================================================================================================================
-    typealias EventHandlerMapping = (event: Event, handler: (Event) -> (Bool))
-
-    // =================================================================================================================
     // MARK: - ACPExtension protocol methods
     // =================================================================================================================
     public required init?(runtime: ExtensionRuntime) {
@@ -54,8 +49,6 @@ public class Messaging: NSObject, Extension {
     }
 
     public func onUnregistered() {
-        // if the shared states are not used in the next registration they can be cleared in this method
-        // TODO try? api.clearSharedEventStates()
         print("Extension unregistered from MobileCore: \(MessagingConstants.friendlyName)")
     }
 
