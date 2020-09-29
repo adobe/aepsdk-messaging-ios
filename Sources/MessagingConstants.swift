@@ -12,44 +12,28 @@
 
 import Foundation
 
-struct MessagingConstants {
+enum MessagingConstants {
 
-    static let logTag = "Messaging"
-    static let name = "com.adobe.messaging"
-    static let version = "0.0.1"
-    static let friendlyName = "AEPMessaging"
+    static let LOG_TAG = "Messaging"
+    static let EXTENSION_NAME = "com.adobe.messaging"
+    static let EXTENSION_VERSION = "0.0.1"
+    static let FRIENDLY_NAME = "AEPMessaging"
 
-    struct Defaults {
-
-        private init() {}
+    enum EventDataKeys {
+        static let PUSH_IDENTIFIER = "pushidentifier"
     }
 
-    struct EventDataKeys {
-
-        struct Identity {
-            static let pushIdentifier = "pushidentifier"
-
-            private init() {}
-        }
-
-        private init() {}
-    }
-
-    struct EventSources {
+    enum EventSources {
         static let sharedState = "com.adobe.eventSource.sharedState"
         static let requestContent = "com.adobe.eventSource.requestContent"
         static let responseContent = "com.adobe.eventSource.responseContent"
         static let os = "com.adobe.eventSource.os"
-
-        private init() {}
     }
 
-    struct EventTypes {
+    enum EventTypes {
         static let hub = "com.adobe.eventType.hub"
         static let genericIdentity = "com.adobe.eventType.generic.identity"
         static let genericData = "com.adobe.eventType.generic.data"
-
-        private init() {}
     }
 
     /*
@@ -76,7 +60,7 @@ struct MessagingConstants {
      }
      */
 
-    struct Temp {
+    enum Temp {
         static let postBodyBase = "{\n" +
             "    \"header\" : {\n" +
             "        \"imsOrgId\": \"%@\",\n" +
@@ -122,23 +106,19 @@ struct MessagingConstants {
         static let namespace = "namespace"
         static let code = "code"
         static let xid = "xid"
-
-        private init() {}
     }
 
-    struct JsonValues {
+    enum JsonValues {
         static let ecid = "ECID"
         static let apns = "apns"
         static let apnsSandbox = "apns-sandbox"
-
-        private init() {}
     }
 
     struct SharedState {
 
         static let stateOwner = "stateowner"
 
-        struct Configuration {
+        enum Configuration {
             static let name = "com.adobe.module.configuration"
             static let privacyStatus = "global.privacy"
             static let dccsEndpoint = "messaging.dccs"
@@ -147,20 +127,13 @@ struct MessagingConstants {
             // Messaging dataset ids
             static let profileDatasetId = "messaging.profileDataset"
             static let experienceEventDatasetId = "messaging.eventDataset"
-
-            private init() {}
         }
 
-        struct Identity {
+        enum Identity {
             static let name = "com.adobe.module.identity"
-
             static let ecid = "mid"
-
-            private init() {}
         }
 
         private init() {}
     }
-
-    private init() {}
 }
