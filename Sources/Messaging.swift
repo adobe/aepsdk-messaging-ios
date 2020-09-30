@@ -184,7 +184,7 @@ public class Messaging: NSObject, Extension {
 
         ServiceProvider.shared.networkService.connectAsync(networkRequest: request) { (connection: HttpConnection) in
             if connection.error != nil {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Error sending push token to profile - \(connection.error!.localizedDescription).")
+                Log.warning(label: MessagingConstants.LOG_TAG, "Error sending push token to profile - \(connection.error?.localizedDescription).")
             } else {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Push Token \(token) synced for ECID \(ecid)")
             }
