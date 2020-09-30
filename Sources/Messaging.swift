@@ -143,7 +143,11 @@ public class Messaging: NSObject, Extension {
         }
 
         // get push token from event
-        guard let token = event.data![MessagingConstants.EventDataKeys.PUSH_IDENTIFIER] as? String else {
+        guard let eventData = event.data as [String: Any]? else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring event with missing event data.")
+            return
+        }
+        guard let token = eventData[MessagingConstants.EventDataKeys.PUSH_IDENTIFIER] as? String else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
             return
         }
@@ -230,10 +234,10 @@ public class Messaging: NSObject, Extension {
     ///   - eventData: Dictionary with push notification tracking information
     /// - Returns: MobilePushTrackingSchema xdm schema object which conatins the push click-through tracking informations
     private func getXdmSchema(eventData: [AnyHashable: Any]) -> MobilePushTrackingSchema? {
-        let eventType = eventData["eventType"] as? String
-        let id = eventData["id"] as? String
-        let applicationOpened = eventData["applicationOpened"] as? Bool
-        let actionId = eventData["actionId"] as? String
+        let eventType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String
+        let id = eventData[MessagingConstants.EventDataKeys.ID] as? String
+        let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool
+        let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String
 
         if eventType == nil || eventType?.isEmpty == true || id == nil || id?.isEmpty == true {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to track information. EventType or MessageId received is null.")

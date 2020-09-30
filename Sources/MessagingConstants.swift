@@ -21,6 +21,10 @@ enum MessagingConstants {
 
     enum EventDataKeys {
         static let PUSH_IDENTIFIER = "pushidentifier"
+        static let EVENT_TYPE = "eventType"
+        static let ID = "id"
+        static let APPLICATION_OPENED = "applicationOpened"
+        static let ACTION_ID = "actionId"
     }
 
     enum EventSources {
