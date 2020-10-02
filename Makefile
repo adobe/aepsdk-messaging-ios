@@ -1,6 +1,6 @@
 
 export EXTENSION_NAME = AEPMessaging
-export APP_NAME = MessagingSampleAppsApp
+export APP_NAME = MessagingDemoApp
 PROJECT_NAME = $(EXTENSION_NAME)
 TARGET_NAME_XCFRAMEWORK = $(EXTENSION_NAME).xcframework
 SCHEME_NAME_XCFRAMEWORK = AEPMessagingXCF
