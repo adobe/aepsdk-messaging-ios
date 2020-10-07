@@ -25,6 +25,16 @@ enum MessagingConstants {
         static let ID = "id"
         static let APPLICATION_OPENED = "applicationOpened"
         static let ACTION_ID = "actionId"
+        // TEMP todo we need to define if this is the right key or do we need an extra api for this
+        static let ADOBE = "adobe"
+    }
+
+    enum AdobeTrackingKeys {
+        static let CUSTOMER_JOURNEY_MANAGEMENT = "cjm"
+        static let EXPERIENCE = "_experience"
+        static let MESSAGE_PROFILE_JSON = "{\n   \"messageProfile\":" +
+            "{\n      \"channel\": {\n         \"_type\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
+            ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
     }
 
     enum EventSources {

@@ -31,7 +31,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
         // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
-        MobileCore.updateConfigurationWith(configDict: ["messaging.dccs": "https://dcs.adobedc.net/collection/50e4420c668c3723225f608e21e320870854ef2fdb8008f718c38503bb39e48b"])
+        MobileCore.updateConfigurationWith(configDict: ["messaging.dccs": "https://dcs.adobedc.net/collection/50e4420c668c3723225f608e21e320870854ef2fdb8008f718c38503bb39e48b",
+                                                        "messaging.profileDatasetId": "<profileDatasetId>", "messaging.eventDataset": "<expEventDatasetId>"])
 
         // only start lifecycle if the application is not in the background
         if application.applicationState != .background {
