@@ -32,6 +32,10 @@ public class Messaging: NSObject, Extension {
     }
 
     public func onRegistered() {
+        // register listener for configuration response event
+        registerListener(type: MessagingConstants.EventTypes.configuration,
+                         source: MessagingConstants.EventSources.responseContent,
+                         listener: handleConfigurationResponse)
         // register listener for set push identifier events
         registerListener(type: MessagingConstants.EventTypes.genericIdentity,
                          source: MessagingConstants.EventSources.requestContent,
@@ -50,16 +54,40 @@ public class Messaging: NSObject, Extension {
     public func readyForEvent(_ event: Event) -> Bool {
         guard let configurationSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.name, event: event) else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
-            return true
+            return false
         }
 
         // hard dependency on identity module for ecid
         guard let identitySharedState = getSharedState(extensionName: MessagingConstants.SharedState.Identity.name, event: event) else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid shared state from identity - '\(event.id.uuidString)'.")
-            return true
+            return false
         }
 
         return configurationSharedState.status == .set && identitySharedState.status == .set
+    }
+
+    /// Based on the configuration response check for privacy status stop events if opted out
+    func handleConfigurationResponse(_ event: Event) {
+        guard let eventData = event.data as [String: Any]? else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to handle configuration response. Event data is null.")
+            return
+        }
+
+        guard let privacyStatusValue = eventData[MessagingConstants.SharedState.Configuration.privacyStatus] as? String else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Privacy status does not exists. All requests to sync with profile will fail.")
+            return
+        }
+
+        let privacyStatus = PrivacyStatus.init(rawValue: privacyStatusValue)
+        if privacyStatus != PrivacyStatus.optedIn {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Privacy is not optedIn, stopping the events processing.")
+            stopEvents()
+        }
+
+        if privacyStatus == PrivacyStatus.optedIn {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Privacy is optedIn, starting the events processing.")
+            startEvents()
+        }
     }
 
     /// Processes the events in the event queue in the order they were received.
@@ -95,9 +123,16 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
+            guard let privacyStatus = PrivacyStatus.init(rawValue: configSharedState[MessagingConstants.SharedState.Configuration.privacyStatus] as? String ?? "") else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "ConfigSharedState has invalid privacy status, Ignoring to process event : '\(event.id.uuidString)'.")
+                return
+            }
+
             // eventually we'll use platform extension for this, but until ExEdge supports profile updates, we are forced
             // to go directly to dccs
-            tempSendToDccs(configSharedState, identity: identitySharedState, event: event)
+            if privacyStatus == PrivacyStatus.optedIn {
+                tempSyncPushToken(configSharedState, identity: identitySharedState, event: event)
+            }
         }
 
         // Check if the event type is MessagingConstants.EventTypes.genericData and eventSource is MessagingConstants.EventSources.os handle processing of the tracking information
@@ -116,7 +151,7 @@ public class Messaging: NSObject, Extension {
         return config.keys.contains(MessagingConstants.SharedState.Configuration.dccsEndpoint) && config.keys.contains(MessagingConstants.SharedState.Configuration.profileDatasetId)
     }
 
-    private func tempSendToDccs(_ config: [AnyHashable: Any], identity: [AnyHashable: Any], event: Event) {
+    private func tempSyncPushToken(_ config: [AnyHashable: Any], identity: [AnyHashable: Any], event: Event) {
         // Get the dccs endpoint
         // TEMP: if we want to let this be configurable, uncomment below
         guard let dccsUrl = URL(string: config[MessagingConstants.SharedState.Configuration.dccsEndpoint] as? String ?? "") else {

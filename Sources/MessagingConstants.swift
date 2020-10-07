@@ -48,6 +48,7 @@ enum MessagingConstants {
         static let hub = "com.adobe.eventType.hub"
         static let genericIdentity = "com.adobe.eventType.generic.identity"
         static let genericData = "com.adobe.eventType.generic.data"
+        static let configuration = "com.adobe.eventType.configuration"
     }
 
     /*

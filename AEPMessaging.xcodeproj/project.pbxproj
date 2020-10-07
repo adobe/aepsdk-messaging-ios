@@ -20,7 +20,7 @@
 		925DF4C025227DBE00A5DE31 /* IdentityMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4682522786F00A5DE31 /* IdentityMap.swift */; };
 		925DF4C125227DBE00A5DE31 /* Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4692522786F00A5DE31 /* Messaging.swift */; };
 		925DF4C225227DBE00A5DE31 /* MessagingConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF46A2522786F00A5DE31 /* MessagingConstants.swift */; };
-		928593F82522809900B2BE47 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; productRef = 928593F72522809900B2BE47 /* SwiftPackageProductDependency */; };
+		928593F82522809900B2BE47 /* AEPExperiencePlatform in Frameworks */ = {isa = PBXBuildFile; productRef = 928593F72522809900B2BE47 /* AEPExperiencePlatform */; };
 		928593FB2522823600B2BE47 /* Pods_MessagingDemoApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 928593FA2522823600B2BE47 /* Pods_MessagingDemoApp.framework */; };
 		92859411252287C600B2BE47 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4462522785700A5DE31 /* ViewController.swift */; };
 		92859412252287C600B2BE47 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF44C2522785700A5DE31 /* AppDelegate.swift */; };
@@ -110,7 +110,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				928593F82522809900B2BE47 /* BuildFile in Frameworks */,
+				928593F82522809900B2BE47 /* AEPExperiencePlatform in Frameworks */,
 				925DF4B425227C5C00A5DE31 /* Pods_AEPMessaging.framework in Frameworks */,
 				AF81CCE9E6C7C71B5BA468A7 /* Pods_AEPMessaging.framework in Frameworks */,
 			);
@@ -288,7 +288,7 @@
 			);
 			name = AEPMessaging;
 			packageProductDependencies = (
-				928593F72522809900B2BE47 /* SwiftPackageProductDependency */,
+				928593F72522809900B2BE47 /* AEPExperiencePlatform */,
 			);
 			productName = AEPMessaging;
 			productReference = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */;
@@ -321,9 +321,9 @@
 			);
 			mainGroup = 922FFCE6251B2BBA00BCE010;
 			packageReferences = (
-				92085932251B2D6C00B9C65A /* RemoteSwiftPackageReference */,
-				92085936251B2D7F00B9C65A /* RemoteSwiftPackageReference */,
-				925DF4DB25227F7500A5DE31 /* RemoteSwiftPackageReference */,
+				92085932251B2D6C00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-platform-ios" */,
+				92085936251B2D7F00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */,
+				925DF4DB25227F7500A5DE31 /* XCRemoteSwiftPackageReference "aepsdk-rulesengine-ios" */,
 			);
 			productRefGroup = 922FFCF0251B2BBA00BCE010 /* Products */;
 			projectDirPath = "";
@@ -749,7 +749,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		92085932251B2D6C00B9C65A /* RemoteSwiftPackageReference */ = {
+		92085932251B2D6C00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-platform-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/adobe/aepsdk-platform-ios.git";
 			requirement = {
@@ -757,7 +757,7 @@
 				kind = branch;
 			};
 		};
-		92085936251B2D7F00B9C65A /* RemoteSwiftPackageReference */ = {
+		92085936251B2D7F00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/adobe/aepsdk-core-ios.git";
 			requirement = {
@@ -765,7 +765,7 @@
 				kind = branch;
 			};
 		};
-		925DF4DB25227F7500A5DE31 /* RemoteSwiftPackageReference */ = {
+		925DF4DB25227F7500A5DE31 /* XCRemoteSwiftPackageReference "aepsdk-rulesengine-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/adobe/aepsdk-rulesengine-ios.git";
 			requirement = {
@@ -776,9 +776,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		928593F72522809900B2BE47 /* SwiftPackageProductDependency */ = {
+		928593F72522809900B2BE47 /* AEPExperiencePlatform */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 92085932251B2D6C00B9C65A /* RemoteSwiftPackageReference */;
+			package = 92085932251B2D6C00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-platform-ios" */;
 			productName = AEPExperiencePlatform;
 		};
 /* End XCSwiftPackageProductDependency section */
