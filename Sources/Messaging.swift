@@ -80,8 +80,13 @@ public class Messaging: NSObject, Extension {
 
         let privacyStatus = PrivacyStatus.init(rawValue: privacyStatusValue)
         if privacyStatus != PrivacyStatus.optedIn {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Privacy is not optedId, stopping the events processing.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Privacy is not optedIn, stopping the events processing.")
             stopEvents()
+        }
+
+        if privacyStatus == PrivacyStatus.optedIn {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Privacy is optedIn, starting the events processing.")
+            startEvents()
         }
     }
 
