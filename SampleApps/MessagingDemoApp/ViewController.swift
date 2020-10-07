@@ -21,9 +21,11 @@ class ViewController: UIViewController {
     }
 
     @IBAction func collectMessageInfo(_ sender: Any) {
-        let aodbeData: String = "{\n        \"cjm\" :{\n          \"_experience\":" +
+        let aodbeData: String = "{\n        \"cjm\" :{\n          \"_experience\": " +
             "{\n            \"customerJourneyManagement\": {\n              \"messageExecution\": " +
-            "{\n                \"messageExecutionID\": \"16-Sept-postman\",\n                \"messageID\": \"567\",\n                \"journeyVersionID\": \"some-journeyVersionId\",\n                \"journeyVersionInstanceId\": \"someJourneyVersionInstanceId\"\n              }\n            }\n          }\n        }\n      }\n"
+            "{\n                \"messageExecutionID\": \"16-Sept-postman\",\n                \"messageID\": \"567\",\n                \"journeyVersionID\": \"some-journeyVersionId\",\n                " +
+            "\"journeyVersionInstanceId\": \"someJourneyVersionInstanceId\"\n              " +
+            "}\n            }\n          }\n        }\n      }\n"
         let dict = ["eventType": "track.applicationOpened", "id": "123456", "applicationOpened": true, "adobe": aodbeData] as [String: Any]
         MobileCore.collectMessageInfo(messageInfo: dict)
     }
