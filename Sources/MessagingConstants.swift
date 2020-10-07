@@ -34,7 +34,7 @@ enum MessagingConstants {
         static let EXPERIENCE = "_experience"
         static let MESSAGE_PROFILE_JSON = "{\n   \"messageProfile\":" +
             "{\n      \"channel\": {\n         \"_type\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
-            ",\n   \"pushChannelContext\": {\n      \"platform\": \"fcm\"\n   }\n}"
+            ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
     }
 
     enum EventSources {
