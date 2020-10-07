@@ -184,7 +184,7 @@ public class Messaging: NSObject, Extension {
 
         ServiceProvider.shared.networkService.connectAsync(networkRequest: request) { (connection: HttpConnection) in
             if connection.error != nil {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Error sending push token to profile - \(connection.error?.localizedDescription).")
+                Log.warning(label: MessagingConstants.LOG_TAG, "Error sending push token to profile - \(String(describing: connection.error?.localizedDescription)).")
             } else {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Push Token \(token) synced for ECID \(ecid)")
             }
@@ -207,19 +207,22 @@ public class Messaging: NSObject, Extension {
             return
         }
 
+        // Get the schema and convert to xdm dictionary
         guard let schema = getXdmSchema(eventData: eventData) else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to track information. Schema generation from eventData failed.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to track information. Schema generation from eventData failed.")
             return
         }
-
         guard let jsonXdm = try? JSONEncoder().encode(schema) else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to track information. Xdm creation failed")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to track information. Xdm creation failed")
+            return
+        }
+        guard var xdmMap = try? JSONSerialization.jsonObject(with: jsonXdm, options: []) as? [String: Any] else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to track information. Xdm json serialization failed")
             return
         }
 
-        guard let xdmMap = try? JSONSerialization.jsonObject(with: jsonXdm, options: []) as? [String: Any] else {
-            return
-        }
+        // Add adobe specific tracking data
+        addAdobeData(eventData: eventData, schemaXml: &xdmMap)
 
         // Creating experience event
         let expEvent = ExperiencePlatformEvent.init(xdm: xdmMap, data: nil, datasetIdentifier: expEventDatasetId)
@@ -227,6 +230,42 @@ public class Messaging: NSObject, Extension {
         ExperiencePlatform.sendEvent(experiencePlatformEvent: expEvent)
 
         return
+    }
+
+    /// Adding CJM specific data to tracking information schema map.
+    /// - Parameters:
+    ///  - eventData: Dictionary with adobe cjm tracking information
+    ///  - schemaXml: Dictionary which is updated with the cjm tracking information.
+    private func addAdobeData(eventData: [AnyHashable: Any], schemaXml: inout [String: Any]) {
+        guard let adobeTrackingData = eventData[MessagingConstants.EventDataKeys.ADOBE] as? String else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update Adobe tracking information. eventData is missing adobe specific keys.")
+            return
+        }
+
+        // Convert the string data to dictionary
+        guard let adobeTrackingDict = convertStringToDictionary(text: adobeTrackingData) else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update adobe tracking information. Adobe tracking data is malformed")
+            return
+        }
+
+        // Check if the required key is available
+        if let cjmData = adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
+            for (key, value) in cjmData as [String: Any] {
+                schemaXml[key] = value
+            }
+            // Adding the messageProfile adobe data
+            if var experienceDict = schemaXml[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] as? [String: Any] {
+                guard let messageProfile = convertStringToDictionary(text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update adobe tracking information. Messaging profile data is malformed.")
+                    return
+                }
+                // Merging the dictionary
+                experienceDict += messageProfile
+                schemaXml[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] = experienceDict
+            }
+        } else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update adobe tracking information. Adobe tracking data is missing cjm key.")
+        }
     }
 
     /// Creates the xdm schema from event data
@@ -262,5 +301,25 @@ public class Messaging: NSObject, Extension {
         schema.acopprod3 = acorprod3
 
         return schema
+    }
+
+    /// Helper methods
+    func convertStringToDictionary(text: String) -> [String: Any]? {
+        if let data = text.data(using: .utf8) {
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String: Any]
+                return json
+            } catch {
+                print("Unexpected error: \(error).")
+                return nil
+            }
+        }
+        return nil
+    }
+}
+
+func += <K, V> (left: inout [K: V], right: [K: V]) {
+    for (keyy, value) in right {
+        left[keyy] = value
     }
 }
