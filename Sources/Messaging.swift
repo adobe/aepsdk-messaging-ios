@@ -65,25 +65,26 @@ public class Messaging: NSObject, Extension {
 
         return configurationSharedState.status == .set && identitySharedState.status == .set
     }
-    
+
     /// Based on the configuration response check for privacy status stop events if opted out
     func handleConfigurationResponse(_ event: Event) {
         guard let eventData = event.data as [String: Any]? else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to handle configuration response. Event received is null.")
+            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to handle configuration response. Event data is null.")
             return
         }
-        
+
         guard let privacyStatusValue = eventData[MessagingConstants.SharedState.Configuration.privacyStatus] as? String else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Experience Cloud id is invalid. All requests to sync with profile will fail.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Privacy status does not exists. All requests to sync with profile will fail.")
             return
         }
-        
+
         let privacyStatus = PrivacyStatus.init(rawValue: privacyStatusValue)
         if privacyStatus != PrivacyStatus.optedIn {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Privacy is not optedId, stopping the events processing.")
             stopEvents()
         }
     }
-    
+
     /// Processes the events in the event queue in the order they were received.
     ///
     /// A valid Configuration shared state is required for processing events. If one is not available, the event
@@ -116,12 +117,12 @@ public class Messaging: NSObject, Extension {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring event that does not have valid configuration - '\(event.id.uuidString)'.")
                 return
             }
-            
+
             guard let privacyStatus = PrivacyStatus.init(rawValue: configSharedState[MessagingConstants.SharedState.Configuration.privacyStatus] as? String ?? "") else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "ConfigSharedState has invalid privacy status")
+                Log.warning(label: MessagingConstants.LOG_TAG, "ConfigSharedState has invalid privacy status, Ignoring to process event : '\(event.id.uuidString)'.")
                 return
             }
-                        
+
             // eventually we'll use platform extension for this, but until ExEdge supports profile updates, we are forced
             // to go directly to dccs
             if privacyStatus == PrivacyStatus.optedIn {
