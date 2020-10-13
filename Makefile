@@ -1,4 +1,3 @@
-
 export EXTENSION_NAME = AEPMessaging
 export APP_NAME = MessagingDemoApp
 PROJECT_NAME = $(EXTENSION_NAME)
