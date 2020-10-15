@@ -31,6 +31,7 @@
 		9296BA862537BFC0002C88F7 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		9296BA962537C171002C88F7 /* AEPMessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4572522786500A5DE31 /* AEPMessagingTests.swift */; };
 		9296BAAC2537C2F0002C88F7 /* MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9296BAA82537C2ED002C88F7 /* MessagingTests.swift */; };
+		9296BAC92537CADE002C88F7 /* TestableExtensionRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9296BAC82537CADE002C88F7 /* TestableExtensionRuntime.swift */; };
 		AF81CCE9E6C7C71B5BA468A7 /* Pods_AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF42725226DEA00A5DE31 /* Pods_AEPMessaging.framework */; };
 /* End PBXBuildFile section */
 
@@ -103,6 +104,7 @@
 		92BCEC9C2538FC0E0068F8B8 /* AEPEdge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPEdge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9296BA812537BFC0002C88F7 /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9296BAA82537C2ED002C88F7 /* MessagingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingTests.swift; sourceTree = "<group>"; };
+		9296BAC82537CADE002C88F7 /* TestableExtensionRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableExtensionRuntime.swift; sourceTree = "<group>"; };
 		AF1B1A2A7D5EA1FDB1E5A7C7 /* Pods-AEPMessaging.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AEPMessaging.release.xcconfig"; path = "Target Support Files/Pods-AEPMessaging/Pods-AEPMessaging.release.xcconfig"; sourceTree = "<group>"; };
 		B721FA0E2ACF4397F173D467 /* Pods-AEPMessaging.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AEPMessaging.debug.xcconfig"; path = "Target Support Files/Pods-AEPMessaging/Pods-AEPMessaging.debug.xcconfig"; sourceTree = "<group>"; };
 		BFBB632D4EA1ADCEEB8DA1B1 /* Pods_UnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -204,6 +206,7 @@
 		925DF4562522786500A5DE31 /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				9296BAC72537CAC0002C88F7 /* utils */,
 				9296BAA82537C2ED002C88F7 /* MessagingTests.swift */,
 				925DF4572522786500A5DE31 /* AEPMessagingTests.swift */,
 				925DF4582522786500A5DE31 /* Info.plist */,
@@ -243,6 +246,14 @@
 				925DF4A825227C4700A5DE31 /* Info.plist */,
 			);
 			path = AEPMessaging;
+			sourceTree = "<group>";
+		};
+		9296BAC72537CAC0002C88F7 /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				9296BAC82537CADE002C88F7 /* TestableExtensionRuntime.swift */,
+			);
+			path = utils;
 			sourceTree = "<group>";
 		};
 		92BD7B0B251C0B7700C758CB /* Frameworks */ = {
@@ -561,6 +572,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9296BAC92537CADE002C88F7 /* TestableExtensionRuntime.swift in Sources */,
 				9296BAAC2537C2F0002C88F7 /* MessagingTests.swift in Sources */,
 				9296BA962537C171002C88F7 /* AEPMessagingTests.swift in Sources */,
 			);
