@@ -11,11 +11,11 @@
         }
       },
       {
-        "package": "AEPExperiencePlatform",
-        "repositoryURL": "https://github.com/adobe/aepsdk-platform-ios.git",
+        "package": "AEPEdge",
+        "repositoryURL": "https://github.com/adobe/aepsdk-edge-ios.git",
         "state": {
           "branch": "dev",
-          "revision": "bb97557533e74bec4ddb3f7a9ca478802d1d7c48",
+          "revision": "73489cbef9e520b3d6021fff5bd2c4e7237d7562",
           "version": null
         }
       },

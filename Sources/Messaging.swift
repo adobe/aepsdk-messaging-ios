@@ -11,7 +11,7 @@
  */
 
 import AEPCore
-import AEPExperiencePlatform
+import AEPEdge
 import AEPServices
 import Foundation
 
@@ -260,9 +260,9 @@ public class Messaging: NSObject, Extension {
         addAdobeData(eventData: eventData, schemaXml: &xdmMap)
 
         // Creating experience event
-        let expEvent = ExperiencePlatformEvent.init(xdm: xdmMap, data: nil, datasetIdentifier: expEventDatasetId)
+        let expEvent = ExperienceEvent.init(xdm: xdmMap, data: nil, datasetIdentifier: expEventDatasetId)
         // Send experience event to aep sdk.
-        ExperiencePlatform.sendEvent(experiencePlatformEvent: expEvent)
+        Edge.sendEvent(experienceEvent: expEvent)
 
         return
     }
