@@ -22,7 +22,7 @@
  ----
  */
 
-import AEPExperiencePlatform
+import AEPEdge
 import Foundation
 
 struct MobilePushTrackingSchema: XDMSchema {
