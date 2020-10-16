@@ -206,7 +206,11 @@ public class Messaging: NSObject, Extension {
     ///   - dccsUrl: Endpoint used to send push token to the dataset
     private func sendPushToken(experienceCloudOrgId: String, profileDatasetId: String, ecid: String, token: String, dccsUrl: URL) {
         // send the request
-        let postBodyString = String.init(format: MessagingConstants.Temp.postBodyBase, experienceCloudOrgId, profileDatasetId, ecid, token, ecid)
+        guard let appId: String = Bundle.main.bundleIdentifier else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the push token, App bundle identifier is invalid.")
+            return
+        }
+        let postBodyString = String.init(format: MessagingConstants.Temp.postBodyBase, experienceCloudOrgId, profileDatasetId, ecid, appId, MessagingConstants.JsonValues.apnsSandbox, token, ecid)
         let headers = ["Content-Type": "application/json"]
         let request = NetworkRequest(url: dccsUrl,
                                      httpMethod: .post,
@@ -276,14 +280,8 @@ public class Messaging: NSObject, Extension {
     ///  - eventData: Dictionary with adobe cjm tracking information
     ///  - schemaXml: Dictionary which is updated with the cjm tracking information.
     private func addAdobeData(eventData: [AnyHashable: Any], schemaXml: inout [String: Any]) {
-        guard let adobeTrackingData = eventData[MessagingConstants.EventDataKeys.ADOBE] as? String else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update Adobe tracking information. eventData is missing adobe specific keys.")
-            return
-        }
-
-        // Convert the string data to dictionary
-        guard let adobeTrackingDict = convertStringToDictionary(text: adobeTrackingData) else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update adobe tracking information. Adobe tracking data is malformed")
+        guard let adobeTrackingDict = eventData[MessagingConstants.EventDataKeys.ADOBE] as? [String: Any] else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update Adobe tracking information. adobe data is invalid.")
             return
         }
 

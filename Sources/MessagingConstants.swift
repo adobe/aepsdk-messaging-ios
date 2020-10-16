@@ -100,8 +100,8 @@ enum MessagingConstants {
             "            },\n" +
             "            \"pushNotificationDetails\": [\n" +
             "                {\n" +
-            "                    \"appID\": \"com.mobile.messagingTest\",\n" +
-            "                    \"platform\": \"apns\",\n" +
+            "                    \"appID\": \"%@\",\n" +
+            "                    \"platform\": \"%@\",\n" +
             "                    \"token\": \"%@\",\n" +
             "                    \"blocklisted\": false,\n" +
             "                    \"identity\": {\n" +
@@ -131,7 +131,7 @@ enum MessagingConstants {
     enum JsonValues {
         static let ecid = "ECID"
         static let apns = "apns"
-        static let apnsSandbox = "apns-sandbox"
+        static let apnsSandbox = "apnsSandbox"
     }
 
     struct SharedState {
