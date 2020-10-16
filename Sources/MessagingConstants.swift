@@ -30,10 +30,15 @@ enum MessagingConstants {
     }
 
     enum AdobeTrackingKeys {
-        static let CUSTOMER_JOURNEY_MANAGEMENT = "cjm"
+        static let CJM = "cjm"
+        static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement";
         static let EXPERIENCE = "_experience"
+        static let APPLICATION = "application"
+        static let LAUNCHES = "launches"
+        static let LAUNCHES_VALUE = "value"
+        
         static let MESSAGE_PROFILE_JSON = "{\n   \"messageProfile\":" +
-            "{\n      \"channel\": {\n         \"_type\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
+            "{\n      \"channel\": {\n         \"_id\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
             ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
     }
 

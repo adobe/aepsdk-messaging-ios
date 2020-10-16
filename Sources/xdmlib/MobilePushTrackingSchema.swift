@@ -15,7 +15,6 @@
  Title			:	Mobile Push Tracking Schema Test
  Version		:	1.1
  Description	:
- ID				:	https://ns.adobe.com/acopprod3/schemas/85b5dd380a615a51d4636b23c9b5bfeea0b1ae5514b0869d
  Alt ID			:	_acopprod3.schemas.85b5dd380a615a51d4636b23c9b5bfeea0b1ae5514b0869d
  Type			:	schemas
  IMS Org		:	FAF554945B90342F0A495E2C@AdobeOrg
@@ -27,19 +26,19 @@ import Foundation
 
 struct MobilePushTrackingSchema: XDMSchema {
     public let schemaVersion = "1.1"
-    public let schemaIdentifier = "https://ns.adobe.com/acopprod3/schemas/85b5dd380a615a51d4636b23c9b5bfeea0b1ae5514b0869d"
-    public let datasetIdentifier = "5ef4e17127870a1915d1cb95"
+    public let schemaIdentifier = ""
+    public let datasetIdentifier = ""
 
     public init() {}
 
-    public var acopprod3: Acopprod3?
+    public var pushNotificationTracking: PushNotificationTracking?
     public var eventMergeId: String?
     public var eventType: String?
     public var identityMap: IdentityMap?
     public var timestamp: Date?
 
     enum CodingKeys: String, CodingKey {
-        case acopprod3 = "_acopprod3"
+        case pushNotificationTracking = "pushNotificationTracking"
         case eventMergeId = "eventMergeId"
         case eventType = "eventType"
         case identityMap = "identityMap"
@@ -50,7 +49,7 @@ struct MobilePushTrackingSchema: XDMSchema {
 extension MobilePushTrackingSchema {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        if let unwrapped = acopprod3 { try container.encode(unwrapped, forKey: .acopprod3) }
+        if let unwrapped = pushNotificationTracking { try container.encode(unwrapped, forKey: .pushNotificationTracking) }
         if let unwrapped = eventMergeId { try container.encode(unwrapped, forKey: .eventMergeId) }
         if let unwrapped = eventType { try container.encode(unwrapped, forKey: .eventType) }
         if let unwrapped = identityMap { try container.encode(unwrapped, forKey: .identityMap) }
