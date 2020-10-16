@@ -255,6 +255,10 @@ public class Messaging: NSObject, Extension {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to track information. Xdm json serialization failed")
             return
         }
+        
+        // Add application specific tracking data
+        let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool ?? false
+        addApplicationData(applicationOpened: applicationOpened, schemaXml: &xdmMap)
 
         // Add adobe specific tracking data
         addAdobeData(eventData: eventData, schemaXml: &xdmMap)
@@ -284,23 +288,34 @@ public class Messaging: NSObject, Extension {
         }
 
         // Check if the required key is available
-        if let cjmData = adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
+        if let cjmData = adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.CJM] as? [String: Any] {
             for (key, value) in cjmData as [String: Any] {
                 schemaXml[key] = value
             }
             // Adding the messageProfile adobe data
             if var experienceDict = schemaXml[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] as? [String: Any] {
-                guard let messageProfile = convertStringToDictionary(text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
-                    Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update adobe tracking information. Messaging profile data is malformed.")
-                    return
+                if var cjmDict = experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
+                    guard let messageProfile = convertStringToDictionary(text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
+                        Log.warning(label: MessagingConstants.LOG_TAG,
+                                    "Failed to update adobe tracking information. Messaging profile data is malformed.")
+                        return
+                    }
+                    // Merging the dictionary
+                    cjmDict += messageProfile
+                    experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] = cjmDict
+                    schemaXml[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] = experienceDict
                 }
-                // Merging the dictionary
-                experienceDict += messageProfile
-                schemaXml[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] = experienceDict
             }
         } else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update adobe tracking information. Adobe tracking data is missing cjm key.")
         }
+    }
+    
+    /// Adding application data based on the application opened or not
+    private func addApplicationData(applicationOpened: Bool, schemaXml: inout [String: Any]) {
+        schemaXml[MessagingConstants.AdobeTrackingKeys.APPLICATION] =
+            [MessagingConstants.AdobeTrackingKeys.LAUNCHES:
+                [MessagingConstants.AdobeTrackingKeys.LAUNCHES_VALUE: applicationOpened ? 1 : 0]]
     }
 
     /// Creates the xdm schema from event data
@@ -309,31 +324,28 @@ public class Messaging: NSObject, Extension {
     /// - Returns: MobilePushTrackingSchema xdm schema object which conatins the push click-through tracking informations
     private func getXdmSchema(eventData: [AnyHashable: Any]) -> MobilePushTrackingSchema? {
         let eventType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String
-        let id = eventData[MessagingConstants.EventDataKeys.ID] as? String
+        let messageId = eventData[MessagingConstants.EventDataKeys.ID] as? String
         let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool
         let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String
 
-        if eventType == nil || eventType?.isEmpty == true || id == nil || id?.isEmpty == true {
+        if eventType == nil || eventType?.isEmpty == true || messageId == nil || messageId?.isEmpty == true {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to track information. EventType or MessageId received is null.")
             return nil
         }
 
         var schema = MobilePushTrackingSchema()
-        var acorprod3 = Acopprod3()
-        var track = Track()
+        var pushTrackingNotification = PushNotificationTracking()
         var customAction = CustomAction()
 
-        if applicationOpened == true {
-            track.applicationOpened = true
-        } else {
+        if applicationOpened == false {
             customAction.actionId = actionId
-            track.customAction = customAction
+            pushTrackingNotification.customAction = customAction
         }
 
         schema.eventType = eventType
-        track.id = id
-        acorprod3.track = track
-        schema.acopprod3 = acorprod3
+        pushTrackingNotification.pushProviderMessageID = messageId
+        pushTrackingNotification.pushProvider = "apns"
+        schema.pushNotificationTracking = pushTrackingNotification
 
         return schema
     }

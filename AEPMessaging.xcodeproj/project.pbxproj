@@ -12,10 +12,9 @@
 		925DF4A925227C4700A5DE31 /* AEPMessaging.h in Headers */ = {isa = PBXBuildFile; fileRef = 925DF4A725227C4700A5DE31 /* AEPMessaging.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		925DF4B425227C5C00A5DE31 /* Pods_AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 89EDABC723FED1C7AD87F91D /* Pods_AEPMessaging.framework */; };
 		925DF4BA25227DBE00A5DE31 /* Items.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4622522786F00A5DE31 /* Items.swift */; };
-		925DF4BB25227DBE00A5DE31 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4632522786F00A5DE31 /* Track.swift */; };
-		925DF4BC25227DBE00A5DE31 /* MobilePushTrackingSchemaTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4642522786F00A5DE31 /* MobilePushTrackingSchemaTest.swift */; };
+		925DF4BB25227DBE00A5DE31 /* PushNotificationTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4632522786F00A5DE31 /* PushNotificationTracking.swift */; };
+		925DF4BC25227DBE00A5DE31 /* MobilePushTrackingSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4642522786F00A5DE31 /* MobilePushTrackingSchema.swift */; };
 		925DF4BD25227DBE00A5DE31 /* CustomAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4652522786F00A5DE31 /* CustomAction.swift */; };
-		925DF4BE25227DBE00A5DE31 /* Acopprod3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4662522786F00A5DE31 /* Acopprod3.swift */; };
 		925DF4BF25227DBE00A5DE31 /* AuthenticatedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4672522786F00A5DE31 /* AuthenticatedState.swift */; };
 		925DF4C025227DBE00A5DE31 /* IdentityMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4682522786F00A5DE31 /* IdentityMap.swift */; };
 		925DF4C125227DBE00A5DE31 /* Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4692522786F00A5DE31 /* Messaging.swift */; };
@@ -76,10 +75,9 @@
 		925DF4572522786500A5DE31 /* AEPMessagingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AEPMessagingTests.swift; sourceTree = "<group>"; };
 		925DF4582522786500A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		925DF4622522786F00A5DE31 /* Items.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Items.swift; sourceTree = "<group>"; };
-		925DF4632522786F00A5DE31 /* Track.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
-		925DF4642522786F00A5DE31 /* MobilePushTrackingSchemaTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MobilePushTrackingSchemaTest.swift; sourceTree = "<group>"; };
+		925DF4632522786F00A5DE31 /* PushNotificationTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationTracking.swift; sourceTree = "<group>"; };
+		925DF4642522786F00A5DE31 /* MobilePushTrackingSchema.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MobilePushTrackingSchema.swift; sourceTree = "<group>"; };
 		925DF4652522786F00A5DE31 /* CustomAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomAction.swift; sourceTree = "<group>"; };
-		925DF4662522786F00A5DE31 /* Acopprod3.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Acopprod3.swift; sourceTree = "<group>"; };
 		925DF4672522786F00A5DE31 /* AuthenticatedState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticatedState.swift; sourceTree = "<group>"; };
 		925DF4682522786F00A5DE31 /* IdentityMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IdentityMap.swift; sourceTree = "<group>"; };
 		925DF4692522786F00A5DE31 /* Messaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Messaging.swift; sourceTree = "<group>"; };
@@ -198,10 +196,9 @@
 			isa = PBXGroup;
 			children = (
 				925DF4622522786F00A5DE31 /* Items.swift */,
-				925DF4632522786F00A5DE31 /* Track.swift */,
-				925DF4642522786F00A5DE31 /* MobilePushTrackingSchemaTest.swift */,
+				925DF4632522786F00A5DE31 /* PushNotificationTracking.swift */,
+				925DF4642522786F00A5DE31 /* MobilePushTrackingSchema.swift */,
 				925DF4652522786F00A5DE31 /* CustomAction.swift */,
-				925DF4662522786F00A5DE31 /* Acopprod3.swift */,
 				925DF4672522786F00A5DE31 /* AuthenticatedState.swift */,
 				925DF4682522786F00A5DE31 /* IdentityMap.swift */,
 			);
@@ -450,10 +447,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				925DF4BA25227DBE00A5DE31 /* Items.swift in Sources */,
-				925DF4BB25227DBE00A5DE31 /* Track.swift in Sources */,
-				925DF4BC25227DBE00A5DE31 /* MobilePushTrackingSchemaTest.swift in Sources */,
+				925DF4BB25227DBE00A5DE31 /* PushNotificationTracking.swift in Sources */,
+				925DF4BC25227DBE00A5DE31 /* MobilePushTrackingSchema.swift in Sources */,
 				925DF4BD25227DBE00A5DE31 /* CustomAction.swift in Sources */,
-				925DF4BE25227DBE00A5DE31 /* Acopprod3.swift in Sources */,
 				925DF4BF25227DBE00A5DE31 /* AuthenticatedState.swift in Sources */,
 				925DF4C025227DBE00A5DE31 /* IdentityMap.swift in Sources */,
 				925DF4C125227DBE00A5DE31 /* Messaging.swift in Sources */,

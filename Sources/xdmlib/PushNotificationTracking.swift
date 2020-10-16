@@ -12,32 +12,32 @@
  ----
  XDM Property Swift Object Generated 2020-06-18 09:41:36.004194 -0700 PDT m=+2.658479325 by XDMTool
 
- Title			:	Track
+ Title			:	PushNotificationTracking
  Description	:
  ----
  */
 
 import Foundation
 
-struct Track {
+struct PushNotificationTracking {
     public init() {}
 
-    public var applicationOpened: Bool?
     public var customAction: CustomAction?
-    public var id: String?
+    public var pushProviderMessageID: String?
+    public var pushProvider: String?
 
     enum CodingKeys: String, CodingKey {
-        case applicationOpened = "applicationOpened"
         case customAction = "customAction"
-        case id = "id"
+        case pushProviderMessageID = "pushProviderMessageID"
+        case pushProvider = "pushProvider"
     }
 }
 
-extension Track: Encodable {
+extension PushNotificationTracking: Encodable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        if let unwrapped = applicationOpened { try container.encode(unwrapped, forKey: .applicationOpened) }
         if let unwrapped = customAction { try container.encode(unwrapped, forKey: .customAction) }
-        if let unwrapped = id { try container.encode(unwrapped, forKey: .id) }
+        if let unwrapped = pushProviderMessageID { try container.encode(unwrapped, forKey: .pushProviderMessageID) }
+        if let unwrapped = pushProvider { try container.encode(unwrapped, forKey: .pushProvider) }
     }
 }
