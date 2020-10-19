@@ -164,7 +164,7 @@ public class Messaging: NSObject, Extension {
             Log.warning(label: MessagingConstants.LOG_TAG, "Experience Cloud id is invalid. All requests to sync with profile will fail.")
             return
         }
-        
+
         // get platform
         var platform = MessagingConstants.JsonValues.apns
         let useSandbox = config[MessagingConstants.SharedState.Configuration.useSandbox] as? Bool
@@ -217,7 +217,7 @@ public class Messaging: NSObject, Extension {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the push token, App bundle identifier is invalid.")
             return
         }
-        
+
         let postBodyString = String.init(format: MessagingConstants.Temp.postBodyBase, experienceCloudOrgId, profileDatasetId, ecid, appId, platform, token, ecid)
         let headers = ["Content-Type": "application/json"]
         let request = NetworkRequest(url: dccsUrl,
@@ -267,7 +267,7 @@ public class Messaging: NSObject, Extension {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to track information. Xdm json serialization failed")
             return
         }
-        
+
         // Add application specific tracking data
         let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool ?? false
         addApplicationData(applicationOpened: applicationOpened, schemaXml: &xdmMap)
@@ -316,7 +316,7 @@ public class Messaging: NSObject, Extension {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update adobe tracking information. Adobe tracking data is missing cjm key.")
         }
     }
-    
+
     /// Adding application data based on the application opened or not
     private func addApplicationData(applicationOpened: Bool, schemaXml: inout [String: Any]) {
         schemaXml[MessagingConstants.AdobeTrackingKeys.APPLICATION] =
@@ -369,10 +369,6 @@ public class Messaging: NSObject, Extension {
         }
         return nil
     }
-}
-
-func mayBeUseApnsSandbox() -> String {
-    return MessagingConstants.JsonValues.apns
 }
 
 func += <K, V> (left: inout [K: V], right: [K: V]) {
