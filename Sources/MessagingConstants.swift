@@ -147,6 +147,9 @@ enum MessagingConstants {
             // Messaging dataset ids
             static let profileDatasetId = "messaging.profileDataset"
             static let experienceEventDatasetId = "messaging.eventDataset"
+            
+            // config for whether to useSandbox or not
+            static let useSandbox = "messaging.useSandbox"
         }
 
         enum Identity {

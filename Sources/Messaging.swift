@@ -159,13 +159,20 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // TEMP: Send profile DatasetId
+        // TEMP: Send experience Cloud Org ID
         guard let experienceCloudOrgId = config[MessagingConstants.SharedState.Configuration.experienceCloudOrgId] as? String else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Experience Cloud id is invalid. All requests to sync with profile will fail.")
             return
         }
+        
+        // get platform
+        var platform = MessagingConstants.JsonValues.apns
+        let useSandbox = config[MessagingConstants.SharedState.Configuration.useSandbox] as? Bool
+        if useSandbox != nil && useSandbox == true {
+            platform = MessagingConstants.JsonValues.apnsSandbox
+        }
 
-        // TEMP: Send profile DatasetId
+        // get profile DatasetId
         guard let profileDatasetId = config[MessagingConstants.SharedState.Configuration.profileDatasetId] as? String else {
             Log.warning(label: MessagingConstants.LOG_TAG, "DCCS endpoint is invalid. All requests to sync with profile will fail.")
             return
@@ -193,7 +200,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        sendPushToken(experienceCloudOrgId: experienceCloudOrgId, profileDatasetId: profileDatasetId, ecid: ecid, token: token, dccsUrl: dccsUrl)
+        sendPushToken(experienceCloudOrgId: experienceCloudOrgId, profileDatasetId: profileDatasetId, ecid: ecid, token: token, dccsUrl: dccsUrl, platform: platform)
     }
 
     /// Sends push  token using the dccsUrl and the predefined post body.
@@ -204,13 +211,14 @@ public class Messaging: NSObject, Extension {
     ///   - ecid: Experience cloud id
     ///   - token: Push token for the device
     ///   - dccsUrl: Endpoint used to send push token to the dataset
-    private func sendPushToken(experienceCloudOrgId: String, profileDatasetId: String, ecid: String, token: String, dccsUrl: URL) {
+    private func sendPushToken(experienceCloudOrgId: String, profileDatasetId: String, ecid: String, token: String, dccsUrl: URL, platform: String) {
         // send the request
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the push token, App bundle identifier is invalid.")
             return
         }
-        let postBodyString = String.init(format: MessagingConstants.Temp.postBodyBase, experienceCloudOrgId, profileDatasetId, ecid, appId, MessagingConstants.JsonValues.apnsSandbox, token, ecid)
+        
+        let postBodyString = String.init(format: MessagingConstants.Temp.postBodyBase, experienceCloudOrgId, profileDatasetId, ecid, appId, platform, token, ecid)
         let headers = ["Content-Type": "application/json"]
         let request = NetworkRequest(url: dccsUrl,
                                      httpMethod: .post,
@@ -361,6 +369,10 @@ public class Messaging: NSObject, Extension {
         }
         return nil
     }
+}
+
+func mayBeUseApnsSandbox() -> String {
+    return MessagingConstants.JsonValues.apns
 }
 
 func += <K, V> (left: inout [K: V], right: [K: V]) {

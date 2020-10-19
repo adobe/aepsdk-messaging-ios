@@ -315,9 +315,9 @@
 			);
 			mainGroup = 922FFCE6251B2BBA00BCE010;
 			packageReferences = (
-				92085932251B2D6C00B9C65A /* RemoteSwiftPackageReference */,
-				92085936251B2D7F00B9C65A /* RemoteSwiftPackageReference */,
-				925DF4DB25227F7500A5DE31 /* RemoteSwiftPackageReference */,
+				92085932251B2D6C00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-platform-ios" */,
+				92085936251B2D7F00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */,
+				925DF4DB25227F7500A5DE31 /* XCRemoteSwiftPackageReference "aepsdk-rulesengine-ios" */,
 			);
 			productRefGroup = 922FFCF0251B2BBA00BCE010 /* Products */;
 			projectDirPath = "";
@@ -742,7 +742,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		92085932251B2D6C00B9C65A /* RemoteSwiftPackageReference */ = {
+		92085932251B2D6C00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-platform-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/adobe/aepsdk-platform-ios.git";
 			requirement = {
@@ -750,7 +750,7 @@
 				kind = branch;
 			};
 		};
-		92085936251B2D7F00B9C65A /* RemoteSwiftPackageReference */ = {
+		92085936251B2D7F00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/adobe/aepsdk-core-ios.git";
 			requirement = {
@@ -758,7 +758,7 @@
 				kind = branch;
 			};
 		};
-		925DF4DB25227F7500A5DE31 /* RemoteSwiftPackageReference */ = {
+		925DF4DB25227F7500A5DE31 /* XCRemoteSwiftPackageReference "aepsdk-rulesengine-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/adobe/aepsdk-rulesengine-ios.git";
 			requirement = {
