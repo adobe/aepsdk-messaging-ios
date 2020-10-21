@@ -36,6 +36,7 @@ public class Messaging: NSObject, Extension {
         registerListener(type: MessagingConstants.EventTypes.configuration,
                          source: MessagingConstants.EventSources.responseContent,
                          listener: handleConfigurationResponse)
+
         // register listener for set push identifier events
         registerListener(type: MessagingConstants.EventTypes.genericIdentity,
                          source: MessagingConstants.EventSources.requestContent,
@@ -350,14 +351,19 @@ public class Messaging: NSObject, Extension {
 
         schema.eventType = eventType
         pushTrackingNotification.pushProviderMessageID = messageId
-        pushTrackingNotification.pushProvider = "apns"
+        pushTrackingNotification.pushProvider = MessagingConstants.JsonValues.apns
         schema.pushNotificationTracking = pushTrackingNotification
 
         return schema
     }
 
     /// Helper methods
-    func convertStringToDictionary(text: String) -> [String: Any]? {
+
+    /// Converts a dictionary string to dictionary object
+    /// - Parameters:
+    ///   - text: String dictionary which needs to be converted
+    /// - Returns: Dictionary
+    private func convertStringToDictionary(text: String) -> [String: Any]? {
         if let data = text.data(using: .utf8) {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String: Any]
@@ -371,6 +377,7 @@ public class Messaging: NSObject, Extension {
     }
 }
 
+/// Use to merge 2 dictionaries together
 func += <K, V> (left: inout [K: V], right: [K: V]) {
     for (keyy, value) in right {
         left[keyy] = value
