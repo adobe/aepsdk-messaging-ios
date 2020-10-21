@@ -28,11 +28,12 @@
 		928594162522880900B2BE47 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF4482522785700A5DE31 /* LaunchScreen.storyboard */; };
 		9285941C2522899700B2BE47 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44A2522785700A5DE31 /* Main.storyboard */; };
 		9285941E25228A1500B2BE47 /* ADBMobileConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44E2522785700A5DE31 /* ADBMobileConfig.json */; };
+		92896798253EBB3000E4A574 /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92896797253EBB3000E4A574 /* MockNetworkService.swift */; };
 		9296BA862537BFC0002C88F7 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
-		9296BA962537C171002C88F7 /* AEPMessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4572522786500A5DE31 /* AEPMessagingTests.swift */; };
 		9296BAAC2537C2F0002C88F7 /* MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9296BAA82537C2ED002C88F7 /* MessagingTests.swift */; };
 		9296BAC92537CADE002C88F7 /* TestableExtensionRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9296BAC82537CADE002C88F7 /* TestableExtensionRuntime.swift */; };
-		AF81CCE9E6C7C71B5BA468A7 /* Pods_AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF42725226DEA00A5DE31 /* Pods_AEPMessaging.framework */; };
+		92FA06EF2540AFEA00C89DF4 /* ApnsPayload.json in Resources */ = {isa = PBXBuildFile; fileRef = 92FA06EE2540AFEA00C89DF4 /* ApnsPayload.json */; };
+		92FA06F52540B0C200C89DF4 /* ApnsSandoxPayload.json in Resources */ = {isa = PBXBuildFile; fileRef = 92FA06F42540B0C200C89DF4 /* ApnsSandoxPayload.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,7 +87,6 @@
 		925DF44E2522785700A5DE31 /* ADBMobileConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ADBMobileConfig.json; sourceTree = "<group>"; };
 		925DF44F2522785700A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		925DF4502522785700A5DE31 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		925DF4572522786500A5DE31 /* AEPMessagingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AEPMessagingTests.swift; sourceTree = "<group>"; };
 		925DF4582522786500A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		925DF4622522786F00A5DE31 /* Items.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Items.swift; sourceTree = "<group>"; };
 		925DF4632522786F00A5DE31 /* PushNotificationTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationTracking.swift; sourceTree = "<group>"; };
@@ -101,10 +101,13 @@
 		925DF4A725227C4700A5DE31 /* AEPMessaging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AEPMessaging.h; sourceTree = "<group>"; };
 		925DF4A825227C4700A5DE31 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		928593FA2522823600B2BE47 /* Pods_MessagingDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_MessagingDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		92BCEC9C2538FC0E0068F8B8 /* AEPEdge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPEdge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		92896797253EBB3000E4A574 /* MockNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkService.swift; sourceTree = "<group>"; };
 		9296BA812537BFC0002C88F7 /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9296BAA82537C2ED002C88F7 /* MessagingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingTests.swift; sourceTree = "<group>"; };
 		9296BAC82537CADE002C88F7 /* TestableExtensionRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableExtensionRuntime.swift; sourceTree = "<group>"; };
+		92BCEC9C2538FC0E0068F8B8 /* AEPEdge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPEdge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		92FA06EE2540AFEA00C89DF4 /* ApnsPayload.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ApnsPayload.json; sourceTree = "<group>"; };
+		92FA06F42540B0C200C89DF4 /* ApnsSandoxPayload.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ApnsSandoxPayload.json; sourceTree = "<group>"; };
 		AF1B1A2A7D5EA1FDB1E5A7C7 /* Pods-AEPMessaging.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AEPMessaging.release.xcconfig"; path = "Target Support Files/Pods-AEPMessaging/Pods-AEPMessaging.release.xcconfig"; sourceTree = "<group>"; };
 		B721FA0E2ACF4397F173D467 /* Pods-AEPMessaging.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AEPMessaging.debug.xcconfig"; path = "Target Support Files/Pods-AEPMessaging/Pods-AEPMessaging.debug.xcconfig"; sourceTree = "<group>"; };
 		BFBB632D4EA1ADCEEB8DA1B1 /* Pods_UnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,7 +129,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				925DF4B425227C5C00A5DE31 /* Pods_AEPMessaging.framework in Frameworks */,
 				21E3460AF89FB17D2D3B19B4 /* Pods_AEPMessaging.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -206,9 +208,10 @@
 		925DF4562522786500A5DE31 /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				92FA06EE2540AFEA00C89DF4 /* ApnsPayload.json */,
+				92FA06F42540B0C200C89DF4 /* ApnsSandoxPayload.json */,
 				9296BAC72537CAC0002C88F7 /* utils */,
 				9296BAA82537C2ED002C88F7 /* MessagingTests.swift */,
-				925DF4572522786500A5DE31 /* AEPMessagingTests.swift */,
 				925DF4582522786500A5DE31 /* Info.plist */,
 			);
 			name = UnitTests;
@@ -252,6 +255,7 @@
 			isa = PBXGroup;
 			children = (
 				9296BAC82537CADE002C88F7 /* TestableExtensionRuntime.swift */,
+				92896797253EBB3000E4A574 /* MockNetworkService.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -417,6 +421,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92FA06F52540B0C200C89DF4 /* ApnsSandoxPayload.json in Resources */,
+				92FA06EF2540AFEA00C89DF4 /* ApnsPayload.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -572,9 +578,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92896798253EBB3000E4A574 /* MockNetworkService.swift in Sources */,
 				9296BAC92537CADE002C88F7 /* TestableExtensionRuntime.swift in Sources */,
 				9296BAAC2537C2F0002C88F7 /* MessagingTests.swift in Sources */,
-				9296BA962537C171002C88F7 /* AEPMessagingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -847,14 +853,14 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPCore\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPRulesEngine\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPServices\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPExperiencePlatform\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPEdge\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPCore/AEPCore.framework/Headers\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPRulesEngine/AEPRulesEngine.framework/Headers\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPServices/AEPServices.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPExperiencePlatform/AEPExperiencePlatform.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPEdge/AEPEdge.framework/Headers\"",
 				);
 				INFOPLIST_FILE = Tests/UnitTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -871,8 +877,6 @@
 					"\"AEPRulesEngine\"",
 					"-framework",
 					"\"AEPServices\"",
-					"-framework",
-					"\"AEPExperiencePlatform\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.UnitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -894,14 +898,14 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPCore\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPRulesEngine\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPServices\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPExperiencePlatform\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPEdge\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPCore/AEPCore.framework/Headers\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPRulesEngine/AEPRulesEngine.framework/Headers\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPServices/AEPServices.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPExperiencePlatform/AEPExperiencePlatform.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPEdge/AEPEdge.framework/Headers\"",
 				);
 				INFOPLIST_FILE = Tests/UnitTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -918,8 +922,6 @@
 					"\"AEPRulesEngine\"",
 					"-framework",
 					"\"AEPServices\"",
-					"-framework",
-					"\"AEPExperiencePlatform\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.UnitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -1,0 +1,34 @@
+{
+    "header": {
+      "imsOrgId": "mock_exp_org_id",
+      "source": {
+        "name": "mobile"
+      },
+      "datasetId": "mock_profile_dataset"
+    },
+    "body": {
+      "xdmEntity": {
+        "identityMap": {
+          "ECID": [
+            {
+              "id": "mock_ecid"
+            }
+          ]
+        },
+        "pushNotificationDetails": [
+          {
+            "appID": "com.apple.dt.xctest.tool",
+            "platform": "apnsSandbox",
+            "token": "mock_pushToken",
+            "blocklisted": false,
+            "identity": {
+              "namespace": {
+                "code": "ECID"
+              },
+              "id": "mock_ecid"
+            }
+          }
+        ]
+      }
+    }
+  }
