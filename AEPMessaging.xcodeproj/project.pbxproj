@@ -221,7 +221,7 @@
 		925DF45C2522786F00A5DE31 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				925DF4612522786F00A5DE31 /* xdmlib */,
+				925DF4612522786F00A5DE31 /* xdm */,
 				925DF4692522786F00A5DE31 /* Messaging.swift */,
 				925DF46A2522786F00A5DE31 /* MessagingConstants.swift */,
 				925DF46B2522786F00A5DE31 /* Info.plist */,
@@ -229,7 +229,7 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
-		925DF4612522786F00A5DE31 /* xdmlib */ = {
+		925DF4612522786F00A5DE31 /* xdm */ = {
 			isa = PBXGroup;
 			children = (
 				925DF4622522786F00A5DE31 /* Items.swift */,
@@ -239,7 +239,7 @@
 				925DF4672522786F00A5DE31 /* AuthenticatedState.swift */,
 				925DF4682522786F00A5DE31 /* IdentityMap.swift */,
 			);
-			path = xdmlib;
+			path = xdm;
 			sourceTree = "<group>";
 		};
 		925DF4A625227C4700A5DE31 /* AEPMessaging */ = {
@@ -329,6 +329,8 @@
 			dependencies = (
 			);
 			name = AEPMessaging;
+			packageProductDependencies = (
+			);
 			productName = AEPMessaging;
 			productReference = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */;
 			productType = "com.apple.product-type.framework";
@@ -383,9 +385,8 @@
 			);
 			mainGroup = 922FFCE6251B2BBA00BCE010;
 			packageReferences = (
-				92085932251B2D6C00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-platform-ios" */,
 				92085936251B2D7F00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */,
-				925DF4DB25227F7500A5DE31 /* XCRemoteSwiftPackageReference "aepsdk-rulesengine-ios" */,
+				928D8330254211F900FD0E6D /* XCRemoteSwiftPackageReference "aepsdk-edge-ios" */,
 			);
 			productRefGroup = 922FFCF0251B2BBA00BCE010 /* Products */;
 			projectDirPath = "";
@@ -801,7 +802,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.mobile.AEPMessaging;
+				MARKETING_VERSION = "1.0.0-alpha-1";
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -831,7 +833,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.mobile.AEPMessaging;
+				MARKETING_VERSION = "1.0.0-alpha-1";
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -973,14 +976,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		92085932251B2D6C00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-platform-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/adobe/aepsdk-platform-ios.git";
-			requirement = {
-				branch = dev;
-				kind = branch;
-			};
-		};
 		92085936251B2D7F00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/adobe/aepsdk-core-ios.git";
@@ -989,11 +984,11 @@
 				kind = branch;
 			};
 		};
-		925DF4DB25227F7500A5DE31 /* XCRemoteSwiftPackageReference "aepsdk-rulesengine-ios" */ = {
+		928D8330254211F900FD0E6D /* XCRemoteSwiftPackageReference "aepsdk-edge-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/adobe/aepsdk-rulesengine-ios.git";
+			repositoryURL = "https://github.com/adobe/aepsdk-edge-ios.git";
 			requirement = {
-				branch = dev;
+				branch = main;
 				kind = branch;
 			};
 		};

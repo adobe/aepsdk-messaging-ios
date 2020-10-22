@@ -331,7 +331,7 @@ public class Messaging: NSObject, Extension {
     /// - Returns: MobilePushTrackingSchema xdm schema object which conatins the push click-through tracking informations
     private func getXdmSchema(eventData: [AnyHashable: Any]) -> MobilePushTrackingSchema? {
         let eventType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String
-        let messageId = eventData[MessagingConstants.EventDataKeys.ID] as? String
+        let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String
         let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool
         let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String
 

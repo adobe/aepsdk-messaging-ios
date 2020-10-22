@@ -8,18 +8,11 @@
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
-
- ----
- XDM Property Swift Object Generated 2020-06-18 09:41:36.004194 -0700 PDT m=+2.658479325 by XDMTool
-
- Title			:	PushNotificationTracking
- Description	:
- ----
  */
 
 import Foundation
 
-struct PushNotificationTracking {
+internal struct PushNotificationTracking {
     public init() {}
 
     public var customAction: CustomAction?
@@ -27,9 +20,9 @@ struct PushNotificationTracking {
     public var pushProvider: String?
 
     enum CodingKeys: String, CodingKey {
-        case customAction = "customAction"
-        case pushProviderMessageID = "pushProviderMessageID"
-        case pushProvider = "pushProvider"
+        case customAction
+        case pushProviderMessageID
+        case pushProvider
     }
 }
 
