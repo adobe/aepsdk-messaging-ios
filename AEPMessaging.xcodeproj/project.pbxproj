@@ -6,6 +6,20 @@
 	objectVersion = 52;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		928D8364254225A700FD0E6D /* AEPMessagingXCF */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 928D8365254225A700FD0E6D /* Build configuration list for PBXAggregateTarget "AEPMessagingXCF" */;
+			buildPhases = (
+			);
+			dependencies = (
+				928D836F254226A000FD0E6D /* PBXTargetDependency */,
+			);
+			name = AEPMessagingXCF;
+			productName = AEPMessagingXCF;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		21E3460AF89FB17D2D3B19B4 /* Pods_AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF42725226DEA00A5DE31 /* Pods_AEPMessaging.framework */; };
 		65CEA3CBDFE2D1A8E88BAE27 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFBB632D4EA1ADCEEB8DA1B1 /* Pods_UnitTests.framework */; };
@@ -38,6 +52,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		9249A4E4252292AB009193AB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 925DF4A425227C4700A5DE31;
+			remoteInfo = AEPMessaging;
+		};
+		928D836E254226A000FD0E6D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
 			proxyType = 1;
@@ -370,6 +391,9 @@
 					925DF4A425227C4700A5DE31 = {
 						CreatedOnToolsVersion = 12.0.1;
 					};
+					928D8364254225A700FD0E6D = {
+						CreatedOnToolsVersion = 12.0.1;
+					};
 					9296BA802537BFC0002C88F7 = {
 						CreatedOnToolsVersion = 12.0.1;
 					};
@@ -395,6 +419,7 @@
 				925DF4A425227C4700A5DE31 /* AEPMessaging */,
 				92085981251BEB7100B9C65A /* MessagingDemoApp */,
 				9296BA802537BFC0002C88F7 /* UnitTests */,
+				928D8364254225A700FD0E6D /* AEPMessagingXCF */,
 			);
 		};
 /* End PBXProject section */
@@ -592,6 +617,11 @@
 			isa = PBXTargetDependency;
 			target = 925DF4A425227C4700A5DE31 /* AEPMessaging */;
 			targetProxy = 9249A4E4252292AB009193AB /* PBXContainerItemProxy */;
+		};
+		928D836F254226A000FD0E6D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 925DF4A425227C4700A5DE31 /* AEPMessaging */;
+			targetProxy = 928D836E254226A000FD0E6D /* PBXContainerItemProxy */;
 		};
 		9296BA882537BFC0002C88F7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -844,6 +874,26 @@
 			};
 			name = Release;
 		};
+		928D8366254225A700FD0E6D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FKGEE875K4;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		928D8367254225A700FD0E6D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FKGEE875K4;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		9296BA892537BFC0002C88F7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4452870CD3AE30802C0B5A32 /* Pods-UnitTests.debug.xcconfig */;
@@ -960,6 +1010,15 @@
 			buildConfigurations = (
 				925DF4AF25227C4700A5DE31 /* Debug */,
 				925DF4B025227C4700A5DE31 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		928D8365254225A700FD0E6D /* Build configuration list for PBXAggregateTarget "AEPMessagingXCF" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				928D8366254225A700FD0E6D /* Debug */,
+				928D8367254225A700FD0E6D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
