@@ -16,7 +16,7 @@ enum MessagingConstants {
 
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
-    static let EXTENSION_VERSION = "1.0.0-alpha-1"
+    static let EXTENSION_VERSION = "1.0.0-alpha-2"
     static let FRIENDLY_NAME = "AEPMessaging"
 
     enum EventDataKeys {

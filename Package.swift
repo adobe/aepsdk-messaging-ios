@@ -25,15 +25,14 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main")),
-        .package(url: "https://github.com/adobe/aepsdk-rulesengine-ios.git", .branch("main")),
         .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .branch("main"))
     ],
     targets: [
         .target(name: "AEPMessaging",
-                dependencies: ["AEPCore", "AEPRulesEngine", "AEPEdge"],
+                dependencies: ["AEPCore", "AEPEdge"],
                 path: "Sources"),
         .testTarget(name: "MessagingDemoApp",
-                    dependencies: ["AEPMessaging", "AEPEdge", "AEPCore", "AEPRulesEngine", "AEPIdentity", "AEPLifecycle", "AEPSignal"],
+                    dependencies: ["AEPMessaging", "AEPEdge", "AEPCore", "AEPIdentity", "AEPLifecycle", "AEPSignal"],
                     path: "SampleApps/MessagingDemoApp"),
         .testTarget(name: "UnitTests",
                     dependencies: ["AEPMessaging"],
