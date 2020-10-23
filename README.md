@@ -84,7 +84,8 @@ import AEPIdentity
 import AEPLifecycle
 ```
 
-#### Register the messaging extensions and configure the SDK with the assigned application identifier. To do this, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
+#### Registering the extension
+Register the messaging extensions and configure the SDK with the assigned application identifier. To do this, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
 
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -100,7 +101,8 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
  return true
 }
 ```
-#### Update the configuration to add required DCCS url. To do this, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
+#### Updating the configuration 
+To update the configuration with the required DCCS url, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
 
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -112,7 +114,9 @@ MobileCore.updateConfigurationWith(configDict: ["messaging.dccs": "DCCS_URL"])
 }
 ```
 
-#### Optionaly the apnsSandbox environment can be used for receiving the push notification.  To do this, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
+#### Using apnsSandbox environment for push notification
+Optionaly the apnsSandbox environment can be used for receiving the push notification.  To do this, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
+
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
