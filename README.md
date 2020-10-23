@@ -7,30 +7,32 @@ By using the Alpha, you hereby acknowledge that the Alpha is provided "as is" wi
 
 ## About this project
 
-Adobe Experience Platform Messaging extension allows you to send push notification token and push notification click through feedback to the Adobe Experience Platform.
+Adobe Experience Platform Messaging Extension is an extension for the [Adobe Experience Platform Swift SDK](https://github.com/adobe/aepsdk-core-ios).
 
-The Adobe Experience Platform Messaging Mobile Extension is an extension for the [Adobe Experience Platform SDK](https://github.com/Adobe-Marketing-Cloud/acp-sdks).
+The AEPMessaging extension allows you to send push notification tokens and push notification click-through feedback to the Adobe Experience Platform.
 
-To learn more about this extension, read [Adobe Experience Platform Messaging Mobile Extension](https://aep-sdks.gitbook.io/docs/Alpha/experience-platform-messaging-extension).
+<!-- commenting this line out until the link is not dead :) 
+To learn more about this extension, read [the documentation](https://aep-sdks.gitbook.io/docs/Alpha/experience-platform-messaging-extension).
+-->
 
 ## Requirements
 - Xcode 11.x
 - Swift 5.x
 
 ## Current version
-The Experience Platform Messaging extension for iOS is currently in Alpha development.
+The AEPMessaging extension for iOS is currently in Alpha development.
 
 ## Installation
 
 ### Binaries
 
-To generate an `AEPMessaging.xcframework`, run the following command:
+To generate `AEPMessaging.xcframework`, run the following command from the root directory:
 
 ```
 make archive
 ```
 
-This will generate the xcframework under the `build` folder. Drag and drop all the .xcframeworks to your app target.
+This will generate an XCFramework under the `build` folder. Drag and drop all the .xcframeworks to your app target.
 
 ### [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html)
 
@@ -55,18 +57,18 @@ To add the AEPEdge Package to your application, from the Xcode menu select:
 
 Enter the URL for the AEPMessaging package repository: `https://github.com/adobe/aepsdk-messaging-ios.git`.
 
-When prompted, make sure you change the branch to `main`. (Once the repo is public, we will reference specific tags/versions instead of a branch)
+When prompted, make sure you change the branch to `main`. 
 
 Alternatively, if your project has a `Package.swift` file, you can add AEPMessaging directly to your dependencies:
 
 ```
 dependencies: [
-    .package(url: "https://github.com/adobe/aepsdk-messaging-ios.git", .branch: "dev"),
+    .package(url: "https://github.com/adobe/aepsdk-messaging-ios.git", .branch("main"))
+],
 targets: [
-       .target(name: "YourTarget",
-                    dependencies: ["AEPMessaging"],
-              path: "your/path"),
-    ]
+    .target(name: "YourTarget", 
+            dependencies: ["AEPMessaging"], 
+            path: "your/path")
 ]
 ```
 
