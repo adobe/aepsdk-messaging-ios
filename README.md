@@ -125,7 +125,9 @@ MobileCore.updateConfigurationWith(configDict: ["messaging.useSandbox": true])
 
 ### APIs
 
-#### Syncing the push token to profile in platform. To do this, add the following code to Application Delegate's `application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data)` method:
+#### Syncing the push token to profile in platform. 
+
+To do this, add the following code to Application Delegate's `application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data)` method:
 ```swift
 func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
     MobileCore.setPushIdentifier(deviceToken: deviceToken)
