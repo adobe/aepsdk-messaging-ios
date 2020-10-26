@@ -8,30 +8,26 @@
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
-
- ----
- XDM Property Swift Object Generated 2020-06-18 09:41:36.004361 -0700 PDT m=+2.658646323 by XDMTool
-
- Title			:	IdentityMap
- Description	:
- ----
  */
 
 import Foundation
 
-struct IdentityMap {
+internal struct CustomAction {
     public init() {}
 
-    public var items: Items?
+    public var actionId: String?
+    public var value: Float?
 
     enum CodingKeys: String, CodingKey {
-        case items = "items"
+        case actionId
+        case value
     }
 }
 
-extension IdentityMap: Encodable {
+extension CustomAction: Encodable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        if let unwrapped = items { try container.encode(unwrapped, forKey: .items) }
+        if let unwrapped = actionId { try container.encode(unwrapped, forKey: .actionId) }
+        if let unwrapped = value { try container.encode(unwrapped, forKey: .value) }
     }
 }

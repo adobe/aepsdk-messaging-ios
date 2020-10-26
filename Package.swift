@@ -25,7 +25,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main")),
-        .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .branch("dev"))
+        .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .branch("main"))
     ],
     targets: [
         .target(name: "AEPMessaging",

@@ -16,13 +16,13 @@ enum MessagingConstants {
 
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
-    static let EXTENSION_VERSION = "0.0.1"
+    static let EXTENSION_VERSION = "1.0.0-alpha-2"
     static let FRIENDLY_NAME = "AEPMessaging"
 
     enum EventDataKeys {
         static let PUSH_IDENTIFIER = "pushidentifier"
         static let EVENT_TYPE = "eventType"
-        static let ID = "id"
+        static let MESSAGE_ID = "id"
         static let APPLICATION_OPENED = "applicationOpened"
         static let ACTION_ID = "actionId"
         // TEMP todo we need to define if this is the right key or do we need an extra api for this
@@ -31,12 +31,12 @@ enum MessagingConstants {
 
     enum AdobeTrackingKeys {
         static let CJM = "cjm"
-        static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement";
+        static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement"
         static let EXPERIENCE = "_experience"
         static let APPLICATION = "application"
         static let LAUNCHES = "launches"
         static let LAUNCHES_VALUE = "value"
-        
+
         static let MESSAGE_PROFILE_JSON = "{\n   \"messageProfile\":" +
             "{\n      \"channel\": {\n         \"_id\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
             ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
@@ -147,7 +147,7 @@ enum MessagingConstants {
             // Messaging dataset ids
             static let profileDatasetId = "messaging.profileDataset"
             static let experienceEventDatasetId = "messaging.eventDataset"
-            
+
             // config for whether to useSandbox or not
             static let useSandbox = "messaging.useSandbox"
         }

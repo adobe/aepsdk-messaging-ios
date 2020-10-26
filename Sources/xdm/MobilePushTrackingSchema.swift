@@ -8,24 +8,13 @@
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
-
- ----
- XDM Schema Swift Object Generated 2020-06-18 09:41:36.003857 -0700 PDT m=+2.658142707 by XDMTool
-
- Title			:	Mobile Push Tracking Schema Test
- Version		:	1.1
- Description	:
- Alt ID			:	_acopprod3.schemas.85b5dd380a615a51d4636b23c9b5bfeea0b1ae5514b0869d
- Type			:	schemas
- IMS Org		:	FAF554945B90342F0A495E2C@AdobeOrg
- ----
  */
 
 import AEPEdge
 import Foundation
 
-struct MobilePushTrackingSchema: XDMSchema {
-    public let schemaVersion = "1.1"
+internal struct MobilePushTrackingSchema: XDMSchema {
+    public let schemaVersion = ""
     public let schemaIdentifier = ""
     public let datasetIdentifier = ""
 
@@ -38,11 +27,11 @@ struct MobilePushTrackingSchema: XDMSchema {
     public var timestamp: Date?
 
     enum CodingKeys: String, CodingKey {
-        case pushNotificationTracking = "pushNotificationTracking"
-        case eventMergeId = "eventMergeId"
-        case eventType = "eventType"
-        case identityMap = "identityMap"
-        case timestamp = "timestamp"
+        case pushNotificationTracking
+        case eventMergeId
+        case eventType
+        case identityMap
+        case timestamp
     }
 }
 

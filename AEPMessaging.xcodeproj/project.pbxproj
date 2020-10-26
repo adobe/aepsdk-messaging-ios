@@ -6,6 +6,20 @@
 	objectVersion = 52;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		928D8364254225A700FD0E6D /* AEPMessagingXCF */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 928D8365254225A700FD0E6D /* Build configuration list for PBXAggregateTarget "AEPMessagingXCF" */;
+			buildPhases = (
+			);
+			dependencies = (
+				928D836F254226A000FD0E6D /* PBXTargetDependency */,
+			);
+			name = AEPMessagingXCF;
+			productName = AEPMessagingXCF;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		21E3460AF89FB17D2D3B19B4 /* Pods_AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF42725226DEA00A5DE31 /* Pods_AEPMessaging.framework */; };
 		65CEA3CBDFE2D1A8E88BAE27 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFBB632D4EA1ADCEEB8DA1B1 /* Pods_UnitTests.framework */; };
@@ -29,6 +43,7 @@
 		9285941C2522899700B2BE47 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44A2522785700A5DE31 /* Main.storyboard */; };
 		9285941E25228A1500B2BE47 /* ADBMobileConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44E2522785700A5DE31 /* ADBMobileConfig.json */; };
 		92896798253EBB3000E4A574 /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92896797253EBB3000E4A574 /* MockNetworkService.swift */; };
+		928D839325422DE000FD0E6D /* AEPCore in Frameworks */ = {isa = PBXBuildFile; productRef = 928D839225422DE000FD0E6D /* AEPCore */; };
 		9296BA862537BFC0002C88F7 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		9296BAAC2537C2F0002C88F7 /* MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9296BAA82537C2ED002C88F7 /* MessagingTests.swift */; };
 		9296BAC92537CADE002C88F7 /* TestableExtensionRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9296BAC82537CADE002C88F7 /* TestableExtensionRuntime.swift */; };
@@ -38,6 +53,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		9249A4E4252292AB009193AB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 925DF4A425227C4700A5DE31;
+			remoteInfo = AEPMessaging;
+		};
+		928D836E254226A000FD0E6D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
 			proxyType = 1;
@@ -129,6 +151,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				928D839325422DE000FD0E6D /* AEPCore in Frameworks */,
 				21E3460AF89FB17D2D3B19B4 /* Pods_AEPMessaging.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -221,7 +244,7 @@
 		925DF45C2522786F00A5DE31 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				925DF4612522786F00A5DE31 /* xdmlib */,
+				925DF4612522786F00A5DE31 /* xdm */,
 				925DF4692522786F00A5DE31 /* Messaging.swift */,
 				925DF46A2522786F00A5DE31 /* MessagingConstants.swift */,
 				925DF46B2522786F00A5DE31 /* Info.plist */,
@@ -229,7 +252,7 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
-		925DF4612522786F00A5DE31 /* xdmlib */ = {
+		925DF4612522786F00A5DE31 /* xdm */ = {
 			isa = PBXGroup;
 			children = (
 				925DF4622522786F00A5DE31 /* Items.swift */,
@@ -239,7 +262,7 @@
 				925DF4672522786F00A5DE31 /* AuthenticatedState.swift */,
 				925DF4682522786F00A5DE31 /* IdentityMap.swift */,
 			);
-			path = xdmlib;
+			path = xdm;
 			sourceTree = "<group>";
 		};
 		925DF4A625227C4700A5DE31 /* AEPMessaging */ = {
@@ -329,6 +352,9 @@
 			dependencies = (
 			);
 			name = AEPMessaging;
+			packageProductDependencies = (
+				928D839225422DE000FD0E6D /* AEPCore */,
+			);
 			productName = AEPMessaging;
 			productReference = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */;
 			productType = "com.apple.product-type.framework";
@@ -368,6 +394,9 @@
 					925DF4A425227C4700A5DE31 = {
 						CreatedOnToolsVersion = 12.0.1;
 					};
+					928D8364254225A700FD0E6D = {
+						CreatedOnToolsVersion = 12.0.1;
+					};
 					9296BA802537BFC0002C88F7 = {
 						CreatedOnToolsVersion = 12.0.1;
 					};
@@ -383,9 +412,8 @@
 			);
 			mainGroup = 922FFCE6251B2BBA00BCE010;
 			packageReferences = (
-				92085932251B2D6C00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-platform-ios" */,
-				92085936251B2D7F00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */,
-				925DF4DB25227F7500A5DE31 /* XCRemoteSwiftPackageReference "aepsdk-rulesengine-ios" */,
+				928D8330254211F900FD0E6D /* XCRemoteSwiftPackageReference "aepsdk-edge-ios" */,
+				928D839125422DE000FD0E6D /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */,
 			);
 			productRefGroup = 922FFCF0251B2BBA00BCE010 /* Products */;
 			projectDirPath = "";
@@ -394,6 +422,7 @@
 				925DF4A425227C4700A5DE31 /* AEPMessaging */,
 				92085981251BEB7100B9C65A /* MessagingDemoApp */,
 				9296BA802537BFC0002C88F7 /* UnitTests */,
+				928D8364254225A700FD0E6D /* AEPMessagingXCF */,
 			);
 		};
 /* End PBXProject section */
@@ -591,6 +620,11 @@
 			isa = PBXTargetDependency;
 			target = 925DF4A425227C4700A5DE31 /* AEPMessaging */;
 			targetProxy = 9249A4E4252292AB009193AB /* PBXContainerItemProxy */;
+		};
+		928D836F254226A000FD0E6D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 925DF4A425227C4700A5DE31 /* AEPMessaging */;
+			targetProxy = 928D836E254226A000FD0E6D /* PBXContainerItemProxy */;
 		};
 		9296BA882537BFC0002C88F7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -801,7 +835,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.mobile.AEPMessaging;
+				MARKETING_VERSION = "1.0.0-alpha-2";
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -831,13 +866,34 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.mobile.AEPMessaging;
+				MARKETING_VERSION = "1.0.0-alpha-2";
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		928D8366254225A700FD0E6D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FKGEE875K4;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		928D8367254225A700FD0E6D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FKGEE875K4;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -961,6 +1017,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		928D8365254225A700FD0E6D /* Build configuration list for PBXAggregateTarget "AEPMessagingXCF" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				928D8366254225A700FD0E6D /* Debug */,
+				928D8367254225A700FD0E6D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9296BA8B2537BFC0002C88F7 /* Build configuration list for PBXNativeTarget "UnitTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -973,15 +1038,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		92085932251B2D6C00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-platform-ios" */ = {
+		928D8330254211F900FD0E6D /* XCRemoteSwiftPackageReference "aepsdk-edge-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/adobe/aepsdk-platform-ios.git";
+			repositoryURL = "https://github.com/adobe/aepsdk-edge-ios.git";
 			requirement = {
-				branch = dev;
+				branch = main;
 				kind = branch;
 			};
 		};
-		92085936251B2D7F00B9C65A /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */ = {
+		928D839125422DE000FD0E6D /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/adobe/aepsdk-core-ios.git";
 			requirement = {
@@ -989,15 +1054,15 @@
 				kind = branch;
 			};
 		};
-		925DF4DB25227F7500A5DE31 /* XCRemoteSwiftPackageReference "aepsdk-rulesengine-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/adobe/aepsdk-rulesengine-ios.git";
-			requirement = {
-				branch = dev;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		928D839225422DE000FD0E6D /* AEPCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 928D839125422DE000FD0E6D /* XCRemoteSwiftPackageReference "aepsdk-core-ios" */;
+			productName = AEPCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 922FFCE7251B2BBA00BCE010 /* Project object */;
 }

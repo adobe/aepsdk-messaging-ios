@@ -14,8 +14,8 @@
         "package": "AEPEdge",
         "repositoryURL": "https://github.com/adobe/aepsdk-edge-ios.git",
         "state": {
-          "branch": "dev",
-          "revision": "73489cbef9e520b3d6021fff5bd2c4e7237d7562",
+          "branch": "main",
+          "revision": "2ee45ebdeb1d671dbb45479d5bf4da2f2d931627",
           "version": null
         }
       },
