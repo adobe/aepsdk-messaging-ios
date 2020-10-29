@@ -79,7 +79,7 @@ Additional documentation for configuration and sdk usage can be found under the 
 The AEP Messaging Demo application is a sample app which demonstrates how to send psuh notification token and notification click through feedback
 
 ## Contributing
-Looking to contribute to this project? Please review our [Contributing guidelines](CONTRIBUTING.md) prior to opening a pull request.
+Looking to contribute to this project? Please review our [Contributing guidelines](.github/CONTRIBUTING.md) prior to opening a pull request.
 
 We look forward to working with you!
 

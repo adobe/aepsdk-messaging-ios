@@ -68,7 +68,7 @@ enum MessagingConstants {
      "xdm:appID": "75eafb7e-fa44-4514-86fc-221e32c5aef9",
      "xdm:token": "99156313-c9df-4e54-9c6c-5740f940c3ca",
      "xdm:platform": "apns",
-     "xdm:blacklisted": false,
+     "xdm:denylisted": false,
      "xdm:identity": {
      "xdm:namespace": {
      "xdm:code": "ECID"
@@ -103,7 +103,7 @@ enum MessagingConstants {
             "                    \"appID\": \"%@\",\n" +
             "                    \"platform\": \"%@\",\n" +
             "                    \"token\": \"%@\",\n" +
-            "                    \"blocklisted\": false,\n" +
+            "                    \"denylisted\": false,\n" +
             "                    \"identity\": {\n" +
             "                        \"namespace\": {\n" +
             "                            \"code\": \"ECID\"\n" +
@@ -121,7 +121,7 @@ enum MessagingConstants {
         static let appId = "appID"
         static let token = "token"
         static let platform = "platform"
-        static let blacklisted = "blacklisted"
+        static let denylisted = "denylisted"
         static let identity = "identiy"
         static let namespace = "namespace"
         static let code = "code"
