@@ -213,10 +213,31 @@ class MessagingTests: XCTestCase {
 
         //verify
         XCTAssertEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
-        let dict1 = readJSONFromFile(fileName: "ApnsPayload")! as [String: Any]
-        let dict2 = convertToDictionary(text: self.mockNetworkService?.actualNetworkRequest?.connectPayload ?? "")! as [String: Any]
+        XCTAssertEqual(MOCK_APNSSANDBOX_JSON, self.mockNetworkService?.actualNetworkRequest?.connectPayload)
+    }
 
-        //XCTAssertTrue(dict1 == dict2)
+    // validating handleProcessEvent with working apns sandbox
+    func testhandleProcessEvent_withApns() {
+        let mockConfig = [MessagingConstants.SharedState.Configuration.dccsEndpoint: MOCK_DCCS_URL, MessagingConstants.SharedState.Configuration.profileDatasetId: MOCK_PROFILE_DATASET,
+                          MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
+                          MessagingConstants.SharedState.Configuration.experienceCloudOrgId: MOCK_EXP_ORG_ID,
+                          MessagingConstants.SharedState.Configuration.useSandbox: false] as [String: Any]
+
+        let mockIdentity = [MessagingConstants.SharedState.Identity.ecid: MOCK_ECID]
+
+        let eventData: [String: Any] = [MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
+                                        MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
+
+        let event: Event = Event(name: "handleProcessEvent", type: MessagingConstants.EventTypes.genericIdentity, source: MessagingConstants.EventSources.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.name, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Identity.name, data: (value: mockIdentity, status: SharedStateStatus.set))
+
+        //test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+
+        //verify
+        XCTAssertEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
+        XCTAssertEqual(MOCK_APNS_JSON, self.mockNetworkService?.actualNetworkRequest?.connectPayload)
     }
 
     // validating handleProcessEvent with Tracking info event when event data is empty
