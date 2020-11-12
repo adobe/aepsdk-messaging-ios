@@ -32,6 +32,7 @@ enum MessagingConstants {
     }
 
     enum AdobeTrackingKeys {
+        static let XDM = "_xdm"
         static let CJM = "cjm"
         static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement"
         static let EXPERIENCE = "_experience"

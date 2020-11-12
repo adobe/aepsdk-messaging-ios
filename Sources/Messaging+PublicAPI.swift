@@ -15,18 +15,19 @@ import AEPServices
 import UserNotifications
 
 public extension Messaging {
-            
-    /// Sends the push notification interactions details as an event to Adobe Experience Edge.
+
+    /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
-    static func trackPushNotification(response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
-        guard let xdm = response.notification.request.content.userInfo["_xdm"] as? [String: Any] else {
+    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
+        let notificationRequest = response.notification.request
+        guard let xdm = notificationRequest.content.userInfo[MessagingConstants.AdobeTrackingKeys.XDM] as? [String: Any] else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction. XDM specific fields are missing.")
             return
         }
-        let messageId = response.notification.request.identifier
+        let messageId = notificationRequest.identifier
         if messageId.isEmpty {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction, Message Id is invalid in the response. ")
             return
@@ -37,7 +38,7 @@ public extension Messaging {
         } else {
             eventType = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION
         }
-        let eventData: [String: Any] = ["eventType": eventType, "id": messageId, "applicationOpened":  applicationOpened, "adobe": xdm]
+        let eventData: [String: Any] = ["eventType": eventType, "id": messageId, "applicationOpened": applicationOpened, "adobe": xdm]
         let event = Event(name: "Messaging Request Event",
                           type: MessagingConstants.EventTypes.MESSAGING,
                           source: MessagingConstants.EventSources.requestContent,
