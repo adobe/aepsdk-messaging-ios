@@ -16,14 +16,29 @@ import AEPIdentity
 import AEPLifecycle
 import AEPMessaging
 import UIKit
+import AEPSignal
+import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    
+    let notificationCenter = UNUserNotificationCenter.current()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        notificationCenter.delegate = self
+                
+        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+        
+        notificationCenter.requestAuthorization(options: options) {
+            (didAllow, error) in
+            if !didAllow {
+                print("User has declined notifications")
+            }
+        }
 
-        MobileCore.setLogLevel(level: .debug)
-        MobileCore.registerExtensions([Lifecycle.self, Identity.self, Messaging.self, Edge.self])
+        MobileCore.setLogLevel(.trace)
+        MobileCore.registerExtensions([Lifecycle.self, Identity.self, Messaging.self, Edge.self, Signal.self])
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
         // which has the edge configuration id needed by aep sdk
@@ -31,15 +46,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
         // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
-        MobileCore.updateConfigurationWith(configDict: ["messaging.dccs": "https://dcs.adobedc.net/collection/50e4420c668c3723225f608e21e320870854ef2fdb8008f718c38503bb39e48b",
-                                                        "messaging.profileDatasetId": "<profileDatasetId>", "messaging.eventDataset": "<expEventDatasetId>",
-                                                        "messaging.useSandbox":  true])
+        MobileCore.updateConfigurationWith(configDict: ["messaging.dccs":"https://dcs.adobedc.net/collection/50e4420c668c3723225f608e21e320870854ef2fdb8008f718c38503bb39e48b",
+            "messaging.profileDatasetId": "<profileDatasetId>",
+            "messaging.eventDataset": "<expEventDatasetId>",
+            "messaging.useSandbox":  true])
 
         // only start lifecycle if the application is not in the background
         if application.applicationState != .background {
             MobileCore.lifecycleStart(additionalContextData: nil)
         }
-
+        
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
 
@@ -75,11 +91,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
         let token = tokenParts.joined()
         print(token)
-        MobileCore.setPushIdentifier(deviceToken: deviceToken)
+        MobileCore.setPushIdentifier(deviceToken)
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        MobileCore.setPushIdentifier(deviceToken: nil)
+        MobileCore.setPushIdentifier(nil)
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -88,5 +104,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidEnterBackground(_ application: UIApplication) {
         MobileCore.lifecyclePause()
+    }
+    
+    func scheduleNotification() {
+            
+        let content = UNMutableNotificationContent()
+        
+        content.title = "Notification Title"
+        content.body = "This is example how to create "
+        content.userInfo = ["_xdm" : ["cjm" : ["_experience" : ["customerJourneyManagement" : ["messageExecution" : ["messageExecutionID" : "16-Sept-postman", "messageID" : "567", "journeyVersionID" : "some-journeyVersionId", "journeyVersionInstanceId" : "someJourneyVersionInstanceId"]]]]]]
+    
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
+        let identifier = "Local Notification"
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+        
+        notificationCenter.add(request) { (error) in
+            if let error = error {
+                print("Error \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                    willPresent notification: UNNotification,
+                                    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+            
+        completionHandler([.alert, .sound])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+                
+        Messaging.trackPushNotification(response: response, applicationOpened: true, customActionId: nil)
+        
+        completionHandler()
     }
 }

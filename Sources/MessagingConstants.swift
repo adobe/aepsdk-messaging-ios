@@ -27,6 +27,8 @@ enum MessagingConstants {
         static let ACTION_ID = "actionId"
         // TEMP todo we need to define if this is the right key or do we need an extra api for this
         static let ADOBE = "adobe"
+        static let EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED = "pushTracking.applicationOpened"
+        static let EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION = "pushTracking.customAction"
     }
 
     enum AdobeTrackingKeys {
@@ -52,8 +54,8 @@ enum MessagingConstants {
     enum EventTypes {
         static let hub = "com.adobe.eventType.hub"
         static let genericIdentity = "com.adobe.eventType.generic.identity"
-        static let genericData = "com.adobe.eventType.generic.data"
         static let configuration = "com.adobe.eventType.configuration"
+        static let MESSAGING = "com.adobe.eventType.messaging"
     }
 
     /*

@@ -37,14 +37,14 @@ public class Messaging: NSObject, Extension {
                          source: MessagingConstants.EventSources.responseContent,
                          listener: handleConfigurationResponse)
 
-        // register listener for set push identifier events
+        // register listener for set push identifier event
         registerListener(type: MessagingConstants.EventTypes.genericIdentity,
                          source: MessagingConstants.EventSources.requestContent,
                          listener: handleProcessEvent)
-
-        // register listener for collect message info (collect data) events
-        registerListener(type: MessagingConstants.EventTypes.genericData,
-                         source: MessagingConstants.EventSources.os,
+        
+        // register listener for Messaging request content event
+        registerListener(type: MessagingConstants.EventTypes.MESSAGING,
+                         source: MessagingConstants.EventSources.requestContent,
                          listener: handleProcessEvent)
     }
 
@@ -137,8 +137,8 @@ public class Messaging: NSObject, Extension {
         }
 
         // Check if the event type is MessagingConstants.EventTypes.genericData and eventSource is MessagingConstants.EventSources.os handle processing of the tracking information
-        if event.type == MessagingConstants.EventTypes.genericData
-            && event.source == MessagingConstants.EventSources.os && configSharedState.keys.contains(
+        if event.type == MessagingConstants.EventTypes.MESSAGING
+            && event.source == MessagingConstants.EventSources.requestContent && configSharedState.keys.contains(
                 MessagingConstants.SharedState.Configuration.experienceEventDatasetId) {
             handleTrackingInfo(event: event, configSharedState)
         }
