@@ -27,18 +27,26 @@ public extension Messaging {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction. XDM specific fields are missing.")
             return
         }
+
         let messageId = notificationRequest.identifier
         if messageId.isEmpty {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction, Message Id is invalid in the response. ")
             return
         }
+
         var eventType: String
         if customActionId == nil {
             eventType = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED
         } else {
             eventType = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION
         }
-        let eventData: [String: Any] = [MessagingConstants.EventDataKeys.EVENT_TYPE: eventType, MessagingConstants.EventDataKeys.MESSAGE_ID: messageId, MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened, MessagingConstants.EventDataKeys.ADOBE: xdm]
+
+        let eventData: [String: Any] = [
+            MessagingConstants.EventDataKeys.EVENT_TYPE: eventType,
+            MessagingConstants.EventDataKeys.MESSAGE_ID: messageId,
+            MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened,
+            MessagingConstants.EventDataKeys.ADOBE: xdm]
+
         let event = Event(name: "Messaging Request Event",
                           type: MessagingConstants.EventTypes.MESSAGING,
                           source: MessagingConstants.EventSources.requestContent,

@@ -112,7 +112,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.title = "Notification Title"
         content.body = "This is example how to create "
 
-        content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement": ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567", "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
+        content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
+                                                                ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
+                                                                                      "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
         let identifier = "Local Notification"
