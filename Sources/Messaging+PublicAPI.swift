@@ -38,7 +38,7 @@ public extension Messaging {
         } else {
             eventType = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION
         }
-        let eventData: [String: Any] = ["eventType": eventType, "id": messageId, "applicationOpened": applicationOpened, "adobe": xdm]
+        let eventData: [String: Any] = [MessagingConstants.EventDataKeys.EVENT_TYPE: eventType, MessagingConstants.EventDataKeys.MESSAGE_ID: messageId, MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened, MessagingConstants.EventDataKeys.ADOBE: xdm]
         let event = Event(name: "Messaging Request Event",
                           type: MessagingConstants.EventTypes.MESSAGING,
                           source: MessagingConstants.EventSources.requestContent,
