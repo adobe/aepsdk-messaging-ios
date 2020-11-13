@@ -127,6 +127,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
+    func scheduleNotificationWithCustomAction() {
+        let content = UNMutableNotificationContent()
+
+        content.title = "Notification Title"
+        content.body = "This is example how to create "
+        content.categoryIdentifier = "MEETING_INVITATION"
+        content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
+                                                                ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
+                                                                                      "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
+        let identifier = "Local Notification"
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+
+        // Define the custom actions.
+        let acceptAction = UNNotificationAction(identifier: "ACCEPT_ACTION",
+                                                title: "Accept",
+                                                options: UNNotificationActionOptions(rawValue: 0))
+        let declineAction = UNNotificationAction(identifier: "DECLINE_ACTION",
+                                                 title: "Decline",
+                                                 options: UNNotificationActionOptions(rawValue: 0))
+        // Define the notification type
+        let meetingInviteCategory =
+            UNNotificationCategory(identifier: "MEETING_INVITATION",
+                                   actions: [acceptAction, declineAction],
+                                   intentIdentifiers: [],
+                                   hiddenPreviewsBodyPlaceholder: "",
+                                   options: .customDismissAction)
+        // Register the notification type.
+        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter.setNotificationCategories([meetingInviteCategory])
+
+        notificationCenter.add(request) { error in
+            if let error = error {
+                print("Error \(error.localizedDescription)")
+            }
+        }
+    }
+
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
@@ -136,7 +175,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-        Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: nil)
+
+        // Perform the task associated with the action.
+        switch response.actionIdentifier {
+        case "ACCEPT_ACTION":
+            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: "ACCEPT_ACTION")
+            break
+
+        case "DECLINE_ACTION":
+            Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: "DECLINE_ACTION")
+            break
+
+        // Handle other actions…
+        default:
+            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: nil)
+        }
+
+        // Always call the completion handler when done.
         completionHandler()
     }
 }

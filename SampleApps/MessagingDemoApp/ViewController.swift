@@ -11,20 +11,24 @@
 //
 
 import AEPCore
-import UIKit
 import AEPMessaging
+import UIKit
 import UserNotifications
 
 class ViewController: UIViewController {
-    
-    var appDelegate = UIApplication.shared.delegate as? AppDelegate
+
+    weak var appDelegate = UIApplication.shared.delegate as? AppDelegate
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
 
-    @IBAction func collectMessageInfo(_ sender: Any) {
+    @IBAction func scheduleNotification(_ sender: Any) {
         self.appDelegate?.scheduleNotification()
+    }
+
+    @IBAction func scheduleNotificationWithCustomAction(_ sender: Any) {
+        self.appDelegate?.scheduleNotificationWithCustomAction()
     }
 }

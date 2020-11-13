@@ -41,7 +41,7 @@ public class Messaging: NSObject, Extension {
         registerListener(type: MessagingConstants.EventTypes.genericIdentity,
                          source: MessagingConstants.EventSources.requestContent,
                          listener: handleProcessEvent)
-        
+
         // register listener for Messaging request content event
         registerListener(type: MessagingConstants.EventTypes.MESSAGING,
                          source: MessagingConstants.EventSources.requestContent,
@@ -332,7 +332,6 @@ public class Messaging: NSObject, Extension {
     private func getXdmSchema(eventData: [AnyHashable: Any]) -> MobilePushTrackingSchema? {
         let eventType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String
         let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String
-        let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool
         let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String
 
         if eventType == nil || eventType?.isEmpty == true || messageId == nil || messageId?.isEmpty == true {
@@ -344,7 +343,7 @@ public class Messaging: NSObject, Extension {
         var pushTrackingNotification = PushNotificationTracking()
         var customAction = CustomAction()
 
-        if applicationOpened == false {
+        if actionId != nil {
             customAction.actionId = actionId
             pushTrackingNotification.customAction = customAction
         }

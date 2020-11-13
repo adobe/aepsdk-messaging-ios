@@ -34,18 +34,16 @@ public extension Messaging {
             return
         }
 
-        var eventType: String
+        // Creating event data with tracking informations
+        var eventData: [String: Any] = [MessagingConstants.EventDataKeys.MESSAGE_ID: messageId,
+                                        MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened,
+                                        MessagingConstants.EventDataKeys.ADOBE: xdm]
         if customActionId == nil {
-            eventType = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED
+            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED
         } else {
-            eventType = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION
+            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION
+            eventData[MessagingConstants.EventDataKeys.ACTION_ID] = customActionId
         }
-
-        let eventData: [String: Any] = [
-            MessagingConstants.EventDataKeys.EVENT_TYPE: eventType,
-            MessagingConstants.EventDataKeys.MESSAGE_ID: messageId,
-            MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened,
-            MessagingConstants.EventDataKeys.ADOBE: xdm]
 
         let event = Event(name: "Messaging Request Event",
                           type: MessagingConstants.EventTypes.MESSAGING,
