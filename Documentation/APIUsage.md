@@ -9,11 +9,12 @@ func application(_ application: UIApplication, didRegisterForRemoteNotifications
 }
 ```
 
-## Sending feedback about push notification interactions. 
+## Sending push notification interactions feedback to platform. 
 
+### Information needed for push notification interactions.
 | Key               | dataType   | Description                                                                                                                    |
 |-------------------|------------|--------------------------------------------------------------------------------------------------------------------------------|
-| response:            | UNNotificationResponse     | Notification response which contains all necessary information.                                                                                     |
+| response           | UNNotificationResponse     | Notification response which contains all necessary information.                                                                                 |
 | applicationOpened | boolean    | Whether application was opened or not                                                                                          |
 | customActionId          | String     | customActionId of the element which performed  the custom action.                                                                    |                                                                                                |
 
