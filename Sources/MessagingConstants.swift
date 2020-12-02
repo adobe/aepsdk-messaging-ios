@@ -26,7 +26,7 @@ enum MessagingConstants {
         static let APPLICATION_OPENED = "applicationOpened"
         static let ACTION_ID = "actionId"
         // TEMP todo we need to define if this is the right key or do we need an extra api for this
-        static let ADOBE = "adobe"
+        static let ADOBE_XDM = "adobe_xdm"
         static let EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED = "pushTracking.applicationOpened"
         static let EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION = "pushTracking.customAction"
     }
@@ -34,6 +34,7 @@ enum MessagingConstants {
     enum AdobeTrackingKeys {
         static let XDM = "_xdm"
         static let CJM = "cjm"
+        static let MIXINS = "mixins"
         static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement"
         static let EXPERIENCE = "_experience"
         static let APPLICATION = "application"
@@ -43,6 +44,15 @@ enum MessagingConstants {
         static let MESSAGE_PROFILE_JSON = "{\n   \"messageProfile\":" +
             "{\n      \"channel\": {\n         \"_id\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
             ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
+    }
+
+    enum XDMDataKeys {
+        static let ACTION_ID = "actionID"
+        static let CUSTOM_ACTION = "customAction"
+        static let PUSH_PROVIDER_MESSAGE_ID = "pushProviderMessageID"
+        static let PUSH_PROVIDER = "pushProvider"
+        static let EVENT_TYPE = "eventType"
+        static let PUSH_NOTIFICATION_TRACKING = "pushNotificationTracking"
     }
 
     enum EventSources {
@@ -57,6 +67,7 @@ enum MessagingConstants {
         static let genericIdentity = "com.adobe.eventType.generic.identity"
         static let configuration = "com.adobe.eventType.configuration"
         static let MESSAGING = "com.adobe.eventType.messaging"
+        static let EDGE = "com.adobe.eventType.edge"
     }
 
     /*

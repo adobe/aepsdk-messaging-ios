@@ -37,7 +37,7 @@ public extension Messaging {
         // Creating event data with tracking informations
         var eventData: [String: Any] = [MessagingConstants.EventDataKeys.MESSAGE_ID: messageId,
                                         MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened,
-                                        MessagingConstants.EventDataKeys.ADOBE: xdm]
+                                        MessagingConstants.EventDataKeys.ADOBE_XDM: xdm]
         if customActionId == nil {
             eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED
         } else {

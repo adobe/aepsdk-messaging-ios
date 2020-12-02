@@ -11,7 +11,6 @@
 //
 
 import AEPCore
-import AEPEdge
 import AEPServices
 import XCTest
 

@@ -26,12 +26,6 @@
 		9249A4E2252292AB009193AB /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		9249A4E3252292AB009193AB /* AEPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		925DF4A925227C4700A5DE31 /* AEPMessaging.h in Headers */ = {isa = PBXBuildFile; fileRef = 925DF4A725227C4700A5DE31 /* AEPMessaging.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		925DF4BA25227DBE00A5DE31 /* Items.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4622522786F00A5DE31 /* Items.swift */; };
-		925DF4BB25227DBE00A5DE31 /* PushNotificationTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4632522786F00A5DE31 /* PushNotificationTracking.swift */; };
-		925DF4BC25227DBE00A5DE31 /* MobilePushTrackingSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4642522786F00A5DE31 /* MobilePushTrackingSchema.swift */; };
-		925DF4BD25227DBE00A5DE31 /* CustomAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4652522786F00A5DE31 /* CustomAction.swift */; };
-		925DF4BF25227DBE00A5DE31 /* AuthenticatedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4672522786F00A5DE31 /* AuthenticatedState.swift */; };
-		925DF4C025227DBE00A5DE31 /* IdentityMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4682522786F00A5DE31 /* IdentityMap.swift */; };
 		925DF4C125227DBE00A5DE31 /* Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4692522786F00A5DE31 /* Messaging.swift */; };
 		925DF4C225227DBE00A5DE31 /* MessagingConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF46A2522786F00A5DE31 /* MessagingConstants.swift */; };
 		928593FB2522823600B2BE47 /* Pods_MessagingDemoApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 928593FA2522823600B2BE47 /* Pods_MessagingDemoApp.framework */; };
@@ -108,12 +102,6 @@
 		925DF44F2522785700A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		925DF4502522785700A5DE31 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		925DF4582522786500A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		925DF4622522786F00A5DE31 /* Items.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Items.swift; sourceTree = "<group>"; };
-		925DF4632522786F00A5DE31 /* PushNotificationTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationTracking.swift; sourceTree = "<group>"; };
-		925DF4642522786F00A5DE31 /* MobilePushTrackingSchema.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MobilePushTrackingSchema.swift; sourceTree = "<group>"; };
-		925DF4652522786F00A5DE31 /* CustomAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomAction.swift; sourceTree = "<group>"; };
-		925DF4672522786F00A5DE31 /* AuthenticatedState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticatedState.swift; sourceTree = "<group>"; };
-		925DF4682522786F00A5DE31 /* IdentityMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IdentityMap.swift; sourceTree = "<group>"; };
 		925DF4692522786F00A5DE31 /* Messaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Messaging.swift; sourceTree = "<group>"; };
 		925DF46A2522786F00A5DE31 /* MessagingConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingConstants.swift; sourceTree = "<group>"; };
 		925DF46B2522786F00A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -238,26 +226,12 @@
 		925DF45C2522786F00A5DE31 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				925DF4612522786F00A5DE31 /* xdm */,
 				925DF4692522786F00A5DE31 /* Messaging.swift */,
 				925DF46A2522786F00A5DE31 /* MessagingConstants.swift */,
 				925DF46B2522786F00A5DE31 /* Info.plist */,
 				928B7ADC255B1E54006C7244 /* Messaging+PublicAPI.swift */,
 			);
 			path = Sources;
-			sourceTree = "<group>";
-		};
-		925DF4612522786F00A5DE31 /* xdm */ = {
-			isa = PBXGroup;
-			children = (
-				925DF4622522786F00A5DE31 /* Items.swift */,
-				925DF4632522786F00A5DE31 /* PushNotificationTracking.swift */,
-				925DF4642522786F00A5DE31 /* MobilePushTrackingSchema.swift */,
-				925DF4652522786F00A5DE31 /* CustomAction.swift */,
-				925DF4672522786F00A5DE31 /* AuthenticatedState.swift */,
-				925DF4682522786F00A5DE31 /* IdentityMap.swift */,
-			);
-			path = xdm;
 			sourceTree = "<group>";
 		};
 		925DF4A625227C4700A5DE31 /* AEPMessaging */ = {
@@ -582,13 +556,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				925DF4BA25227DBE00A5DE31 /* Items.swift in Sources */,
-				925DF4BB25227DBE00A5DE31 /* PushNotificationTracking.swift in Sources */,
-				925DF4BC25227DBE00A5DE31 /* MobilePushTrackingSchema.swift in Sources */,
 				928B7ADD255B1E54006C7244 /* Messaging+PublicAPI.swift in Sources */,
-				925DF4BD25227DBE00A5DE31 /* CustomAction.swift in Sources */,
-				925DF4BF25227DBE00A5DE31 /* AuthenticatedState.swift in Sources */,
-				925DF4C025227DBE00A5DE31 /* IdentityMap.swift in Sources */,
 				925DF4C125227DBE00A5DE31 /* Messaging.swift in Sources */,
 				925DF4C225227DBE00A5DE31 /* MessagingConstants.swift in Sources */,
 			);

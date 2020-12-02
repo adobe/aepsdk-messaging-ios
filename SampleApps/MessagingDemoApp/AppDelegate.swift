@@ -42,14 +42,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
         // which has the edge configuration id needed by aep sdk
-        MobileCore.configureWith(appId: "3805cb8645dd/bc3b07828814/launch-40db03288d1b-development")
+        MobileCore.configureWith(appId: "3149c49c3910/37b8929440ac/launch-cd35ef2ff581-development")
 
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
         // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
-        MobileCore.updateConfigurationWith(configDict: ["messaging.dccs": "https://dcs.adobedc.net/collection/50e4420c668c3723225f608e21e320870854ef2fdb8008f718c38503bb39e48b",
+        MobileCore.updateConfigurationWith(configDict: ["messaging.dccs": "https://dcs.adobedc.net/collection/e78a947b4aea3b3c22736bcc0da500a05a58667c72807e1821af00bd562ca7ab",
                                                         "messaging.profileDatasetId": "<profileDatasetId>",
-                                                        "messaging.eventDataset": "<expEventDatasetId>",
-                                                        "messaging.useSandbox": true])
+                                                        "messaging.eventDataset": "5f8e4c2d0056e4194aabb74e",
+                                                        "messaging.useSandbox": true,
+                                                        "edge.configId": "5bb51917-7c51-4bbf-b8d4-431aaa771586"])
 
         // only start lifecycle if the application is not in the background
         if application.applicationState != .background {

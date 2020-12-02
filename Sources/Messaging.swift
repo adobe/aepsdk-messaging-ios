@@ -11,7 +11,6 @@
  */
 
 import AEPCore
-import AEPEdge
 import AEPServices
 import Foundation
 
@@ -256,71 +255,76 @@ public class Messaging: NSObject, Extension {
         }
 
         // Get the schema and convert to xdm dictionary
-        guard let schema = getXdmSchema(eventData: eventData) else {
+        guard var xdmMap = getXdmData(eventData: eventData) else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to track information. Schema generation from eventData failed.")
-            return
-        }
-        guard let jsonXdm = try? JSONEncoder().encode(schema) else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to track information. Xdm creation failed")
-            return
-        }
-        guard var xdmMap = try? JSONSerialization.jsonObject(with: jsonXdm, options: []) as? [String: Any] else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to track information. Xdm json serialization failed")
             return
         }
 
         // Add application specific tracking data
         let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool ?? false
-        addApplicationData(applicationOpened: applicationOpened, schemaXml: &xdmMap)
+        addApplicationData(applicationOpened: applicationOpened, xdmData: &xdmMap)
 
         // Add adobe specific tracking data
-        addAdobeData(eventData: eventData, schemaXml: &xdmMap)
+        addAdobeData(eventData: eventData, xdmDict: &xdmMap)
 
-        // Creating experience event
-        let expEvent = ExperienceEvent.init(xdm: xdmMap, data: nil, datasetIdentifier: expEventDatasetId)
-        // Send experience event to aep sdk.
-        Edge.sendEvent(experienceEvent: expEvent)
-
-        return
+        // Creating xdm edge event data
+        var xdmEventData: [String: Any] = ["xdm": xdmMap, "meta": ["collect": ["datasetId": expEventDatasetId]]]
+        // Creating xdm edge event with request content source type
+        let event = Event(name: "Messaging Push Tracking Event",
+                          type: MessagingConstants.EventTypes.EDGE,
+                          source: MessagingConstants.EventSources.requestContent,
+                          data: xdmEventData)
+        MobileCore.dispatch(event: event)
     }
 
     /// Adding CJM specific data to tracking information schema map.
     /// - Parameters:
     ///  - eventData: Dictionary with adobe cjm tracking information
     ///  - schemaXml: Dictionary which is updated with the cjm tracking information.
-    private func addAdobeData(eventData: [AnyHashable: Any], schemaXml: inout [String: Any]) {
-        guard let adobeTrackingDict = eventData[MessagingConstants.EventDataKeys.ADOBE] as? [String: Any] else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update Adobe tracking information. adobe data is invalid.")
+    private func addAdobeData(eventData: [AnyHashable: Any], xdmDict: inout [String: Any]) {
+        guard let adobeTrackingDict = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any] else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update Adobe tracking information. Adobe data is invalid.")
             return
         }
 
-        // Check if the required key is available
-        if let cjmData = adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.CJM] as? [String: Any] {
-            for (key, value) in cjmData as [String: Any] {
-                schemaXml[key] = value
-            }
-            // Adding the messageProfile adobe data
-            if var experienceDict = schemaXml[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] as? [String: Any] {
-                if var cjmDict = experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
-                    guard let messageProfile = convertStringToDictionary(text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
-                        Log.warning(label: MessagingConstants.LOG_TAG,
-                                    "Failed to update adobe tracking information. Messaging profile data is malformed.")
-                        return
-                    }
-                    // Merging the dictionary
-                    cjmDict += messageProfile
-                    experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] = cjmDict
-                    schemaXml[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] = experienceDict
+        // Check for if the json has the required keys
+        guard let mixins = adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.CJM]
+                as? [String: Any] != nil ? adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.CJM]
+                as? [String: Any] : adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.MIXINS]
+                as? [String: Any] else {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Failed to send adobe data with the tracking data, Adobe data is malformed")
+            return
+        }
+
+        // Add all the key and value pair to xdmDict
+        for (key, value) in mixins as [String: Any] {
+            xdmDict[key] = value
+        }
+
+        // Check if the xdm data provided by the customer is using cjm for tracking
+        // Check if both {@link MessagingConstant#EXPERIENCE} and {@link MessagingConstant#CUSTOMER_JOURNEY_MANAGEMENT} exists
+        if var experienceDict = xdmDict[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] as? [String: Any] {
+            if var cjmDict = experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
+                // Adding Message profile and push channel context to CUSTOMER_JOURNEY_MANAGEMENT
+                guard let messageProfile = convertStringToDictionary(text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
+                    Log.warning(label: MessagingConstants.LOG_TAG,
+                                "Failed to update adobe tracking information. Messaging profile data is malformed.")
+                    return
                 }
+                // Merging the dictionary
+                cjmDict += messageProfile
+                experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] = cjmDict
+                xdmDict[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] = experienceDict
             }
         } else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update adobe tracking information. Adobe tracking data is missing cjm key.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to send cjm xdm data with the tracking, required keys are missing.")
         }
     }
 
     /// Adding application data based on the application opened or not
-    private func addApplicationData(applicationOpened: Bool, schemaXml: inout [String: Any]) {
-        schemaXml[MessagingConstants.AdobeTrackingKeys.APPLICATION] =
+    private func addApplicationData(applicationOpened: Bool, xdmData: inout [String: Any]) {
+        xdmData[MessagingConstants.AdobeTrackingKeys.APPLICATION] =
             [MessagingConstants.AdobeTrackingKeys.LAUNCHES:
                 [MessagingConstants.AdobeTrackingKeys.LAUNCHES_VALUE: applicationOpened ? 1 : 0]]
     }
@@ -329,7 +333,7 @@ public class Messaging: NSObject, Extension {
     /// - Parameters:
     ///   - eventData: Dictionary with push notification tracking information
     /// - Returns: MobilePushTrackingSchema xdm schema object which conatins the push click-through tracking informations
-    private func getXdmSchema(eventData: [AnyHashable: Any]) -> MobilePushTrackingSchema? {
+    private func getXdmData(eventData: [AnyHashable: Any]) -> [String: Any]? {
         let eventType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String
         let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String
         let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String
@@ -339,21 +343,18 @@ public class Messaging: NSObject, Extension {
             return nil
         }
 
-        var schema = MobilePushTrackingSchema()
-        var pushTrackingNotification = PushNotificationTracking()
-        var customAction = CustomAction()
-
+        var xdmDict: [String: Any] = [MessagingConstants.XDMDataKeys.EVENT_TYPE: eventType]
+        var pushNotificationTrackingDict: [String: Any] = [:]
+        var customActionDict: [String: Any] = [:]
         if actionId != nil {
-            customAction.actionId = actionId
-            pushTrackingNotification.customAction = customAction
+            customActionDict[MessagingConstants.XDMDataKeys.ACTION_ID] = actionId
+            pushNotificationTrackingDict[MessagingConstants.XDMDataKeys.CUSTOM_ACTION] = customActionDict
         }
+        pushNotificationTrackingDict[MessagingConstants.XDMDataKeys.PUSH_PROVIDER_MESSAGE_ID] = messageId
+        pushNotificationTrackingDict[MessagingConstants.XDMDataKeys.PUSH_PROVIDER] = MessagingConstants.JsonValues.apns
+        xdmDict[MessagingConstants.XDMDataKeys.PUSH_NOTIFICATION_TRACKING] = pushNotificationTrackingDict
 
-        schema.eventType = eventType
-        pushTrackingNotification.pushProviderMessageID = messageId
-        pushTrackingNotification.pushProvider = MessagingConstants.JsonValues.apns
-        schema.pushNotificationTracking = pushTrackingNotification
-
-        return schema
+        return xdmDict
     }
 
     /// Helper methods
