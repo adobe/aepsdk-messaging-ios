@@ -32,7 +32,7 @@ enum MessagingConstants {
     }
 
     enum AdobeTrackingKeys {
-        static let XDM = "_xdm"
+        static let _XDM = "_xdm"
         static let CJM = "cjm"
         static let MIXINS = "mixins"
         static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement"
@@ -47,6 +47,10 @@ enum MessagingConstants {
     }
 
     enum XDMDataKeys {
+        static let XDM = "xdm"
+        static let META = "meta"
+        static let COLLECT = "collect"
+        static let DATASET_ID = "datasetId"
         static let ACTION_ID = "actionID"
         static let CUSTOM_ACTION = "customAction"
         static let PUSH_PROVIDER_MESSAGE_ID = "pushProviderMessageID"

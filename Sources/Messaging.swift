@@ -262,13 +262,15 @@ public class Messaging: NSObject, Extension {
 
         // Add application specific tracking data
         let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool ?? false
-        addApplicationData(applicationOpened: applicationOpened, xdmData: &xdmMap)
+        xdmMap = addApplicationData(applicationOpened: applicationOpened, xdmData: xdmMap)
 
-        // Add adobe specific tracking data
-        addAdobeData(eventData: eventData, xdmDict: &xdmMap)
+        // Add Adobe specific tracking data
+        xdmMap = addAdobeData(eventData: eventData, xdmDict: xdmMap)
 
         // Creating xdm edge event data
-        var xdmEventData: [String: Any] = ["xdm": xdmMap, "meta": ["collect": ["datasetId": expEventDatasetId]]]
+        let xdmEventData: [String: Any] = [MessagingConstants.XDMDataKeys.XDM: xdmMap, MessagingConstants.XDMDataKeys.META: [
+                                            MessagingConstants.XDMDataKeys.COLLECT: [
+                                                MessagingConstants.XDMDataKeys.DATASET_ID: expEventDatasetId]]]
         // Creating xdm edge event with request content source type
         let event = Event(name: "Messaging Push Tracking Event",
                           type: MessagingConstants.EventTypes.EDGE,
@@ -279,54 +281,59 @@ public class Messaging: NSObject, Extension {
 
     /// Adding CJM specific data to tracking information schema map.
     /// - Parameters:
-    ///  - eventData: Dictionary with adobe cjm tracking information
+    ///  - eventData: Dictionary with Adobe cjm tracking information
     ///  - schemaXml: Dictionary which is updated with the cjm tracking information.
-    private func addAdobeData(eventData: [AnyHashable: Any], xdmDict: inout [String: Any]) {
+    private func addAdobeData(eventData: [AnyHashable: Any], xdmDict: [String: Any]) -> [String: Any] {
+        var xdmDictResult = xdmDict
         guard let adobeTrackingDict = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any] else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update Adobe tracking information. Adobe data is invalid.")
-            return
+            return xdmDictResult
         }
 
-        // Check for if the json has the required keys
-        guard let mixins = adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.CJM]
-                as? [String: Any] != nil ? adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.CJM]
-                as? [String: Any] : adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.MIXINS]
-                as? [String: Any] else {
-            Log.warning(label: MessagingConstants.LOG_TAG,
-                        "Failed to send adobe data with the tracking data, Adobe data is malformed")
-            return
+        // Check if the json has the required keys
+        var mixins: [String: Any]? = adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.MIXINS] as? [String: Any]
+        // If key `mixins` is not present check for cjm
+        if mixins == nil {
+            // check if CJM key is not present return the orginal xdmDict
+            guard let cjm: [String: Any] = adobeTrackingDict[MessagingConstants.AdobeTrackingKeys.CJM] as? [String: Any] else {
+                Log.warning(label: MessagingConstants.LOG_TAG,
+                            "Failed to send Adobe data with the tracking data, Adobe data is malformed")
+                return xdmDictResult
+            }
+            mixins = cjm
         }
 
-        // Add all the key and value pair to xdmDict
-        for (key, value) in mixins as [String: Any] {
-            xdmDict[key] = value
-        }
+        // Add all the key and value pair to xdmDictResult
+        xdmDictResult += mixins ?? [:]
 
         // Check if the xdm data provided by the customer is using cjm for tracking
         // Check if both {@link MessagingConstant#EXPERIENCE} and {@link MessagingConstant#CUSTOMER_JOURNEY_MANAGEMENT} exists
-        if var experienceDict = xdmDict[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] as? [String: Any] {
+        if var experienceDict = xdmDictResult[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] as? [String: Any] {
             if var cjmDict = experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
                 // Adding Message profile and push channel context to CUSTOMER_JOURNEY_MANAGEMENT
                 guard let messageProfile = convertStringToDictionary(text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
                     Log.warning(label: MessagingConstants.LOG_TAG,
-                                "Failed to update adobe tracking information. Messaging profile data is malformed.")
-                    return
+                                "Failed to update Adobe tracking information. Messaging profile data is malformed.")
+                    return xdmDictResult
                 }
                 // Merging the dictionary
                 cjmDict += messageProfile
                 experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] = cjmDict
-                xdmDict[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] = experienceDict
+                xdmDictResult[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] = experienceDict
             }
         } else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to send cjm xdm data with the tracking, required keys are missing.")
         }
+        return xdmDictResult
     }
 
     /// Adding application data based on the application opened or not
-    private func addApplicationData(applicationOpened: Bool, xdmData: inout [String: Any]) {
-        xdmData[MessagingConstants.AdobeTrackingKeys.APPLICATION] =
+    private func addApplicationData(applicationOpened: Bool, xdmData: [String: Any]) -> [String: Any] {
+        var xdmDataResult = xdmData
+        xdmDataResult[MessagingConstants.AdobeTrackingKeys.APPLICATION] =
             [MessagingConstants.AdobeTrackingKeys.LAUNCHES:
                 [MessagingConstants.AdobeTrackingKeys.LAUNCHES_VALUE: applicationOpened ? 1 : 0]]
+        return xdmDataResult
     }
 
     /// Creates the xdm schema from event data
@@ -379,7 +386,5 @@ public class Messaging: NSObject, Extension {
 
 /// Use to merge 2 dictionaries together
 func += <K, V> (left: inout [K: V], right: [K: V]) {
-    for (keyy, value) in right {
-        left[keyy] = value
-    }
+    left.merge(right) { _, new in new }
 }

@@ -23,7 +23,7 @@ public extension Messaging {
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
     static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
         let notificationRequest = response.notification.request
-        guard let xdm = notificationRequest.content.userInfo[MessagingConstants.AdobeTrackingKeys.XDM] as? [String: Any] else {
+        guard let xdm = notificationRequest.content.userInfo[MessagingConstants.AdobeTrackingKeys._XDM] as? [String: Any] else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction. XDM specific fields are missing.")
             return
         }
