@@ -17,6 +17,18 @@ import Foundation
 ///
 /// Enable easy setup for the input and verification of the output of an extension
 public class TestableExtensionRuntime: ExtensionRuntime {
+    public func createXDMSharedState(data: [String: Any], event: Event?) {
+
+    }
+
+    public func createPendingXDMSharedState(event: Event?) -> SharedStateResolver {
+        return EventHub.shared.createPendingSharedState(extensionName: "sharedStateName", event: event, sharedStateType: .xdm)
+    }
+
+    public func getXDMSharedState(extensionName: String, event: Event?) -> SharedStateResult? {
+        return nil
+    }
+
     public var listeners: [String: EventListener] = [:]
     public var dispatchedEvents: [Event] = []
     public var createdSharedStates: [[String: Any]?] = []

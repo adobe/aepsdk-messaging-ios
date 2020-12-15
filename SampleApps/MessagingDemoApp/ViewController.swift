@@ -11,24 +11,24 @@
 //
 
 import AEPCore
+import AEPMessaging
 import UIKit
+import UserNotifications
 
 class ViewController: UIViewController {
+
+    weak var appDelegate = UIApplication.shared.delegate as? AppDelegate
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
 
-    @IBAction func collectMessageInfo(_ sender: Any) {
-        let aodbeData: String = "{\n        \"cjm\" :{\n          \"_experience\": " +
-            "{\n            \"customerJourneyManagement\": {\n              \"messageExecution\": " +
-            "{\n                \"messageExecutionID\": \"16-Sept-postman\",\n" +
-            "                \"messageID\": \"567\",\n                " +
-            "\"journeyVersionID\": \"some-journeyVersionId\",\n                " +
-            "\"journeyVersionInstanceId\": \"someJourneyVersionInstanceId\"\n              " +
-            "}\n            }\n          }\n        }\n      }\n"
-        let dict = ["eventType": "track.applicationOpened", "id": "123456", "applicationOpened": true, "adobe": aodbeData] as [String: Any]
-        MobileCore.collectMessageInfo(messageInfo: dict)
+    @IBAction func scheduleNotification(_ sender: Any) {
+        self.appDelegate?.scheduleNotification()
+    }
+
+    @IBAction func scheduleNotificationWithCustomAction(_ sender: Any) {
+        self.appDelegate?.scheduleNotificationWithCustomAction()
     }
 }

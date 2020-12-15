@@ -11,7 +11,6 @@
 //
 
 import AEPCore
-import AEPEdge
 import AEPServices
 import XCTest
 
@@ -82,13 +81,13 @@ class MessagingTests: XCTestCase {
         XCTAssertFalse(mockRuntime.isStopped)
     }
 
-    // validating handleProcessEvent withNilData
+    /// validating handleProcessEvent withNilData
     func testhandleProcessEvent_withNilEventData() {
         let event: Event = Event(name: "handleProcessEvent", type: MessagingConstants.EventTypes.genericIdentity, source: MessagingConstants.EventSources.requestContent, data: nil)
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
     }
 
-    // validating handleProcessEvent with no shared state
+    /// validating handleProcessEvent with no shared state
     func testhandleProcessEvent_NoSharedState() {
         let eventData: [String: Any] = [MessagingConstants.SharedState.Configuration.privacyStatus: "optedin"]
         let event: Event = Event(name: "handleProcessEvent", type: MessagingConstants.EventTypes.genericIdentity, source: MessagingConstants.EventSources.requestContent, data: eventData)
@@ -100,7 +99,7 @@ class MessagingTests: XCTestCase {
         XCTAssertNotEqual("https://dcs.adobedc.net/collection/", self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
     }
 
-    // validating handleProcessEvent with empty shared state
+    /// validating handleProcessEvent with empty shared state
     func testhandleProcessEvent_withEmptySharedState() {
         let eventData: [String: Any] = [MessagingConstants.SharedState.Configuration.privacyStatus: "optedin"]
         let event: Event = Event(name: "handleProcessEvent", type: MessagingConstants.EventTypes.genericIdentity, source: MessagingConstants.EventSources.requestContent, data: eventData)
@@ -114,7 +113,7 @@ class MessagingTests: XCTestCase {
         XCTAssertNotEqual("https://dcs.adobedc.net/collection/", self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
     }
 
-    // validating handleProcessEvent with invalid config
+    /// validating handleProcessEvent with invalid config
     func testhandleProcessEvent_withInvalidConfig() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN]
 
@@ -132,7 +131,7 @@ class MessagingTests: XCTestCase {
         XCTAssertNotEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
     }
 
-    // validating handleProcessEvent with privacy opted out
+    /// validating handleProcessEvent with privacy opted out
     func testhandleProcessEvent_withPrivacyOptedOut() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_OUT]
 
@@ -150,7 +149,7 @@ class MessagingTests: XCTestCase {
         XCTAssertNotEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
     }
 
-    // validating handleProcessEvent with empty token
+    /// validating handleProcessEvent with empty token
     func testhandleProcessEvent_withEmptyToken() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_OUT,
                           MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: ""]
@@ -169,7 +168,7 @@ class MessagingTests: XCTestCase {
         XCTAssertNotEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
     }
 
-    // validating handleProcessEvent with working shared state and data
+    /// validating handleProcessEvent with working shared state and data
     func testhandleProcessEvent_withConfigAndIdentityData() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.dccsEndpoint: MOCK_DCCS_URL, MessagingConstants.SharedState.Configuration.profileDatasetId: MOCK_PROFILE_DATASET,
                           MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
@@ -192,7 +191,7 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(MOCK_APNS_JSON, self.mockNetworkService?.actualNetworkRequest?.connectPayload)
     }
 
-    // validating handleProcessEvent with working apns sandbox
+    /// validating handleProcessEvent with working apns sandbox
     func testhandleProcessEvent_withApnsSandbox() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.dccsEndpoint: MOCK_DCCS_URL, MessagingConstants.SharedState.Configuration.profileDatasetId: MOCK_PROFILE_DATASET,
                           MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
@@ -216,7 +215,7 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(MOCK_APNSSANDBOX_JSON, self.mockNetworkService?.actualNetworkRequest?.connectPayload)
     }
 
-    // validating handleProcessEvent with working apns sandbox
+    /// validating handleProcessEvent with working apns sandbox
     func testhandleProcessEvent_withApns() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.dccsEndpoint: MOCK_DCCS_URL, MessagingConstants.SharedState.Configuration.profileDatasetId: MOCK_PROFILE_DATASET,
                           MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
@@ -240,14 +239,14 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(MOCK_APNS_JSON, self.mockNetworkService?.actualNetworkRequest?.connectPayload)
     }
 
-    // validating handleProcessEvent with Tracking info event when event data is empty
+    /// validating handleProcessEvent with Tracking info event when event data is empty
     func testhandleProcessEvent_withTrackingInfoEvent() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.experienceEventDatasetId: MOCK_EVENT_DATASET] as [String: Any]
         let mockIdentity = [MessagingConstants.SharedState.Identity.ecid: MOCK_ECID]
 
         let eventData: [String: Any]? = nil
 
-        let event: Event = Event(name: "trackingInfo", type: MessagingConstants.EventTypes.genericData, source: MessagingConstants.EventSources.os, data: eventData)
+        let event: Event = Event(name: "trackingInfo", type: MessagingConstants.EventTypes.MESSAGING, source: MessagingConstants.EventSources.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.name, data: (value: mockConfig, status: SharedStateStatus.set))
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Identity.name, data: (value: mockIdentity, status: SharedStateStatus.set))
 
