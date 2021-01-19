@@ -21,11 +21,11 @@ public extension Messaging {
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
-    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
+    public static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
         let notificationRequest = response.notification.request
         let xdm = notificationRequest.content.userInfo[MessagingConstants.AdobeTrackingKeys._XDM] as? [String: Any]
         // Checking if the message has xdm key
-        if (xdm == nil) {
+        if xdm == nil {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction. XDM specific fields are missing.")
         }
 
