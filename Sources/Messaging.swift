@@ -229,10 +229,26 @@ public class Messaging: NSObject, Extension {
 
         Log.trace(label: MessagingConstants.LOG_TAG, "Syncing push token to DCCS - url: \(dccsUrl)  payload: \(postBodyString)")
 
+        let fakeEvent = Event(name: "Syncing Push Token",
+                              type: MessagingConstants.EventTypes.MESSAGING,
+                              source: "com.adobe.eventSource.messaging",
+                              data: ["token": postBodyString])
+        MobileCore.dispatch(event: fakeEvent)
+
         ServiceProvider.shared.networkService.connectAsync(networkRequest: request) { (connection: HttpConnection) in
             if connection.error != nil {
+                let fakeEvent = Event(name: "Error Syncing Push Token",
+                                      type: MessagingConstants.EventTypes.MESSAGING,
+                                      source: "com.adobe.eventSource.messaging",
+                                      data: ["token": "Error sending push token to profile - \(String(describing: connection.error?.localizedDescription))."])
+                MobileCore.dispatch(event: fakeEvent)
                 Log.warning(label: MessagingConstants.LOG_TAG, "Error sending push token to profile - \(String(describing: connection.error?.localizedDescription)).")
             } else {
+                let fakeEvent = Event(name: "Syncing Push Token Success",
+                                      type: MessagingConstants.EventTypes.MESSAGING,
+                                      source: "com.adobe.eventSource.messaging",
+                                      data: ["token": "Push Token \(token) synced for ECID \(ecid)"])
+                MobileCore.dispatch(event: fakeEvent)
                 Log.trace(label: MessagingConstants.LOG_TAG, "Push Token \(token) synced for ECID \(ecid)")
             }
         }
