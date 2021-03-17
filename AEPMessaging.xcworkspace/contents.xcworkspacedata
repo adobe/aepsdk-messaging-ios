@@ -2,12 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:/Users/ravjain/Work-Adobe/messaging/messaging-sdk-swift/aepsdk-messaging-ios/AEPMessaging.xcodeproj">
+      location = "group:AEPMessaging.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:AEPMessaging.xcodeproj">
    </FileRef>
 </Workspace>

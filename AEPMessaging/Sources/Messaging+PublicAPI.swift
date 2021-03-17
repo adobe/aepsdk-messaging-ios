@@ -38,17 +38,17 @@ public extension Messaging {
         // Creating event data with tracking informations
         var eventData: [String: Any] = [MessagingConstants.EventDataKeys.MESSAGE_ID: messageId,
                                         MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened,
-                                        MessagingConstants.EventDataKeys.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
+                                        MessagingConstants.XDM.DataKeys.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
         if customActionId == nil {
-            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED
+            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.XDM.EventTypes.PUSH_TRACKING_APPLICATION_OPENED
         } else {
-            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION
+            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.XDM.EventTypes.PUSH_TRACKING_CUSTOM_ACTION
             eventData[MessagingConstants.EventDataKeys.ACTION_ID] = customActionId
         }
 
         let event = Event(name: "Messaging Request Event",
-                          type: MessagingConstants.EventTypes.MESSAGING,
-                          source: MessagingConstants.EventSources.requestContent,
+                          type: MessagingConstants.EventType.MESSAGING,
+                          source: EventSource.requestContent,
                           data: eventData)
         MobileCore.dispatch(event: event)
     }
