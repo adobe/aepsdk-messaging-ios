@@ -7,26 +7,53 @@ use_frameworks!
 workspace 'AEPMessaging'
 project 'AEPMessaging.xcodeproj'
 
+# ==================
+# SHARED POD GROUPS
+# ==================
+def core_main
+    pod 'AEPCore'
+    pod 'AEPServices'
+    pod 'AEPLifecycle'
+    pod 'AEPIdentity'
+    pod 'AEPRulesEngine'
+    pod 'AEPSignal'
+    pod 'AEPEdge'
+    pod 'AEPOfferDecisioning', :git => 'git@github.com:adobe/aepsdk-offer-ios.git', :branch => 'main'
+end
+
+def griffon_main
+    pod 'AEPAssurance'
+    pod 'ACPCore', :git => 'https://github.com/adobe/aep-sdk-compatibility-ios.git', :branch => 'main'
+end
+
+def core_dev
+    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.1.0'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.1.0'
+    pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.1.0'
+    pod 'AEPIdentity', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.1.0'
+    pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.1.0'
+    pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-v1.0.0'
+    pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'main'
+    pod 'AEPOfferDecisioning', :git => 'git@github.com:adobe/aepsdk-offer-ios.git', :branch => 'dev-v1.0.1'
+end
+
+def griffon_dev
+    pod 'AEPAssurance' #todo - get a link to this repo once it's public
+    pod 'ACPCore', :git => 'https://github.com/adobe/aep-sdk-compatibility-ios.git', :branch => 'main'
+end
+
+# ==================
+# TARGET DEFINITIONS
+# ==================
 target 'AEPMessaging' do
-  pod 'AEPCore'
-  pod 'AEPServices'
-  pod 'AEPRulesEngine'
+    core_dev
 end
 
 target 'MessagingDemoApp' do
-  pod 'AEPCore'
-  pod 'AEPServices'
-  pod 'AEPRulesEngine'
-  pod 'AEPLifecycle'
-  pod 'AEPIdentity'
-  pod 'AEPEdge'
-  pod 'AEPSignal'
-  pod 'ACPCore', :git => 'https://github.com/adobe/aep-sdk-compatibility-ios.git', :branch => 'main'
-  pod 'AEPAssurance'
+    core_dev
+    griffon_dev
 end
 
 target 'UnitTests' do
-  pod 'AEPCore'
-  pod 'AEPServices'
-  pod 'AEPRulesEngine'
+    core_dev
 end
