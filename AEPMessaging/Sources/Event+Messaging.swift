@@ -32,6 +32,12 @@ extension Event {
         return details?[MessagingConstants.EventDataKeys.InAppMessages.REMOTE_ASSETS] as? [String]
     }
     
+    // MARK: - Message Object Validation
+    var containsValidInAppMessage: Bool {
+        // remoteAssets are optional
+        return template != nil && html != nil
+    }
+    
     // MARK: - Consequence EventData Processing
     private var consequence: [String: Any]? {
         return data?[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] as? [String: Any]

@@ -62,8 +62,16 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(testAssets[1], event.remoteAssets![1])
     }
     
+    // MARK: - Testing Message Object Validation
+    func testInAppMessageObjectValidation() throws {
+        // setup
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
+        
+        // verify
+        XCTAssertTrue(event.containsValidInAppMessage)
+    }
+    
     // MARK: - Testing Invalid Events
-  
     func testWrongConsequenceType() throws {
         // setup
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
@@ -128,6 +136,30 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertNil(event.template)
         XCTAssertNil(event.html)
         XCTAssertNil(event.remoteAssets)
+    }
+    
+    func testInAppMessageObjectValidationNoTemplate() throws {
+        // setup
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
+        event.data = updateDetailDict(dict: event.data!,
+                                      withValue: nil,
+                                      forKey: MessagingConstants.EventDataKeys.InAppMessages.TEMPLATE)
+        
+        // verify
+        XCTAssertNil(event.template)
+        XCTAssertFalse(event.containsValidInAppMessage)
+    }
+    
+    func testInAppMessageObjectValidationNoHtml() throws {
+        // setup
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
+        event.data = updateDetailDict(dict: event.data!,
+                                      withValue: nil,
+                                      forKey: MessagingConstants.EventDataKeys.InAppMessages.HTML)
+                
+        // verify
+        XCTAssertNil(event.html)
+        XCTAssertFalse(event.containsValidInAppMessage)
     }
     
     // MARK: - Helpers
