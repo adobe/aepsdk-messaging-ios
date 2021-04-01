@@ -19,6 +19,10 @@ enum MessagingConstants {
     static let EXTENSION_VERSION = "1.0.0-alpha-2"
     static let FRIENDLY_NAME = "AEPMessaging"
 
+    enum EventName {
+        static let MESSAGING_REQUEST_EVENT = "Messaging Request Event"
+    }
+
     enum EventDataKeys {
         static let PUSH_IDENTIFIER = "pushidentifier"
         static let EVENT_TYPE = "eventType"
@@ -57,6 +61,7 @@ enum MessagingConstants {
         static let PUSH_PROVIDER = "pushProvider"
         static let EVENT_TYPE = "eventType"
         static let PUSH_NOTIFICATION_TRACKING = "pushNotificationTracking"
+        static let DATA = "data"
     }
 
     enum EventSources {
@@ -98,41 +103,7 @@ enum MessagingConstants {
      }
      */
 
-    enum Temp {
-        static let postBodyBase = "{\n" +
-            "    \"header\" : {\n" +
-            "        \"imsOrgId\": \"%@\",\n" +
-            "        \"source\": {\n" +
-            "            \"name\": \"mobile\"\n" +
-            "        },\n" +
-            "        \"datasetId\": \"%@\"\n" +
-            "    },\n" +
-            "    \"body\": {\n" +
-            "        \"xdmEntity\": {\n" +
-            "            \"identityMap\": {\n" +
-            "                \"ECID\": [\n" +
-            "                    {\n" +
-            "                        \"id\" : \"%@\"\n" +
-            "                    }\n" +
-            "                ]\n" +
-            "            },\n" +
-            "            \"pushNotificationDetails\": [\n" +
-            "                {\n" +
-            "                    \"appID\": \"%@\",\n" +
-            "                    \"platform\": \"%@\",\n" +
-            "                    \"token\": \"%@\",\n" +
-            "                    \"denylisted\": false,\n" +
-            "                    \"identity\": {\n" +
-            "                        \"namespace\": {\n" +
-            "                            \"code\": \"ECID\"\n" +
-            "                        },\n" +
-            "                        \"id\": \"%@\"\n" +
-            "                    }\n" +
-            "                }\n" +
-            "            ]\n" +
-            "        }\n" +
-            "    }\n" +
-            "}"
+    enum PushNotificationDetails {
 
         // push
         static let pushNotificationDetails = "pushNotificationDetails"
@@ -143,13 +114,13 @@ enum MessagingConstants {
         static let identity = "identiy"
         static let namespace = "namespace"
         static let code = "code"
-        static let xid = "xid"
-    }
+        static let id = "id"
 
-    enum JsonValues {
-        static let ecid = "ECID"
-        static let apns = "apns"
-        static let apnsSandbox = "apnsSandbox"
+        enum JsonValues {
+            static let ecid = "ECID"
+            static let apns = "apns"
+            static let apnsSandbox = "apnsSandbox"
+        }
     }
 
     struct SharedState {
@@ -159,11 +130,9 @@ enum MessagingConstants {
         enum Configuration {
             static let name = "com.adobe.module.configuration"
             static let privacyStatus = "global.privacy"
-            static let dccsEndpoint = "messaging.dccs"
             static let experienceCloudOrgId = "experienceCloud.org"
 
             // Messaging dataset ids
-            static let profileDatasetId = "messaging.profileDataset"
             static let experienceEventDatasetId = "messaging.eventDataset"
 
             // config for whether to useSandbox or not

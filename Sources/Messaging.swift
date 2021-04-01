@@ -110,32 +110,24 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // hard dependency on identity module for ecid
         guard let identitySharedState = getSharedState(extensionName: MessagingConstants.SharedState.Identity.name, event: event)?.value else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid shared state from identity - '\(event.id.uuidString)'.")
             return
         }
 
         if event.type == MessagingConstants.EventTypes.genericIdentity && event.source == MessagingConstants.EventSources.requestContent {
-            // Temp : if we don't have valid config, we can't process the event
-            if !configIsValid(configSharedState) {
-                Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring event that does not have valid configuration - '\(event.id.uuidString)'.")
-                return
-            }
-
             guard let privacyStatus = PrivacyStatus.init(rawValue: configSharedState[MessagingConstants.SharedState.Configuration.privacyStatus] as? String ?? "") else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "ConfigSharedState has invalid privacy status, Ignoring to process event : '\(event.id.uuidString)'.")
                 return
             }
 
-            // eventually we'll use platform extension for this, but until ExEdge supports profile updates, we are forced
-            // to go directly to dccs
             if privacyStatus == PrivacyStatus.optedIn {
-                tempSyncPushToken(configSharedState, identity: identitySharedState, event: event)
+                syncPushToken(configSharedState, identity: identitySharedState, event: event)
             }
         }
 
-        // Check if the event type is MessagingConstants.EventTypes.genericData and eventSource is MessagingConstants.EventSources.os handle processing of the tracking information
+        // Check if the event type is `MessagingConstants.EventTypes.genericData` and
+        // eventSource is `MessagingConstants.EventSources.os` handle processing of the tracking information
         if event.type == MessagingConstants.EventTypes.MESSAGING
             && event.source == MessagingConstants.EventSources.requestContent && configSharedState.keys.contains(
                 MessagingConstants.SharedState.Configuration.experienceEventDatasetId) {
@@ -145,97 +137,68 @@ public class Messaging: NSObject, Extension {
         return
     }
 
-    private func configIsValid(_ config: [AnyHashable: Any]) -> Bool {
-        // Temp : implementation for dccs hack for collecting push tokens
-        // If both the dccs url and profile dataset exists return true
-        return config.keys.contains(MessagingConstants.SharedState.Configuration.dccsEndpoint) && config.keys.contains(MessagingConstants.SharedState.Configuration.profileDatasetId)
-    }
-
-    private func tempSyncPushToken(_ config: [AnyHashable: Any], identity: [AnyHashable: Any], event: Event) {
-        // Get the dccs endpoint
-        // TEMP: if we want to let this be configurable, uncomment below
-        guard let dccsUrl = URL(string: config[MessagingConstants.SharedState.Configuration.dccsEndpoint] as? String ?? "") else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "DCCS endpoint is invalid. All requests to sync with profile will fail.")
-            return
-        }
-
-        // TEMP: Send experience Cloud Org ID
-        guard let experienceCloudOrgId = config[MessagingConstants.SharedState.Configuration.experienceCloudOrgId] as? String else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Experience Cloud id is invalid. All requests to sync with profile will fail.")
-            return
-        }
-
-        // get platform
-        var platform = MessagingConstants.JsonValues.apns
-        let useSandbox = config[MessagingConstants.SharedState.Configuration.useSandbox] as? Bool
-        if useSandbox != nil && useSandbox == true {
-            platform = MessagingConstants.JsonValues.apnsSandbox
-        }
-
-        // get profile DatasetId
-        guard let profileDatasetId = config[MessagingConstants.SharedState.Configuration.profileDatasetId] as? String else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "DCCS endpoint is invalid. All requests to sync with profile will fail.")
-            return
-        }
-
-        // get ecid
+    private func syncPushToken(_ config: [AnyHashable: Any], identity: [AnyHashable: Any], event: Event) {
+        // get ecid from the identity
         guard let ecid = identity[MessagingConstants.SharedState.Identity.ecid] as? String else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that does not have a valid ECID - '\(event.id.uuidString)'.")
             return
         }
 
-        // get push token from event
+        // get push token from event data
         guard let eventData = event.data as [String: Any]? else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring event with missing event data.")
             return
         }
+
+        // Get push token from event data
         guard let token = eventData[MessagingConstants.EventDataKeys.PUSH_IDENTIFIER] as? String else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
             return
         }
 
-        // Check if push token is empty
+        // Return if the push token is empty
         if token.isEmpty {
             Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
             return
         }
 
-        sendPushToken(experienceCloudOrgId: experienceCloudOrgId, profileDatasetId: profileDatasetId, ecid: ecid, token: token, dccsUrl: dccsUrl, platform: platform)
+        sendPushToken(ecid: ecid, token: token, platform: getPlatform(config: config))
     }
 
-    /// Sends push  token using the dccsUrl and the predefined post body.
+    /// Send an edge event to sync the push notification details with push token
     ///
     /// - Parameters:
-    ///   - experienceCloudOrgId: The cloud org id
-    ///   - profileDatasetId: Profile dataset id where the data needs to be sent
     ///   - ecid: Experience cloud id
     ///   - token: Push token for the device
-    ///   - dccsUrl: Endpoint used to send push token to the dataset
-    private func sendPushToken(experienceCloudOrgId: String, profileDatasetId: String, ecid: String, token: String, dccsUrl: URL, platform: String) {
+    ///   - platform: `String` denoting the platform `apns` or `apnsSandbox`
+    private func sendPushToken(ecid: String, token: String, platform: String) {
         // send the request
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the push token, App bundle identifier is invalid.")
             return
         }
 
-        let postBodyString = String.init(format: MessagingConstants.Temp.postBodyBase, experienceCloudOrgId, profileDatasetId, ecid, appId, platform, token, ecid)
-        let headers = ["Content-Type": "application/json"]
-        let request = NetworkRequest(url: dccsUrl,
-                                     httpMethod: .post,
-                                     connectPayload: postBodyString,
-                                     httpHeaders: headers,
-                                     connectTimeout: 5.0,
-                                     readTimeout: 5.0)
+        // Create the profile experience event to send the push notification details with push token to profile
+        let profileEventData: [String: Any] = [
+            MessagingConstants.PushNotificationDetails.pushNotificationDetails:
+                [MessagingConstants.PushNotificationDetails.appId: appId,
+                 MessagingConstants.PushNotificationDetails.token: token,
+                 MessagingConstants.PushNotificationDetails.platform: platform,
+                 MessagingConstants.PushNotificationDetails.denylisted: false,
+                 MessagingConstants.PushNotificationDetails.identity: [
+                    MessagingConstants.PushNotificationDetails.namespace: [
+                        MessagingConstants.PushNotificationDetails.code: MessagingConstants.PushNotificationDetails.JsonValues.ecid
+                    ], MessagingConstants.PushNotificationDetails.id: ecid
+                 ]]]
 
-        Log.trace(label: MessagingConstants.LOG_TAG, "Syncing push token to DCCS - url: \(dccsUrl)  payload: \(postBodyString)")
-
-        ServiceProvider.shared.networkService.connectAsync(networkRequest: request) { (connection: HttpConnection) in
-            if connection.error != nil {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Error sending push token to profile - \(String(describing: connection.error?.localizedDescription)).")
-            } else {
-                Log.trace(label: MessagingConstants.LOG_TAG, "Push Token \(token) synced for ECID \(ecid)")
-            }
-        }
+        // Creating xdm edge event data
+        let xdmEventData: [String: Any] = [MessagingConstants.XDMDataKeys.DATA: profileEventData]
+        // Creating xdm edge event with request content source type
+        let event = Event(name: "Messaging Push Profile Event",
+                          type: MessagingConstants.EventTypes.EDGE,
+                          source: MessagingConstants.EventSources.requestContent,
+                          data: xdmEventData)
+        MobileCore.dispatch(event: event)
     }
 
     /// Sends an experience event to the platform sdk for tracking the notification click-throughs
@@ -248,14 +211,13 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // TEMP: Send experience event DatasetId
         guard let expEventDatasetId = config[MessagingConstants.SharedState.Configuration.experienceEventDatasetId] as? String else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "DCCS endpoint is invalid. All requests to sync with profile will fail.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Experience event dataset id is invalid.")
             return
         }
 
         // Get the schema and convert to xdm dictionary
-        guard var xdmMap = getXdmData(eventData: eventData) else {
+        guard var xdmMap = getXdmData(eventData: eventData, config: config) else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to track information. Schema generation from eventData failed.")
             return
         }
@@ -340,12 +302,15 @@ public class Messaging: NSObject, Extension {
     /// - Parameters:
     ///   - eventData: Dictionary with push notification tracking information
     /// - Returns: MobilePushTrackingSchema xdm schema object which conatins the push click-through tracking informations
-    private func getXdmData(eventData: [AnyHashable: Any]) -> [String: Any]? {
-        let eventType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String
+    private func getXdmData(eventData: [AnyHashable: Any], config: [AnyHashable: Any]) -> [String: Any]? {
+        guard let eventType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "eventType is nil")
+            return nil
+        }
         let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String
         let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String
 
-        if eventType == nil || eventType?.isEmpty == true || messageId == nil || messageId?.isEmpty == true {
+        if eventType.isEmpty == true || messageId == nil || messageId?.isEmpty == true {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to track information. EventType or MessageId received is null.")
             return nil
         }
@@ -358,7 +323,7 @@ public class Messaging: NSObject, Extension {
             pushNotificationTrackingDict[MessagingConstants.XDMDataKeys.CUSTOM_ACTION] = customActionDict
         }
         pushNotificationTrackingDict[MessagingConstants.XDMDataKeys.PUSH_PROVIDER_MESSAGE_ID] = messageId
-        pushNotificationTrackingDict[MessagingConstants.XDMDataKeys.PUSH_PROVIDER] = MessagingConstants.JsonValues.apns
+        pushNotificationTrackingDict[MessagingConstants.XDMDataKeys.PUSH_PROVIDER] = getPlatform(config: config)
         xdmDict[MessagingConstants.XDMDataKeys.PUSH_NOTIFICATION_TRACKING] = pushNotificationTrackingDict
 
         return xdmDict
@@ -381,6 +346,16 @@ public class Messaging: NSObject, Extension {
             }
         }
         return nil
+    }
+
+    /// Get platform based on the `messaging.useSandbox` config value
+    private func getPlatform(config: [AnyHashable: Any]) -> String {
+        var platform = MessagingConstants.PushNotificationDetails.JsonValues.apns
+        let useSandbox = config[MessagingConstants.SharedState.Configuration.useSandbox] as? Bool
+        if useSandbox != nil && useSandbox == true {
+            platform = MessagingConstants.PushNotificationDetails.JsonValues.apnsSandbox
+        }
+        return platform
     }
 }
 

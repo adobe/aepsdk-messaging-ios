@@ -22,18 +22,12 @@ class MessagingTests: XCTestCase {
     var mockNetworkService: MockNetworkService?
 
     // Mock constants
-    let MOCK_DCCS_URL = "https://dcs.adobedc.net/collection/"
     let MOCK_ECID = "mock_ecid"
-    let MOCK_PROFILE_DATASET = "mock_profile_dataset"
     let MOCK_EVENT_DATASET = "mock_event_dataset"
     let MOCK_PRIVACY_STATUS_OPTED_IN = "optedin"
     let MOCK_PRIVACY_STATUS_OPTED_OUT = "optedout"
     let MOCK_EXP_ORG_ID = "mock_exp_org_id"
     let MOCK_PUSH_TOKEN = "mock_pushToken"
-
-    let MOCK_APNSSANDBOX_JSON = "{\n    \"header\" : {\n        \"imsOrgId\": \"mock_exp_org_id\",\n        \"source\": {\n            \"name\": \"mobile\"\n        },\n        \"datasetId\": \"mock_profile_dataset\"\n    },\n    \"body\": {\n        \"xdmEntity\": {\n            \"identityMap\": {\n                \"ECID\": [\n                    {\n                        \"id\" : \"mock_ecid\"\n                    }\n                ]\n            },\n            \"pushNotificationDetails\": [\n                {\n                    \"appID\": \"com.apple.dt.xctest.tool\",\n                    \"platform\": \"apnsSandbox\",\n                    \"token\": \"mock_pushToken\",\n                    \"denylisted\": false,\n                    \"identity\": {\n                        \"namespace\": {\n                            \"code\": \"ECID\"\n                        },\n                        \"id\": \"mock_ecid\"\n                    }\n                }\n            ]\n        }\n    }\n}"
-
-    let MOCK_APNS_JSON = "{\n    \"header\" : {\n        \"imsOrgId\": \"mock_exp_org_id\",\n        \"source\": {\n            \"name\": \"mobile\"\n        },\n        \"datasetId\": \"mock_profile_dataset\"\n    },\n    \"body\": {\n        \"xdmEntity\": {\n            \"identityMap\": {\n                \"ECID\": [\n                    {\n                        \"id\" : \"mock_ecid\"\n                    }\n                ]\n            },\n            \"pushNotificationDetails\": [\n                {\n                    \"appID\": \"com.apple.dt.xctest.tool\",\n                    \"platform\": \"apns\",\n                    \"token\": \"mock_pushToken\",\n                    \"denylisted\": false,\n                    \"identity\": {\n                        \"namespace\": {\n                            \"code\": \"ECID\"\n                        },\n                        \"id\": \"mock_ecid\"\n                    }\n                }\n            ]\n        }\n    }\n}"
 
     // before each
     override func setUp() {
@@ -94,9 +88,6 @@ class MessagingTests: XCTestCase {
 
         //test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-
-        //verify
-        XCTAssertNotEqual("https://dcs.adobedc.net/collection/", self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
     }
 
     /// validating handleProcessEvent with empty shared state
@@ -108,9 +99,6 @@ class MessagingTests: XCTestCase {
 
         //test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-
-        //verify
-        XCTAssertNotEqual("https://dcs.adobedc.net/collection/", self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
     }
 
     /// validating handleProcessEvent with invalid config
@@ -126,9 +114,6 @@ class MessagingTests: XCTestCase {
 
         //test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-
-        //verify
-        XCTAssertNotEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
     }
 
     /// validating handleProcessEvent with privacy opted out
@@ -144,9 +129,6 @@ class MessagingTests: XCTestCase {
 
         //test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-
-        //verify
-        XCTAssertNotEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
     }
 
     /// validating handleProcessEvent with empty token
@@ -163,15 +145,11 @@ class MessagingTests: XCTestCase {
 
         //test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-
-        //verify
-        XCTAssertNotEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
     }
 
     /// validating handleProcessEvent with working shared state and data
     func testhandleProcessEvent_withConfigAndIdentityData() {
-        let mockConfig = [MessagingConstants.SharedState.Configuration.dccsEndpoint: MOCK_DCCS_URL, MessagingConstants.SharedState.Configuration.profileDatasetId: MOCK_PROFILE_DATASET,
-                          MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
+        let mockConfig = [MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
                           MessagingConstants.SharedState.Configuration.experienceCloudOrgId: MOCK_EXP_ORG_ID]
 
         let mockIdentity = [MessagingConstants.SharedState.Identity.ecid: MOCK_ECID]
@@ -185,16 +163,11 @@ class MessagingTests: XCTestCase {
 
         //test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-
-        //verify
-        XCTAssertEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
-        XCTAssertEqual(MOCK_APNS_JSON, self.mockNetworkService?.actualNetworkRequest?.connectPayload)
     }
 
     /// validating handleProcessEvent with working apns sandbox
     func testhandleProcessEvent_withApnsSandbox() {
-        let mockConfig = [MessagingConstants.SharedState.Configuration.dccsEndpoint: MOCK_DCCS_URL, MessagingConstants.SharedState.Configuration.profileDatasetId: MOCK_PROFILE_DATASET,
-                          MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
+        let mockConfig = [MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
                           MessagingConstants.SharedState.Configuration.experienceCloudOrgId: MOCK_EXP_ORG_ID,
                           MessagingConstants.SharedState.Configuration.useSandbox: true] as [String: Any]
 
@@ -209,16 +182,11 @@ class MessagingTests: XCTestCase {
 
         //test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-
-        //verify
-        XCTAssertEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
-        XCTAssertEqual(MOCK_APNSSANDBOX_JSON, self.mockNetworkService?.actualNetworkRequest?.connectPayload)
     }
 
     /// validating handleProcessEvent with working apns sandbox
     func testhandleProcessEvent_withApns() {
-        let mockConfig = [MessagingConstants.SharedState.Configuration.dccsEndpoint: MOCK_DCCS_URL, MessagingConstants.SharedState.Configuration.profileDatasetId: MOCK_PROFILE_DATASET,
-                          MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
+        let mockConfig = [MessagingConstants.SharedState.Configuration.privacyStatus: MOCK_PRIVACY_STATUS_OPTED_IN,
                           MessagingConstants.SharedState.Configuration.experienceCloudOrgId: MOCK_EXP_ORG_ID,
                           MessagingConstants.SharedState.Configuration.useSandbox: false] as [String: Any]
 
@@ -233,10 +201,6 @@ class MessagingTests: XCTestCase {
 
         //test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-
-        //verify
-        XCTAssertEqual(MOCK_DCCS_URL, self.mockNetworkService?.actualNetworkRequest?.url.absoluteString)
-        XCTAssertEqual(MOCK_APNS_JSON, self.mockNetworkService?.actualNetworkRequest?.connectPayload)
     }
 
     /// validating handleProcessEvent with Tracking info event when event data is empty

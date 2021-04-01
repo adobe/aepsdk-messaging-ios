@@ -21,7 +21,7 @@ public extension Messaging {
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
-    public static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
+    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
         let notificationRequest = response.notification.request
         let xdm = notificationRequest.content.userInfo[MessagingConstants.AdobeTrackingKeys._XDM] as? [String: Any]
         // Checking if the message has xdm key
@@ -46,7 +46,7 @@ public extension Messaging {
             eventData[MessagingConstants.EventDataKeys.ACTION_ID] = customActionId
         }
 
-        let event = Event(name: "Messaging Request Event",
+        let event = Event(name: MessagingConstants.EventName.MESSAGING_REQUEST_EVENT,
                           type: MessagingConstants.EventTypes.MESSAGING,
                           source: MessagingConstants.EventSources.requestContent,
                           data: eventData)
