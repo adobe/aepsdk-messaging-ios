@@ -32,19 +32,24 @@ public class Messaging: NSObject, Extension {
 
     public func onRegistered() {
         // register listener for configuration response event
-        registerListener(type: MessagingConstants.EventTypes.configuration,
-                         source: MessagingConstants.EventSources.responseContent,
+        registerListener(type: EventType.configuration,
+                         source: EventSource.responseContent,
                          listener: handleConfigurationResponse)
 
         // register listener for set push identifier event
-        registerListener(type: MessagingConstants.EventTypes.genericIdentity,
-                         source: MessagingConstants.EventSources.requestContent,
+        registerListener(type: EventType.genericIdentity,
+                         source: EventSource.requestContent,
                          listener: handleProcessEvent)
 
         // register listener for Messaging request content event
-        registerListener(type: MessagingConstants.EventTypes.MESSAGING,
-                         source: MessagingConstants.EventSources.requestContent,
+        registerListener(type: MessagingConstants.EventType.MESSAGING,
+                         source: EventSource.requestContent,
                          listener: handleProcessEvent)
+
+        // register listener for rules consequences with in-app messages
+        registerListener(type: EventType.rulesEngine,
+                         source: EventSource.responseContent,
+                         listener: handleRulesResponse)
     }
 
     public func onUnregistered() {
@@ -59,11 +64,22 @@ public class Messaging: NSObject, Extension {
 
         // hard dependency on identity module for ecid
         guard let identitySharedState = getSharedState(extensionName: MessagingConstants.SharedState.Identity.name, event: event) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid shared state from identity - '\(event.id.uuidString)'.")
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Event processing is paused, waiting for valid shared state from identity - '\(event.id.uuidString)'.")
             return false
         }
 
         return configurationSharedState.status == .set && identitySharedState.status == .set
+    }
+
+    /// Handles Rules Consequence events containing message definitions
+    func handleRulesResponse(_ event: Event) {
+        guard let eventData = event.data as [String: Any]? else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to process a Rules Consequence Event. Event data is null.")
+            return
+        }
+        
+//        guard let rule
     }
 
     /// Based on the configuration response check for privacy status stop events if opted out
@@ -116,7 +132,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        if event.type == MessagingConstants.EventTypes.genericIdentity && event.source == MessagingConstants.EventSources.requestContent {
+        if event.type == EventType.genericIdentity && event.source == EventSource.requestContent {
             // Temp : if we don't have valid config, we can't process the event
             if !configIsValid(configSharedState) {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring event that does not have valid configuration - '\(event.id.uuidString)'.")
@@ -136,8 +152,8 @@ public class Messaging: NSObject, Extension {
         }
 
         // Check if the event type is MessagingConstants.EventTypes.genericData and eventSource is MessagingConstants.EventSources.os handle processing of the tracking information
-        if event.type == MessagingConstants.EventTypes.MESSAGING
-            && event.source == MessagingConstants.EventSources.requestContent && configSharedState.keys.contains(
+        if event.type == MessagingConstants.EventType.MESSAGING
+            && event.source == EventSource.requestContent && configSharedState.keys.contains(
                 MessagingConstants.SharedState.Configuration.experienceEventDatasetId) {
             handleTrackingInfo(event: event, configSharedState)
         }
@@ -268,13 +284,16 @@ public class Messaging: NSObject, Extension {
         xdmMap = addAdobeData(eventData: eventData, xdmDict: xdmMap)
 
         // Creating xdm edge event data
-        let xdmEventData: [String: Any] = [MessagingConstants.XDMDataKeys.XDM: xdmMap, MessagingConstants.XDMDataKeys.META: [
-                                            MessagingConstants.XDMDataKeys.COLLECT: [
-                                                MessagingConstants.XDMDataKeys.DATASET_ID: expEventDatasetId]]]
+        let xdmEventData: [String: Any] = [MessagingConstants.XDM.DataKeys.XDM: xdmMap,
+                                           MessagingConstants.XDM.DataKeys.META: [
+                                                MessagingConstants.XDM.DataKeys.COLLECT: [
+                                                    MessagingConstants.XDM.DataKeys.DATASET_ID: expEventDatasetId
+                                                ]
+                                           ]]
         // Creating xdm edge event with request content source type
         let event = Event(name: "Messaging Push Tracking Event",
-                          type: MessagingConstants.EventTypes.EDGE,
-                          source: MessagingConstants.EventSources.requestContent,
+                          type: EventType.edge,
+                          source: EventSource.requestContent,
                           data: xdmEventData)
         MobileCore.dispatch(event: event)
     }
@@ -285,7 +304,7 @@ public class Messaging: NSObject, Extension {
     ///  - schemaXml: Dictionary which is updated with the cjm tracking information.
     private func addAdobeData(eventData: [AnyHashable: Any], xdmDict: [String: Any]) -> [String: Any] {
         var xdmDictResult = xdmDict
-        guard let adobeTrackingDict = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any] else {
+        guard let adobeTrackingDict = eventData[MessagingConstants.XDM.DataKeys.ADOBE_XDM] as? [String: Any] else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update Adobe tracking information. Adobe data is invalid.")
             return xdmDictResult
         }
@@ -350,16 +369,16 @@ public class Messaging: NSObject, Extension {
             return nil
         }
 
-        var xdmDict: [String: Any] = [MessagingConstants.XDMDataKeys.EVENT_TYPE: eventType]
+        var xdmDict: [String: Any] = [MessagingConstants.XDM.DataKeys.EVENT_TYPE: eventType]
         var pushNotificationTrackingDict: [String: Any] = [:]
         var customActionDict: [String: Any] = [:]
         if actionId != nil {
-            customActionDict[MessagingConstants.XDMDataKeys.ACTION_ID] = actionId
-            pushNotificationTrackingDict[MessagingConstants.XDMDataKeys.CUSTOM_ACTION] = customActionDict
+            customActionDict[MessagingConstants.XDM.DataKeys.ACTION_ID] = actionId
+            pushNotificationTrackingDict[MessagingConstants.XDM.DataKeys.CUSTOM_ACTION] = customActionDict
         }
-        pushNotificationTrackingDict[MessagingConstants.XDMDataKeys.PUSH_PROVIDER_MESSAGE_ID] = messageId
-        pushNotificationTrackingDict[MessagingConstants.XDMDataKeys.PUSH_PROVIDER] = MessagingConstants.JsonValues.apns
-        xdmDict[MessagingConstants.XDMDataKeys.PUSH_NOTIFICATION_TRACKING] = pushNotificationTrackingDict
+        pushNotificationTrackingDict[MessagingConstants.XDM.DataKeys.PUSH_PROVIDER_MESSAGE_ID] = messageId
+        pushNotificationTrackingDict[MessagingConstants.XDM.DataKeys.PUSH_PROVIDER] = MessagingConstants.JsonValues.apns
+        xdmDict[MessagingConstants.XDM.DataKeys.PUSH_NOTIFICATION_TRACKING] = pushNotificationTrackingDict
 
         return xdmDict
     }

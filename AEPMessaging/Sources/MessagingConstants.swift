@@ -25,12 +25,39 @@ enum MessagingConstants {
         static let MESSAGE_ID = "id"
         static let APPLICATION_OPENED = "applicationOpened"
         static let ACTION_ID = "actionId"
-        // TEMP todo we need to define if this is the right key or do we need an extra api for this
-        static let ADOBE_XDM = "adobe_xdm"
-        static let EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED = "pushTracking.applicationOpened"
-        static let EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION = "pushTracking.customAction"
+        
+        static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
+        static let ID = "id"
+        static let DETAIL = "detail"
+        static let TYPE = "type"
+        
+        enum InAppMessages {
+            static let TEMPLATE = "template"
+            static let HTML = "html"
+            static let REMOTE_ASSETS = "remoteAssets"
+            static let TITLE = "title"
+            static let CONTENT = "content"
+            static let CONFIRM = "confirm"
+            static let CANCEL = "cancel"
+            static let URL = "url"
+            static let WAIT = "wait"
+            static let DATE = "date"
+            static let DEEPLINK = "adb_deeplink"
+            static let USER_DATA = "userData"
+            static let CATEGORY = "category"
+            static let SOUND = "sound"
+        }
     }
-
+    
+    enum InAppMessageTemplates {
+        static let FULLSCREEN = "fullscreen"
+        static let LOCAL = "local"
+    }
+    
+    enum ConsequenceTypes {
+        static let IN_APP_MESSAGE = "cjmiam"
+    }
+    
     enum AdobeTrackingKeys {
         static let _XDM = "_xdm"
         static let CJM = "cjm"
@@ -46,32 +73,29 @@ enum MessagingConstants {
             ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
     }
 
-    enum XDMDataKeys {
-        static let XDM = "xdm"
-        static let META = "meta"
-        static let COLLECT = "collect"
-        static let DATASET_ID = "datasetId"
-        static let ACTION_ID = "actionID"
-        static let CUSTOM_ACTION = "customAction"
-        static let PUSH_PROVIDER_MESSAGE_ID = "pushProviderMessageID"
-        static let PUSH_PROVIDER = "pushProvider"
-        static let EVENT_TYPE = "eventType"
-        static let PUSH_NOTIFICATION_TRACKING = "pushNotificationTracking"
+    enum XDM {
+        enum DataKeys {
+            static let ADOBE_XDM = "adobe_xdm"
+            static let XDM = "xdm"
+            static let META = "meta"
+            static let COLLECT = "collect"
+            static let DATASET_ID = "datasetId"
+            static let ACTION_ID = "actionID"
+            static let CUSTOM_ACTION = "customAction"
+            static let PUSH_PROVIDER_MESSAGE_ID = "pushProviderMessageID"
+            static let PUSH_PROVIDER = "pushProvider"
+            static let EVENT_TYPE = "eventType"
+            static let PUSH_NOTIFICATION_TRACKING = "pushNotificationTracking"
+        }
+        
+        enum EventTypes {
+            static let PUSH_TRACKING_APPLICATION_OPENED = "pushTracking.applicationOpened"
+            static let PUSH_TRACKING_CUSTOM_ACTION = "pushTracking.customAction"
+        }
     }
 
-    enum EventSources {
-        static let sharedState = "com.adobe.eventSource.sharedState"
-        static let requestContent = "com.adobe.eventSource.requestContent"
-        static let responseContent = "com.adobe.eventSource.responseContent"
-        static let os = "com.adobe.eventSource.os"
-    }
-
-    enum EventTypes {
-        static let hub = "com.adobe.eventType.hub"
-        static let genericIdentity = "com.adobe.eventType.generic.identity"
-        static let configuration = "com.adobe.eventType.configuration"
+    enum EventType {
         static let MESSAGING = "com.adobe.eventType.messaging"
-        static let EDGE = "com.adobe.eventType.edge"
     }
 
     /*
