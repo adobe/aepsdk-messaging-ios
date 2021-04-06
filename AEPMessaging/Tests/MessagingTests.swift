@@ -50,9 +50,9 @@ class MessagingTests: XCTestCase {
         XCTAssertNoThrow(MobileCore.registerExtensions([Messaging.self]))
     }
 
-    /// validate that 4 listeners are registered onRegister
-    func testonRegistered_threeListenersAreRegistered() {
-        XCTAssertEqual(mockRuntime.listeners.count, 4)
+    /// validate that 6 listeners are registered onRegister
+    func testOnRegistered_sixListenersAreRegistered() {
+        XCTAssertEqual(mockRuntime.listeners.count, 6)
     }
 
     /// validating handleConfigurationResponse does not throw error with nil data and

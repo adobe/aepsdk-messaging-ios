@@ -12,22 +12,59 @@
 
 import AEPCore
 import AEPMessaging
+import AEPServices
 import UIKit
 import UserNotifications
+import AEPOfferDecisioning
 
 class ViewController: UIViewController {
 
+    @IBOutlet var switchShowMessages: UISwitch?
+    
+    var htmlDecisionScope: DecisionScope?
+    private let messageHandler = MessageHandler()
     weak var appDelegate = UIApplication.shared.delegate as? AppDelegate
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        MobileCore.messagingDelegate = messageHandler
     }
-
+    
+    @IBAction func triggerInapp(_ sender: Any) {
+//        MobileCore.track(state: "triggerInapp", data: ["testShowMessage":"true"])
+        MobileCore.track(state: "triggerInapp", data: ["testShowMessage3":"true"])
+    }
+    
+    /// Messaging delegate
+    private class MessageHandler: MessagingDelegate {
+        var showMessages = true
+        
+        func onShow(message: Showable) {
+            let fullscreenMessage = message as? FullscreenMessage
+            print("message was shown \(fullscreenMessage?.debugDescription ?? "undefined")")
+        }
+        
+        func onDismiss(message: Showable) {
+            let fullscreenMessage = message as? FullscreenMessage
+            print("message was dismissed \(fullscreenMessage?.debugDescription ?? "undefined")")
+        }
+        
+        func shouldShowMessage(message: Showable) -> Bool {
+            return showMessages
+        }
+    }
+    
+    @IBAction func toggleShowMessages(_ sender: Any) {
+        if sender as? UISwitch == switchShowMessages {
+            messageHandler.showMessages = !messageHandler.showMessages
+            print("messageHandler.showMessages: \(messageHandler.showMessages)")
+        }
+    }
+    
     @IBAction func scheduleNotification(_ sender: Any) {
         self.appDelegate?.scheduleNotification()
     }
-
+    
     @IBAction func scheduleNotificationWithCustomAction(_ sender: Any) {
         self.appDelegate?.scheduleNotificationWithCustomAction()
     }

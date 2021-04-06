@@ -54,4 +54,64 @@ extension Event {
     private var details: [String: Any]? {
         return consequence?[MessagingConstants.EventDataKeys.DETAIL] as? [String: Any]
     }
+    
+    // MARK: - AEP Response Event Handling
+    // MARK: Public
+    var isPersonalizationDecisionResponse: Bool {
+        return isEdgeType && isPersonalizationSource
+    }
+    
+    var offerActivityId: String? {
+        return activity?[MessagingConstants.EventDataKeys.Offers.ID] as? String
+    }
+    
+    var offerPlacementId: String? {
+        return placement?[MessagingConstants.EventDataKeys.Offers.ID] as? String
+    }
+    
+    /// each entry in the array represents "content" from an offer, which contains a rule
+    var rulesJson: [String]? {
+        guard let items = items else {
+            return nil
+        }
+        
+        var rules: [String] = []
+        for item in items {
+            guard let data = item[MessagingConstants.EventDataKeys.Offers.DATA] as? [String: Any] else {
+                continue
+            }
+            if let content = data[MessagingConstants.EventDataKeys.Offers.CONTENT] as? String {
+                rules.append(content)
+            }
+        }
+        
+        return rules
+    }
+    
+    // MARK: Private
+    private var isEdgeType: Bool {
+        return type == EventType.edge
+    }
+    
+    private var isPersonalizationSource: Bool {
+        return source == MessagingConstants.EventSource.PERSONALIZATION_DECISIONS
+    }
+    
+    /// payload is an array of dictionaries, but since we are only asking for a single DecisionScope
+    /// in the messaging sdk, we can assume this array will only have 0-1 items
+    private var payload: [[String: Any]]? {
+        return data?[MessagingConstants.EventDataKeys.Offers.PAYLOAD] as? [[String: Any]]
+    }
+    
+    private var activity: [String: Any]? {
+        return payload?[0][MessagingConstants.EventDataKeys.Offers.ACTIVITY] as? [String: Any]
+    }
+    
+    private var placement: [String: Any]? {
+        return payload?[0][MessagingConstants.EventDataKeys.Offers.PLACEMENT] as? [String: Any]
+    }
+    
+    private var items: [[String: Any]]? {
+        return payload?[0][MessagingConstants.EventDataKeys.Offers.ITEMS] as? [[String: Any]]
+    }
 }

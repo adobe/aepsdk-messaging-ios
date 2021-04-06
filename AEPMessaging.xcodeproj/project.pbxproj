@@ -22,10 +22,23 @@
 
 /* Begin PBXBuildFile section */
 		21E3460AF89FB17D2D3B19B4 /* Pods_AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF42725226DEA00A5DE31 /* Pods_AEPMessaging.framework */; };
+		244E452B260D3EF600937D9A /* MessagingRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E452A260D3EF600937D9A /* MessagingRule.swift */; };
+		244E4533260D3F1400937D9A /* MessagingConsequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E4532260D3F1400937D9A /* MessagingConsequence.swift */; };
+		244E4549260E701A00937D9A /* TokenFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E4548260E701A00937D9A /* TokenFinder.swift */; };
+		24762D0D261CD81700A444E9 /* JSONRulesParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D0C261CD81700A444E9 /* JSONRulesParserTests.swift */; };
+		24762D15261CD82D00A444E9 /* MessagingConsequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D14261CD82D00A444E9 /* MessagingConsequenceTests.swift */; };
+		24762D1A261CD84000A444E9 /* MessagingRuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D19261CD84000A444E9 /* MessagingRuleTests.swift */; };
+		24762D1F261CD85500A444E9 /* MessagingRulesEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D1E261CD85500A444E9 /* MessagingRulesEngineTests.swift */; };
+		24762D24261CD86500A444E9 /* TokenFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D23261CD86500A444E9 /* TokenFinderTests.swift */; };
+		24762D29261CD88600A444E9 /* MessagingHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D28261CD88600A444E9 /* MessagingHandlerTests.swift */; };
+		2486A32826166B5200C9BFC6 /* JSONRulesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2486A32726166B5200C9BFC6 /* JSONRulesParser.swift */; };
+		2486A330261681CA00C9BFC6 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2486A32F261681CA00C9BFC6 /* WebKit.framework */; };
 		24ACCC2525F2F26C00697A1B /* Event+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCC2425F2F26C00697A1B /* Event+Messaging.swift */; };
 		24ACCCAA260263B700697A1B /* TestableExtensionRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCCA8260263B700697A1B /* TestableExtensionRuntime.swift */; };
 		24ACCCAB260263B700697A1B /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCCA9260263B700697A1B /* MockNetworkService.swift */; };
 		24ACCCD4260272E300697A1B /* Event+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCCB22602650D00697A1B /* Event+MessagingTests.swift */; };
+		24ACCCEE2603F48500697A1B /* MessagingHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCCED2603F48500697A1B /* MessagingHandler.swift */; };
+		24ACCD0526040CA000697A1B /* MessagingRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCD0426040CA000697A1B /* MessagingRulesEngine.swift */; };
 		65CEA3CBDFE2D1A8E88BAE27 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFBB632D4EA1ADCEEB8DA1B1 /* Pods_UnitTests.framework */; };
 		9249A4E2252292AB009193AB /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		9249A4E3252292AB009193AB /* AEPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -84,11 +97,24 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		244E452A260D3EF600937D9A /* MessagingRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRule.swift; sourceTree = "<group>"; };
+		244E4532260D3F1400937D9A /* MessagingConsequence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingConsequence.swift; sourceTree = "<group>"; };
+		244E4548260E701A00937D9A /* TokenFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFinder.swift; sourceTree = "<group>"; };
+		24762D0C261CD81700A444E9 /* JSONRulesParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRulesParserTests.swift; sourceTree = "<group>"; };
+		24762D14261CD82D00A444E9 /* MessagingConsequenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingConsequenceTests.swift; sourceTree = "<group>"; };
+		24762D19261CD84000A444E9 /* MessagingRuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRuleTests.swift; sourceTree = "<group>"; };
+		24762D1E261CD85500A444E9 /* MessagingRulesEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngineTests.swift; sourceTree = "<group>"; };
+		24762D23261CD86500A444E9 /* TokenFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFinderTests.swift; sourceTree = "<group>"; };
+		24762D28261CD88600A444E9 /* MessagingHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingHandlerTests.swift; sourceTree = "<group>"; };
+		2486A32726166B5200C9BFC6 /* JSONRulesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRulesParser.swift; sourceTree = "<group>"; };
+		2486A32F261681CA00C9BFC6 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		24ACCC2425F2F26C00697A1B /* Event+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Event+Messaging.swift"; sourceTree = "<group>"; };
 		24ACCCA8260263B700697A1B /* TestableExtensionRuntime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestableExtensionRuntime.swift; sourceTree = "<group>"; };
 		24ACCCA9260263B700697A1B /* MockNetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockNetworkService.swift; sourceTree = "<group>"; };
 		24ACCCB22602650D00697A1B /* Event+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Event+MessagingTests.swift"; sourceTree = "<group>"; };
 		24ACCCCF2602729C00697A1B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		24ACCCED2603F48500697A1B /* MessagingHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingHandler.swift; sourceTree = "<group>"; };
+		24ACCD0426040CA000697A1B /* MessagingRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngine.swift; sourceTree = "<group>"; };
 		4452870CD3AE30802C0B5A32 /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		45CBF297E444E34785CA2D8D /* Pods_MessagingDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		890A05580524FBFB890DDA24 /* Pods-MessagingDemoApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.release.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.release.xcconfig"; sourceTree = "<group>"; };
@@ -108,10 +134,8 @@
 		925DF44E2522785700A5DE31 /* ADBMobileConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ADBMobileConfig.json; sourceTree = "<group>"; };
 		925DF44F2522785700A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		925DF4502522785700A5DE31 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		925DF4582522786500A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		925DF4692522786F00A5DE31 /* Messaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Messaging.swift; sourceTree = "<group>"; };
 		925DF46A2522786F00A5DE31 /* MessagingConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingConstants.swift; sourceTree = "<group>"; };
-		925DF46B2522786F00A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		925DF4A525227C4700A5DE31 /* AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		925DF4A725227C4700A5DE31 /* AEPMessaging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AEPMessaging.h; sourceTree = "<group>"; };
 		928593FA2522823600B2BE47 /* Pods_MessagingDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_MessagingDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -133,6 +157,7 @@
 			files = (
 				9249A4E2252292AB009193AB /* AEPMessaging.framework in Frameworks */,
 				928593FB2522823600B2BE47 /* Pods_MessagingDemoApp.framework in Frameworks */,
+				2486A330261681CA00C9BFC6 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,6 +181,30 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		244E4529260D3ED300937D9A /* rules */ = {
+			isa = PBXGroup;
+			children = (
+				2486A32726166B5200C9BFC6 /* JSONRulesParser.swift */,
+				244E4532260D3F1400937D9A /* MessagingConsequence.swift */,
+				244E452A260D3EF600937D9A /* MessagingRule.swift */,
+				24ACCD0426040CA000697A1B /* MessagingRulesEngine.swift */,
+				244E4548260E701A00937D9A /* TokenFinder.swift */,
+			);
+			path = rules;
+			sourceTree = "<group>";
+		};
+		24762D0B261CD7F600A444E9 /* rules */ = {
+			isa = PBXGroup;
+			children = (
+				24762D0C261CD81700A444E9 /* JSONRulesParserTests.swift */,
+				24762D14261CD82D00A444E9 /* MessagingConsequenceTests.swift */,
+				24762D19261CD84000A444E9 /* MessagingRuleTests.swift */,
+				24762D1E261CD85500A444E9 /* MessagingRulesEngineTests.swift */,
+				24762D23261CD86500A444E9 /* TokenFinderTests.swift */,
+			);
+			path = rules;
+			sourceTree = "<group>";
+		};
 		2A4D31945863BC9FEBE21FE1 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -217,8 +266,9 @@
 		925DF4562522786500A5DE31 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				24762D0B261CD7F600A444E9 /* rules */,
 				24ACCCB22602650D00697A1B /* Event+MessagingTests.swift */,
-				925DF4582522786500A5DE31 /* Info.plist */,
+				24762D28261CD88600A444E9 /* MessagingHandlerTests.swift */,
 				9296BAA82537C2ED002C88F7 /* MessagingTests.swift */,
 				24ACCCA9260263B700697A1B /* MockNetworkService.swift */,
 				24ACCCA8260263B700697A1B /* TestableExtensionRuntime.swift */,
@@ -229,12 +279,13 @@
 		925DF45C2522786F00A5DE31 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				244E4529260D3ED300937D9A /* rules */,
 				925DF4A725227C4700A5DE31 /* AEPMessaging.h */,
 				24ACCC2425F2F26C00697A1B /* Event+Messaging.swift */,
-				925DF46B2522786F00A5DE31 /* Info.plist */,
 				925DF4692522786F00A5DE31 /* Messaging.swift */,
 				925DF46A2522786F00A5DE31 /* MessagingConstants.swift */,
 				928B7ADC255B1E54006C7244 /* Messaging+PublicAPI.swift */,
+				24ACCCED2603F48500697A1B /* MessagingHandler.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -251,6 +302,7 @@
 		92BD7B0B251C0B7700C758CB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2486A32F261681CA00C9BFC6 /* WebKit.framework */,
 				24ACCCCF2602729C00697A1B /* XCTest.framework */,
 				92BCEC9C2538FC0E0068F8B8 /* AEPEdge.framework */,
 				9249A4E8252294AD009193AB /* AEPCore.framework */,
@@ -535,8 +587,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24ACCD0526040CA000697A1B /* MessagingRulesEngine.swift in Sources */,
 				928B7ADD255B1E54006C7244 /* Messaging+PublicAPI.swift in Sources */,
+				244E452B260D3EF600937D9A /* MessagingRule.swift in Sources */,
+				244E4549260E701A00937D9A /* TokenFinder.swift in Sources */,
+				2486A32826166B5200C9BFC6 /* JSONRulesParser.swift in Sources */,
 				925DF4C125227DBE00A5DE31 /* Messaging.swift in Sources */,
+				244E4533260D3F1400937D9A /* MessagingConsequence.swift in Sources */,
+				24ACCCEE2603F48500697A1B /* MessagingHandler.swift in Sources */,
 				925DF4C225227DBE00A5DE31 /* MessagingConstants.swift in Sources */,
 				24ACCC2525F2F26C00697A1B /* Event+Messaging.swift in Sources */,
 			);
@@ -548,8 +606,14 @@
 			files = (
 				24ACCCAB260263B700697A1B /* MockNetworkService.swift in Sources */,
 				24ACCCAA260263B700697A1B /* TestableExtensionRuntime.swift in Sources */,
+				24762D15261CD82D00A444E9 /* MessagingConsequenceTests.swift in Sources */,
+				24762D29261CD88600A444E9 /* MessagingHandlerTests.swift in Sources */,
+				24762D1A261CD84000A444E9 /* MessagingRuleTests.swift in Sources */,
+				24762D1F261CD85500A444E9 /* MessagingRulesEngineTests.swift in Sources */,
 				9296BAAC2537C2F0002C88F7 /* MessagingTests.swift in Sources */,
+				24762D24261CD86500A444E9 /* TokenFinderTests.swift in Sources */,
 				24ACCCD4260272E300697A1B /* Event+MessagingTests.swift in Sources */,
+				24762D0D261CD81700A444E9 /* JSONRulesParserTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
