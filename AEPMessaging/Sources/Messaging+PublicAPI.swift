@@ -14,14 +14,14 @@ import AEPCore
 import AEPServices
 import UserNotifications
 
-public extension Messaging {
-
+@objc public extension Messaging {
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
-    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
+    @objc(handleNotificationResponse:applicationOpened:customActionId:)
+    static func handleNotificationResponse(_ response: UNNotificationResponse, isApplicationOpened: Bool, customActionId: String?) {
         let notificationRequest = response.notification.request
         let xdm = notificationRequest.content.userInfo[MessagingConstants.AdobeTrackingKeys._XDM] as? [String: Any]
         // Checking if the message has xdm key
@@ -31,13 +31,13 @@ public extension Messaging {
 
         let messageId = notificationRequest.identifier
         if messageId.isEmpty {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction, Message Id is invalid in the response. ")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction, Message Id is invalid in the response.")
             return
         }
 
         // Creating event data with tracking informations
         var eventData: [String: Any] = [MessagingConstants.EventDataKeys.MESSAGE_ID: messageId,
-                                        MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened,
+                                        MessagingConstants.EventDataKeys.APPLICATION_OPENED: isApplicationOpened,
                                         MessagingConstants.EventDataKeys.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
         if customActionId == nil {
             eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED
@@ -46,9 +46,9 @@ public extension Messaging {
             eventData[MessagingConstants.EventDataKeys.ACTION_ID] = customActionId
         }
 
-        let event = Event(name: MessagingConstants.EventName.MESSAGING_REQUEST_EVENT,
-                          type: MessagingConstants.EventTypes.MESSAGING,
-                          source: MessagingConstants.EventSources.requestContent,
+        let event = Event(name: MessagingConstants.EventName.MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT,
+                          type: MessagingConstants.EventType.messaging,
+                          source: EventSource.requestContent,
                           data: eventData)
         MobileCore.dispatch(event: event)
     }

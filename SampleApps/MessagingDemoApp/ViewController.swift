@@ -16,7 +16,6 @@ import UIKit
 import UserNotifications
 
 class ViewController: UIViewController {
-
     weak var appDelegate = UIApplication.shared.delegate as? AppDelegate
 
     override func viewDidLoad() {
@@ -24,11 +23,11 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
 
-    @IBAction func scheduleNotification(_ sender: Any) {
-        self.appDelegate?.scheduleNotification()
+    @IBAction func scheduleNotification(_: Any) {
+        appDelegate?.scheduleNotification()
     }
 
-    @IBAction func scheduleNotificationWithCustomAction(_ sender: Any) {
-        self.appDelegate?.scheduleNotificationWithCustomAction()
+    @IBAction func scheduleNotificationWithCustomAction(_: Any) {
+        appDelegate?.scheduleNotificationWithCustomAction()
     }
 }

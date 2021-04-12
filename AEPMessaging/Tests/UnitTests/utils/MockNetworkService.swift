@@ -10,14 +10,14 @@
  governing permissions and limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+@testable import AEPCore
+import AEPServices
+import Foundation
 
-//! Project version number for AEPMessaging.
-FOUNDATION_EXPORT double AEPMessagingVersionNumber;
+class MockNetworkService: Networking {
+    var actualNetworkRequest: NetworkRequest?
 
-//! Project version string for AEPMessaging.
-FOUNDATION_EXPORT const unsigned char AEPMessagingVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <AEPMessaging/PublicHeader.h>
-
-
+    func connectAsync(networkRequest: NetworkRequest, completionHandler _: ((HttpConnection) -> Void)?) {
+        actualNetworkRequest = networkRequest
+    }
+}

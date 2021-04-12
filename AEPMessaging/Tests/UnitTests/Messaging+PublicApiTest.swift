@@ -41,17 +41,18 @@ class MessagingPublicApiTest: XCTestCase {
         expectation.assertForOverFulfill = true
 
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventTypes.MESSAGING, source: EventSource.requestContent) { event in
-            XCTAssertEqual(MessagingConstants.EventName.MESSAGING_REQUEST_EVENT, event.name)
-            XCTAssertEqual(MessagingConstants.EventTypes.MESSAGING, event.type)
-            XCTAssertEqual(MessagingConstants.EventSources.requestContent, event.source)
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventType.messaging, source: EventSource.requestContent) { event in
+            XCTAssertEqual(MessagingConstants.EventName.MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT, event.name)
+            XCTAssertEqual(MessagingConstants.EventType.messaging, event.type)
+            XCTAssertEqual(EventSource.requestContent, event.source)
 
             guard let eventData = event.data,
                   let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool,
                   let eventDataType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String,
                   let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String,
                   let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String,
-                  let xdm = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any] else {
+                  let xdm = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any]
+            else {
                 XCTFail()
                 expectation.fulfill()
                 return
@@ -78,7 +79,7 @@ class MessagingPublicApiTest: XCTestCase {
             XCTFail()
             return
         }
-        Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActinoId)
+        Messaging.handleNotificationResponse(response, isApplicationOpened: true, customActionId: mockCustomActinoId)
         wait(for: [expectation], timeout: 1)
     }
 }
@@ -89,10 +90,12 @@ class MockNotificationResponseCoder: NSCoder {
     private enum FieldKey: String {
         case request, originIdentifier, sourceIdentifier, actionIdentifier, notification
     }
+
     override var allowsKeyedCoding: Bool { true }
     init(with request: UNNotificationRequest) {
         self.request = request
     }
+
     override func decodeObject(forKey key: String) -> Any? {
         let fieldKey = FieldKey(rawValue: key)
         switch fieldKey {

@@ -10,6 +10,8 @@
 // governing permissions and limitations under the License.
 //
 
+import ACPCore
+import AEPAssurance
 import AEPCore
 import AEPEdge
 import AEPIdentity
@@ -21,11 +23,9 @@ import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-
     let notificationCenter = UNUserNotificationCenter.current()
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         notificationCenter.delegate = self
 
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
@@ -40,14 +40,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         MobileCore.setLogLevel(.trace)
         MobileCore.registerExtensions([Lifecycle.self, Identity.self, Messaging.self, Edge.self, Signal.self])
 
-        MobileCore.configureWith(appId: "<appId>")
+        MobileCore.configureWith(appId: "3149c49c3910/6a68c2e19c81/launch-4b2394565377-development")
         MobileCore.updateConfigurationWith(configDict: [
-                                            "messaging.eventDataset": "<eventDatasetId>",
-                                            "messaging.useSandbox": true])
+            "messaging.eventDataset": "5f8623492312f418dcc6b3d9",
+            "messaging.useSandbox": true,
+        ])
 
         // only start lifecycle if the application is not in the background
         if application.applicationState != .background {
             MobileCore.lifecycleStart(additionalContextData: nil)
+        }
+
+        AEPAssurance.registerExtension()
+        ACPCore.start {
+            AEPAssurance.startSession(URL(string: "messagingdemo://?adb_validation_sessionid=047eb65e-efa8-48b0-bd7f-b6a338fda6d6")!)
         }
 
         let center = UNUserNotificationCenter.current()
@@ -67,20 +73,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     // MARK: - UISceneSession Lifecycle
 
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+    func application(_: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options _: UIScene.ConnectionOptions) -> UISceneConfiguration {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
-    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
+    func application(_: UIApplication, didDiscardSceneSessions _: Set<UISceneSession>) {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
 
     // MARK: - Push Notification handling
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+
+    func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         print("Token is - ")
         let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
         let token = tokenParts.joined()
@@ -88,15 +95,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         MobileCore.setPushIdentifier(deviceToken)
     }
 
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError _: Error) {
         MobileCore.setPushIdentifier(nil)
     }
 
-    func applicationWillEnterForeground(_ application: UIApplication) {
+    func applicationWillEnterForeground(_: UIApplication) {
         MobileCore.lifecycleStart(additionalContextData: nil)
     }
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
+    func applicationDidEnterBackground(_: UIApplication) {
         MobileCore.lifecyclePause()
     }
 
@@ -160,29 +167,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                willPresent notification: UNNotification,
-                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    func userNotificationCenter(_: UNUserNotificationCenter,
+                                willPresent _: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void)
+    {
         completionHandler([.alert, .sound])
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
+    func userNotificationCenter(_: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
-                                withCompletionHandler completionHandler: @escaping () -> Void) {
-
+                                withCompletionHandler completionHandler: @escaping () -> Void)
+    {
         // Perform the task associated with the action.
         switch response.actionIdentifier {
         case "ACCEPT_ACTION":
-            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: "ACCEPT_ACTION")
-            break
+            Messaging.handleNotificationResponse(response, isApplicationOpened: true, customActionId: "ACCEPT_ACTION")
 
         case "DECLINE_ACTION":
-            Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: "DECLINE_ACTION")
-            break
+            Messaging.handleNotificationResponse(response, isApplicationOpened: false, customActionId: "DECLINE_ACTION")
 
         // Handle other actions…
         default:
-            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: nil)
+            Messaging.handleNotificationResponse(response, isApplicationOpened: true, customActionId: nil)
         }
 
         // Always call the completion handler when done.
