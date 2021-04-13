@@ -40,6 +40,7 @@ class ViewController: UIViewController {
         var showMessages = true
         
         func onShow(message: Showable) {
+            
             let fullscreenMessage = message as? FullscreenMessage
             print("message was shown \(fullscreenMessage?.debugDescription ?? "undefined")")
         }
@@ -50,6 +51,9 @@ class ViewController: UIViewController {
         }
         
         func shouldShowMessage(message: Showable) -> Bool {
+            
+            // do whatever logic to decide if the message should show
+            
             return showMessages
         }
     }

@@ -31,6 +31,7 @@
 		24762D1F261CD85500A444E9 /* MessagingRulesEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D1E261CD85500A444E9 /* MessagingRulesEngineTests.swift */; };
 		24762D24261CD86500A444E9 /* TokenFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D23261CD86500A444E9 /* TokenFinderTests.swift */; };
 		24762D29261CD88600A444E9 /* MessagingHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D28261CD88600A444E9 /* MessagingHandlerTests.swift */; };
+		24762D56261F72C200A444E9 /* rules_1.json in Resources */ = {isa = PBXBuildFile; fileRef = 24762D55261F72C200A444E9 /* rules_1.json */; };
 		2486A32826166B5200C9BFC6 /* JSONRulesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2486A32726166B5200C9BFC6 /* JSONRulesParser.swift */; };
 		2486A330261681CA00C9BFC6 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2486A32F261681CA00C9BFC6 /* WebKit.framework */; };
 		24ACCC2525F2F26C00697A1B /* Event+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCC2425F2F26C00697A1B /* Event+Messaging.swift */; };
@@ -106,6 +107,7 @@
 		24762D1E261CD85500A444E9 /* MessagingRulesEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngineTests.swift; sourceTree = "<group>"; };
 		24762D23261CD86500A444E9 /* TokenFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFinderTests.swift; sourceTree = "<group>"; };
 		24762D28261CD88600A444E9 /* MessagingHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingHandlerTests.swift; sourceTree = "<group>"; };
+		24762D55261F72C200A444E9 /* rules_1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = rules_1.json; sourceTree = "<group>"; };
 		2486A32726166B5200C9BFC6 /* JSONRulesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRulesParser.swift; sourceTree = "<group>"; };
 		2486A32F261681CA00C9BFC6 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		24ACCC2425F2F26C00697A1B /* Event+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Event+Messaging.swift"; sourceTree = "<group>"; };
@@ -196,6 +198,7 @@
 		24762D0B261CD7F600A444E9 /* rules */ = {
 			isa = PBXGroup;
 			children = (
+				24762D51261F595300A444E9 /* resources */,
 				24762D0C261CD81700A444E9 /* JSONRulesParserTests.swift */,
 				24762D14261CD82D00A444E9 /* MessagingConsequenceTests.swift */,
 				24762D19261CD84000A444E9 /* MessagingRuleTests.swift */,
@@ -203,6 +206,14 @@
 				24762D23261CD86500A444E9 /* TokenFinderTests.swift */,
 			);
 			path = rules;
+			sourceTree = "<group>";
+		};
+		24762D51261F595300A444E9 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				24762D55261F72C200A444E9 /* rules_1.json */,
+			);
+			path = resources;
 			sourceTree = "<group>";
 		};
 		2A4D31945863BC9FEBE21FE1 /* Pods */ = {
@@ -402,7 +413,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1200;
-				LastUpgradeCheck = 1200;
+				LastUpgradeCheck = 1230;
 				TargetAttributes = {
 					92085981251BEB7100B9C65A = {
 						CreatedOnToolsVersion = 12.0;
@@ -464,6 +475,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24762D56261F72C200A444E9 /* rules_1.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -37,9 +37,8 @@ class MessagingRulesEngine {
         self.transformer = Transformer()
         self.extensionRuntime = extensionRuntime
         self.evaluator = ConditionEvaluator(options: .caseInsensitive)
-        
-        // TODO: revisit once we figure out if we need a transformer
-        self.rulesEngine = RulesEngine(evaluator: self.evaluator, transformer:self.transformer)
+                
+        self.rulesEngine = RulesEngine(evaluator: self.evaluator)
         
         if debugging {
             // TODO: enable logging

@@ -14,12 +14,13 @@ import AEPCore
 import Foundation
 
 extension Event {
-    // MARK: - Consequence Types
+    // MARK: - In-app Message Consequence Event Handling
+    // MARK: Public
     var isInAppMessage: Bool {
         return consequenceType == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE
     }
     
-    // MARK: - Fullscreen Message Properties
+    // MARK: Fullscreen Message Properties
     var template: String? {
         return details?[MessagingConstants.EventDataKeys.InAppMessages.TEMPLATE] as? String
     }
@@ -32,13 +33,14 @@ extension Event {
         return details?[MessagingConstants.EventDataKeys.InAppMessages.REMOTE_ASSETS] as? [String]
     }
     
-    // MARK: - Message Object Validation
+    // MARK: Message Object Validation
     var containsValidInAppMessage: Bool {
         // remoteAssets are optional
         return template != nil && html != nil
     }
     
-    // MARK: - Consequence EventData Processing
+    // MARK: Private
+    // MARK: Consequence EventData Processing
     private var consequence: [String: Any]? {
         return data?[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] as? [String: Any]
     }
@@ -85,7 +87,7 @@ extension Event {
             }
         }
         
-        return rules
+        return rules.count > 0 ? rules : nil
     }
     
     // MARK: Private

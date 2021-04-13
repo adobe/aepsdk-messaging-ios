@@ -26,6 +26,7 @@ enum MessagingConstants {
         static let MESSAGE_ID = "id"
         static let APPLICATION_OPENED = "applicationOpened"
         static let ACTION_ID = "actionId"
+        static let FETCH_MESSAGES = "fetchmessages"
         
         static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
         static let ID = "id"
@@ -77,12 +78,16 @@ enum MessagingConstants {
         }
     }
     
+    enum EventNames {
+        static let OFFERS_REQUEST = "Offer Decisioning Request"
+    }
+    
     enum EventSource {
         static let PERSONALIZATION_DECISIONS = "personalization:decisions"
     }
     
-    enum EventNames {
-        static let OFFERS_REQUEST = "Offer Decisioning Request"
+    enum EventType {
+        static let MESSAGING = "com.adobe.eventType.messaging"
     }
     
     enum InAppMessageTemplates {
@@ -128,10 +133,6 @@ enum MessagingConstants {
             static let PUSH_TRACKING_APPLICATION_OPENED = "pushTracking.applicationOpened"
             static let PUSH_TRACKING_CUSTOM_ACTION = "pushTracking.customAction"
         }
-    }
-
-    enum EventType {
-        static let MESSAGING = "com.adobe.eventType.messaging"
     }
 
     /*

@@ -19,6 +19,10 @@ class EventPlusMessagingTests: XCTestCase {
     var messaging: Messaging!
     let testHtml = "<html>All ur base are belong to us</html>"
     let testAssets = ["asset1", "asset2"]
+    let mockActivityId = "mockActivityId"
+    let mockPlacementId = "mockPlacementId"
+    let mockContent1 = "content1"
+    let mockContent2 = "content2"
     
     // before each
     override func setUp() {
@@ -162,8 +166,189 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertFalse(event.containsValidInAppMessage)
     }
     
-    // MARK: - Helpers
+    // MARK: - AEP Response Event Handling
+    func testIsPersonalizationDecisionResponseHappy() {
+        // setup
+        let event = getAEPResponseEvent()
+        
+        // verify
+        XCTAssertTrue(event.isPersonalizationDecisionResponse)
+    }
     
+    func testIsPersonalizationDecisionResponseNotEdgeType() {
+        // setup
+        let event = getAEPResponseEvent(type: "notEdge")
+                        
+        // verify
+        XCTAssertFalse(event.isPersonalizationDecisionResponse)
+    }
+    
+    func testIsPersonalizationDecisionResponseNotPersonalizationSource() {
+        // setup
+        let event = getAEPResponseEvent(source: "notPersonalization")
+                
+        // verify
+        XCTAssertFalse(event.isPersonalizationDecisionResponse)
+    }
+    
+    func testOfferActivityIdHappy() {
+        // setup
+        let event = getAEPResponseEvent()
+        
+        // verify
+        XCTAssertEqual(mockActivityId, event.offerActivityId)
+    }
+    
+    func testOfferActivityIdEmpty() {
+        // setup
+        let data1 = ["content": mockContent1]
+        let item1 = ["data": data1]
+        let data2 = ["content": mockContent2]
+        let item2 = ["data": data2]
+        let placement = ["id": mockPlacementId]
+        let activity: [String: Any] = [:]
+        let payload: [String: Any] = [
+            "activity": activity,
+            "placement": placement,
+            "items": [item1, item2]
+        ]
+        let event = getAEPResponseEvent(data: ["payload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.offerActivityId)
+    }
+    
+    func testOfferPlacementIdHappy() {
+        // setup
+        let event = getAEPResponseEvent()
+        
+        // verify
+        XCTAssertEqual(mockPlacementId, event.offerPlacementId)
+    }
+    
+    func testOfferPlacementIdEmpty() {
+        // setup
+        let data1 = ["content": mockContent1]
+        let item1 = ["data": data1]
+        let data2 = ["content": mockContent2]
+        let item2 = ["data": data2]
+        let placement: [String: Any] = [:]
+        let activity = ["id": mockActivityId]
+        let payload: [String: Any] = [
+            "activity": activity,
+            "placement": placement,
+            "items": [item1, item2]
+        ]
+        let event = getAEPResponseEvent(data: ["payload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.offerPlacementId)
+    }
+    
+    func testRulesJsonHappy() {
+        // setup
+        let event = getAEPResponseEvent()
+        
+        // test
+        let rulesJson = event.rulesJson
+        
+        // verify
+        XCTAssertNotNil(rulesJson)
+        XCTAssertEqual(2, rulesJson?.count)
+        XCTAssertEqual(mockContent1, rulesJson?[0])
+        XCTAssertEqual(mockContent2, rulesJson?[1])
+    }
+    
+    func testRulesJsonBadPayloadKey() {
+        // setup
+        let data1 = ["content": mockContent1]
+        let item1 = ["data": data1]
+        let payload: [String: Any] = ["items": [item1]]
+        let event = getAEPResponseEvent(data: ["notthecorrectpayload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.rulesJson)
+    }
+    
+    func testRulesJsonPayloadNotArrayOfDictionaries() {
+        // setup
+        let data1 = ["content": mockContent1]
+        let item1 = ["data": data1]
+        let payload: [String: Any] = ["items": [item1]]
+        let event = getAEPResponseEvent(data: ["payload": payload])
+        
+        // verify
+        XCTAssertNil(event.rulesJson)
+    }
+    
+    func testRulesJsonBadItemsKey() {
+        // setup
+        let data1 = ["content": mockContent1]
+        let item1 = ["data": data1]
+        let payload: [String: Any] = ["itemsbutnotreally": [item1]]
+        let event = getAEPResponseEvent(data: ["payload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.rulesJson)
+    }
+    
+    func testRulesJsonItemsNotArray() {
+        // setup
+        let data1 = ["content": mockContent1]
+        let item1 = ["data": data1]
+        let payload: [String: Any] = ["items": item1]
+        let event = getAEPResponseEvent(data: ["payload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.rulesJson)
+    }
+    
+    func testRulesJsonBadDataKey() {
+        // setup
+        let data1 = ["content": mockContent1]
+        let item1 = ["databutnotreally": data1]
+        let payload: [String: Any] = ["items": [item1]]
+        let event = getAEPResponseEvent(data: ["payload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.rulesJson)
+    }
+    
+    func testRulesJsonDataNotDictionary() {
+        // setup
+        let data1 = "content"
+        let item1 = ["data": data1]
+        let payload: [String: Any] = ["items": [item1]]
+        let event = getAEPResponseEvent(data: ["payload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.rulesJson)
+    }
+    
+    func testRulesJsonBadContentKey() {
+        // setup
+        let data1 = ["contentbutnotreally": mockContent1]
+        let item1 = ["data": data1]
+        let payload: [String: Any] = ["items": [item1]]
+        let event = getAEPResponseEvent(data: ["payload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.rulesJson)
+    }
+    
+    func testRulesJsonContentIsNotString() {
+        // setup
+        let data1 = ["content": 12345]
+        let item1 = ["data": data1]
+        let payload: [String: Any] = ["items": [item1]]
+        let event = getAEPResponseEvent(data: ["payload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.rulesJson)
+    }
+    
+    
+    // MARK: - Helpers
     /// Gets an event to use for simulating a rules consequence
     func getRulesResponseEvent(type: String) -> Event {
         // details are the same for postback and pii, different for open url
@@ -203,4 +388,35 @@ class EventPlusMessagingTests: XCTestCase {
         
         return returnDict
     }
+    
+    /// Gets an AEP Response Event for testing
+    func getAEPResponseEvent(type: String = EventType.edge,
+                             source: String = MessagingConstants.EventSource.PERSONALIZATION_DECISIONS,
+                             data: [String: Any]? = nil) -> Event {
+        var eventData = data
+        if eventData == nil {
+            let data1 = ["content": mockContent1]
+            let item1 = ["data": data1]
+            let data2 = ["content": mockContent2]
+            let item2 = ["data": data2]
+            let placement = ["id": mockPlacementId]
+            let activity = ["id": mockActivityId]
+            let payload: [String: Any] = [
+                "activity": activity,
+                "placement": placement,
+                "items": [item1, item2]
+            ]
+            
+            eventData = ["payload": [payload]]
+        }
+        
+        let rulesEvent = Event(name: "Test AEP Response Event",
+                               type: type,
+                               source: source,
+                               data: eventData)
+        
+        return rulesEvent
+    }
 }
+
+
