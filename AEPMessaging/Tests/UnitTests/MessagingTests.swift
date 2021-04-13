@@ -95,7 +95,7 @@ class MessagingTests: XCTestCase {
         let eventData: [String: Any] = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: "optedin"]
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: nil, status: SharedStateStatus.set))
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Identity.NAME, data: (value: nil, status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: nil, status: SharedStateStatus.set))
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
@@ -105,12 +105,12 @@ class MessagingTests: XCTestCase {
     func testhandleProcessEvent_withInvalidConfig() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: MOCK_PRIVACY_STATUS_OPTED_IN]
 
-        let mockIdentity = [MessagingConstants.SharedState.Identity.MID: MOCK_ECID]
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
 
         let eventData: [String: Any] = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: MOCK_PRIVACY_STATUS_OPTED_IN]
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Identity.NAME, data: (value: mockIdentity, status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
@@ -120,12 +120,12 @@ class MessagingTests: XCTestCase {
     func testhandleProcessEvent_withPrivacyOptedOut() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: MOCK_PRIVACY_STATUS_OPTED_OUT]
 
-        let mockIdentity = [MessagingConstants.SharedState.Identity.MID: MOCK_ECID]
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
 
         let eventData: [String: Any] = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: MOCK_PRIVACY_STATUS_OPTED_OUT]
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Identity.NAME, data: (value: mockIdentity, status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
@@ -136,12 +136,12 @@ class MessagingTests: XCTestCase {
         let mockConfig = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: MOCK_PRIVACY_STATUS_OPTED_OUT,
                           MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: ""]
 
-        let mockIdentity = [MessagingConstants.SharedState.Identity.MID: MOCK_ECID]
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
 
         let eventData: [String: Any] = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: MOCK_PRIVACY_STATUS_OPTED_OUT]
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Identity.NAME, data: (value: mockIdentity, status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
@@ -152,14 +152,14 @@ class MessagingTests: XCTestCase {
         let mockConfig = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: MOCK_PRIVACY_STATUS_OPTED_IN,
                           MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
 
-        let mockIdentity = [MessagingConstants.SharedState.Identity.MID: MOCK_ECID]
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
 
         let eventData: [String: Any] = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: MOCK_PRIVACY_STATUS_OPTED_IN,
                                         MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
 
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Identity.NAME, data: (value: mockIdentity, status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
@@ -171,14 +171,14 @@ class MessagingTests: XCTestCase {
                           MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID,
                           MessagingConstants.SharedState.Configuration.USE_SANDBOX: true] as [String: Any]
 
-        let mockIdentity = [MessagingConstants.SharedState.Identity.MID: MOCK_ECID]
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
 
         let eventData: [String: Any] = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: MOCK_PRIVACY_STATUS_OPTED_IN,
                                         MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
 
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Identity.NAME, data: (value: mockIdentity, status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
@@ -190,14 +190,14 @@ class MessagingTests: XCTestCase {
                           MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID,
                           MessagingConstants.SharedState.Configuration.USE_SANDBOX: false] as [String: Any]
 
-        let mockIdentity = [MessagingConstants.SharedState.Identity.MID: MOCK_ECID]
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
 
         let eventData: [String: Any] = [MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY: MOCK_PRIVACY_STATUS_OPTED_IN,
                                         MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
 
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Identity.NAME, data: (value: mockIdentity, status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
@@ -206,13 +206,13 @@ class MessagingTests: XCTestCase {
     /// validating handleProcessEvent with Tracking info event when event data is empty
     func testhandleProcessEvent_withTrackingInfoEvent() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET: MOCK_EVENT_DATASET] as [String: Any]
-        let mockIdentity = [MessagingConstants.SharedState.Identity.MID: MOCK_ECID]
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
 
         let eventData: [String: Any]? = nil
 
         let event = Event(name: "trackingInfo", type: MessagingConstants.EventType.messaging, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Identity.NAME, data: (value: mockIdentity, status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
