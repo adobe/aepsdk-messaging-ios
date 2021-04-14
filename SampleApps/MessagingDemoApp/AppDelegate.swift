@@ -10,6 +10,8 @@
 // governing permissions and limitations under the License.
 //
 
+import ACPCore
+import AEPAssurance
 import AEPCore
 import AEPEdge
 import AEPIdentity
@@ -21,11 +23,9 @@ import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-
     let notificationCenter = UNUserNotificationCenter.current()
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         notificationCenter.delegate = self
 
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
@@ -40,21 +40,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         MobileCore.setLogLevel(.trace)
         MobileCore.registerExtensions([Lifecycle.self, Identity.self, Messaging.self, Edge.self, Signal.self])
 
-        // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
-        // which has the edge configuration id needed by aep sdk
-        MobileCore.configureWith(appId: "3149c49c3910/37b8929440ac/launch-cd35ef2ff581-development")
-
-        // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
-        // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
-        MobileCore.updateConfigurationWith(configDict: ["messaging.dccs": "https://dcs.adobedc.net/collection/e78a947b4aea3b3c22736bcc0da500a05a58667c72807e1821af00bd562ca7ab",
-                                                        "messaging.profileDatasetId": "<profileDatasetId>",
-                                                        "messaging.eventDataset": "5f8e4c2d0056e4194aabb74e",
-                                                        "messaging.useSandbox": true,
-                                                        "edge.configId": "5bb51917-7c51-4bbf-b8d4-431aaa771586"])
+        MobileCore.configureWith(appId: "3149c49c3910/6a68c2e19c81/launch-4b2394565377-development")
+        MobileCore.updateConfigurationWith(configDict: [
+            "messaging.eventDataset": "5f8623492312f418dcc6b3d9",
+            "messaging.useSandbox": true,
+        ])
 
         // only start lifecycle if the application is not in the background
         if application.applicationState != .background {
             MobileCore.lifecycleStart(additionalContextData: nil)
+        }
+
+        AEPAssurance.registerExtension()
+        ACPCore.start {
+            AEPAssurance.startSession(URL(string: "messagingdemo://?adb_validation_sessionid=047eb65e-efa8-48b0-bd7f-b6a338fda6d6")!)
         }
 
         let center = UNUserNotificationCenter.current()
@@ -74,20 +73,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     // MARK: - UISceneSession Lifecycle
 
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+    func application(_: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options _: UIScene.ConnectionOptions) -> UISceneConfiguration {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
-    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
+    func application(_: UIApplication, didDiscardSceneSessions _: Set<UISceneSession>) {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
 
     // MARK: - Push Notification handling
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+
+    func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         print("Token is - ")
         let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
         let token = tokenParts.joined()
@@ -95,15 +95,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         MobileCore.setPushIdentifier(deviceToken)
     }
 
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError _: Error) {
         MobileCore.setPushIdentifier(nil)
     }
 
-    func applicationWillEnterForeground(_ application: UIApplication) {
+    func applicationWillEnterForeground(_: UIApplication) {
         MobileCore.lifecycleStart(additionalContextData: nil)
     }
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
+    func applicationDidEnterBackground(_: UIApplication) {
         MobileCore.lifecyclePause()
     }
 
@@ -167,25 +167,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                willPresent notification: UNNotification,
+    func userNotificationCenter(_: UNUserNotificationCenter,
+                                willPresent _: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.alert, .sound])
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
+    func userNotificationCenter(_: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-
         // Perform the task associated with the action.
         switch response.actionIdentifier {
         case "ACCEPT_ACTION":
             Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: "ACCEPT_ACTION")
-            break
 
         case "DECLINE_ACTION":
             Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: "DECLINE_ACTION")
-            break
 
         // Handle other actions…
         default:
