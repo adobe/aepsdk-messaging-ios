@@ -5,7 +5,7 @@
 import AEPMessaging
 import AEPCore
 import AEPEdge
-import AEPIdentity
+import AEPEdgeIdentity
 import AEPLifecycle
 ```
 
