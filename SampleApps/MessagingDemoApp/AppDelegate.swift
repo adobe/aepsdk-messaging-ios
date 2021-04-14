@@ -169,26 +169,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     func userNotificationCenter(_: UNUserNotificationCenter,
                                 willPresent _: UNNotification,
-                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void)
-    {
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.alert, .sound])
     }
 
     func userNotificationCenter(_: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
-                                withCompletionHandler completionHandler: @escaping () -> Void)
-    {
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
         // Perform the task associated with the action.
         switch response.actionIdentifier {
         case "ACCEPT_ACTION":
-            Messaging.handleNotificationResponse(response, isApplicationOpened: true, customActionId: "ACCEPT_ACTION")
+            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: "ACCEPT_ACTION")
 
         case "DECLINE_ACTION":
-            Messaging.handleNotificationResponse(response, isApplicationOpened: false, customActionId: "DECLINE_ACTION")
+            Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: "DECLINE_ACTION")
 
         // Handle other actions…
         default:
-            Messaging.handleNotificationResponse(response, isApplicationOpened: true, customActionId: nil)
+            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: nil)
         }
 
         // Always call the completion handler when done.

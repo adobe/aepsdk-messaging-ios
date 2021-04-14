@@ -26,18 +26,6 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
  return true
 }
 ```
-#### Updating the configuration 
-To update the configuration with the required DCCS url, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
-
-```swift
-func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
-MobileCore.updateConfigurationWith(configDict: ["messaging.dccs": "DCCS_URL"])
-  
- })  
- return true
-}
-```
 
 #### Using apnsSandbox environment for push notification
 Optionaly the apnsSandbox environment can be used for receiving the push notification.  To do this, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
