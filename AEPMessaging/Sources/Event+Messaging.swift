@@ -106,14 +106,23 @@ extension Event {
     }
     
     private var activity: [String: Any]? {
+        if payload?.count == 0 {
+            return nil
+        }
         return payload?[0][MessagingConstants.EventDataKeys.Offers.ACTIVITY] as? [String: Any]
     }
     
     private var placement: [String: Any]? {
+        if payload?.count == 0 {
+            return nil
+        }
         return payload?[0][MessagingConstants.EventDataKeys.Offers.PLACEMENT] as? [String: Any]
     }
     
     private var items: [[String: Any]]? {
+        if payload?.count == 0 {
+            return nil
+        }
         return payload?[0][MessagingConstants.EventDataKeys.Offers.ITEMS] as? [[String: Any]]
     }
     

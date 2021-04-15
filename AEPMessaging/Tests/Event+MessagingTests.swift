@@ -331,6 +331,28 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertNil(event.offerPlacementId)
     }
     
+    func testPayloadIsNil() {
+        // setup
+        let payload: [[String: Any]]? = nil
+        let event = getAEPResponseEvent(data: ["payload": payload])
+        
+        // verify
+        XCTAssertNil(event.offerActivityId)
+        XCTAssertNil(event.offerPlacementId)
+        XCTAssertNil(event.rulesJson)
+    }
+    
+    func testPayloadIsEmpty() {
+        // setup
+        let payload: [[String: Any]]? = []
+        let event = getAEPResponseEvent(data: ["payload": payload])
+        
+        // verify
+        XCTAssertNil(event.offerActivityId)
+        XCTAssertNil(event.offerPlacementId)
+        XCTAssertNil(event.rulesJson)
+    }
+    
     func testRulesJsonHappy() {
         // setup
         let event = getAEPResponseEvent()
