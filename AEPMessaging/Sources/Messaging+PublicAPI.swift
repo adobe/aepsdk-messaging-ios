@@ -21,17 +21,18 @@ public extension Messaging {
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
-    public static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
+    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
         let notificationRequest = response.notification.request
+       
+        // Checking if the message has the optional xdm key
         let xdm = notificationRequest.content.userInfo[MessagingConstants.AdobeTrackingKeys._XDM] as? [String: Any]
-        // Checking if the message has xdm key
         if xdm == nil {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction. XDM specific fields are missing.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Optional XDM specific fields are missing from push notification interaction.")
         }
 
         let messageId = notificationRequest.identifier
         if messageId.isEmpty {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction, Message Id is invalid in the response. ")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction, MessageId is empty in the response.")
             return
         }
 
@@ -51,5 +52,9 @@ public extension Messaging {
                           source: EventSource.requestContent,
                           data: eventData)
         MobileCore.dispatch(event: event)
+    }
+    
+    static func fetchInAppMessages() {
+        
     }
 }

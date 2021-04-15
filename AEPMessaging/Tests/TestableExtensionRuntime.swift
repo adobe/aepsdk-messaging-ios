@@ -17,6 +17,10 @@ import Foundation
 ///
 /// Enable easy setup for the input and verification of the output of an extension
 public class TestableExtensionRuntime: ExtensionRuntime {
+    public func getXDMSharedState(extensionName: String, event: Event?, barrier: Bool) -> SharedStateResult? {
+        return nil
+    }
+    
     public func createXDMSharedState(data: [String: Any], event: Event?) {
 
     }

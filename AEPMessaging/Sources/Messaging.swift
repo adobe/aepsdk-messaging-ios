@@ -21,12 +21,24 @@ public class Messaging: NSObject, Extension {
     public var friendlyName = MessagingConstants.FRIENDLY_NAME
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
+    
+    private var currentMessage: FullscreenPresentable?
+    private let messagingHandler = MessagingHandler()
+    private let rulesEngine: MessagingRulesEngine
+    private let POC_ACTIVITY_ID = "xcore:offer-activity:1315ce8f616d30e9"
+    private let POC_PLACEMENT_ID = "xcore:offer-placement:1315cd7dc3ed30e1"
+    private let POC_ACTIVITY_ID_MULTI = "xcore:offer-activity:1323dbe94f2eef93"
+    private let POC_PLACEMENT_ID_MULTI = "xcore:offer-placement:1323d9eb43aacada"
+    private let MAX_ITEM_COUNT = 30
 
     // =================================================================================================================
-    // MARK: - ACPExtension protocol methods
+    // MARK: - Extension protocol methods
     // =================================================================================================================
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
+        self.rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME,
+                                                extensionRuntime: runtime)
+        
         super.init()
     }
 
@@ -46,10 +58,23 @@ public class Messaging: NSObject, Extension {
                          source: EventSource.requestContent,
                          listener: handleProcessEvent)
 
+        // register wildcard listener for messaging rules engine
+        registerListener(type: EventType.wildcard,
+                         source: EventSource.wildcard,
+                         listener: rulesEngine.process(event:))
+        
         // register listener for rules consequences with in-app messages
         registerListener(type: EventType.rulesEngine,
                          source: EventSource.responseContent,
                          listener: handleRulesResponse)
+        
+        // register listener for offer notifications
+        registerListener(type: EventType.edge,
+                         source: MessagingConstants.EventSource.PERSONALIZATION_DECISIONS,
+                         listener: handleOfferNotification)
+        
+        // fetch messages from offers
+        fetchMessages()
     }
 
     public func onUnregistered() {
@@ -58,13 +83,14 @@ public class Messaging: NSObject, Extension {
 
     public func readyForEvent(_ event: Event) -> Bool {
         guard let configurationSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.name, event: event) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
+            Log.trace(label: MessagingConstants.LOG_TAG,
+                      "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
             return false
         }
 
         // hard dependency on identity module for ecid
         guard let identitySharedState = getSharedState(extensionName: MessagingConstants.SharedState.Identity.name, event: event) else {
-            Log.debug(label: MessagingConstants.LOG_TAG,
+            Log.trace(label: MessagingConstants.LOG_TAG,
                       "Event processing is paused, waiting for valid shared state from identity - '\(event.id.uuidString)'.")
             return false
         }
@@ -72,15 +98,71 @@ public class Messaging: NSObject, Extension {
         return configurationSharedState.status == .set && identitySharedState.status == .set
     }
 
-    /// Handles Rules Consequence events containing message definitions
-    func handleRulesResponse(_ event: Event) {
-        guard let eventData = event.data as [String: Any]? else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to process a Rules Consequence Event. Event data is null.")
+    // MARK: - In-app Messaging methods
+    /// Generates and dispatches an event prompting the Personalization extension to fetch in-app messages.
+    private func fetchMessages() {
+        // create event to be handled by offers
+        let eventData: [String: Any] = [
+            MessagingConstants.EventDataKeys.Offers.TYPE: MessagingConstants.EventDataKeys.Offers.PREFETCH,
+            MessagingConstants.EventDataKeys.Offers.DECISION_SCOPES: [
+                [
+                    MessagingConstants.EventDataKeys.Offers.ITEM_COUNT: MAX_ITEM_COUNT,
+                    MessagingConstants.EventDataKeys.Offers.ACTIVITY_ID: POC_ACTIVITY_ID_MULTI,
+                    MessagingConstants.EventDataKeys.Offers.PLACEMENT_ID: POC_PLACEMENT_ID_MULTI
+                ]
+            ]
+        ]
+        
+        let event = Event(name: MessagingConstants.EventNames.OFFERS_REQUEST,
+                          type: EventType.offerDecisioning,
+                          source: EventSource.requestContent,
+                          data: eventData)
+                        
+        // send event
+        runtime.dispatch(event: event)
+    }
+    
+    /// Validates that the received event contains in-app message definitions and loads them in the `MessagingRulesEngine`.
+    /// - Parameter event: an `Event` containing an in-app message definition in its data
+    private func handleOfferNotification(_ event: Event) {
+        // validate the event
+        if !event.isPersonalizationDecisionResponse {
             return
         }
         
-//        guard let rule
+        if event.offerActivityId != POC_ACTIVITY_ID_MULTI || event.offerPlacementId != POC_PLACEMENT_ID_MULTI {
+            return
+        }
+        
+        rulesEngine.loadRules(rules: event.rulesJson)
     }
+    
+    /// Handles Rules Consequence events containing message definitions.
+    private func handleRulesResponse(_ event: Event) {
+        if event.data == nil {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process a Rules Consequence Event. Event data is null.")
+            return
+        }
+        
+        if event.isInAppMessage && event.containsValidInAppMessage {
+            showMessageForEvent(event)
+        } else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process In-App Message - template and html properties are required.")
+            return
+        }
+    }
+    
+    /// Creates and shows a fullscreen message as defined by the contents of the provided `Event`'s data.
+    private func showMessageForEvent(_ event: Event) {
+        // TODO: handle remote assets caching (here or in UIServices?)
+        currentMessage = ServiceProvider.shared.uiService.createFullscreenMessage(payload: event.html!,
+                                                                                  listener: messagingHandler,
+                                                                                  isLocalImageUsed: false)
+        
+        currentMessage?.show()
+    }
+    
+    // MARK: -
 
     /// Based on the configuration response check for privacy status stop events if opted out
     func handleConfigurationResponse(_ event: Event) {
@@ -369,7 +451,7 @@ public class Messaging: NSObject, Extension {
             return nil
         }
 
-        var xdmDict: [String: Any] = [MessagingConstants.XDM.DataKeys.EVENT_TYPE: eventType]
+        var xdmDict: [String: Any] = [MessagingConstants.XDM.DataKeys.EVENT_TYPE: eventType as Any]
         var pushNotificationTrackingDict: [String: Any] = [:]
         var customActionDict: [String: Any] = [:]
         if actionId != nil {

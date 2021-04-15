@@ -17,7 +17,8 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
     static let EXTENSION_VERSION = "1.0.0-alpha-2"
-    static let FRIENDLY_NAME = "AEPMessaging"
+    static let FRIENDLY_NAME = EXTENSION_NAME
+    static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
 
     enum EventDataKeys {
         static let PUSH_IDENTIFIER = "pushidentifier"
@@ -25,11 +26,13 @@ enum MessagingConstants {
         static let MESSAGE_ID = "id"
         static let APPLICATION_OPENED = "applicationOpened"
         static let ACTION_ID = "actionId"
+        static let FETCH_MESSAGES = "fetchmessages"
         
         static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
         static let ID = "id"
         static let DETAIL = "detail"
         static let TYPE = "type"
+        static let SOURCE = "source"
         
         enum InAppMessages {
             static let TEMPLATE = "template"
@@ -47,6 +50,44 @@ enum MessagingConstants {
             static let CATEGORY = "category"
             static let SOUND = "sound"
         }
+        
+        enum Offers {
+            static let PROPOSITIONS = "propositions"
+            static let DECISION_SCOPES = "decisionscopes"
+            static let ACTIVITY_ID = "activityId"
+            static let PLACEMENT_ID = "placementId"
+            static let ITEM_COUNT = "itemCount"
+            static let ERROR = "error"
+            static let TYPE = "type"
+            static let PERSONALIZATION_DECISIONS = "personalization:decisions"
+            static let PREFETCH = "prefetch"
+            static let RETRIEVE = "retrieve"
+            static let REQUEST_EVENT_ID = "requestEventId"
+            static let XDM_QUERY = "query"
+            static let XDM = "xdm"
+            static let DATA = "data"
+            static let DATASET_ID = "datasetId"
+            static let XDM_EVENT_TYPE = "eventType"
+            static let PERSONALIZATION_REQUEST = "personalization.request"
+            static let PAYLOAD = "payload"
+            static let ACTIVITY = "activity"
+            static let PLACEMENT = "placement"
+            static let ID = "id"
+            static let ITEMS = "items"
+            static let CONTENT = "content"
+        }
+    }
+    
+    enum EventNames {
+        static let OFFERS_REQUEST = "Offer Decisioning Request"
+    }
+    
+    enum EventSource {
+        static let PERSONALIZATION_DECISIONS = "personalization:decisions"
+    }
+    
+    enum EventType {
+        static let MESSAGING = "com.adobe.eventType.messaging"
     }
     
     enum InAppMessageTemplates {
@@ -92,10 +133,6 @@ enum MessagingConstants {
             static let PUSH_TRACKING_APPLICATION_OPENED = "pushTracking.applicationOpened"
             static let PUSH_TRACKING_CUSTOM_ACTION = "pushTracking.customAction"
         }
-    }
-
-    enum EventType {
-        static let MESSAGING = "com.adobe.eventType.messaging"
     }
 
     /*
