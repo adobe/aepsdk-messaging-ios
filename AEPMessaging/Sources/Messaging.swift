@@ -198,6 +198,7 @@ public class Messaging: NSObject, Extension {
     /// - Returns: true if the event was successfully processed or cannot ever be processed,
     ///            which will remove it from the processing queue.
     func handleProcessEvent(_ event: Event) {
+        
         if event.data == nil {
             Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with no data - `\(event.id)`.")
             return
@@ -205,6 +206,13 @@ public class Messaging: NSObject, Extension {
 
         guard let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.name, event: event)?.value else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
+            return
+        }
+        
+        // handle an event for refreshing in-app messages from the remote
+        if event.isRefreshMessageEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing manual request to refresh In-App Message definitions from the remote.")
+            fetchMessages()
             return
         }
 

@@ -54,7 +54,14 @@ public extension Messaging {
         MobileCore.dispatch(event: event)
     }
     
-    static func fetchInAppMessages() {
+    /// Initiates a network call to retrieve remote In-App Message definitions.
+    static func refreshInAppMessages() {
+        let eventData: [String: Any] = [MessagingConstants.EventDataKeys.REFRESH_MESSAGES: true]
+        let event = Event(name: MessagingConstants.EventNames.REFRESH_MESSAGES,
+                          type: MessagingConstants.EventType.MESSAGING,
+                          source: EventSource.requestContent,
+                          data: eventData)
         
+        MobileCore.dispatch(event: event)
     }
 }

@@ -26,7 +26,7 @@ enum MessagingConstants {
         static let MESSAGE_ID = "id"
         static let APPLICATION_OPENED = "applicationOpened"
         static let ACTION_ID = "actionId"
-        static let FETCH_MESSAGES = "fetchmessages"
+        static let REFRESH_MESSAGES = "refreshmessages"
         
         static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
         static let ID = "id"
@@ -80,6 +80,7 @@ enum MessagingConstants {
     
     enum EventNames {
         static let OFFERS_REQUEST = "Offer Decisioning Request"
+        static let REFRESH_MESSAGES = "Refresh In-App Messages"
     }
     
     enum EventSource {

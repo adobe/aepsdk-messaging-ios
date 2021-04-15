@@ -29,7 +29,93 @@ class EventPlusMessagingTests: XCTestCase {
         messaging = Messaging(runtime: TestableExtensionRuntime())
         messaging.onRegistered()
     }
+     
+    // MARK: - Helpers
+    /// Gets an event to use for simulating a rules consequence
+    func getRulesResponseEvent(type: String) -> Event {
+        // details are the same for postback and pii, different for open url
+        let details = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
+            MessagingConstants.EventDataKeys.InAppMessages.TEMPLATE : MessagingConstants.InAppMessageTemplates.FULLSCREEN,
+            MessagingConstants.EventDataKeys.InAppMessages.HTML : testHtml,
+            MessagingConstants.EventDataKeys.InAppMessages.REMOTE_ASSETS : testAssets
+        ] : [:]
         
+        let triggeredConsequence = [
+            MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE : [
+                MessagingConstants.EventDataKeys.ID : UUID().uuidString,
+                MessagingConstants.EventDataKeys.TYPE : type,
+                MessagingConstants.EventDataKeys.DETAIL : details
+            ]
+        ]
+        let rulesEvent = Event(name: "Test Rules Engine response",
+                               type: EventType.rulesEngine,
+                               source: EventSource.responseContent,
+                               data: triggeredConsequence)
+        return rulesEvent
+    }
+    
+    /// Helper to update the nested detail dictionary in a consequence event's event data
+    func updateDetailDict(dict: [String : Any], withValue: Any?, forKey: String) -> [String : Any] {
+        var returnDict = dict
+        guard var consequence = dict[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] as? [String : Any] else {
+            return returnDict
+        }
+        guard var detail = consequence[MessagingConstants.EventDataKeys.DETAIL] as? [String : Any] else {
+            return returnDict
+        }
+        
+        detail[forKey] = withValue
+        consequence[MessagingConstants.EventDataKeys.DETAIL] = detail
+        returnDict[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] = consequence
+        
+        return returnDict
+    }
+    
+    /// Gets an AEP Response Event for testing
+    func getAEPResponseEvent(type: String = EventType.edge,
+                             source: String = MessagingConstants.EventSource.PERSONALIZATION_DECISIONS,
+                             data: [String: Any]? = nil) -> Event {
+        var eventData = data
+        if eventData == nil {
+            let data1 = ["content": mockContent1]
+            let item1 = ["data": data1]
+            let data2 = ["content": mockContent2]
+            let item2 = ["data": data2]
+            let placement = ["id": mockPlacementId]
+            let activity = ["id": mockActivityId]
+            let payload: [String: Any] = [
+                "activity": activity,
+                "placement": placement,
+                "items": [item1, item2]
+            ]
+            
+            eventData = ["payload": [payload]]
+        }
+        
+        let rulesEvent = Event(name: "Test AEP Response Event",
+                               type: type,
+                               source: source,
+                               data: eventData)
+        
+        return rulesEvent
+    }
+    
+    func getRefreshMessagesEvent(type: String = MessagingConstants.EventType.MESSAGING,
+                                 source: String = EventSource.requestContent,
+                                 data: [String: Any]? = nil) -> Event {
+        var eventData = data
+        if eventData == nil {
+            eventData = [MessagingConstants.EventDataKeys.REFRESH_MESSAGES: true]
+        }
+        
+        let event = Event(name: "Test Refresh Messages",
+                          type: type,
+                          source: source,
+                          data: eventData)
+        
+        return event
+    }
+    
     // MARK: - Testing Happy Path
     
     func testInAppMessageConsequenceType() throws {
@@ -245,6 +331,28 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertNil(event.offerPlacementId)
     }
     
+    func testPayloadIsNil() {
+        // setup
+        let payload: [[String: Any]]? = nil
+        let event = getAEPResponseEvent(data: ["payload": payload])
+        
+        // verify
+        XCTAssertNil(event.offerActivityId)
+        XCTAssertNil(event.offerPlacementId)
+        XCTAssertNil(event.rulesJson)
+    }
+    
+    func testPayloadIsEmpty() {
+        // setup
+        let payload: [[String: Any]]? = []
+        let event = getAEPResponseEvent(data: ["payload": payload])
+        
+        // verify
+        XCTAssertNil(event.offerActivityId)
+        XCTAssertNil(event.offerPlacementId)
+        XCTAssertNil(event.rulesJson)
+    }
+    
     func testRulesJsonHappy() {
         // setup
         let event = getAEPResponseEvent()
@@ -347,75 +455,37 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertNil(event.rulesJson)
     }
     
-    
-    // MARK: - Helpers
-    /// Gets an event to use for simulating a rules consequence
-    func getRulesResponseEvent(type: String) -> Event {
-        // details are the same for postback and pii, different for open url
-        let details = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
-            MessagingConstants.EventDataKeys.InAppMessages.TEMPLATE : MessagingConstants.InAppMessageTemplates.FULLSCREEN,
-            MessagingConstants.EventDataKeys.InAppMessages.HTML : testHtml,
-            MessagingConstants.EventDataKeys.InAppMessages.REMOTE_ASSETS : testAssets
-        ] : [:]
+    // MARK: - Test Refresh Messages Public API Event
+    func testIsRefreshMessageEventHappy() {
+        // setup
+        let event = getRefreshMessagesEvent()
         
-        let triggeredConsequence = [
-            MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE : [
-                MessagingConstants.EventDataKeys.ID : UUID().uuidString,
-                MessagingConstants.EventDataKeys.TYPE : type,
-                MessagingConstants.EventDataKeys.DETAIL : details
-            ]
-        ]
-        let rulesEvent = Event(name: "Test Rules Engine response",
-                               type: EventType.rulesEngine,
-                               source: EventSource.responseContent,
-                               data: triggeredConsequence)
-        return rulesEvent
+        // verify
+        XCTAssertTrue(event.isRefreshMessageEvent)
     }
     
-    /// Helper to update the nested detail dictionary in a consequence event's event data
-    func updateDetailDict(dict: [String : Any], withValue: Any?, forKey: String) -> [String : Any] {
-        var returnDict = dict
-        guard var consequence = dict[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] as? [String : Any] else {
-            return returnDict
-        }
-        guard var detail = consequence[MessagingConstants.EventDataKeys.DETAIL] as? [String : Any] else {
-            return returnDict
-        }
+    func testIsRefreshMessageEventWrongType() {
+        // setup
+        let event = getRefreshMessagesEvent(type: "wrong type")
         
-        detail[forKey] = withValue
-        consequence[MessagingConstants.EventDataKeys.DETAIL] = detail
-        returnDict[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] = consequence
-        
-        return returnDict
+        // verify
+        XCTAssertFalse(event.isRefreshMessageEvent)
     }
     
-    /// Gets an AEP Response Event for testing
-    func getAEPResponseEvent(type: String = EventType.edge,
-                             source: String = MessagingConstants.EventSource.PERSONALIZATION_DECISIONS,
-                             data: [String: Any]? = nil) -> Event {
-        var eventData = data
-        if eventData == nil {
-            let data1 = ["content": mockContent1]
-            let item1 = ["data": data1]
-            let data2 = ["content": mockContent2]
-            let item2 = ["data": data2]
-            let placement = ["id": mockPlacementId]
-            let activity = ["id": mockActivityId]
-            let payload: [String: Any] = [
-                "activity": activity,
-                "placement": placement,
-                "items": [item1, item2]
-            ]
-            
-            eventData = ["payload": [payload]]
-        }
+    func testIsRefreshMessageEventWrongSource() {
+        // setup
+        let event = getRefreshMessagesEvent(source: "wrong source")
         
-        let rulesEvent = Event(name: "Test AEP Response Event",
-                               type: type,
-                               source: source,
-                               data: eventData)
+        // verify
+        XCTAssertFalse(event.isRefreshMessageEvent)
+    }
+    
+    func testIsRefreshMessageEventWrongData() {
+        // setup
+        let event = getRefreshMessagesEvent(data: ["wrongkey":"nope"])
         
-        return rulesEvent
+        // verify
+        XCTAssertFalse(event.isRefreshMessageEvent)
     }
 }
 
