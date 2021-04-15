@@ -102,9 +102,11 @@ enum MessagingConstants {
             static let USE_SANDBOX = "messaging.useSandbox"
         }
 
-        enum Identity {
-            static let NAME = "com.adobe.module.identity"
-            static let MID = "mid"
+        enum EdgeIdentity {
+            static let NAME = "com.adobe.edge.identity"
+            static let IDENTITY_MAP = "identityMap"
+            static let ECID = "ECID"
+            static let ID = "id"
         }
 
         private init() {}

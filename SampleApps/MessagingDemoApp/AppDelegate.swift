@@ -14,7 +14,7 @@ import ACPCore
 import AEPAssurance
 import AEPCore
 import AEPEdge
-import AEPIdentity
+import AEPEdgeIdentity
 import AEPLifecycle
 import AEPMessaging
 import AEPSignal
@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
 
         MobileCore.setLogLevel(.trace)
-        MobileCore.registerExtensions([Lifecycle.self, Identity.self, Messaging.self, Edge.self, Signal.self])
+        MobileCore.registerExtensions([Lifecycle.self, Messaging.self, Edge.self, Signal.self, Identity.self])
 
         MobileCore.configureWith(appId: "3149c49c3910/6a68c2e19c81/launch-4b2394565377-development")
         MobileCore.updateConfigurationWith(configDict: [

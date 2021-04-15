@@ -59,13 +59,13 @@ public class Messaging: NSObject, Extension {
             return false
         }
 
-        // hard dependency on identity module for ecid
-        guard let identitySharedState = getSharedState(extensionName: MessagingConstants.SharedState.Identity.NAME, event: event) else {
+        // hard dependency on edge identity module for ecid
+        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event) else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid shared state from identity - '\(event.id.uuidString)'.")
             return false
         }
 
-        return configurationSharedState.status == .set && identitySharedState.status == .set
+        return configurationSharedState.status == .set && edgeIdentitySharedState.status == .set
     }
 
     /// Based on the configuration response check for privacy status stop events if opted out
@@ -91,7 +91,7 @@ public class Messaging: NSObject, Extension {
 
     /// Processes the events in the event queue in the order they were received.
     ///
-    /// A valid Configuration and identity shared state is required for processing events.
+    /// A valid Configuration and edge identity shared state is required for processing events.
     ///
     /// - Parameters:
     ///   - event: An `Event` to be processed
@@ -107,8 +107,8 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // hard dependency on identity module for ecid
-        guard let identitySharedState = getSharedState(extensionName: MessagingConstants.SharedState.Identity.NAME, event: event)?.value else {
+        // hard dependency on edge identity module for ecid
+        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event)?.value else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid shared state from identity - '\(event.id.uuidString)'.")
             return
         }
@@ -120,7 +120,23 @@ public class Messaging: NSObject, Extension {
             }
 
             if privacyStatus == PrivacyStatus.optedIn {
-                syncPushToken(configSharedState, identity: identitySharedState, event: event)
+                // get identityMap from the edge identity xdm shared state
+                guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that does not have a valid ECID - '\(event.id.uuidString)'.")
+                    return
+                }
+
+                guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]], !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String else {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that does not have a valid ECID - '\(event.id.uuidString)'.")
+                    return
+                }
+
+                guard let token = event.token, !token.isEmpty else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
+                    return
+                }
+
+                sendPushToken(ecid: ecid, token: token, platform: getPlatform(config: configSharedState))
             }
             return
         }
@@ -128,34 +144,10 @@ public class Messaging: NSObject, Extension {
         // Check if the event type is `MessagingConstants.EventType.MESSAGING` and
         // eventSource is `EventSource.requestContent` handle processing of the tracking information
         if event.type == MessagingConstants.EventType.messaging,
-            event.source == EventSource.requestContent, configSharedState.keys.contains(MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET)
-        {
+           event.source == EventSource.requestContent, configSharedState.keys.contains(MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET) {
             handleTrackingInfo(event: event, configSharedState)
             return
         }
-    }
-
-    /// Sync the push token to adobe experience platform through edge
-    private func syncPushToken(_ config: [AnyHashable: Any], identity: [AnyHashable: Any], event: Event) {
-        // get ecid from the identity
-        guard let ecid = identity[MessagingConstants.SharedState.Identity.MID] as? String else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that does not have a valid ECID - '\(event.id.uuidString)'.")
-            return
-        }
-
-        // Get push token from event data
-        guard let token = event.token else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
-            return
-        }
-
-        // Return if the push token is empty
-        if token.isEmpty {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
-            return
-        }
-
-        sendPushToken(ecid: ecid, token: token, platform: getPlatform(config: config))
     }
 
     /// Send an edge event to sync the push notification details with push token
@@ -179,9 +171,9 @@ public class Messaging: NSObject, Extension {
                  MessagingConstants.PushNotificationDetails.PLATFORM: platform,
                  MessagingConstants.PushNotificationDetails.DENYLISTED: false,
                  MessagingConstants.PushNotificationDetails.IDENTITY: [
-                     MessagingConstants.PushNotificationDetails.NAMESPACE: [
-                         MessagingConstants.PushNotificationDetails.CODE: MessagingConstants.PushNotificationDetails.JsonValues.ECID,
-                     ], MessagingConstants.PushNotificationDetails.ID: ecid,
+                    MessagingConstants.PushNotificationDetails.NAMESPACE: [
+                        MessagingConstants.PushNotificationDetails.CODE: MessagingConstants.PushNotificationDetails.JsonValues.ECID,
+                    ], MessagingConstants.PushNotificationDetails.ID: ecid,
                  ]],
             ],
         ]
