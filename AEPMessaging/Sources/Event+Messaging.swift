@@ -15,7 +15,7 @@ import Foundation
 
 extension Event {
     // MARK: - In-app Message Consequence Event Handling
-    // MARK: Public
+    // MARK: Internal
     var isInAppMessage: Bool {
         return consequenceType == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE
     }
@@ -115,5 +115,22 @@ extension Event {
     
     private var items: [[String: Any]]? {
         return payload?[0][MessagingConstants.EventDataKeys.Offers.ITEMS] as? [[String: Any]]
+    }
+    
+    // MARK: Refresh Messages Public API Event
+    var isRefreshMessageEvent: Bool {
+        return isMessagingType && isRequestContentSource && refreshMessages
+    }
+    
+    private var isMessagingType: Bool {
+        return type == MessagingConstants.EventType.MESSAGING
+    }
+    
+    private var isRequestContentSource: Bool {
+        return source == EventSource.requestContent
+    }
+    
+    private var refreshMessages: Bool {
+        return data?[MessagingConstants.EventDataKeys.REFRESH_MESSAGES] as? Bool ?? false
     }
 }

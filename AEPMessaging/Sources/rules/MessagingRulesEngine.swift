@@ -73,7 +73,7 @@ class MessagingRulesEngine {
     func loadRules(rules: [String]?) {
         queue.sync {
             guard let rules = rules else {
-                Log.trace(label: LOG_TAG, "loadRules was called with an empty array of rules.")
+                Log.debug(label: LOG_TAG, "Unable to load messages, array of rules was empty.")
                 return
             }
             
@@ -88,7 +88,7 @@ class MessagingRulesEngine {
             }
             
             rulesEngine.addRules(rules: messagingRules)
-            Log.trace(label: LOG_TAG, "Successfully loaded \(messagingRules.count) message(s) into the rules engine.")
+            Log.debug(label: LOG_TAG, "Successfully loaded \(messagingRules.count) message(s) into the rules engine.")
         }
     }
     
