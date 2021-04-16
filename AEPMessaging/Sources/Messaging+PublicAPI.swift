@@ -14,13 +14,13 @@ import AEPCore
 import AEPServices
 import UserNotifications
 
-public extension Messaging {
-
+@objc public extension Messaging {
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
+    @objc(handleNotificationResponse:applicationOpened:withCustomActionId:)
     static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
         let notificationRequest = response.notification.request
        
@@ -47,7 +47,7 @@ public extension Messaging {
             eventData[MessagingConstants.EventDataKeys.ACTION_ID] = customActionId
         }
 
-        let event = Event(name: "Messaging Request Event",
+        let event = Event(name: MessagingConstants.EventName.MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT,
                           type: MessagingConstants.EventType.MESSAGING,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -57,7 +57,7 @@ public extension Messaging {
     /// Initiates a network call to retrieve remote In-App Message definitions.
     static func refreshInAppMessages() {
         let eventData: [String: Any] = [MessagingConstants.EventDataKeys.REFRESH_MESSAGES: true]
-        let event = Event(name: MessagingConstants.EventNames.REFRESH_MESSAGES,
+        let event = Event(name: MessagingConstants.EventName.REFRESH_MESSAGES,
                           type: MessagingConstants.EventType.MESSAGING,
                           source: EventSource.requestContent,
                           data: eventData)

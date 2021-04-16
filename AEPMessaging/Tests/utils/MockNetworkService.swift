@@ -17,7 +17,7 @@ import Foundation
 class MockNetworkService: Networking {
     var actualNetworkRequest: NetworkRequest?
 
-    func connectAsync(networkRequest: NetworkRequest, completionHandler: ((HttpConnection) -> Void)?) {
+    func connectAsync(networkRequest: NetworkRequest, completionHandler _: ((HttpConnection) -> Void)?) {
         actualNetworkRequest = networkRequest
     }
 }

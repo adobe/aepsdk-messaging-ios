@@ -16,26 +16,26 @@
 import PackageDescription
 
 let package = Package(
-    name: "AEPMessaging",
-    platforms: [.iOS(.v10)],
-    products: [
-        .library(name: "AEPMessaging", targets: ["AEPMessaging"]),
-        .library(name: "AEPMessagingStatic", type: .static, targets: ["AEPMessaging"]),
-        .library(name: "AEPMessagingDynamic", type: .dynamic, targets: ["AEPMessaging"])
-    ],
-    dependencies: [
-        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main")),
-        .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .branch("main"))
-    ],
-    targets: [
-        .target(name: "AEPMessaging",
-                dependencies: ["AEPCore", "AEPEdge"],
-                path: "Sources"),
-        .testTarget(name: "MessagingDemoApp",
-                    dependencies: ["AEPMessaging", "AEPEdge", "AEPCore", "AEPIdentity", "AEPLifecycle", "AEPSignal"],
-                    path: "SampleApps/MessagingDemoApp"),
-        .testTarget(name: "UnitTests",
-                    dependencies: ["AEPMessaging"],
-                    path: "Tests/UnitTests")
-    ]
+ name: "AEPMessaging",
+ platforms: [.iOS(.v10)],
+ products: [
+  .library(name: "AEPMessaging", targets: ["AEPMessaging"]),
+  .library(name: "AEPMessagingStatic", type: .static, targets: ["AEPMessaging"]),
+  .library(name: "AEPMessagingDynamic", type: .dynamic, targets: ["AEPMessaging"]),
+ ],
+ dependencies: [
+  .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main")),
+  .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .branch("main")),
+ ],
+ targets: [
+  .target(name: "AEPMessaging",
+          dependencies: ["AEPCore", "AEPEdge"],
+          path: "Sources"),
+  .testTarget(name: "MessagingDemoApp",
+              dependencies: ["AEPMessaging", "AEPEdge", "AEPCore", "AEPIdentity", "AEPLifecycle", "AEPSignal"],
+              path: "SampleApps/MessagingDemoApp"),
+  .testTarget(name: "UnitTests",
+              dependencies: ["AEPMessaging"],
+              path: "Tests/UnitTests"),
+ ]
 )

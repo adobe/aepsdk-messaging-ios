@@ -17,19 +17,17 @@ import Foundation
 ///
 /// Enable easy setup for the input and verification of the output of an extension
 public class TestableExtensionRuntime: ExtensionRuntime {
-    public func getXDMSharedState(extensionName: String, event: Event?, barrier: Bool) -> SharedStateResult? {
+    public func getXDMSharedState(extensionName _: String, event _: Event?, barrier _: Bool) -> SharedStateResult? {
         return nil
     }
-    
-    public func createXDMSharedState(data: [String: Any], event: Event?) {
 
-    }
+    public func createXDMSharedState(data _: [String: Any], event _: Event?) {}
 
     public func createPendingXDMSharedState(event: Event?) -> SharedStateResolver {
         return EventHub.shared.createPendingSharedState(extensionName: "sharedStateName", event: event, sharedStateType: .xdm)
     }
 
-    public func getXDMSharedState(extensionName: String, event: Event?) -> SharedStateResult? {
+    public func getXDMSharedState(extensionName _: String, event _: Event?) -> SharedStateResult? {
         return nil
     }
 
@@ -43,6 +41,7 @@ public class TestableExtensionRuntime: ExtensionRuntime {
     public init() {}
 
     // MARK: - ExtensionRuntime methods implementation
+
     public func unregisterExtension() {
         // no-op
     }
@@ -65,7 +64,7 @@ public class TestableExtensionRuntime: ExtensionRuntime {
         }
     }
 
-    public func getSharedState(extensionName: String, event: Event?, barrier: Bool) -> SharedStateResult? {
+    public func getSharedState(extensionName: String, event: Event?, barrier _: Bool) -> SharedStateResult? {
         // if there is an shared state setup for the specific (extension, event id) pair, return it. Otherwise, return the shared state that is setup for the extension.
         if let id = event?.id {
             return mockedSharedStates["\(extensionName)-\(id)"] ?? mockedSharedStates["\(extensionName)"]
@@ -124,28 +123,28 @@ public class TestableExtensionRuntime: ExtensionRuntime {
     }
 }
 
-extension TestableExtensionRuntime {
-    public var firstEvent: Event? {
+public extension TestableExtensionRuntime {
+    var firstEvent: Event? {
         dispatchedEvents[0]
     }
 
-    public var secondEvent: Event? {
+    var secondEvent: Event? {
         dispatchedEvents[1]
     }
 
-    public var thirdEvent: Event? {
+    var thirdEvent: Event? {
         dispatchedEvents[2]
     }
 
-    public var firstSharedState: [String: Any]? {
+    var firstSharedState: [String: Any]? {
         createdSharedStates[0]
     }
 
-    public var secondSharedState: [String: Any]? {
+    var secondSharedState: [String: Any]? {
         createdSharedStates[1]
     }
 
-    public var thirdSharedState: [String: Any]? {
+    var thirdSharedState: [String: Any]? {
         createdSharedStates[2]
     }
 }
