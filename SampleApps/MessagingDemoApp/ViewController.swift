@@ -18,11 +18,11 @@ import UserNotifications
 import AEPOfferDecisioning
 
 class ViewController: UIViewController {
-
     @IBOutlet var switchShowMessages: UISwitch?
     
     var htmlDecisionScope: DecisionScope?
     private let messageHandler = MessageHandler()
+
     weak var appDelegate = UIApplication.shared.delegate as? AppDelegate
 
     override func viewDidLoad() {
@@ -71,6 +71,13 @@ class ViewController: UIViewController {
     
     @IBAction func scheduleNotificationWithCustomAction(_ sender: Any) {
         self.appDelegate?.scheduleNotificationWithCustomAction()
+
+    @IBAction func scheduleNotification(_: Any) {
+        appDelegate?.scheduleNotification()
+    }
+
+    @IBAction func scheduleNotificationWithCustomAction(_: Any) {
+        appDelegate?.scheduleNotificationWithCustomAction()
     }
     
     @IBAction func refreshMessages(_ sender: Any) {

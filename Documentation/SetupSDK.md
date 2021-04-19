@@ -5,7 +5,7 @@
 import AEPMessaging
 import AEPCore
 import AEPEdge
-import AEPIdentity
+import AEPEdgeIdentity
 import AEPLifecycle
 ```
 
@@ -21,18 +21,6 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
  MobileCore.registerExtensions([Messaging.self, Lifecycle.self, Identity.self, Signal.self, Edge.self], {
  // Use the App id assigned to this application via Adobe Launch
  MobileCore.configureWith(appId: "appId")
-  
- })  
- return true
-}
-```
-#### Updating the configuration 
-To update the configuration with the required DCCS url, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
-
-```swift
-func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
-MobileCore.updateConfigurationWith(configDict: ["messaging.dccs": "DCCS_URL"])
   
  })  
  return true
