@@ -16,8 +16,6 @@ import Foundation
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
-    private let SELF_TAG = "Messaging"
-
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
     public var name = MessagingConstants.EXTENSION_NAME
     public var friendlyName = MessagingConstants.FRIENDLY_NAME
@@ -52,13 +50,13 @@ public class Messaging: NSObject, Extension {
 
     public func readyForEvent(_ event: Event) -> Bool {
         guard let configurationSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
             return false
         }
 
         // hard dependency on edge identity module for ecid
         guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Event processing is paused, waiting for valid shared state from identity - '\(event.id.uuidString)'.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid xdm shared state from edge identity - '\(event.id.uuidString)'.")
             return false
         }
 
@@ -73,36 +71,36 @@ public class Messaging: NSObject, Extension {
     ///   - event: An `Event` to be processed
     func handleProcessEvent(_ event: Event) {
         if event.data == nil {
-            Log.debug(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Ignoring event with no data - `\(event.id)`.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Process event handling ignored as event does not have any data - `\(event.id)`.")
             return
         }
 
         // hard dependency on configuration shared state
         guard let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
             return
         }
 
         // hard dependency on edge identity module for ecid
         guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event)?.value else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Event processing is paused, waiting for valid shared state from identity - '\(event.id.uuidString)'.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, for valid xdm shared state from edge identity - '\(event.id.uuidString)'.")
             return
         }
 
         if event.isGenericIdentityRequestContentEvent {
             // get identityMap from the edge identity xdm shared state
             guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Cannot process event that does not have a valid ECID - '\(event.id.uuidString)'.")
+                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available from edge identity xdm shared state - '\(event.id.uuidString)'.")
                 return
             }
 
             guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]], !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Cannot process event that does not have a valid ECID - '\(event.id.uuidString)'.")
+                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
                 return
             }
 
             guard let token = event.token, !token.isEmpty else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
+                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
                 return
             }
 
@@ -126,7 +124,7 @@ public class Messaging: NSObject, Extension {
     private func sendPushToken(ecid: String, token: String, platform: String) {
         // send the request
         guard let appId: String = Bundle.main.bundleIdentifier else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Failed to sync the push token, App bundle identifier is invalid.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the push token, App bundle identifier is invalid.")
             return
         }
 
@@ -140,7 +138,8 @@ public class Messaging: NSObject, Extension {
                  MessagingConstants.PushNotificationDetails.IDENTITY: [
                     MessagingConstants.PushNotificationDetails.NAMESPACE: [
                         MessagingConstants.PushNotificationDetails.CODE: MessagingConstants.PushNotificationDetails.JsonValues.ECID,
-                    ], MessagingConstants.PushNotificationDetails.ID: ecid,
+                    ],
+                    MessagingConstants.PushNotificationDetails.ID: ecid
                  ]],
             ],
         ]
@@ -162,13 +161,13 @@ public class Messaging: NSObject, Extension {
     /// - Returns: A boolean explaining whether the handling of tracking info was successful or not
     private func handleTrackingInfo(event: Event, _ config: [AnyHashable: Any]) {
         guard let expEventDatasetId = config[MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET] as? String else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Experience event dataset ID is invalid.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to handle tracking information for push notification : Experience event dataset ID from the config is invalid or not available. '\(event.id.uuidString)'")
             return
         }
 
-        // Get the schema and convert to xdm dictionary
+        // Get the xdm data with push tracking details
         guard var xdmMap = getXdmData(event: event, config: config) else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Unable to track information. Schema generation from eventData failed.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to handle tracking information for push notification : error while creating xdmMap with the push tracking details from the event and config. '\(event.id.uuidString)'")
             return
         }
 
@@ -193,14 +192,14 @@ public class Messaging: NSObject, Extension {
         MobileCore.dispatch(event: event)
     }
 
-    /// Adding CJM specific data to tracking information schema map.
+    /// Adding Adobe/CJM specific data to tracking information map.
     /// - Parameters:
     ///  - event: `Event` with Adobe cjm tracking information
     ///  - xdmDict: `[AnyHashable: Any]` which is updated with the cjm tracking information.
     private func addAdobeData(event: Event, xdmDict: [String: Any]) -> [String: Any] {
         var xdmDictResult = xdmDict
         guard let _ = event.adobeXdm else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Failed to update Adobe tracking information. Adobe data is invalid.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update xdmMap with adobe/cjm related informations : adobe/cjm information are invalid or not available in the event '\(event.id.uuidString)'.")
             return xdmDictResult
         }
 
@@ -211,7 +210,7 @@ public class Messaging: NSObject, Extension {
             // check if CJM key is not present return the orginal xdmDict
             guard let cjm: [String: Any] = event.cjm else {
                 Log.warning(label: MessagingConstants.LOG_TAG,
-                            "\(SELF_TAG) - Failed to send Adobe data with the tracking data, Adobe data is malformed")
+                            "Failed to update xdmMap with adobe/cjm informations : Adobe/CJM data is not avilable in the event '\(event.id.uuidString)'.")
                 return xdmDictResult
             }
             mixins = cjm
@@ -227,7 +226,7 @@ public class Messaging: NSObject, Extension {
                 // Adding Message profile and push channel context to CUSTOMER_JOURNEY_MANAGEMENT
                 guard let messageProfile = convertStringToDictionary(text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
                     Log.warning(label: MessagingConstants.LOG_TAG,
-                                "\(SELF_TAG) - Failed to update Adobe tracking information. Messaging profile data is malformed.")
+                                "Failed to update xdmMap with adobe/cjm informations : converting message profile string to dictionary failed in the event '\(event.id.uuidString)'.")
                     return xdmDictResult
                 }
                 // Merging the dictionary
@@ -236,7 +235,7 @@ public class Messaging: NSObject, Extension {
                 xdmDictResult[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] = experienceDict
             }
         } else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Failed to send cjm xdm data with the tracking, required keys are missing.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to send adobe/cjm information data with the tracking, \(MessagingConstants.AdobeTrackingKeys.EXPERIENCE) is missing in the event '\(event.id.uuidString)'.")
         }
         return xdmDictResult
     }
@@ -261,14 +260,14 @@ public class Messaging: NSObject, Extension {
     /// - Returns: `[String: Any]?` which contains the xdm data
     private func getXdmData(event: Event, config: [AnyHashable: Any]) -> [String: Any]? {
         guard let eventType = event.eventType else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Updating xdm data for tracking failed, eventType is nil")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Updating xdm data for tracking failed, eventType is invalid or nil in the event '\(event.id.uuidString)'.")
             return nil
         }
         let messageId = event.messagingId
         let actionId = event.actionId
 
         if eventType.isEmpty == true || messageId == nil || messageId?.isEmpty == true {
-            Log.trace(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Unable to track information. EventType or MessageId received is null.")
+            Log.trace(label: MessagingConstants.LOG_TAG, "Updating xdm data for tracking failed, EventType or MessageId received in the event '\(event.id.uuidString)' is nil.")
             return nil
         }
 
@@ -298,7 +297,7 @@ public class Messaging: NSObject, Extension {
                 let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String: Any]
                 return json
             } catch {
-                Log.debug(label: MessagingConstants.LOG_TAG, "\(SELF_TAG) - Unexpected error: \(error).")
+                Log.debug(label: MessagingConstants.LOG_TAG, "Unexpected error occured while converting string \(text) to dictionary: Error -  \(error).")
                 return nil
             }
         }
