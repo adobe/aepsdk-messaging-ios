@@ -11,15 +11,6 @@
         }
       },
       {
-        "package": "AEPEdge",
-        "repositoryURL": "https://github.com/adobe/aepsdk-edge-ios.git",
-        "state": {
-          "branch": "main",
-          "revision": "2ee45ebdeb1d671dbb45479d5bf4da2f2d931627",
-          "version": null
-        }
-      },
-      {
         "package": "AEPRulesEngine",
         "repositoryURL": "https://github.com/adobe/aepsdk-rulesengine-ios.git",
         "state": {
