@@ -51,7 +51,7 @@ extension Event {
         return data?[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any]
     }
 
-    var globalPrivacyStatus: String? {
-        return data?[MessagingConstants.SharedState.Configuration.GLOBAL_PRIVACY] as? String
+    var isMessagingRequestContentEvent: Bool {
+        return type == MessagingConstants.EventType.messaging && source == EventSource.requestContent
     }
 }
