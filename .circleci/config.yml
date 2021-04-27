@@ -77,7 +77,7 @@ jobs:
           name: Upload Code Coverage Report
           command: |
             curl -s https://codecov.io/bash > codecov;
-            VERSION=$(grep 'VERSION=\".*\"' codecov | cut -d'"' -f2);
+            VERSION=$(grep 'VERSION=\"[0-9\.]*\"' codecov | cut -d'"' -f2);
             SHAVERSION=$(shasum -v);
             echo "Using CodeCov version '$VERSION'"
             echo "Using shasum '$SHAVERSION'"
