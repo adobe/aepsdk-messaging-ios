@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "AEPMessaging"
-  s.version      = "1.0.0-alpha-2"
+  s.version      = "1.0.0-beta-1"
   s.summary      = "Messaging extension for Adobe Experience Cloud SDK. Written and maintained by Adobe."
   s.description  = <<-DESC
                    The Messaging extension is used in conjunction with Adobe Experience Platform to deliver in-app and push messages.
@@ -17,6 +17,7 @@ Pod::Spec.new do |s|
   s.dependency 'AEPCore'
   s.dependency 'AEPServices'
   s.dependency 'AEPEdge', ">= 1.1.0"
+  s.dependency 'AEPEdgeIdentity', ">= 1.0.0"
 
   s.source_files = 'AEPMessaging/Sources/**/*.swift'
 
