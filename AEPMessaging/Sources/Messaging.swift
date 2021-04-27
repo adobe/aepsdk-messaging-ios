@@ -94,7 +94,7 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
-            guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]], !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String else {
+            guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]], !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String, !ecid.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
                 return
             }
@@ -139,7 +139,7 @@ public class Messaging: NSObject, Extension {
                     MessagingConstants.PushNotificationDetails.NAMESPACE: [
                         MessagingConstants.PushNotificationDetails.CODE: MessagingConstants.PushNotificationDetails.JsonValues.ECID,
                     ],
-                    MessagingConstants.PushNotificationDetails.ID: ecid
+                    MessagingConstants.PushNotificationDetails.ID: ecid,
                  ]],
             ],
         ]
@@ -151,7 +151,7 @@ public class Messaging: NSObject, Extension {
                           type: EventType.edge,
                           source: EventSource.requestContent,
                           data: xdmEventData)
-        MobileCore.dispatch(event: event)
+        dispatch(event: event)
     }
 
     /// Sends an experience event to the platform sdk for tracking the notification click-throughs
@@ -160,7 +160,7 @@ public class Messaging: NSObject, Extension {
     ///   - config: configuration data
     /// - Returns: A boolean explaining whether the handling of tracking info was successful or not
     private func handleTrackingInfo(event: Event, _ config: [AnyHashable: Any]) {
-        guard let expEventDatasetId = config[MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET] as? String else {
+        guard let expEventDatasetId = config[MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET] as? String, !expEventDatasetId.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to handle tracking information for push notification : Experience event dataset ID from the config is invalid or not available. '\(event.id.uuidString)'")
             return
         }
@@ -189,7 +189,7 @@ public class Messaging: NSObject, Extension {
                           type: EventType.edge,
                           source: EventSource.requestContent,
                           data: xdmEventData)
-        MobileCore.dispatch(event: event)
+        dispatch(event: event)
     }
 
     /// Adding Adobe/CJM specific data to tracking information map.

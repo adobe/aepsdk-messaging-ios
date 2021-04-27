@@ -40,9 +40,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         MobileCore.setLogLevel(.trace)
         MobileCore.registerExtensions([Lifecycle.self, Messaging.self, Edge.self, Signal.self, Identity.self])
 
-        MobileCore.configureWith(appId: "<appid>")
+        MobileCore.configureWith(appId: "3149c49c3910/6a68c2e19c81/launch-4b2394565377-development")
         MobileCore.updateConfigurationWith(configDict: [
-            "messaging.eventDataset": "<datasetid>",
+            "messaging.eventDataset": "5f8623492312f418dcc6b3d9",
             "messaging.useSandbox": true,
         ])
 
@@ -54,9 +54,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         AEPAssurance.registerExtension()
         ACPCore.start {
             if let url = URL(string: "<griffonurl>") {
-                AEPAssurance.startSession( url )
+                AEPAssurance.startSession(url)
             }
-
         }
 
         let center = UNUserNotificationCenter.current()
