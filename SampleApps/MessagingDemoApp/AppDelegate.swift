@@ -40,9 +40,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         MobileCore.setLogLevel(.trace)
         MobileCore.registerExtensions([Lifecycle.self, Messaging.self, Edge.self, Signal.self, Identity.self])
 
-        MobileCore.configureWith(appId: "3149c49c3910/6a68c2e19c81/launch-4b2394565377-development")
+        MobileCore.configureWith(appId: "<appid>")
         MobileCore.updateConfigurationWith(configDict: [
-            "messaging.eventDataset": "5f8623492312f418dcc6b3d9",
+            "messaging.eventDataset": "<datasetid>",
             "messaging.useSandbox": true,
         ])
 
