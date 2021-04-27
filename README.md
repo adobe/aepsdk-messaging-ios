@@ -20,7 +20,7 @@ To learn more about this extension, read [the documentation](https://aep-sdks.gi
 - Swift 5.1 (or newer)
 
 ## Current version
-The AEPMessaging extension for iOS is currently in Alpha development.
+The AEPMessaging extension for iOS is currently in Beta development.
 
 ## Installation
 
