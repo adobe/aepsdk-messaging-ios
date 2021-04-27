@@ -6,10 +6,10 @@ PODS:
     - AEPRulesEngine
     - AEPServices
     - AEPSignal
-  - AEPAssurance (1.1.0):
+  - AEPAssurance (1.1.1):
     - ACPCore (>= 2.9.0)
-    - AEPAssurance/xcframeworks (= 1.1.0)
-  - AEPAssurance/xcframeworks (1.1.0):
+    - AEPAssurance/xcframeworks (= 1.1.1)
+  - AEPAssurance/xcframeworks (1.1.1):
     - ACPCore (>= 2.9.0)
   - AEPCore (3.1.1):
     - AEPRulesEngine (= 1.0.0)
@@ -72,7 +72,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   ACPCore:
-    :commit: deec3800bce117f7f760eb6644af4559489c2aae
+    :commit: c43675de0c97ee76fd51b005e8c9cdc7515e4a78
     :git: https://github.com/adobe/aep-sdk-compatibility-ios.git
   AEPCore:
     :commit: ee0aff1670b4ef283f62b1ee993e8bf611f31b6b
@@ -87,7 +87,7 @@ CHECKOUT OPTIONS:
     :commit: ee0aff1670b4ef283f62b1ee993e8bf611f31b6b
     :git: "git@github.com:adobe/aepsdk-core-ios.git"
   AEPRulesEngine:
-    :commit: 1e270654b330b9f07a6b1ec374e686f2e631e039
+    :commit: cc5f610a17c27c7b090dccedaffcb5d852488b91
     :git: "git@github.com:adobe/aepsdk-rulesengine-ios.git"
   AEPServices:
     :commit: ee0aff1670b4ef283f62b1ee993e8bf611f31b6b
@@ -98,7 +98,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   ACPCore: 67e4b855bf16cfb6a63024a4ddb73d15c0fd30e5
-  AEPAssurance: c9c21b7e57bf993db210766631db2ef3732d4fa4
+  AEPAssurance: b62fc1be16efbc8d137b945b29da7e5ec7c7965a
   AEPCore: 46ed4c5ed27ba49490990e397bb7454cf9906601
   AEPEdge: 818ca6ea6ac1a9e16a876036c78908996033599f
   AEPEdgeIdentity: 40d312b4434b710a46c1738ab2a221dda4cfd67e
@@ -108,6 +108,6 @@ SPEC CHECKSUMS:
   AEPServices: bdd8a78f1d6cda0165f6a58e42cce0d7e9f43ae1
   AEPSignal: 4259aed43857c9e0ae89590a682c6d12865b7ce3
 
-PODFILE CHECKSUM: 715ff5e55fd13393c400ac7d4dc75176a927e263
+PODFILE CHECKSUM: da29d8c9704227782bb4ec79e40890575ee23316
 
 COCOAPODS: 1.10.0

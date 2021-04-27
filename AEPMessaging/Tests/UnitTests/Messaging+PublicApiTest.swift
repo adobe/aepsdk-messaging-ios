@@ -83,30 +83,3 @@ class MessagingPublicApiTest: XCTestCase {
         wait(for: [expectation], timeout: 1)
     }
 }
-
-class MockNotificationResponseCoder: NSCoder {
-    private let request: UNNotificationRequest
-    private let testIdentifier = "mockIdentifier"
-    private enum FieldKey: String {
-        case request, originIdentifier, sourceIdentifier, actionIdentifier, notification
-    }
-
-    override var allowsKeyedCoding: Bool { true }
-    init(with request: UNNotificationRequest) {
-        self.request = request
-    }
-
-    override func decodeObject(forKey key: String) -> Any? {
-        let fieldKey = FieldKey(rawValue: key)
-        switch fieldKey {
-        case .request:
-            return request
-        case .sourceIdentifier, .actionIdentifier, .originIdentifier:
-            return testIdentifier
-        case .notification:
-            return UNNotification(coder: self)
-        default:
-            return nil
-        }
-    }
-}

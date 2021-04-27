@@ -54,9 +54,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         AEPAssurance.registerExtension()
         ACPCore.start {
             if let url = URL(string: "<griffonurl>") {
-                AEPAssurance.startSession( url )
+                AEPAssurance.startSession(url)
             }
-
         }
 
         let center = UNUserNotificationCenter.current()

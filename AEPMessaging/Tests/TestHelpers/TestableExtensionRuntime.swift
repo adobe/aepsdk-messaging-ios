@@ -1,5 +1,5 @@
 /*
- Copyright 2020 Adobe. All rights reserved.
+ Copyright 2021 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -17,26 +17,12 @@ import Foundation
 ///
 /// Enable easy setup for the input and verification of the output of an extension
 public class TestableExtensionRuntime: ExtensionRuntime {
-    public func getXDMSharedState(extensionName _: String, event _: Event?, barrier _: Bool) -> SharedStateResult? {
-        return nil
-    }
-
-    public func createXDMSharedState(data _: [String: Any], event _: Event?) {}
-
-    public func createPendingXDMSharedState(event: Event?) -> SharedStateResolver {
-        return EventHub.shared.createPendingSharedState(extensionName: "sharedStateName", event: event, sharedStateType: .xdm)
-    }
-
-    public func getXDMSharedState(extensionName _: String, event _: Event?) -> SharedStateResult? {
-        return nil
-    }
-
     public var listeners: [String: EventListener] = [:]
     public var dispatchedEvents: [Event] = []
     public var createdSharedStates: [[String: Any]?] = []
+    public var createdXdmSharedStates: [[String: Any]?] = []
     public var mockedSharedStates: [String: SharedStateResult] = [:]
-    public var isStarted: Bool = false
-    public var isStopped: Bool = false
+    public var mockedXdmSharedStates: [String: SharedStateResult] = [:]
 
     public init() {}
 
@@ -72,13 +58,27 @@ public class TestableExtensionRuntime: ExtensionRuntime {
         return mockedSharedStates["\(extensionName)"]
     }
 
-    public func startEvents() {
-        isStarted = true
+    public func createXDMSharedState(data: [String: Any], event _: Event?) {
+        createdXdmSharedStates += [data]
     }
 
-    public func stopEvents() {
-        isStopped = true
+    public func createPendingXDMSharedState(event _: Event?) -> SharedStateResolver {
+        return { data in
+            self.createdXdmSharedStates += [data]
+        }
     }
+
+    public func getXDMSharedState(extensionName: String, event: Event?, barrier _: Bool) -> SharedStateResult? {
+        // if there is an shared state setup for the specific (extension, event id) pair, return it. Otherwise, return the shared state that is setup for the extension.
+        if let id = event?.id {
+            return mockedXdmSharedStates["\(extensionName)-\(id)"] ?? mockedXdmSharedStates["\(extensionName)"]
+        }
+        return mockedXdmSharedStates["\(extensionName)"]
+    }
+
+    public func startEvents() {}
+
+    public func stopEvents() {}
 
     // MARK: - Helper methods
 
@@ -116,10 +116,27 @@ public class TestableExtensionRuntime: ExtensionRuntime {
         mockedSharedStates["\(extensionName)"] = SharedStateResult(status: data.status, value: data.value)
     }
 
+    /// Simulate the XDM shared state of an extension for a matching event
+    /// - Parameters:
+    ///   - pair: the (extension, event) pair
+    ///   - data: the shared state tuple (value, status)
+    public func simulateXDMSharedState(for pair: (extensionName: String, event: Event), data: (value: [String: Any]?, status: SharedStateStatus)) {
+        mockedXdmSharedStates["\(pair.extensionName)-\(pair.event.id)"] = SharedStateResult(status: data.status, value: data.value)
+    }
+
+    /// Simulate the XDM shared state of an certain extension ignoring the event id
+    /// - Parameters:
+    ///   - extensionName: extension name
+    ///   - data: the shared state tuple (value, status)
+    public func simulateXDMSharedState(for extensionName: String, data: (value: [String: Any]?, status: SharedStateStatus)) {
+        mockedXdmSharedStates["\(extensionName)"] = SharedStateResult(status: data.status, value: data.value)
+    }
+
     /// clear the events and shared states that have been created by the current extension
     public func resetDispatchedEventAndCreatedSharedStates() {
         dispatchedEvents = []
         createdSharedStates = []
+        createdXdmSharedStates = []
     }
 }
 
