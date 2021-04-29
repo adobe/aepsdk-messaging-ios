@@ -53,10 +53,9 @@ archive-app:
 test:
 	#(mkdir -p build/out/test)
 	@echo "######################################################################"
-	@echo "### Unit Testing iOS"
+	@echo "### Testing iOS"
 	@echo "######################################################################"
 	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -destination 'platform=iOS Simulator,name=iPhone 8' -derivedDataPath build/out -enableCodeCoverage YES
-
 
 install-swiftlint:
 	HOMEBREW_NO_AUTO_UPDATE=1 brew install swiftlint && brew cleanup swiftlint
@@ -69,6 +68,15 @@ lint-autocorrect:
 
 lint:
 	(swiftlint lint Sources SampleApps/$(APP_NAME))
+	
+check-version:
+	(sh ./Script/version.sh $(VERSION))
+
+test-SPM-integration:
+	(sh ./Script/test-SPM.sh)
+
+test-podspec:
+	(sh ./Script/test-podspec.sh)
 
 
 
