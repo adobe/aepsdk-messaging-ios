@@ -42,7 +42,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         MobileCore.configureWith(appId: "<appid>")
         MobileCore.updateConfigurationWith(configDict: [
-            "messaging.eventDataset": "<datasetid>",
             "messaging.useSandbox": true,
         ])
 
