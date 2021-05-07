@@ -1,286 +1,127 @@
 # Adobe Experience Platform - Messaging extension for iOS
 
-# TODO: update me
+## Beta
+AEPMessaging is currently in Beta. Use of this code is by invitation only and not otherwise supported by Adobe. Please contact your Adobe Customer Success Manager to learn more.
 
-[![CI](https://github.com/adobe/cordova-acpcore/workflows/CI/badge.svg)](https://github.com/adobe/cordova-acpcore/actions)
-[![npm](https://img.shields.io/npm/v/@adobe/cordova-acpcore)](https://www.npmjs.com/package/@adobe/cordova-acpcore)
-[![GitHub](https://img.shields.io/github/license/adobe/cordova-acpcore)](https://github.com/adobe/cordova-acpcore/blob/master/LICENSE)
+By using the Beta, you hereby acknowledge that the Beta is provided "as is" without warranty of any kind. Adobe shall have no obligation to maintain, correct, update, change, modify or otherwise support the Beta. You are advised to use caution and not to rely in any way on the correct functioning or performance of such Beta and/or accompanying materials.
 
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-    - [Initialization](#initialization)
-    - [Core methods](#core-methods)
-    - [Lifecycle methods](#lifecycle-methods)
-    - [Signals methods](#signals-methods)
-- [Running Tests](#running-tests)
-- [Sample App](#sample-app)  
-- [Contributing](#contributing)
-- [Licensing](#licensing)
+## About this project
 
-## Prerequisites
+Adobe Experience Platform Messaging Extension is an extension for the [Adobe Experience Platform Swift SDK](https://github.com/adobe/aepsdk-core-ios).
 
-Cordova is distributed via `npm` ([Node Package Management](https://www.npmjs.com/)).
-In order to install and build Cordova applications you will need to have `Node.js` installed. [Install Node.js](https://nodejs.org/en/).
-Once Node.js is installed, you can install the Cordova framework from terminal:
-```
-sudo npm install -g cordova
-```
+The AEPMessaging extension allows you to send push notification tokens and push notification click-through feedback to the Adobe Experience Platform.
+
+<!-- commenting this line out until the link is not dead :) 
+To learn more about this extension, read [the documentation](https://aep-sdks.gitbook.io/docs/Beta/experience-platform-messaging-extension).
+-->
+
+## Requirements
+- Xcode 11.0 (or newer)
+- Swift 5.1 (or newer)
+
+## Current version
+The AEPMessaging extension for iOS is currently in Beta development.
 
 ## Installation
 
-To start using the AEP SDK for Cordova, navigate to the directory of your Cordova app and install the plugin:
+### [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html)
+
+```ruby
+# Podfile
+use_frameworks!
+
+# for app development, include all the following pods
+target 'YOUR_TARGET_NAME' do
+      pod 'AEPMessaging', :git => 'git@github.com:adobe/aepsdk-messaging-ios.git', :branch => 'main'
+      pod 'AEPEdge'
+      pod 'AEPEdgeIdentity'
+      pod 'AEPCore'
+      pod 'AEPServices'
+      pod 'AEPRulesEngine'
+end
 ```
-cordova plugin add https://github.com/adobe/cordova-acpcore.git
-```
-Check out the documentation for help with APIs
-
-## Usage
-
-### [Core](https://aep-sdks.gitbook.io/docs/using-mobile-extensions/mobile-core)
-
-#### Initialization
-
-**iOS:**
-```objective-c
-// Import the SDK
-#import "ACPCore.h"
-#import "ACPLifecycle.h"
-#import "ACPIdentity.h"
-#import "ACPSignal.h"
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {  
-  // make sure to set the wrapper type at the beginning of initialization
-  [ACPCore setWrapperType:ACPMobileWrapperTypeCordova];
-
-  //...
-  [ACPCore configureWithAppId:@"yourAppId"];
-  [ACPIdentity registerExtension];
-  [ACPLifecycle registerExtension];
-  [ACPSignal registerExtension];
-  // Register any additional extensions
-
-  [ACPCore start:nil];
-}
+Replace `YOUR_TARGET_NAME` and then, in the `Podfile` directory, type:
+```ruby
+$ pod install
 ```
 
-**Android:**
-```java
-// Import the SDK
-import com.adobe.marketing.mobile.MobileCore;
-import com.adobe.marketing.mobile.Identity;
-import com.adobe.marketing.mobile.Lifecycle;
-import com.adobe.marketing.mobile.Signal;
-import com.adobe.marketing.mobile.WrapperType;
+### [Swift Package Manager](https://github.com/apple/swift-package-manager)
 
-@Override
-public void onCreate() {
-  //...
-  MobileCore.setApplication(this);
-  MobileCore.configureWithAppID("yourAppId");
+To add the AEPEdge Package to your application, from the Xcode menu select:
 
-  // make sure to set the wrapper type at the beginning of initialization
-  MobileCore.setWrapperType(WrapperType.CORDOVA);
+`File > Swift Packages > Add Package Dependency...`
 
-  try {
-    Identity.registerExtension();
-    Lifecycle.registerExtension();
-    Signal.registerExtension();
+Enter the URL for the AEPMessaging package repository: `https://github.com/adobe/aepsdk-messaging-ios.git`.
 
-    // Register any additional extensions
-  } catch (Exception e) {
-    // handle exception
-  }
+When prompted, make sure you change the branch to `main`. 
 
-  MobileCore.start(null);
-}
+Alternatively, if your project has a `Package.swift` file, you can add AEPMessaging directly to your dependencies:
+
+```
+dependencies: [
+    .package(url: "https://github.com/adobe/aepsdk-messaging-ios.git", .branch("main"))
+],
+targets: [
+    .target(name: "YourTarget", 
+            dependencies: ["AEPMessaging"], 
+            path: "your/path")
+]
 ```
 
-#### Core methods
+### Binaries
 
-##### Getting Core version:
-```js
-ACPCore.extensionVersion(function(version) {
-    console.log(version);
-}, function(error) {
-    console.log(error);
-});
+To generate `AEPMessaging.xcframework`, run the following command from the root directory:
+
+```
+make archive
 ```
 
-##### Updating the SDK configuration:
-```js
-ACPCore.updateConfiguration({"newConfigKey":"newConfigValue"}, successCallback, errorCallback);
-```
+This will generate an XCFramework under the `build` folder. Drag and drop all the .xcframeworks to your app target.
 
-##### Controlling the log level of the SDK:
-```js
-ACPCore.setLogLevel(ACPCore.ACPMobileLogLevelError, successCallback, errorCallback);
-ACPCore.setLogLevel(ACPCore.ACPMobileLogLevelWarning, successCallback, errorCallback);
-ACPCore.setLogLevel(ACPCore.ACPMobileLogLevelDebug, successCallback, errorCallback);
-ACPCore.setLogLevel(ACPCore.ACPMobileLogLevelVerbose, successCallback, errorCallback);
-```
+## Documentation
+Additional documentation for configuration and sdk usage can be found under the [Documentation](Documentation/README.md) directory.
 
-##### Getting the current privacy status:
-```js
-ACPCore.getPrivacyStatus(function(privacyStatus) {
-    console.log(privacyStatus);
-}, function(error) {
-    console.log(error);
-});
-```
+## Development
 
-##### Setting the privacy status:
-```js
-ACPCore.setPrivacyStatus(ACPCore.ACPMobilePrivacyStatusOptIn, successCallback, errorCallback);
-ACPCore.setPrivacyStatus(ACPCore.ACPMobilePrivacyStatusOptOut, successCallback, errorCallback);
-ACPCore.setPrivacyStatus(ACPCore.ACPMobilePrivacyStatusUnknown, successCallback, errorCallback);
-```
+The first time you clone or download the project, you should run the following from the root directory to setup the environment:
 
-##### Getting the SDK identities:
-```js
-ACPCore.getSdkIdentities(function(sdkIdentities) {
-    console.log(sdkIdentities);
-}, function(error) {
-    console.log(error);
-});
-```
+~~~
+make pod-install
+~~~
 
-##### Dispatching an Event Hub event:
-```js
-var e = ACPCore.createEvent("eventName", "eventType", "eventSource", {"key":"value"});
-ACPCore.dispatchEvent(e, successCallback, errorCallback);
-```
+Subsequently, you can make sure your environment is updated by running the following:
 
-##### Dispatching an Event Hub event with callback:
-```js
-var e = ACPCore.createEvent("eventName", "eventType", "eventSource", {"key":"value"});
-ACPCore.dispatchEventWithResponseCallback(e, successCallback, errorCallback);
-```
+~~~
+make pod-update
+~~~
 
-##### Dispatching an Event Hub response event:
-```js
-var e1 = ACPCore.createEvent("eventName", "eventType", "eventSource", {"key":"value"});
-var e2 = ACPCore.createEvent("eventName2", "eventType", "eventSource", {"key":"value"});
-ACPCore.dispatchResponseEvent(e1, e2, successCallback, errorCallback);
-```
+#### Open the Xcode workspace
+Open the workspace in Xcode by running the following command from the root directory of the repository:
 
-##### Downloading the Rules
-```js
-ACPCore.downloadRules(successCallback, errorCallback);
-```
+~~~
+make open
+~~~
 
-##### Setting the advertising identifier:
-```js
-ACPCore.setAdvertisingIdentifier("someAdid", successCallback, errorCallback);
-```
+#### Command line integration
 
-##### Calling track action
-```js
-ACPCore.trackAction("cordovaAction", {"cordovaKey":"cordovaValue"}, successCallback, errorCallback);
-```
+You can run all the test suites from command line:
 
-##### Calling track state
-```js
-ACPCore.trackState("cordovaState", {"cordovaKey":"cordovaValue"}, successCallback, errorCallback);
-```
+~~~
+make test
+~~~
 
-### [Identity](https://aep-sdks.gitbook.io/docs/using-mobile-extensions/mobile-core/identity)
+## Setup Demo Application
+The AEP Messaging Demo application is a sample app which demonstrates how to send psuh notification token and notification click through feedback
 
-##### Getting Identity version:
-```js
-ACPIdentity.extensionVersion(function(version) {
-    console.log(version);
-}, function(error) {
-    console.log(error);
-});
-```
+## Related Projects
 
-##### Sync Identifier:
-```js
-ACPIdentity.syncIdentifier("id1", "value1", ACPIdentity.ACPMobileVisitorAuthenticationStateUnknown, successCallback, errorCallback);
-```
-
-##### Sync Identifiers:
-```js
-ACPIdentity.syncIdentifiers({"id2":"value2", "id3":"value3", "id4":"value4"}, successCallback, errorCallback);
-```
-##### Sync Identifiers with Authentication State:
-```js
-ACPIdentity.syncIdentifiers({"id2":"value2", "id3":"value3", "id4":"value4"}, ACPIdentity.ACPMobileVisitorAuthenticationStateLoggedOut, successCallback, errorCallback);
-ACPIdentity.syncIdentifiers({"id2":"value2", "id3":"value3", "id4":"value4"}, ACPIdentity.ACPMobileVisitorAuthenticationStateAuthenticated, successCallback, errorCallback);
-ACPIdentity.syncIdentifiers({"id2":"value2", "id3":"value3", "id4":"value4"}, ACPIdentity.ACPMobileVisitorAuthenticationStateUnknown, successCallback, errorCallback);
-```
-
-##### Append visitor data to a URL:
-```js
-ACPIdentity.appendVisitorInfoForUrl("https://www.adobe.com", successCallback, errorCallback);
-```
-
-##### Get visitor data as URL query parameter string:
-```js
-ACPIdentity.getUrlVariables(function(variables) {
-    console.log(variables);
-}, function(error) {
-    console.log(error);
-});
-```
-
-##### Get Identifiers:
-```js
-ACPIdentity.getIdentifiers(function(ids) {
-    console.log(ids);
-}, function(error) {
-    console.log(error);
-});
-```
-
-##### Get Experience Cloud IDs:
-```js
-ACPIdentity.getExperienceCloudId(function(cloudId) {
-    console.log(cloudId);
-}, function(error) {
-    console.log(error);
-});
-```
-
-### [Lifecycle](https://aep-sdks.gitbook.io/docs/using-mobile-extensions/mobile-core/lifecycle)
-> Note: We recommend implementing Lifecycle in native [Android and iOS code](https://aep-sdks.gitbook.io/docs/using-mobile-extensions/mobile-core/lifecycle).
-
-##### Getting Lifecycle version:
-```js
-ACPLifecycle.extensionVersion(function(version) {
-    console.log(version);
-}, function(error) {
-    console.log(error);
-});
- ```
-
-### [Signal](https://aep-sdks.gitbook.io/docs/using-mobile-extensions/mobile-core/signals)
-
-##### Getting Signal version:
-```js
-ACPSignal.extensionVersion(function(version) {
-    console.log(version);
-}, function(error) {
-    console.log(error);
-});
-```
-
-## Running Tests
-Install cordova-paramedic `https://github.com/apache/cordova-paramedic`
-```bash
-npm install -g cordova-paramedic
-```
-Run the tests
-```
-cordova-paramedic --platform ios --plugin . --verbose
-```
-```
-cordova-paramedic --platform android --plugin . --verbose
-```
-
-## Sample App
-
-A Cordova app for testing the plugin is located in the `https://github.com/adobe/cordova-acpsample`. The app is configured for both iOS and Android platforms.  
+| Project                                                      | Description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [AEPCore Extensions](https://github.com/adobe/aepsdk-core-ios) | The AEPCore and AEPServices represent the foundation of the Adobe Experience Platform SDK. |
+| [AEPEdge Extension](https://github.com/adobe/aepsdk-edge-ios) | The AEPEdge extension allows you to send data to the Adobe Experience Platform (AEP) from a mobile application. |
+| [AEPEdgeIdentity Extension](https://github.com/adobe/aepsdk-edgeidentity-ios) | The AEPEdgeIdentity enables handling of user identity data from a mobile app when using the AEPEdge extension. |
+| [AEP SDK Sample App for iOS](https://github.com/adobe/aepsdk-sample-app-ios) | Contains iOS sample apps for the AEP SDK. Apps are provided for both Objective-C and Swift implementations. |
+| [AEP SDK Sample App for Android](https://github.com/adobe/aepsdk-sample-app-android) | Contains Android sample app for the AEP SDK.                 |
 
 ## Contributing
 Looking to contribute to this project? Please review our [Contributing guidelines](.github/CONTRIBUTING.md) prior to opening a pull request.

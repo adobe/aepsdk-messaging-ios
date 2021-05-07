@@ -1,18 +1,61 @@
 PODS:
-  - ACPCore (2.6.1):
-    - ACPCore/iOS (= 2.6.1)
-  - ACPCore/iOS (2.6.1)
+  - ACPCore (2.9.3):
+    - ACPCore/main (= 2.9.3)
+  - ACPCore/main (2.9.3)
+  - AEPAssurance (1.1.1):
+    - ACPCore (>= 2.9.0)
+    - AEPAssurance/xcframeworks (= 1.1.1)
+  - AEPAssurance/xcframeworks (1.1.1):
+    - ACPCore (>= 2.9.0)
+  - AEPCore (3.1.2):
+    - AEPRulesEngine (= 1.0.0)
+    - AEPServices (= 3.1.2)
+  - AEPEdge (1.1.0):
+    - AEPCore (>= 3.1.1)
+    - AEPEdgeIdentity
+  - AEPEdgeIdentity (1.0.0):
+    - AEPCore (>= 3.1.1)
+  - AEPLifecycle (3.1.2):
+    - AEPCore (= 3.1.2)
+  - AEPRulesEngine (1.0.0)
+  - AEPServices (3.1.2)
+  - AEPSignal (3.1.2):
+    - AEPCore (= 3.1.2)
 
 DEPENDENCIES:
   - ACPCore
+  - AEPAssurance
+  - AEPCore
+  - AEPEdge
+  - AEPEdgeIdentity
+  - AEPLifecycle
+  - AEPRulesEngine
+  - AEPServices
+  - AEPSignal
 
 SPEC REPOS:
   trunk:
     - ACPCore
+    - AEPAssurance
+    - AEPCore
+    - AEPEdge
+    - AEPEdgeIdentity
+    - AEPLifecycle
+    - AEPRulesEngine
+    - AEPServices
+    - AEPSignal
 
 SPEC CHECKSUMS:
-  ACPCore: e2f2ff66174350cdc00387a2ca74ac4f77ea3ba0
+  ACPCore: 5f00fcf7aba597b29b359e4c14f7f4f1f95503f3
+  AEPAssurance: b62fc1be16efbc8d137b945b29da7e5ec7c7965a
+  AEPCore: d85439869b2f9bcb9d84c1662ced049dd5fa9b56
+  AEPEdge: 818ca6ea6ac1a9e16a876036c78908996033599f
+  AEPEdgeIdentity: 40d312b4434b710a46c1738ab2a221dda4cfd67e
+  AEPLifecycle: fdcd802351bec596be0f2365fd21a6f342318a51
+  AEPRulesEngine: 8bbc694fce6900cd33b2496c7d4b33ee2eeffc46
+  AEPServices: 891fc1fb2e2ecacf02f293d1a7f3c478dc4d338b
+  AEPSignal: c49cdf7e1647fae543c698a8ce1089844543c244
 
-PODFILE CHECKSUM: 8cc4a5642b8f489b79cb440fa4c1efadb82503de
+PODFILE CHECKSUM: b17401cb9908d8aeea408418e5b622d09b889bc5
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.10.0
