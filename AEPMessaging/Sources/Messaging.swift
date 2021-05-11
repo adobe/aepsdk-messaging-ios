@@ -94,7 +94,9 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
-            guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]], !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String, !ecid.isEmpty else {
+            guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
+                  !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
+                  !ecid.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
                 return
             }
@@ -137,11 +139,11 @@ public class Messaging: NSObject, Extension {
                  MessagingConstants.PushNotificationDetails.DENYLISTED: false,
                  MessagingConstants.PushNotificationDetails.IDENTITY: [
                     MessagingConstants.PushNotificationDetails.NAMESPACE: [
-                        MessagingConstants.PushNotificationDetails.CODE: MessagingConstants.PushNotificationDetails.JsonValues.ECID,
+                        MessagingConstants.PushNotificationDetails.CODE: MessagingConstants.PushNotificationDetails.JsonValues.ECID
                     ],
-                    MessagingConstants.PushNotificationDetails.ID: ecid,
-                 ]],
-            ],
+                    MessagingConstants.PushNotificationDetails.ID: ecid
+                 ]]
+            ]
         ]
 
         // Creating xdm edge event data
@@ -161,13 +163,15 @@ public class Messaging: NSObject, Extension {
     /// - Returns: A boolean explaining whether the handling of tracking info was successful or not
     private func handleTrackingInfo(event: Event, _ config: [AnyHashable: Any]) {
         guard let expEventDatasetId = config[MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET] as? String, !expEventDatasetId.isEmpty else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to handle tracking information for push notification : Experience event dataset ID from the config is invalid or not available. '\(event.id.uuidString)'")
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Failed to handle tracking information for push notification : Experience event dataset ID from the config is invalid or not available. '\(event.id.uuidString)'")
             return
         }
 
         // Get the xdm data with push tracking details
         guard var xdmMap = getXdmData(event: event, config: config) else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to handle tracking information for push notification : error while creating xdmMap with the push tracking details from the event and config. '\(event.id.uuidString)'")
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Failed to handle tracking information for push notification : error while creating xdmMap with the push tracking details from the event and config. '\(event.id.uuidString)'")
             return
         }
 
@@ -181,8 +185,8 @@ public class Messaging: NSObject, Extension {
         // Creating xdm edge event data
         let xdmEventData: [String: Any] = [MessagingConstants.XDMDataKeys.XDM: xdmMap, MessagingConstants.XDMDataKeys.META: [
             MessagingConstants.XDMDataKeys.COLLECT: [
-                MessagingConstants.XDMDataKeys.DATASET_ID: expEventDatasetId,
-            ],
+                MessagingConstants.XDMDataKeys.DATASET_ID: expEventDatasetId
+            ]
         ]]
         // Creating xdm edge event with request content source type
         let event = Event(name: MessagingConstants.EventName.MESSAGING_PUSH_TRACKING_EDGE_EVENT,
@@ -199,7 +203,8 @@ public class Messaging: NSObject, Extension {
     private func addAdobeData(event: Event, xdmDict: [String: Any]) -> [String: Any] {
         var xdmDictResult = xdmDict
         guard let _ = event.adobeXdm else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to update xdmMap with adobe/cjm related informations : adobe/cjm information are invalid or not available in the event '\(event.id.uuidString)'.")
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Failed to update xdmMap with adobe/cjm related informations : adobe/cjm information are invalid or not available in the event '\(event.id.uuidString)'.")
             return xdmDictResult
         }
 
@@ -224,7 +229,8 @@ public class Messaging: NSObject, Extension {
         if var experienceDict = xdmDictResult[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] as? [String: Any] {
             if var cjmDict = experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
                 // Adding Message profile and push channel context to CUSTOMER_JOURNEY_MANAGEMENT
-                guard let messageProfile = convertStringToDictionary(text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
+                guard let messageProfile = convertStringToDictionary(
+                        text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
                     Log.warning(label: MessagingConstants.LOG_TAG,
                                 "Failed to update xdmMap with adobe/cjm informations : converting message profile string to dictionary failed in the event '\(event.id.uuidString)'.")
                     return xdmDictResult
@@ -235,7 +241,8 @@ public class Messaging: NSObject, Extension {
                 xdmDictResult[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] = experienceDict
             }
         } else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to send adobe/cjm information data with the tracking, \(MessagingConstants.AdobeTrackingKeys.EXPERIENCE) is missing in the event '\(event.id.uuidString)'.")
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Failed to send adobe/cjm information data with the tracking, \(MessagingConstants.AdobeTrackingKeys.EXPERIENCE) is missing in the event '\(event.id.uuidString)'.")
         }
         return xdmDictResult
     }

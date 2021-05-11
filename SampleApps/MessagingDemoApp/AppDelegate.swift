@@ -42,7 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         MobileCore.configureWith(appId: "<appid>")
         MobileCore.updateConfigurationWith(configDict: [
-            "messaging.useSandbox": true,
+            "messaging.useSandbox": true
         ])
 
         // only start lifecycle if the application is not in the background
