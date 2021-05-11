@@ -93,9 +93,10 @@ jobs:
       - run:
           name: Build XCFramework
           command: |
-            if [ "${CIRCLE_BRANCH}" == "main" ]; then
-              make archive
-            fi
+            make archive
+#            if [ "${CIRCLE_BRANCH}" == "main" ]; then
+#              make archive
+#            fi
 
       # verify demo app builds
       - run:
