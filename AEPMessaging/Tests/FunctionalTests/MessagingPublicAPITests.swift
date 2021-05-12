@@ -134,7 +134,7 @@ class MessagingPublicAPITests: XCTestCase {
             "messageExecutionID": "16-Sept-postman",
             "journeyVersionID": "some-journeyVersionId",
             "journeyVersionInstanceId": "someJourneyVersionInstanceId",
-            "messageID": "567",
+            "messageID": "567"
         ]]]]]
         let data = [MessagingConstants.EventDataKeys.MESSAGE_ID: "mockMessageId",
                     MessagingConstants.EventDataKeys.APPLICATION_OPENED: true,

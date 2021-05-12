@@ -13,9 +13,10 @@ coverage:
     changes: no
 
   ignore:
-    - "./Tests/**/*"
-    - "./Tests/.*"
-    - "./TestApp/.*"
+    - "./AEPMessaging/Tests/.*"
+    - "./AEPMessaging/Tests/**/*"
+    - "./SampleApps"
+    - "./Documentation"
 
 parsers:
   gcov:
