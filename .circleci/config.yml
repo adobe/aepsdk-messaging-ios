@@ -97,13 +97,5 @@ jobs:
               make archive
             fi
 
-      # verify demo app builds
-      - run:
-          name: Build Demo App
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "main" ]; then
-              make build-app
-            fi
-
 
 
