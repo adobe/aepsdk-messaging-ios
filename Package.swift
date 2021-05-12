@@ -19,10 +19,10 @@ let package = Package(
     name: "AEPMessaging",
     platforms: [.iOS(.v10)],
     products: [
-        .library(name: "AEPMessaging", targets: ["AEPMessaging"]),
+        .library(name: "AEPMessaging", targets: ["AEPMessaging"])
     ],
     dependencies: [
-        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main")),
+        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main"))
     ],
     targets: [
         .target(name: "AEPMessaging",
@@ -36,6 +36,6 @@ let package = Package(
                     path: "AEPMessaging/Tests/UnitTests"),
         .testTarget(name: "FunctionalTests",
                     dependencies: ["AEPMessaging", "AEPCore"],
-                    path: "AEPMessaging/Tests/FunctionalTests"),
+                    path: "AEPMessaging/Tests/FunctionalTests")
     ]
 )

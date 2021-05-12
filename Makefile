@@ -1,13 +1,13 @@
 export EXTENSION_NAME = AEPMessaging
 export APP_NAME = MessagingDemoApp
 PROJECT_NAME = $(EXTENSION_NAME)
-TARGET_NAME_XCFRAMEWORK = $(EXTENSION_NAME).xcframework
+TARGET_NAME_XCFRAMEWORK = $(EXTENSION_NAME).xcframework 
 SCHEME_NAME_XCFRAMEWORK = AEPMessagingXCF
 
 SIMULATOR_ARCHIVE_PATH = ./build/ios_simulator.xcarchive/Products/Library/Frameworks/
 IOS_ARCHIVE_PATH = ./build/ios.xcarchive/Products/Library/Frameworks/
 
-setup:
+setup: 
 	(pod install)
 	(cd SampleApps/$(APP_NAME) && pod install)
 
@@ -47,11 +47,7 @@ archive:
 	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(SCHEME_NAME_XCFRAMEWORK) -archivePath "./build/ios_simulator.xcarchive" -sdk iphonesimulator -destination="iOS Simulator" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
 	xcodebuild -create-xcframework -framework $(SIMULATOR_ARCHIVE_PATH)$(EXTENSION_NAME).framework -framework $(IOS_ARCHIVE_PATH)$(EXTENSION_NAME).framework -output ./build/$(TARGET_NAME_XCFRAMEWORK)
 
-archive-app:
-	(make -C SampleApps/$(APP_NAME) archive-app)
-
 test:
-	#(mkdir -p build/out/test)
 	@echo "######################################################################"
 	@echo "### Testing iOS"
 	@echo "######################################################################"

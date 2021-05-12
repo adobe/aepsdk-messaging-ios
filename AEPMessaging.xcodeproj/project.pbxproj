@@ -89,13 +89,6 @@
 			remoteGlobalIDString = 925DF4A425227C4700A5DE31;
 			remoteInfo = AEPMessaging;
 		};
-		92FC592426372CE4005BAE02 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 92085981251BEB7100B9C65A;
-			remoteInfo = MessagingDemoApp;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -440,7 +433,6 @@
 			);
 			dependencies = (
 				92FC587F2636840C005BAE02 /* PBXTargetDependency */,
-				92FC592526372CE4005BAE02 /* PBXTargetDependency */,
 			);
 			name = FunctionalTests;
 			productName = FunctionalTests;
@@ -619,7 +611,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${PROJECT_DIR}\nif which swiftformat >/dev/null; then\n   swiftformat .\nelse\necho \"error: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which swiftlint >/dev/null; then\n    swiftlint lint --config ../../.swiftlint.yml AEPMessaging/Sources\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n\n";
 		};
 		AAAA7926FC33EC38F6912A6F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -764,11 +756,6 @@
 			isa = PBXTargetDependency;
 			target = 925DF4A425227C4700A5DE31 /* AEPMessaging */;
 			targetProxy = 92FC587E2636840C005BAE02 /* PBXContainerItemProxy */;
-		};
-		92FC592526372CE4005BAE02 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 92085981251BEB7100B9C65A /* MessagingDemoApp */;
-			targetProxy = 92FC592426372CE4005BAE02 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
