@@ -19,9 +19,9 @@ enum MessagingConstants {
     static let FRIENDLY_NAME = "AEPMessaging"
 
     enum EventName {
-        static let MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT = "Push notification interaction event"
-        static let MESSAGING_PUSH_TRACKING_EDGE_EVENT = "Push tracking edge event"
-        static let MESSAGING_PUSH_PROFILE_EDGE_EVENT = "Push notification profile edge event"
+        static let PUSH_NOTIFICATION_INTERACTION = "Push notification interaction event"
+        static let PUSH_TRACKING_EDGE = "Push tracking edge event"
+        static let PUSH_PROFILE_EDGE = "Push notification profile edge event"
     }
 
     enum EventType {
@@ -39,8 +39,11 @@ enum MessagingConstants {
         static let APPLICATION_OPENED = "applicationOpened"
         static let ACTION_ID = "actionId"
         static let ADOBE_XDM = "adobe_xdm"
-        static let EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED = "pushTracking.applicationOpened"
-        static let EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION = "pushTracking.customAction"
+    }
+
+    enum EventDataValue {
+        static let PUSH_TRACKING_APPLICATION_OPENED = "pushTracking.applicationOpened"
+        static let PUSH_TRACKING_CUSTOM_ACTION = "pushTracking.customAction"
     }
 
     enum AdobeTrackingKeys {
@@ -52,7 +55,6 @@ enum MessagingConstants {
         static let APPLICATION = "application"
         static let LAUNCHES = "launches"
         static let LAUNCHES_VALUE = "value"
-
         static let MESSAGE_PROFILE_JSON = "{\n   \"messageProfile\":" +
             "{\n      \"channel\": {\n         \"_id\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
         ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
@@ -82,7 +84,7 @@ enum MessagingConstants {
         static let IDENTITY = "identity"
         static let NAMESPACE = "namespace"
         static let CODE = "code"
-        static let ID = "id"
+        static let ECID = "id"
 
         enum JsonValues {
             static let ECID = "ECID"
