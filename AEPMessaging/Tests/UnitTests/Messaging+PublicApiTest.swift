@@ -47,15 +47,15 @@ class MessagingPublicApiTest: XCTestCase {
             XCTAssertEqual(EventSource.requestContent, event.source)
 
             guard let eventData = event.data,
-                  let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool,
-                  let eventDataType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String,
-                  let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String,
-                  let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String,
-                  let xdm = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any]
-            else {
-                XCTFail()
-                expectation.fulfill()
-                return
+                let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool,
+                let eventDataType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String,
+                let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String,
+                let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String,
+                let xdm = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any]
+                else {
+                    XCTFail()
+                    expectation.fulfill()
+                    return
             }
 
             XCTAssertTrue(applicationOpened)

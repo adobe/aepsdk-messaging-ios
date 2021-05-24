@@ -135,7 +135,7 @@ class MessagingPublicAPITests: XCTestCase {
             "journeyVersionID": "some-journeyVersionId",
             "journeyVersionInstanceId": "someJourneyVersionInstanceId",
             "messageID": "567"
-        ]]]]]
+            ]]]]]
         let data = [MessagingConstants.EventDataKeys.MESSAGE_ID: "mockMessageId",
                     MessagingConstants.EventDataKeys.APPLICATION_OPENED: true,
                     MessagingConstants.EventDataKeys.EVENT_TYPE: MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION,
