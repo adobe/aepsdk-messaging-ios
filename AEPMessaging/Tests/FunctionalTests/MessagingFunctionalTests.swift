@@ -56,6 +56,10 @@ class MessagingFunctionalTests: XCTestCase {
         XCTAssertEqual(false, flattenedPushNotification?["denylisted"] as? Bool)
         XCTAssertEqual("ECID", flattenedPushNotification?["identity.namespace.code"] as? String)
         XCTAssertEqual("apns", flattenedPushNotification?["platform"] as? String)
+
+        // verify that push token is shared in sharedState
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
+        XCTAssertEqual("mockPushToken", mockRuntime.firstSharedState![MessagingConstants.SharedStateKeys.PUSH_IDENTIFIER] as! String)
     }
 
     func testPushTokenSync_emptyToken() {
@@ -71,10 +75,13 @@ class MessagingFunctionalTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+
+        // verify that push token is not shared in sharedState
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
     }
 
     func testPushTokenSync_noECID() {
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: ""] as [String: Any]
+        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: true] as [String: Any] // pushtoken is an boolean instead of string
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
@@ -86,6 +93,28 @@ class MessagingFunctionalTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+
+        // verify that push token is not shared in sharedState
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func testPushTokenSync_invalidPushId() {
+        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
+        let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
+
+        // mock configuration shared state
+        mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: event), data: (value: mockConfigSharedState, status: .set))
+
+        // creates an edge identity's xdm shared state
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: ""]]]]
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(event)
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+
+        // verify that push token is shared in sharedState
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
+        XCTAssertEqual("mockPushToken", try XCTUnwrap(mockRuntime.firstSharedState?[MessagingConstants.SharedStateKeys.PUSH_IDENTIFIER] as? String))
     }
 
     func testPushTokenSync_withSandbox() {
@@ -117,5 +146,9 @@ class MessagingFunctionalTests: XCTestCase {
         XCTAssertEqual(false, flattenedPushNotification?["denylisted"] as? Bool)
         XCTAssertEqual("ECID", flattenedPushNotification?["identity.namespace.code"] as? String)
         XCTAssertEqual("apnsSandbox", flattenedPushNotification?["platform"] as? String)
+
+        // verify that push token is shared in sharedState
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
+        XCTAssertEqual("mockPushToken", mockRuntime.firstSharedState![MessagingConstants.SharedStateKeys.PUSH_IDENTIFIER] as! String)
     }
 }

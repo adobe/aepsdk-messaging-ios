@@ -88,22 +88,25 @@ public class Messaging: NSObject, Extension {
         }
 
         if event.isGenericIdentityRequestContentEvent {
+            // read the push token from the event and set it to shared state if push token is valid
+            guard let token = event.token, !token.isEmpty else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
+                return
+            }
+            runtime.createSharedState(data: [MessagingConstants.SharedStateKeys.PUSH_IDENTIFIER: token], event: event)
+
             // get identityMap from the edge identity xdm shared state
             guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available from edge identity xdm shared state - '\(event.id.uuidString)'.")
                 return
             }
 
+            // get the ECID array from the identityMap
             guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
-                  !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
-                  !ecid.isEmpty else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
-                return
-            }
-
-            guard let token = event.token, !token.isEmpty else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
-                return
+                !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
+                !ecid.isEmpty else {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
+                    return
             }
 
             sendPushToken(ecid: ecid, token: token, platform: getPlatform(config: configSharedState))
@@ -142,7 +145,7 @@ public class Messaging: NSObject, Extension {
                         MessagingConstants.PushNotificationDetails.CODE: MessagingConstants.PushNotificationDetails.JsonValues.ECID
                     ],
                     MessagingConstants.PushNotificationDetails.ID: ecid
-                 ]]
+                    ]]
             ]
         ]
 
@@ -187,7 +190,7 @@ public class Messaging: NSObject, Extension {
             MessagingConstants.XDMDataKeys.COLLECT: [
                 MessagingConstants.XDMDataKeys.DATASET_ID: expEventDatasetId
             ]
-        ]]
+            ]]
         // Creating xdm edge event with request content source type
         let event = Event(name: MessagingConstants.EventName.MESSAGING_PUSH_TRACKING_EDGE_EVENT,
                           type: EventType.edge,
