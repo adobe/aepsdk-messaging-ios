@@ -42,7 +42,7 @@ class MessagingPublicApiTest: XCTestCase {
 
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventType.messaging, source: EventSource.requestContent) { event in
-            XCTAssertEqual(MessagingConstants.EventName.MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT, event.name)
+            XCTAssertEqual(MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION, event.name)
             XCTAssertEqual(MessagingConstants.EventType.messaging, event.type)
             XCTAssertEqual(EventSource.requestContent, event.source)
 
@@ -59,7 +59,7 @@ class MessagingPublicApiTest: XCTestCase {
             }
 
             XCTAssertTrue(applicationOpened)
-            XCTAssertEqual(MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION, eventDataType)
+            XCTAssertEqual(MessagingConstants.EventDataValue.PUSH_TRACKING_CUSTOM_ACTION, eventDataType)
             XCTAssertEqual(actionId, mockCustomActinoId)
             XCTAssertEqual(messageId, mockIdentifier)
             XCTAssertNotNil(xdm)
