@@ -233,10 +233,10 @@ public class Messaging: NSObject, Extension {
             if var cjmDict = experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
                 // Adding Message profile and push channel context to CUSTOMER_JOURNEY_MANAGEMENT
                 guard let messageProfile = convertStringToDictionary(
-                        text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
-                    Log.warning(label: MessagingConstants.LOG_TAG,
-                                "Failed to update xdmMap with adobe/cjm informations : converting message profile string to dictionary failed in the event '\(event.id.uuidString)'.")
-                    return xdmDictResult
+                    jsonString: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
+                        Log.warning(label: MessagingConstants.LOG_TAG,
+                                    "Failed to update xdmMap with adobe/cjm informations : converting message profile string to dictionary failed in the event '\(event.id.uuidString)'.")
+                        return xdmDictResult
                 }
                 // Merging the dictionary
                 cjmDict += messageProfile
@@ -295,19 +295,19 @@ public class Messaging: NSObject, Extension {
         return xdmDict
     }
 
-    /// Helper methods
+    // MARK: - Private - Helper methods
 
-    /// Converts a dictionary string to dictionary object
+    /// Converts a json string into dictionary object.
     /// - Parameters:
-    ///   - text: String dictionary which needs to be converted
-    /// - Returns: Dictionary
-    private func convertStringToDictionary(text: String) -> [String: Any]? {
-        if let data = text.data(using: .utf8) {
+    ///   - jsonString: json String that needs to be converted to a dictionary
+    /// - Returns: A  dictionary representation of the string. Returns `nil` if the json serialization of the string fails.
+    private func convertStringToDictionary(jsonString: String) -> [String: Any]? {
+        if let data = jsonString.data(using: .utf8) {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String: Any]
                 return json
             } catch {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Unexpected error occured while converting string \(text) to dictionary: Error -  \(error).")
+                Log.debug(label: MessagingConstants.LOG_TAG, "Unexpected error occurred while converting string \(jsonString) to dictionary: Error -  \(error).")
                 return nil
             }
         }
