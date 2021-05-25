@@ -28,10 +28,6 @@ enum MessagingConstants {
         static let messaging = "com.adobe.eventType.messaging"
     }
 
-    enum SharedStateKeys {
-        static let PUSH_IDENTIFIER = "pushidentifier"
-    }
-
     enum EventDataKeys {
         static let PUSH_IDENTIFIER = "pushidentifier"
         static let EVENT_TYPE = "eventType"
@@ -84,7 +80,7 @@ enum MessagingConstants {
         static let IDENTITY = "identity"
         static let NAMESPACE = "namespace"
         static let CODE = "code"
-        static let ECID = "id"
+        static let ID = "id"
 
         enum JsonValues {
             static let ECID = "ECID"
@@ -95,6 +91,10 @@ enum MessagingConstants {
 
     struct SharedState {
         static let STATE_OWNER = "stateowner"
+
+        enum Messaging {
+            static let PUSH_IDENTIFIER = "pushidentifier"
+        }
 
         enum Configuration {
             static let NAME = "com.adobe.module.configuration"

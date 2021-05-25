@@ -90,12 +90,13 @@ public class Messaging: NSObject, Extension {
         }
 
         if event.isGenericIdentityRequestContentEvent {
-            // read the push token from the event and set it to shared state if push token is valid
+
             guard let token = event.token, !token.isEmpty else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
                 return
             }
-            runtime.createSharedState(data: [MessagingConstants.SharedStateKeys.PUSH_IDENTIFIER: token], event: event)
+            // If the push token is valid update the shared state.
+            runtime.createSharedState(data: [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token], event: event)
 
             // get identityMap from the edge identity xdm shared state
             guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
@@ -147,7 +148,7 @@ public class Messaging: NSObject, Extension {
                     MessagingConstants.PushNotificationDetails.NAMESPACE: [
                         MessagingConstants.PushNotificationDetails.CODE: MessagingConstants.PushNotificationDetails.JsonValues.ECID
                     ],
-                    MessagingConstants.PushNotificationDetails.ECID: ecid
+                    MessagingConstants.PushNotificationDetails.ID: ecid
                     ]]
             ]
         ]
