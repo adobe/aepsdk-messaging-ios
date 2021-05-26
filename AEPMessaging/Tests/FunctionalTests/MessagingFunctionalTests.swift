@@ -59,7 +59,7 @@ class MessagingFunctionalTests: XCTestCase {
 
         // verify that push token is shared in sharedState
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
-        XCTAssertEqual("mockPushToken", mockRuntime.firstSharedState![MessagingConstants.SharedStateKeys.PUSH_IDENTIFIER] as! String)
+        XCTAssertEqual("mockPushToken", mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as! String)
     }
 
     func testPushTokenSync_emptyToken() {
@@ -114,7 +114,7 @@ class MessagingFunctionalTests: XCTestCase {
 
         // verify that push token is shared in sharedState
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
-        XCTAssertEqual("mockPushToken", try XCTUnwrap(mockRuntime.firstSharedState?[MessagingConstants.SharedStateKeys.PUSH_IDENTIFIER] as? String))
+        XCTAssertEqual("mockPushToken", try XCTUnwrap(mockRuntime.firstSharedState?[MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as? String))
     }
 
     func testPushTokenSync_withSandbox() {
@@ -149,6 +149,6 @@ class MessagingFunctionalTests: XCTestCase {
 
         // verify that push token is shared in sharedState
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
-        XCTAssertEqual("mockPushToken", mockRuntime.firstSharedState![MessagingConstants.SharedStateKeys.PUSH_IDENTIFIER] as! String)
+        XCTAssertEqual("mockPushToken", mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as! String)
     }
 }
