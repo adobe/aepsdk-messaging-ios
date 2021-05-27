@@ -42,24 +42,24 @@ class MessagingPublicApiTest: XCTestCase {
 
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventType.messaging, source: EventSource.requestContent) { event in
-            XCTAssertEqual(MessagingConstants.EventName.MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT, event.name)
+            XCTAssertEqual(MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION, event.name)
             XCTAssertEqual(MessagingConstants.EventType.messaging, event.type)
             XCTAssertEqual(EventSource.requestContent, event.source)
 
             guard let eventData = event.data,
-                  let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool,
-                  let eventDataType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String,
-                  let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String,
-                  let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String,
-                  let xdm = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any]
-            else {
-                XCTFail()
-                expectation.fulfill()
-                return
+                let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool,
+                let eventDataType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String,
+                let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String,
+                let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String,
+                let xdm = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any]
+                else {
+                    XCTFail()
+                    expectation.fulfill()
+                    return
             }
 
             XCTAssertTrue(applicationOpened)
-            XCTAssertEqual(MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION, eventDataType)
+            XCTAssertEqual(MessagingConstants.EventDataValue.PUSH_TRACKING_CUSTOM_ACTION, eventDataType)
             XCTAssertEqual(actionId, mockCustomActinoId)
             XCTAssertEqual(messageId, mockIdentifier)
             XCTAssertNotNil(xdm)

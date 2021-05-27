@@ -23,9 +23,7 @@ public class Messaging: NSObject, Extension {
     public var runtime: ExtensionRuntime
 
     // =================================================================================================================
-
     // MARK: - ACPExtension protocol methods
-
     // =================================================================================================================
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
@@ -63,9 +61,13 @@ public class Messaging: NSObject, Extension {
         return configurationSharedState.status == .set && edgeIdentitySharedState.status == .set
     }
 
+    // =================================================================================================================
+    // MARK: - Event Handers
+    // =================================================================================================================
+
     /// Processes the events in the event queue in the order they were received.
     ///
-    /// A valid Configuration and edge identity shared state is required for processing events.
+    /// A valid `Configuration` and `EdgeIdentity` shared state is required for processing events.
     ///
     /// - Parameters:
     ///   - event: An `Event` to be processed
@@ -88,22 +90,27 @@ public class Messaging: NSObject, Extension {
         }
 
         if event.isGenericIdentityRequestContentEvent {
-            // get identityMap from the edge identity xdm shared state
-            guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available from edge identity xdm shared state - '\(event.id.uuidString)'.")
-                return
-            }
-
-            guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
-                  !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
-                  !ecid.isEmpty else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
-                return
-            }
 
             guard let token = event.token, !token.isEmpty else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
                 return
+            }
+            // If the push token is valid update the shared state.
+            runtime.createSharedState(data: [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token], event: event)
+
+            // get identityMap from the edge identity xdm shared state
+            guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available" +
+                    "from edge identity xdm shared state - '\(event.id.uuidString)'.")
+                return
+            }
+
+            // get the ECID array from the identityMap
+            guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
+                !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
+                !ecid.isEmpty else {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
+                    return
             }
 
             sendPushToken(ecid: ecid, token: token, platform: getPlatform(config: configSharedState))
@@ -142,14 +149,14 @@ public class Messaging: NSObject, Extension {
                         MessagingConstants.PushNotificationDetails.CODE: MessagingConstants.PushNotificationDetails.JsonValues.ECID
                     ],
                     MessagingConstants.PushNotificationDetails.ID: ecid
-                 ]]
+                    ]]
             ]
         ]
 
         // Creating xdm edge event data
         let xdmEventData: [String: Any] = [MessagingConstants.XDMDataKeys.DATA: profileEventData]
         // Creating xdm edge event with request content source type
-        let event = Event(name: MessagingConstants.EventName.MESSAGING_PUSH_PROFILE_EDGE_EVENT,
+        let event = Event(name: MessagingConstants.EventName.PUSH_PROFILE_EDGE,
                           type: EventType.edge,
                           source: EventSource.requestContent,
                           data: xdmEventData)
@@ -164,14 +171,16 @@ public class Messaging: NSObject, Extension {
     private func handleTrackingInfo(event: Event, _ config: [AnyHashable: Any]) {
         guard let expEventDatasetId = config[MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET] as? String, !expEventDatasetId.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG,
-                        "Failed to handle tracking information for push notification : Experience event dataset ID from the config is invalid or not available. '\(event.id.uuidString)'")
+                        "Failed to handle tracking information for push notification: " +
+                "Experience event dataset ID from the config is invalid or not available. '\(event.id.uuidString)'")
             return
         }
 
         // Get the xdm data with push tracking details
         guard var xdmMap = getXdmData(event: event, config: config) else {
             Log.warning(label: MessagingConstants.LOG_TAG,
-                        "Failed to handle tracking information for push notification : error while creating xdmMap with the push tracking details from the event and config. '\(event.id.uuidString)'")
+                        "Failed to handle tracking information for push notification: " +
+                "Error while creating xdmMap with the push tracking details from the event and config. '\(event.id.uuidString)'")
             return
         }
 
@@ -187,9 +196,9 @@ public class Messaging: NSObject, Extension {
             MessagingConstants.XDMDataKeys.COLLECT: [
                 MessagingConstants.XDMDataKeys.DATASET_ID: expEventDatasetId
             ]
-        ]]
+            ]]
         // Creating xdm edge event with request content source type
-        let event = Event(name: MessagingConstants.EventName.MESSAGING_PUSH_TRACKING_EDGE_EVENT,
+        let event = Event(name: MessagingConstants.EventName.PUSH_TRACKING_EDGE,
                           type: EventType.edge,
                           source: EventSource.requestContent,
                           data: xdmEventData)
@@ -202,7 +211,7 @@ public class Messaging: NSObject, Extension {
     ///  - xdmDict: `[AnyHashable: Any]` which is updated with the cjm tracking information.
     private func addAdobeData(event: Event, xdmDict: [String: Any]) -> [String: Any] {
         var xdmDictResult = xdmDict
-        guard let _ = event.adobeXdm else {
+        if event.adobeXdm == nil {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to update xdmMap with adobe/cjm related informations : adobe/cjm information are invalid or not available in the event '\(event.id.uuidString)'.")
             return xdmDictResult
@@ -230,10 +239,11 @@ public class Messaging: NSObject, Extension {
             if var cjmDict = experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
                 // Adding Message profile and push channel context to CUSTOMER_JOURNEY_MANAGEMENT
                 guard let messageProfile = convertStringToDictionary(
-                        text: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
-                    Log.warning(label: MessagingConstants.LOG_TAG,
-                                "Failed to update xdmMap with adobe/cjm informations : converting message profile string to dictionary failed in the event '\(event.id.uuidString)'.")
-                    return xdmDictResult
+                    jsonString: MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON) else {
+                        Log.warning(label: MessagingConstants.LOG_TAG,
+                                    "Failed to update xdmMap with adobe/cjm informations:" +
+                            "converting message profile string to dictionary failed in the event '\(event.id.uuidString)'.")
+                        return xdmDictResult
                 }
                 // Merging the dictionary
                 cjmDict += messageProfile
@@ -242,7 +252,8 @@ public class Messaging: NSObject, Extension {
             }
         } else {
             Log.warning(label: MessagingConstants.LOG_TAG,
-                        "Failed to send adobe/cjm information data with the tracking, \(MessagingConstants.AdobeTrackingKeys.EXPERIENCE) is missing in the event '\(event.id.uuidString)'.")
+                        "Failed to send adobe/cjm information data with the tracking," +
+                "\(MessagingConstants.AdobeTrackingKeys.EXPERIENCE) is missing in the event '\(event.id.uuidString)'.")
         }
         return xdmDictResult
     }
@@ -292,19 +303,19 @@ public class Messaging: NSObject, Extension {
         return xdmDict
     }
 
-    /// Helper methods
+    // MARK: - Private - Helper methods
 
-    /// Converts a dictionary string to dictionary object
+    /// Converts a json string into dictionary object.
     /// - Parameters:
-    ///   - text: String dictionary which needs to be converted
-    /// - Returns: Dictionary
-    private func convertStringToDictionary(text: String) -> [String: Any]? {
-        if let data = text.data(using: .utf8) {
+    ///   - jsonString: json String that needs to be converted to a dictionary
+    /// - Returns: A  dictionary representation of the string. Returns `nil` if the json serialization of the string fails.
+    private func convertStringToDictionary(jsonString: String) -> [String: Any]? {
+        if let data = jsonString.data(using: .utf8) {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String: Any]
                 return json
             } catch {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Unexpected error occured while converting string \(text) to dictionary: Error -  \(error).")
+                Log.debug(label: MessagingConstants.LOG_TAG, "Unexpected error occurred while converting string \(jsonString) to dictionary: Error -  \(error).")
                 return nil
             }
         }

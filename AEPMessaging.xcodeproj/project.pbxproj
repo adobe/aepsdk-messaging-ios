@@ -242,8 +242,8 @@
 				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
-				92315438261E3B36004AE7D3 /* Info.plist */,
 				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
+				92315438261E3B36004AE7D3 /* Info.plist */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -965,7 +965,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0.0-beta-1";
+				MARKETING_VERSION = "1.0.0-beta-2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1001,7 +1001,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0.0-beta-1";
+				MARKETING_VERSION = "1.0.0-beta-2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
