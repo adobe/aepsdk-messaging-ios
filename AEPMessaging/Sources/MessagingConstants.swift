@@ -113,7 +113,5 @@ enum MessagingConstants {
             static let ECID = "ECID"
             static let ID = "id"
         }
-
-        private init() {}
     }
 }
