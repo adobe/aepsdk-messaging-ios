@@ -15,6 +15,7 @@ import AEPServices
 import UserNotifications
 
 @objc public extension Messaging {
+
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
@@ -40,13 +41,13 @@ import UserNotifications
                                         MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened,
                                         MessagingConstants.EventDataKeys.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
         if customActionId == nil {
-            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_APPLICATION_OPENED
+            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataValue.PUSH_TRACKING_APPLICATION_OPENED
         } else {
-            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION
+            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataValue.PUSH_TRACKING_CUSTOM_ACTION
             eventData[MessagingConstants.EventDataKeys.ACTION_ID] = customActionId
         }
 
-        let event = Event(name: MessagingConstants.EventName.MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT,
+        let event = Event(name: MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION,
                           type: MessagingConstants.EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
