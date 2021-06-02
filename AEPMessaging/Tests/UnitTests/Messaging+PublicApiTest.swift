@@ -36,31 +36,31 @@ class MessagingPublicApiTest: XCTestCase {
 
     func testHandleNotificationResponse() {
         let expectation = XCTestExpectation(description: "Messaging request event")
-        let mockCustomActinoId = "mockCustomActionId"
+        let mockCustomActionId = "mockCustomActionId"
         let mockIdentifier = "mockIdentifier"
         expectation.assertForOverFulfill = true
 
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventType.messaging, source: EventSource.requestContent) { event in
-            XCTAssertEqual(MessagingConstants.EventName.MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT, event.name)
+            XCTAssertEqual(MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION, event.name)
             XCTAssertEqual(MessagingConstants.EventType.messaging, event.type)
             XCTAssertEqual(EventSource.requestContent, event.source)
 
             guard let eventData = event.data,
-                  let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool,
-                  let eventDataType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String,
-                  let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String,
-                  let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String,
-                  let xdm = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any]
-            else {
-                XCTFail()
-                expectation.fulfill()
-                return
+                let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool,
+                let eventDataType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String,
+                let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String,
+                let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String,
+                let xdm = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any]
+                else {
+                    XCTFail()
+                    expectation.fulfill()
+                    return
             }
 
             XCTAssertTrue(applicationOpened)
-            XCTAssertEqual(MessagingConstants.EventDataKeys.EVENT_TYPE_PUSH_TRACKING_CUSTOM_ACTION, eventDataType)
-            XCTAssertEqual(actionId, mockCustomActinoId)
+            XCTAssertEqual(MessagingConstants.EventDataValue.PUSH_TRACKING_CUSTOM_ACTION, eventDataType)
+            XCTAssertEqual(actionId, mockCustomActionId)
             XCTAssertEqual(messageId, mockIdentifier)
             XCTAssertNotNil(xdm)
             XCTAssertEqual(xdm.count, 1)
@@ -79,7 +79,42 @@ class MessagingPublicApiTest: XCTestCase {
             XCTFail()
             return
         }
-        Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActinoId)
+        Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActionId)
+        wait(for: [expectation], timeout: 1)
+    }
+
+    func testHandleNotificationResponse_whenApplicationOpenedFalse_AndNilCustomActionID() {
+        let expectation = XCTestExpectation(description: "Messaging request event")
+        expectation.assertForOverFulfill = true
+
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventType.messaging, source: EventSource.requestContent) { event in
+            XCTAssertEqual(MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION, event.name)
+            XCTAssertEqual(MessagingConstants.EventType.messaging, event.type)
+            XCTAssertEqual(EventSource.requestContent, event.source)
+
+            guard let eventData = event.data else {
+                XCTFail()
+                expectation.fulfill()
+                return
+            }
+
+            XCTAssertFalse(eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool ?? true)
+            XCTAssertNil(eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String)
+            expectation.fulfill()
+        }
+
+        let dateInfo = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: Date())
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateInfo, repeats: false)
+        let notificationContent = UNMutableNotificationContent()
+        notificationContent.userInfo = self.notificationContent
+
+        let request = UNNotificationRequest(identifier: "mockIdentifier", content: notificationContent, trigger: trigger)
+        guard let response = UNNotificationResponse(coder: MockNotificationResponseCoder(with: request)) else {
+            XCTFail()
+            return
+        }
+        Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: nil)
         wait(for: [expectation], timeout: 1)
     }
 }

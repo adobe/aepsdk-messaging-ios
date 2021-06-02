@@ -115,8 +115,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.body = "This is example how to create "
 
         content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
-                                                                ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
-                                                                                      "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
+            ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
+                                  "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
         let identifier = "Local Notification"
@@ -136,8 +136,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.body = "This is example how to create "
         content.categoryIdentifier = "MEETING_INVITATION"
         content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
-                                                                ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
-                                                                                      "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
+            ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
+                                  "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
         let identifier = "Local Notification"
