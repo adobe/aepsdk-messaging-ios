@@ -71,13 +71,6 @@ class ViewController: UIViewController {
     
     @IBAction func scheduleNotificationWithCustomAction(_ sender: Any) {
         self.appDelegate?.scheduleNotificationWithCustomAction()
-
-    @IBAction func scheduleNotification(_: Any) {
-        appDelegate?.scheduleNotification()
-    }
-
-    @IBAction func scheduleNotificationWithCustomAction(_: Any) {
-        appDelegate?.scheduleNotificationWithCustomAction()
     }
     
     @IBAction func refreshMessages(_ sender: Any) {

@@ -19,7 +19,7 @@ class JSONRulesParser {
     
     /// Parses the json rules to objects
     /// - Parameter data: data of json rules
-    /// - Returns: an array of `LaunchRule`
+    /// - Returns: an array of `MessagingRule`
     static func parse(_ string: String) -> [MessagingRule]? {
         let jsonDecoder = JSONDecoder()
         do {

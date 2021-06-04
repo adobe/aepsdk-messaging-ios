@@ -68,7 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         AEPAssurance.registerExtension()
         ACPCore.start {
-            AEPAssurance.startSession(URL(string: "messagingdemo://?adb_validation_sessionid=047eb65e-efa8-48b0-bd7f-b6a338fda6d6")!)
+//            AEPAssurance.startSession(URL(string: "messagingdemo://?adb_validation_sessionid=047eb65e-efa8-48b0-bd7f-b6a338fda6d6")!)
         }
 
         let center = UNUserNotificationCenter.current()
