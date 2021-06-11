@@ -3,7 +3,7 @@
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software distributed under
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
@@ -28,7 +28,7 @@ class TokenFinderTests: XCTestCase {
         XCTAssertEqual("eventType", type)
         XCTAssertEqual("eventSource", source)
     }
-    
+
     func testGetTokenValue_sdk_version() {
         /// Given: initialize `TokenFinder` with mocked extension runtime & dummy event
         let runtime = TestableExtensionRuntime()
@@ -41,7 +41,7 @@ class TokenFinderTests: XCTestCase {
         /// Then:  return `String` value & same as `MobileCore.extensionVersion`
         XCTAssertEqual(MobileCore.extensionVersion, version)
     }
-    
+
     func testGetTokenValue_cachebust() {
         /// Given: initialize `TokenFinder` with mocked extension runtime & dummy event
         let runtime = TestableExtensionRuntime()
@@ -54,7 +54,7 @@ class TokenFinderTests: XCTestCase {
         /// Then:  return `Int` value less then  100000000
         XCTAssertTrue(randomInt < 100_000_000)
     }
-    
+
     func testGetTokenValue_url() {
         /// Given: initialize `TokenFinder` with mocked extension runtime & dummy event which should contain non-nil event data and it's data value should contain `String` and `Double`
         let runtime = TestableExtensionRuntime()
@@ -67,7 +67,7 @@ class TokenFinderTests: XCTestCase {
         /// Then
         XCTAssertTrue(urlQueryString == "key1=value1&key2.key22=22.0" || urlQueryString == "key2.key22=22.0&key1=value1")
     }
-    
+
     func testGetTokenValue_url_empty_kvp() {
         /// Given: initialize `TokenFinder` with mocked extension runtime & dummy event whose event data property is `nil`
         let runtime = TestableExtensionRuntime()
@@ -80,7 +80,7 @@ class TokenFinderTests: XCTestCase {
         /// Then: return empty `String`
         XCTAssertEqual("", urlQueryString)
     }
-    
+
     func testGetTokenValue_json() {
         /// Given: initialize `TokenFinder` with mocked extension runtime & dummy event which should contain non-nil event data and it's data value should contain `String` and `Double`
         let runtime = TestableExtensionRuntime()
@@ -93,7 +93,7 @@ class TokenFinderTests: XCTestCase {
         /// Then
         XCTAssertEqual(json, #"{"key1":"value1","key2":{"key22":22}}"#)
     }
-    
+
     func testGetTokenValue_json_empty_kvp() {
         /// Given: initialize `TokenFinder` with mocked extension runtime & dummy event whose event data property is `nil`
         let runtime = TestableExtensionRuntime()
@@ -106,7 +106,7 @@ class TokenFinderTests: XCTestCase {
         /// Then: return empty `String`
         XCTAssertEqual(json, "")
     }
-    
+
     func testGetTokenValue_timestamp() {
         /// Given: initialize `TokenFinder` with mocked extension runtime & dummy event
         let runtime = TestableExtensionRuntime()
@@ -119,16 +119,20 @@ class TokenFinderTests: XCTestCase {
         formatter_ISO8601NoColon.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZ"
         
         /// When: retrieve token `~timestampz`, `~timestampp` & `~timestampu`
-        guard let date_ISO8601_string = tokenFinder.get(key: "~timestampp") as? String, let date_ISO8601 = formatter_ISO8601.date(from: date_ISO8601_string), let date_ISO8601NoColon_string = tokenFinder.get(key: "~timestampz") as? String, let date_ISO8601NoColon = formatter_ISO8601NoColon.date(from: date_ISO8601NoColon_string), let date_UNIX_Int64 = tokenFinder.get(key: "~timestampu") as? Int64 else {
+        guard let date_ISO8601_string = tokenFinder.get(key: "~timestampp") as? String,
+              let date_ISO8601 = formatter_ISO8601.date(from: date_ISO8601_string),
+              let date_ISO8601NoColon_string = tokenFinder.get(key: "~timestampz") as? String,
+              let date_ISO8601NoColon = formatter_ISO8601NoColon.date(from: date_ISO8601NoColon_string),
+              let date_UNIX_Int = tokenFinder.get(key: "~timestampu") as? Int else {
             XCTFail("Expected no-nil timestamp")
             return
         }
-        let date_UNIX = Date(timeIntervalSince1970: TimeInterval(date_UNIX_Int64))
+        let date_UNIX = Date(timeIntervalSince1970: TimeInterval(date_UNIX_Int))
         /// Then: return same timestamp with different format
         XCTAssertEqual(date_ISO8601, date_ISO8601NoColon)
         XCTAssertEqual(date_ISO8601, date_UNIX)
     }
-    
+
     func testGetTokenValue_shared_state() {
         /// Given: initialize `TokenFinder` with mocked  dummy event & extension runtime which contains a valid shared state
         let runtime = TestableExtensionRuntime()
@@ -142,7 +146,7 @@ class TokenFinderTests: XCTestCase {
         /// Then: return shared state value with right data `Type`
         XCTAssertEqual(10, days)
     }
-    
+
     func testGetTokenValue_shared_state_extension_name_not_exist() {
         /// Given: initialize `TokenFinder` with mocked  dummy event & extension runtime which don't have the right extension registered
         let runtime = TestableExtensionRuntime()
@@ -154,7 +158,7 @@ class TokenFinderTests: XCTestCase {
         }
         XCTFail("Expected nil return")
     }
-    
+
     func testGetTokenValue_shared_state_not_exist() {
         /// Given: initialize `TokenFinder` with mocked  dummy event & extension runtime which don't contain the right key
         let runtime = TestableExtensionRuntime()

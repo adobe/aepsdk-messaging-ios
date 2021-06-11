@@ -2,7 +2,7 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 /*
- Copyright 2020 Adobe. All rights reserved.
+ Copyright 2021 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -16,26 +16,26 @@
 import PackageDescription
 
 let package = Package(
- name: "AEPMessaging",
- platforms: [.iOS(.v10)],
- products: [
-  .library(name: "AEPMessaging", targets: ["AEPMessaging"]),
-  .library(name: "AEPMessagingStatic", type: .static, targets: ["AEPMessaging"]),
-  .library(name: "AEPMessagingDynamic", type: .dynamic, targets: ["AEPMessaging"]),
- ],
- dependencies: [
-  .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main")),
-  .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .branch("main")),
- ],
- targets: [
-  .target(name: "AEPMessaging",
-          dependencies: ["AEPCore", "AEPEdge"],
-          path: "Sources"),
-  .testTarget(name: "MessagingDemoApp",
-              dependencies: ["AEPMessaging", "AEPEdge", "AEPCore", "AEPIdentity", "AEPLifecycle", "AEPSignal"],
-              path: "SampleApps/MessagingDemoApp"),
-  .testTarget(name: "UnitTests",
-              dependencies: ["AEPMessaging"],
-              path: "Tests/UnitTests"),
- ]
+    name: "AEPMessaging",
+    platforms: [.iOS(.v10)],
+    products: [
+        .library(name: "AEPMessaging", targets: ["AEPMessaging"])
+    ],
+    dependencies: [
+        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main"))
+    ],
+    targets: [
+        .target(name: "AEPMessaging",
+                dependencies: ["AEPCore"],
+                path: "AEPMessaging/Sources"),
+        .testTarget(name: "MessagingDemoApp",
+                    dependencies: ["AEPMessaging"],
+                    path: "SampleApps/MessagingDemoApp"),
+        .testTarget(name: "UnitTests",
+                    dependencies: ["AEPMessaging", "AEPCore"],
+                    path: "AEPMessaging/Tests/UnitTests"),
+        .testTarget(name: "FunctionalTests",
+                    dependencies: ["AEPMessaging", "AEPCore"],
+                    path: "AEPMessaging/Tests/FunctionalTests")
+    ]
 )

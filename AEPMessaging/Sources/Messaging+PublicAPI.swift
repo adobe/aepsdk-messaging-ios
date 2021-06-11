@@ -1,5 +1,5 @@
 /*
- Copyright 2020 Adobe. All rights reserved.
+ Copyright 2021 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -15,6 +15,7 @@ import AEPServices
 import UserNotifications
 
 @objc public extension Messaging {
+
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
@@ -23,7 +24,7 @@ import UserNotifications
     @objc(handleNotificationResponse:applicationOpened:withCustomActionId:)
     static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
         let notificationRequest = response.notification.request
-       
+
         // Checking if the message has the optional xdm key
         let xdm = notificationRequest.content.userInfo[MessagingConstants.AdobeTrackingKeys._XDM] as? [String: Any]
         if xdm == nil {
@@ -41,27 +42,27 @@ import UserNotifications
                                         MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened,
                                         MessagingConstants.XDM.DataKeys.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
         if customActionId == nil {
-            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.XDM.EventTypes.PUSH_TRACKING_APPLICATION_OPENED
+            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataValue.PUSH_TRACKING_APPLICATION_OPENED
         } else {
-            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.XDM.EventTypes.PUSH_TRACKING_CUSTOM_ACTION
+            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataValue.PUSH_TRACKING_CUSTOM_ACTION
             eventData[MessagingConstants.EventDataKeys.ACTION_ID] = customActionId
         }
 
-        let event = Event(name: MessagingConstants.EventName.MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT,
-                          type: MessagingConstants.EventType.MESSAGING,
+        let event = Event(name: MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION,
+                          type: MessagingConstants.EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
         MobileCore.dispatch(event: event)
     }
-    
+
     /// Initiates a network call to retrieve remote In-App Message definitions.
     static func refreshInAppMessages() {
         let eventData: [String: Any] = [MessagingConstants.EventDataKeys.REFRESH_MESSAGES: true]
         let event = Event(name: MessagingConstants.EventName.REFRESH_MESSAGES,
-                          type: MessagingConstants.EventType.MESSAGING,
+                          type: MessagingConstants.EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
-        
+
         MobileCore.dispatch(event: event)
     }
 }

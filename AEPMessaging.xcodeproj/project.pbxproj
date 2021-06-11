@@ -21,35 +21,34 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		21E3460AF89FB17D2D3B19B4 /* Pods_AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF42725226DEA00A5DE31 /* Pods_AEPMessaging.framework */; };
-		243AC5FF2628EAEF006501EC /* AEPMessaging.h in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4A725227C4700A5DE31 /* AEPMessaging.h */; };
-		243AC6002628EAEF006501EC /* Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4692522786F00A5DE31 /* Messaging.swift */; };
-		243AC6012628EAEF006501EC /* MessagingConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF46A2522786F00A5DE31 /* MessagingConstants.swift */; };
-		243AC6262629EEB8006501EC /* TestableExtensionRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243AC6062629ED66006501EC /* TestableExtensionRuntime.swift */; };
-		243AC6272629EEB8006501EC /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243AC6072629ED66006501EC /* MockNetworkService.swift */; };
-		243AC6282629EEB8006501EC /* MockExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243AC6082629ED66006501EC /* MockExtension.swift */; };
-		243AC6292629EEB8006501EC /* Messaging+PublicApiTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243AC60F2629ED7D006501EC /* Messaging+PublicApiTest.swift */; };
-		243AC6692629F8E0006501EC /* AEPMessaging.h in Headers */ = {isa = PBXBuildFile; fileRef = 925DF4A725227C4700A5DE31 /* AEPMessaging.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		244E452B260D3EF600937D9A /* MessagingRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E452A260D3EF600937D9A /* MessagingRule.swift */; };
-		244E4533260D3F1400937D9A /* MessagingConsequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E4532260D3F1400937D9A /* MessagingConsequence.swift */; };
-		244E4549260E701A00937D9A /* TokenFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E4548260E701A00937D9A /* TokenFinder.swift */; };
-		24762D0D261CD81700A444E9 /* JSONRulesParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D0C261CD81700A444E9 /* JSONRulesParserTests.swift */; };
-		24762D15261CD82D00A444E9 /* MessagingConsequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D14261CD82D00A444E9 /* MessagingConsequenceTests.swift */; };
-		24762D1A261CD84000A444E9 /* MessagingRuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D19261CD84000A444E9 /* MessagingRuleTests.swift */; };
-		24762D1F261CD85500A444E9 /* MessagingRulesEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D1E261CD85500A444E9 /* MessagingRulesEngineTests.swift */; };
-		24762D24261CD86500A444E9 /* TokenFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D23261CD86500A444E9 /* TokenFinderTests.swift */; };
-		24762D29261CD88600A444E9 /* MessagingHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24762D28261CD88600A444E9 /* MessagingHandlerTests.swift */; };
-		24762D56261F72C200A444E9 /* rules_1.json in Resources */ = {isa = PBXBuildFile; fileRef = 24762D55261F72C200A444E9 /* rules_1.json */; };
-		2486A32826166B5200C9BFC6 /* JSONRulesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2486A32726166B5200C9BFC6 /* JSONRulesParser.swift */; };
-		2486A330261681CA00C9BFC6 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2486A32F261681CA00C9BFC6 /* WebKit.framework */; };
-		24ACCC2525F2F26C00697A1B /* Event+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCC2425F2F26C00697A1B /* Event+Messaging.swift */; };
-		24ACCCD4260272E300697A1B /* Event+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCCB22602650D00697A1B /* Event+MessagingTests.swift */; };
-		24ACCCEE2603F48500697A1B /* MessagingHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCCED2603F48500697A1B /* MessagingHandler.swift */; };
-		24ACCD0526040CA000697A1B /* MessagingRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24ACCD0426040CA000697A1B /* MessagingRulesEngine.swift */; };
-		65CEA3CBDFE2D1A8E88BAE27 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFBB632D4EA1ADCEEB8DA1B1 /* Pods_UnitTests.framework */; };
+		245059522671283F00CC7CA0 /* MessagingRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */; };
+		245059532671283F00CC7CA0 /* MessagingRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2450594E2671283F00CC7CA0 /* MessagingRule.swift */; };
+		245059542671283F00CC7CA0 /* MessagingConsequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2450594F2671283F00CC7CA0 /* MessagingConsequence.swift */; };
+		245059552671283F00CC7CA0 /* TokenFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245059502671283F00CC7CA0 /* TokenFinder.swift */; };
+		245059562671283F00CC7CA0 /* JSONRulesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245059512671283F00CC7CA0 /* JSONRulesParser.swift */; };
+		2450595C2671284B00CC7CA0 /* MessagingHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2450595B2671284A00CC7CA0 /* MessagingHandler.swift */; };
+		2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245059622673DBFD00CC7CA0 /* Event+MessagingTests.swift */; };
+		245059702673DBFE00CC7CA0 /* Messaging+PublicApiTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245059632673DBFD00CC7CA0 /* Messaging+PublicApiTest.swift */; };
+		245059712673DBFE00CC7CA0 /* MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245059642673DBFD00CC7CA0 /* MessagingTests.swift */; };
+		245059722673DBFE00CC7CA0 /* MessagingHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245059652673DBFE00CC7CA0 /* MessagingHandlerTests.swift */; };
+		245059732673DBFE00CC7CA0 /* MessagingRuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245059672673DBFE00CC7CA0 /* MessagingRuleTests.swift */; };
+		245059742673DBFE00CC7CA0 /* rules_1.json in Resources */ = {isa = PBXBuildFile; fileRef = 245059692673DBFE00CC7CA0 /* rules_1.json */; };
+		245059752673DBFE00CC7CA0 /* MessagingConsequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2450596A2673DBFE00CC7CA0 /* MessagingConsequenceTests.swift */; };
+		245059762673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2450596B2673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift */; };
+		245059772673DBFE00CC7CA0 /* JSONRulesParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2450596C2673DBFE00CC7CA0 /* JSONRulesParserTests.swift */; };
+		245059782673DBFE00CC7CA0 /* TokenFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2450596D2673DBFE00CC7CA0 /* TokenFinderTests.swift */; };
+		245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92315437261E3B36004AE7D3 /* MessagingConstants.swift */; };
+		2450599D2673FABF00CC7CA0 /* Messaging+PublicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */; };
+		245059A22673FAC200CC7CA0 /* Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92315436261E3B36004AE7D3 /* Messaging.swift */; };
+		245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923155762620FC53004AE7D3 /* Event+Messaging.swift */; };
+		2B2B7A6E0F7CD6312D28421A /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */; };
+		56B08B522365B6DC2B556B40 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */; };
+		9231545E261E3B6F004AE7D3 /* TestableExtensionRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543D261E3B36004AE7D3 /* TestableExtensionRuntime.swift */; };
+		92315465261E3B72004AE7D3 /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543E261E3B36004AE7D3 /* MockNetworkService.swift */; };
+		9231546C261E3B75004AE7D3 /* MockExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543F261E3B36004AE7D3 /* MockExtension.swift */; };
+		92315508261E444A004AE7D3 /* AEPMessaging.h in Headers */ = {isa = PBXBuildFile; fileRef = 92315435261E3B36004AE7D3 /* AEPMessaging.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9249A4E2252292AB009193AB /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		9249A4E3252292AB009193AB /* AEPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		928593FB2522823600B2BE47 /* Pods_MessagingDemoApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 928593FA2522823600B2BE47 /* Pods_MessagingDemoApp.framework */; };
 		92859411252287C600B2BE47 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4462522785700A5DE31 /* ViewController.swift */; };
 		92859412252287C600B2BE47 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF44C2522785700A5DE31 /* AppDelegate.swift */; };
 		92859413252287C600B2BE47 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4502522785700A5DE31 /* SceneDelegate.swift */; };
@@ -57,9 +56,23 @@
 		928594162522880900B2BE47 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF4482522785700A5DE31 /* LaunchScreen.storyboard */; };
 		9285941C2522899700B2BE47 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44A2522785700A5DE31 /* Main.storyboard */; };
 		9285941E25228A1500B2BE47 /* ADBMobileConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44E2522785700A5DE31 /* ADBMobileConfig.json */; };
-		928B7ADD255B1E54006C7244 /* Messaging+PublicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928B7ADC255B1E54006C7244 /* Messaging+PublicAPI.swift */; };
+		928639D126374463000AFA53 /* TestableNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639D026374463000AFA53 /* TestableNetworkService.swift */; };
+		928639D226374463000AFA53 /* TestableNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639D026374463000AFA53 /* TestableNetworkService.swift */; };
+		928639FC263757A7000AFA53 /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
+		92863A022637706F000AFA53 /* MessagingFunctionalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92863A012637706F000AFA53 /* MessagingFunctionalTests.swift */; };
 		9296BA862537BFC0002C88F7 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
-		9296BAAC2537C2F0002C88F7 /* MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9296BAA82537C2ED002C88F7 /* MessagingTests.swift */; };
+		92FC587B2636840C005BAE02 /* MessagingPublicAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC587A2636840C005BAE02 /* MessagingPublicAPITests.swift */; };
+		92FC587D2636840C005BAE02 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
+		92FC58C8263688F0005BAE02 /* EventHub+Testable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC58C7263688F0005BAE02 /* EventHub+Testable.swift */; };
+		92FC58C9263688F0005BAE02 /* EventHub+Testable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC58C7263688F0005BAE02 /* EventHub+Testable.swift */; };
+		92FC58CE263688FD005BAE02 /* TestableExtensionRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543D261E3B36004AE7D3 /* TestableExtensionRuntime.swift */; };
+		92FC58D326368900005BAE02 /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543E261E3B36004AE7D3 /* MockNetworkService.swift */; };
+		92FC58D826368901005BAE02 /* MockExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543F261E3B36004AE7D3 /* MockExtension.swift */; };
+		92FC594526372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */; };
+		92FC594626372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */; };
+		B3F98C855B004D1DE6BF2C47 /* Pods_AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9B29BC8FDB1668EB2D55D15 /* Pods_AEPMessaging.framework */; };
+		B45151C97D7CC04168690FB8 /* Pods_MessagingDemoApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F23BE01498B5A36EEE4CDC /* Pods_MessagingDemoApp.framework */; };
+		B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +97,13 @@
 			remoteGlobalIDString = 925DF4A425227C4700A5DE31;
 			remoteInfo = AEPMessaging;
 		};
+		92FC587E2636840C005BAE02 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 925DF4A425227C4700A5DE31;
+			remoteInfo = AEPMessaging;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -101,39 +121,44 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		243AC6062629ED66006501EC /* TestableExtensionRuntime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestableExtensionRuntime.swift; sourceTree = "<group>"; };
-		243AC6072629ED66006501EC /* MockNetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockNetworkService.swift; sourceTree = "<group>"; };
-		243AC6082629ED66006501EC /* MockExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockExtension.swift; sourceTree = "<group>"; };
-		243AC60F2629ED7D006501EC /* Messaging+PublicApiTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Messaging+PublicApiTest.swift"; sourceTree = "<group>"; };
-		244E452A260D3EF600937D9A /* MessagingRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRule.swift; sourceTree = "<group>"; };
-		244E4532260D3F1400937D9A /* MessagingConsequence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingConsequence.swift; sourceTree = "<group>"; };
-		244E4548260E701A00937D9A /* TokenFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFinder.swift; sourceTree = "<group>"; };
-		24762D0C261CD81700A444E9 /* JSONRulesParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRulesParserTests.swift; sourceTree = "<group>"; };
-		24762D14261CD82D00A444E9 /* MessagingConsequenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingConsequenceTests.swift; sourceTree = "<group>"; };
-		24762D19261CD84000A444E9 /* MessagingRuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRuleTests.swift; sourceTree = "<group>"; };
-		24762D1E261CD85500A444E9 /* MessagingRulesEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngineTests.swift; sourceTree = "<group>"; };
-		24762D23261CD86500A444E9 /* TokenFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFinderTests.swift; sourceTree = "<group>"; };
-		24762D28261CD88600A444E9 /* MessagingHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingHandlerTests.swift; sourceTree = "<group>"; };
-		24762D55261F72C200A444E9 /* rules_1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = rules_1.json; sourceTree = "<group>"; };
-		2486A32726166B5200C9BFC6 /* JSONRulesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRulesParser.swift; sourceTree = "<group>"; };
-		2486A32F261681CA00C9BFC6 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		24ACCC2425F2F26C00697A1B /* Event+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Event+Messaging.swift"; sourceTree = "<group>"; };
-		24ACCCB22602650D00697A1B /* Event+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Event+MessagingTests.swift"; sourceTree = "<group>"; };
-		24ACCCCF2602729C00697A1B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		24ACCCED2603F48500697A1B /* MessagingHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingHandler.swift; sourceTree = "<group>"; };
-		24ACCD0426040CA000697A1B /* MessagingRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngine.swift; sourceTree = "<group>"; };
-		4452870CD3AE30802C0B5A32 /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
-		45CBF297E444E34785CA2D8D /* Pods_MessagingDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		890A05580524FBFB890DDA24 /* Pods-MessagingDemoApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.release.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.release.xcconfig"; sourceTree = "<group>"; };
-		89EDABC723FED1C7AD87F91D /* Pods_AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
+		2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngine.swift; sourceTree = "<group>"; };
+		2450594E2671283F00CC7CA0 /* MessagingRule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingRule.swift; sourceTree = "<group>"; };
+		2450594F2671283F00CC7CA0 /* MessagingConsequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingConsequence.swift; sourceTree = "<group>"; };
+		245059502671283F00CC7CA0 /* TokenFinder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenFinder.swift; sourceTree = "<group>"; };
+		245059512671283F00CC7CA0 /* JSONRulesParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONRulesParser.swift; sourceTree = "<group>"; };
+		2450595B2671284A00CC7CA0 /* MessagingHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingHandler.swift; sourceTree = "<group>"; };
+		245059612673DBFD00CC7CA0 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		245059622673DBFD00CC7CA0 /* Event+MessagingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Event+MessagingTests.swift"; sourceTree = "<group>"; };
+		245059632673DBFD00CC7CA0 /* Messaging+PublicApiTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Messaging+PublicApiTest.swift"; sourceTree = "<group>"; };
+		245059642673DBFD00CC7CA0 /* MessagingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingTests.swift; sourceTree = "<group>"; };
+		245059652673DBFE00CC7CA0 /* MessagingHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingHandlerTests.swift; sourceTree = "<group>"; };
+		245059672673DBFE00CC7CA0 /* MessagingRuleTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingRuleTests.swift; sourceTree = "<group>"; };
+		245059692673DBFE00CC7CA0 /* rules_1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = rules_1.json; sourceTree = "<group>"; };
+		2450596A2673DBFE00CC7CA0 /* MessagingConsequenceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingConsequenceTests.swift; sourceTree = "<group>"; };
+		2450596B2673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngineTests.swift; sourceTree = "<group>"; };
+		2450596C2673DBFE00CC7CA0 /* JSONRulesParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONRulesParserTests.swift; sourceTree = "<group>"; };
+		2450596D2673DBFE00CC7CA0 /* TokenFinderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenFinderTests.swift; sourceTree = "<group>"; };
+		38F4A4735D3FB26229C244BC /* Pods-MessagingDemoApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.release.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.release.xcconfig"; sourceTree = "<group>"; };
+		3908C9B2C6C8F309DF735FAF /* Pods-MessagingDemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.debug.xcconfig"; sourceTree = "<group>"; };
+		4A6935385186A1A96989B8F0 /* Pods-FunctionalTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTests.release.xcconfig"; path = "Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests.release.xcconfig"; sourceTree = "<group>"; };
+		53FA287A1BFC0714D83A6419 /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
+		69F23BE01498B5A36EEE4CDC /* Pods_MessagingDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		92085982251BEB7100B9C65A /* MessagingDemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Messaging+PublicAPI.swift"; sourceTree = "<group>"; };
 		92315435261E3B36004AE7D3 /* AEPMessaging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AEPMessaging.h; sourceTree = "<group>"; };
+		92315436261E3B36004AE7D3 /* Messaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Messaging.swift; sourceTree = "<group>"; };
+		92315437261E3B36004AE7D3 /* MessagingConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingConstants.swift; sourceTree = "<group>"; };
+		92315438261E3B36004AE7D3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9231543D261E3B36004AE7D3 /* TestableExtensionRuntime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestableExtensionRuntime.swift; sourceTree = "<group>"; };
+		9231543E261E3B36004AE7D3 /* MockNetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockNetworkService.swift; sourceTree = "<group>"; };
+		9231543F261E3B36004AE7D3 /* MockExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockExtension.swift; sourceTree = "<group>"; };
+		923155762620FC53004AE7D3 /* Event+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Event+Messaging.swift"; sourceTree = "<group>"; };
 		9249A4E8252294AD009193AB /* AEPCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9249A4EA252294AD009193AB /* AEPIdentity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPIdentity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9249A4EC252294AD009193AB /* AEPLifecycle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPLifecycle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9249A4EE252294AD009193AB /* AEPRulesEngine.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPRulesEngine.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9249A4F0252294AD009193AB /* AEPServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPServices.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		925DF42725226DEA00A5DE31 /* Pods_AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		925DF4462522785700A5DE31 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		925DF4472522785700A5DE31 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		925DF4492522785700A5DE31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -142,20 +167,23 @@
 		925DF44E2522785700A5DE31 /* ADBMobileConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ADBMobileConfig.json; sourceTree = "<group>"; };
 		925DF44F2522785700A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		925DF4502522785700A5DE31 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		925DF4692522786F00A5DE31 /* Messaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Messaging.swift; sourceTree = "<group>"; };
-		925DF46A2522786F00A5DE31 /* MessagingConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingConstants.swift; sourceTree = "<group>"; };
 		925DF4A525227C4700A5DE31 /* AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		925DF4A725227C4700A5DE31 /* AEPMessaging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AEPMessaging.h; sourceTree = "<group>"; };
-		928593FA2522823600B2BE47 /* Pods_MessagingDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_MessagingDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		928B7ADC255B1E54006C7244 /* Messaging+PublicAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+PublicAPI.swift"; sourceTree = "<group>"; };
+		928639D026374463000AFA53 /* TestableNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableNetworkService.swift; sourceTree = "<group>"; };
+		928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+Flatten.swift"; sourceTree = "<group>"; };
+		92863A012637706F000AFA53 /* MessagingFunctionalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingFunctionalTests.swift; sourceTree = "<group>"; };
 		9296BA812537BFC0002C88F7 /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		9296BAA82537C2ED002C88F7 /* MessagingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingTests.swift; sourceTree = "<group>"; };
 		92BCEC9C2538FC0E0068F8B8 /* AEPEdge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPEdge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		AF1B1A2A7D5EA1FDB1E5A7C7 /* Pods-AEPMessaging.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AEPMessaging.release.xcconfig"; path = "Target Support Files/Pods-AEPMessaging/Pods-AEPMessaging.release.xcconfig"; sourceTree = "<group>"; };
-		B721FA0E2ACF4397F173D467 /* Pods-AEPMessaging.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AEPMessaging.debug.xcconfig"; path = "Target Support Files/Pods-AEPMessaging/Pods-AEPMessaging.debug.xcconfig"; sourceTree = "<group>"; };
-		BFBB632D4EA1ADCEEB8DA1B1 /* Pods_UnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D3D5F0934ED8AE8BFD0BA121 /* Pods-MessagingDemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.debug.xcconfig"; sourceTree = "<group>"; };
-		EEC67AC355C5A467BBDE528A /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
+		92FC58782636840C005BAE02 /* FunctionalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FunctionalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		92FC587A2636840C005BAE02 /* MessagingPublicAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingPublicAPITests.swift; sourceTree = "<group>"; };
+		92FC587C2636840C005BAE02 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		92FC58C7263688F0005BAE02 /* EventHub+Testable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EventHub+Testable.swift"; sourceTree = "<group>"; };
+		92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNotificationResponseCoder.swift; sourceTree = "<group>"; };
+		96B1543895E5AB667A105654 /* Pods-AEPMessaging.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AEPMessaging.release.xcconfig"; path = "Target Support Files/Pods-AEPMessaging/Pods-AEPMessaging.release.xcconfig"; sourceTree = "<group>"; };
+		C003D7513651C8FD2BC84411 /* Pods-AEPMessaging.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AEPMessaging.debug.xcconfig"; path = "Target Support Files/Pods-AEPMessaging/Pods-AEPMessaging.debug.xcconfig"; sourceTree = "<group>"; };
+		D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FunctionalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9B29BC8FDB1668EB2D55D15 /* Pods_AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE70278DC8550367F00F9609 /* Pods-FunctionalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTests.debug.xcconfig"; path = "Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,8 +192,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9249A4E2252292AB009193AB /* AEPMessaging.framework in Frameworks */,
-				928593FB2522823600B2BE47 /* Pods_MessagingDemoApp.framework in Frameworks */,
-				2486A330261681CA00C9BFC6 /* WebKit.framework in Frameworks */,
+				B45151C97D7CC04168690FB8 /* Pods_MessagingDemoApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,7 +200,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				21E3460AF89FB17D2D3B19B4 /* Pods_AEPMessaging.framework in Frameworks */,
+				B3F98C855B004D1DE6BF2C47 /* Pods_AEPMessaging.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,60 +209,51 @@
 			buildActionMask = 2147483647;
 			files = (
 				9296BA862537BFC0002C88F7 /* AEPMessaging.framework in Frameworks */,
-				65CEA3CBDFE2D1A8E88BAE27 /* Pods_UnitTests.framework in Frameworks */,
+				56B08B522365B6DC2B556B40 /* Pods_UnitTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92FC58752636840C005BAE02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92FC587D2636840C005BAE02 /* AEPMessaging.framework in Frameworks */,
+				2B2B7A6E0F7CD6312D28421A /* Pods_FunctionalTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		243AC5FB2628E605006501EC /* Recovered References */ = {
+		2450594C2671283F00CC7CA0 /* rules */ = {
 			isa = PBXGroup;
 			children = (
-				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
-		243AC6052629ED66006501EC /* utils */ = {
-			isa = PBXGroup;
-			children = (
-				243AC6062629ED66006501EC /* TestableExtensionRuntime.swift */,
-				243AC6072629ED66006501EC /* MockNetworkService.swift */,
-				243AC6082629ED66006501EC /* MockExtension.swift */,
-			);
-			path = utils;
-			sourceTree = "<group>";
-		};
-		244E4529260D3ED300937D9A /* rules */ = {
-			isa = PBXGroup;
-			children = (
-				2486A32726166B5200C9BFC6 /* JSONRulesParser.swift */,
-				244E4532260D3F1400937D9A /* MessagingConsequence.swift */,
-				244E452A260D3EF600937D9A /* MessagingRule.swift */,
-				24ACCD0426040CA000697A1B /* MessagingRulesEngine.swift */,
-				244E4548260E701A00937D9A /* TokenFinder.swift */,
+				2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */,
+				2450594E2671283F00CC7CA0 /* MessagingRule.swift */,
+				2450594F2671283F00CC7CA0 /* MessagingConsequence.swift */,
+				245059502671283F00CC7CA0 /* TokenFinder.swift */,
+				245059512671283F00CC7CA0 /* JSONRulesParser.swift */,
 			);
 			path = rules;
 			sourceTree = "<group>";
 		};
-		24762D0B261CD7F600A444E9 /* rules */ = {
+		245059662673DBFE00CC7CA0 /* rules */ = {
 			isa = PBXGroup;
 			children = (
-				24762D51261F595300A444E9 /* resources */,
-				24762D0C261CD81700A444E9 /* JSONRulesParserTests.swift */,
-				24762D14261CD82D00A444E9 /* MessagingConsequenceTests.swift */,
-				24762D19261CD84000A444E9 /* MessagingRuleTests.swift */,
-				24762D1E261CD85500A444E9 /* MessagingRulesEngineTests.swift */,
-				24762D23261CD86500A444E9 /* TokenFinderTests.swift */,
+				245059672673DBFE00CC7CA0 /* MessagingRuleTests.swift */,
+				245059682673DBFE00CC7CA0 /* resources */,
+				2450596A2673DBFE00CC7CA0 /* MessagingConsequenceTests.swift */,
+				2450596B2673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift */,
+				2450596C2673DBFE00CC7CA0 /* JSONRulesParserTests.swift */,
+				2450596D2673DBFE00CC7CA0 /* TokenFinderTests.swift */,
 			);
 			path = rules;
 			sourceTree = "<group>";
 		};
-		24762D51261F595300A444E9 /* resources */ = {
+		245059682673DBFE00CC7CA0 /* resources */ = {
 			isa = PBXGroup;
 			children = (
-				24762D55261F72C200A444E9 /* rules_1.json */,
+				245059692673DBFE00CC7CA0 /* rules_1.json */,
 			);
 			path = resources;
 			sourceTree = "<group>";
@@ -243,12 +261,14 @@
 		2A4D31945863BC9FEBE21FE1 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				D3D5F0934ED8AE8BFD0BA121 /* Pods-MessagingDemoApp.debug.xcconfig */,
-				890A05580524FBFB890DDA24 /* Pods-MessagingDemoApp.release.xcconfig */,
-				B721FA0E2ACF4397F173D467 /* Pods-AEPMessaging.debug.xcconfig */,
-				AF1B1A2A7D5EA1FDB1E5A7C7 /* Pods-AEPMessaging.release.xcconfig */,
-				4452870CD3AE30802C0B5A32 /* Pods-UnitTests.debug.xcconfig */,
-				EEC67AC355C5A467BBDE528A /* Pods-UnitTests.release.xcconfig */,
+				C003D7513651C8FD2BC84411 /* Pods-AEPMessaging.debug.xcconfig */,
+				96B1543895E5AB667A105654 /* Pods-AEPMessaging.release.xcconfig */,
+				EE70278DC8550367F00F9609 /* Pods-FunctionalTests.debug.xcconfig */,
+				4A6935385186A1A96989B8F0 /* Pods-FunctionalTests.release.xcconfig */,
+				3908C9B2C6C8F309DF735FAF /* Pods-MessagingDemoApp.debug.xcconfig */,
+				38F4A4735D3FB26229C244BC /* Pods-MessagingDemoApp.release.xcconfig */,
+				53FA287A1BFC0714D83A6419 /* Pods-UnitTests.debug.xcconfig */,
+				093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -261,7 +281,6 @@
 				922FFCF0251B2BBA00BCE010 /* Products */,
 				92BD7B0B251C0B7700C758CB /* Frameworks */,
 				2A4D31945863BC9FEBE21FE1 /* Pods */,
-				243AC5FB2628E605006501EC /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -271,8 +290,61 @@
 				92085982251BEB7100B9C65A /* MessagingDemoApp.app */,
 				925DF4A525227C4700A5DE31 /* AEPMessaging.framework */,
 				9296BA812537BFC0002C88F7 /* UnitTests.xctest */,
+				92FC58782636840C005BAE02 /* FunctionalTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		92315433261E3B36004AE7D3 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				2450594C2671283F00CC7CA0 /* rules */,
+				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
+				92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */,
+				92315436261E3B36004AE7D3 /* Messaging.swift */,
+				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
+				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
+				2450595B2671284A00CC7CA0 /* MessagingHandler.swift */,
+				92315438261E3B36004AE7D3 /* Info.plist */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		92315439261E3B36004AE7D3 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				92FC5865263681F5005BAE02 /* FunctionalTests */,
+				9231543C261E3B36004AE7D3 /* TestHelpers */,
+				9231543A261E3B36004AE7D3 /* UnitTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		9231543A261E3B36004AE7D3 /* UnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				245059662673DBFE00CC7CA0 /* rules */,
+				245059622673DBFD00CC7CA0 /* Event+MessagingTests.swift */,
+				245059612673DBFD00CC7CA0 /* Info.plist */,
+				245059632673DBFD00CC7CA0 /* Messaging+PublicApiTest.swift */,
+				245059652673DBFE00CC7CA0 /* MessagingHandlerTests.swift */,
+				245059642673DBFD00CC7CA0 /* MessagingTests.swift */,
+			);
+			path = UnitTests;
+			sourceTree = "<group>";
+		};
+		9231543C261E3B36004AE7D3 /* TestHelpers */ = {
+			isa = PBXGroup;
+			children = (
+				9231543D261E3B36004AE7D3 /* TestableExtensionRuntime.swift */,
+				9231543E261E3B36004AE7D3 /* MockNetworkService.swift */,
+				9231543F261E3B36004AE7D3 /* MockExtension.swift */,
+				92FC58C7263688F0005BAE02 /* EventHub+Testable.swift */,
+				92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */,
+				928639D026374463000AFA53 /* TestableNetworkService.swift */,
+				928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */,
+			);
+			path = TestHelpers;
 			sourceTree = "<group>";
 		};
 		925DF4452522785700A5DE31 /* MessagingDemoApp */ = {
@@ -299,38 +371,11 @@
 			path = Assets;
 			sourceTree = "<group>";
 		};
-		925DF4562522786500A5DE31 /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				24762D0B261CD7F600A444E9 /* rules */,
-				243AC6052629ED66006501EC /* utils */,
-				24ACCCB22602650D00697A1B /* Event+MessagingTests.swift */,
-				243AC60F2629ED7D006501EC /* Messaging+PublicApiTest.swift */,
-				24762D28261CD88600A444E9 /* MessagingHandlerTests.swift */,
-				9296BAA82537C2ED002C88F7 /* MessagingTests.swift */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
-		925DF45C2522786F00A5DE31 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				244E4529260D3ED300937D9A /* rules */,
-				925DF4A725227C4700A5DE31 /* AEPMessaging.h */,
-				24ACCC2425F2F26C00697A1B /* Event+Messaging.swift */,
-				925DF4692522786F00A5DE31 /* Messaging.swift */,
-				925DF46A2522786F00A5DE31 /* MessagingConstants.swift */,
-				928B7ADC255B1E54006C7244 /* Messaging+PublicAPI.swift */,
-				24ACCCED2603F48500697A1B /* MessagingHandler.swift */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
 		925DF4A625227C4700A5DE31 /* AEPMessaging */ = {
 			isa = PBXGroup;
 			children = (
-				925DF45C2522786F00A5DE31 /* Sources */,
-				925DF4562522786500A5DE31 /* Tests */,
+				92315433261E3B36004AE7D3 /* Sources */,
+				92315439261E3B36004AE7D3 /* Tests */,
 			);
 			path = AEPMessaging;
 			sourceTree = "<group>";
@@ -338,21 +383,28 @@
 		92BD7B0B251C0B7700C758CB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2486A32F261681CA00C9BFC6 /* WebKit.framework */,
-				24ACCCCF2602729C00697A1B /* XCTest.framework */,
 				92BCEC9C2538FC0E0068F8B8 /* AEPEdge.framework */,
 				9249A4E8252294AD009193AB /* AEPCore.framework */,
 				9249A4EA252294AD009193AB /* AEPIdentity.framework */,
 				9249A4EC252294AD009193AB /* AEPLifecycle.framework */,
 				9249A4EE252294AD009193AB /* AEPRulesEngine.framework */,
 				9249A4F0252294AD009193AB /* AEPServices.framework */,
-				928593FA2522823600B2BE47 /* Pods_MessagingDemoApp.framework */,
-				925DF42725226DEA00A5DE31 /* Pods_AEPMessaging.framework */,
-				45CBF297E444E34785CA2D8D /* Pods_MessagingDemoApp.framework */,
-				89EDABC723FED1C7AD87F91D /* Pods_AEPMessaging.framework */,
-				BFBB632D4EA1ADCEEB8DA1B1 /* Pods_UnitTests.framework */,
+				E9B29BC8FDB1668EB2D55D15 /* Pods_AEPMessaging.framework */,
+				DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */,
+				69F23BE01498B5A36EEE4CDC /* Pods_MessagingDemoApp.framework */,
+				D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		92FC5865263681F5005BAE02 /* FunctionalTests */ = {
+			isa = PBXGroup;
+			children = (
+				92FC587A2636840C005BAE02 /* MessagingPublicAPITests.swift */,
+				92FC587C2636840C005BAE02 /* Info.plist */,
+				92863A012637706F000AFA53 /* MessagingFunctionalTests.swift */,
+			);
+			path = FunctionalTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -362,7 +414,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				243AC6692629F8E0006501EC /* AEPMessaging.h in Headers */,
+				92315508261E444A004AE7D3 /* AEPMessaging.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,12 +425,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 92085993251BEB7300B9C65A /* Build configuration list for PBXNativeTarget "MessagingDemoApp" */;
 			buildPhases = (
-				DD0C69327A7E6D8D34B526C6 /* [CP] Check Pods Manifest.lock */,
+				B1773D3E2D3AA31B70FD592C /* [CP] Check Pods Manifest.lock */,
 				9208597E251BEB7100B9C65A /* Sources */,
 				9208597F251BEB7100B9C65A /* Frameworks */,
 				92085980251BEB7100B9C65A /* Resources */,
-				674B0E8D16C6989405072A5E /* [CP] Embed Pods Frameworks */,
 				9249A4E6252292AB009193AB /* Embed Frameworks */,
+				54E6212FD7E06CDD9046A1DE /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -394,19 +446,18 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 925DF4AE25227C4700A5DE31 /* Build configuration list for PBXNativeTarget "AEPMessaging" */;
 			buildPhases = (
-				AAAA7926FC33EC38F6912A6F /* [CP] Check Pods Manifest.lock */,
+				EF201E8BF35CAB5EE428896E /* [CP] Check Pods Manifest.lock */,
 				925DF4A025227C4700A5DE31 /* Headers */,
 				925DF4A125227C4700A5DE31 /* Sources */,
 				925DF4A225227C4700A5DE31 /* Frameworks */,
 				925DF4A325227C4700A5DE31 /* Resources */,
+				9249A5052522AEC9009193AB /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = AEPMessaging;
-			packageProductDependencies = (
-			);
 			productName = AEPMessaging;
 			productReference = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */;
 			productType = "com.apple.product-type.framework";
@@ -415,11 +466,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9296BA8B2537BFC0002C88F7 /* Build configuration list for PBXNativeTarget "UnitTests" */;
 			buildPhases = (
-				4655B414081F54E2ADC59267 /* [CP] Check Pods Manifest.lock */,
+				3D6989C5C5ECD9F5654C718A /* [CP] Check Pods Manifest.lock */,
 				9296BA7D2537BFC0002C88F7 /* Sources */,
 				9296BA7E2537BFC0002C88F7 /* Frameworks */,
 				9296BA7F2537BFC0002C88F7 /* Resources */,
-				4DA27FDB813C11316CCA28C9 /* [CP] Embed Pods Frameworks */,
+				9059FFC696746BAC213AD7C0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -431,14 +482,34 @@
 			productReference = 9296BA812537BFC0002C88F7 /* UnitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		92FC58772636840C005BAE02 /* FunctionalTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92FC58802636840C005BAE02 /* Build configuration list for PBXNativeTarget "FunctionalTests" */;
+			buildPhases = (
+				595140D2AEA56C89D9D65EF4 /* [CP] Check Pods Manifest.lock */,
+				92FC58742636840C005BAE02 /* Sources */,
+				92FC58752636840C005BAE02 /* Frameworks */,
+				92FC58762636840C005BAE02 /* Resources */,
+				955DAFCC5E54162FE94C86DA /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				92FC587F2636840C005BAE02 /* PBXTargetDependency */,
+			);
+			name = FunctionalTests;
+			productName = FunctionalTests;
+			productReference = 92FC58782636840C005BAE02 /* FunctionalTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		922FFCE7251B2BBA00BCE010 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1200;
-				LastUpgradeCheck = 1230;
+				LastSwiftUpdateCheck = 1240;
+				LastUpgradeCheck = 1200;
 				TargetAttributes = {
 					92085981251BEB7100B9C65A = {
 						CreatedOnToolsVersion = 12.0;
@@ -452,6 +523,9 @@
 					9296BA802537BFC0002C88F7 = {
 						CreatedOnToolsVersion = 12.0.1;
 					};
+					92FC58772636840C005BAE02 = {
+						CreatedOnToolsVersion = 12.4;
+					};
 				};
 			};
 			buildConfigurationList = 922FFCEA251B2BBA00BCE010 /* Build configuration list for PBXProject "AEPMessaging" */;
@@ -463,14 +537,13 @@
 				Base,
 			);
 			mainGroup = 922FFCE6251B2BBA00BCE010;
-			packageReferences = (
-			);
 			productRefGroup = 922FFCF0251B2BBA00BCE010 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				925DF4A425227C4700A5DE31 /* AEPMessaging */,
 				92085981251BEB7100B9C65A /* MessagingDemoApp */,
+				92FC58772636840C005BAE02 /* FunctionalTests */,
 				9296BA802537BFC0002C88F7 /* UnitTests */,
 				928D8364254225A700FD0E6D /* AEPMessagingXCF */,
 			);
@@ -500,14 +573,21 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				24762D56261F72C200A444E9 /* rules_1.json in Resources */,
+				245059742673DBFE00CC7CA0 /* rules_1.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92FC58762636840C005BAE02 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4655B414081F54E2ADC59267 /* [CP] Check Pods Manifest.lock */ = {
+		3D6989C5C5ECD9F5654C718A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -529,24 +609,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4DA27FDB813C11316CCA28C9 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		674B0E8D16C6989405072A5E /* [CP] Embed Pods Frameworks */ = {
+		54E6212FD7E06CDD9046A1DE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -563,7 +626,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		AAAA7926FC33EC38F6912A6F /* [CP] Check Pods Manifest.lock */ = {
+		595140D2AEA56C89D9D65EF4 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -578,14 +641,65 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-AEPMessaging-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-FunctionalTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DD0C69327A7E6D8D34B526C6 /* [CP] Check Pods Manifest.lock */ = {
+		9059FFC696746BAC213AD7C0 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9249A5052522AEC9009193AB /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which swiftlint >/dev/null; then\n    swiftlint lint --config ../../.swiftlint.yml AEPMessaging/Sources\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n\n";
+		};
+		955DAFCC5E54162FE94C86DA /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B1773D3E2D3AA31B70FD592C /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -601,6 +715,28 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-MessagingDemoApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EF201E8BF35CAB5EE428896E /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-AEPMessaging-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -624,17 +760,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				243AC5FF2628EAEF006501EC /* AEPMessaging.h in Sources */,
-				243AC6002628EAEF006501EC /* Messaging.swift in Sources */,
-				243AC6012628EAEF006501EC /* MessagingConstants.swift in Sources */,
-				24ACCD0526040CA000697A1B /* MessagingRulesEngine.swift in Sources */,
-				928B7ADD255B1E54006C7244 /* Messaging+PublicAPI.swift in Sources */,
-				244E452B260D3EF600937D9A /* MessagingRule.swift in Sources */,
-				244E4549260E701A00937D9A /* TokenFinder.swift in Sources */,
-				2486A32826166B5200C9BFC6 /* JSONRulesParser.swift in Sources */,
-				244E4533260D3F1400937D9A /* MessagingConsequence.swift in Sources */,
-				24ACCCEE2603F48500697A1B /* MessagingHandler.swift in Sources */,
-				24ACCC2525F2F26C00697A1B /* Event+Messaging.swift in Sources */,
+				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
+				245059542671283F00CC7CA0 /* MessagingConsequence.swift in Sources */,
+				2450595C2671284B00CC7CA0 /* MessagingHandler.swift in Sources */,
+				245059552671283F00CC7CA0 /* TokenFinder.swift in Sources */,
+				245059532671283F00CC7CA0 /* MessagingRule.swift in Sources */,
+				245059522671283F00CC7CA0 /* MessagingRulesEngine.swift in Sources */,
+				2450599D2673FABF00CC7CA0 /* Messaging+PublicAPI.swift in Sources */,
+				245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */,
+				245059562671283F00CC7CA0 /* JSONRulesParser.swift in Sources */,
+				245059A22673FAC200CC7CA0 /* Messaging.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -642,18 +777,38 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				243AC6262629EEB8006501EC /* TestableExtensionRuntime.swift in Sources */,
-				243AC6272629EEB8006501EC /* MockNetworkService.swift in Sources */,
-				243AC6282629EEB8006501EC /* MockExtension.swift in Sources */,
-				243AC6292629EEB8006501EC /* Messaging+PublicApiTest.swift in Sources */,
-				24762D15261CD82D00A444E9 /* MessagingConsequenceTests.swift in Sources */,
-				24762D29261CD88600A444E9 /* MessagingHandlerTests.swift in Sources */,
-				24762D1A261CD84000A444E9 /* MessagingRuleTests.swift in Sources */,
-				24762D1F261CD85500A444E9 /* MessagingRulesEngineTests.swift in Sources */,
-				9296BAAC2537C2F0002C88F7 /* MessagingTests.swift in Sources */,
-				24762D24261CD86500A444E9 /* TokenFinderTests.swift in Sources */,
-				24ACCCD4260272E300697A1B /* Event+MessagingTests.swift in Sources */,
-				24762D0D261CD81700A444E9 /* JSONRulesParserTests.swift in Sources */,
+				B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */,
+				92315465261E3B72004AE7D3 /* MockNetworkService.swift in Sources */,
+				92FC594626372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */,
+				245059772673DBFE00CC7CA0 /* JSONRulesParserTests.swift in Sources */,
+				9231545E261E3B6F004AE7D3 /* TestableExtensionRuntime.swift in Sources */,
+				245059702673DBFE00CC7CA0 /* Messaging+PublicApiTest.swift in Sources */,
+				245059752673DBFE00CC7CA0 /* MessagingConsequenceTests.swift in Sources */,
+				92FC58C9263688F0005BAE02 /* EventHub+Testable.swift in Sources */,
+				2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */,
+				245059722673DBFE00CC7CA0 /* MessagingHandlerTests.swift in Sources */,
+				245059712673DBFE00CC7CA0 /* MessagingTests.swift in Sources */,
+				245059732673DBFE00CC7CA0 /* MessagingRuleTests.swift in Sources */,
+				245059762673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift in Sources */,
+				245059782673DBFE00CC7CA0 /* TokenFinderTests.swift in Sources */,
+				928639D226374463000AFA53 /* TestableNetworkService.swift in Sources */,
+				9231546C261E3B75004AE7D3 /* MockExtension.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92FC58742636840C005BAE02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92FC58D326368900005BAE02 /* MockNetworkService.swift in Sources */,
+				92FC58CE263688FD005BAE02 /* TestableExtensionRuntime.swift in Sources */,
+				928639FC263757A7000AFA53 /* Dictionary+Flatten.swift in Sources */,
+				92FC58C8263688F0005BAE02 /* EventHub+Testable.swift in Sources */,
+				928639D126374463000AFA53 /* TestableNetworkService.swift in Sources */,
+				92FC594526372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */,
+				92FC587B2636840C005BAE02 /* MessagingPublicAPITests.swift in Sources */,
+				92863A022637706F000AFA53 /* MessagingFunctionalTests.swift in Sources */,
+				92FC58D826368901005BAE02 /* MockExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -674,6 +829,11 @@
 			isa = PBXTargetDependency;
 			target = 925DF4A425227C4700A5DE31 /* AEPMessaging */;
 			targetProxy = 9296BA872537BFC0002C88F7 /* PBXContainerItemProxy */;
+		};
+		92FC587F2636840C005BAE02 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 925DF4A425227C4700A5DE31 /* AEPMessaging */;
+			targetProxy = 92FC587E2636840C005BAE02 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -699,8 +859,9 @@
 /* Begin XCBuildConfiguration section */
 		92085994251BEB7300B9C65A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D3D5F0934ED8AE8BFD0BA121 /* Pods-MessagingDemoApp.debug.xcconfig */;
+			baseConfigurationReference = 3908C9B2C6C8F309DF735FAF /* Pods-MessagingDemoApp.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
 				CODE_SIGN_ENTITLEMENTS = MessagingDemoApp.entitlements;
@@ -722,8 +883,9 @@
 		};
 		92085995251BEB7300B9C65A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 890A05580524FBFB890DDA24 /* Pods-MessagingDemoApp.release.xcconfig */;
+			baseConfigurationReference = 38F4A4735D3FB26229C244BC /* Pods-MessagingDemoApp.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
 				CODE_SIGN_ENTITLEMENTS = MessagingDemoApp.entitlements;
@@ -861,13 +1023,15 @@
 		};
 		925DF4AF25227C4700A5DE31 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B721FA0E2ACF4397F173D467 /* Pods-AEPMessaging.debug.xcconfig */;
+			baseConfigurationReference = C003D7513651C8FD2BC84411 /* Pods-AEPMessaging.debug.xcconfig */;
 			buildSettings = {
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = FKGEE875K4;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -879,10 +1043,13 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0.0-alpha-2";
+				MARKETING_VERSION = "1.0.0-beta-2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -892,13 +1059,15 @@
 		};
 		925DF4B025227C4700A5DE31 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AF1B1A2A7D5EA1FDB1E5A7C7 /* Pods-AEPMessaging.release.xcconfig */;
+			baseConfigurationReference = 96B1543895E5AB667A105654 /* Pods-AEPMessaging.release.xcconfig */;
 			buildSettings = {
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = FKGEE875K4;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -910,10 +1079,13 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0.0-alpha-2";
+				MARKETING_VERSION = "1.0.0-beta-2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -943,8 +1115,9 @@
 		};
 		9296BA892537BFC0002C88F7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4452870CD3AE30802C0B5A32 /* Pods-UnitTests.debug.xcconfig */;
+			baseConfigurationReference = 53FA287A1BFC0714D83A6419 /* Pods-UnitTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FKGEE875K4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -961,7 +1134,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPServices/AEPServices.framework/Headers\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPEdge/AEPEdge.framework/Headers\"",
 				);
-				INFOPLIST_FILE = AEPMessaging/Tests/Info.plist;
+				INFOPLIST_FILE = AEPMessaging/Tests/UnitTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -987,8 +1160,9 @@
 		};
 		9296BA8A2537BFC0002C88F7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EEC67AC355C5A467BBDE528A /* Pods-UnitTests.release.xcconfig */;
+			baseConfigurationReference = 093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FKGEE875K4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1005,7 +1179,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPServices/AEPServices.framework/Headers\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPEdge/AEPEdge.framework/Headers\"",
 				);
-				INFOPLIST_FILE = AEPMessaging/Tests/Info.plist;
+				INFOPLIST_FILE = AEPMessaging/Tests/UnitTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1026,6 +1200,94 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		92FC58812636840C005BAE02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EE70278DC8550367F00F9609 /* Pods-FunctionalTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FKGEE875K4;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPCore\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPRulesEngine\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPServices\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPEdge\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPCore/AEPCore.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPRulesEngine/AEPRulesEngine.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPServices/AEPServices.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPEdge/AEPEdge.framework/Headers\"",
+				);
+				INFOPLIST_FILE = AEPMessaging/Tests/FunctionalTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"AEPCore\"",
+					"-framework",
+					"\"AEPRulesEngine\"",
+					"-framework",
+					"\"AEPServices\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.FunctionalTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		92FC58822636840C005BAE02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4A6935385186A1A96989B8F0 /* Pods-FunctionalTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FKGEE875K4;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPCore\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPRulesEngine\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPServices\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPEdge\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPCore/AEPCore.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPRulesEngine/AEPRulesEngine.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPServices/AEPServices.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AEPEdge/AEPEdge.framework/Headers\"",
+				);
+				INFOPLIST_FILE = AEPMessaging/Tests/FunctionalTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"AEPCore\"",
+					"-framework",
+					"\"AEPRulesEngine\"",
+					"-framework",
+					"\"AEPServices\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.FunctionalTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1073,6 +1335,15 @@
 			buildConfigurations = (
 				9296BA892537BFC0002C88F7 /* Debug */,
 				9296BA8A2537BFC0002C88F7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		92FC58802636840C005BAE02 /* Build configuration list for PBXNativeTarget "FunctionalTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92FC58812636840C005BAE02 /* Debug */,
+				92FC58822636840C005BAE02 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -10,14 +10,14 @@
  governing permissions and limitations under the License.
  */
 
+@testable import AEPCore
+import AEPServices
 import Foundation
 
-struct MessagingConsequence {
-    let id: String
-    let type: String
+class MockNetworkService: Networking {
+    var actualNetworkRequest: NetworkRequest?
 
-    var details: [String: Any?]
-    var eventData: [String: Any?]? {
-        return details["eventdata"] as? [String: Any?]
+    func connectAsync(networkRequest: NetworkRequest, completionHandler _: ((HttpConnection) -> Void)?) {
+        actualNetworkRequest = networkRequest
     }
 }

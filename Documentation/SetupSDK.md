@@ -6,7 +6,6 @@ import AEPMessaging
 import AEPCore
 import AEPEdge
 import AEPEdgeIdentity
-import AEPLifecycle
 ```
 
 #### Registering the extension
@@ -18,7 +17,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
  // Enable debug logging
  MobileCore.setLogLevel(level: .trace)
 
- MobileCore.registerExtensions([Messaging.self, Lifecycle.self, Identity.self, Signal.self, Edge.self], {
+ MobileCore.registerExtensions([Messaging.self, Identity.self, Edge.self], {
  // Use the App id assigned to this application via Adobe Launch
  MobileCore.configureWith(appId: "appId")
   

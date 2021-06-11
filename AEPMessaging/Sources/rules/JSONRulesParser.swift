@@ -3,20 +3,20 @@
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software distributed under
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
  */
 
+@_implementationOnly import AEPRulesEngine
 import AEPServices
 import Foundation
-@_implementationOnly import AEPRulesEngine
 
 class JSONRulesParser {
     fileprivate static let LOG_LABEL = "JSONRulesParser"
-    
+
     /// Parses the json rules to objects
     /// - Parameter data: data of json rules
     /// - Returns: an array of `MessagingRule`
@@ -27,7 +27,7 @@ class JSONRulesParser {
                 Log.error(label: JSONRulesParser.LOG_LABEL, "Unable to convert rules string to data: \(string)")
                 return nil
             }
-            
+
             let root = try jsonDecoder.decode(JSONRuleRoot.self, from: data)
             return root.convert()
         } catch {
@@ -41,7 +41,7 @@ class JSONRulesParser {
 struct JSONRuleRoot: Codable {
     var version: Int
     var rules: [JSONRule]
-    
+
     /// Converts itself to `LaunchRule` objects, which can be used in `AEPRulesEngine`
     /// - Returns: an array of `LaunchRule` objects
     func convert() -> [MessagingRule] {
@@ -85,7 +85,7 @@ class JSONCondition: Codable {
                                  "ew": "endsWith",
                                  "ex": "exists",
                                  "nx": "notExist"]
-    
+
     var type: ConditionType
     var definition: JSONDefinition
     func convert() -> Evaluable? {
@@ -122,7 +122,7 @@ class JSONCondition: Codable {
             return nil
         }
     }
-    
+
     func convert(key: String, matcher: String, anyCodable: AnyCodable) -> Evaluable? {
         guard let matcher = JSONCondition.matcherMapping[matcher] else {
             return nil
@@ -183,13 +183,13 @@ struct JSONConsequence: Codable {
         case type
         case detail
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try? container.decode(String.self, forKey: .id)
         type = try? container.decode(String.self, forKey: .type)
         detail = try? container.decode(AnyCodable.self, forKey: .detail)
-        
+
         if let detailDictionaryValue = detail?.dictionaryValue {
             detailDict = detailDictionaryValue
         } else {
