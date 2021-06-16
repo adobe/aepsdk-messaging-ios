@@ -15,7 +15,7 @@ import Foundation
 enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
-    static let EXTENSION_VERSION = "1.0.0-beta-2"
+    static let EXTENSION_VERSION = "1.0.0"
     static let FRIENDLY_NAME = "AEPMessaging"
 
     enum EventName {
@@ -53,7 +53,7 @@ enum MessagingConstants {
         static let LAUNCHES_VALUE = "value"
         static let MESSAGE_PROFILE_JSON = "{\n   \"messageProfile\":" +
             "{\n      \"channel\": {\n         \"_id\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
-        ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
+            ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
     }
 
     enum XDMDataKeys {
