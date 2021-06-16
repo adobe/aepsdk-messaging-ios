@@ -11,13 +11,21 @@
  */
 
 import Foundation
+import XCTest
 
-struct MessagingConsequence {
-    let id: String
-    let type: String
+import AEPCore
+@testable import AEPMessaging
+//@testable import AEPCoreMocks
+@testable @_implementationOnly import AEPRulesEngine
+import AEPServices
 
-    var details: [String: Any?]
-    var eventData: [String: Any?]? {
-        return details["eventdata"] as? [String: Any?]
+class MessagingRulesEngineTests: XCTestCase {
+    override func setUp() {
+        // Put setup code here. This method is called before the invocation of each test method in the class.
     }
+
+    override func tearDown() {
+        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    }
+
 }

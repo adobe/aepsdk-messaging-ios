@@ -56,7 +56,7 @@ public class Messaging: NSObject, Extension {
         // register wildcard listener for messaging rules engine
         registerListener(type: EventType.wildcard,
                          source: EventSource.wildcard,
-                         listener: rulesEngine.process(event:))
+                         listener: handleWildcardEvent)
 
         // register listener for rules consequences with in-app messages
         registerListener(type: EventType.rulesEngine,
@@ -92,6 +92,11 @@ public class Messaging: NSObject, Extension {
     }
 
     // MARK: - In-app Messaging methods
+    /// Called on every event, used to allow processing of the Messaging rules engine
+    private func handleWildcardEvent(_ event: Event) {
+        rulesEngine.process(event: event)
+    }
+    
     /// Generates and dispatches an event prompting the Personalization extension to fetch in-app messages.
     private func fetchMessages() {
         // create event to be handled by offers
@@ -176,6 +181,13 @@ public class Messaging: NSObject, Extension {
         // hard dependency on configuration shared state
         guard let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
+            return
+        }
+        
+        // handle an event for refreshing in-app messages from the remote
+        if event.isRefreshMessageEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing manual request to refresh In-App Message definitions from the remote.")
+            fetchMessages()
             return
         }
 

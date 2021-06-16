@@ -31,8 +31,8 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerInapp(_ sender: Any) {
-        //        MobileCore.track(state: "triggerInapp", data: ["testShowMessage":"true"])
-        MobileCore.track(state: "triggerInapp", data: ["testShowMessage3": "true"])
+        MobileCore.track(state: "triggerInapp", data: ["testShowMessage":"true"])
+        // MobileCore.track(state: "triggerInapp", data: ["testShowMessage3": "true"])
     }
 
     /// Messaging delegate

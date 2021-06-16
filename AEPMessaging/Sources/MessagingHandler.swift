@@ -16,24 +16,6 @@ import Foundation
 class MessagingHandler: FullscreenMessageDelegate {
 
     // =================================================================================================================
-    // MARK: - MessagingDelegate protocol methods
-    // =================================================================================================================
-    //    func onShow(message: Showable) {
-    //        // TODO: send event to Edge
-    //        Log.debug(label: MessagingConstants.LOG_TAG, #function)
-    //    }
-    //
-    //    func onDismiss(message: Showable) {
-    //        // TODO: send event to Edge
-    //        Log.debug(label: MessagingConstants.LOG_TAG, #function)
-    //    }
-    //
-    //    func shouldShowMessage(message: Showable) -> Bool {
-    //        Log.debug(label: MessagingConstants.LOG_TAG, #function)
-    //        return true
-    //    }
-
-    // =================================================================================================================
     // MARK: - FullscreenMessageDelegate protocol methods
     // =================================================================================================================
     func onShow(message: FullscreenMessage) {
@@ -47,10 +29,16 @@ class MessagingHandler: FullscreenMessageDelegate {
     func overrideUrlLoad(message: FullscreenMessage, url: String?) -> Bool {
         Log.debug(label: MessagingConstants.LOG_TAG, #function)
 
-        if url!.contains("adbinapp://cancel") {
+        guard let url = url else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load nil URL.")
+            return true
+        }
+        
+        if url.contains("adbinapp://cancel") {
             message.dismiss()
             return false
         }
+        
         return true
     }
 
