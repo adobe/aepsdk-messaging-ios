@@ -17,10 +17,10 @@ def core_main
     pod 'AEPCore'
     pod 'AEPServices'
     pod 'AEPLifecycle'
-    pod 'AEPIdentity'
     pod 'AEPRulesEngine'
     pod 'AEPSignal'
     pod 'AEPEdge'
+    pod 'AEPEdgeIdentity'
     pod 'AEPOfferDecisioning', :git => 'git@github.com:adobe/aepsdk-offer-ios.git', :branch => 'main'
 end
 
@@ -30,13 +30,13 @@ def griffon_main
 end
 
 def core_dev
-    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.1.2'
-    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.1.2'
-    pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.1.2'
-    pod 'AEPIdentity', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.1.2'
-    pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.1.2'
-    pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-v1.0.0'
+    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.2.1'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.2.1'
+    pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.2.1'
+    pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.2.1'
+    pod 'AEPRulesEngine'#, :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-v1.0.0'
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'main'
+    pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'main'
     pod 'AEPOfferDecisioning', :git => 'git@github.com:adobe/aepsdk-offer-ios.git', :branch => 'dev-v1.0.1'
 end
 
@@ -58,5 +58,9 @@ target 'MessagingDemoApp' do
 end
 
 target 'UnitTests' do
+    core_dev
+end
+
+target 'FunctionalTests' do
     core_dev
 end

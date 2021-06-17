@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "925DF4A425227C4700A5DE31"
-               BuildableName = "AEPMessaging.framework"
-               BlueprintName = "AEPMessaging"
+               BlueprintIdentifier = "928D8364254225A700FD0E6D"
+               BuildableName = "AEPMessagingXCF"
+               BlueprintName = "AEPMessagingXCF"
                ReferencedContainer = "container:AEPMessaging.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,26 +28,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9296BA802537BFC0002C88F7"
-               BuildableName = "UnitTests.xctest"
-               BlueprintName = "UnitTests"
-               ReferencedContainer = "container:AEPMessaging.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "92FC58772636840C005BAE02"
-               BuildableName = "FunctionalTests.xctest"
-               BlueprintName = "FunctionalTests"
-               ReferencedContainer = "container:AEPMessaging.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -70,9 +50,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "925DF4A425227C4700A5DE31"
-            BuildableName = "AEPMessaging.framework"
-            BlueprintName = "AEPMessaging"
+            BlueprintIdentifier = "928D8364254225A700FD0E6D"
+            BuildableName = "AEPMessagingXCF"
+            BlueprintName = "AEPMessagingXCF"
             ReferencedContainer = "container:AEPMessaging.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

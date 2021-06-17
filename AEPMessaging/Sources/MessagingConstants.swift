@@ -1,5 +1,5 @@
 /*
- Copyright 2020 Adobe. All rights reserved.
+ Copyright 2021 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -16,7 +16,7 @@ enum MessagingConstants {
 
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
-    static let EXTENSION_VERSION = "1.0.0-alpha-2"
+    static let EXTENSION_VERSION = "1.0.0-beta-2"
     static let FRIENDLY_NAME = EXTENSION_NAME
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
 
@@ -27,13 +27,14 @@ enum MessagingConstants {
         static let APPLICATION_OPENED = "applicationOpened"
         static let ACTION_ID = "actionId"
         static let REFRESH_MESSAGES = "refreshmessages"
-        
+        static let ADOBE_XDM = "adobe_xdm"
+
         static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
         static let ID = "id"
         static let DETAIL = "detail"
         static let TYPE = "type"
         static let SOURCE = "source"
-        
+
         enum InAppMessages {
             static let TEMPLATE = "template"
             static let HTML = "html"
@@ -50,7 +51,7 @@ enum MessagingConstants {
             static let CATEGORY = "category"
             static let SOUND = "sound"
         }
-        
+
         enum Offers {
             static let PROPOSITIONS = "propositions"
             static let DECISION_SCOPES = "decisionscopes"
@@ -77,32 +78,37 @@ enum MessagingConstants {
             static let CONTENT = "content"
         }
     }
-    
+
     enum EventName {
-        static let MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT = "Push notification interaction event"
-        static let MESSAGING_PUSH_TRACKING_EDGE_EVENT = "Push tracking edge event"
-        static let MESSAGING_PUSH_PROFILE_EDGE_EVENT = "Push notification profile edge event"
         static let OFFERS_REQUEST = "Offer Decisioning Request"
+        static let PUSH_NOTIFICATION_INTERACTION = "Push notification interaction event"
+        static let PUSH_PROFILE_EDGE = "Push notification profile edge event"
+        static let PUSH_TRACKING_EDGE = "Push tracking edge event"
         static let REFRESH_MESSAGES = "Refresh In-App Messages"
     }
-    
+
     enum EventSource {
         static let PERSONALIZATION_DECISIONS = "personalization:decisions"
     }
-    
+
     enum EventType {
-        static let MESSAGING = "com.adobe.eventType.messaging"
+        static let messaging = "com.adobe.eventType.messaging"
     }
-    
+
     enum InAppMessageTemplates {
         static let FULLSCREEN = "fullscreen"
         static let LOCAL = "local"
     }
-    
+
+    enum EventDataValue {
+        static let PUSH_TRACKING_APPLICATION_OPENED = "pushTracking.applicationOpened"
+        static let PUSH_TRACKING_CUSTOM_ACTION = "pushTracking.customAction"
+    }
+
     enum ConsequenceTypes {
         static let IN_APP_MESSAGE = "cjmiam"
     }
-    
+
     enum AdobeTrackingKeys {
         static let _XDM = "_xdm"
         static let CJM = "cjm"
@@ -112,7 +118,6 @@ enum MessagingConstants {
         static let APPLICATION = "application"
         static let LAUNCHES = "launches"
         static let LAUNCHES_VALUE = "value"
-
         static let MESSAGE_PROFILE_JSON = "{\n   \"messageProfile\":" +
             "{\n      \"channel\": {\n         \"_id\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
             ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
@@ -133,7 +138,7 @@ enum MessagingConstants {
             static let PUSH_NOTIFICATION_TRACKING = "pushNotificationTracking"
             static let DATA = "data"
         }
-        
+
         enum EventTypes {
             static let PUSH_TRACKING_APPLICATION_OPENED = "pushTracking.applicationOpened"
             static let PUSH_TRACKING_CUSTOM_ACTION = "pushTracking.customAction"
@@ -151,7 +156,7 @@ enum MessagingConstants {
         static let NAMESPACE = "namespace"
         static let CODE = "code"
         static let ID = "id"
-        
+
         enum JsonValues {
             static let ECID = "ECID"
             static let APNS = "apns"
@@ -162,18 +167,21 @@ enum MessagingConstants {
     enum SharedState {
         static let stateOwner = "stateowner"
 
+        enum Messaging {
+            static let PUSH_IDENTIFIER = "pushidentifier"
+        }
+
         enum Configuration {
             static let NAME = "com.adobe.module.configuration"
-            static let GLOBAL_PRIVACY = "global.privacy"
-            static let EXPERIENCE_CLOUD_ORG = "experienceCloud.org"
-            
+            static let EXPERIENCE_CLOUD_ORG = "experienceCloud.org"            
+
             // Messaging dataset ids
             static let EXPERIENCE_EVENT_DATASET = "messaging.eventDataset"
-            
+
             // config for whether to useSandbox or not
             static let USE_SANDBOX = "messaging.useSandbox"
         }
-        
+
         enum EdgeIdentity {
             static let NAME = "com.adobe.edge.identity"
             static let IDENTITY_MAP = "identityMap"

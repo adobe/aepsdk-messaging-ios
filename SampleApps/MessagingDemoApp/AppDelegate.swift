@@ -1,5 +1,5 @@
 //
-// Copyright 2020 Adobe. All rights reserved.
+// Copyright 2021 Adobe. All rights reserved.
 // This file is licensed to you under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy
 // of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -17,8 +17,8 @@ import AEPEdge
 import AEPEdgeIdentity
 import AEPLifecycle
 import AEPMessaging
-import AEPSignal
 import AEPOfferDecisioning
+import AEPSignal
 import UIKit
 import UserNotifications
 
@@ -40,35 +40,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         MobileCore.setLogLevel(.trace)
         
-        MobileCore.registerExtensions([Lifecycle.self, Identity.self, Messaging.self, Edge.self, Signal.self, OfferDecisioning.self])
+        MobileCore.registerExtensions([Lifecycle.self, Identity.self, Messaging.self, Edge.self, Signal.self, OfferDecisioning.self, AEPAssurance.self])
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
         // which has the edge configuration id needed by aep sdk
-        
+
         // pre-existing appid: 3149c49c3910/37b8929440ac/launch-cd35ef2ff581-development
-        
+
         // "steve - messaging tester" on "AEM Assets Departmental - Campaign"
         // 3149c49c3910/cf7779260cdd/launch-be72758aa82a-development
-        
+
         MobileCore.configureWith(appId: "3149c49c3910/cf7779260cdd/launch-be72758aa82a-development")
 
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
         // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
-                
-//        MobileCore.configureWith(appId: "3149c49c3910/6a68c2e19c81/launch-4b2394565377-development")
-//        MobileCore.updateConfigurationWith(configDict: [
-//            "messaging.eventDataset": "5f8623492312f418dcc6b3d9",
-//            "messaging.useSandbox": true,
-//        ])
+
+        //        MobileCore.configureWith(appId: "3149c49c3910/6a68c2e19c81/launch-4b2394565377-development")
+        //        MobileCore.updateConfigurationWith(configDict: [
+        //            "messaging.eventDataset": "5f8623492312f418dcc6b3d9",
+        //            "messaging.useSandbox": true,
+        //        ])
+                        
+        
+        MobileCore.updateConfigurationWith(configDict: [
+            "messaging.useSandbox": true
+        ])
 
         // only start lifecycle if the application is not in the background
         if application.applicationState != .background {
             MobileCore.lifecycleStart(additionalContextData: nil)
-        }
-
-        AEPAssurance.registerExtension()
-        ACPCore.start {
-            AEPAssurance.startSession(URL(string: "messagingdemo://?adb_validation_sessionid=047eb65e-efa8-48b0-bd7f-b6a338fda6d6")!)
         }
 
         let center = UNUserNotificationCenter.current()

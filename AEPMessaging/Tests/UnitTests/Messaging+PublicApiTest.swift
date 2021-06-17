@@ -1,5 +1,5 @@
 //
-// Copyright 2020 Adobe. All rights reserved.
+// Copyright 2021 Adobe. All rights reserved.
 // This file is licensed to you under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy
 // of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -36,14 +36,15 @@ class MessagingPublicApiTest: XCTestCase {
 
     func testHandleNotificationResponse() {
         let expectation = XCTestExpectation(description: "Messaging request event")
-        let mockCustomActinoId = "mockCustomActionId"
+        let mockCustomActionId = "mockCustomActionId"
         let mockIdentifier = "mockIdentifier"
         expectation.assertForOverFulfill = true
 
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventType.MESSAGING, source: EventSource.requestContent) { event in
-            XCTAssertEqual(MessagingConstants.EventName.MESSAGING_PUSH_NOTIFICATION_INTERACTION_EVENT, event.name)
-            XCTAssertEqual(MessagingConstants.EventType.MESSAGING, event.type)
+
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventType.messaging, source: EventSource.requestContent) { event in
+            XCTAssertEqual(MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION, event.name)
+            XCTAssertEqual(MessagingConstants.EventType.messaging, event.type)
             XCTAssertEqual(EventSource.requestContent, event.source)
 
             guard let eventData = event.data,
@@ -51,7 +52,7 @@ class MessagingPublicApiTest: XCTestCase {
                   let eventDataType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String,
                   let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String,
                   let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String,
-                  let xdm = eventData[MessagingConstants.XDM.DataKeys.ADOBE_XDM] as? [String: Any]
+                  let xdm = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any]
             else {
                 XCTFail()
                 expectation.fulfill()
@@ -59,8 +60,8 @@ class MessagingPublicApiTest: XCTestCase {
             }
 
             XCTAssertTrue(applicationOpened)
-            XCTAssertEqual(MessagingConstants.XDM.EventTypes.PUSH_TRACKING_CUSTOM_ACTION, eventDataType)
-            XCTAssertEqual(actionId, mockCustomActinoId)
+            XCTAssertEqual(MessagingConstants.EventDataValue.PUSH_TRACKING_CUSTOM_ACTION, eventDataType)
+            XCTAssertEqual(actionId, mockCustomActionId)
             XCTAssertEqual(messageId, mockIdentifier)
             XCTAssertNotNil(xdm)
             XCTAssertEqual(xdm.count, 1)
@@ -79,34 +80,43 @@ class MessagingPublicApiTest: XCTestCase {
             XCTFail()
             return
         }
-        Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActinoId)
+                
+        Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActionId)
         wait(for: [expectation], timeout: 1)
     }
-}
 
-class MockNotificationResponseCoder: NSCoder {
-    private let request: UNNotificationRequest
-    private let testIdentifier = "mockIdentifier"
-    private enum FieldKey: String {
-        case request, originIdentifier, sourceIdentifier, actionIdentifier, notification
-    }
+    func testHandleNotificationResponse_whenApplicationOpenedFalse_AndNilCustomActionID() {
+        let expectation = XCTestExpectation(description: "Messaging request event")
+        expectation.assertForOverFulfill = true
 
-    override var allowsKeyedCoding: Bool { true }
-    init(with request: UNNotificationRequest) {
-        self.request = request
-    }
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventType.messaging, source: EventSource.requestContent) { event in
+            XCTAssertEqual(MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION, event.name)
+            XCTAssertEqual(MessagingConstants.EventType.messaging, event.type)
+            XCTAssertEqual(EventSource.requestContent, event.source)
 
-    override func decodeObject(forKey key: String) -> Any? {
-        let fieldKey = FieldKey(rawValue: key)
-        switch fieldKey {
-        case .request:
-            return request
-        case .sourceIdentifier, .actionIdentifier, .originIdentifier:
-            return testIdentifier
-        case .notification:
-            return UNNotification(coder: self)
-        default:
-            return nil
+            guard let eventData = event.data else {
+                XCTFail()
+                expectation.fulfill()
+                return
+            }
+
+            XCTAssertFalse(eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool ?? true)
+            XCTAssertNil(eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String)
+            expectation.fulfill()
         }
+
+        let dateInfo = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: Date())
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateInfo, repeats: false)
+        let notificationContent = UNMutableNotificationContent()
+        notificationContent.userInfo = self.notificationContent
+
+        let request = UNNotificationRequest(identifier: "mockIdentifier", content: notificationContent, trigger: trigger)
+        guard let response = UNNotificationResponse(coder: MockNotificationResponseCoder(with: request)) else {
+            XCTFail()
+            return
+        }
+        Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: nil)
+        wait(for: [expectation], timeout: 1)
     }
 }
