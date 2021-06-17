@@ -42,7 +42,7 @@ class MessagingFunctionalTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[1]
-        
+
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         let flattenEdgeEvent = edgeEvent.data?.flattening()
         let pushNotification = flattenEdgeEvent?["data.pushNotificationDetails"] as? [[String: Any]]
@@ -130,7 +130,7 @@ class MessagingFunctionalTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[1]
-        
+
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         let flattenEdgeEvent = edgeEvent.data?.flattening()
         let pushNotification = flattenEdgeEvent?["data.pushNotificationDetails"] as? [[String: Any]]

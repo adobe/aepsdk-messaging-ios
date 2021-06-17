@@ -173,7 +173,7 @@ enum MessagingConstants {
 
         enum Configuration {
             static let NAME = "com.adobe.module.configuration"
-            static let EXPERIENCE_CLOUD_ORG = "experienceCloud.org"            
+            static let EXPERIENCE_CLOUD_ORG = "experienceCloud.org"
 
             // Messaging dataset ids
             static let EXPERIENCE_EVENT_DATASET = "messaging.eventDataset"

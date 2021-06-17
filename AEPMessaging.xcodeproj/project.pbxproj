@@ -21,6 +21,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */; };
+		244E9555267BB018001DC957 /* String+JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E9554267BB018001DC957 /* String+JSON.swift */; };
+		244E955B267BB253001DC957 /* Dictionary+Merging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E955A267BB253001DC957 /* Dictionary+Merging.swift */; };
 		245059522671283F00CC7CA0 /* MessagingRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */; };
 		2450595C2671284B00CC7CA0 /* MessagingHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2450595B2671284A00CC7CA0 /* MessagingHandler.swift */; };
 		2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245059622673DBFD00CC7CA0 /* Event+MessagingTests.swift */; };
@@ -113,6 +116,9 @@
 
 /* Begin PBXFileReference section */
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
+		244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+EdgeEvents.swift"; sourceTree = "<group>"; };
+		244E9554267BB018001DC957 /* String+JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+JSON.swift"; sourceTree = "<group>"; };
+		244E955A267BB253001DC957 /* Dictionary+Merging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+Merging.swift"; sourceTree = "<group>"; };
 		2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngine.swift; sourceTree = "<group>"; };
 		2450595B2671284A00CC7CA0 /* MessagingHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingHandler.swift; sourceTree = "<group>"; };
 		245059612673DBFD00CC7CA0 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -249,12 +255,15 @@
 			children = (
 				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
 				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
-				92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
+				244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */,
+				92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */,
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
 				2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */,
 				2450595B2671284A00CC7CA0 /* MessagingHandler.swift */,
 				92315438261E3B36004AE7D3 /* Info.plist */,
+				244E9554267BB018001DC957 /* String+JSON.swift */,
+				244E955A267BB253001DC957 /* Dictionary+Merging.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -708,11 +717,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				244E9555267BB018001DC957 /* String+JSON.swift in Sources */,
 				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
 				2450595C2671284B00CC7CA0 /* MessagingHandler.swift in Sources */,
+				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
 				245059522671283F00CC7CA0 /* MessagingRulesEngine.swift in Sources */,
 				2450599D2673FABF00CC7CA0 /* Messaging+PublicAPI.swift in Sources */,
 				245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */,
+				244E955B267BB253001DC957 /* Dictionary+Merging.swift in Sources */,
 				245059A22673FAC200CC7CA0 /* Messaging.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

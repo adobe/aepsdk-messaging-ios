@@ -39,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
 
         MobileCore.setLogLevel(.trace)
-        
+
         MobileCore.registerExtensions([Lifecycle.self, Identity.self, Messaging.self, Edge.self, Signal.self, OfferDecisioning.self, AEPAssurance.self])
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
@@ -60,8 +60,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         //            "messaging.eventDataset": "5f8623492312f418dcc6b3d9",
         //            "messaging.useSandbox": true,
         //        ])
-                        
-        
+
         MobileCore.updateConfigurationWith(configDict: [
             "messaging.useSandbox": true
         ])

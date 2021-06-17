@@ -80,7 +80,7 @@ class MessagingPublicApiTest: XCTestCase {
             XCTFail()
             return
         }
-                
+
         Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActionId)
         wait(for: [expectation], timeout: 1)
     }
