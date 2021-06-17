@@ -1,10 +1,5 @@
 # Adobe Experience Platform - Messaging extension for iOS
 
-## Beta
-AEPMessaging is currently in Beta. Use of this code is by invitation only and not otherwise supported by Adobe. Please contact your Adobe Customer Success Manager to learn more.
-
-By using the Beta, you hereby acknowledge that the Beta is provided "as is" without warranty of any kind. Adobe shall have no obligation to maintain, correct, update, change, modify or otherwise support the Beta. You are advised to use caution and not to rely in any way on the correct functioning or performance of such Beta and/or accompanying materials.
-
 ## About this project
 
 Adobe Experience Platform Messaging Extension is an extension for the [Adobe Experience Platform Swift SDK](https://github.com/adobe/aepsdk-core-ios).
@@ -19,9 +14,6 @@ To learn more about this extension, read [the documentation](https://aep-sdks.gi
 - Xcode 11.0 (or newer)
 - Swift 5.1 (or newer)
 
-## Current version
-The AEPMessaging extension for iOS is currently in Beta development.
-
 ## Installation
 
 ### [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html)
@@ -32,7 +24,7 @@ use_frameworks!
 
 # for app development, include all the following pods
 target 'YOUR_TARGET_NAME' do
-      pod 'AEPMessaging', :git => 'git@github.com:adobe/aepsdk-messaging-ios.git', :branch => 'main'
+      pod 'AEPMessaging'
       pod 'AEPEdge'
       pod 'AEPEdgeIdentity'
       pod 'AEPCore'
