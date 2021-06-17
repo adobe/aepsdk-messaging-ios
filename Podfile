@@ -49,18 +49,18 @@ end
 # TARGET DEFINITIONS
 # ==================
 target 'AEPMessaging' do
-    core_dev
+    core_main
 end
 
 target 'MessagingDemoApp' do
-    core_dev
-    griffon_dev
+    core_main
+    griffon_main
 end
 
 target 'UnitTests' do
-    core_dev
+    core_main
 end
 
 target 'FunctionalTests' do
-    core_dev
+    core_main
 end

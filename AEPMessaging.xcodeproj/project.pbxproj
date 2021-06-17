@@ -254,6 +254,7 @@
 			isa = PBXGroup;
 			children = (
 				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
+				244E955A267BB253001DC957 /* Dictionary+Merging.swift */,
 				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
 				244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */,
@@ -261,9 +262,8 @@
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
 				2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */,
 				2450595B2671284A00CC7CA0 /* MessagingHandler.swift */,
-				92315438261E3B36004AE7D3 /* Info.plist */,
 				244E9554267BB018001DC957 /* String+JSON.swift */,
-				244E955A267BB253001DC957 /* Dictionary+Merging.swift */,
+				92315438261E3B36004AE7D3 /* Info.plist */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -409,7 +409,6 @@
 				925DF4A125227C4700A5DE31 /* Sources */,
 				925DF4A225227C4700A5DE31 /* Frameworks */,
 				925DF4A325227C4700A5DE31 /* Resources */,
-				9249A5052522AEC9009193AB /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -621,23 +620,6 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
-		};
-		9249A5052522AEC9009193AB /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which swiftlint >/dev/null; then\n    swiftlint lint --config ../../.swiftlint.yml AEPMessaging/Sources\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n\n";
 		};
 		955DAFCC5E54162FE94C86DA /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -995,7 +977,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0.0-beta-2";
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1031,7 +1013,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0.0-beta-2";
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
