@@ -25,7 +25,7 @@ public class Messaging: NSObject, Extension {
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
 
-    private var currentMessage: FullscreenPresentable?
+    private var currentMessage: Message?
     private let messagingHandler = MessagingHandler()
     private let rulesEngine: MessagingRulesEngine
     private let POC_ACTIVITY_ID = "xcore:offer-activity:1315ce8f616d30e9"
@@ -163,10 +163,8 @@ public class Messaging: NSObject, Extension {
             return
         }
         
-        currentMessage = ServiceProvider.shared.uiService.createFullscreenMessage(payload: html,
-                                                                                  listener: messagingHandler,
-                                                                                  isLocalImageUsed: false)
-
+        currentMessage = Message(parent: self, html: html)
+        
         currentMessage?.show()
     }
 
