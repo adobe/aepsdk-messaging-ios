@@ -15,15 +15,35 @@ import AEPServices
 import Foundation
 
 extension Messaging {
+    
+    func sendEvent() {
+        // get current shared state
+        guard let sharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: nil)?.value else {
+            return
+        }
+        
+        
+    }
+    
     // MARK: - internal methods
 
+    /// Get platform based on the `messaging.useSandbox` config value
+    ///
+    /// - Parameters:
+    ///     - config: `[String: Any]` with platform informations
+    /// - Returns: a `String` indicating the APNS platform in use
+    func getPlatform(config: [String: Any]) -> String {
+        return config[MessagingConstants.SharedState.Configuration.USE_SANDBOX] as? Bool ?? false
+            ? MessagingConstants.PushNotificationDetails.JsonValues.APNS_SANDBOX
+            : MessagingConstants.PushNotificationDetails.JsonValues.APNS
+    }
+    
     /// Sends an experience event to the platform SDK for tracking the notification click-throughs
     ///
     /// - Parameters:
     ///   - event: The triggering event with the click through data
     ///   - config: configuration data
-    /// - Returns: A boolean explaining whether the handling of tracking info was successful or not
-    func handleTrackingInfo(event: Event, _ config: [AnyHashable: Any]) {
+    func handleTrackingInfo(event: Event, _ config: [String: Any]) {
         guard let expEventDatasetId = config[MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET] as? String, !expEventDatasetId.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to handle tracking information for push notification: " +
@@ -103,15 +123,6 @@ extension Messaging {
         dispatch(event: event)
     }
 
-    /// Get platform based on the `messaging.useSandbox` config value
-    /// - Parameters:
-    ///     - config: `[AnyHashable: Any]` with platform informations
-    func getPlatform(config: [AnyHashable: Any]) -> String {
-        return config[MessagingConstants.SharedState.Configuration.USE_SANDBOX] as? Bool ?? false
-            ? MessagingConstants.PushNotificationDetails.JsonValues.APNS_SANDBOX
-            : MessagingConstants.PushNotificationDetails.JsonValues.APNS
-    }
-
     // MARK: - private methods
 
     /// Adding Adobe/AJO specific data to tracking information map.
@@ -189,9 +200,9 @@ extension Messaging {
     /// Creates the xdm schema from event data
     /// - Parameters:
     ///   - event: `Event` with push notification tracking information
-    ///   - config: `[AnyHashable: Any]` with configuration informations
+    ///   - config: `[String: Any]` with configuration informations
     /// - Returns: `[String: Any]?` which contains the xdm data
-    private func getXdmData(event: Event, config: [AnyHashable: Any]) -> [String: Any]? {
+    private func getXdmData(event: Event, config: [String: Any]) -> [String: Any]? {
         guard let eventType = event.eventType else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Updating xdm data for tracking failed, eventType is invalid or nil in the event '\(event.id.uuidString)'.")
             return nil
