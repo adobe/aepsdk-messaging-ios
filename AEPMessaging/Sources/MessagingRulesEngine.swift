@@ -16,7 +16,7 @@ import AEPServices
 import Foundation
 
 class MessagingRulesEngine {
-    
+
     let rulesEngine: LaunchRulesEngine
 
     init(name: String, extensionRuntime: ExtensionRuntime) {
@@ -43,9 +43,11 @@ class MessagingRulesEngine {
                 continue
             }
 
+            // TODO: handle remote assets caching (here or in UIServices?)
+
             messagingRules.append(contentsOf: processedRule)
         }
-        
+
         rulesEngine.replaceRules(with: messagingRules)
         Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(messagingRules.count) message(s) into the rules engine.")
     }

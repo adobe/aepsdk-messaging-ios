@@ -33,12 +33,12 @@ class MessagingHandler: FullscreenMessageDelegate {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load nil URL.")
             return true
         }
-        
+
         if url.contains("adbinapp://cancel") {
             message.dismiss()
             return false
         }
-        
+
         return true
     }
 

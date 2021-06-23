@@ -334,7 +334,7 @@ class EventPlusMessagingTests: XCTestCase {
     func testPayloadIsNil() {
         // setup
         let payload: [[String: Any]]? = nil
-        let event = getAEPResponseEvent(data: ["payload": payload])
+        let event = getAEPResponseEvent(data: ["payload": payload as Any])
 
         // verify
         XCTAssertNil(event.offerActivityId)
@@ -345,7 +345,7 @@ class EventPlusMessagingTests: XCTestCase {
     func testPayloadIsEmpty() {
         // setup
         let payload: [[String: Any]]? = []
-        let event = getAEPResponseEvent(data: ["payload": payload])
+        let event = getAEPResponseEvent(data: ["payload": payload as Any])
 
         // verify
         XCTAssertNil(event.offerActivityId)

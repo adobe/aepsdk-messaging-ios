@@ -53,13 +53,13 @@ class MessagingTests: XCTestCase {
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [:], status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-        
+
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-        
+
         // verify that shared state is created
         XCTAssertEqual(MOCK_PUSH_TOKEN, mockRuntime.firstSharedState?[MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as! String)
-        
+
         // verify the dispatched edge event
         guard let edgeEvent = mockRuntime.secondEvent else {
             XCTFail()
@@ -68,7 +68,7 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual("Push notification profile edge event", edgeEvent.name)
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
-        
+
         // verify event data
         let flattenEdgeEvent = edgeEvent.data?.flattening()
         let pushNotification = flattenEdgeEvent?["data.pushNotificationDetails"] as? [[String: Any]]
@@ -114,20 +114,19 @@ class MessagingTests: XCTestCase {
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: [:])
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [:], status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-        
+
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
     }
 
-
     /// validating handleProcessEvent with empty token
     func testhandleProcessEvent_withEmptyToken() {
         let mockConfig = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: ""]
-        
+
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: [:])
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-        
+
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
 
@@ -151,13 +150,13 @@ class MessagingTests: XCTestCase {
 
     func testhandleProcessEvent_withConfigAndIdentityData() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
-        
+
         let eventData: [String: Any] = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
-        
+
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-        
+
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
     }
@@ -166,13 +165,13 @@ class MessagingTests: XCTestCase {
     func testHandleProcessEvent_withApnsSandbox() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID,
                           MessagingConstants.SharedState.Configuration.USE_SANDBOX: true] as [String: Any]
-        
+
         let eventData: [String: Any] = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
-        
+
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-        
+
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
     }
@@ -181,13 +180,13 @@ class MessagingTests: XCTestCase {
     func testHandleProcessEvent_withApns() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID,
                           MessagingConstants.SharedState.Configuration.USE_SANDBOX: false] as [String: Any]
-        
+
         let eventData: [String: Any] = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
-        
+
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-        
+
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
     }

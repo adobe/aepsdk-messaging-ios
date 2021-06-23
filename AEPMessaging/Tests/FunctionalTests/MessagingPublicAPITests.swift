@@ -42,7 +42,7 @@ class MessagingPublicAPITests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[1]
-         
+
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         let flattenEdgeEvent = edgeEvent.data?.flattening()
         XCTAssertEqual("apns", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProvider"] as? String)
@@ -111,7 +111,7 @@ class MessagingPublicAPITests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[1]
-            
+
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         let flattenEdgeEvent = edgeEvent.data?.flattening()
         XCTAssertEqual("apns", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProvider"] as? String)

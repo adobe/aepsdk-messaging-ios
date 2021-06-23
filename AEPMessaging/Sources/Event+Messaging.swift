@@ -87,7 +87,7 @@ extension Event {
             }
         }
 
-        return rules.count > 0 ? rules : nil
+        return rules.isEmpty ? nil : rules
     }
 
     // MARK: Private
@@ -106,24 +106,27 @@ extension Event {
     }
 
     private var activity: [String: Any]? {
-        if payload?.count == 0 {
+        guard let payload = payload, !payload.isEmpty else {
             return nil
         }
-        return payload?[0][MessagingConstants.EventDataKeys.Offers.ACTIVITY] as? [String: Any]
+
+        return payload[0][MessagingConstants.EventDataKeys.Offers.ACTIVITY] as? [String: Any]
     }
 
     private var placement: [String: Any]? {
-        if payload?.count == 0 {
+        guard let payload = payload, !payload.isEmpty else {
             return nil
         }
-        return payload?[0][MessagingConstants.EventDataKeys.Offers.PLACEMENT] as? [String: Any]
+
+        return payload[0][MessagingConstants.EventDataKeys.Offers.PLACEMENT] as? [String: Any]
     }
 
     private var items: [[String: Any]]? {
-        if payload?.count == 0 {
+        guard let payload = payload, !payload.isEmpty else {
             return nil
         }
-        return payload?[0][MessagingConstants.EventDataKeys.Offers.ITEMS] as? [[String: Any]]
+
+        return payload[0][MessagingConstants.EventDataKeys.Offers.ITEMS] as? [[String: Any]]
     }
 
     // MARK: Refresh Messages Public API Event
