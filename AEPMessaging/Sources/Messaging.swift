@@ -52,7 +52,7 @@ public class Messaging: NSObject, Extension {
                          listener: handleProcessEvent)
 
         // register listener for Messaging request content event
-        registerListener(type: MessagingConstants.EventType.messaging,
+        registerListener(type: MessagingConstants.Event.EventType.messaging,
                          source: EventSource.requestContent,
                          listener: handleProcessEvent)
 
@@ -68,7 +68,7 @@ public class Messaging: NSObject, Extension {
 
         // register listener for offer notifications
         registerListener(type: EventType.edge,
-                         source: MessagingConstants.EventSource.PERSONALIZATION_DECISIONS,
+                         source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
                          listener: handleOfferNotification)
 
         // fetch messages from offers
@@ -107,17 +107,17 @@ public class Messaging: NSObject, Extension {
     private func fetchMessages() {
         // create event to be handled by offers
         let eventData: [String: Any] = [
-            MessagingConstants.EventDataKeys.Offers.TYPE: MessagingConstants.EventDataKeys.Offers.PREFETCH,
-            MessagingConstants.EventDataKeys.Offers.DECISION_SCOPES: [
+            MessagingConstants.Event.Data.Key.Offers.TYPE: MessagingConstants.Event.Data.Key.Offers.PREFETCH,
+            MessagingConstants.Event.Data.Key.Offers.DECISION_SCOPES: [
                 [
-                    MessagingConstants.EventDataKeys.Offers.ITEM_COUNT: MAX_ITEM_COUNT,
-                    MessagingConstants.EventDataKeys.Offers.ACTIVITY_ID: POC_ACTIVITY_ID_MULTI,
-                    MessagingConstants.EventDataKeys.Offers.PLACEMENT_ID: POC_PLACEMENT_ID_MULTI
+                    MessagingConstants.Event.Data.Key.Offers.ITEM_COUNT: MAX_ITEM_COUNT,
+                    MessagingConstants.Event.Data.Key.Offers.ACTIVITY_ID: POC_ACTIVITY_ID,
+                    MessagingConstants.Event.Data.Key.Offers.PLACEMENT_ID: POC_PLACEMENT_ID
                 ]
             ]
         ]
 
-        let event = Event(name: MessagingConstants.EventName.OFFERS_REQUEST,
+        let event = Event(name: MessagingConstants.Event.Name.OFFERS_REQUEST,
                           type: EventType.offerDecisioning,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -134,7 +134,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        if event.offerActivityId != POC_ACTIVITY_ID_MULTI || event.offerPlacementId != POC_PLACEMENT_ID_MULTI {
+        if event.offerActivityId != POC_ACTIVITY_ID || event.offerPlacementId != POC_PLACEMENT_ID {
             return
         }
 
@@ -158,12 +158,17 @@ public class Messaging: NSObject, Extension {
 
     /// Creates and shows a fullscreen message as defined by the contents of the provided `Event`'s data.
     private func showMessageForEvent(_ event: Event) {
-        guard let html = event.html else {
+        guard event.html != nil else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to show message for event \(event.id) - it contains no HTML defining the message.")
             return
         }
         
-        currentMessage = Message(parent: self, html: html)
+        guard event.experienceInfo != nil else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring message that does not contain information necessary for tracking with Adobe Journey Optimizer.")
+            return
+        }
+        
+        currentMessage = Message(parent: self, event: event)
         
         currentMessage?.show()
     }
@@ -227,13 +232,13 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
-            sendPushToken(ecid: ecid, token: token, platform: getPlatform(config: configSharedState))
+            sendPushToken(ecid: ecid, token: token, platform: getPushPlatform(forEvent: event))
         }
 
-        // Check if the event type is `MessagingConstants.EventType.messaging` and
+        // Check if the event type is `MessagingConstants.Event.EventType.messaging` and
         // eventSource is `EventSource.requestContent` handle processing of the tracking information
         if event.isMessagingRequestContentEvent, configSharedState.keys.contains(MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET) {
-            handleTrackingInfo(event: event, configSharedState)
+            handleTrackingInfo(event: event)
             return
         }
     }

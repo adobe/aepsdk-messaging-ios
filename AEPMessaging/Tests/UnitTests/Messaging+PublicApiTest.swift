@@ -19,7 +19,7 @@ class MessagingPublicApiTest: XCTestCase {
     var mockXdmData: [String: Any] = ["somekey": "somedata"]
     var notificationContent: [AnyHashable: Any] = [:]
     override func setUp() {
-        notificationContent = [MessagingConstants.AdobeTrackingKeys._XDM: mockXdmData]
+        notificationContent = [MessagingConstants.XDM.AdobeKeys._XDM: mockXdmData]
         MockExtension.reset()
         EventHub.shared.start()
         registerMockExtension(MockExtension.self)
@@ -42,17 +42,17 @@ class MessagingPublicApiTest: XCTestCase {
 
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
 
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventType.messaging, source: EventSource.requestContent) { event in
-            XCTAssertEqual(MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION, event.name)
-            XCTAssertEqual(MessagingConstants.EventType.messaging, event.type)
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent) { event in
+            XCTAssertEqual(MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION, event.name)
+            XCTAssertEqual(MessagingConstants.Event.EventType.messaging, event.type)
             XCTAssertEqual(EventSource.requestContent, event.source)
 
             guard let eventData = event.data,
-                  let applicationOpened = eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool,
-                  let eventDataType = eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String,
-                  let actionId = eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String,
-                  let messageId = eventData[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String,
-                  let xdm = eventData[MessagingConstants.EventDataKeys.ADOBE_XDM] as? [String: Any]
+                  let applicationOpened = eventData[MessagingConstants.Event.Data.Key.APPLICATION_OPENED] as? Bool,
+                  let eventDataType = eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] as? String,
+                  let actionId = eventData[MessagingConstants.Event.Data.Key.ACTION_ID] as? String,
+                  let messageId = eventData[MessagingConstants.Event.Data.Key.MESSAGE_ID] as? String,
+                  let xdm = eventData[MessagingConstants.Event.Data.Key.ADOBE_XDM] as? [String: Any]
             else {
                 XCTFail()
                 expectation.fulfill()
@@ -90,9 +90,9 @@ class MessagingPublicApiTest: XCTestCase {
         expectation.assertForOverFulfill = true
 
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.EventType.messaging, source: EventSource.requestContent) { event in
-            XCTAssertEqual(MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION, event.name)
-            XCTAssertEqual(MessagingConstants.EventType.messaging, event.type)
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent) { event in
+            XCTAssertEqual(MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION, event.name)
+            XCTAssertEqual(MessagingConstants.Event.EventType.messaging, event.type)
             XCTAssertEqual(EventSource.requestContent, event.source)
 
             guard let eventData = event.data else {
@@ -101,8 +101,8 @@ class MessagingPublicApiTest: XCTestCase {
                 return
             }
 
-            XCTAssertFalse(eventData[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool ?? true)
-            XCTAssertNil(eventData[MessagingConstants.EventDataKeys.ACTION_ID] as? String)
+            XCTAssertFalse(eventData[MessagingConstants.Event.Data.Key.APPLICATION_OPENED] as? Bool ?? true)
+            XCTAssertNil(eventData[MessagingConstants.Event.Data.Key.ACTION_ID] as? String)
             expectation.fulfill()
         }
 

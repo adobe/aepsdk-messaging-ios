@@ -16,35 +16,14 @@ import Foundation
 
 extension Messaging {
     
-    func sendEvent() {
-        // get current shared state
-        guard let sharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: nil)?.value else {
-            return
-        }
-        
-        
-    }
-    
     // MARK: - internal methods
 
-    /// Get platform based on the `messaging.useSandbox` config value
-    ///
-    /// - Parameters:
-    ///     - config: `[String: Any]` with platform informations
-    /// - Returns: a `String` indicating the APNS platform in use
-    func getPlatform(config: [String: Any]) -> String {
-        return config[MessagingConstants.SharedState.Configuration.USE_SANDBOX] as? Bool ?? false
-            ? MessagingConstants.PushNotificationDetails.JsonValues.APNS_SANDBOX
-            : MessagingConstants.PushNotificationDetails.JsonValues.APNS
-    }
-    
     /// Sends an experience event to the platform SDK for tracking the notification click-throughs
     ///
     /// - Parameters:
     ///   - event: The triggering event with the click through data
-    ///   - config: configuration data
-    func handleTrackingInfo(event: Event, _ config: [String: Any]) {
-        guard let expEventDatasetId = config[MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET] as? String, !expEventDatasetId.isEmpty else {
+    func handleTrackingInfo(event: Event) {
+        guard let datasetId = getDatasetId(forEvent: event) else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to handle tracking information for push notification: " +
                             "Experience event dataset ID from the config is invalid or not available. '\(event.id.uuidString)'")
@@ -52,7 +31,7 @@ extension Messaging {
         }
 
         // Get the xdm data with push tracking details
-        guard var xdmMap = getXdmData(event: event, config: config) else {
+        guard var xdmMap = getXdmData(event: event) else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to handle tracking information for push notification: " +
                             "Error while creating xdmMap with the push tracking details from the event and config. '\(event.id.uuidString)'")
@@ -68,16 +47,16 @@ extension Messaging {
 
         // Creating xdm edge event data
         let xdmEventData: [String: Any] = [
-            MessagingConstants.XDM.DataKeys.XDM: xdmMap,
-            MessagingConstants.XDM.DataKeys.META: [
-                MessagingConstants.XDM.DataKeys.COLLECT: [
-                    MessagingConstants.XDM.DataKeys.DATASET_ID: expEventDatasetId
+            MessagingConstants.XDM.Key.XDM: xdmMap,
+            MessagingConstants.XDM.Key.META: [
+                MessagingConstants.XDM.Key.COLLECT: [
+                    MessagingConstants.XDM.Key.DATASET_ID: datasetId
                 ]
             ]
         ]
 
         // Creating xdm edge event with request content source type
-        let event = Event(name: MessagingConstants.EventName.PUSH_TRACKING_EDGE,
+        let event = Event(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
                           type: EventType.edge,
                           source: EventSource.requestContent,
                           data: xdmEventData)
@@ -99,24 +78,24 @@ extension Messaging {
 
         // Create the profile experience event to send the push notification details with push token to profile
         let profileEventData: [String: Any] = [
-            MessagingConstants.PushNotificationDetails.PUSH_NOTIFICATION_DETAILS: [
-                [MessagingConstants.PushNotificationDetails.APP_ID: appId,
-                 MessagingConstants.PushNotificationDetails.TOKEN: token,
-                 MessagingConstants.PushNotificationDetails.PLATFORM: platform,
-                 MessagingConstants.PushNotificationDetails.DENYLISTED: false,
-                 MessagingConstants.PushNotificationDetails.IDENTITY: [
-                    MessagingConstants.PushNotificationDetails.NAMESPACE: [
-                        MessagingConstants.PushNotificationDetails.CODE: MessagingConstants.PushNotificationDetails.JsonValues.ECID
+            MessagingConstants.XDM.Push.PUSH_NOTIFICATION_DETAILS: [
+                [MessagingConstants.XDM.Push.APP_ID: appId,
+                 MessagingConstants.XDM.Push.TOKEN: token,
+                 MessagingConstants.XDM.Push.PLATFORM: platform,
+                 MessagingConstants.XDM.Push.DENYLISTED: false,
+                 MessagingConstants.XDM.Push.IDENTITY: [
+                    MessagingConstants.XDM.Push.NAMESPACE: [
+                        MessagingConstants.XDM.Push.CODE: MessagingConstants.XDM.Push.Value.ECID
                     ],
-                    MessagingConstants.PushNotificationDetails.ID: ecid
+                    MessagingConstants.XDM.Push.ID: ecid
                  ]]
             ]
         ]
 
         // Creating xdm edge event data
-        let xdmEventData: [String: Any] = [MessagingConstants.XDM.DataKeys.DATA: profileEventData]
+        let xdmEventData: [String: Any] = [MessagingConstants.XDM.Key.DATA: profileEventData]
         // Creating xdm edge event with request content source type
-        let event = Event(name: MessagingConstants.EventName.PUSH_PROFILE_EDGE,
+        let event = Event(name: MessagingConstants.Event.Name.PUSH_PROFILE_EDGE,
                           type: EventType.edge,
                           source: EventSource.requestContent,
                           data: xdmEventData)
@@ -162,10 +141,10 @@ extension Messaging {
 
         // Check if the xdm data provided by the customer is using cjm for tracking
         // Check if both `MessagingConstant.AdobeTrackingKeys.EXPERIENCE` and `MessagingConstant.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT` exists
-        if var experienceDict = xdmDictResult[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] as? [String: Any] {
-            if var cjmDict = experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
+        if var experienceDict = xdmDictResult[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any] {
+            if var cjmDict = experienceDict[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
                 // Adding Message profile and push channel context to CUSTOMER_JOURNEY_MANAGEMENT
-                guard let messageProfile = MessagingConstants.AdobeTrackingKeys.MESSAGE_PROFILE_JSON.toJsonDictionary() else {
+                guard let messageProfile = MessagingConstants.XDM.AdobeKeys.MESSAGE_PROFILE_JSON.toJsonDictionary() else {
                     Log.warning(label: MessagingConstants.LOG_TAG,
                                 "Failed to update xdmMap with adobe/cjm informations:" +
                                     "converting message profile string to dictionary failed in the event '\(event.id.uuidString)'.")
@@ -173,13 +152,13 @@ extension Messaging {
                 }
                 // Merging the dictionary
                 cjmDict.mergeXdm(rhs: messageProfile)
-                experienceDict[MessagingConstants.AdobeTrackingKeys.CUSTOMER_JOURNEY_MANAGEMENT] = cjmDict
-                xdmDictResult[MessagingConstants.AdobeTrackingKeys.EXPERIENCE] = experienceDict
+                experienceDict[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] = cjmDict
+                xdmDictResult[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experienceDict
             }
         } else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to send adobe/cjm information data with the tracking," +
-                            "\(MessagingConstants.AdobeTrackingKeys.EXPERIENCE) is missing in the event '\(event.id.uuidString)'.")
+                            "\(MessagingConstants.XDM.AdobeKeys.EXPERIENCE) is missing in the event '\(event.id.uuidString)'.")
         }
         return xdmDictResult
     }
@@ -191,41 +170,155 @@ extension Messaging {
     /// - Returns: `[String: Any]` which contains the application data
     private func addApplicationData(applicationOpened: Bool, xdmData: [String: Any]) -> [String: Any] {
         var xdmDataResult = xdmData
-        xdmDataResult[MessagingConstants.AdobeTrackingKeys.APPLICATION] =
-            [MessagingConstants.AdobeTrackingKeys.LAUNCHES:
-                [MessagingConstants.AdobeTrackingKeys.LAUNCHES_VALUE: applicationOpened ? 1 : 0]]
+        xdmDataResult[MessagingConstants.XDM.AdobeKeys.APPLICATION] =
+            [MessagingConstants.XDM.AdobeKeys.LAUNCHES:
+                [MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE: applicationOpened ? 1 : 0]]
         return xdmDataResult
     }
 
     /// Creates the xdm schema from event data
     /// - Parameters:
     ///   - event: `Event` with push notification tracking information
-    ///   - config: `[String: Any]` with configuration informations
     /// - Returns: `[String: Any]?` which contains the xdm data
-    private func getXdmData(event: Event, config: [String: Any]) -> [String: Any]? {
-        guard let eventType = event.eventType else {
+    private func getXdmData(event: Event) -> [String: Any]? {
+        guard let xdmEventType = event.xdmEventType else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Updating xdm data for tracking failed, eventType is invalid or nil in the event '\(event.id.uuidString)'.")
             return nil
         }
         let messageId = event.messagingId
         let actionId = event.actionId
 
-        if eventType.isEmpty == true || messageId == nil || messageId?.isEmpty == true {
+        if xdmEventType.isEmpty == true || messageId == nil || messageId?.isEmpty == true {
             Log.trace(label: MessagingConstants.LOG_TAG, "Updating xdm data for tracking failed, EventType or MessageId received in the event '\(event.id.uuidString)' is nil.")
             return nil
         }
 
-        var xdmDict: [String: Any] = [MessagingConstants.XDM.DataKeys.EVENT_TYPE: eventType]
+        var xdmDict: [String: Any] = [MessagingConstants.XDM.Key.EVENT_TYPE: xdmEventType]
         var pushNotificationTrackingDict: [String: Any] = [:]
         var customActionDict: [String: Any] = [:]
         if actionId != nil {
-            customActionDict[MessagingConstants.XDM.DataKeys.ACTION_ID] = actionId
-            pushNotificationTrackingDict[MessagingConstants.XDM.DataKeys.CUSTOM_ACTION] = customActionDict
+            customActionDict[MessagingConstants.XDM.Key.ACTION_ID] = actionId
+            pushNotificationTrackingDict[MessagingConstants.XDM.Key.CUSTOM_ACTION] = customActionDict
         }
-        pushNotificationTrackingDict[MessagingConstants.XDM.DataKeys.PUSH_PROVIDER_MESSAGE_ID] = messageId
-        pushNotificationTrackingDict[MessagingConstants.XDM.DataKeys.PUSH_PROVIDER] = getPlatform(config: config)
-        xdmDict[MessagingConstants.XDM.DataKeys.PUSH_NOTIFICATION_TRACKING] = pushNotificationTrackingDict
+        pushNotificationTrackingDict[MessagingConstants.XDM.Key.PUSH_PROVIDER_MESSAGE_ID] = messageId
+        pushNotificationTrackingDict[MessagingConstants.XDM.Key.PUSH_PROVIDER] = getPushPlatform(forEvent: event)
+        xdmDict[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING] = pushNotificationTrackingDict
 
         return xdmDict
+    }
+    
+    private func getDatasetId(forEvent event: Event? = nil) -> String? {
+        guard let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event),
+              let datasetId = configuration.experienceEventDataset else {
+            return nil
+        }
+        
+        return datasetId.isEmpty ? nil : datasetId
+    }
+    
+    /// Gets the push platform based on the value in `messaging.useSandbox` of Configuration's shared state
+    ///
+    /// If no `event` is provided, this method will use the most recent shared state for Configuration.
+    /// If Configuration shared state is not retrievable, this method returns the string "apns"
+    ///
+    /// - Parameters:
+    ///     - event: `Event` from which Configuration shared state should be derived
+    /// - Returns: a `String` indicating the APNS platform in use
+    func getPushPlatform(forEvent event: Event? = nil) -> String {
+        guard let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event) else {
+            return MessagingConstants.XDM.Push.Value.APNS
+        }
+        
+        return configuration.pushPlatform
+    }
+
+    /// sample event data for xdm
+    /// {
+    ///     "xdm": {
+    ///         "eventType": `EVENT_TYPE`,
+    ///         "pushNotificationTracking": {
+    ///             "pushProvider": "",
+    ///             "pushProviderMessageId": "",
+    ///             "customAction": {
+    ///                 "actionID": `ACTION_NAME`
+    ///             }
+    ///         },
+    ///         "application": {
+    ///             "launches": {
+    ///                 "value": 0
+    ///             }
+    ///         },
+    ///         "mixins": {         // this object is added to the push event, but not actually needed
+    ///             `MIXINS`
+    ///         },
+    ///         "_experience": {    // this object comes in the definition of the message consequence
+    ///             "customerJourneyManagement": {
+    ///                 "messageExecution": {
+    ///                     "messageExecutionID": `FROM_AJO`,
+    ///                     "messageID": `FROM_AJO`,
+    ///                     "journeyVersionID": `FROM_AJO`,
+    ///                     "journeyVersionInstanceId": `FROM_AJO`
+    ///                 }
+    ///             }
+    ///         }
+    ///     },
+    ///     "meta": {
+    ///         "collect": {
+    ///             "datasetId": `DATASET_ID`
+    ///         }
+    ///     }
+    /// }
+    
+    
+    /// Dispatches an `Event` containing data necessary for recording the user's `interaction` with the provided `message`
+    ///
+    /// If the provided `interaction` is empty, or a valid Experience Event Dataset is not obtainable from the
+    /// current configuration, calling this function will result in a no-op.
+    ///
+    /// - Parameters:
+    ///   - interaction: `String` value describing the user's interaction
+    ///   - message: `Message` object with which the user has interacted
+    func recordInteractionForMessage(_ interaction: String, message: Message) {
+                
+        // need a valid string for recording the message interaction
+        guard !interaction.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to record a message interaction - interaction string was empty.")
+            return
+        }
+        
+        // an experience event dataset id is required for sending a message
+        guard let datasetId = getDatasetId(forEvent: message.triggeringEvent) else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to record a message interaction - unable to obtain configuration information.")
+            return
+        }
+                       
+        var xdmMap: [String: Any] = [MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.IAM.EventType.INTERACT]
+        xdmMap[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = message.experienceInfo
+        var pushNotificationTrackingDict: [String: Any] = [:]
+        var customActionDict: [String: Any] = [:]
+        if !interaction.isEmpty {
+            customActionDict[MessagingConstants.XDM.Key.ACTION_ID] = interaction
+            pushNotificationTrackingDict[MessagingConstants.XDM.Key.CUSTOM_ACTION] = customActionDict
+        }
+        pushNotificationTrackingDict[MessagingConstants.XDM.Key.PUSH_PROVIDER_MESSAGE_ID] = message.id
+        pushNotificationTrackingDict[MessagingConstants.XDM.Key.PUSH_PROVIDER] = ""
+        xdmMap[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING] = pushNotificationTrackingDict
+        
+        // Creating xdm edge event data
+        let xdmEventData: [String: Any] = [
+            MessagingConstants.XDM.Key.XDM: xdmMap,
+            MessagingConstants.XDM.Key.META: [
+                MessagingConstants.XDM.Key.COLLECT: [
+                    MessagingConstants.XDM.Key.DATASET_ID: datasetId
+                ]
+            ]
+        ]
+        
+        // Creating xdm edge event with request content source type
+        let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
+                          type: EventType.edge,
+                          source: EventSource.requestContent,
+                          data: xdmEventData)
+        dispatch(event: event)
     }
 }

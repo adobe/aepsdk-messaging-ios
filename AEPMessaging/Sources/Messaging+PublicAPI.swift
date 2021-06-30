@@ -26,7 +26,7 @@ import UserNotifications
         let notificationRequest = response.notification.request
 
         // Checking if the message has the optional xdm key
-        let xdm = notificationRequest.content.userInfo[MessagingConstants.AdobeTrackingKeys._XDM] as? [String: Any]
+        let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any]
         if xdm == nil {
             Log.debug(label: MessagingConstants.LOG_TAG, "Optional XDM specific fields are missing from push notification interaction.")
         }
@@ -38,18 +38,18 @@ import UserNotifications
         }
 
         // Creating event data with tracking informations
-        var eventData: [String: Any] = [MessagingConstants.EventDataKeys.MESSAGE_ID: messageId,
-                                        MessagingConstants.EventDataKeys.APPLICATION_OPENED: applicationOpened,
-                                        MessagingConstants.XDM.DataKeys.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
+        var eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: messageId,
+                                        MessagingConstants.Event.Data.Key.APPLICATION_OPENED: applicationOpened,
+                                        MessagingConstants.XDM.Key.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
         if customActionId == nil {
-            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataValue.PUSH_TRACKING_APPLICATION_OPENED
+            eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
         } else {
-            eventData[MessagingConstants.EventDataKeys.EVENT_TYPE] = MessagingConstants.EventDataValue.PUSH_TRACKING_CUSTOM_ACTION
-            eventData[MessagingConstants.EventDataKeys.ACTION_ID] = customActionId
+            eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
+            eventData[MessagingConstants.Event.Data.Key.ACTION_ID] = customActionId
         }
 
-        let event = Event(name: MessagingConstants.EventName.PUSH_NOTIFICATION_INTERACTION,
-                          type: MessagingConstants.EventType.messaging,
+        let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
+                          type: MessagingConstants.Event.EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
         MobileCore.dispatch(event: event)
@@ -57,9 +57,9 @@ import UserNotifications
 
     /// Initiates a network call to retrieve remote In-App Message definitions.
     static func refreshInAppMessages() {
-        let eventData: [String: Any] = [MessagingConstants.EventDataKeys.REFRESH_MESSAGES: true]
-        let event = Event(name: MessagingConstants.EventName.REFRESH_MESSAGES,
-                          type: MessagingConstants.EventType.messaging,
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.REFRESH_MESSAGES: true]
+        let event = Event(name: MessagingConstants.Event.Name.REFRESH_MESSAGES,
+                          type: MessagingConstants.Event.EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
 

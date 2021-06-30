@@ -63,6 +63,14 @@
                                     <action selector="refreshMessages:" destination="BYZ-38-t0r" eventType="touchUpInside" id="rCa-gr-tP5"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HGH-6C-3Tq">
+                                <rect key="frame" x="133" y="733" width="150" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="show stored message"/>
+                                <connections>
+                                    <action selector="showStoredMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Lzb-TK-SUW"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>

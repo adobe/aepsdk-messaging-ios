@@ -21,16 +21,30 @@ extension Event {
     }
 
     // MARK: Fullscreen Message Properties
+    var messageId: String? {
+        return data?[MessagingConstants.Event.Data.Key.IAM.ID] as? String
+    }
+    
     var template: String? {
-        return details?[MessagingConstants.EventDataKeys.InAppMessages.TEMPLATE] as? String
+        return details?[MessagingConstants.Event.Data.Key.IAM.TEMPLATE] as? String
     }
 
     var html: String? {
-        return details?[MessagingConstants.EventDataKeys.InAppMessages.HTML] as? String
+        return details?[MessagingConstants.Event.Data.Key.IAM.HTML] as? String
     }
 
     var remoteAssets: [String]? {
-        return details?[MessagingConstants.EventDataKeys.InAppMessages.REMOTE_ASSETS] as? [String]
+        return details?[MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS] as? [String]
+    }
+    
+    /// Returns the `_experience` dictionary from the `_xdm.mixins` object for Experience Event tracking
+    var experienceInfo: [String: Any]? {
+        guard let xdm = details?[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any],
+              let xdmMixins = xdm[MessagingConstants.XDM.AdobeKeys.MIXINS] as? [String: Any] else {
+            return nil
+        }
+        
+        return xdmMixins[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
     }
 
     // MARK: Message Object Validation
@@ -42,19 +56,19 @@ extension Event {
     // MARK: Private
     // MARK: Consequence EventData Processing
     private var consequence: [String: Any]? {
-        return data?[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] as? [String: Any]
+        return data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] as? [String: Any]
     }
 
     private var consequenceId: String? {
-        return consequence?[MessagingConstants.EventDataKeys.ID] as? String
+        return consequence?[MessagingConstants.Event.Data.Key.ID] as? String
     }
 
     private var consequenceType: String? {
-        return consequence?[MessagingConstants.EventDataKeys.TYPE] as? String
+        return consequence?[MessagingConstants.Event.Data.Key.TYPE] as? String
     }
 
     private var details: [String: Any]? {
-        return consequence?[MessagingConstants.EventDataKeys.DETAIL] as? [String: Any]
+        return consequence?[MessagingConstants.Event.Data.Key.DETAIL] as? [String: Any]
     }
 
     // MARK: - AEP Response Event Handling
@@ -64,11 +78,11 @@ extension Event {
     }
 
     var offerActivityId: String? {
-        return activity?[MessagingConstants.EventDataKeys.Offers.ID] as? String
+        return activity?[MessagingConstants.Event.Data.Key.Offers.ID] as? String
     }
 
     var offerPlacementId: String? {
-        return placement?[MessagingConstants.EventDataKeys.Offers.ID] as? String
+        return placement?[MessagingConstants.Event.Data.Key.Offers.ID] as? String
     }
 
     /// each entry in the array represents "content" from an offer, which contains a rule
@@ -79,10 +93,10 @@ extension Event {
 
         var rules: [String] = []
         for item in items {
-            guard let data = item[MessagingConstants.EventDataKeys.Offers.DATA] as? [String: Any] else {
+            guard let data = item[MessagingConstants.Event.Data.Key.Offers.DATA] as? [String: Any] else {
                 continue
             }
-            if let content = data[MessagingConstants.EventDataKeys.Offers.CONTENT] as? String {
+            if let content = data[MessagingConstants.Event.Data.Key.Offers.CONTENT] as? String {
                 rules.append(content)
             }
         }
@@ -96,13 +110,13 @@ extension Event {
     }
 
     private var isPersonalizationSource: Bool {
-        return source == MessagingConstants.EventSource.PERSONALIZATION_DECISIONS
+        return source == MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS
     }
 
     /// payload is an array of dictionaries, but since we are only asking for a single DecisionScope
     /// in the messaging sdk, we can assume this array will only have 0-1 items
     private var payload: [[String: Any]]? {
-        return data?[MessagingConstants.EventDataKeys.Offers.PAYLOAD] as? [[String: Any]]
+        return data?[MessagingConstants.Event.Data.Key.Offers.PAYLOAD] as? [[String: Any]]
     }
 
     private var activity: [String: Any]? {
@@ -110,7 +124,7 @@ extension Event {
             return nil
         }
 
-        return payload[0][MessagingConstants.EventDataKeys.Offers.ACTIVITY] as? [String: Any]
+        return payload[0][MessagingConstants.Event.Data.Key.Offers.ACTIVITY] as? [String: Any]
     }
 
     private var placement: [String: Any]? {
@@ -118,7 +132,7 @@ extension Event {
             return nil
         }
 
-        return payload[0][MessagingConstants.EventDataKeys.Offers.PLACEMENT] as? [String: Any]
+        return payload[0][MessagingConstants.Event.Data.Key.Offers.PLACEMENT] as? [String: Any]
     }
 
     private var items: [[String: Any]]? {
@@ -126,7 +140,7 @@ extension Event {
             return nil
         }
 
-        return payload[0][MessagingConstants.EventDataKeys.Offers.ITEMS] as? [[String: Any]]
+        return payload[0][MessagingConstants.Event.Data.Key.Offers.ITEMS] as? [[String: Any]]
     }
 
     // MARK: Refresh Messages Public API Event
@@ -135,7 +149,7 @@ extension Event {
     }
 
     private var isMessagingType: Bool {
-        return type == MessagingConstants.EventType.messaging
+        return type == MessagingConstants.Event.EventType.messaging
     }
 
     private var isRequestContentSource: Bool {
@@ -143,7 +157,7 @@ extension Event {
     }
 
     private var refreshMessages: Bool {
-        return data?[MessagingConstants.EventDataKeys.REFRESH_MESSAGES] as? Bool ?? false
+        return data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool ?? false
     }
 
     /// Returns true if this event is a generic identity request content event
@@ -152,38 +166,38 @@ extension Event {
     }
 
     var token: String? {
-        return data?[MessagingConstants.EventDataKeys.PUSH_IDENTIFIER] as? String
+        return data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String
     }
 
-    var eventType: String? {
-        return data?[MessagingConstants.EventDataKeys.EVENT_TYPE] as? String
+    var xdmEventType: String? {
+        return data?[MessagingConstants.Event.Data.Key.EVENT_TYPE] as? String
     }
 
     var messagingId: String? {
-        return data?[MessagingConstants.EventDataKeys.MESSAGE_ID] as? String
+        return data?[MessagingConstants.Event.Data.Key.MESSAGE_ID] as? String
     }
 
     var actionId: String? {
-        return data?[MessagingConstants.EventDataKeys.ACTION_ID] as? String
+        return data?[MessagingConstants.Event.Data.Key.ACTION_ID] as? String
     }
 
     var applicationOpened: Bool {
-        return data?[MessagingConstants.EventDataKeys.APPLICATION_OPENED] as? Bool ?? false
+        return data?[MessagingConstants.Event.Data.Key.APPLICATION_OPENED] as? Bool ?? false
     }
 
     var mixins: [String: Any]? {
-        return adobeXdm?[MessagingConstants.AdobeTrackingKeys.MIXINS] as? [String: Any]
+        return adobeXdm?[MessagingConstants.XDM.AdobeKeys.MIXINS] as? [String: Any]
     }
 
     var cjm: [String: Any]? {
-        return adobeXdm?[MessagingConstants.AdobeTrackingKeys.CJM] as? [String: Any]
+        return adobeXdm?[MessagingConstants.XDM.AdobeKeys.CJM] as? [String: Any]
     }
 
     var adobeXdm: [String: Any]? {
-        return data?[MessagingConstants.XDM.DataKeys.ADOBE_XDM] as? [String: Any]
+        return data?[MessagingConstants.XDM.Key.ADOBE_XDM] as? [String: Any]
     }
 
     var isMessagingRequestContentEvent: Bool {
-        return type == MessagingConstants.EventType.messaging && source == EventSource.requestContent
+        return type == MessagingConstants.Event.EventType.messaging && source == EventSource.requestContent
     }
 }

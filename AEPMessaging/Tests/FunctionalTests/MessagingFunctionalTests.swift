@@ -29,7 +29,7 @@ class MessagingFunctionalTests: XCTestCase {
     // MARK: - Handle Notification Response
 
     func testPushTokenSync() {
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
+        let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
@@ -61,7 +61,7 @@ class MessagingFunctionalTests: XCTestCase {
     }
 
     func testPushTokenSync_emptyToken() {
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: ""] as [String: Any]
+        let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: ""] as [String: Any]
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
@@ -79,7 +79,7 @@ class MessagingFunctionalTests: XCTestCase {
     }
 
     func testPushTokenSync_noECID() {
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: true] as [String: Any] // pushtoken is an boolean instead of string
+        let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: true] as [String: Any] // pushtoken is an boolean instead of string
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
@@ -97,7 +97,7 @@ class MessagingFunctionalTests: XCTestCase {
     }
 
     func testPushTokenSync_invalidPushId() {
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
+        let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
@@ -117,7 +117,7 @@ class MessagingFunctionalTests: XCTestCase {
 
     func testPushTokenSync_withSandbox() {
         mockConfigSharedState["messaging.useSandbox"] = true
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
+        let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state

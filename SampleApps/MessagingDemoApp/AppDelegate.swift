@@ -49,6 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // "steve - messaging tester" on "AEM Assets Departmental - Campaign"
         // 3149c49c3910/cf7779260cdd/launch-be72758aa82a-development
+        
 
         MobileCore.configureWith(appId: "3149c49c3910/cf7779260cdd/launch-be72758aa82a-development")
 
@@ -148,7 +149,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.title = "Notification Title"
         content.body = "This is example how to create "
         content.categoryIdentifier = "MEETING_INVITATION"
-        content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
+        content.userInfo = [ "_xdm" :
+                                ["cjm": ["_experience": ["customerJourneyManagement":
                                                                 ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
                                                                                       "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
 
