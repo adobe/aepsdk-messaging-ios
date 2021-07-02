@@ -19,7 +19,7 @@ import UserNotifications
 
 class ViewController: UIViewController {
     @IBOutlet var switchShowMessages: UISwitch?
-
+    
     var htmlDecisionScope: DecisionScope?
     private let messageHandler = MessageHandler()
 
@@ -39,22 +39,35 @@ class ViewController: UIViewController {
     /// Messaging delegate
     private class MessageHandler: MessagingDelegate {
         var showMessages = true
+        var currentMessage: Message?
 
         func onShow(message: Showable) {
-
+            
             let fullscreenMessage = message as? FullscreenMessage
-            print("message was shown \(fullscreenMessage?.debugDescription ?? "undefined")")
+            let message = fullscreenMessage?.parent as? Message
+            print("message was shown \(message?.id ?? "undefined")")
         }
 
         func onDismiss(message: Showable) {
+            
+            
+            
             let fullscreenMessage = message as? FullscreenMessage
             print("message was dismissed \(fullscreenMessage?.debugDescription ?? "undefined")")
         }
 
         func shouldShowMessage(message: Showable) -> Bool {
-
-            // do whatever logic to decide if the message should show
-
+            // if we're not showing the message now, we can save it for later
+            if !showMessages {
+                // access to the whole message from the parent
+                let fullscreenMessage = message as? FullscreenMessage
+                let message = fullscreenMessage?.parent as? Message
+                
+                currentMessage = message
+                
+                currentMessage?.track("message suppressed")
+            }
+            
             return showMessages
         }
     }
@@ -76,5 +89,9 @@ class ViewController: UIViewController {
 
     @IBAction func refreshMessages(_ sender: Any) {
         Messaging.refreshInAppMessages()
+    }
+    
+    @IBAction func showStoredMessage(_ sender: Any) {
+        messageHandler.currentMessage?.show()
     }
 }

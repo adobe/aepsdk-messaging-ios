@@ -15,38 +15,47 @@ import AEPServices
 import Foundation
 
 public class Message: FullscreenMessageDelegate {
+    // MARK: - public properties
+    public var id: String
+    public var autoTrack: Bool = true
+    
+    // MARK: internal properties
+    weak var parent: Messaging?
     var fullscreenMessage: FullscreenMessage?
-    var parent: Messaging
-    public var trackOnShow: Bool = true
+    var triggeringEvent: Event?
+    let experienceInfo: [String: Any] /// holds xdm data necessary for tracking message interactions with AJO
     
-    init(parent: Messaging, html: String) {
+    init(parent: Messaging, event: Event) {
         self.parent = parent
-        self.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage(payload: html,
-                                                                                listener: self,
-                                                                                isLocalImageUsed: false) as? FullscreenMessage
-    }
-    
-    init(parent: Messaging, message: FullscreenMessage) {
-        self.parent = parent
-        self.fullscreenMessage = message
+        self.triggeringEvent = event
+        self.id = event.messageId ?? ""
+        self.experienceInfo = event.experienceInfo ?? [:]
+        self.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage(parent: self,
+                                                                                          payload: event.html ?? "",
+                                                                                          listener: self,
+                                                                                          isLocalImageUsed: false) as? FullscreenMessage
     }
     
     // ui management
     public func show() {
-        if trackOnShow {
-            track("viewed")
+        if autoTrack {
+            track("triggered")
         }
         
         fullscreenMessage?.show()        
     }
         
     public func dismiss() {
+        if autoTrack {
+            track("dismissed")
+        }
         
+        fullscreenMessage?.dismiss()
     }
     
     // edge event generation
     public func track(_ interaction: String) {
-        parent.sendEvent()
+        parent?.recordInteractionForMessage(interaction, message:self)
     }
     
     // =================================================================================================================
@@ -54,25 +63,54 @@ public class Message: FullscreenMessageDelegate {
     // =================================================================================================================
     public func onShow(message: FullscreenMessage) {
         Log.debug(label: MessagingConstants.LOG_TAG, #function)
-        
-        // send "viewed" Experience Event
-        // TODO:
     }
     
     public func onDismiss(message: FullscreenMessage) {
         Log.debug(label: MessagingConstants.LOG_TAG, #function)
+                
+        guard let message = message.parent as? Message else {
+            return
+        }
+        
+        message.dismiss()    
     }
     
     public func overrideUrlLoad(message: FullscreenMessage, url: String?) -> Bool {
         Log.debug(label: MessagingConstants.LOG_TAG, #function)
         
-        guard let url = url else {
+        guard let urlString = url, let url = URL(string: urlString) else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load nil URL.")
             return true
         }
         
-        if url.contains("adbinapp://cancel") {
-            message.dismiss()
+        let message = message.parent as? Message
+        
+        if url.scheme == "adbinapp" {
+            
+            // handle request parameters
+            let queryParams = url.query?.components(separatedBy: "&").map({
+                $0.components(separatedBy: "=")
+            }).reduce(into: [String: String]()) { dict, pair in
+                if pair.count == 2 {
+                    dict[pair[0]] = pair[1]
+                }
+            }
+            
+            // handle optional tracking
+            if let interaction = queryParams?["interaction"] {
+                message?.track(interaction)
+            }
+            
+            // dismiss if requested
+            if url.host == "dismiss" {
+                message?.dismiss()
+            }
+            
+            // handle optional deep link
+            if let deeplinkUrl = URL(string: queryParams?["link"] ?? "") {
+                UIApplication.shared.open(deeplinkUrl)
+            }
+            
             return false
         }
         

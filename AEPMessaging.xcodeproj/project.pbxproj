@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */; };
 		244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */; };
 		244E9555267BB018001DC957 /* String+JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E9554267BB018001DC957 /* String+JSON.swift */; };
 		244E955B267BB253001DC957 /* Dictionary+Merging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E955A267BB253001DC957 /* Dictionary+Merging.swift */; };
@@ -117,6 +118,7 @@
 
 /* Begin PBXFileReference section */
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
+		240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedStateResult+Messaging.swift"; sourceTree = "<group>"; };
 		244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+EdgeEvents.swift"; sourceTree = "<group>"; };
 		244E9554267BB018001DC957 /* String+JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+JSON.swift"; sourceTree = "<group>"; };
 		244E955A267BB253001DC957 /* Dictionary+Merging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+Merging.swift"; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
 				2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */,
 				2450595B2671284A00CC7CA0 /* MessagingHandler.swift */,
+				240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */,
 				244E9554267BB018001DC957 /* String+JSON.swift */,
 				92315438261E3B36004AE7D3 /* Info.plist */,
 			);
@@ -704,6 +707,7 @@
 			files = (
 				244E9555267BB018001DC957 /* String+JSON.swift in Sources */,
 				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
+				240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */,
 				2450595C2671284B00CC7CA0 /* MessagingHandler.swift in Sources */,
 				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
 				245059522671283F00CC7CA0 /* MessagingRulesEngine.swift in Sources */,

@@ -35,16 +35,16 @@ class EventPlusMessagingTests: XCTestCase {
     func getRulesResponseEvent(type: String) -> Event {
         // details are the same for postback and pii, different for open url
         let details = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
-            MessagingConstants.EventDataKeys.InAppMessages.TEMPLATE: MessagingConstants.InAppMessageTemplates.FULLSCREEN,
-            MessagingConstants.EventDataKeys.InAppMessages.HTML: testHtml,
-            MessagingConstants.EventDataKeys.InAppMessages.REMOTE_ASSETS: testAssets
+            MessagingConstants.Event.Data.Key.IAM.TEMPLATE: MessagingConstants.InAppMessageTemplates.FULLSCREEN,
+            MessagingConstants.Event.Data.Key.IAM.HTML: testHtml,
+            MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: testAssets
         ] : [:]
 
         let triggeredConsequence = [
-            MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE: [
-                MessagingConstants.EventDataKeys.ID: UUID().uuidString,
-                MessagingConstants.EventDataKeys.TYPE: type,
-                MessagingConstants.EventDataKeys.DETAIL: details
+            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
+                MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
+                MessagingConstants.Event.Data.Key.TYPE: type,
+                MessagingConstants.Event.Data.Key.DETAIL: details
             ]
         ]
         let rulesEvent = Event(name: "Test Rules Engine response",
@@ -57,23 +57,23 @@ class EventPlusMessagingTests: XCTestCase {
     /// Helper to update the nested detail dictionary in a consequence event's event data
     func updateDetailDict(dict: [String: Any], withValue: Any?, forKey: String) -> [String: Any] {
         var returnDict = dict
-        guard var consequence = dict[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] as? [String: Any] else {
+        guard var consequence = dict[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] as? [String: Any] else {
             return returnDict
         }
-        guard var detail = consequence[MessagingConstants.EventDataKeys.DETAIL] as? [String: Any] else {
+        guard var detail = consequence[MessagingConstants.Event.Data.Key.DETAIL] as? [String: Any] else {
             return returnDict
         }
 
         detail[forKey] = withValue
-        consequence[MessagingConstants.EventDataKeys.DETAIL] = detail
-        returnDict[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] = consequence
+        consequence[MessagingConstants.Event.Data.Key.DETAIL] = detail
+        returnDict[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] = consequence
 
         return returnDict
     }
 
     /// Gets an AEP Response Event for testing
     func getAEPResponseEvent(type: String = EventType.edge,
-                             source: String = MessagingConstants.EventSource.PERSONALIZATION_DECISIONS,
+                             source: String = MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
                              data: [String: Any]? = nil) -> Event {
         var eventData = data
         if eventData == nil {
@@ -100,12 +100,12 @@ class EventPlusMessagingTests: XCTestCase {
         return rulesEvent
     }
 
-    func getRefreshMessagesEvent(type: String = MessagingConstants.EventType.messaging,
+    func getRefreshMessagesEvent(type: String = MessagingConstants.Event.EventType.messaging,
                                  source: String = EventSource.requestContent,
                                  data: [String: Any]? = nil) -> Event {
         var eventData = data
         if eventData == nil {
-            eventData = [MessagingConstants.EventDataKeys.REFRESH_MESSAGES: true]
+            eventData = [MessagingConstants.Event.Data.Key.REFRESH_MESSAGES: true]
         }
 
         let event = Event(name: "Test Refresh Messages",
@@ -166,11 +166,11 @@ class EventPlusMessagingTests: XCTestCase {
         // setup
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
         let triggeredConsequence: [String: Any] = [
-            MessagingConstants.EventDataKeys.TYPE: "Invalid",
-            MessagingConstants.EventDataKeys.ID: UUID().uuidString,
-            MessagingConstants.EventDataKeys.DETAIL: [:]
+            MessagingConstants.Event.Data.Key.TYPE: "Invalid",
+            MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
+            MessagingConstants.Event.Data.Key.DETAIL: [:]
         ]
-        event.data?[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] = triggeredConsequence
+        event.data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] = triggeredConsequence
 
         // verify
         XCTAssertFalse(event.isInAppMessage)
@@ -183,10 +183,10 @@ class EventPlusMessagingTests: XCTestCase {
         // setup
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
         let triggeredConsequence: [String: Any] = [
-            MessagingConstants.EventDataKeys.ID: UUID().uuidString,
-            MessagingConstants.EventDataKeys.DETAIL: [:]
+            MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
+            MessagingConstants.Event.Data.Key.DETAIL: [:]
         ]
-        event.data?[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] = triggeredConsequence
+        event.data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] = triggeredConsequence
 
         // verify
         XCTAssertFalse(event.isInAppMessage)
@@ -199,11 +199,11 @@ class EventPlusMessagingTests: XCTestCase {
         // setup
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
         let triggeredConsequence: [String: Any] = [
-            MessagingConstants.EventDataKeys.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
-            MessagingConstants.EventDataKeys.ID: UUID().uuidString,
-            MessagingConstants.EventDataKeys.DETAIL: ["unintersting": "data"]
+            MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
+            MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
+            MessagingConstants.Event.Data.Key.DETAIL: ["unintersting": "data"]
         ]
-        event.data?[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] = triggeredConsequence
+        event.data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] = triggeredConsequence
 
         // verify
         XCTAssertTrue(event.isInAppMessage)
@@ -216,10 +216,10 @@ class EventPlusMessagingTests: XCTestCase {
         // setup
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
         let triggeredConsequence: [String: Any] = [
-            MessagingConstants.EventDataKeys.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
-            MessagingConstants.EventDataKeys.ID: UUID().uuidString
+            MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
+            MessagingConstants.Event.Data.Key.ID: UUID().uuidString
         ]
-        event.data?[MessagingConstants.EventDataKeys.TRIGGERED_CONSEQUENCE] = triggeredConsequence
+        event.data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] = triggeredConsequence
 
         // verify
         XCTAssertTrue(event.isInAppMessage)
@@ -233,7 +233,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
         event.data = updateDetailDict(dict: event.data!,
                                       withValue: nil,
-                                      forKey: MessagingConstants.EventDataKeys.InAppMessages.TEMPLATE)
+                                      forKey: MessagingConstants.Event.Data.Key.IAM.TEMPLATE)
 
         // verify
         XCTAssertNil(event.template)
@@ -245,7 +245,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
         event.data = updateDetailDict(dict: event.data!,
                                       withValue: nil,
-                                      forKey: MessagingConstants.EventDataKeys.InAppMessages.HTML)
+                                      forKey: MessagingConstants.Event.Data.Key.IAM.HTML)
 
         // verify
         XCTAssertNil(event.html)
