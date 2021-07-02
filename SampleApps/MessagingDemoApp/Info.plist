@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>MESSAGING_PLACEMENT_ID</key>
+	<string>xcore:offer-placement:1315cd7dc3ed30e1</string>
+	<key>MESSAGING_ACTIVITY_ID</key>
+	<string>xcore:offer-activity:1315ce8f616d30e9</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

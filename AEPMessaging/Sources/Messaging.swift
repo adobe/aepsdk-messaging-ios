@@ -28,10 +28,10 @@ public class Messaging: NSObject, Extension {
     private var currentMessage: Message?
     private let messagingHandler = MessagingHandler()
     private let rulesEngine: MessagingRulesEngine
-    private let POC_ACTIVITY_ID = "xcore:offer-activity:1315ce8f616d30e9"
-    private let POC_PLACEMENT_ID = "xcore:offer-placement:1315cd7dc3ed30e1"
-    private let POC_ACTIVITY_ID_MULTI = "xcore:offer-activity:1323dbe94f2eef93"
-    private let POC_PLACEMENT_ID_MULTI = "xcore:offer-placement:1323d9eb43aacada"
+//    private let POC_ACTIVITY_ID = "xcore:offer-activity:1315ce8f616d30e9"
+//    private let POC_PLACEMENT_ID = "xcore:offer-placement:1315cd7dc3ed30e1"
+//    private let POC_ACTIVITY_ID_MULTI = "xcore:offer-activity:1323dbe94f2eef93"
+//    private let POC_PLACEMENT_ID_MULTI = "xcore:offer-placement:1323d9eb43aacada"
     private let MAX_ITEM_COUNT = 30
 
     // =================================================================================================================
@@ -105,14 +105,21 @@ public class Messaging: NSObject, Extension {
 
     /// Generates and dispatches an event prompting the Personalization extension to fetch in-app messages.
     private func fetchMessages() {
+        // activity and placement are both required for message definition retrieval
+        let offersConfig = getActivityAndPlacement()
+        guard let activityId = offersConfig.0, let placementId = offersConfig.1 else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to retrieve message definitions - activity and placement ids are both required.")
+            return
+        }
+        
         // create event to be handled by offers
         let eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.Offers.TYPE: MessagingConstants.Event.Data.Key.Offers.PREFETCH,
             MessagingConstants.Event.Data.Key.Offers.DECISION_SCOPES: [
                 [
                     MessagingConstants.Event.Data.Key.Offers.ITEM_COUNT: MAX_ITEM_COUNT,
-                    MessagingConstants.Event.Data.Key.Offers.ACTIVITY_ID: POC_ACTIVITY_ID,
-                    MessagingConstants.Event.Data.Key.Offers.PLACEMENT_ID: POC_PLACEMENT_ID
+                    MessagingConstants.Event.Data.Key.Offers.ACTIVITY_ID: activityId,
+                    MessagingConstants.Event.Data.Key.Offers.PLACEMENT_ID: placementId
                 ]
             ]
         ]
@@ -134,7 +141,11 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        if event.offerActivityId != POC_ACTIVITY_ID || event.offerPlacementId != POC_PLACEMENT_ID {
+        let offersConfig = getActivityAndPlacement()
+        let activityId = offersConfig.0
+        let placementId = offersConfig.1
+        
+        if event.offerActivityId != activityId || event.offerPlacementId != placementId {
             return
         }
 
@@ -171,6 +182,19 @@ public class Messaging: NSObject, Extension {
         currentMessage = Message(parent: self, event: event)
         
         currentMessage?.show()
+    }
+    
+    private func getActivityAndPlacement() -> (String?, String?) {
+        var activity: String?
+        var placement: String?
+        var nsDictionary: NSDictionary?
+        if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
+            nsDictionary = NSDictionary(contentsOfFile: path)
+            activity = nsDictionary?.value(forKey: "MESSAGING_ACTIVITY_ID") as? String
+            placement = nsDictionary?.value(forKey: "MESSAGING_PLACEMENT_ID") as? String
+        }
+        
+        return (activity, placement)
     }
 
     // =================================================================================================================
