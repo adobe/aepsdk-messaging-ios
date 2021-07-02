@@ -134,7 +134,7 @@ class MessagingPublicAPITests: XCTestCase {
         ]]]]]
         let data = [MessagingConstants.Event.Data.Key.MESSAGE_ID: "mockMessageId",
                     MessagingConstants.Event.Data.Key.APPLICATION_OPENED: true,
-                    MessagingConstants.Event.Data.Key.EVENT_TYPE: MessagingConstants.EventDataValue.PUSH_TRACKING_CUSTOM_ACTION,
+                    MessagingConstants.Event.Data.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION,
                     MessagingConstants.Event.Data.Key.ACTION_ID: "mockCustomActionId",
                     MessagingConstants.Event.Data.Key.ADOBE_XDM: cjmData] as [String: Any]
         return data

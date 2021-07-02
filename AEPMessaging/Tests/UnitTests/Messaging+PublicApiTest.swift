@@ -60,7 +60,7 @@ class MessagingPublicApiTest: XCTestCase {
             }
 
             XCTAssertTrue(applicationOpened)
-            XCTAssertEqual(MessagingConstants.EventDataValue.PUSH_TRACKING_CUSTOM_ACTION, eventDataType)
+            XCTAssertEqual(MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION, eventDataType)
             XCTAssertEqual(actionId, mockCustomActionId)
             XCTAssertEqual(messageId, mockIdentifier)
             XCTAssertNotNil(xdm)

@@ -102,7 +102,18 @@ enum MessagingConstants {
             }
             
             enum Values {
-                
+                enum IAM {
+                    enum Template {
+                        static let FULLSCREEN = "fullscreen"
+                        static let LOCAL = "local"
+                    }
+                    
+                    enum Value {
+                        static let TRIGGERED = "triggered"
+                        static let VIEWED = "viewed"
+                        static let CLICKED = "clicked"
+                    }
+                }
             }
         }
     }
@@ -169,17 +180,6 @@ enum MessagingConstants {
                 static let DISMISS = "inapp.dismiss"
                 static let INTERACT = "inapp.interact"
                 static let TRIGGER = "inapp.trigger"
-            }
-            
-            enum Template {
-                static let FULLSCREEN = "fullscreen"
-                static let LOCAL = "local"
-            }
-            
-            enum Value {
-                static let TRIGGERED = "triggered"
-                static let VIEWED = "viewed"
-                static let CLICKED = "clicked"
             }
         }
     }

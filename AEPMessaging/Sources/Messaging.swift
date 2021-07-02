@@ -185,8 +185,8 @@ public class Messaging: NSObject, Extension {
     }
     
     private func getActivityAndPlacement() -> (String?, String?) {
-        var activity: String?
-        var placement: String?
+        var activity: String? = "testValue"
+        var placement: String? = "testValue"
         var nsDictionary: NSDictionary?
         if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
             nsDictionary = NSDictionary(contentsOfFile: path)
