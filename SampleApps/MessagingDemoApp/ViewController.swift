@@ -70,6 +70,10 @@ class ViewController: UIViewController {
             
             return showMessages
         }
+        
+        func urlLoaded(_ url: URL) {
+            print("fullscreen message loaded url: \(url)")
+        }
     }
 
     @IBAction func toggleShowMessages(_ sender: Any) {
