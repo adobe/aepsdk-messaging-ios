@@ -123,6 +123,15 @@ public class Messaging: NSObject, Extension {
                 ]
             ]
         ]
+        
+        let optimizeData = [
+            "requesttype": "getpropositions",
+            "decisionscopes": 
+        ]
+        let e = Event(name: MessagingConstants.Event.Name.OFFERS_REQUEST,
+                      type: EventType.optimize,
+                      source: EventSource.requestContent,
+                      data: <#T##[String : Any]?#>)
 
         let event = Event(name: MessagingConstants.Event.Name.OFFERS_REQUEST,
                           type: EventType.offerDecisioning,
