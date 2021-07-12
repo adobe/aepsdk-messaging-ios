@@ -22,7 +22,7 @@ let package = Package(
         .library(name: "AEPMessaging", targets: ["AEPMessaging"])
     ],
     dependencies: [
-        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .branch("main"))
+        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "3.2.2"))
     ],
     targets: [
         .target(name: "AEPMessaging",
