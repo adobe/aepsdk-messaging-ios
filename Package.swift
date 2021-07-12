@@ -27,15 +27,6 @@ let package = Package(
     targets: [
         .target(name: "AEPMessaging",
                 dependencies: ["AEPCore"],
-                path: "AEPMessaging/Sources"),
-        .testTarget(name: "MessagingDemoApp",
-                    dependencies: ["AEPMessaging"],
-                    path: "SampleApps/MessagingDemoApp"),
-        .testTarget(name: "UnitTests",
-                    dependencies: ["AEPMessaging", "AEPCore"],
-                    path: "AEPMessaging/Tests/UnitTests"),
-        .testTarget(name: "FunctionalTests",
-                    dependencies: ["AEPMessaging", "AEPCore"],
-                    path: "AEPMessaging/Tests/FunctionalTests")
+                path: "AEPMessaging/Sources")
     ]
 )
