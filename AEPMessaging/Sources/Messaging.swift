@@ -25,14 +25,10 @@ public class Messaging: NSObject, Extension {
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
 
+    private var initialLoadComplete = false
     private var currentMessage: Message?
     private let messagingHandler = MessagingHandler()
     private let rulesEngine: MessagingRulesEngine
-//    private let POC_ACTIVITY_ID = "xcore:offer-activity:1315ce8f616d30e9"
-//    private let POC_PLACEMENT_ID = "xcore:offer-placement:1315cd7dc3ed30e1"
-//    private let POC_ACTIVITY_ID_MULTI = "xcore:offer-activity:1323dbe94f2eef93"
-//    private let POC_PLACEMENT_ID_MULTI = "xcore:offer-placement:1323d9eb43aacada"
-    private let MAX_ITEM_COUNT = 30
 
     // =================================================================================================================
     // MARK: - Extension protocol methods
@@ -70,9 +66,6 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.edge,
                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
                          listener: handleOfferNotification)
-
-        // fetch messages from offers
-        fetchMessages()
     }
 
     public func onUnregistered() {
@@ -90,8 +83,18 @@ public class Messaging: NSObject, Extension {
             Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid xdm shared state from edge identity - '\(event.id.uuidString)'.")
             return false
         }
-
-        return configurationSharedState.status == .set && edgeIdentitySharedState.status == .set
+        
+        if configurationSharedState.status != .set || edgeIdentitySharedState.status != .set {
+            return false
+        }
+        
+        // once we have valid configuration, fetch message definitions from offers if we haven't already
+        if !initialLoadComplete {
+            initialLoadComplete = true
+            fetchMessages()
+        }
+        
+        return true
     }
 
     // =================================================================================================================
@@ -112,31 +115,24 @@ public class Messaging: NSObject, Extension {
             return
         }
         
-        // create event to be handled by offers
-        let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.Offers.TYPE: MessagingConstants.Event.Data.Key.Offers.PREFETCH,
-            MessagingConstants.Event.Data.Key.Offers.DECISION_SCOPES: [
+        // create event to be handled by optimize
+        guard let decisionScope = getEncodedDecisionScopeFor(activityId: activityId, placementId: placementId) else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to retrieve message definitions - error encoding the decision scope.")
+            return
+        }
+                
+        let optimizeData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.Optimize.REQUEST_TYPE: MessagingConstants.Event.Data.Values.Optimize.UPDATE_PROPOSITIONS,
+            MessagingConstants.Event.Data.Key.Optimize.DECISION_SCOPES: [
                 [
-                    MessagingConstants.Event.Data.Key.Offers.ITEM_COUNT: MAX_ITEM_COUNT,
-                    MessagingConstants.Event.Data.Key.Offers.ACTIVITY_ID: activityId,
-                    MessagingConstants.Event.Data.Key.Offers.PLACEMENT_ID: placementId
+                    MessagingConstants.Event.Data.Key.Optimize.NAME: "\(decisionScope)"
                 ]
             ]
         ]
-        
-        let optimizeData = [
-            "requesttype": "getpropositions",
-            "decisionscopes": 
-        ]
-        let e = Event(name: MessagingConstants.Event.Name.OFFERS_REQUEST,
-                      type: EventType.optimize,
-                      source: EventSource.requestContent,
-                      data: <#T##[String : Any]?#>)
-
-        let event = Event(name: MessagingConstants.Event.Name.OFFERS_REQUEST,
-                          type: EventType.offerDecisioning,
+        let event = Event(name: MessagingConstants.Event.Name.RETRIEVE_MESSAGE_DEFINITIONS,
+                          type: EventType.optimize,
                           source: EventSource.requestContent,
-                          data: eventData)
+                          data: optimizeData)
 
         // send event
         runtime.dispatch(event: event)
@@ -150,7 +146,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        let offersConfig = getActivityAndPlacement()
+        let offersConfig = getActivityAndPlacement(forEvent: event)
         let activityId = offersConfig.0
         let placementId = offersConfig.1
         
@@ -193,9 +189,27 @@ public class Messaging: NSObject, Extension {
         currentMessage?.show()
     }
     
-    private func getActivityAndPlacement() -> (String?, String?) {
-        var activity: String? = "testValue"
-        var placement: String? = "testValue"
+    private func getEncodedDecisionScopeFor(activityId: String, placementId: String) -> String? {
+        let decisionScopeString = "{\"activityId\":\"\(activityId)\",\"placementId\":\"\(placementId)\",\"itemCount\":\(MessagingConstants.DefaultValues.Optimize.MAX_ITEM_COUNT)}"
+        
+        guard let decisionScopeData = decisionScopeString.data(using: .utf8) else {
+            return nil
+        }
+        
+        return decisionScopeData.base64EncodedString()
+    }
+    
+    private func getActivityAndPlacement(forEvent event: Event? = nil) -> (String?, String?) {
+        // activityId = IMS OrgID
+        let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value
+        let orgId = configuration?[MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG] as? String
+        
+        var activity: String? = orgId
+        
+        // placementId = bundle identifier
+        var placement = Bundle.main.bundleIdentifier
+                
+        // hack to allow overriding of activity and placement from plist
         var nsDictionary: NSDictionary?
         if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
             nsDictionary = NSDictionary(contentsOfFile: path)

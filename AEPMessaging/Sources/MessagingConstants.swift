@@ -18,17 +18,23 @@ enum MessagingConstants {
     static let EXTENSION_NAME = "com.adobe.messaging"
 
     static let EXTENSION_VERSION = "1.0.0"
-    static let FRIENDLY_NAME = "AEPMessaging"
+    static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
 
+    enum DefaultValues {
+        enum Optimize {
+            static let MAX_ITEM_COUNT = 30
+        }
+    }
+    
     enum Event {
         enum Name {
             static let MESSAGE_INTERACTION = "Messaging interaction event"
-            static let OFFERS_REQUEST = "Offer Decisioning Request"
             static let PUSH_NOTIFICATION_INTERACTION = "Push notification interaction event"
             static let PUSH_PROFILE_EDGE = "Push notification profile edge event"
             static let PUSH_TRACKING_EDGE = "Push tracking edge event"
-            static let REFRESH_MESSAGES = "Refresh In-App Messages"            
+            static let REFRESH_MESSAGES = "Refresh in-app messages"
+            static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
         }
         
         enum Source {
@@ -74,30 +80,17 @@ enum MessagingConstants {
                     static let SOUND = "sound"
                 }
                 
-                enum Offers {
-                    static let PROPOSITIONS = "propositions"
+                enum Optimize {
+                    static let REQUEST_TYPE = "requesttype"
                     static let DECISION_SCOPES = "decisionscopes"
-                    static let ACTIVITY_ID = "activityId"
-                    static let PLACEMENT_ID = "placementId"
-                    static let ITEM_COUNT = "itemCount"
-                    static let ERROR = "error"
-                    static let TYPE = "type"
-                    static let PERSONALIZATION_DECISIONS = "personalization:decisions"
-                    static let PREFETCH = "prefetch"
-                    static let RETRIEVE = "retrieve"
-                    static let REQUEST_EVENT_ID = "requestEventId"
-                    static let XDM_QUERY = "query"
-                    static let XDM = "xdm"
+                    static let NAME = "name"
+                    static let ID = "id"
                     static let DATA = "data"
-                    static let DATASET_ID = "datasetId"
-                    static let XDM_EVENT_TYPE = "eventType"
-                    static let PERSONALIZATION_REQUEST = "personalization.request"
+                    static let CONTENT = "content"
                     static let PAYLOAD = "payload"
                     static let ACTIVITY = "activity"
                     static let PLACEMENT = "placement"
-                    static let ID = "id"
                     static let ITEMS = "items"
-                    static let CONTENT = "content"
                 }
             }
             
@@ -113,6 +106,10 @@ enum MessagingConstants {
                         static let VIEWED = "viewed"
                         static let CLICKED = "clicked"
                     }
+                }
+                
+                enum Optimize {
+                    static let UPDATE_PROPOSITIONS = "updatepropositions"
                 }
             }
         }

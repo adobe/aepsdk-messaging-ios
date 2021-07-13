@@ -78,11 +78,11 @@ extension Event {
     }
 
     var offerActivityId: String? {
-        return activity?[MessagingConstants.Event.Data.Key.Offers.ID] as? String
+        return activity?[MessagingConstants.Event.Data.Key.Optimize.ID] as? String
     }
 
     var offerPlacementId: String? {
-        return placement?[MessagingConstants.Event.Data.Key.Offers.ID] as? String
+        return placement?[MessagingConstants.Event.Data.Key.Optimize.ID] as? String
     }
 
     /// each entry in the array represents "content" from an offer, which contains a rule
@@ -93,10 +93,10 @@ extension Event {
 
         var rules: [String] = []
         for item in items {
-            guard let data = item[MessagingConstants.Event.Data.Key.Offers.DATA] as? [String: Any] else {
+            guard let data = item[MessagingConstants.Event.Data.Key.Optimize.DATA] as? [String: Any] else {
                 continue
             }
-            if let content = data[MessagingConstants.Event.Data.Key.Offers.CONTENT] as? String {
+            if let content = data[MessagingConstants.Event.Data.Key.Optimize.CONTENT] as? String {
                 rules.append(content)
             }
         }
@@ -116,7 +116,7 @@ extension Event {
     /// payload is an array of dictionaries, but since we are only asking for a single DecisionScope
     /// in the messaging sdk, we can assume this array will only have 0-1 items
     private var payload: [[String: Any]]? {
-        return data?[MessagingConstants.Event.Data.Key.Offers.PAYLOAD] as? [[String: Any]]
+        return data?[MessagingConstants.Event.Data.Key.Optimize.PAYLOAD] as? [[String: Any]]
     }
 
     private var activity: [String: Any]? {
@@ -124,7 +124,7 @@ extension Event {
             return nil
         }
 
-        return payload[0][MessagingConstants.Event.Data.Key.Offers.ACTIVITY] as? [String: Any]
+        return payload[0][MessagingConstants.Event.Data.Key.Optimize.ACTIVITY] as? [String: Any]
     }
 
     private var placement: [String: Any]? {
@@ -132,7 +132,7 @@ extension Event {
             return nil
         }
 
-        return payload[0][MessagingConstants.Event.Data.Key.Offers.PLACEMENT] as? [String: Any]
+        return payload[0][MessagingConstants.Event.Data.Key.Optimize.PLACEMENT] as? [String: Any]
     }
 
     private var items: [[String: Any]]? {
@@ -140,7 +140,7 @@ extension Event {
             return nil
         }
 
-        return payload[0][MessagingConstants.Event.Data.Key.Offers.ITEMS] as? [[String: Any]]
+        return payload[0][MessagingConstants.Event.Data.Key.Optimize.ITEMS] as? [[String: Any]]
     }
 
     // MARK: Refresh Messages Public API Event
