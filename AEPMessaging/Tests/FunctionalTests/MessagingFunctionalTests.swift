@@ -40,11 +40,11 @@ class MessagingFunctionalTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(event)
-        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
-        let edgeEvent = mockRuntime.dispatchedEvents[1]
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let edgeEvent = mockRuntime.firstEvent
 
-        XCTAssertEqual(edgeEvent.type, EventType.edge)
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
+        XCTAssertEqual(edgeEvent?.type, EventType.edge)
+        let flattenEdgeEvent = edgeEvent?.data?.flattening()
         let pushNotification = flattenEdgeEvent?["data.pushNotificationDetails"] as? [[String: Any]]
         XCTAssertEqual(1, pushNotification?.count)
         let flattenedPushNotification = pushNotification?.first?.flattening()
@@ -72,7 +72,7 @@ class MessagingFunctionalTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(event)
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count, "only an event to retrieve in-app messages should be dispatched")
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
         // verify that push token is not shared in sharedState
         XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
@@ -90,7 +90,7 @@ class MessagingFunctionalTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(event)
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count, "only an event to retrieve in-app messages should be dispatched")
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
         // verify that push token is not shared in sharedState
         XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
@@ -108,7 +108,7 @@ class MessagingFunctionalTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(event)
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count, "only an event to retrieve in-app messages should be dispatched")
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
         // verify that push token is shared in sharedState
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
@@ -128,8 +128,8 @@ class MessagingFunctionalTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(event)
-        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
-        let edgeEvent = mockRuntime.dispatchedEvents[1]
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let edgeEvent = mockRuntime.dispatchedEvents[0]
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         let flattenEdgeEvent = edgeEvent.data?.flattening()

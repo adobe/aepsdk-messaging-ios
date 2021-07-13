@@ -12,15 +12,13 @@
 
 import AEPCore
 import AEPMessaging
-//import AEPOfferDecisioning
 import AEPServices
 import UIKit
 import UserNotifications
 
 class ViewController: UIViewController {
     @IBOutlet var switchShowMessages: UISwitch?
-    
-//    var htmlDecisionScope: DecisionScope?
+
     private let messageHandler = MessageHandler()
 
     weak var appDelegate = UIApplication.shared.delegate as? AppDelegate

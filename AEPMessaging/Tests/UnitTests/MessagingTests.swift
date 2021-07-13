@@ -61,7 +61,7 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(MOCK_PUSH_TOKEN, mockRuntime.firstSharedState?[MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as! String)
 
         // verify the dispatched edge event
-        guard let edgeEvent = mockRuntime.secondEvent else {
+        guard let edgeEvent = mockRuntime.firstEvent else {
             XCTFail()
             return
         }

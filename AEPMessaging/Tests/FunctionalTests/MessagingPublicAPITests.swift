@@ -40,8 +40,8 @@ class MessagingPublicAPITests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(event)
-        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
-        let edgeEvent = mockRuntime.dispatchedEvents[1]
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let edgeEvent = mockRuntime.dispatchedEvents[0]
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         let flattenEdgeEvent = edgeEvent.data?.flattening()
@@ -74,7 +74,7 @@ class MessagingPublicAPITests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(event)
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count, "only an event to retrieve in-app messages should be dispatched")
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
     }
 
@@ -92,7 +92,7 @@ class MessagingPublicAPITests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(event)
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count, "only an event to retrieve in-app messages should be dispatched")
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
     }
 
@@ -109,8 +109,8 @@ class MessagingPublicAPITests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(event)
-        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
-        let edgeEvent = mockRuntime.dispatchedEvents[1]
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let edgeEvent = mockRuntime.dispatchedEvents[0]
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         let flattenEdgeEvent = edgeEvent.data?.flattening()
