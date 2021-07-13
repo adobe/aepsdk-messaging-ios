@@ -22,7 +22,6 @@ def core_main
     pod 'AEPEdge'
     pod 'AEPEdgeConsent'
     pod 'AEPEdgeIdentity'
-#    pod 'AEPOfferDecisioning', :git => 'git@github.com:adobe/aepsdk-offer-ios.git', :branch => 'main'
     pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
 end
 
@@ -39,7 +38,6 @@ def core_dev
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'main'
     pod 'AEPEdgeConsent'
     pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'main'
-#    pod 'AEPOfferDecisioning', :git => 'git@github.com:adobe/aepsdk-offer-ios.git', :branch => 'dev-v1.0.1'
     pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
 end
 
