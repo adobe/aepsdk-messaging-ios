@@ -35,7 +35,7 @@ class EventPlusMessagingTests: XCTestCase {
     func getRulesResponseEvent(type: String) -> Event {
         // details are the same for postback and pii, different for open url
         let details = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
-            MessagingConstants.Event.Data.Key.IAM.TEMPLATE: MessagingConstants.InAppMessageTemplates.FULLSCREEN,
+            MessagingConstants.Event.Data.Key.IAM.TEMPLATE: MessagingConstants.Event.Data.Values.IAM.Template.FULLSCREEN,
             MessagingConstants.Event.Data.Key.IAM.HTML: testHtml,
             MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: testAssets
         ] : [:]
@@ -131,7 +131,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
 
         // verify
-        XCTAssertEqual(MessagingConstants.InAppMessageTemplates.FULLSCREEN, event.template!)
+        XCTAssertEqual(MessagingConstants.Event.Data.Values.IAM.Template.FULLSCREEN, event.template!)
     }
 
     func testInAppMessageHtml() throws {

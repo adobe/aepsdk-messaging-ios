@@ -20,13 +20,13 @@ def core_main
     pod 'AEPRulesEngine'
     pod 'AEPSignal'
     pod 'AEPEdge'
+    pod 'AEPEdgeConsent'
     pod 'AEPEdgeIdentity'
-    pod 'AEPOfferDecisioning', :git => 'git@github.com:adobe/aepsdk-offer-ios.git', :branch => 'main'
+    pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
 end
 
 def griffon_main
     pod 'AEPAssurance'
-    pod 'ACPCore', :git => 'https://github.com/adobe/aep-sdk-compatibility-ios.git', :branch => 'main'
 end
 
 def core_dev
@@ -36,13 +36,13 @@ def core_dev
     pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.2.1'
     pod 'AEPRulesEngine'#, :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-v1.0.0'
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'main'
+    pod 'AEPEdgeConsent'
     pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'main'
-    pod 'AEPOfferDecisioning', :git => 'git@github.com:adobe/aepsdk-offer-ios.git', :branch => 'dev-v1.0.1'
+    pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
 end
 
 def griffon_dev
-    pod 'AEPAssurance' #todo - get a link to this repo once it's public
-    pod 'ACPCore', :git => 'https://github.com/adobe/aep-sdk-compatibility-ios.git', :branch => 'main'
+    pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'dev'
 end
 
 # ==================

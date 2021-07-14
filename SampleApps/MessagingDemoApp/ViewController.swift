@@ -12,15 +12,13 @@
 
 import AEPCore
 import AEPMessaging
-import AEPOfferDecisioning
 import AEPServices
 import UIKit
 import UserNotifications
 
 class ViewController: UIViewController {
     @IBOutlet var switchShowMessages: UISwitch?
-    
-    var htmlDecisionScope: DecisionScope?
+
     private let messageHandler = MessageHandler()
 
     weak var appDelegate = UIApplication.shared.delegate as? AppDelegate
@@ -29,13 +27,17 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         MobileCore.messagingDelegate = messageHandler
     }
+    
+    
 
     @IBAction func triggerInapp(_ sender: Any) {
+        
         MobileCore.track(state: "triggerInapp", data: ["testShowMessage": "true"])
-
-        // MobileCore.track(state: "triggerInapp", data: ["testShowMessage3": "true"])
+        
     }
 
+    
+    
     /// Messaging delegate
     private class MessageHandler: MessagingDelegate {
         var showMessages = true
@@ -69,6 +71,10 @@ class ViewController: UIViewController {
             }
             
             return showMessages
+        }
+        
+        func urlLoaded(_ url: URL) {
+            print("fullscreen message loaded url: \(url)")
         }
     }
 
