@@ -73,21 +73,19 @@ public class Messaging: NSObject, Extension {
     }
 
     public func readyForEvent(_ event: Event) -> Bool {
-        guard let configurationSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
+        guard let configurationSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event),
+              configurationSharedState.status == .set else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Event processing is paused - waiting for valid configuration.")
             return false
         }
 
         // hard dependency on edge identity module for ecid
-        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid xdm shared state from edge identity - '\(event.id.uuidString)'.")
+        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event),
+              edgeIdentitySharedState.status == .set else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Event processing is paused - waiting for valid XDM shared state from Edge Identity extension.")
             return false
         }
-        
-        if configurationSharedState.status != .set || edgeIdentitySharedState.status != .set {
-            return false
-        }
-        
+                
         // once we have valid configuration, fetch message definitions from offers if we haven't already
         if !initialLoadComplete {
             initialLoadComplete = true

@@ -27,13 +27,17 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         MobileCore.messagingDelegate = messageHandler
     }
+    
+    
 
     @IBAction func triggerInapp(_ sender: Any) {
+        
         MobileCore.track(state: "triggerInapp", data: ["testShowMessage": "true"])
-
-        // MobileCore.track(state: "triggerInapp", data: ["testShowMessage3": "true"])
+        
     }
 
+    
+    
     /// Messaging delegate
     private class MessageHandler: MessagingDelegate {
         var showMessages = true
