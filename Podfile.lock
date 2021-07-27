@@ -16,6 +16,7 @@ PODS:
     - AEPCore (= 3.2.2)
   - AEPOptimize (1.0.0):
     - AEPCore (>= 3.2.0)
+    - AEPEdge (>= 1.1.0)
   - AEPRulesEngine (1.0.1)
   - AEPServices (3.2.2)
   - AEPSignal (3.2.2):
@@ -30,7 +31,7 @@ DEPENDENCIES:
   - AEPLifecycle
   - AEPOptimize (from `https://github.com/adobe/aepsdk-optimize-ios.git`, branch `dev`)
   - AEPRulesEngine
-  - AEPServices
+  - AEPServices (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v3.3.0`)
   - AEPSignal
 
 SPEC REPOS:
@@ -42,18 +43,23 @@ SPEC REPOS:
     - AEPEdgeIdentity
     - AEPLifecycle
     - AEPRulesEngine
-    - AEPServices
     - AEPSignal
 
 EXTERNAL SOURCES:
   AEPOptimize:
     :branch: dev
     :git: https://github.com/adobe/aepsdk-optimize-ios.git
+  AEPServices:
+    :branch: dev-v3.3.0
+    :git: https://github.com/adobe/aepsdk-core-ios.git
 
 CHECKOUT OPTIONS:
   AEPOptimize:
-    :commit: 0c1ad7fd30dbed40d9ba06636c59b303849c7084
+    :commit: e70aae9ec488f85e80baa37e75a94aa9db6afca6
     :git: https://github.com/adobe/aepsdk-optimize-ios.git
+  AEPServices:
+    :commit: bc84634a7c190553cd1edef2661aa4a4cf126cca
+    :git: https://github.com/adobe/aepsdk-core-ios.git
 
 SPEC CHECKSUMS:
   AEPAssurance: 18068627111e366a851dc2166239f22b665101bd
@@ -62,11 +68,11 @@ SPEC CHECKSUMS:
   AEPEdgeConsent: dd46002b0c4bf55443f5441990e799248975713e
   AEPEdgeIdentity: 40d312b4434b710a46c1738ab2a221dda4cfd67e
   AEPLifecycle: 54602c05131fd479b292cad24a62ab9f92509908
-  AEPOptimize: 151bbb2c100f3f29f742b4b9a927550e60ce7aae
+  AEPOptimize: d7eaacb17fbf8f5f680b4fa7a5f6d242b7c96662
   AEPRulesEngine: 5075ed294026a12e37bd26fe260f74604d205354
   AEPServices: 8072b031649fea7ffd971e4e185f271dee3707fc
   AEPSignal: dc658c701187d9e1658732d264fb711358b76df5
 
-PODFILE CHECKSUM: d75c2a2c5e5c12a13d2d293fe0d6d997cab60e2d
+PODFILE CHECKSUM: 13fd039887d7d6610d4d3787ca7fa41c22163e98
 
 COCOAPODS: 1.10.1

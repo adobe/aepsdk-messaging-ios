@@ -13,11 +13,20 @@
 import AEPCore
 import AEPServices
 import Foundation
+import WebKit
 
 public class Message: FullscreenMessageDelegate {
     // MARK: - public properties
     public var id: String
     public var autoTrack: Bool = true
+    public var view: UIView? {        
+        return fullscreenMessage?.webView
+    }
+    
+    public func handleJavascriptMessage(_ name: String, withHandler handler: @escaping (Any?) -> Void) {
+        fullscreenMessage?.handleJavascriptMessage(name, withHandler: handler)
+    }
+    
     
     // MARK: internal properties
     weak var parent: Messaging?
@@ -30,10 +39,10 @@ public class Message: FullscreenMessageDelegate {
         self.triggeringEvent = event
         self.id = event.messageId ?? ""
         self.experienceInfo = event.experienceInfo ?? [:]
-        self.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage(parent: self,
-                                                                                          payload: event.html ?? "",
+        self.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
                                                                                           listener: self,
-                                                                                          isLocalImageUsed: false) as? FullscreenMessage
+                                                                                          isLocalImageUsed: false,
+                                                                                          parent: self) as? FullscreenMessage
     }
     
     // ui management
