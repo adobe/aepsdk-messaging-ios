@@ -15,7 +15,7 @@ project 'AEPMessaging.xcodeproj'
 # ==================
 def core_main
     pod 'AEPCore'
-    pod 'AEPServices'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.3.0'
     pod 'AEPLifecycle'
     pod 'AEPRulesEngine'
     pod 'AEPSignal'

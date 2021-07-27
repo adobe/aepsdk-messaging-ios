@@ -15,6 +15,7 @@ import AEPMessaging
 import AEPServices
 import UIKit
 import UserNotifications
+import WebKit
 
 class ViewController: UIViewController {
     @IBOutlet var switchShowMessages: UISwitch?
@@ -59,14 +60,23 @@ class ViewController: UIViewController {
         }
 
         func shouldShowMessage(message: Showable) -> Bool {
+            
+            // access to the whole message from the parent
+            let fullscreenMessage = message as? FullscreenMessage
+            let message = fullscreenMessage?.parent as? Message
+            
+            // in-line handling of javascript calls
+            message?.handleJavascriptMessage("magic") { content in
+                print("magical handling of our content from js! content is: \(content ?? "empty")")
+                message?.track(content as! String)
+            }
+                        
+            // get the uiview - add it
+            // let messageWebView = message?.view as! WKWebView
+            
             // if we're not showing the message now, we can save it for later
             if !showMessages {
-                // access to the whole message from the parent
-                let fullscreenMessage = message as? FullscreenMessage
-                let message = fullscreenMessage?.parent as? Message
-                
                 currentMessage = message
-                
                 currentMessage?.track("message suppressed")
             }
             
