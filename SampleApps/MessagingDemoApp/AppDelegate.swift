@@ -22,6 +22,7 @@ import AEPSignal
 import UIKit
 import UserNotifications
 
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     let notificationCenter = UNUserNotificationCenter.current()
@@ -64,6 +65,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         MobileCore.configureWith(appId: "3149c49c3910/cf7779260cdd/launch-be72758aa82a-development")
 
+        // update config to use cjmstage for int integration
+        let cjmStageConfig = [
+            "edge.environment": "int",
+            "experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
+            "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
+            "messaging.eventDataset": "610ae80b3cbbc718dab06208"
+        ]
+        MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
+        
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
         // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
 
@@ -73,9 +83,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         //            "messaging.useSandbox": true,
         //        ])
 
-        MobileCore.updateConfigurationWith(configDict: [
-            "messaging.useSandbox": true
-        ])
+//        MobileCore.updateConfigurationWith(configDict: [
+//            "messaging.useSandbox": true
+//        ])
 
         // only start lifecycle if the application is not in the background
         if application.applicationState != .background {

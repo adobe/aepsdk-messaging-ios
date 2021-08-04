@@ -31,7 +31,7 @@ DEPENDENCIES:
   - AEPLifecycle
   - AEPOptimize (from `https://github.com/adobe/aepsdk-optimize-ios.git`, branch `dev`)
   - AEPRulesEngine
-  - AEPServices (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v3.3.0`)
+  - AEPServices (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `ui-services-updates`)
   - AEPSignal
 
 SPEC REPOS:
@@ -50,16 +50,16 @@ EXTERNAL SOURCES:
     :branch: dev
     :git: https://github.com/adobe/aepsdk-optimize-ios.git
   AEPServices:
-    :branch: dev-v3.3.0
-    :git: https://github.com/adobe/aepsdk-core-ios.git
+    :branch: ui-services-updates
+    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
 
 CHECKOUT OPTIONS:
   AEPOptimize:
     :commit: e70aae9ec488f85e80baa37e75a94aa9db6afca6
     :git: https://github.com/adobe/aepsdk-optimize-ios.git
   AEPServices:
-    :commit: bc84634a7c190553cd1edef2661aa4a4cf126cca
-    :git: https://github.com/adobe/aepsdk-core-ios.git
+    :commit: 74222695c779b55fc5b00546bdf78622eb7b9b4f
+    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
 
 SPEC CHECKSUMS:
   AEPAssurance: 18068627111e366a851dc2166239f22b665101bd
@@ -73,6 +73,6 @@ SPEC CHECKSUMS:
   AEPServices: 8072b031649fea7ffd971e4e185f271dee3707fc
   AEPSignal: dc658c701187d9e1658732d264fb711358b76df5
 
-PODFILE CHECKSUM: 13fd039887d7d6610d4d3787ca7fa41c22163e98
+PODFILE CHECKSUM: 293691ce36af7c1355e7f877062078340385d5fc
 
 COCOAPODS: 1.10.1

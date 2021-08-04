@@ -171,6 +171,7 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Creates and shows a fullscreen message as defined by the contents of the provided `Event`'s data.
+    /// - Parameter event: the `Event` containing data necessary to create the message and report on it
     private func showMessageForEvent(_ event: Event) {
         guard event.html != nil else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to show message for event \(event.id) - it contains no HTML defining the message.")
@@ -186,7 +187,14 @@ public class Messaging: NSObject, Extension {
         
         currentMessage?.show()
     }
-    
+        
+    /// Takes an activity and placement and returns an encoded string in the format expected
+    /// by the Optimize extension for retrieving offers
+    ///
+    /// - Parameters:
+    ///   - activityId: the activityId for the decision scope
+    ///   - placementId: the placementId for the decision scope
+    /// - Returns: a base64 encoded JSON string to be used by the Optimize extension
     private func getEncodedDecisionScopeFor(activityId: String, placementId: String) -> String? {
         let decisionScopeString = "{\"activityId\":\"\(activityId)\",\"placementId\":\"\(placementId)\",\"itemCount\":\(MessagingConstants.DefaultValues.Optimize.MAX_ITEM_COUNT)}"
         
@@ -197,6 +205,14 @@ public class Messaging: NSObject, Extension {
         return decisionScopeData.base64EncodedString()
     }
     
+    /// Retrieves the activityId and placementId used to request the correct in-app messages from offers
+    ///
+    /// The decision scope for the offer that contains the correct in-app messages for this user is created by
+    /// combining the IMS Org ID for the activity and the app's bundle identifier for the placement.
+    ///
+    /// - Parameters:
+    ///   - event: the `Event` used for getting configuration shared state
+    /// - Returns: a tuple containing (activityId, placementId) needed to generate the correct decision scope
     private func getActivityAndPlacement(forEvent event: Event? = nil) -> (String?, String?) {
         // activityId = IMS OrgID
         let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value
@@ -207,6 +223,7 @@ public class Messaging: NSObject, Extension {
         // placementId = bundle identifier
         var placement = Bundle.main.bundleIdentifier
                 
+        // TODO: remove the temp code here prior to release
         // hack to allow overriding of activity and placement from plist
         var nsDictionary: NSDictionary?
         if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {

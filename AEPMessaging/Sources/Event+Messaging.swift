@@ -11,6 +11,7 @@
  */
 
 import AEPCore
+import AEPServices
 import Foundation
 
 extension Event {
@@ -20,7 +21,7 @@ extension Event {
         return consequenceType == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE
     }
 
-    // MARK: Fullscreen Message Properties
+    // MARK: In-app Message Properties
     var messageId: String? {
         return data?[MessagingConstants.Event.Data.Key.IAM.ID] as? String
     }
@@ -46,6 +47,108 @@ extension Event {
         
         return xdmMixins[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
     }
+    
+//  "messageSetting": {
+//      "schemaVersion": "1.0",
+//      "width": "80",
+//      "height": "50",
+//      "verticalAlign": "center",
+//      "verticalInset": "0",
+//      "horizontalAlign": "center",
+//      "horizontalInset": "0",
+//      "uiTakeover": true,
+//      "animateDisplay": true,
+//      "gestures": {
+//          "swipeUp": "dismiss",
+//          "swipeDown": "dismiss",
+//          "swipeLeft": "negative",
+//          "swipeRight": "positive",
+//          "tapBackground": "dismiss"
+//      }
+//  }
+    
+    func getMessageSettings(withParent parent: Any?) -> MessageSettings {
+        let settings = MessageSettings(parent: parent)
+            .setWidth(messageWidth)
+            .setHeight(messageHeight)
+            .setVerticalAlign(messageVAlign)
+            .setVerticalInset(messageVInset)
+            .setHorizontalAlign(messageHAlign)
+            .setHorizontalInset(messageHInset)
+            .setUiTakeover(messageUiTakeover)
+            .setAnimate(messageAnimateDisplay)
+            .setGestures(nil)
+        
+        return settings
+    }
+    
+    private var messageSettingsDictionary: [String: Any]? {
+        return data?[MessagingConstants.Event.Data.Key.IAM.MESSAGE_SETTING] as? [String: Any]
+    }
+    
+    private var messageWidth: Int? {
+        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.WIDTH] as? Int
+    }
+    
+    private var messageHeight: Int? {
+        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HEIGHT] as? Int
+    }
+    
+    private var messageVAlign: MessageAlignment {
+        if let alignmentString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.VERTICAL_ALIGN] as? String {
+            return MessageAlignment.fromString(alignmentString)
+        }
+        
+        return .center
+    }
+    
+    private var messageVInset: Int? {
+        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.VERTICAL_INSET] as? Int
+    }
+    
+    private var messageHAlign: MessageAlignment {
+        if let alignmentString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_ALIGN] as? String {
+            return MessageAlignment.fromString(alignmentString)
+        }
+        
+        return .center
+    }
+    
+    private var messageHInset: Int? {
+        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_INSET] as? Int
+    }
+    
+    private var messageUiTakeover: Bool {
+        if let takeover = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.UI_TAKEOVER] as? Bool {
+            return takeover
+        }
+        
+        return true
+    }
+    
+    private var messageAnimateDisplay: Bool {
+        if let animate = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.ANIMATE_DISPLAY] as? Bool {
+            return animate
+        }
+        
+        return true
+    }
+    
+    private var messageGestures: [MessageGesture]? {
+        if let gestures = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.GESTURES] as? [String] {
+            var gesturesArray: [MessageGesture] = []
+            for gesture in gestures {
+                if let g = MessageGesture.fromString(gesture) {
+                    gesturesArray.append(g)
+                }
+            }
+            
+            return gesturesArray.isEmpty ? nil : gesturesArray
+        }
+        
+        return nil
+    }
+    
 
     // MARK: Message Object Validation
     var containsValidInAppMessage: Bool {

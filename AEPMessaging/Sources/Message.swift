@@ -15,7 +15,7 @@ import AEPServices
 import Foundation
 import WebKit
 
-public class Message: FullscreenMessageDelegate {
+public class Message {
     // MARK: - public properties
     public var id: String
     public var autoTrack: Bool = true
@@ -23,110 +23,74 @@ public class Message: FullscreenMessageDelegate {
         return fullscreenMessage?.webView
     }
     
-    public func handleJavascriptMessage(_ name: String, withHandler handler: @escaping (Any?) -> Void) {
-        fullscreenMessage?.handleJavascriptMessage(name, withHandler: handler)
-    }
-    
-    
     // MARK: internal properties
     weak var parent: Messaging?
     var fullscreenMessage: FullscreenMessage?
     var triggeringEvent: Event?
     let experienceInfo: [String: Any] /// holds xdm data necessary for tracking message interactions with AJO
     
+    /// Creates a Message object which owns and controls UI and tracking behavior of the In-App Message
+    ///
+    /// - Parameters:
+    ///   - parent: the `Messaging` object that owns the new `Message`
+    ///   - event: the Rules Consequence `Event` that defines the message and contains reporting information
+    ///
     init(parent: Messaging, event: Event) {
         self.parent = parent
         self.triggeringEvent = event
         self.id = event.messageId ?? ""
         self.experienceInfo = event.experienceInfo ?? [:]
+        
+        let messageSettings = event.getMessageSettings(withParent: self)        
         self.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
                                                                                           listener: self,
                                                                                           isLocalImageUsed: false,
-                                                                                          parent: self) as? FullscreenMessage
+                                                                                          settings: messageSettings) as? FullscreenMessage
     }
     
-    // ui management
+    // MARK: - UI management
+    
+    /// Signals to the UIServices that the message should be shown.
+    /// If `autoTrack` is true, calling this method will result in a "trigger" Edge Event being dispatched.
     public func show() {
         if autoTrack {
-            track("triggered")
+            track(MessagingConstants.XDM.IAM.Value.TRIGGERED, withEdgeEventType: .inappTrigger)
         }
         
         fullscreenMessage?.show()        
     }
-        
+    
+    /// Signals to the UIServices that the message should be dismissed.
+    /// If `autoTrack` is true, calling this method will result in a "dismiss" Edge Event being dispatched.
     public func dismiss() {
         if autoTrack {
-            track("dismissed")
+            track(MessagingConstants.XDM.IAM.Value.DISMISSED, withEdgeEventType: .inappDismiss)
         }
         
         fullscreenMessage?.dismiss()
     }
     
-    // edge event generation
-    public func track(_ interaction: String) {
-        parent?.recordInteractionForMessage(interaction, message:self)
-    }
+    // MARK: - Edge Event creation
     
-    // =================================================================================================================
-    // MARK: - FullscreenMessageDelegate protocol methods
-    // =================================================================================================================
-    public func onShow(message: FullscreenMessage) {
-        Log.debug(label: MessagingConstants.LOG_TAG, #function)
+    /// Generates a Edge Event for the provided `interaction` and `eventType`.
+    ///
+    /// - Parameters:
+    ///   - interaction: a custom `String` value to be recorded in the interaction
+    ///   - eventType: the `MessagingEdgeEventType` to be used for the ensuing Edge Event
+    public func track(_ interaction: String, withEdgeEventType eventType: MessagingEdgeEventType) {
+        parent?.recordInteraction(interaction, forMessage: self, withEdgeEventType: eventType)
     }
+
+    // MARK: - Webview javascript handling
     
-    public func onDismiss(message: FullscreenMessage) {
-        Log.debug(label: MessagingConstants.LOG_TAG, #function)
-                
-        guard let message = message.parent as? Message else {
-            return
-        }
-        
-        message.dismiss()    
-    }
-    
-    public func overrideUrlLoad(message: FullscreenMessage, url: String?) -> Bool {
-        Log.debug(label: MessagingConstants.LOG_TAG, #function)
-        
-        guard let urlString = url, let url = URL(string: urlString) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load nil URL.")
-            return true
-        }
-        
-        let message = message.parent as? Message
-        
-        if url.scheme == "adbinapp" {
-            
-            // handle request parameters
-            let queryParams = url.query?.components(separatedBy: "&").map({
-                $0.components(separatedBy: "=")
-            }).reduce(into: [String: String]()) { dict, pair in
-                if pair.count == 2 {
-                    dict[pair[0]] = pair[1]
-                }
-            }
-            
-            // handle optional tracking
-            if let interaction = queryParams?["interaction"] {
-                message?.track(interaction)
-            }
-            
-            // dismiss if requested
-            if url.host == "dismiss" {
-                message?.dismiss()
-            }
-            
-            // handle optional deep link
-            if let deeplinkUrl = URL(string: queryParams?["link"] ?? "") {
-                UIApplication.shared.open(deeplinkUrl)
-            }
-            
-            return false
-        }
-        
-        return true
-    }
-    
-    public func onShowFailure() {
-        Log.debug(label: MessagingConstants.LOG_TAG, #function)
+    /// Adds a handler for Javascript messages sent from the message's webview.
+    ///
+    /// The parameter passed to `handler` will contain the body of the message passed from the webview's Javascript.
+    ///
+    /// - Parameters:
+    ///   - name: the name of the message that should be handled by `handler`
+    ///   - handler: the closure to be called with the body of the message passed by the Javascript message
+    public func handleJavascriptMessage(_ name: String, withHandler handler: @escaping (Any?) -> Void) {
+        fullscreenMessage?.handleJavascriptMessage(name, withHandler: handler)
     }
 }

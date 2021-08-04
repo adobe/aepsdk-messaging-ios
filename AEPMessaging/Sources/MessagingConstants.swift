@@ -21,6 +21,10 @@ enum MessagingConstants {
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
 
+    enum ConsequenceTypes {
+        static let IN_APP_MESSAGE = "cjmiam"
+    }
+    
     enum DefaultValues {
         enum Optimize {
             static let MAX_ITEM_COUNT = 30
@@ -78,6 +82,20 @@ enum MessagingConstants {
                     static let USER_DATA = "userData"
                     static let CATEGORY = "category"
                     static let SOUND = "sound"
+                    
+                    // layout keys
+                    static let MESSAGE_SETTING = "messageSetting"
+                    static let SCHEMA_VERSION = "schemaVersion"
+                    static let WIDTH = "width"
+                    static let HEIGHT = "height"
+                    static let VERTICAL_ALIGN = "verticalAlign"
+                    static let VERTICAL_INSET = "verticalInset"
+                    static let HORIZONTAL_ALIGN = "horizontalAlign"
+                    static let HORIZONTAL_INSET = "horizontalInset"
+                    static let UI_TAKEOVER = "uiTakeover"
+                    static let ANIMATE_DISPLAY = "animateDisplay"
+                    static let GESTURES = "gestures"
+                    static let BODY = "body"
                 }
                 
                 enum Optimize {
@@ -96,16 +114,17 @@ enum MessagingConstants {
             
             enum Values {
                 enum IAM {
-                    enum Template {
-                        static let FULLSCREEN = "fullscreen"
-                        static let LOCAL = "local"
-                    }
+                    // template values
+                    static let FULLSCREEN = "fullscreen"
+                    static let LOCAL = "local"
                     
-                    enum Value {
-                        static let TRIGGERED = "triggered"
-                        static let VIEWED = "viewed"
-                        static let CLICKED = "clicked"
-                    }
+                    // layout values
+                    static let SWIPE_UP = "swipeUp"
+                    static let SWIPE_DOWN = "swipeDown"
+                    static let SWIPE_LEFT = "swipeLeft"
+                    static let SWIPE_RIGHT = "swipeRight"
+                    static let TAP_BACKGROUND = "tapBackground"
+                    
                 }
                 
                 enum Optimize {
@@ -115,10 +134,15 @@ enum MessagingConstants {
         }
     }
 
-    enum ConsequenceTypes {
-        static let IN_APP_MESSAGE = "cjmiam"
+    enum IAM {
+        enum HTML {
+            static let SCHEME = "adbinapp"
+            static let INTERACTION = "interaction"
+            static let DISMISS = "dismiss"
+            static let LINK = "link"
+        }
     }
-
+    
     enum XDM {
         enum AdobeKeys {
             static let _XDM = "_xdm"
@@ -173,10 +197,23 @@ enum MessagingConstants {
         }
         
         enum IAM {
+            // TODO: once this mixin is public, we need to update the mixin name here
+            // because it's private, we instead name the org we are testing on, "cjmstage"
+            static let IN_APP_MIXIN_NAME = "_cjmstage"
+            static let ACTION = "action"
+            
             enum EventType {
                 static let DISMISS = "inapp.dismiss"
                 static let INTERACT = "inapp.interact"
                 static let TRIGGER = "inapp.trigger"
+                static let DISPLAY = "inapp.display"
+            }
+            
+            enum Value {
+                static let TRIGGERED = "triggered"
+                static let VIEWED = "viewed"
+                static let CLICKED = "clicked"
+                static let DISMISSED = "dismissed"
             }
         }
     }
