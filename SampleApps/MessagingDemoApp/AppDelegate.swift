@@ -22,7 +22,6 @@ import AEPSignal
 import UIKit
 import UserNotifications
 
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     let notificationCenter = UNUserNotificationCenter.current()
@@ -40,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
 
         MobileCore.setLogLevel(.trace)
-        
+
         let extensions = [
             Optimize.self,
             Consent.self,
@@ -61,7 +60,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // "steve - messaging tester" on "AEM Assets Departmental - Campaign"
         // 3149c49c3910/cf7779260cdd/launch-be72758aa82a-development
-        
 
         MobileCore.configureWith(appId: "3149c49c3910/cf7779260cdd/launch-be72758aa82a-development")
 
@@ -73,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             "messaging.eventDataset": "610ae80b3cbbc718dab06208"
         ]
         MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
-        
+
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
         // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
 
@@ -83,9 +81,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         //            "messaging.useSandbox": true,
         //        ])
 
-//        MobileCore.updateConfigurationWith(configDict: [
-//            "messaging.useSandbox": true
-//        ])
+        //        MobileCore.updateConfigurationWith(configDict: [
+        //            "messaging.useSandbox": true
+        //        ])
 
         // only start lifecycle if the application is not in the background
         if application.applicationState != .background {
@@ -170,10 +168,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.title = "Notification Title"
         content.body = "This is example how to create "
         content.categoryIdentifier = "MEETING_INVITATION"
-        content.userInfo = [ "_xdm" :
-                                ["cjm": ["_experience": ["customerJourneyManagement":
-                                                                ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
-                                                                                      "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
+        content.userInfo = [ "_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
+                                                            ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
+                                                                                  "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
         let identifier = "Local Notification"

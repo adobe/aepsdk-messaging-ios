@@ -3,7 +3,7 @@
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software distributed under
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
@@ -19,16 +19,16 @@ public class Message {
     // MARK: - public properties
     public var id: String
     public var autoTrack: Bool = true
-    public var view: UIView? {        
+    public var view: UIView? {
         return fullscreenMessage?.webView
     }
-    
+
     // MARK: internal properties
     weak var parent: Messaging?
     var fullscreenMessage: FullscreenMessage?
     var triggeringEvent: Event?
     let experienceInfo: [String: Any] /// holds xdm data necessary for tracking message interactions with AJO
-    
+
     /// Creates a Message object which owns and controls UI and tracking behavior of the In-App Message
     ///
     /// - Parameters:
@@ -40,49 +40,49 @@ public class Message {
         self.triggeringEvent = event
         self.id = event.messageId ?? ""
         self.experienceInfo = event.experienceInfo ?? [:]
-        
-        let messageSettings = event.getMessageSettings(withParent: self)        
+
+        let messageSettings = event.getMessageSettings(withParent: self)
         self.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
-                                                                                          listener: self,
-                                                                                          isLocalImageUsed: false,
-                                                                                          settings: messageSettings) as? FullscreenMessage
+                                                                                           listener: self,
+                                                                                           isLocalImageUsed: false,
+                                                                                           settings: messageSettings) as? FullscreenMessage
     }
-    
+
     // MARK: - UI management
-    
+
     /// Signals to the UIServices that the message should be shown.
     /// If `autoTrack` is true, calling this method will result in a "trigger" Edge Event being dispatched.
     public func show() {
         if autoTrack {
-            track(MessagingConstants.XDM.IAM.Value.TRIGGERED, withEdgeEventType: .inappTrigger)
+            track(nil, withEdgeEventType: .inappDisplay)
         }
-        
-        fullscreenMessage?.show()        
+
+        fullscreenMessage?.show()
     }
-    
+
     /// Signals to the UIServices that the message should be dismissed.
     /// If `autoTrack` is true, calling this method will result in a "dismiss" Edge Event being dispatched.
-    public func dismiss() {
-        if autoTrack {
-            track(MessagingConstants.XDM.IAM.Value.DISMISSED, withEdgeEventType: .inappDismiss)
+    public func dismiss(suppressAutoTrack: Bool? = false) {
+        if autoTrack, let suppress = suppressAutoTrack, !suppress {
+            track(nil, withEdgeEventType: .inappDismiss)
         }
-        
+
         fullscreenMessage?.dismiss()
     }
-    
+
     // MARK: - Edge Event creation
-    
-    /// Generates a Edge Event for the provided `interaction` and `eventType`.
+
+    /// Generates an Edge Event for the provided `interaction` and `eventType`.
     ///
     /// - Parameters:
     ///   - interaction: a custom `String` value to be recorded in the interaction
     ///   - eventType: the `MessagingEdgeEventType` to be used for the ensuing Edge Event
-    public func track(_ interaction: String, withEdgeEventType eventType: MessagingEdgeEventType) {
-        parent?.recordInteraction(interaction, forMessage: self, withEdgeEventType: eventType)
+    public func track(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType) {
+        parent?.sendExperienceEvent(withEventType: eventType, andInteraction: interaction, forMessage: self)
     }
 
     // MARK: - Webview javascript handling
-    
+
     /// Adds a handler for Javascript messages sent from the message's webview.
     ///
     /// The parameter passed to `handler` will contain the body of the message passed from the webview's Javascript.
@@ -92,5 +92,12 @@ public class Message {
     ///   - handler: the closure to be called with the body of the message passed by the Javascript message
     public func handleJavascriptMessage(_ name: String, withHandler handler: @escaping (Any?) -> Void) {
         fullscreenMessage?.handleJavascriptMessage(name, withHandler: handler)
+    }
+
+    // MARK: - Internal methods
+    func trigger() {
+        if autoTrack {
+            track(nil, withEdgeEventType: .inappTrigger)
+        }
     }
 }
