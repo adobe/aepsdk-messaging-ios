@@ -48,24 +48,27 @@ extension Event {
         return xdmMixins[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
     }
 
-    //  "messageSetting": {
-    //      "schemaVersion": "1.0",
-    //      "width": "80",
-    //      "height": "50",
-    //      "verticalAlign": "center",
-    //      "verticalInset": "0",
-    //      "horizontalAlign": "center",
-    //      "horizontalInset": "0",
-    //      "uiTakeover": true,
-    //      "animateDisplay": true,
-    //      "gestures": {
-    //          "swipeUp": "dismiss",
-    //          "swipeDown": "dismiss",
-    //          "swipeLeft": "negative",
-    //          "swipeRight": "positive",
-    //          "tapBackground": "dismiss"
-    //      }
-    //  }
+//      "messageSetting": {
+//          "schemaVersion": "1.0",
+//          "width": 80,
+//          "height": 50,
+//          "verticalAlign": "center",
+//          "verticalInset": 0,
+//          "horizontalAlign": "center",
+//          "horizontalInset": 0,
+//          "uiTakeover": true,
+//          "displayAnimation": "top",
+//          "dismissAnimation": "top",
+//          "backdropColor": "000000",    // RRGGBB
+//          "backdropOpacity: 0.3,
+//          "gestures": {
+//              "swipeUp": "adbinapp://dismiss",
+//              "swipeDown": "adbinapp://dismiss",
+//              "swipeLeft": "adbinapp://dismiss?interaction=negative",
+//              "swipeRight": "adbinapp://dismiss?interaction=positive",
+//              "tapBackground": "adbinapp://dismiss"
+//          }
+//      }
 
     func getMessageSettings(withParent parent: Any?) -> MessageSettings {
         let settings = MessageSettings(parent: parent)
@@ -76,22 +79,33 @@ extension Event {
             .setHorizontalAlign(messageHAlign)
             .setHorizontalInset(messageHInset)
             .setUiTakeover(messageUiTakeover)
-            .setAnimate(messageAnimateDisplay)
-            .setGestures(nil)
+            .setBackdropColor(messageBackdropColor)
+            .setBackdropOpacity(messageBackdropOpacity)
+            .setDisplayAnimation(messageDisplayAnimation)
+            .setDismissAnimation(messageDismissAnimation)
+            .setGestures(messageGestures)
 
         return settings
     }
 
     private var messageSettingsDictionary: [String: Any]? {
-        return data?[MessagingConstants.Event.Data.Key.IAM.MESSAGE_SETTING] as? [String: Any]
+        return details?[MessagingConstants.Event.Data.Key.IAM.MESSAGE_SETTING] as? [String: Any]
     }
 
     private var messageWidth: Int? {
-        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.WIDTH] as? Int
+        if let widthAsString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.WIDTH] as? String {
+            return Int(widthAsString)
+        }
+        
+        return nil
     }
 
     private var messageHeight: Int? {
-        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HEIGHT] as? Int
+        if let heightAsString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HEIGHT] as? String {
+            return Int(heightAsString)
+        }
+        
+        return nil
     }
 
     private var messageVAlign: MessageAlignment {
@@ -103,7 +117,11 @@ extension Event {
     }
 
     private var messageVInset: Int? {
-        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.VERTICAL_INSET] as? Int
+        if let vInsetString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.VERTICAL_INSET] as? String {
+            return Int(vInsetString)
+        }
+        
+        return nil
     }
 
     private var messageHAlign: MessageAlignment {
@@ -115,7 +133,11 @@ extension Event {
     }
 
     private var messageHInset: Int? {
-        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_INSET] as? Int
+        if let hInsetString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_INSET] as? String {
+            return Int(hInsetString)
+        }
+        
+        return nil
     }
 
     private var messageUiTakeover: Bool {
@@ -125,25 +147,41 @@ extension Event {
 
         return true
     }
-
-    private var messageAnimateDisplay: Bool {
-        if let animate = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.ANIMATE_DISPLAY] as? Bool {
-            return animate
-        }
-
-        return true
+    
+    private var messageBackdropColor: String? {
+        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.BACKDROP_COLOR] as? String
+    }
+    
+    private var messageBackdropOpacity: Float? {
+        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.BACKDROP_OPACITY] as? Float
     }
 
-    private var messageGestures: [MessageGesture]? {
-        if let gestures = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.GESTURES] as? [String] {
-            var gesturesArray: [MessageGesture] = []
-            for gesture in gestures {
-                if let g = MessageGesture.fromString(gesture) {
-                    gesturesArray.append(g)
+    private var messageDisplayAnimation: MessageAnimation {
+        if let animate = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.DISPLAY_ANIMATION] as? String {
+            return MessageAnimation.fromString(animate)
+        }
+
+        return .none
+    }
+    
+    private var messageDismissAnimation: MessageAnimation {
+        if let animate = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.DISMISS_ANIMATION] as? String {
+            return MessageAnimation.fromString(animate)
+        }
+        
+        return .none
+    }
+
+    private var messageGestures: [MessageGesture: URL]? {
+        if let gesturesJson = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.GESTURES] as? [String: String] {
+            var gestures: [MessageGesture: URL] = [:]
+            for gesture in gesturesJson {
+                if let g = MessageGesture.fromString(gesture.key), let url = URL(string: gesture.value) {
+                    gestures[g] = url
                 }
             }
 
-            return gesturesArray.isEmpty ? nil : gesturesArray
+            return gestures.isEmpty ? nil : gestures
         }
 
         return nil

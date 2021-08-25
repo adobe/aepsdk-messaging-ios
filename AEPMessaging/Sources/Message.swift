@@ -40,8 +40,30 @@ public class Message {
         self.triggeringEvent = event
         self.id = event.messageId ?? ""
         self.experienceInfo = event.experienceInfo ?? [:]
-
         let messageSettings = event.getMessageSettings(withParent: self)
+                        
+
+        
+        // TODO: remove test stuff prior to merge
+//         test modal
+//        let leftRightGestures = [
+//            MessageGesture.fromString("swipeLeft")!: URL(string: "adbinapp://dismiss?interaction=negative")!,
+//            MessageGesture.fromString("swipeRight")!: URL(string: "adbinapp://dismiss?interaction=positive")!
+//        ]
+//        let modalSettings = MessageSettings(parent: self).setDisplayAnimation(.left).setDismissAnimation(.fade).setHeight(20).setWidth(80).setGestures(leftRightGestures)
+        
+//        // test top banner
+//        let upGesture = [ MessageGesture.fromString("swipeUp")!: URL(string: "adbinapp://dismiss")!]
+//        let bannerTopSettings = MessageSettings(parent: self).setVerticalAlign(.top).setDisplayAnimation(.top).setDismissAnimation(.top).setHeight(15).setGestures(upGesture)
+        
+//        // test bottom banner
+//        let downGesture = [ MessageGesture.fromString("swipeDown")!: URL(string: "adbinapp://dismiss")!]
+//        let bannerBottomSettings = MessageSettings(parent: self).setVerticalAlign(.bottom).setDisplayAnimation(.bottom).setDismissAnimation(.bottom).setHeight(15).setGestures(downGesture)
+//
+        //        messageSettings.setBackdropColor("000000")
+        //        messageSettings.setBackdropOpacity(0.5)
+        
+        
         self.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
                                                                                            listener: self,
                                                                                            isLocalImageUsed: false,

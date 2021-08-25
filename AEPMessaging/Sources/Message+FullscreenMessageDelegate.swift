@@ -32,8 +32,9 @@ extension Message: FullscreenMessageDelegate {
     ///
     /// This method checks the `url` parameter to determine if it should be handled locally or by the webview in `message`.
     /// If the `url` has a scheme of "adbinapp", the URL will be handled locally for one or more purposes:
-    /// - If the `url` host equals "dismiss", the webview will be removed from its superview
+    /// - If the `url` host equals "dismiss", the webview will be removed from its superview.
     /// - If the `url` has a query parameter named "interaction", an interact event will be sent to experience edge
+    ///   using the value provided for the "interaction" parameter.
     /// - If the `url` has a query parameter named "link" and its value is a valid URL, the URL will be loaded in
     ///   by the operating system's default web browser (mobile Safari by default).
     ///

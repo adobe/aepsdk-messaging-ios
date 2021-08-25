@@ -86,9 +86,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         //        ])
 
         // only start lifecycle if the application is not in the background
-        if application.applicationState != .background {
+//        if application.applicationState != .background {
             MobileCore.lifecycleStart(additionalContextData: nil)
-        }
+//        }
 
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
@@ -101,7 +101,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 application.registerForRemoteNotifications()
             }
         }
-
+        
+        print("launches: \(UserDefaults.standard.launches ?? "nil"), daysSinceFirstUse: \(UserDefaults.standard.daysSinceFirstUse ?? "nil")")
+        
         return true
     }
 
@@ -225,5 +227,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // Always call the completion handler when done.
         completionHandler()
+    }
+}
+
+/// UserDefaults + Adobe SDK helper
+extension UserDefaults {
+    
+    var launches: String? {
+        return lifecycleMetrics?["launches"] as? String
+    }
+    
+    var daysSinceFirstUse: String? {
+        return lifecycleMetrics?["dayssincefirstuse"] as? String
+    }
+    
+    private var lifecycleMetrics: [String: Any]? {
+        return lifecycleData?["lifecycleMetrics"] as? [String: Any]
+    }
+    
+    private var lifecycleData: [String: Any?]? {
+        guard let lifecycleAsJson = self.object(forKey: "Adobe.com.adobe.module.lifecycle.lifecycle.data") as? Data else {
+            return nil
+        }
+        
+        guard let lifecycleDictionary = try? JSONSerialization.jsonObject(with: lifecycleAsJson, options: .mutableContainers) as? [String: Any] else {
+            return nil
+        }
+        
+        return lifecycleDictionary
     }
 }

@@ -93,9 +93,12 @@ enum MessagingConstants {
                     static let HORIZONTAL_ALIGN = "horizontalAlign"
                     static let HORIZONTAL_INSET = "horizontalInset"
                     static let UI_TAKEOVER = "uiTakeover"
-                    static let ANIMATE_DISPLAY = "animateDisplay"
+                    static let DISPLAY_ANIMATION = "displayAnimation"
+                    static let DISMISS_ANIMATION = "dismissAnimation"  
                     static let GESTURES = "gestures"
                     static let BODY = "body"
+                    static let BACKDROP_COLOR = "backdropColor"
+                    static let BACKDROP_OPACITY = "backdropOpacity"
                 }
 
                 enum Optimize {
