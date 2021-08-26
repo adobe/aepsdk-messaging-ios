@@ -58,7 +58,7 @@ CHECKOUT OPTIONS:
     :commit: 9a5cd089758a90020b986bcd7dd376f3172c681d
     :git: https://github.com/adobe/aepsdk-optimize-ios.git
   AEPServices:
-    :commit: 209ad085208510267cfeb45ec3c861453327c987
+    :commit: 26f3f61c6713a814e6f41d8bda0e33438b24ee92
     :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
 
 SPEC CHECKSUMS:

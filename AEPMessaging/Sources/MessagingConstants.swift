@@ -99,6 +99,7 @@ enum MessagingConstants {
                     static let BODY = "body"
                     static let BACKDROP_COLOR = "backdropColor"
                     static let BACKDROP_OPACITY = "backdropOpacity"
+                    static let CORNER_RADIUS = "cornerRadius"
                 }
 
                 enum Optimize {

@@ -48,28 +48,30 @@ extension Event {
         return xdmMixins[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
     }
 
-//      "messageSetting": {
-//          "schemaVersion": "1.0",
-//          "width": 80,
-//          "height": 50,
-//          "verticalAlign": "center",
-//          "verticalInset": 0,
-//          "horizontalAlign": "center",
-//          "horizontalInset": 0,
-//          "uiTakeover": true,
-//          "displayAnimation": "top",
-//          "dismissAnimation": "top",
-//          "backdropColor": "000000",    // RRGGBB
-//          "backdropOpacity: 0.3,
-//          "gestures": {
-//              "swipeUp": "adbinapp://dismiss",
-//              "swipeDown": "adbinapp://dismiss",
-//              "swipeLeft": "adbinapp://dismiss?interaction=negative",
-//              "swipeRight": "adbinapp://dismiss?interaction=positive",
-//              "tapBackground": "adbinapp://dismiss"
-//          }
-//      }
-
+    /*
+    "messageSetting": {
+        "schemaVersion": "1.0",
+        "width": 80,
+        "height": 50,
+        "verticalAlign": "center",
+        "verticalInset": 0,
+        "horizontalAlign": "center",
+        "horizontalInset": 0,
+        "uiTakeover": true,
+        "displayAnimation": "top",
+        "dismissAnimation": "top",
+        "backdropColor": "000000",    // RRGGBB
+        "backdropOpacity: 0.3,
+        "cornerRadius": 15.0,
+        "gestures": {
+            "swipeUp": "adbinapp://dismiss",
+            "swipeDown": "adbinapp://dismiss",
+            "swipeLeft": "adbinapp://dismiss?interaction=negative",
+            "swipeRight": "adbinapp://dismiss?interaction=positive",
+            "tapBackground": "adbinapp://dismiss"
+        }
+    }
+     */
     func getMessageSettings(withParent parent: Any?) -> MessageSettings {
         let settings = MessageSettings(parent: parent)
             .setWidth(messageWidth)
@@ -81,6 +83,7 @@ extension Event {
             .setUiTakeover(messageUiTakeover)
             .setBackdropColor(messageBackdropColor)
             .setBackdropOpacity(messageBackdropOpacity)
+            .setCornerRadius(messageCornerRadius)
             .setDisplayAnimation(messageDisplayAnimation)
             .setDismissAnimation(messageDismissAnimation)
             .setGestures(messageGestures)
@@ -93,19 +96,11 @@ extension Event {
     }
 
     private var messageWidth: Int? {
-        if let widthAsString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.WIDTH] as? String {
-            return Int(widthAsString)
-        }
-        
-        return nil
+        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.WIDTH] as? Int
     }
 
     private var messageHeight: Int? {
-        if let heightAsString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HEIGHT] as? String {
-            return Int(heightAsString)
-        }
-        
-        return nil
+        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HEIGHT] as? Int
     }
 
     private var messageVAlign: MessageAlignment {
@@ -117,11 +112,7 @@ extension Event {
     }
 
     private var messageVInset: Int? {
-        if let vInsetString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.VERTICAL_INSET] as? String {
-            return Int(vInsetString)
-        }
-        
-        return nil
+        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.VERTICAL_INSET] as? Int
     }
 
     private var messageHAlign: MessageAlignment {
@@ -133,11 +124,7 @@ extension Event {
     }
 
     private var messageHInset: Int? {
-        if let hInsetString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_INSET] as? String {
-            return Int(hInsetString)
-        }
-        
-        return nil
+        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_INSET] as? Int
     }
 
     private var messageUiTakeover: Bool {
@@ -152,8 +139,20 @@ extension Event {
         return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.BACKDROP_COLOR] as? String
     }
     
-    private var messageBackdropOpacity: Float? {
-        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.BACKDROP_OPACITY] as? Float
+    private var messageBackdropOpacity: CGFloat? {
+        if let opacity = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.BACKDROP_OPACITY] as? Double {
+            return CGFloat(opacity)
+        }
+        
+        return nil
+    }
+    
+    private var messageCornerRadius: CGFloat? {
+        if let radius = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.CORNER_RADIUS] as? Int {
+            return CGFloat(radius)
+        }
+        
+        return nil
     }
 
     private var messageDisplayAnimation: MessageAnimation {
