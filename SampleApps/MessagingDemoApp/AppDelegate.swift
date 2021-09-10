@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
 
-        MobileCore.setLogLevel(.trace)
+        MobileCore.setLogLevel(.error)
 
         let extensions = [
             Optimize.self,
@@ -50,6 +50,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             Signal.self,
             Assurance.self
         ]
+        
+        
 
         MobileCore.registerExtensions(extensions)
 

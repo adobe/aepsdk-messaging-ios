@@ -43,7 +43,7 @@ extension Event {
         guard let xdm = details?[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any],
               let xdmMixins = xdm[MessagingConstants.XDM.AdobeKeys.MIXINS] as? [String: Any] else {
             return nil
-        }
+        } 
 
         return xdmMixins[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
     }

@@ -200,10 +200,8 @@ enum MessagingConstants {
             }
         }
 
-        enum IAM {
-            // TODO: once this mixin is public, we need to update the mixin name here
-            // because it's private, we instead name the org we are testing on, "cjmstage"
-            static let IN_APP_MIXIN_NAME = "_cjmstage"
+        enum IAM {            
+            static let IN_APP_MIXIN_NAME = "inappMessageTracking"
             static let ACTION = "action"
 
             enum EventType {
