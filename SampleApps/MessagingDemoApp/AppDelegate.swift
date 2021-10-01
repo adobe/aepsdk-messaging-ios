@@ -38,8 +38,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
 
-        MobileCore.setLogLevel(.trace)
-        
+        MobileCore.setLogLevel(.error)
+
         let extensions = [
             Optimize.self,
             Consent.self,
@@ -50,6 +50,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             Signal.self,
             Assurance.self
         ]
+        
+        
 
         MobileCore.registerExtensions(extensions)
 
@@ -60,9 +62,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // "steve - messaging tester" on "AEM Assets Departmental - Campaign"
         // 3149c49c3910/cf7779260cdd/launch-be72758aa82a-development
-        
 
         MobileCore.configureWith(appId: "3149c49c3910/cf7779260cdd/launch-be72758aa82a-development")
+
+        // update config to use cjmstage for int integration
+        let cjmStageConfig = [
+            "edge.environment": "int",
+            "experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
+            "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
+            "messaging.eventDataset": "610ae80b3cbbc718dab06208"
+        ]
+        MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
 
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
         // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
@@ -73,14 +83,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         //            "messaging.useSandbox": true,
         //        ])
 
-        MobileCore.updateConfigurationWith(configDict: [
-            "messaging.useSandbox": true
-        ])
+        //        MobileCore.updateConfigurationWith(configDict: [
+        //            "messaging.useSandbox": true
+        //        ])
 
         // only start lifecycle if the application is not in the background
-        if application.applicationState != .background {
+//        if application.applicationState != .background {
             MobileCore.lifecycleStart(additionalContextData: nil)
-        }
+//        }
 
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
@@ -93,7 +103,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 application.registerForRemoteNotifications()
             }
         }
-
+        
+        print("launches: \(UserDefaults.standard.launches ?? "nil"), daysSinceFirstUse: \(UserDefaults.standard.daysSinceFirstUse ?? "nil")")
+        
         return true
     }
 
@@ -160,10 +172,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.title = "Notification Title"
         content.body = "This is example how to create "
         content.categoryIdentifier = "MEETING_INVITATION"
-        content.userInfo = [ "_xdm" :
-                                ["cjm": ["_experience": ["customerJourneyManagement":
-                                                                ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
-                                                                                      "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
+        content.userInfo = [ "_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
+                                                            ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
+                                                                                  "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
         let identifier = "Local Notification"
@@ -218,5 +229,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // Always call the completion handler when done.
         completionHandler()
+    }
+}
+
+/// UserDefaults + Adobe SDK helper
+extension UserDefaults {
+    
+    var launches: String? {
+        return lifecycleMetrics?["launches"] as? String
+    }
+    
+    var daysSinceFirstUse: String? {
+        return lifecycleMetrics?["dayssincefirstuse"] as? String
+    }
+    
+    private var lifecycleMetrics: [String: Any]? {
+        return lifecycleData?["lifecycleMetrics"] as? [String: Any]
+    }
+    
+    private var lifecycleData: [String: Any?]? {
+        guard let lifecycleAsJson = self.object(forKey: "Adobe.com.adobe.module.lifecycle.lifecycle.data") as? Data else {
+            return nil
+        }
+        
+        guard let lifecycleDictionary = try? JSONSerialization.jsonObject(with: lifecycleAsJson, options: .mutableContainers) as? [String: Any] else {
+            return nil
+        }
+        
+        return lifecycleDictionary
     }
 }

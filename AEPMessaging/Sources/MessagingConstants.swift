@@ -21,12 +21,16 @@ enum MessagingConstants {
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
 
+    enum ConsequenceTypes {
+        static let IN_APP_MESSAGE = "cjmiam"
+    }
+
     enum DefaultValues {
         enum Optimize {
             static let MAX_ITEM_COUNT = 30
         }
     }
-    
+
     enum Event {
         enum Name {
             static let MESSAGE_INTERACTION = "Messaging interaction event"
@@ -36,15 +40,15 @@ enum MessagingConstants {
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
         }
-        
+
         enum Source {
             static let PERSONALIZATION_DECISIONS = "personalization:decisions"
         }
-        
+
         enum EventType {
             static let messaging = "com.adobe.eventType.messaging"
         }
-        
+
         enum Data {
             enum Key {
                 static let PUSH_IDENTIFIER = "pushidentifier"
@@ -54,13 +58,13 @@ enum MessagingConstants {
                 static let ACTION_ID = "actionId"
                 static let REFRESH_MESSAGES = "refreshmessages"
                 static let ADOBE_XDM = "adobe_xdm"
-                
+
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
                 static let DETAIL = "detail"
                 static let TYPE = "type"
                 static let SOURCE = "source"
-                
+
                 // In-App Messages
                 enum IAM {
                     static let ID = "id"
@@ -78,8 +82,26 @@ enum MessagingConstants {
                     static let USER_DATA = "userData"
                     static let CATEGORY = "category"
                     static let SOUND = "sound"
+
+                    // layout keys
+                    static let MESSAGE_SETTING = "messageSetting"
+                    static let SCHEMA_VERSION = "schemaVersion"
+                    static let WIDTH = "width"
+                    static let HEIGHT = "height"
+                    static let VERTICAL_ALIGN = "verticalAlign"
+                    static let VERTICAL_INSET = "verticalInset"
+                    static let HORIZONTAL_ALIGN = "horizontalAlign"
+                    static let HORIZONTAL_INSET = "horizontalInset"
+                    static let UI_TAKEOVER = "uiTakeover"
+                    static let DISPLAY_ANIMATION = "displayAnimation"
+                    static let DISMISS_ANIMATION = "dismissAnimation"  
+                    static let GESTURES = "gestures"
+                    static let BODY = "body"
+                    static let BACKDROP_COLOR = "backdropColor"
+                    static let BACKDROP_OPACITY = "backdropOpacity"
+                    static let CORNER_RADIUS = "cornerRadius"
                 }
-                
+
                 enum Optimize {
                     static let REQUEST_TYPE = "requesttype"
                     static let DECISION_SCOPES = "decisionscopes"
@@ -93,21 +115,22 @@ enum MessagingConstants {
                     static let ITEMS = "items"
                 }
             }
-            
+
             enum Values {
                 enum IAM {
-                    enum Template {
-                        static let FULLSCREEN = "fullscreen"
-                        static let LOCAL = "local"
-                    }
-                    
-                    enum Value {
-                        static let TRIGGERED = "triggered"
-                        static let VIEWED = "viewed"
-                        static let CLICKED = "clicked"
-                    }
+                    // template values
+                    static let FULLSCREEN = "fullscreen"
+                    static let LOCAL = "local"
+
+                    // layout values
+                    static let SWIPE_UP = "swipeUp"
+                    static let SWIPE_DOWN = "swipeDown"
+                    static let SWIPE_LEFT = "swipeLeft"
+                    static let SWIPE_RIGHT = "swipeRight"
+                    static let TAP_BACKGROUND = "tapBackground"
+
                 }
-                
+
                 enum Optimize {
                     static let UPDATE_PROPOSITIONS = "updatepropositions"
                 }
@@ -115,8 +138,13 @@ enum MessagingConstants {
         }
     }
 
-    enum ConsequenceTypes {
-        static let IN_APP_MESSAGE = "cjmiam"
+    enum IAM {
+        enum HTML {
+            static let SCHEME = "adbinapp"
+            static let INTERACTION = "interaction"
+            static let DISMISS = "dismiss"
+            static let LINK = "link"
+        }
     }
 
     enum XDM {
@@ -133,7 +161,7 @@ enum MessagingConstants {
                 "{\n      \"channel\": {\n         \"_id\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
                 ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
         }
-        
+
         enum Key {
             static let ADOBE_XDM = "adobe_xdm"
             static let XDM = "xdm"
@@ -159,24 +187,35 @@ enum MessagingConstants {
             static let NAMESPACE = "namespace"
             static let CODE = "code"
             static let ID = "id"
-            
+
             enum EventType {
                 static let APPLICATION_OPENED = "pushTracking.applicationOpened"
                 static let CUSTOM_ACTION = "pushTracking.customAction"
             }
-            
+
             enum Value {
                 static let ECID = "ECID"
                 static let APNS = "apns"
                 static let APNS_SANDBOX = "apnsSandbox"
             }
         }
-        
-        enum IAM {
+
+        enum IAM {            
+            static let IN_APP_MIXIN_NAME = "inappMessageTracking"
+            static let ACTION = "action"
+
             enum EventType {
                 static let DISMISS = "inapp.dismiss"
                 static let INTERACT = "inapp.interact"
                 static let TRIGGER = "inapp.trigger"
+                static let DISPLAY = "inapp.display"
+            }
+
+            enum Value {
+                static let TRIGGERED = "triggered"
+                static let DISPLAYED = "displayed"
+                static let CLICKED = "clicked"
+                static let DISMISSED = "dismissed"
             }
         }
     }

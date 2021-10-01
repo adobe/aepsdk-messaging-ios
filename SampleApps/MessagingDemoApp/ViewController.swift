@@ -28,60 +28,75 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         MobileCore.messagingDelegate = messageHandler
     }
-    
-    
 
-    @IBAction func triggerInapp(_ sender: Any) {
+    @IBAction func triggerFullscreen(_ sender: Any) {
+        MobileCore.track(state: "triggerFullscreen", data: ["testFullscreen": "true"])
+
+    }
+    
+    @IBAction func triggerModal(_ sender: Any) {
+        MobileCore.track(state: "triggerModal", data: ["testModal": "true"])
         
-        MobileCore.track(state: "triggerInapp", data: ["testShowMessage": "true"])
+    }
+    
+    @IBAction func triggerBannerTop(_ sender: Any) {
+        MobileCore.track(state: "triggerBannerTop", data: ["testBannerTop": "true"])
+        
+    }
+    
+    @IBAction func triggerBannerBottom(_ sender: Any) {
+        MobileCore.track(state: "triggerInapp", data: ["testBannerBottom": "true"])
         
     }
 
-    
-    
     /// Messaging delegate
     private class MessageHandler: MessagingDelegate {
         var showMessages = true
         var currentMessage: Message?
 
         func onShow(message: Showable) {
-            
+
             let fullscreenMessage = message as? FullscreenMessage
-            let message = fullscreenMessage?.parent as? Message
+            let message = fullscreenMessage?.parent
             print("message was shown \(message?.id ?? "undefined")")
         }
 
         func onDismiss(message: Showable) {
-            
-            
-            
+
             let fullscreenMessage = message as? FullscreenMessage
             print("message was dismissed \(fullscreenMessage?.debugDescription ?? "undefined")")
         }
 
+        
+        
+        
         func shouldShowMessage(message: Showable) -> Bool {
-            
+
             // access to the whole message from the parent
             let fullscreenMessage = message as? FullscreenMessage
-            let message = fullscreenMessage?.parent as? Message
-            
+            let message = fullscreenMessage?.parent
+
             // in-line handling of javascript calls
             message?.handleJavascriptMessage("magic") { content in
                 print("magical handling of our content from js! content is: \(content ?? "empty")")
-                message?.track(content as! String)
+                message?.track(content as? String, withEdgeEventType: .inappInteract)
             }
-                        
+
             // get the uiview - add it
-            // let messageWebView = message?.view as! WKWebView
+            let messageWebView = message?.view as! WKWebView
+            print("message web view: \(messageWebView)")
             
             // if we're not showing the message now, we can save it for later
             if !showMessages {
                 currentMessage = message
-                currentMessage?.track("message suppressed")
+                currentMessage?.track("message suppressed", withEdgeEventType: .inappTrigger)
             }
-            
+
             return showMessages
         }
+
+        
+        
         
         func urlLoaded(_ url: URL) {
             print("fullscreen message loaded url: \(url)")
@@ -106,7 +121,7 @@ class ViewController: UIViewController {
     @IBAction func refreshMessages(_ sender: Any) {
         Messaging.refreshInAppMessages()
     }
-    
+
     @IBAction func showStoredMessage(_ sender: Any) {
         messageHandler.currentMessage?.show()
     }

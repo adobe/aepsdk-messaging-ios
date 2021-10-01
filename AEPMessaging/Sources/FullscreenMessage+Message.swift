@@ -10,17 +10,11 @@
  governing permissions and limitations under the License.
  */
 
-import AEPCore
+import AEPServices
 import Foundation
 
-extension SharedStateResult {
-    var experienceEventDataset: String? {
-        return value?[MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET] as? String
-    }
-
-    var pushPlatform: String {
-        let usingSandbox = value?[MessagingConstants.SharedState.Configuration.USE_SANDBOX] as? Bool ?? false
-        return usingSandbox ? MessagingConstants.XDM.Push.Value.APNS_SANDBOX
-            : MessagingConstants.XDM.Push.Value.APNS
+public extension FullscreenMessage {
+    var parent: Message? {
+        return settings?.parent as? Message
     }
 }

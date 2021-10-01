@@ -15,7 +15,7 @@ import AEPServices
 import Foundation
 
 extension Messaging {
-    
+
     // MARK: - internal methods
 
     /// Sends an experience event to the platform SDK for tracking the notification click-throughs
@@ -206,16 +206,20 @@ extension Messaging {
 
         return xdmDict
     }
-    
+
+    /// Retrieves the Messaging event datasetId from configuration shared state
+    ///
+    /// - Parameter event: the `Event` needed for retrieving the correct shared state
+    /// - Returns: a `String` containing the event datasetId for Messaging
     private func getDatasetId(forEvent event: Event? = nil) -> String? {
         guard let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event),
               let datasetId = configuration.experienceEventDataset else {
             return nil
         }
-        
+
         return datasetId.isEmpty ? nil : datasetId
     }
-    
+
     /// Gets the push platform based on the value in `messaging.useSandbox` of Configuration's shared state
     ///
     /// If no `event` is provided, this method will use the most recent shared state for Configuration.
@@ -228,7 +232,7 @@ extension Messaging {
         guard let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event) else {
             return MessagingConstants.XDM.Push.Value.APNS
         }
-        
+
         return configuration.pushPlatform
     }
 
@@ -268,42 +272,47 @@ extension Messaging {
     ///         }
     ///     }
     /// }
-    
-    
-    /// Dispatches an `Event` containing data necessary for recording the user's `interaction` with the provided `message`
+
+    ///
+    /// xdm test data for iam mixin
+    ///
+    /// {
+    ///     "_cjmstage": {
+    ///         "action": "someAction"
+    ///     }
+    /// }
+    ///
+
+    /// Dispatches an `Event` with `eventType` and user's `interaction` for the provided `message`
     ///
     /// If the provided `interaction` is empty, or a valid Experience Event Dataset is not obtainable from the
     /// current configuration, calling this function will result in a no-op.
     ///
     /// - Parameters:
+    ///   - eventType: `MessagingEdgeEventType` Edge EventType for the Experience Event
     ///   - interaction: `String` value describing the user's interaction
     ///   - message: `Message` object with which the user has interacted
-    func recordInteractionForMessage(_ interaction: String, message: Message) {
-                
-        // need a valid string for recording the message interaction
-        guard !interaction.isEmpty else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to record a message interaction - interaction string was empty.")
-            return
-        }
-        
+    func sendExperienceEvent(withEventType eventType: MessagingEdgeEventType, andInteraction interaction: String?, forMessage message: Message ) {
         // an experience event dataset id is required for sending a message
         guard let datasetId = getDatasetId(forEvent: message.triggeringEvent) else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to record a message interaction - unable to obtain configuration information.")
             return
         }
-                       
-        var xdmMap: [String: Any] = [MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.IAM.EventType.INTERACT]
-        xdmMap[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = message.experienceInfo
-        var pushNotificationTrackingDict: [String: Any] = [:]
-        var customActionDict: [String: Any] = [:]
-        if !interaction.isEmpty {
-            customActionDict[MessagingConstants.XDM.Key.ACTION_ID] = interaction
-            pushNotificationTrackingDict[MessagingConstants.XDM.Key.CUSTOM_ACTION] = customActionDict
+
+        // add eventType and prescribed data for the experience info
+        var xdmMap: [String: Any] = [
+            MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
+            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: message.experienceInfo
+        ]
+
+        // add iam mixin information if this is an interact eventType
+        if eventType == .inappInteract, let interaction = interaction, !interaction.isEmpty {
+            let actionDict: [String: Any] = [
+                MessagingConstants.XDM.IAM.ACTION: interaction
+            ]
+            xdmMap[MessagingConstants.XDM.IAM.IN_APP_MIXIN_NAME] = actionDict
         }
-        pushNotificationTrackingDict[MessagingConstants.XDM.Key.PUSH_PROVIDER_MESSAGE_ID] = message.id
-        pushNotificationTrackingDict[MessagingConstants.XDM.Key.PUSH_PROVIDER] = ""
-        xdmMap[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING] = pushNotificationTrackingDict
-        
+
         // Creating xdm edge event data
         let xdmEventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: xdmMap,
@@ -313,7 +322,7 @@ extension Messaging {
                 ]
             ]
         ]
-        
+
         // Creating xdm edge event with request content source type
         let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
                           type: EventType.edge,

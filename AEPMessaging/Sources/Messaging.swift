@@ -85,13 +85,13 @@ public class Messaging: NSObject, Extension {
             Log.trace(label: MessagingConstants.LOG_TAG, "Event processing is paused - waiting for valid XDM shared state from Edge Identity extension.")
             return false
         }
-                
+
         // once we have valid configuration, fetch message definitions from offers if we haven't already
         if !initialLoadComplete {
             initialLoadComplete = true
             fetchMessages()
         }
-        
+
         return true
     }
 
@@ -112,13 +112,13 @@ public class Messaging: NSObject, Extension {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to retrieve message definitions - activity and placement ids are both required.")
             return
         }
-        
+
         // create event to be handled by optimize
         guard let decisionScope = getEncodedDecisionScopeFor(activityId: activityId, placementId: placementId) else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to retrieve message definitions - error encoding the decision scope.")
             return
         }
-                
+
         let optimizeData: [String: Any] = [
             MessagingConstants.Event.Data.Key.Optimize.REQUEST_TYPE: MessagingConstants.Event.Data.Values.Optimize.UPDATE_PROPOSITIONS,
             MessagingConstants.Event.Data.Key.Optimize.DECISION_SCOPES: [
@@ -147,7 +147,7 @@ public class Messaging: NSObject, Extension {
         let offersConfig = getActivityAndPlacement(forEvent: event)
         let activityId = offersConfig.0
         let placementId = offersConfig.1
-        
+
         if event.offerActivityId != activityId || event.offerPlacementId != placementId {
             return
         }
@@ -171,42 +171,60 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Creates and shows a fullscreen message as defined by the contents of the provided `Event`'s data.
+    /// - Parameter event: the `Event` containing data necessary to create the message and report on it
     private func showMessageForEvent(_ event: Event) {
         guard event.html != nil else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to show message for event \(event.id) - it contains no HTML defining the message.")
             return
         }
-        
+
         guard event.experienceInfo != nil else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring message that does not contain information necessary for tracking with Adobe Journey Optimizer.")
             return
         }
-        
+
         currentMessage = Message(parent: self, event: event)
-        
+
+        currentMessage?.trigger()
         currentMessage?.show()
     }
-    
+
+    /// Takes an activity and placement and returns an encoded string in the format expected
+    /// by the Optimize extension for retrieving offers
+    ///
+    /// - Parameters:
+    ///   - activityId: the activityId for the decision scope
+    ///   - placementId: the placementId for the decision scope
+    /// - Returns: a base64 encoded JSON string to be used by the Optimize extension
     private func getEncodedDecisionScopeFor(activityId: String, placementId: String) -> String? {
         let decisionScopeString = "{\"activityId\":\"\(activityId)\",\"placementId\":\"\(placementId)\",\"itemCount\":\(MessagingConstants.DefaultValues.Optimize.MAX_ITEM_COUNT)}"
-        
+
         guard let decisionScopeData = decisionScopeString.data(using: .utf8) else {
             return nil
         }
-        
+
         return decisionScopeData.base64EncodedString()
     }
-    
+
+    /// Retrieves the activityId and placementId used to request the correct in-app messages from offers
+    ///
+    /// The decision scope for the offer that contains the correct in-app messages for this user is created by
+    /// combining the IMS Org ID for the activity and the app's bundle identifier for the placement.
+    ///
+    /// - Parameters:
+    ///   - event: the `Event` used for getting configuration shared state
+    /// - Returns: a tuple containing (activityId, placementId) needed to generate the correct decision scope
     private func getActivityAndPlacement(forEvent event: Event? = nil) -> (String?, String?) {
         // activityId = IMS OrgID
         let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value
         let orgId = configuration?[MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG] as? String
-        
+
         var activity: String? = orgId
-        
+
         // placementId = bundle identifier
         var placement = Bundle.main.bundleIdentifier
-                
+
+        // TODO: remove the temp code here prior to release
         // hack to allow overriding of activity and placement from plist
         var nsDictionary: NSDictionary?
         if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
@@ -214,7 +232,7 @@ public class Messaging: NSObject, Extension {
             activity = nsDictionary?.value(forKey: "MESSAGING_ACTIVITY_ID") as? String
             placement = nsDictionary?.value(forKey: "MESSAGING_PLACEMENT_ID") as? String
         }
-        
+
         return (activity, placement)
     }
 

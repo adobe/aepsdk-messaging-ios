@@ -14,27 +14,28 @@ Register the messaging extensions and configure the SDK with the assigned applic
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
- // Enable debug logging
- MobileCore.setLogLevel(level: .trace)
+    // Enable debug logging
+    MobileCore.setLogLevel(level: .trace)
 
- MobileCore.registerExtensions([Messaging.self, Identity.self, Edge.self], {
- // Use the App id assigned to this application via Adobe Launch
- MobileCore.configureWith(appId: "appId")
-  
- })  
- return true
+    // Declare what Extensions you want to register with the SDK
+    let extensions = [
+        Messaging.self,
+        Identity.self,
+        Edge.self
+    ]
+
+    MobileCore.registerExtensions(extensions, {
+        // Use the App ID assigned to this application in Adobe Launch
+        MobileCore.configureWith(appId: "appId")  
+    })
+
+    return true
 }
 ```
 
 #### Using apnsSandbox environment for push notification
-Optionaly the apnsSandbox environment can be used for receiving the push notification.  To do this, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
+Optionally the `apnsSandbox` environment can be used for receiving the push notification. To do this, add the following code to the Application Delegate's `application(_:didFinishLaunchingWithOptions:)` method:
 
 ```swift
-func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
 MobileCore.updateConfigurationWith(configDict: ["messaging.useSandbox": true])
-  
- })  
- return true
-}
 ```
