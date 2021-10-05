@@ -10,10 +10,14 @@
 	<string>xcore:offer-activity:1339d9f139eeb01d</string>
 	<key>MESSAGING_PLACEMENT_ID_stage</key>
 	<string>xcore:offer-placement:1339d8b8d1aeb01b</string>
-	<key>MESSAGING_ACTIVITY_ID</key>
+	<key>MESSAGING_ACTIVITY_ID_working</key>
 	<string>xcore:offer-activity:13c2593fcbcfacbd</string>
-	<key>MESSAGING_PLACEMENT_ID</key>
+	<key>MESSAGING_PLACEMENT_ID_working</key>
 	<string>xcore:offer-placement:13d01b7516bf0613</string>
+	<key>MESSAGING_ACTIVITY_ID</key>
+	<string>xcore:offer-activity:14090235e6b6757a</string>
+	<key>MESSAGING_PLACEMENT_ID</key>
+	<string>xcore:offer-placement:140a176f272ee651</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

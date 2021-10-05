@@ -322,12 +322,25 @@ extension Messaging {
                 ]
             ]
         ]
+        
+        // create the mask for storing event history
+        let mask = [
+            "xdm.eventType",
+            "xdm._experience.customerJourneyManagement.messageExecution.messageExecutionID",
+            "xdm.inappMessageTracking.action"
+        ]
 
         // Creating xdm edge event with request content source type
         let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
                           type: EventType.edge,
                           source: EventSource.requestContent,
-                          data: xdmEventData)
+                          data: xdmEventData,
+                          mask: mask)
         dispatch(event: event)
     }
 }
+
+
+/// get updated html from JP
+///
+/// work on the end-to-end full
