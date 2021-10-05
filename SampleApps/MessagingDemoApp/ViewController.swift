@@ -30,15 +30,15 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_ sender: Any) {
-        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["foo": "bar"]))
+//        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["foo": "bar"]))
         
         
-//        MobileCore.track(state: "triggerFullscreen", data: ["testFullscreen": "true"])
+        MobileCore.track(state: "triggerFullscreen", data: ["testFullscreen": "true"])
 
     }
     
     @IBAction func triggerModal(_ sender: Any) {
-        MobileCore.track(state: "triggerModal", data: ["testModal": "true"])
+        MobileCore.track(state: "triggerModal", data: ["testSteveModal": "true"])
         
     }
     
