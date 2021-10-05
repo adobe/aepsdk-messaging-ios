@@ -151,6 +151,11 @@ public class Messaging: NSObject, Extension {
         if event.offerActivityId != activityId || event.offerPlacementId != placementId {
             return
         }
+        
+        guard let json = event.rulesJson?.first, json != MessagingConstants.XDM.IAM.Value.EMPTY_CONTENT else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Empty content returned in call to retrieve in-app messages.")
+            return
+        }
 
         rulesEngine.loadRules(rules: event.rulesJson)
     }

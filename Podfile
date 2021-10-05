@@ -14,11 +14,11 @@ project 'AEPMessaging.xcodeproj'
 # SHARED POD GROUPS
 # ==================
 def core_main
-    pod 'AEPCore'
-#    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'ui-services-updates'
-    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-ui-updates'
+#    pod 'AEPCore'
+    pod 'AEPCore', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'feature-event-history'
+    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'feature-event-history'
     pod 'AEPLifecycle'
-    pod 'AEPRulesEngine'
+    pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-v1.1.0'
     pod 'AEPSignal'
     pod 'AEPEdge'
     pod 'AEPEdgeConsent'

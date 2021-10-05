@@ -84,7 +84,8 @@ enum MessagingConstants {
                     static let SOUND = "sound"
 
                     // layout keys
-                    static let MESSAGE_SETTING = "messageSetting"
+                    static let MOBILE_PARAMETERS = "mobileParameters"
+//                    static let MOBILE_PARAMETERS = "messageSetting"
                     static let SCHEMA_VERSION = "schemaVersion"
                     static let WIDTH = "width"
                     static let HEIGHT = "height"
@@ -216,6 +217,7 @@ enum MessagingConstants {
                 static let DISPLAYED = "displayed"
                 static let CLICKED = "clicked"
                 static let DISMISSED = "dismissed"
+                static let EMPTY_CONTENT = "{}"
             }
         }
     }

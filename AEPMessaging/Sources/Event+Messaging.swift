@@ -49,7 +49,7 @@ extension Event {
     }
 
     /*
-    "messageSetting": {
+    "mobileParameters": {
         "schemaVersion": "1.0",
         "width": 80,
         "height": 50,
@@ -91,20 +91,20 @@ extension Event {
         return settings
     }
 
-    private var messageSettingsDictionary: [String: Any]? {
-        return details?[MessagingConstants.Event.Data.Key.IAM.MESSAGE_SETTING] as? [String: Any]
+    private var mobileParametersDictionary: [String: Any]? {
+        return details?[MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS] as? [String: Any]
     }
 
     private var messageWidth: Int? {
-        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.WIDTH] as? Int
+        return mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.WIDTH] as? Int
     }
 
     private var messageHeight: Int? {
-        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HEIGHT] as? Int
+        return mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.HEIGHT] as? Int
     }
 
     private var messageVAlign: MessageAlignment {
-        if let alignmentString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.VERTICAL_ALIGN] as? String {
+        if let alignmentString = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.VERTICAL_ALIGN] as? String {
             return MessageAlignment.fromString(alignmentString)
         }
 
@@ -112,11 +112,11 @@ extension Event {
     }
 
     private var messageVInset: Int? {
-        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.VERTICAL_INSET] as? Int
+        return mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.VERTICAL_INSET] as? Int
     }
 
     private var messageHAlign: MessageAlignment {
-        if let alignmentString = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_ALIGN] as? String {
+        if let alignmentString = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_ALIGN] as? String {
             return MessageAlignment.fromString(alignmentString)
         }
 
@@ -124,11 +124,11 @@ extension Event {
     }
 
     private var messageHInset: Int? {
-        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_INSET] as? Int
+        return mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_INSET] as? Int
     }
 
     private var messageUiTakeover: Bool {
-        if let takeover = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.UI_TAKEOVER] as? Bool {
+        if let takeover = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.UI_TAKEOVER] as? Bool {
             return takeover
         }
 
@@ -136,11 +136,11 @@ extension Event {
     }
     
     private var messageBackdropColor: String? {
-        return messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.BACKDROP_COLOR] as? String
+        return mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.BACKDROP_COLOR] as? String
     }
     
     private var messageBackdropOpacity: CGFloat? {
-        if let opacity = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.BACKDROP_OPACITY] as? Double {
+        if let opacity = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.BACKDROP_OPACITY] as? Double {
             return CGFloat(opacity)
         }
         
@@ -148,7 +148,7 @@ extension Event {
     }
     
     private var messageCornerRadius: CGFloat? {
-        if let radius = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.CORNER_RADIUS] as? Int {
+        if let radius = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.CORNER_RADIUS] as? Int {
             return CGFloat(radius)
         }
         
@@ -156,7 +156,7 @@ extension Event {
     }
 
     private var messageDisplayAnimation: MessageAnimation {
-        if let animate = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.DISPLAY_ANIMATION] as? String {
+        if let animate = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.DISPLAY_ANIMATION] as? String {
             return MessageAnimation.fromString(animate)
         }
 
@@ -164,7 +164,7 @@ extension Event {
     }
     
     private var messageDismissAnimation: MessageAnimation {
-        if let animate = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.DISMISS_ANIMATION] as? String {
+        if let animate = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.DISMISS_ANIMATION] as? String {
             return MessageAnimation.fromString(animate)
         }
         
@@ -172,7 +172,7 @@ extension Event {
     }
 
     private var messageGestures: [MessageGesture: URL]? {
-        if let gesturesJson = messageSettingsDictionary?[MessagingConstants.Event.Data.Key.IAM.GESTURES] as? [String: String] {
+        if let gesturesJson = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.GESTURES] as? [String: String] {
             var gestures: [MessageGesture: URL] = [:]
             for gesture in gesturesJson {
                 if let g = MessageGesture.fromString(gesture.key), let url = URL(string: gesture.value) {
@@ -189,7 +189,7 @@ extension Event {
     // MARK: Message Object Validation
     var containsValidInAppMessage: Bool {
         // remoteAssets are optional
-        return template != nil && html != nil
+        return /* template != nil && */ html != nil
     }
 
     // MARK: Private
