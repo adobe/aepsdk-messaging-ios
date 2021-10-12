@@ -339,8 +339,3 @@ extension Messaging {
         dispatch(event: event)
     }
 }
-
-
-/// get updated html from JP
-///
-/// work on the end-to-end full

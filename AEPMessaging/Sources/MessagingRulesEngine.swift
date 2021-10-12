@@ -18,8 +18,10 @@ import Foundation
 class MessagingRulesEngine {
 
     let rulesEngine: LaunchRulesEngine
+    let runtime: ExtensionRuntime
 
     init(name: String, extensionRuntime: ExtensionRuntime) {
+        self.runtime = extensionRuntime
         self.rulesEngine = LaunchRulesEngine(name: name,
                                              extensionRuntime: extensionRuntime)
     }
@@ -39,12 +41,11 @@ class MessagingRulesEngine {
         var messagingRules: [LaunchRule] = []
         for rule in rules {
 
-            guard let processedRule = JSONRulesParser.parse(rule.data(using: .utf8) ?? Data()) else {
+            guard let processedRule = JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime) else {
                 continue
             }
 
             // TODO: handle remote assets caching (here or in UIServices?)
-
             messagingRules.append(contentsOf: processedRule)
         }
 
