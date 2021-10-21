@@ -140,7 +140,7 @@ public class Messaging: NSObject, Extension {
     /// - Parameter event: an `Event` containing an in-app message definition in its data
     private func handleOfferNotification(_ event: Event) {
         // validate the event
-        if !event.isPersonalizationDecisionResponse {
+        guard event.isPersonalizationDecisionResponse else {
             return
         }
 
@@ -148,7 +148,9 @@ public class Messaging: NSObject, Extension {
         let activityId = offersConfig.0
         let placementId = offersConfig.1
 
-        if event.offerActivityId != activityId || event.offerPlacementId != placementId {
+        guard event.offerActivityId == activityId, event.offerPlacementId == placementId else {
+            // no need to log here, as this case will be common if the app is using the optimize extension outside
+            // of in-app messaging
             return
         }
         
