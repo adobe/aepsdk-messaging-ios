@@ -33,13 +33,13 @@ class MessagingRulesEngine {
     }
 
     func loadRules(rules: [String]?) {
-//        guard let rules = rules else {
-//            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load messages, array of rules was empty.")
-//            return
-//        }
+        guard let rules = rules else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load messages, array of rules was empty.")
+            return
+        }
 
         // TEMP
-        let rules = [testRuleString, testMultipleRuleString]
+        //let rules = [testRuleString, testMultipleRuleString]
         
         var messagingRules: [LaunchRule] = []
         for rule in rules {
@@ -54,6 +54,7 @@ class MessagingRulesEngine {
         rulesEngine.replaceRules(with: messagingRules)
         Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(messagingRules.count) message(s) into the rules engine.")
     }
+    
     
     let testRuleString = """
 {
@@ -245,5 +246,3 @@ class MessagingRulesEngine {
 <!doctype html><html><head><style>html,body {margin: 0;padding: 0;text-align: center;width: 100%;height: 100%;font-family: adobe-clean, \\\"Source Sans Pro\\\", -apple-system, BlinkMacSystemFont, \\\"Segoe UI\\\", Roboto, sans-serif;}    h3 {margin: .1rem auto;}p {margin: 0;}.body {display: flex;flex-direction: column;background-color: #FFF;border-radius: 5px;color: #333333;width: 100vw;height: 100vh;text-align: center;align-items: center;background-size: 'cover';}a {text-decoration: none;}.image {  height: 1rem;  flex-grow: 4;  flex-shrink: 1;  display: flex;  justify-content: center;  width: 90%;      flex-direction: column;      align-items: center;}    .image img {      max-height: 100%;      max-width: 100%;    }.text {text-align: center;line-height: 20px;font-size: 14px;color: #333333;padding: 0 25px;line-height: 1.25rem;font-size: 0.875rem;}.title {line-height: 1.3125rem;font-size: 1.025rem;}.buttons {width: 100%;display: flex;flex-direction: column;font-size: 1rem;line-height: 1.3rem;text-decoration: none;text-align: center;box-sizing: border-box;padding: .8rem;padding-top: .4rem;gap: 0.3125rem;}.button {flex-grow: 1;background-color: #1473E6;color: #FFFFFF;border-radius: .25rem;cursor: pointer;padding: .3rem;gap: .5rem;}.btnClose {color: #000000;}.closeBtn {align-self: flex-end;width: 1.8rem;height: 1.8rem;margin-top: 1rem;margin-right: .3rem;}</style><style type=\\\"text/css\\\" id=\\\"editor-styles\\\"></style><meta type=\\\"templateProperties\\\" name=\\\"c34ba445-e088-4a45-9558-1641206bfad3\\\" label=\\\"Pool demo\\\" icon=\\\"https://i.ibb.co/H49brrN/lgovzcjnbnaehjzahsbq.png\\\"><meta type=\\\"templateZone\\\" name=\\\"default\\\" label=\\\"Default\\\" classname=\\\"body\\\" definition=\\\"[&quot;CloseBtn&quot;,&quot;Html&quot;,&quot;Buttons&quot;]\\\"><meta type=\\\"templateDefaultAnimations\\\" dismissanimation=\\\"bottom\\\" displayanimation=\\\"bottom\\\"><meta type=\\\"templateDefaultSize\\\" dismissanimation=\\\"100\\\" displayanimation=\\\"100\\\"><meta type=\\\"templateDefaultPosition\\\" verticalalign=\\\"center\\\" verticalinset=\\\"0\\\" horizontalalign=\\\"center\\\" horizontalinset=\\\"0\\\"><meta type=\\\"templateDefaultGesture\\\"><meta type=\\\"templateDefaultUiTakeover\\\" enable=\\\"true\\\"></head><body><div class=\\\"body\\\"><div class=\\\"closeBtn\\\" data-btn-style=\\\"circle\\\" data-uuid=\\\"e9cb6fd7-ca13-4ef0-bc41-efdc4c6c9946\\\">  <a class=\\\"btnClose\\\" href=\\\"adbinapp://cancel\\\">    <svg xmlns=\\\"http://www.w3.org/2000/svg\\\" height=\\\"18\\\" viewBox=\\\"0 0 18 18\\\" width=\\\"18\\\" class=\\\"close\\\">  <rect id=\\\"Canvas\\\" fill=\\\"#ffffff\\\" opacity=\\\"0\\\" width=\\\"18\\\" height=\\\"18\\\"></rect>  <path fill=\\\"currentColor\\\" d=\\\"M14.657,3.343a8,8,0,1,0-.00021,11.31371l.00021-.00021A8,8,0,0,0,14.657,3.343Zm-1.3435,9.265-.707.7055a.6.6,0,0,1-.84853.00147l-.00147-.00147L9,10.5555l-2.758,2.758a.6.6,0,0,1-.84853.00147L5.392,13.3135l-.7045-.7075a.6.6,0,0,1-.00147-.84853L4.6875,11.756,7.4445,9,4.6875,6.242A.6.6,0,0,1,4.686,5.39347L4.6875,5.392l.707-.707A.6.6,0,0,1,6.243,4.68353L6.2445,4.685,9,7.444l2.758-2.7575a.6.6,0,0,1,.84853-.00147l.00147.00147.707.707a.6.6,0,0,1,.00147.84853L13.315,6.2435,10.5555,9l2.758,2.758a.6.6,0,0,1,.00147.84853Z\\\"></path></svg>  </a></div><div data-uuid=\\\"6ed59935-26b3-4469-8ceb-035690ce6ff5\\\" height=\\\"80%\\\" style=\\\"overflow: hidden;\\\"><iframe width=\\\"300\\\" height=\\\"444\\\" src=\\\"https://strawpoll.com/embed/ju9awkvy9\\\" style=\\\"width: 100%; height: 444px;\\\" frameborder=\\\"0\\\" allowfullscreen=\\\"\\\"></iframe></div><div data-uuid=\\\"0285a2d6-5371-4f77-8f55-52087b40bd21\\\" class=\\\"buttons\\\">  <a class=\\\"button\\\" data-uuid=\\\"7b16ce7b-6f42-484f-b937-c880454a7d1e\\\" href=\\\"adbinapp://confirm/\\\">Skip</a></div></div></body></html>
 """
 }
-
-

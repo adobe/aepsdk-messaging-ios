@@ -30,11 +30,15 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_ sender: Any) {
-//        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["foo": "bar"]))
+        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["seahawks": "sad"]))
         
         
-        MobileCore.track(state: "triggerFullscreen", data: ["testFullscreen": "true"])
+//        MobileCore.track(state: "triggerFullscreen", data: ["testFullscreen": "true"])
 
+        // southwest
+        //{"xdm:activityId":"xcore:offer-activity:14090235e6b6757a","xdm:placementId":"xcore:offer-placement:142426be131dce37"}
+        
+        //{"xdm:activityId":"xcore:offer-activity:14090235e6b6757a","xdm:placementId":"xcore:offer-placement:14254cbbee5de2b8"}
     }
     
     @IBAction func triggerModal(_ sender: Any) {
