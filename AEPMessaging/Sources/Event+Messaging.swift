@@ -187,9 +187,12 @@ extension Event {
     }
 
     // MARK: Message Object Validation
+    
     var containsValidInAppMessage: Bool {
-        // remoteAssets are optional
-        return /* template != nil && */ html != nil
+        // remoteAssets are always optional.
+        // template is currently optional as it's not being used,
+        // but may be used later if new kinds of messages are introduced
+        return html != nil
     }
 
     // MARK: Private

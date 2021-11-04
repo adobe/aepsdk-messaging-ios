@@ -30,16 +30,19 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_ sender: Any) {
-//        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["foo": "bar"]))
-        
+        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["seahawks": "sad"]))
         
         MobileCore.track(state: "triggerFullscreen", data: ["testFullscreen": "true"])
 
+        // southwest
+        //{"xdm:activityId":"xcore:offer-activity:14090235e6b6757a","xdm:placementId":"xcore:offer-placement:142426be131dce37"}
+        
+        //{"xdm:activityId":"xcore:offer-activity:14090235e6b6757a","xdm:placementId":"xcore:offer-placement:14254cbbee5de2b8"}
     }
     
     @IBAction func triggerModal(_ sender: Any) {
-        MobileCore.track(state: "triggerModal", data: ["testModal": "true"])
-        
+        MobileCore.track(state: "triggerModal", data: ["testSteveModal": "true"])
+//        MobileCore.track(state: "triggerModal", data: ["testModal": "true"])
     }
     
     @IBAction func triggerBannerTop(_ sender: Any) {
@@ -127,5 +130,29 @@ class ViewController: UIViewController {
 
     @IBAction func showStoredMessage(_ sender: Any) {
         messageHandler.currentMessage?.show()
+    }
+    
+    
+    
+    
+    
+    @IBAction func checkSequence(_ sender: Any) {
+        let checkSequenceEvent = Event(name: "Check Sequence", type: "iam.tester", source: "inbound", data: ["checkSequence": "true"])
+        MobileCore.dispatch(event: checkSequenceEvent)
+    }
+    
+    @IBAction func triggerEvent1(_ sender: Any) {
+        let event = Event(name: "Event1", type: "iam.tester", source: "inbound", data: ["firstEvent": "true"], mask: ["firstEvent"])
+        MobileCore.dispatch(event: event)
+    }
+    
+    @IBAction func triggerEvent2(_ sender: Any) {
+        let event = Event(name: "Event2", type: "iam.tester", source: "inbound", data: ["secondEvent": "true"], mask: ["secondEvent"])
+        MobileCore.dispatch(event: event)
+    }
+    
+    @IBAction func triggerEvent3(_ sender: Any) {
+        let event = Event(name: "Event3", type: "iam.tester", source: "inbound", data: ["thirdEvent": "true"], mask: ["thirdEvent"])
+        MobileCore.dispatch(event: event)
     }
 }
