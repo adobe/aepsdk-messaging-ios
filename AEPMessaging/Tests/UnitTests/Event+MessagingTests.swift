@@ -32,16 +32,22 @@ class EventPlusMessagingTests: XCTestCase {
 
     // MARK: - Helpers
     /// Gets an event to use for simulating a rules consequence
-    func getRulesResponseEvent(type: String) -> Event {
+    func getRulesResponseEvent(type: String, triggeredConsequence: [String: Any]? = nil, removeDetails: [String]? = nil) -> Event {
         // details are the same for postback and pii, different for open url
-        let details = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
-            MessagingConstants.Event.Data.Key.IAM.TEMPLATE: MessagingConstants.Event.Data.Values.IAM.Template.FULLSCREEN,
+        var details = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
+            MessagingConstants.Event.Data.Key.IAM.TEMPLATE: MessagingConstants.Event.Data.Values.IAM.FULLSCREEN,
             MessagingConstants.Event.Data.Key.IAM.HTML: testHtml,
             MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: testAssets
         ] : [:]
 
+        if let keysToBeRemoved = removeDetails {
+            for key in keysToBeRemoved {
+                details.removeValue(forKey: key)
+            }
+        }
+                        
         let triggeredConsequence = [
-            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
+            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: triggeredConsequence ?? [
                 MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
                 MessagingConstants.Event.Data.Key.TYPE: type,
                 MessagingConstants.Event.Data.Key.DETAIL: details
@@ -131,7 +137,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
 
         // verify
-        XCTAssertEqual(MessagingConstants.Event.Data.Values.IAM.Template.FULLSCREEN, event.template!)
+        XCTAssertEqual(MessagingConstants.Event.Data.Values.IAM.FULLSCREEN, event.template!)
     }
 
     func testInAppMessageHtml() throws {
@@ -164,14 +170,13 @@ class EventPlusMessagingTests: XCTestCase {
     // MARK: - Testing Invalid Events
     func testWrongConsequenceType() throws {
         // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
         let triggeredConsequence: [String: Any] = [
             MessagingConstants.Event.Data.Key.TYPE: "Invalid",
             MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
             MessagingConstants.Event.Data.Key.DETAIL: [:]
         ]
-        event.data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] = triggeredConsequence
-
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
+        
         // verify
         XCTAssertFalse(event.isInAppMessage)
         XCTAssertNil(event.template)
@@ -181,13 +186,12 @@ class EventPlusMessagingTests: XCTestCase {
 
     func testNoConsequenceType() throws {
         // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
         let triggeredConsequence: [String: Any] = [
             MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
             MessagingConstants.Event.Data.Key.DETAIL: [:]
         ]
-        event.data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] = triggeredConsequence
-
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
+         
         // verify
         XCTAssertFalse(event.isInAppMessage)
         XCTAssertNil(event.template)
@@ -197,14 +201,13 @@ class EventPlusMessagingTests: XCTestCase {
 
     func testMissingValuesInDetails() throws {
         // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
         let triggeredConsequence: [String: Any] = [
             MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
             MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
             MessagingConstants.Event.Data.Key.DETAIL: ["unintersting": "data"]
         ]
-        event.data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] = triggeredConsequence
-
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
+        
         // verify
         XCTAssertTrue(event.isInAppMessage)
         XCTAssertNil(event.template)
@@ -212,15 +215,14 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertNil(event.remoteAssets)
     }
 
-    func testNoInDetails() throws {
+    func testNoDetails() throws {
         // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
         let triggeredConsequence: [String: Any] = [
             MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
             MessagingConstants.Event.Data.Key.ID: UUID().uuidString
         ]
-        event.data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] = triggeredConsequence
-
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
+        
         // verify
         XCTAssertTrue(event.isInAppMessage)
         XCTAssertNil(event.template)
@@ -228,28 +230,34 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertNil(event.remoteAssets)
     }
 
+    func testInAppMessageObjectValidationNoRemoteAssets() throws {
+        // setup
+        let keysToRemove = [MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS]
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, removeDetails: keysToRemove)
+        
+        // verify
+        XCTAssertNil(event.remoteAssets)
+        XCTAssertTrue(event.containsValidInAppMessage, "remoteAssets is not a required field")
+    }
+    
     func testInAppMessageObjectValidationNoTemplate() throws {
         // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
-        event.data = updateDetailDict(dict: event.data!,
-                                      withValue: nil,
-                                      forKey: MessagingConstants.Event.Data.Key.IAM.TEMPLATE)
-
+        let keysToRemove = [MessagingConstants.Event.Data.Key.IAM.TEMPLATE]
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, removeDetails: keysToRemove)
+        
         // verify
         XCTAssertNil(event.template)
-        XCTAssertFalse(event.containsValidInAppMessage)
+        XCTAssertTrue(event.containsValidInAppMessage, "template is not a required field")
     }
 
     func testInAppMessageObjectValidationNoHtml() throws {
         // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
-        event.data = updateDetailDict(dict: event.data!,
-                                      withValue: nil,
-                                      forKey: MessagingConstants.Event.Data.Key.IAM.HTML)
-
+        let keysToRemove = [MessagingConstants.Event.Data.Key.IAM.HTML]
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, removeDetails: keysToRemove)
+        
         // verify
         XCTAssertNil(event.html)
-        XCTAssertFalse(event.containsValidInAppMessage)
+        XCTAssertFalse(event.containsValidInAppMessage, "html is a required field")
     }
 
     // MARK: - AEP Response Event Handling

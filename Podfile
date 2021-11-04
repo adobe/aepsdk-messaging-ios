@@ -15,8 +15,8 @@ project 'AEPMessaging.xcodeproj'
 # ==================
 def core_main
 #    pod 'AEPCore'
-    pod 'AEPCore', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'feature-event-history'
-    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'feature-event-history'
+    pod 'AEPCore', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'refactor-historical'
+    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'refactor-historical'
     pod 'AEPLifecycle'
     pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-v1.1.0'
     pod 'AEPSignal'
