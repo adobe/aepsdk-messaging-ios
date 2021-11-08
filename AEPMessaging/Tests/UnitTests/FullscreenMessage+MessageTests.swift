@@ -18,12 +18,28 @@ import AEPCore
 import AEPServices
 
 class FullscreenMessageMessageTests: XCTestCase {
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    func testFullscreenMessageParentExtension() throws {
+        // setup
+        let message = Message(parent: Messaging(runtime: TestableExtensionRuntime())!, event: Event(name: "name", type: "type", source: "source", data: nil))
+        let messageSettings = MessageSettings(parent: message)
+        let fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: "", listener: nil, isLocalImageUsed: false, settings: messageSettings) as! FullscreenMessage
+        
+        // test
+        let parent = fullscreenMessage.parent
+        
+        // verify
+        XCTAssertNotNil(parent)
     }
     
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testFullscreenMessageParentExtensionParentIsNotMessage() throws {
+        // setup
+        let messageSettings = MessageSettings(parent: self)
+        let fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: "", listener: nil, isLocalImageUsed: false, settings: messageSettings) as! FullscreenMessage
+        
+        // test
+        let parent = fullscreenMessage.parent
+        
+        // verify
+        XCTAssertNil(parent)
     }
-    
 }
