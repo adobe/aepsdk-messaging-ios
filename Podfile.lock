@@ -59,7 +59,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AEPCore:
-    :commit: eb17c0b2f04a38761d0b23ad6eb3cf14ef8a1700
+    :commit: e17ecf81e76b3726f7b363beaa36b21122ac848a
     :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
   AEPOptimize:
     :commit: 0bd31f09036f83da6a2716037040a5d6ac8cc5f4
@@ -68,7 +68,7 @@ CHECKOUT OPTIONS:
     :commit: 6f272d71d73f40c55685625a919cfc43021fe57e
     :git: https://github.com/adobe/aepsdk-rulesengine-ios.git
   AEPServices:
-    :commit: eb17c0b2f04a38761d0b23ad6eb3cf14ef8a1700
+    :commit: e17ecf81e76b3726f7b363beaa36b21122ac848a
     :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
 
 SPEC CHECKSUMS:

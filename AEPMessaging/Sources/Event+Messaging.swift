@@ -148,7 +148,7 @@ extension Event {
     }
     
     private var messageCornerRadius: CGFloat? {
-        if let radius = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.CORNER_RADIUS] as? Int {
+        if let radius = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.CORNER_RADIUS] as? Double {
             return CGFloat(radius)
         }
         
@@ -199,10 +199,6 @@ extension Event {
     // MARK: Consequence EventData Processing
     private var consequence: [String: Any]? {
         return data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] as? [String: Any]
-    }
-
-    private var consequenceId: String? {
-        return consequence?[MessagingConstants.Event.Data.Key.ID] as? String
     }
 
     private var consequenceType: String? {
