@@ -12,12 +12,14 @@
 
 import Foundation
 @testable import AEPServices
+@testable import AEPMessaging
 import WebKit
 
 class MockFullscreenMessage: FullscreenMessage {
     
-    public init() {
-        super.init(payload: "", listener: nil, isLocalImageUsed: false, messageMonitor: MessageMonitor(), settings: nil)
+    public init(parent: Message? = nil) {
+        let messageSettings = MessageSettings(parent: parent)
+        super.init(payload: "", listener: nil, isLocalImageUsed: false, messageMonitor: MessageMonitor(), settings: messageSettings)
         webView = WKWebView()
     }
     

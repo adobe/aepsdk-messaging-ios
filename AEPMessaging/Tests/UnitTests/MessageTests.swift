@@ -91,7 +91,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     func testHandleJavascriptMessage() throws {
         // setup
         let message = Message(parent: mockMessaging, event: mockEvent)
-        let mockFullscreenMessage = MockFullscreenMessage()
+        let mockFullscreenMessage = MockFullscreenMessage(parent: message)
         mockFullscreenMessage.paramJavascriptHandlerReturnValue = "abc"
         message.fullscreenMessage = mockFullscreenMessage
         testExpectation = XCTestExpectation(description: "jsHandler called")
@@ -111,7 +111,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     func testViewAccess() throws {
         // setup
         let message = Message(parent: mockMessaging, event: mockEvent)
-        let mockFullscreenMessage = MockFullscreenMessage()        
+        let mockFullscreenMessage = MockFullscreenMessage(parent: message)
         message.fullscreenMessage = mockFullscreenMessage
         
         // verify

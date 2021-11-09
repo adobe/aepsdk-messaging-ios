@@ -17,13 +17,93 @@ import AEPCore
 @testable import AEPMessaging
 import AEPServices
 
-class MessagingFullscreenMessageDelegateTests: XCTestCase {
+class MessageFullscreenMessageDelegateTests: XCTestCase {
+    
+    var message: Message!
+    var mockMessaging: MockMessaging!
+    var mockRuntime = TestableExtensionRuntime()
+    var mockEvent: Event!
+    var mockFullscreenMessage: MockFullscreenMessage!
+    var mockMessage: MockMessage!
+    let invalidUrlString = "-.98.3/~@!# oopsnotaurllol"
+    let genericUrlString = "https://www.adobe.com/"
+    let inAppUrlString = "adbinapp://dismiss?interaction=testing&link=https://www.adobe.com/"
+    let dismissUrlString = "adbinapp://dismiss"
+    
     override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        mockMessaging = MockMessaging(runtime: mockRuntime)
+        mockEvent = Event(name: "Message Test", type: "type", source: "source", data: nil)
+        message = Message(parent: mockMessaging, event: mockEvent)
+        mockMessage = MockMessage(parent: mockMessaging, event: mockEvent)
+        mockFullscreenMessage = MockFullscreenMessage(parent: mockMessage)
+        mockMessage.fullscreenMessage = mockFullscreenMessage
+    }
+        
+    func testOnDismiss() throws {
+        // test
+        message.onDismiss(message: mockFullscreenMessage)
+        
+        // verify
+        XCTAssertTrue(mockMessage.dismissCalled)
     }
     
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testOnDismissNoParentOnMessage() throws {
+        // setup
+        mockFullscreenMessage = MockFullscreenMessage()
+        mockMessage.fullscreenMessage = mockFullscreenMessage
+        
+        // test
+        message.onDismiss(message: mockFullscreenMessage)
+        
+        // verify
+        XCTAssertFalse(mockMessage.dismissCalled)
     }
     
+    func testOverrideUrlLoadGenericUrl() throws {
+        // test
+        let result = message.overrideUrlLoad(message: mockFullscreenMessage, url: genericUrlString)
+        
+        // verify
+        XCTAssertTrue(result)
+    }
+    
+    func testOverrideUrlLoadInvalidUrl() throws {
+        // test
+        let result = message.overrideUrlLoad(message: mockFullscreenMessage, url: invalidUrlString)
+        
+        // verify
+        XCTAssertTrue(result)
+    }
+    
+    func testOverrideUrlLoadInAppUrl() throws {
+        // test
+        let result = message.overrideUrlLoad(message: mockFullscreenMessage, url: inAppUrlString)
+        
+        // verify
+        XCTAssertFalse(result)
+        XCTAssertTrue(mockMessage.trackCalled)
+        XCTAssertEqual("testing", mockMessage.paramTrackInteraction)
+        XCTAssertEqual(.inappInteract, mockMessage.paramTrackEventType)
+        XCTAssertTrue(mockMessage.dismissCalled)
+        XCTAssertTrue(mockMessage.paramDismissSuppressAutoTrack)
+    }
+    
+    func testOverrideUrlLoadDismissUrl() throws {
+        // test
+        let result = message.overrideUrlLoad(message: mockFullscreenMessage, url: dismissUrlString)
+        
+        // verify
+        XCTAssertFalse(result)
+        XCTAssertFalse(mockMessage.trackCalled)
+        XCTAssertTrue(mockMessage.dismissCalled)
+        XCTAssertTrue(mockMessage.paramDismissSuppressAutoTrack)
+    }
+    
+    func testOnShowCallable() throws {
+        message.onShow(message: mockFullscreenMessage)
+    }
+    
+    func testOnShowFailureCallable() throws {
+        message.onShowFailure()
+    }
 }
