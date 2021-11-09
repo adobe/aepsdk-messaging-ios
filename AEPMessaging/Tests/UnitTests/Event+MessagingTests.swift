@@ -24,25 +24,7 @@ class EventPlusMessagingTests: XCTestCase {
     let mockPlacementId = "mockPlacementId"
     let mockContent1 = "content1"
     let mockContent2 = "content2"
-    
-    /// IAM values
-    var mockMobileParameters: [String: Any]!
-    let mockWidth = 50
-    let mockHeight = 49
-    let mockVAlign = "bottom"
-    let mockHAlign = "top"
-    let mockVInset = 50
-    let mockHInset = 49
-    let mockUiTakeover = true
-    let mockBackdropColor = "AABBCC"
-    let mockBackdropOpacity = 0.5
-    let mockCornerRadius = 10.0
-    let mockDisplayAnimation = "left"
-    let mockDismissAnimation = "right"
-    let mockGestures = [
-        "swipeDown": "adbinapp://dismiss"
-    ]
-    
+       
     /// Push values
     let mockXdmEventType = "xdmEventType"
     let mockMessagingId = "12345"
@@ -57,40 +39,11 @@ class EventPlusMessagingTests: XCTestCase {
 
     // before each
     override func setUp() {
-        mockMobileParameters = [
-            MessagingConstants.Event.Data.Key.IAM.WIDTH: mockWidth,
-            MessagingConstants.Event.Data.Key.IAM.HEIGHT: mockHeight,
-            MessagingConstants.Event.Data.Key.IAM.VERTICAL_ALIGN: mockVAlign,
-            MessagingConstants.Event.Data.Key.IAM.VERTICAL_INSET: mockVInset,
-            MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_ALIGN: mockHAlign,
-            MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_INSET: mockHInset,
-            MessagingConstants.Event.Data.Key.IAM.UI_TAKEOVER: mockUiTakeover,
-            MessagingConstants.Event.Data.Key.IAM.BACKDROP_COLOR: mockBackdropColor,
-            MessagingConstants.Event.Data.Key.IAM.BACKDROP_OPACITY: mockBackdropOpacity,
-            MessagingConstants.Event.Data.Key.IAM.CORNER_RADIUS: mockCornerRadius,
-            MessagingConstants.Event.Data.Key.IAM.DISPLAY_ANIMATION: mockDisplayAnimation,
-            MessagingConstants.Event.Data.Key.IAM.DISMISS_ANIMATION: mockDismissAnimation,
-            MessagingConstants.Event.Data.Key.IAM.GESTURES: mockGestures
-        ]
-        
         messaging = Messaging(runtime: TestableExtensionRuntime())
         messaging.onRegistered()
     }
 
     // MARK: - Helpers
-    /// Gets an event with mobileParameters
-    func getMobileParametersEvent(_ parameters: [String: Any]? = nil) -> Event {
-        let data: [String: Any] = [
-            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
-                MessagingConstants.Event.Data.Key.DETAIL: [
-                    MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: parameters ?? mockMobileParameters
-                ]
-            ]
-        ]
-        
-        return Event(name: "Test Rules Engine response", type: EventType.rulesEngine,
-                     source: EventSource.responseContent, data: data)
-    }
     
     /// Gets an event to use for simulating a rules consequence
     func getRulesResponseEvent(type: String? = MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
@@ -278,7 +231,7 @@ class EventPlusMessagingTests: XCTestCase {
     // MARK: - Test mobileParameters
     func testGetMessageSettingsHappy() throws {
         // setup
-        let event = getMobileParametersEvent()
+        let event = TestableMobileParameters.getMobileParametersEvent()
         
         // test
         let settings = event.getMessageSettings(withParent: self)
@@ -286,17 +239,17 @@ class EventPlusMessagingTests: XCTestCase {
         // verify
         XCTAssertNotNil(settings)
         XCTAssertTrue(settings.parent is EventPlusMessagingTests)
-        XCTAssertEqual(mockWidth, settings.width)
-        XCTAssertEqual(mockHeight, settings.height)
-        XCTAssertEqual(MessageAlignment.fromString(mockVAlign), settings.verticalAlign)
-        XCTAssertEqual(mockVInset, settings.verticalInset)
-        XCTAssertEqual(MessageAlignment.fromString(mockHAlign), settings.horizontalAlign)
-        XCTAssertEqual(mockHInset, settings.horizontalInset)
-        XCTAssertEqual(mockUiTakeover, settings.uiTakeover)
+        XCTAssertEqual(TestableMobileParameters.mockWidth, settings.width)
+        XCTAssertEqual(TestableMobileParameters.mockHeight, settings.height)
+        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockVAlign), settings.verticalAlign)
+        XCTAssertEqual(TestableMobileParameters.mockVInset, settings.verticalInset)
+        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockHAlign), settings.horizontalAlign)
+        XCTAssertEqual(TestableMobileParameters.mockHInset, settings.horizontalInset)
+        XCTAssertEqual(TestableMobileParameters.mockUiTakeover, settings.uiTakeover)
         XCTAssertEqual(UIColor(red: 0xAA/255.0, green: 0xBB/255.0, blue: 0xCC/255.0, alpha: 0), settings.getBackgroundColor(opacity: 0))
-        XCTAssertEqual(mockCornerRadius, settings.cornerRadius)
-        XCTAssertEqual(MessageAnimation.fromString(mockDisplayAnimation), settings.displayAnimation)
-        XCTAssertEqual(MessageAnimation.fromString(mockDismissAnimation), settings.dismissAnimation)
+        XCTAssertEqual(TestableMobileParameters.mockCornerRadius, settings.cornerRadius)
+        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDisplayAnimation), settings.displayAnimation)
+        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDismissAnimation), settings.dismissAnimation)
         XCTAssertNotNil(settings.gestures)
         XCTAssertEqual(1, settings.gestures?.count)
         XCTAssertEqual(URL(string: "adbinapp://dismiss")!.absoluteString, (settings.gestures![.swipeDown]!).absoluteString)
@@ -304,7 +257,7 @@ class EventPlusMessagingTests: XCTestCase {
     
     func testGetMessageSettingsNoParent() throws {
         // setup
-        let event = getMobileParametersEvent()
+        let event = TestableMobileParameters.getMobileParametersEvent()
         
         // test
         let settings = event.getMessageSettings(withParent: nil)
@@ -312,17 +265,17 @@ class EventPlusMessagingTests: XCTestCase {
         // verify
         XCTAssertNotNil(settings)
         XCTAssertNil(settings.parent)
-        XCTAssertEqual(mockWidth, settings.width)
-        XCTAssertEqual(mockHeight, settings.height)
-        XCTAssertEqual(MessageAlignment.fromString(mockVAlign), settings.verticalAlign)
-        XCTAssertEqual(mockVInset, settings.verticalInset)
-        XCTAssertEqual(MessageAlignment.fromString(mockHAlign), settings.horizontalAlign)
-        XCTAssertEqual(mockHInset, settings.horizontalInset)
-        XCTAssertEqual(mockUiTakeover, settings.uiTakeover)
+        XCTAssertEqual(TestableMobileParameters.mockWidth, settings.width)
+        XCTAssertEqual(TestableMobileParameters.mockHeight, settings.height)
+        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockVAlign), settings.verticalAlign)
+        XCTAssertEqual(TestableMobileParameters.mockVInset, settings.verticalInset)
+        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockHAlign), settings.horizontalAlign)
+        XCTAssertEqual(TestableMobileParameters.mockHInset, settings.horizontalInset)
+        XCTAssertEqual(TestableMobileParameters.mockUiTakeover, settings.uiTakeover)
         XCTAssertEqual(UIColor(red: 0xAA/255.0, green: 0xBB/255.0, blue: 0xCC/255.0, alpha: 0), settings.getBackgroundColor(opacity: 0))
-        XCTAssertEqual(mockCornerRadius, settings.cornerRadius)
-        XCTAssertEqual(MessageAnimation.fromString(mockDisplayAnimation), settings.displayAnimation)
-        XCTAssertEqual(MessageAnimation.fromString(mockDismissAnimation), settings.dismissAnimation)
+        XCTAssertEqual(TestableMobileParameters.mockCornerRadius, settings.cornerRadius)
+        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDisplayAnimation), settings.displayAnimation)
+        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDismissAnimation), settings.dismissAnimation)
         XCTAssertNotNil(settings.gestures)
         XCTAssertEqual(1, settings.gestures?.count)
         XCTAssertEqual(URL(string: "adbinapp://dismiss")!.absoluteString, (settings.gestures![.swipeDown]!).absoluteString)
@@ -330,7 +283,7 @@ class EventPlusMessagingTests: XCTestCase {
     
     func testGetMessageSettingsMobileParametersEmpty() throws {
         // setup
-        let event = getMobileParametersEvent([:])
+        let event = getRefreshMessagesEvent()
         
         // test
         let settings = event.getMessageSettings(withParent: self)
@@ -354,9 +307,16 @@ class EventPlusMessagingTests: XCTestCase {
     
     func testGetMessageSettingsEmptyGestures() throws {
         // setup
-        var params = mockMobileParameters
-        params![MessagingConstants.Event.Data.Key.IAM.GESTURES] = [:]
-        let event = getMobileParametersEvent(params)
+        let params: [String: Any] = [
+            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
+                MessagingConstants.Event.Data.Key.DETAIL: [
+                    MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: [
+                        MessagingConstants.Event.Data.Key.IAM.GESTURES: [:]
+                    ]
+                ]
+            ]
+        ]
+        let event = TestableMobileParameters.getMobileParametersEvent(withData: params)
         
         // test
         let settings = event.getMessageSettings(withParent: self)
