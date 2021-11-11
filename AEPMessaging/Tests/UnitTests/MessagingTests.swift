@@ -303,6 +303,7 @@ class MessagingTests: XCTestCase {
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count, "push token event should not be dispatched")
     }
 
     /// validating handleProcessEvent with working shared state and data
@@ -317,6 +318,7 @@ class MessagingTests: XCTestCase {
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count, "push token event should not be dispatched")
     }
 
     /// validating handleProcessEvent with working shared state and data
@@ -332,6 +334,10 @@ class MessagingTests: XCTestCase {
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNotNil(mockRuntime.dispatchedEvents)
+        let pushTokenEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
     }
 
     /// validating handleProcessEvent with working apns sandbox
@@ -369,14 +375,21 @@ class MessagingTests: XCTestCase {
         let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET: MOCK_EVENT_DATASET] as [String: Any]
         let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
 
-        let eventData: [String: Any]? = nil
+        let eventData: [String: Any]? = [
+            MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType",
+            MessagingConstants.Event.Data.Key.MESSAGE_ID: "testMessageId"
+        ]
 
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedInfoEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, dispatchedInfoEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, dispatchedInfoEvent?.source)
     }
 
     func testHandleProcessEventRefreshMessageEvent() throws {
@@ -390,6 +403,34 @@ class MessagingTests: XCTestCase {
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
     }
+    
+    func testHandleProcessEventNoIdentityMap() throws {
+        // setup
+        let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]        
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: [:], status: SharedStateStatus.set))
+        
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count, "push token event should not be dispatched")
+    }
+    
+    func testhandleProcessEventNoEcidArrayInIdentityMap() {
+        let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: [
+            MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [:]
+        ], status: SharedStateStatus.set))
+        
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count, "push token event should not be dispatched")
+    }
+    
     
     // MARK: - Helpers
     
