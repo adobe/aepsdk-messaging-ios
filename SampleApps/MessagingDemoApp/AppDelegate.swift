@@ -50,8 +50,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             Signal.self,
             Assurance.self
         ]
-        
-        
 
         MobileCore.registerExtensions(extensions)
 
@@ -70,7 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             "edge.environment": "int",
             "experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
             // prod
-//            "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
+            //            "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
             // ajo-sandbox
             "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
             "messaging.eventDataset": "610ae80b3cbbc718dab06208"
@@ -91,9 +89,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         //        ])
 
         // only start lifecycle if the application is not in the background
-//        if application.applicationState != .background {
-            MobileCore.lifecycleStart(additionalContextData: nil)
-//        }
+        //        if application.applicationState != .background {
+        MobileCore.lifecycleStart(additionalContextData: nil)
+        //        }
 
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
@@ -106,9 +104,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 application.registerForRemoteNotifications()
             }
         }
-        
+
         print("launches: \(UserDefaults.standard.launches ?? "nil"), daysSinceFirstUse: \(UserDefaults.standard.daysSinceFirstUse ?? "nil")")
-        
+
         return true
     }
 
@@ -117,7 +115,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func application(_: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options _: UIScene.ConnectionOptions) -> UISceneConfiguration {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
-        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
     func application(_: UIApplication, didDiscardSceneSessions _: Set<UISceneSession>) {
@@ -175,9 +173,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.title = "Notification Title"
         content.body = "This is example how to create "
         content.categoryIdentifier = "MEETING_INVITATION"
-        content.userInfo = [ "_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
-                                                            ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
-                                                                                  "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
+        content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
+                                                                ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
+                                                                                      "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
         let identifier = "Local Notification"
@@ -237,28 +235,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
 /// UserDefaults + Adobe SDK helper
 extension UserDefaults {
-    
     var launches: String? {
-        return lifecycleMetrics?["launches"] as? String
+        lifecycleMetrics?["launches"] as? String
     }
-    
+
     var daysSinceFirstUse: String? {
-        return lifecycleMetrics?["dayssincefirstuse"] as? String
+        lifecycleMetrics?["dayssincefirstuse"] as? String
     }
-    
+
     private var lifecycleMetrics: [String: Any]? {
-        return lifecycleData?["lifecycleMetrics"] as? [String: Any]
+        lifecycleData?["lifecycleMetrics"] as? [String: Any]
     }
-    
+
     private var lifecycleData: [String: Any?]? {
-        guard let lifecycleAsJson = self.object(forKey: "Adobe.com.adobe.module.lifecycle.lifecycle.data") as? Data else {
+        guard let lifecycleAsJson = object(forKey: "Adobe.com.adobe.module.lifecycle.lifecycle.data") as? Data else {
             return nil
         }
-        
+
         guard let lifecycleDictionary = try? JSONSerialization.jsonObject(with: lifecycleAsJson, options: .mutableContainers) as? [String: Any] else {
             return nil
         }
-        
+
         return lifecycleDictionary
     }
 }

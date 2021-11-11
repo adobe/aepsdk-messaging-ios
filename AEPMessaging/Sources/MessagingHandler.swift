@@ -14,15 +14,16 @@ import AEPServices
 import Foundation
 
 class MessagingHandler: FullscreenMessageDelegate {
+    // =================================================================================================================
+
+    // MARK: - FullscreenMessageDelegate protocol methods
 
     // =================================================================================================================
-    // MARK: - FullscreenMessageDelegate protocol methods
-    // =================================================================================================================
-    func onShow(message: FullscreenMessage) {
+    func onShow(message _: FullscreenMessage) {
         Log.debug(label: MessagingConstants.LOG_TAG, #function)
     }
 
-    func onDismiss(message: FullscreenMessage) {
+    func onDismiss(message _: FullscreenMessage) {
         Log.debug(label: MessagingConstants.LOG_TAG, #function)
     }
 

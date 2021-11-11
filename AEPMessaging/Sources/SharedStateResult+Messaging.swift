@@ -15,7 +15,7 @@ import Foundation
 
 extension SharedStateResult {
     var experienceEventDataset: String? {
-        return value?[MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET] as? String
+        value?[MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET] as? String
     }
 
     var pushPlatform: String {

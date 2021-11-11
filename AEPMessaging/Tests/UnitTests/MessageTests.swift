@@ -3,7 +3,7 @@
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software distributed under
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
@@ -19,7 +19,6 @@ import XCTest
 import WebKit
 
 class MessageTests: XCTestCase, FullscreenMessageDelegate {
-    
     var mockMessaging: MockMessaging!
     var mockRuntime = TestableExtensionRuntime()
     var mockEvent: Event!
@@ -27,10 +26,10 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     let mockMessageId = "552"
     var mockExperienceInfo: [String: Any] = ["experience": "present"]
     var testExpectation: XCTestExpectation?
-    
+
     override func setUp() {
         mockMessaging = MockMessaging(runtime: mockRuntime)
-        
+
         mockEventData = [
             MessagingConstants.Event.Data.Key.IAM.ID: mockMessageId,
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
@@ -44,14 +43,14 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
                 ]
             ]
         ]
-        
+
         mockEvent = Event(name: "Message Test", type: "type", source: "source", data: mockEventData)
     }
-    
+
     func testMessageInitHappy() throws {
         // test
         let message = Message(parent: mockMessaging, event: mockEvent)
-        
+
         // verify
         XCTAssertEqual(mockMessaging, message.parent)
         XCTAssertEqual(mockEvent, message.triggeringEvent)
@@ -60,34 +59,34 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         XCTAssertEqual("present", message.experienceInfo["experience"] as? String)
         XCTAssertNotNil(message.fullscreenMessage)
     }
-    
+
     func testShow() throws {
         // setup
         let message = Message(parent: mockMessaging, event: mockEvent)
         message.fullscreenMessage?.listener = self
         testExpectation = XCTestExpectation(description: "onShow called")
-        
+
         // test
         message.show()
-        
+
         // verify
         wait(for: [testExpectation!], timeout: 1.0)
     }
-    
+
     func testDismiss() throws {
         // setup
         let message = Message(parent: mockMessaging, event: mockEvent)
-        message.show()  // onDismiss will not get called if the message isn't currently being shown
+        message.show() // onDismiss will not get called if the message isn't currently being shown
         message.fullscreenMessage?.listener = self
         testExpectation = XCTestExpectation(description: "onDismiss called")
-        
+
         // test
         message.dismiss()
-        
+
         // verify
         wait(for: [testExpectation!], timeout: 1.0)
     }
-    
+
     func testHandleJavascriptMessage() throws {
         // setup
         let message = Message(parent: mockMessaging, event: mockEvent)
@@ -95,49 +94,53 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         mockFullscreenMessage.paramJavascriptHandlerReturnValue = "abc"
         message.fullscreenMessage = mockFullscreenMessage
         testExpectation = XCTestExpectation(description: "jsHandler called")
-        
+
         // test
         message.handleJavascriptMessage("test") { body in
             XCTAssertEqual("abc", body as? String)
             self.testExpectation?.fulfill()
         }
-        
+
         // verify
         wait(for: [testExpectation!], timeout: 1.0)
         XCTAssertTrue(mockFullscreenMessage.handleJavascriptMessageCalled)
         XCTAssertEqual("test", mockFullscreenMessage.paramJavascriptMessage)
     }
-    
+
     func testViewAccess() throws {
         // setup
         let message = Message(parent: mockMessaging, event: mockEvent)
         let mockFullscreenMessage = MockFullscreenMessage(parent: message)
         message.fullscreenMessage = mockFullscreenMessage
-        
+
         // verify
         XCTAssertNotNil(message.view)
         XCTAssertTrue(message.view is WKWebView)
     }
-    
+
     func testTriggerable() throws {
         // setup
         let message = Message(parent: mockMessaging, event: mockEvent)
-        
+
         // verify
         message.trigger()
     }
-    
+
     // MARK: - FullscreenMessageDelegate
-    public func onShow(message: FullscreenMessage) {
+
+    public func onShow(message _: FullscreenMessage) {
         testExpectation?.fulfill()
     }
+
     public func onShowFailure() {
         testExpectation?.fulfill()
     }
-    public func onDismiss(message: FullscreenMessage) {
+
+    public func onDismiss(message _: FullscreenMessage) {
         testExpectation?.fulfill()
     }
-    public func overrideUrlLoad(message: FullscreenMessage, url: String?) -> Bool {
+
+    public func overrideUrlLoad(message _: FullscreenMessage, url _: String?) -> Bool {
         testExpectation?.fulfill()
         return true
     }

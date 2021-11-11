@@ -3,16 +3,16 @@
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software distributed under
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
  */
 
-import Foundation
-@testable import AEPMessaging
 @testable import AEPCore
+@testable import AEPMessaging
+import Foundation
 
 class TestableMobileParameters {
     static let mockWidth = 50
@@ -30,9 +30,9 @@ class TestableMobileParameters {
     static let mockGestures = [
         "swipeDown": "adbinapp://dismiss"
     ]
-    
+
     static var mobileParameters: [String: Any] {
-        return [
+        [
             MessagingConstants.Event.Data.Key.IAM.WIDTH: mockWidth,
             MessagingConstants.Event.Data.Key.IAM.HEIGHT: mockHeight,
             MessagingConstants.Event.Data.Key.IAM.VERTICAL_ALIGN: mockVAlign,
@@ -48,7 +48,7 @@ class TestableMobileParameters {
             MessagingConstants.Event.Data.Key.IAM.GESTURES: mockGestures
         ]
     }
-    
+
     static func getMobileParametersEvent(withData data: [String: Any]? = nil) -> Event {
         var eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
@@ -60,7 +60,7 @@ class TestableMobileParameters {
         if let data = data {
             eventData.merge(data) { _, new in new }
         }
-                
+
         return Event(name: "Mobile Parameters Event",
                      type: "testType",
                      source: "testSource",

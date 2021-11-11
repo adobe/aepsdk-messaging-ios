@@ -29,30 +29,28 @@ class ViewController: UIViewController {
         MobileCore.messagingDelegate = messageHandler
     }
 
-    @IBAction func triggerFullscreen(_ sender: Any) {
+    @IBAction func triggerFullscreen(_: Any) {
         MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["seahawks": "sad"]))
-        
+
         MobileCore.track(state: "triggerFullscreen", data: ["testFullscreen": "true"])
 
         // southwest
-        //{"xdm:activityId":"xcore:offer-activity:14090235e6b6757a","xdm:placementId":"xcore:offer-placement:142426be131dce37"}
-        
-        //{"xdm:activityId":"xcore:offer-activity:14090235e6b6757a","xdm:placementId":"xcore:offer-placement:14254cbbee5de2b8"}
+        // {"xdm:activityId":"xcore:offer-activity:14090235e6b6757a","xdm:placementId":"xcore:offer-placement:142426be131dce37"}
+
+        // {"xdm:activityId":"xcore:offer-activity:14090235e6b6757a","xdm:placementId":"xcore:offer-placement:14254cbbee5de2b8"}
     }
-    
-    @IBAction func triggerModal(_ sender: Any) {
+
+    @IBAction func triggerModal(_: Any) {
         MobileCore.track(state: "triggerModal", data: ["testSteveModal": "true"])
-//        MobileCore.track(state: "triggerModal", data: ["testModal": "true"])
+        //        MobileCore.track(state: "triggerModal", data: ["testModal": "true"])
     }
-    
-    @IBAction func triggerBannerTop(_ sender: Any) {
+
+    @IBAction func triggerBannerTop(_: Any) {
         MobileCore.track(state: "triggerBannerTop", data: ["testBannerTop": "true"])
-        
     }
-    
-    @IBAction func triggerBannerBottom(_ sender: Any) {
+
+    @IBAction func triggerBannerBottom(_: Any) {
         MobileCore.track(state: "triggerInapp", data: ["testBannerBottom": "true"])
-        
     }
 
     /// Messaging delegate
@@ -61,23 +59,17 @@ class ViewController: UIViewController {
         var currentMessage: Message?
 
         func onShow(message: Showable) {
-
             let fullscreenMessage = message as? FullscreenMessage
             let message = fullscreenMessage?.parent
             print("message was shown \(message?.id ?? "undefined")")
         }
 
         func onDismiss(message: Showable) {
-
             let fullscreenMessage = message as? FullscreenMessage
             print("message was dismissed \(fullscreenMessage?.debugDescription ?? "undefined")")
         }
 
-        
-        
-        
         func shouldShowMessage(message: Showable) -> Bool {
-
             // access to the whole message from the parent
             let fullscreenMessage = message as? FullscreenMessage
             let message = fullscreenMessage?.parent
@@ -91,7 +83,7 @@ class ViewController: UIViewController {
             // get the uiview - add it
             let messageWebView = message?.view as! WKWebView
             print("message web view: \(messageWebView)")
-            
+
             // if we're not showing the message now, we can save it for later
             if !showMessages {
                 currentMessage = message
@@ -101,9 +93,6 @@ class ViewController: UIViewController {
             return showMessages
         }
 
-        
-        
-        
         func urlLoaded(_ url: URL) {
             print("fullscreen message loaded url: \(url)")
         }
@@ -116,42 +105,38 @@ class ViewController: UIViewController {
         }
     }
 
-    @IBAction func scheduleNotification(_ sender: Any) {
-        self.appDelegate?.scheduleNotification()
+    @IBAction func scheduleNotification(_: Any) {
+        appDelegate?.scheduleNotification()
     }
 
-    @IBAction func scheduleNotificationWithCustomAction(_ sender: Any) {
-        self.appDelegate?.scheduleNotificationWithCustomAction()
+    @IBAction func scheduleNotificationWithCustomAction(_: Any) {
+        appDelegate?.scheduleNotificationWithCustomAction()
     }
 
-    @IBAction func refreshMessages(_ sender: Any) {
+    @IBAction func refreshMessages(_: Any) {
         Messaging.refreshInAppMessages()
     }
 
-    @IBAction func showStoredMessage(_ sender: Any) {
+    @IBAction func showStoredMessage(_: Any) {
         messageHandler.currentMessage?.show()
     }
-    
-    
-    
-    
-    
-    @IBAction func checkSequence(_ sender: Any) {
+
+    @IBAction func checkSequence(_: Any) {
         let checkSequenceEvent = Event(name: "Check Sequence", type: "iam.tester", source: "inbound", data: ["checkSequence": "true"])
         MobileCore.dispatch(event: checkSequenceEvent)
     }
-    
-    @IBAction func triggerEvent1(_ sender: Any) {
+
+    @IBAction func triggerEvent1(_: Any) {
         let event = Event(name: "Event1", type: "iam.tester", source: "inbound", data: ["firstEvent": "true"], mask: ["firstEvent"])
         MobileCore.dispatch(event: event)
     }
-    
-    @IBAction func triggerEvent2(_ sender: Any) {
+
+    @IBAction func triggerEvent2(_: Any) {
         let event = Event(name: "Event2", type: "iam.tester", source: "inbound", data: ["secondEvent": "true"], mask: ["secondEvent"])
         MobileCore.dispatch(event: event)
     }
-    
-    @IBAction func triggerEvent3(_ sender: Any) {
+
+    @IBAction func triggerEvent3(_: Any) {
         let event = Event(name: "Event3", type: "iam.tester", source: "inbound", data: ["thirdEvent": "true"], mask: ["thirdEvent"])
         MobileCore.dispatch(event: event)
     }

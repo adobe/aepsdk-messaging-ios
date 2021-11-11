@@ -13,7 +13,6 @@
 import Foundation
 
 enum MessagingConstants {
-
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
@@ -85,7 +84,7 @@ enum MessagingConstants {
 
                     // layout keys
                     static let MOBILE_PARAMETERS = "mobileParameters"
-//                    static let MOBILE_PARAMETERS = "messageSetting"
+                    //                    static let MOBILE_PARAMETERS = "messageSetting"
                     static let SCHEMA_VERSION = "schemaVersion"
                     static let WIDTH = "width"
                     static let HEIGHT = "height"
@@ -95,7 +94,7 @@ enum MessagingConstants {
                     static let HORIZONTAL_INSET = "horizontalInset"
                     static let UI_TAKEOVER = "uiTakeover"
                     static let DISPLAY_ANIMATION = "displayAnimation"
-                    static let DISMISS_ANIMATION = "dismissAnimation"  
+                    static let DISMISS_ANIMATION = "dismissAnimation"
                     static let GESTURES = "gestures"
                     static let BODY = "body"
                     static let BACKDROP_COLOR = "backdropColor"
@@ -129,7 +128,6 @@ enum MessagingConstants {
                     static let SWIPE_LEFT = "swipeLeft"
                     static let SWIPE_RIGHT = "swipeRight"
                     static let TAP_BACKGROUND = "tapBackground"
-
                 }
 
                 enum Optimize {
@@ -201,7 +199,7 @@ enum MessagingConstants {
             }
         }
 
-        enum IAM {            
+        enum IAM {
             static let IN_APP_MIXIN_NAME = "inappMessageTracking"
             static let ACTION = "action"
 

@@ -17,7 +17,9 @@ import Foundation
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
     // =================================================================================================================
+
     // MARK: - Class members
+
     // =================================================================================================================
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
     public var name = MessagingConstants.EXTENSION_NAME
@@ -31,22 +33,24 @@ public class Messaging: NSObject, Extension {
     private let rulesEngine: MessagingRulesEngine
 
     // =================================================================================================================
+
     // MARK: - Extension protocol methods
+
     // =================================================================================================================
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
-        self.rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME,
-                                                extensionRuntime: runtime)
+        rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME,
+                                           extensionRuntime: runtime)
 
         super.init()
     }
-    
+
     /// INTERNAL ONLY
     /// used for testing
     init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine) {
         self.runtime = runtime
         self.rulesEngine = rulesEngine
-        
+
         super.init()
     }
 
@@ -83,14 +87,16 @@ public class Messaging: NSObject, Extension {
 
     public func readyForEvent(_ event: Event) -> Bool {
         guard let configurationSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event),
-              configurationSharedState.status == .set else {
+              configurationSharedState.status == .set
+        else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Event processing is paused - waiting for valid configuration.")
             return false
         }
 
         // hard dependency on edge identity module for ecid
         guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event),
-              edgeIdentitySharedState.status == .set else {
+              edgeIdentitySharedState.status == .set
+        else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Event processing is paused - waiting for valid XDM shared state from Edge Identity extension.")
             return false
         }
@@ -105,7 +111,9 @@ public class Messaging: NSObject, Extension {
     }
 
     // =================================================================================================================
+
     // MARK: - In-app Messaging methods
+
     // =================================================================================================================
 
     /// Called on every event, used to allow processing of the Messaging rules engine
@@ -158,7 +166,7 @@ public class Messaging: NSObject, Extension {
             // of in-app messaging
             return
         }
-        
+
         guard let json = event.rulesJson?.first, json != MessagingConstants.XDM.IAM.Value.EMPTY_CONTENT else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Empty content returned in call to retrieve in-app messages.")
             return
@@ -174,7 +182,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        if event.isInAppMessage && event.containsValidInAppMessage {
+        if event.isInAppMessage, event.containsValidInAppMessage {
             showMessageForEvent(event)
         } else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process In-App Message - html property is required.")
@@ -251,7 +259,9 @@ public class Messaging: NSObject, Extension {
     }
 
     // =================================================================================================================
+
     // MARK: - Event Handers
+
     // =================================================================================================================
 
     /// Processes the events in the event queue in the order they were received.
@@ -304,7 +314,8 @@ public class Messaging: NSObject, Extension {
             // get the ECID array from the identityMap
             guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
                   !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
-                  !ecid.isEmpty else {
+                  !ecid.isEmpty
+            else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
                 return
             }

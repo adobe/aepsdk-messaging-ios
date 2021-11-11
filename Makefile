@@ -76,3 +76,6 @@ test-SPM-integration:
 
 test-podspec:
 	(sh ./Script/test-podspec.sh)
+
+format:
+	swiftformat . --swiftversion 5.1

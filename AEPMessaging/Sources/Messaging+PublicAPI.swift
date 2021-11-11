@@ -15,7 +15,6 @@ import AEPServices
 import UserNotifications
 
 @objc public extension Messaging {
-
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.

@@ -15,7 +15,7 @@ import XCTest
 
 import AEPCore
 @testable import AEPMessaging
-//@testable import AEPCoreMocks
+// @testable import AEPCoreMocks
 @testable @_implementationOnly import AEPRulesEngine
 import AEPServices
 
@@ -27,5 +27,4 @@ class MessagingRulesEngineTests: XCTestCase {
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
-
 }
