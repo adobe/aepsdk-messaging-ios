@@ -10,21 +10,27 @@
  governing permissions and limitations under the License.
  */
 
-import Foundation
-import XCTest
-
-import AEPCore
+@testable import AEPCore
 @testable import AEPMessaging
-// @testable import AEPCoreMocks
-@testable @_implementationOnly import AEPRulesEngine
-import AEPServices
+@testable import AEPServices
+import Foundation
 
-class MessagingRulesEngineTests: XCTestCase {
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+class MockMessagingRulesEngine: MessagingRulesEngine {
+    init(name: String, runtime: ExtensionRuntime) {
+        super.init(name: name, extensionRuntime: runtime)
     }
 
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    var processCalled = false
+    var paramProcessEvent: Event?
+    override func process(event: Event) {
+        processCalled = true
+        paramProcessEvent = event
+    }
+
+    var loadRulesCalled = false
+    var paramLoadRulesRules: [String]?
+    override func loadRules(rules: [String]?) {
+        loadRulesCalled = true
+        paramLoadRulesRules = rules
     }
 }

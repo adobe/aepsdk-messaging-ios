@@ -15,6 +15,6 @@ import Foundation
 
 public extension FullscreenMessage {
     var parent: Message? {
-        return settings?.parent as? Message
+        settings?.parent as? Message
     }
 }

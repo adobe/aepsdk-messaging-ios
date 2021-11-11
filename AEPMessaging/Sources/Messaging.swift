@@ -17,7 +17,9 @@ import Foundation
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
     // =================================================================================================================
+
     // MARK: - Class members
+
     // =================================================================================================================
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
     public var name = MessagingConstants.EXTENSION_NAME
@@ -26,17 +28,28 @@ public class Messaging: NSObject, Extension {
     public var runtime: ExtensionRuntime
 
     private var initialLoadComplete = false
-    private var currentMessage: Message?
+    private(set) var currentMessage: Message?
     private let messagingHandler = MessagingHandler()
     private let rulesEngine: MessagingRulesEngine
 
     // =================================================================================================================
+
     // MARK: - Extension protocol methods
+
     // =================================================================================================================
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
-        self.rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME,
-                                                extensionRuntime: runtime)
+        rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME,
+                                           extensionRuntime: runtime)
+
+        super.init()
+    }
+
+    /// INTERNAL ONLY
+    /// used for testing
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine) {
+        self.runtime = runtime
+        self.rulesEngine = rulesEngine
 
         super.init()
     }
@@ -74,14 +87,16 @@ public class Messaging: NSObject, Extension {
 
     public func readyForEvent(_ event: Event) -> Bool {
         guard let configurationSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event),
-              configurationSharedState.status == .set else {
+              configurationSharedState.status == .set
+        else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Event processing is paused - waiting for valid configuration.")
             return false
         }
 
         // hard dependency on edge identity module for ecid
         guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event),
-              edgeIdentitySharedState.status == .set else {
+              edgeIdentitySharedState.status == .set
+        else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Event processing is paused - waiting for valid XDM shared state from Edge Identity extension.")
             return false
         }
@@ -96,7 +111,9 @@ public class Messaging: NSObject, Extension {
     }
 
     // =================================================================================================================
+
     // MARK: - In-app Messaging methods
+
     // =================================================================================================================
 
     /// Called on every event, used to allow processing of the Messaging rules engine
@@ -114,11 +131,7 @@ public class Messaging: NSObject, Extension {
         }
 
         // create event to be handled by optimize
-        guard let decisionScope = getEncodedDecisionScopeFor(activityId: activityId, placementId: placementId) else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to retrieve message definitions - error encoding the decision scope.")
-            return
-        }
-
+        let decisionScope = getEncodedDecisionScopeFor(activityId: activityId, placementId: placementId)
         let optimizeData: [String: Any] = [
             MessagingConstants.Event.Data.Key.Optimize.REQUEST_TYPE: MessagingConstants.Event.Data.Values.Optimize.UPDATE_PROPOSITIONS,
             MessagingConstants.Event.Data.Key.Optimize.DECISION_SCOPES: [
@@ -140,7 +153,7 @@ public class Messaging: NSObject, Extension {
     /// - Parameter event: an `Event` containing an in-app message definition in its data
     private func handleOfferNotification(_ event: Event) {
         // validate the event
-        if !event.isPersonalizationDecisionResponse {
+        guard event.isPersonalizationDecisionResponse else {
             return
         }
 
@@ -148,10 +161,12 @@ public class Messaging: NSObject, Extension {
         let activityId = offersConfig.0
         let placementId = offersConfig.1
 
-        if event.offerActivityId != activityId || event.offerPlacementId != placementId {
+        guard event.offerActivityId == activityId, event.offerPlacementId == placementId else {
+            // no need to log here, as this case will be common if the app is using the optimize extension outside
+            // of in-app messaging
             return
         }
-        
+
         guard let json = event.rulesJson?.first, json != MessagingConstants.XDM.IAM.Value.EMPTY_CONTENT else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Empty content returned in call to retrieve in-app messages.")
             return
@@ -167,10 +182,10 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        if event.isInAppMessage && event.containsValidInAppMessage {
+        if event.isInAppMessage, event.containsValidInAppMessage {
             showMessageForEvent(event)
         } else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process In-App Message - template and html properties are required.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process In-App Message - html property is required.")
             return
         }
     }
@@ -197,15 +212,17 @@ public class Messaging: NSObject, Extension {
     /// Takes an activity and placement and returns an encoded string in the format expected
     /// by the Optimize extension for retrieving offers
     ///
+    /// If encoding of the decision scope fails, empty string will be returned.
+    ///
     /// - Parameters:
     ///   - activityId: the activityId for the decision scope
     ///   - placementId: the placementId for the decision scope
     /// - Returns: a base64 encoded JSON string to be used by the Optimize extension
-    private func getEncodedDecisionScopeFor(activityId: String, placementId: String) -> String? {
+    private func getEncodedDecisionScopeFor(activityId: String, placementId: String) -> String {
         let decisionScopeString = "{\"activityId\":\"\(activityId)\",\"placementId\":\"\(placementId)\",\"itemCount\":\(MessagingConstants.DefaultValues.Optimize.MAX_ITEM_COUNT)}"
 
         guard let decisionScopeData = decisionScopeString.data(using: .utf8) else {
-            return nil
+            return ""
         }
 
         return decisionScopeData.base64EncodedString()
@@ -242,7 +259,9 @@ public class Messaging: NSObject, Extension {
     }
 
     // =================================================================================================================
+
     // MARK: - Event Handers
+
     // =================================================================================================================
 
     /// Processes the events in the event queue in the order they were received.
@@ -295,7 +314,8 @@ public class Messaging: NSObject, Extension {
             // get the ECID array from the identityMap
             guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
                   !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
-                  !ecid.isEmpty else {
+                  !ecid.isEmpty
+            else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
                 return
             }

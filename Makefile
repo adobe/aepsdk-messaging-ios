@@ -1,13 +1,16 @@
 export EXTENSION_NAME = AEPMessaging
 export APP_NAME = MessagingDemoApp
+CURRENT_DIRECTORY := ${CURDIR}
 PROJECT_NAME = $(EXTENSION_NAME)
-TARGET_NAME_XCFRAMEWORK = $(EXTENSION_NAME).xcframework 
+TARGET_NAME_XCFRAMEWORK = $(EXTENSION_NAME).xcframework
 SCHEME_NAME_XCFRAMEWORK = AEPMessagingXCF
 
 SIMULATOR_ARCHIVE_PATH = ./build/ios_simulator.xcarchive/Products/Library/Frameworks/
+SIMULATOR_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive/dSYMs/
 IOS_ARCHIVE_PATH = ./build/ios.xcarchive/Products/Library/Frameworks/
+IOS_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios.xcarchive/dSYMs/
 
-setup: 
+setup:
 	(pod install)
 	(cd SampleApps/$(APP_NAME) && pod install)
 
@@ -39,10 +42,13 @@ open-app:
 clean:
 	(rm -rf build)
 
-archive:
+archive: pod-install
 	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(SCHEME_NAME_XCFRAMEWORK) -archivePath "./build/ios.xcarchive" -sdk iphoneos -destination="iOS" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
 	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(SCHEME_NAME_XCFRAMEWORK) -archivePath "./build/ios_simulator.xcarchive" -sdk iphonesimulator -destination="iOS Simulator" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
-	xcodebuild -create-xcframework -framework $(SIMULATOR_ARCHIVE_PATH)$(EXTENSION_NAME).framework -framework $(IOS_ARCHIVE_PATH)$(EXTENSION_NAME).framework -output ./build/$(TARGET_NAME_XCFRAMEWORK)
+	xcodebuild -create-xcframework \
+		-framework $(SIMULATOR_ARCHIVE_PATH)$(EXTENSION_NAME).framework -debug-symbols $(SIMULATOR_ARCHIVE_DSYM_PATH)$(EXTENSION_NAME).framework.dSYM \
+		-framework $(IOS_ARCHIVE_PATH)$(EXTENSION_NAME).framework -debug-symbols $(IOS_ARCHIVE_DSYM_PATH)$(EXTENSION_NAME).framework.dSYM \
+		-output ./build/$(TARGET_NAME_XCFRAMEWORK)
 
 test:
 	@echo "######################################################################"
@@ -61,7 +67,7 @@ lint-autocorrect:
 
 lint:
 	(swiftlint lint Sources SampleApps/$(APP_NAME))
-	
+
 check-version:
 	(sh ./Script/version.sh $(VERSION))
 
@@ -71,7 +77,5 @@ test-SPM-integration:
 test-podspec:
 	(sh ./Script/test-podspec.sh)
 
-
-
-
-
+format:
+	swiftformat . --swiftversion 5.1

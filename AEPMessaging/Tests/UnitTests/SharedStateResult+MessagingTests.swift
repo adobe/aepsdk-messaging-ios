@@ -15,11 +15,9 @@ import XCTest
 
 import AEPCore
 @testable import AEPMessaging
-// @testable import AEPCoreMocks
-@testable @_implementationOnly import AEPRulesEngine
 import AEPServices
 
-class MessagingRulesEngineTests: XCTestCase {
+class SharedStateResultMessagingTests: XCTestCase {
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }

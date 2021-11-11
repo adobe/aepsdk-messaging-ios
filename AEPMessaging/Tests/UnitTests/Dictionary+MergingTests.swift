@@ -13,18 +13,29 @@
 import Foundation
 import XCTest
 
-import AEPCore
 @testable import AEPMessaging
-// @testable import AEPCoreMocks
-@testable @_implementationOnly import AEPRulesEngine
-import AEPServices
 
-class MessagingRulesEngineTests: XCTestCase {
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
+class DictionaryMergingTests: XCTestCase {
+    var dictionary1: [String: Any] = [
+        "key": "value",
+        "key2": "value2",
+        "number": 1
+    ]
 
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    var dictionary2: [String: Any] = [
+        "key": "newValue",
+        "key3": "value3",
+        "number": 552
+    ]
+
+    func testMerge() throws {
+        // test
+        dictionary1.mergeXdm(rhs: dictionary2)
+
+        // verify
+        XCTAssertEqual("newValue", dictionary1["key"] as? String)
+        XCTAssertEqual("value2", dictionary1["key2"] as? String)
+        XCTAssertEqual("value3", dictionary1["key3"] as? String)
+        XCTAssertEqual(552, dictionary1["number"] as? Int)
     }
 }

@@ -15,7 +15,6 @@ import AEPServices
 import Foundation
 
 extension Messaging {
-
     // MARK: - internal methods
 
     /// Sends an experience event to the platform SDK for tracking the notification click-throughs
@@ -292,7 +291,7 @@ extension Messaging {
     ///   - eventType: `MessagingEdgeEventType` Edge EventType for the Experience Event
     ///   - interaction: `String` value describing the user's interaction
     ///   - message: `Message` object with which the user has interacted
-    func sendExperienceEvent(withEventType eventType: MessagingEdgeEventType, andInteraction interaction: String?, forMessage message: Message ) {
+    func sendExperienceEvent(withEventType eventType: MessagingEdgeEventType, andInteraction interaction: String?, forMessage message: Message) {
         // an experience event dataset id is required for sending a message
         guard let datasetId = getDatasetId(forEvent: message.triggeringEvent) else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to record a message interaction - unable to obtain configuration information.")
@@ -322,7 +321,7 @@ extension Messaging {
                 ]
             ]
         ]
-        
+
         // create the mask for storing event history
         let mask = [
             "xdm.eventType",
@@ -339,8 +338,3 @@ extension Messaging {
         dispatch(event: event)
     }
 }
-
-
-/// get updated html from JP
-///
-/// work on the end-to-end full
