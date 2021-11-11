@@ -25,7 +25,9 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     var mockEventData: [String: Any]?
     let mockMessageId = "552"
     var mockExperienceInfo: [String: Any] = ["experience": "present"]
-    var testExpectation: XCTestExpectation?
+    var onShowExpectation: XCTestExpectation?
+    var onDismissExpectation: XCTestExpectation?
+    var handleJavascriptMessageExpectation: XCTestExpectation?
 
     override func setUp() {
         mockMessaging = MockMessaging(runtime: mockRuntime)
@@ -64,13 +66,13 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         // setup
         let message = Message(parent: mockMessaging, event: mockEvent)
         message.fullscreenMessage?.listener = self
-        testExpectation = XCTestExpectation(description: "onShow called")
+        onShowExpectation = XCTestExpectation(description: "onShow called")
 
         // test
         message.show()
 
         // verify
-        wait(for: [testExpectation!], timeout: 1.0)
+        wait(for: [onShowExpectation!], timeout: 1.0)
     }
 
     func testDismiss() throws {
@@ -78,13 +80,13 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         let message = Message(parent: mockMessaging, event: mockEvent)
         message.show() // onDismiss will not get called if the message isn't currently being shown
         message.fullscreenMessage?.listener = self
-        testExpectation = XCTestExpectation(description: "onDismiss called")
+        onDismissExpectation = XCTestExpectation(description: "onDismiss called")
 
         // test
         message.dismiss()
 
         // verify
-        wait(for: [testExpectation!], timeout: 1.0)
+        wait(for: [onDismissExpectation!], timeout: 1.0)
     }
 
     func testHandleJavascriptMessage() throws {
@@ -93,16 +95,16 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         let mockFullscreenMessage = MockFullscreenMessage(parent: message)
         mockFullscreenMessage.paramJavascriptHandlerReturnValue = "abc"
         message.fullscreenMessage = mockFullscreenMessage
-        testExpectation = XCTestExpectation(description: "jsHandler called")
+        handleJavascriptMessageExpectation = XCTestExpectation(description: "jsHandler called")
 
         // test
         message.handleJavascriptMessage("test") { body in
             XCTAssertEqual("abc", body as? String)
-            self.testExpectation?.fulfill()
+            self.handleJavascriptMessageExpectation?.fulfill()
         }
 
         // verify
-        wait(for: [testExpectation!], timeout: 1.0)
+        wait(for: [handleJavascriptMessageExpectation!], timeout: 1.0)
         XCTAssertTrue(mockFullscreenMessage.handleJavascriptMessageCalled)
         XCTAssertEqual("test", mockFullscreenMessage.paramJavascriptMessage)
     }
@@ -129,19 +131,16 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     // MARK: - FullscreenMessageDelegate
 
     public func onShow(message _: FullscreenMessage) {
-        testExpectation?.fulfill()
+        onShowExpectation?.fulfill()
     }
 
-    public func onShowFailure() {
-        testExpectation?.fulfill()
-    }
+    public func onShowFailure() {}
 
     public func onDismiss(message _: FullscreenMessage) {
-        testExpectation?.fulfill()
+        onDismissExpectation?.fulfill()
     }
 
     public func overrideUrlLoad(message _: FullscreenMessage, url _: String?) -> Bool {
-        testExpectation?.fulfill()
         return true
     }
 }

@@ -212,8 +212,7 @@ extension Messaging {
     /// - Returns: a `String` containing the event datasetId for Messaging
     private func getDatasetId(forEvent event: Event? = nil) -> String? {
         guard let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event),
-              let datasetId = configuration.experienceEventDataset
-        else {
+              let datasetId = configuration.experienceEventDataset else {
             return nil
         }
 
