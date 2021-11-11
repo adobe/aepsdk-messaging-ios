@@ -34,6 +34,7 @@
 		243EA6DC2739D48900195945 /* MockMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243EA6DB2739D48900195945 /* MockMessage.swift */; };
 		243EA6DE2739D4A400195945 /* MockFullscreenMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243EA6DD2739D4A400195945 /* MockFullscreenMessage.swift */; };
 		243EA6E02739D9D700195945 /* TestableMessagingMobileParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243EA6DF2739D9D700195945 /* TestableMessagingMobileParameters.swift */; };
+		243EA6E2273B436400195945 /* MockMessagingRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243EA6E1273B436400195945 /* MockMessagingRulesEngine.swift */; };
 		244C2BD826B36480008F086A /* MessagingEdgeEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244C2BD726B36480008F086A /* MessagingEdgeEventType.swift */; };
 		244C2BDE26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */; };
 		244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */; };
@@ -146,6 +147,7 @@
 		243EA6DB2739D48900195945 /* MockMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMessage.swift; sourceTree = "<group>"; };
 		243EA6DD2739D4A400195945 /* MockFullscreenMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFullscreenMessage.swift; sourceTree = "<group>"; };
 		243EA6DF2739D9D700195945 /* TestableMessagingMobileParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableMessagingMobileParameters.swift; sourceTree = "<group>"; };
+		243EA6E1273B436400195945 /* MockMessagingRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMessagingRulesEngine.swift; sourceTree = "<group>"; };
 		244C2BD726B36480008F086A /* MessagingEdgeEventType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingEdgeEventType.swift; sourceTree = "<group>"; };
 		244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Message+FullscreenMessageDelegate.swift"; sourceTree = "<group>"; };
 		244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+EdgeEvents.swift"; sourceTree = "<group>"; };
@@ -347,6 +349,7 @@
 				243EA6DD2739D4A400195945 /* MockFullscreenMessage.swift */,
 				243EA6DB2739D48900195945 /* MockMessage.swift */,
 				243EA6D92739D47400195945 /* MockMessaging.swift */,
+				243EA6E1273B436400195945 /* MockMessagingRulesEngine.swift */,
 				9231543E261E3B36004AE7D3 /* MockNetworkService.swift */,
 				92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */,
 				9231543D261E3B36004AE7D3 /* TestableExtensionRuntime.swift */,
@@ -776,6 +779,7 @@
 				92315465261E3B72004AE7D3 /* MockNetworkService.swift in Sources */,
 				92FC594626372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */,
 				9231545E261E3B6F004AE7D3 /* TestableExtensionRuntime.swift in Sources */,
+				243EA6E2273B436400195945 /* MockMessagingRulesEngine.swift in Sources */,
 				245059702673DBFE00CC7CA0 /* Messaging+PublicApiTest.swift in Sources */,
 				243EA6D0273325DC00195945 /* MessageTests.swift in Sources */,
 				92FC58C9263688F0005BAE02 /* EventHub+Testable.swift in Sources */,

@@ -26,7 +26,7 @@ public class Messaging: NSObject, Extension {
     public var runtime: ExtensionRuntime
 
     private var initialLoadComplete = false
-    private var currentMessage: Message?
+    private(set) var currentMessage: Message?
     private let messagingHandler = MessagingHandler()
     private let rulesEngine: MessagingRulesEngine
 
@@ -38,6 +38,15 @@ public class Messaging: NSObject, Extension {
         self.rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME,
                                                 extensionRuntime: runtime)
 
+        super.init()
+    }
+    
+    /// INTERNAL ONLY
+    /// used for testing
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine) {
+        self.runtime = runtime
+        self.rulesEngine = rulesEngine
+        
         super.init()
     }
 
@@ -114,11 +123,7 @@ public class Messaging: NSObject, Extension {
         }
 
         // create event to be handled by optimize
-        guard let decisionScope = getEncodedDecisionScopeFor(activityId: activityId, placementId: placementId) else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to retrieve message definitions - error encoding the decision scope.")
-            return
-        }
-
+        let decisionScope = getEncodedDecisionScopeFor(activityId: activityId, placementId: placementId)
         let optimizeData: [String: Any] = [
             MessagingConstants.Event.Data.Key.Optimize.REQUEST_TYPE: MessagingConstants.Event.Data.Values.Optimize.UPDATE_PROPOSITIONS,
             MessagingConstants.Event.Data.Key.Optimize.DECISION_SCOPES: [
@@ -172,7 +177,7 @@ public class Messaging: NSObject, Extension {
         if event.isInAppMessage && event.containsValidInAppMessage {
             showMessageForEvent(event)
         } else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process In-App Message - template and html properties are required.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process In-App Message - html property is required.")
             return
         }
     }
@@ -199,15 +204,17 @@ public class Messaging: NSObject, Extension {
     /// Takes an activity and placement and returns an encoded string in the format expected
     /// by the Optimize extension for retrieving offers
     ///
+    /// If encoding of the decision scope fails, empty string will be returned.
+    ///
     /// - Parameters:
     ///   - activityId: the activityId for the decision scope
     ///   - placementId: the placementId for the decision scope
     /// - Returns: a base64 encoded JSON string to be used by the Optimize extension
-    private func getEncodedDecisionScopeFor(activityId: String, placementId: String) -> String? {
+    private func getEncodedDecisionScopeFor(activityId: String, placementId: String) -> String {
         let decisionScopeString = "{\"activityId\":\"\(activityId)\",\"placementId\":\"\(placementId)\",\"itemCount\":\(MessagingConstants.DefaultValues.Optimize.MAX_ITEM_COUNT)}"
 
         guard let decisionScopeData = decisionScopeString.data(using: .utf8) else {
-            return nil
+            return ""
         }
 
         return decisionScopeData.base64EncodedString()

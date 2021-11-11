@@ -14,11 +14,10 @@ project 'AEPMessaging.xcodeproj'
 # SHARED POD GROUPS
 # ==================
 def core_main
-#    pod 'AEPCore'
-    pod 'AEPCore', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'refactor-historical'
-    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'refactor-historical'
+    pod 'AEPCore'
+    pod 'AEPServices'
     pod 'AEPLifecycle'
-    pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-v1.1.0'
+    pod 'AEPRulesEngine'
     pod 'AEPSignal'
     pod 'AEPEdge'
     pod 'AEPEdgeConsent'
@@ -26,20 +25,20 @@ def core_main
     pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
 end
 
-def griffon_main
-    pod 'AEPAssurance'
-end
-
 def core_dev
-    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.2.1'
-    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.2.1'
-    pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.2.1'
-    pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.2.1'
-    pod 'AEPRulesEngine'#, :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-v1.0.0'
+    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-v1.1.0'
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'main'
     pod 'AEPEdgeConsent'
     pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'main'
     pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
+end
+
+def griffon_main
+  pod 'AEPAssurance'
 end
 
 def griffon_dev
@@ -50,18 +49,18 @@ end
 # TARGET DEFINITIONS
 # ==================
 target 'AEPMessaging' do
-    core_main
+    core_dev
 end
 
 target 'MessagingDemoApp' do
-    core_main
+    core_dev
     griffon_main
 end
 
 target 'UnitTests' do
-    core_main
+    core_dev
 end
 
 target 'FunctionalTests' do
-    core_main
+    core_dev
 end
