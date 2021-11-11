@@ -33,13 +33,13 @@ class MessagingRulesEngine {
     }
 
     func loadRules(rules: [String]?) {
-//        guard let rules = rules else {
-//            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load messages, array of rules was empty.")
-//            return
-//        }
+        guard let rules = rules else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load messages, array of rules was empty.")
+            return
+        }
 
         // TEMP
-        let rules = [testRuleString, testMultipleRuleString]
+//        let rules = [testRuleString, testMultipleRuleString]
         
         var messagingRules: [LaunchRule] = []
         for rule in rules {
