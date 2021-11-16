@@ -12,19 +12,78 @@
 
 import Foundation
 import XCTest
-
 import AEPCore
 @testable import AEPMessaging
-// @testable import AEPCoreMocks
-@testable @_implementationOnly import AEPRulesEngine
-import AEPServices
 
 class MessagingRulesEngineTests: XCTestCase {
+    var messagingRulesEngine: MessagingRulesEngine!
+    var mockRulesEngine: MockLaunchRulesEngine!
+    var mockRuntime: TestableExtensionRuntime!
+    
     override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        mockRuntime = TestableExtensionRuntime()
+        mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: mockRuntime)
+        messagingRulesEngine = MessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockRulesEngine)
     }
 
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    private func getRulesStringFromFile(_ fileName: String) -> String {
+        let testBundle = Bundle(for: type(of: self))
+        guard let url = testBundle.url(forResource: fileName, withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let jsonString = String(data: data, encoding: .utf8) else {
+                  return ""
+              }
+        
+        return jsonString
+    }
+    
+    func testProcess() throws {
+        // setup
+        let event = Event(name: "testEvent", type: "type", source: "source", data: nil)
+        
+        // test
+        messagingRulesEngine.process(event: event)
+        
+        // verify
+        XCTAssertTrue(mockRulesEngine.processCalled)
+        XCTAssertEqual(event, mockRulesEngine.paramProcessedEvent)
+    }
+    
+    func testLoadRulesHappy() throws {
+        // setup
+        let rules = [
+            getRulesStringFromFile("eventSequenceRule"),
+            getRulesStringFromFile("showOnceRule")
+        ]
+        
+        // test
+        messagingRulesEngine.loadRules(rules: rules)
+        
+        // verify
+        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(2, mockRulesEngine.paramRules?.count)
+    }
+    
+    func testLoadRulesNilParam() throws {
+        // setup
+        let rules: [String]? = nil
+        
+        // test
+        messagingRulesEngine.loadRules(rules: rules)
+        
+        // verify
+        XCTAssertFalse(mockRulesEngine.replaceRulesCalled)
+    }
+    
+    func testLoadRulesInvalidJsonRule() throws {
+        // setup
+        let rules: [String]? = ["i am not json"]
+        
+        // test
+        messagingRulesEngine.loadRules(rules: rules)
+        
+        // verify
+        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
     }
 }

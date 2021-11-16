@@ -50,6 +50,9 @@
 		2450599D2673FABF00CC7CA0 /* Messaging+PublicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */; };
 		245059A22673FAC200CC7CA0 /* Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92315436261E3B36004AE7D3 /* Messaging.swift */; };
 		245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923155762620FC53004AE7D3 /* Event+Messaging.swift */; };
+		2469A5DC27445CAF00E56457 /* MockLaunchRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */; };
+		2469A5DF274465C900E56457 /* showOnceRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2469A5DE274465C900E56457 /* showOnceRule.json */; };
+		2469A5E12744696400E56457 /* eventSequenceRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2469A5E02744696400E56457 /* eventSequenceRule.json */; };
 		246FD07226B9F86F00FD130B /* FullscreenMessage+Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246FD07126B9F86F00FD130B /* FullscreenMessage+Message.swift */; };
 		2B2B7A6E0F7CD6312D28421A /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */; };
 		56B08B522365B6DC2B556B40 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */; };
@@ -158,6 +161,9 @@
 		245059632673DBFD00CC7CA0 /* Messaging+PublicApiTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Messaging+PublicApiTest.swift"; sourceTree = "<group>"; };
 		245059642673DBFD00CC7CA0 /* MessagingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingTests.swift; sourceTree = "<group>"; };
 		2450596B2673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngineTests.swift; sourceTree = "<group>"; };
+		2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockLaunchRulesEngine.swift; sourceTree = "<group>"; };
+		2469A5DE274465C900E56457 /* showOnceRule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = showOnceRule.json; sourceTree = "<group>"; };
+		2469A5E02744696400E56457 /* eventSequenceRule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = eventSequenceRule.json; sourceTree = "<group>"; };
 		246FD07126B9F86F00FD130B /* FullscreenMessage+Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FullscreenMessage+Message.swift"; sourceTree = "<group>"; };
 		38F4A4735D3FB26229C244BC /* Pods-MessagingDemoApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.release.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.release.xcconfig"; sourceTree = "<group>"; };
 		3908C9B2C6C8F309DF735FAF /* Pods-MessagingDemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -245,6 +251,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2469A5DD2744657000E56457 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2469A5E02744696400E56457 /* eventSequenceRule.json */,
+				2469A5DE274465C900E56457 /* showOnceRule.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		2A4D31945863BC9FEBE21FE1 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -308,6 +323,7 @@
 			isa = PBXGroup;
 			children = (
 				92FC5865263681F5005BAE02 /* FunctionalTests */,
+				2469A5DD2744657000E56457 /* Resources */,
 				9231543C261E3B36004AE7D3 /* TestHelpers */,
 				9231543A261E3B36004AE7D3 /* UnitTests */,
 			);
@@ -341,6 +357,7 @@
 				92FC58C7263688F0005BAE02 /* EventHub+Testable.swift */,
 				9231543F261E3B36004AE7D3 /* MockExtension.swift */,
 				243EA6DD2739D4A400195945 /* MockFullscreenMessage.swift */,
+				2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */,
 				243EA6DB2739D48900195945 /* MockMessage.swift */,
 				243EA6D92739D47400195945 /* MockMessaging.swift */,
 				243EA6E1273B436400195945 /* MockMessagingRulesEngine.swift */,
@@ -578,6 +595,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2469A5DF274465C900E56457 /* showOnceRule.json in Resources */,
+				2469A5E12744696400E56457 /* eventSequenceRule.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -788,6 +807,7 @@
 				243EA6D62733263D00195945 /* SharedStateResult+MessagingTests.swift in Sources */,
 				243EA6DE2739D4A400195945 /* MockFullscreenMessage.swift in Sources */,
 				928639D226374463000AFA53 /* TestableNetworkService.swift in Sources */,
+				2469A5DC27445CAF00E56457 /* MockLaunchRulesEngine.swift in Sources */,
 				243EA6CB273325A000195945 /* FullscreenMessage+MessageTests.swift in Sources */,
 				9231546C261E3B75004AE7D3 /* MockExtension.swift in Sources */,
 				243EA6DC2739D48900195945 /* MockMessage.swift in Sources */,

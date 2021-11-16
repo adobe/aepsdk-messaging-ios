@@ -13,16 +13,72 @@
 import Foundation
 import XCTest
 
-import AEPCore
+@testable import AEPCore
 @testable import AEPMessaging
 import AEPServices
 
 class SharedStateResultMessagingTests: XCTestCase {
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    func testExperienceEventDatasetHappy() throws {
+        // setup
+        let mockDatasetId = "mockDatasetId"
+        let sharedState = SharedStateResult(status: .set, value: [
+            MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET: mockDatasetId
+        ])
+        
+        // test
+        let result = sharedState.experienceEventDataset
+        
+        // verify
+        XCTAssertEqual(mockDatasetId, result)
     }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    
+    func testExperienceEventDatasetNoDataset() throws {
+        // setup
+        let sharedState = SharedStateResult(status: .set, value: [:])
+        
+        // test
+        let result = sharedState.experienceEventDataset
+        
+        // verify
+        XCTAssertNil(result)
+    }
+    
+    func testPushPlatformProd() throws {
+        // setup
+        let mockUseSandbox = false
+        let sharedState = SharedStateResult(status: .set, value: [
+            MessagingConstants.SharedState.Configuration.USE_SANDBOX: mockUseSandbox
+        ])
+        
+        // test
+        let result = sharedState.pushPlatform
+        
+        // verify
+        XCTAssertEqual(MessagingConstants.XDM.Push.Value.APNS, result)
+    }
+    
+    func testPushPlatformSandbox() throws {
+        // setup
+        let mockUseSandbox = true
+        let sharedState = SharedStateResult(status: .set, value: [
+            MessagingConstants.SharedState.Configuration.USE_SANDBOX: mockUseSandbox
+        ])
+        
+        // test
+        let result = sharedState.pushPlatform
+        
+        // verify
+        XCTAssertEqual(MessagingConstants.XDM.Push.Value.APNS_SANDBOX, result)
+    }
+    
+    func testPushPlatformNoConfigValue() throws {
+        // setup
+        let sharedState = SharedStateResult(status: .set, value: [:])
+        
+        // test
+        let result = sharedState.pushPlatform
+        
+        // verify
+        XCTAssertEqual(MessagingConstants.XDM.Push.Value.APNS, result)
     }
 }
