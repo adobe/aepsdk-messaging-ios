@@ -68,7 +68,7 @@ lint-autocorrect:
 	./Pods/SwiftLint/swiftlint autocorrect --format
 
 lint:
-	./Pods/SwiftLint/swiftlint lint Sources SampleApps/$(APP_NAME)
+	./Pods/SwiftLint/swiftlint lint AEPMessaging/Sources
 
 check-version:
 	(sh ./Script/version.sh $(VERSION))
