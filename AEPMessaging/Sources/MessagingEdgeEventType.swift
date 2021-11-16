@@ -13,7 +13,8 @@
 import Foundation
 
 /// Provides mapping to XDM EventType strings needed for Experience Event requests
-@objc(AEPMessagingEdgeEventType) public enum MessagingEdgeEventType: Int {
+@objc(AEPMessagingEdgeEventType)
+public enum MessagingEdgeEventType: Int {
     case inappDismiss = 0
     case inappInteract = 1
     case inappTrigger = 2
