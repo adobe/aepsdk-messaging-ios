@@ -169,9 +169,11 @@ extension Messaging {
     /// - Returns: `[String: Any]` which contains the application data
     private func addApplicationData(applicationOpened: Bool, xdmData: [String: Any]) -> [String: Any] {
         var xdmDataResult = xdmData
-        xdmDataResult[MessagingConstants.XDM.AdobeKeys.APPLICATION] =
-            [MessagingConstants.XDM.AdobeKeys.LAUNCHES:
-                [MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE: applicationOpened ? 1 : 0]]
+        xdmDataResult[MessagingConstants.XDM.AdobeKeys.APPLICATION] = [
+            MessagingConstants.XDM.AdobeKeys.LAUNCHES: [
+                MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE: applicationOpened ? 1 : 0
+            ]
+        ]
         return xdmDataResult
     }
 
@@ -276,7 +278,7 @@ extension Messaging {
     /// xdm test data for iam mixin
     ///
     /// {
-    ///     "_cjmstage": {
+    ///     "inappMessageTracking": {
     ///         "action": "someAction"
     ///     }
     /// }
@@ -324,9 +326,9 @@ extension Messaging {
 
         // create the mask for storing event history
         let mask = [
-            "xdm.eventType",
-            "xdm._experience.customerJourneyManagement.messageExecution.messageExecutionID",
-            "xdm.inappMessageTracking.action"
+            MessagingConstants.Event.Mask.XDM.EVENT_TYPE,
+            MessagingConstants.Event.Mask.XDM.MESSAGE_EXECUTION_ID,
+            MessagingConstants.Event.Mask.XDM.TRACKING_ACTION
         ]
 
         // Creating xdm edge event with request content source type

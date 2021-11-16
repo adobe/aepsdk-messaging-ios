@@ -29,7 +29,6 @@ public class Messaging: NSObject, Extension {
 
     private var initialLoadComplete = false
     private(set) var currentMessage: Message?
-    private let messagingHandler = MessagingHandler()
     private let rulesEngine: MessagingRulesEngine
 
     // =================================================================================================================

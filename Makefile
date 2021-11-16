@@ -14,7 +14,7 @@ setup:
 	(pod install)
 	(cd SampleApps/$(APP_NAME) && pod install)
 
-setup-tools: install-swiftlint install-githook
+setup-tools: install-githook
 
 pod-repo-update:
 	(pod repo update)
@@ -56,17 +56,19 @@ test:
 	@echo "######################################################################"
 	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -destination 'platform=iOS Simulator,name=iPhone 8' -derivedDataPath build/out -enableCodeCoverage YES
 
-install-swiftlint:
-	HOMEBREW_NO_AUTO_UPDATE=1 brew install swiftlint && brew cleanup swiftlint
-
 install-githook:
 	./tools/git-hooks/setup.sh
 
+format: swift-format lint-autocorrect
+
+swift-format:
+	swiftformat . --swiftversion 5.1
+
 lint-autocorrect:
-	(swiftlint autocorrect --format)
+	./Pods/SwiftLint/swiftlint autocorrect --format
 
 lint:
-	(swiftlint lint Sources SampleApps/$(APP_NAME))
+	./Pods/SwiftLint/swiftlint lint AEPMessaging/Sources
 
 check-version:
 	(sh ./Script/version.sh $(VERSION))
@@ -76,6 +78,3 @@ test-SPM-integration:
 
 test-podspec:
 	(sh ./Script/test-podspec.sh)
-
-format:
-	swiftformat . --swiftversion 5.1

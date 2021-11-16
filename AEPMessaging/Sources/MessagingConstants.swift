@@ -134,6 +134,15 @@ enum MessagingConstants {
                 }
             }
         }
+        
+        enum Mask {
+            enum XDM {
+                // mask values for experience event storage in event history
+                static let EVENT_TYPE = "xdm.eventType"
+                static let MESSAGE_EXECUTION_ID = "xdm._experience.customerJourneyManagement.messageExecution.messageExecutionID"
+                static let TRACKING_ACTION = "xdm.inappMessageTracking.action"
+            }
+        }
     }
 
     enum IAM {
