@@ -18,11 +18,26 @@ import AEPCore
 import AEPServices
 
 class StringJsonTests: XCTestCase {
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    func testToJsonDictionaryHappy() throws {
+        // setup
+        let jsonString = "{\"key\":\"value\"}"
+        
+        // test
+        let result = jsonString.toJsonDictionary()
+        
+        // verify
+        XCTAssertNotNil(result)
+        XCTAssertEqual("value", result?["key"] as? String)
     }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    
+    func testToJsonDictionaryInvalidJson() throws {
+        // setup
+        let jsonString = "i am not valid json"
+        
+        // test
+        let result = jsonString.toJsonDictionary()
+        
+        // verify
+        XCTAssertNil(result)        
     }
 }
