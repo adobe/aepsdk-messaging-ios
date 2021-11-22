@@ -53,6 +53,7 @@
 		2469A5DC27445CAF00E56457 /* MockLaunchRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */; };
 		2469A5DF274465C900E56457 /* showOnceRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2469A5DE274465C900E56457 /* showOnceRule.json */; };
 		2469A5E12744696400E56457 /* eventSequenceRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2469A5E02744696400E56457 /* eventSequenceRule.json */; };
+		2469A5E3274863F600E56457 /* MessagingRulesEngine+Caching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5E2274863F600E56457 /* MessagingRulesEngine+Caching.swift */; };
 		246FD07226B9F86F00FD130B /* FullscreenMessage+Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246FD07126B9F86F00FD130B /* FullscreenMessage+Message.swift */; };
 		2B2B7A6E0F7CD6312D28421A /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */; };
 		56B08B522365B6DC2B556B40 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */; };
@@ -164,6 +165,7 @@
 		2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockLaunchRulesEngine.swift; sourceTree = "<group>"; };
 		2469A5DE274465C900E56457 /* showOnceRule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = showOnceRule.json; sourceTree = "<group>"; };
 		2469A5E02744696400E56457 /* eventSequenceRule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = eventSequenceRule.json; sourceTree = "<group>"; };
+		2469A5E2274863F600E56457 /* MessagingRulesEngine+Caching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessagingRulesEngine+Caching.swift"; sourceTree = "<group>"; };
 		246FD07126B9F86F00FD130B /* FullscreenMessage+Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FullscreenMessage+Message.swift"; sourceTree = "<group>"; };
 		38F4A4735D3FB26229C244BC /* Pods-MessagingDemoApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.release.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.release.xcconfig"; sourceTree = "<group>"; };
 		3908C9B2C6C8F309DF735FAF /* Pods-MessagingDemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -312,6 +314,7 @@
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
 				244C2BD726B36480008F086A /* MessagingEdgeEventType.swift */,
 				2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */,
+				2469A5E2274863F600E56457 /* MessagingRulesEngine+Caching.swift */,
 				240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */,
 				244E9554267BB018001DC957 /* String+JSON.swift */,
 				92315438261E3B36004AE7D3 /* Info.plist */,
@@ -770,6 +773,7 @@
 				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
 				246FD07226B9F86F00FD130B /* FullscreenMessage+Message.swift in Sources */,
 				240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */,
+				2469A5E3274863F600E56457 /* MessagingRulesEngine+Caching.swift in Sources */,
 				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
 				245059522671283F00CC7CA0 /* MessagingRulesEngine.swift in Sources */,
 				244C2BD826B36480008F086A /* MessagingEdgeEventType.swift in Sources */,

@@ -19,6 +19,7 @@ import AEPLifecycle
 import AEPMessaging
 import AEPOptimize
 import AEPSignal
+import AEPAnalytics
 import UIKit
 import UserNotifications
 
@@ -48,7 +49,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             Messaging.self,
             Edge.self,
             Signal.self,
-            Assurance.self
+            Assurance.self,
+            Analytics.self
         ]
 
         MobileCore.registerExtensions(extensions)
