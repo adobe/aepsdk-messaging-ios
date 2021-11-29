@@ -16,11 +16,9 @@ import Foundation
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
-    // =================================================================================================================
 
     // MARK: - Class members
 
-    // =================================================================================================================
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
     public var name = MessagingConstants.EXTENSION_NAME
     public var friendlyName = MessagingConstants.FRIENDLY_NAME
@@ -31,11 +29,8 @@ public class Messaging: NSObject, Extension {
     private(set) var currentMessage: Message?
     private let rulesEngine: MessagingRulesEngine
 
-    // =================================================================================================================
-
     // MARK: - Extension protocol methods
 
-    // =================================================================================================================
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
         rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME,
@@ -109,11 +104,7 @@ public class Messaging: NSObject, Extension {
         return true
     }
 
-    // =================================================================================================================
-
     // MARK: - In-app Messaging methods
-
-    // =================================================================================================================
 
     /// Called on every event, used to allow processing of the Messaging rules engine
     private func handleWildcardEvent(_ event: Event) {
@@ -166,12 +157,17 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        guard let json = event.rulesJson?.first, json != MessagingConstants.XDM.IAM.Value.EMPTY_CONTENT else {
+        guard let messages = event.rulesJson,
+              let json = event.rulesJson?.first,
+              json != MessagingConstants.XDM.IAM.Value.EMPTY_CONTENT else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Empty content returned in call to retrieve in-app messages.")
+            rulesEngine.clearMessagingCache()
             return
         }
-
-        rulesEngine.loadRules(rules: event.rulesJson)
+        
+        rulesEngine.setMessagingCache(messages)
+        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from network response.")
+        rulesEngine.loadRules(rules: messages)
     }
 
     /// Handles Rules Consequence events containing message definitions.
@@ -257,11 +253,7 @@ public class Messaging: NSObject, Extension {
         return (activity, placement)
     }
 
-    // =================================================================================================================
-
     // MARK: - Event Handers
-
-    // =================================================================================================================
 
     /// Processes the events in the event queue in the order they were received.
     ///

@@ -12,29 +12,38 @@
 
 import Foundation
 import XCTest
-import AEPCore
+@testable import AEPCore
 @testable import AEPMessaging
+@testable import AEPServices
+@testable import AEPRulesEngine
 
 class MessagingRulesEngineTests: XCTestCase {
     var messagingRulesEngine: MessagingRulesEngine!
     var mockRulesEngine: MockLaunchRulesEngine!
     var mockRuntime: TestableExtensionRuntime!
+    var mockCache: MockCache!
     
     override func setUp() {
         mockRuntime = TestableExtensionRuntime()
         mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: mockRuntime)
-        messagingRulesEngine = MessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockRulesEngine)
+        mockCache = MockCache(name: "mockCache")
+        messagingRulesEngine = MessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockRulesEngine, cache: mockCache)
     }
-
-    private func getRulesStringFromFile(_ fileName: String) -> String {
-        let testBundle = Bundle(for: type(of: self))
-        guard let url = testBundle.url(forResource: fileName, withExtension: "json"),
-              let data = try? Data(contentsOf: url),
-              let jsonString = String(data: data, encoding: .utf8) else {
-                  return ""
-              }
+    
+    func testInitializer() throws {
+        // setup
+        let aJsonString = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let cacheEntry = CacheEntry(data: aJsonString.data(using: .utf8)!, expiry: .never, metadata: nil)
+        let cache = Cache(name: "com.adobe.messaging.cache")
+        try? cache.set(key: "messages", entry: cacheEntry)
         
-        return jsonString
+        // test
+        let mre = MessagingRulesEngine(name: "mockRE", extensionRuntime: TestableExtensionRuntime())
+        
+        // verify
+        // launch rules engine loads asynchronously with no callback mechanism, so we have to pause this thread for a second
+        sleep(1)
+        XCTAssertEqual(1, mre.rulesEngine.rulesEngine.rules.count)
     }
     
     func testProcess() throws {
@@ -52,8 +61,8 @@ class MessagingRulesEngineTests: XCTestCase {
     func testLoadRulesHappy() throws {
         // setup
         let rules = [
-            getRulesStringFromFile("eventSequenceRule"),
-            getRulesStringFromFile("showOnceRule")
+            JSONFileLoader.getRulesStringFromFile("eventSequenceRule"),
+            JSONFileLoader.getRulesStringFromFile("showOnceRule")
         ]
         
         // test

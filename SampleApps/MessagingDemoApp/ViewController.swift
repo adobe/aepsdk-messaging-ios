@@ -32,7 +32,7 @@ class ViewController: UIViewController {
     @IBAction func triggerFullscreen(_: Any) {
         MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["seahawks": "sad"]))
 
-        MobileCore.track(state: "triggerFullscreen", data: ["testFullscreen": "true"])
+//        MobileCore.track(state: "triggerFullscreen", data: ["testFullscreen": "true"])
     }
 
     @IBAction func triggerModal(_: Any) {
@@ -135,4 +135,15 @@ class ViewController: UIViewController {
         let event = Event(name: "Event3", type: "iam.tester", source: "inbound", data: ["thirdEvent": "true"], mask: ["thirdEvent"])
         MobileCore.dispatch(event: event)
     }
+    
+    
+    
+    
+    
+    
+    @IBAction func sendTrackAction(_: Any) {
+        let data = ["key": "value"]
+        MobileCore.track(action: "buttonClicked", data: data)
+    }
+    
 }

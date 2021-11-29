@@ -16,8 +16,23 @@
 import Foundation
 
 class MockMessagingRulesEngine: MessagingRulesEngine {
+    let mockCache: MockCache
+    let mockRuntime: TestableExtensionRuntime
+    let mockRulesEngine: MockLaunchRulesEngine
+    
     init(name: String, runtime: ExtensionRuntime) {
-        super.init(name: name, extensionRuntime: runtime)
+        mockCache = MockCache(name: "mockCache")
+        mockRuntime = TestableExtensionRuntime()
+        mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: runtime)
+        super.init(extensionRuntime: mockRuntime, rulesEngine: mockRulesEngine, cache: mockCache)
+//        super.init(name: name, extensionRuntime: runtime)
+    }
+    
+    override init(extensionRuntime: ExtensionRuntime, rulesEngine: LaunchRulesEngine, cache: Cache) {
+        mockCache = MockCache(name: "mockCache")
+        mockRuntime = TestableExtensionRuntime()
+        mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: extensionRuntime)
+        super.init(extensionRuntime: extensionRuntime, rulesEngine: rulesEngine, cache: cache)
     }
 
     var processCalled = false

@@ -21,7 +21,9 @@ class MessagingTests: XCTestCase {
     var mockRuntime: TestableExtensionRuntime!
     var mockNetworkService: MockNetworkService?
     var mockMessagingRulesEngine: MockMessagingRulesEngine!
-
+    var mockLaunchRulesEngine: MockLaunchRulesEngine!
+    var mockCache: MockCache!
+    
     // Mock constants
     let MOCK_ECID = "mock_ecid"
     let MOCK_EVENT_DATASET = "mock_event_dataset"
@@ -31,7 +33,9 @@ class MessagingTests: XCTestCase {
     // before each
     override func setUp() {
         mockRuntime = TestableExtensionRuntime()
-        mockMessagingRulesEngine = MockMessagingRulesEngine(name: "mockRulesEngine", runtime: mockRuntime)
+        mockCache = MockCache(name: "mockCache")
+        mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mockLaunchRulesEngine", extensionRuntime: mockRuntime)
+        mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockLaunchRulesEngine, cache: mockCache)
         messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine)
         messaging.onRegistered()
 
@@ -137,6 +141,9 @@ class MessagingTests: XCTestCase {
         let loadedRules = mockMessagingRulesEngine.paramLoadRulesRules
         XCTAssertNotNil(loadedRules)
         XCTAssertEqual("this is the content", loadedRules?.first)
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertEqual("messages", mockCache.setParamKey)
+        XCTAssertNotNil(mockCache.setParamEntry)
     }
 
     func testHandleOfferNotificationMissmatchedActivity() throws {
@@ -144,6 +151,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "not the correct org"], status: SharedStateStatus.set))
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
+        try? mockMessagingRulesEngine.cache.remove(key: "messages")
 
         // test
         mockRuntime.simulateComingEvents(event)
@@ -163,6 +171,8 @@ class MessagingTests: XCTestCase {
 
         // verify
         XCTAssertFalse(mockMessagingRulesEngine.loadRulesCalled)
+        XCTAssertTrue(mockCache.removeCalled)
+        XCTAssertEqual("messages", mockCache.removeParamKey)
     }
 
     func testHandleRulesResponseHappy() throws {

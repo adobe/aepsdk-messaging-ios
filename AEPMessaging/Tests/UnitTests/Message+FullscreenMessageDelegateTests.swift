@@ -37,7 +37,7 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
         mockFullscreenMessage = MockFullscreenMessage(parent: mockMessage)
         mockMessage.fullscreenMessage = mockFullscreenMessage
     }
-
+    
     func testOnDismiss() throws {
         // test
         message.onDismiss(message: mockFullscreenMessage)

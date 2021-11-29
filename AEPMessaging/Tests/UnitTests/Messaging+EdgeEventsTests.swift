@@ -21,6 +21,9 @@ class MessagingEdgeEventsTests: XCTestCase {
     
     var mockRuntime: TestableExtensionRuntime!
     var messaging: Messaging!
+    var mockRulesEngine: MockMessagingRulesEngine!
+    var mockLaunchRulesEngine: MockLaunchRulesEngine!
+    var mockCache: MockCache!
     
     // Mock constants
     let MOCK_ECID = "mock_ecid"
@@ -31,7 +34,10 @@ class MessagingEdgeEventsTests: XCTestCase {
     
     override func setUp() {
         mockRuntime = TestableExtensionRuntime()
-        messaging = Messaging(runtime: mockRuntime)
+        mockCache = MockCache(name: "mockCache")
+        mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mcokLaunchRulesEngine", extensionRuntime: mockRuntime)
+        mockRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockLaunchRulesEngine, cache: mockCache)        
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockRulesEngine)
     }
     
     // MARK: - helpers
@@ -276,7 +282,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let platform = pushDetails?[MessagingConstants.XDM.Push.PLATFORM] as? String
         XCTAssertEqual(MOCK_PUSH_PLATFORM, platform)
         let denylisted = pushDetails?[MessagingConstants.XDM.Push.DENYLISTED] as? Bool
-        XCTAssertFalse(denylisted!)
+        XCTAssertFalse(denylisted ?? true)
         let identity = pushDetails?[MessagingConstants.XDM.Push.IDENTITY] as? [String: Any]
         XCTAssertEqual(2, identity?.count)
         let pushId = identity?[MessagingConstants.XDM.Push.ID] as? String
