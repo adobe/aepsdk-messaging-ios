@@ -1,0 +1,7 @@
+{
+    // ajo sandbox configuration in CJM Stage org
+    "edge.environment": "int",
+    "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
+    "experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
+    "messaging.eventDataset": "610ae80b3cbbc718dab06208"
+}
