@@ -78,3 +78,6 @@ test-SPM-integration:
 
 test-podspec:
 	(sh ./Script/test-podspec.sh)
+
+functional-test:
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme FunctionalTests -destination 'platform=iOS Simulator,name=iPhone 12' -derivedDataPath build/out 

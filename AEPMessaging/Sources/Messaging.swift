@@ -242,10 +242,9 @@ public class Messaging: NSObject, Extension {
         var placement = Bundle.main.bundleIdentifier
 
         // TODO: remove the temp code here prior to release
-        // hack to allow overriding of activity and placement from plist
-        var nsDictionary: NSDictionary?
+        // hack to allow overriding of activity and placement from plist        
         if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
-            nsDictionary = NSDictionary(contentsOfFile: path)
+            let nsDictionary = NSDictionary(contentsOfFile: path)
             activity = nsDictionary?.value(forKey: "MESSAGING_ACTIVITY_ID") as? String
             placement = nsDictionary?.value(forKey: "MESSAGING_PLACEMENT_ID") as? String
         }

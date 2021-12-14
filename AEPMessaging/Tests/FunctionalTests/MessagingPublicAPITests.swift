@@ -23,6 +23,7 @@ class MessagingPublicAPITests: XCTestCase {
     override func setUp() {
         mockConfigSharedState = ["messaging.eventDataset": "mockEventDataset"]
         mockRuntime = TestableExtensionRuntime()
+        mockRuntime.ignoreEvent(type: EventType.rulesEngine, source: EventSource.requestReset)
         messaging = Messaging(runtime: mockRuntime)
         messaging.onRegistered()
     }

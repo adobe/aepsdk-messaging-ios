@@ -24,7 +24,7 @@ class TestableMobileParameters {
     static let mockUiTakeover = true
     static let mockBackdropColor = "AABBCC"
     static let mockBackdropOpacity = 0.5
-    static let mockCornerRadius = 10.0
+    static let mockCornerRadius = 10
     static let mockDisplayAnimation = "left"
     static let mockDismissAnimation = "right"
     static let mockGestures = [
