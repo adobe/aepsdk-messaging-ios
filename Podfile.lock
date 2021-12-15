@@ -87,7 +87,7 @@ CHECKOUT OPTIONS:
     :commit: 9965a0be464c9bb0a5534561fa0ff276200b494e
     :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPOptimize:
-    :commit: 0bd31f09036f83da6a2716037040a5d6ac8cc5f4
+    :commit: f8379510fbc006cc41d65e8625e2a11152e12413
     :git: https://github.com/adobe/aepsdk-optimize-ios.git
   AEPRulesEngine:
     :commit: 6f272d71d73f40c55685625a919cfc43021fe57e

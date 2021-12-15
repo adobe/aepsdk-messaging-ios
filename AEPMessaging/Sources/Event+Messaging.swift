@@ -66,13 +66,13 @@ extension Event {
      "dismissAnimation": "top",
      "backdropColor": "000000",    // RRGGBB
      "backdropOpacity: 0.3,
-     "cornerRadius": 15.0,
+     "cornerRadius": 15,
      "gestures": {
-     "swipeUp": "adbinapp://dismiss",
-     "swipeDown": "adbinapp://dismiss",
-     "swipeLeft": "adbinapp://dismiss?interaction=negative",
-     "swipeRight": "adbinapp://dismiss?interaction=positive",
-     "tapBackground": "adbinapp://dismiss"
+        "swipeUp": "adbinapp://dismiss",
+        "swipeDown": "adbinapp://dismiss",
+        "swipeLeft": "adbinapp://dismiss?interaction=negative",
+        "swipeRight": "adbinapp://dismiss?interaction=positive",
+        "tapBackground": "adbinapp://dismiss"
      }
      }
      */
@@ -87,7 +87,7 @@ extension Event {
             .setUiTakeover(messageUiTakeover)
             .setBackdropColor(messageBackdropColor)
             .setBackdropOpacity(messageBackdropOpacity)
-            .setCornerRadius(messageCornerRadius)
+            .setCornerRadius(messageCornerRadius != nil ? CGFloat(messageCornerRadius ?? 0) : nil)
             .setDisplayAnimation(messageDisplayAnimation)
             .setDismissAnimation(messageDismissAnimation)
             .setGestures(messageGestures)
@@ -151,12 +151,8 @@ extension Event {
         return nil
     }
 
-    private var messageCornerRadius: CGFloat? {
-        if let radius = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.CORNER_RADIUS] as? Double {
-            return CGFloat(radius)
-        }
-
-        return nil
+    private var messageCornerRadius: Int? {
+        mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.CORNER_RADIUS] as? Int
     }
 
     private var messageDisplayAnimation: MessageAnimation {
