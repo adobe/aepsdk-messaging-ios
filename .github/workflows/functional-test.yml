@@ -19,7 +19,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2.4.0
       with:
-        ref: functional-test
+        ref: feature-iam
     
     # Runs a single command using the runners shell
     - name: Execute functional tests
