@@ -11,12 +11,22 @@ on:
         description: 'Branch to use when running functional tests'
         required: false
         default: 'main'
+      id:
+        description: 'Identifier for the run'
+        required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  id:
+    name: Run ID Generator
+    runs-on: ubuntu-latest
+    steps:
+    - name: ${{ github.event.inputs.id }}
+      run: echo Run Identifier is ${{ inputs.id }}
+
   functional-test:
     # The type of runner that the job will run on
-    runs-on: macos-latest
+    runs-on: macos-11
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
