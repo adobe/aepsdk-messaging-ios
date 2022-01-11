@@ -6,6 +6,11 @@ name: E2E Functional Tests
 # or API.
 on:
   workflow_dispatch:
+    inputs: 
+      branch: 
+        description: 'Branch to use when running functional tests'
+        required: false
+        default: 'main'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -19,7 +24,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2.4.0
       with:
-        ref: feature-iam
+        ref: ${{ github.event.inputs.branch }}
     
     # Runs a single command using the runners shell
     - name: Execute functional tests
