@@ -26,8 +26,8 @@ jobs:
 
       # install CocoaPods - using default CocoaPods version, not the bundle
       - run:
-          name: Repo Update & Install CocoaPods
-          command: make ci-pod-install
+          name: CocoaPods install
+          command: pod install
 
       - run:
           name: Lint Source Code
