@@ -6,20 +6,32 @@ name: E2E Functional Tests
 # or API.
 on:
   workflow_dispatch:
+    inputs: 
+      branch: 
+        description: 'Branch to use when running functional tests'
+        required: false
+        default: 'main'
+      id:
+        description: 'Identifier for the run'
+        required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+
   functional-test:
     # The type of runner that the job will run on
-    runs-on: macos-latest
+    runs-on: macos-11
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     
+    - name: ${{ github.event.inputs.id }}
+      run: echo Run Identifier is ${{ inputs.id }}
+      
     - name: Checkout
       uses: actions/checkout@v2.4.0
       with:
-        ref: functional-test
+        ref: ${{ github.event.inputs.branch }}
     
     # Runs a single command using the runners shell
     - name: Execute functional tests
