@@ -164,7 +164,7 @@ public class Messaging: NSObject, Extension {
             rulesEngine.clearMessagingCache()
             return
         }
-        
+
         rulesEngine.setMessagingCache(messages)
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from network response.")
         rulesEngine.loadRules(rules: messages)
@@ -241,8 +241,8 @@ public class Messaging: NSObject, Extension {
         // placementId = bundle identifier
         var placement = Bundle.main.bundleIdentifier
 
-        // TODO: remove the temp code here prior to release
-        // hack to allow overriding of activity and placement from plist        
+        
+        // hack to allow overriding of activity and placement from plist
         if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
             let nsDictionary = NSDictionary(contentsOfFile: path)
             activity = nsDictionary?.value(forKey: "MESSAGING_ACTIVITY_ID") as? String

@@ -68,11 +68,11 @@ extension Event {
      "backdropOpacity: 0.3,
      "cornerRadius": 15,
      "gestures": {
-        "swipeUp": "adbinapp://dismiss",
-        "swipeDown": "adbinapp://dismiss",
-        "swipeLeft": "adbinapp://dismiss?interaction=negative",
-        "swipeRight": "adbinapp://dismiss?interaction=positive",
-        "tapBackground": "adbinapp://dismiss"
+     "swipeUp": "adbinapp://dismiss",
+     "swipeDown": "adbinapp://dismiss",
+     "swipeLeft": "adbinapp://dismiss?interaction=negative",
+     "swipeRight": "adbinapp://dismiss?interaction=positive",
+     "tapBackground": "adbinapp://dismiss"
      }
      }
      */
@@ -175,8 +175,8 @@ extension Event {
         if let gesturesJson = mobileParametersDictionary?[MessagingConstants.Event.Data.Key.IAM.GESTURES] as? [String: String] {
             var gestures: [MessageGesture: URL] = [:]
             for gesture in gesturesJson {
-                if let g = MessageGesture.fromString(gesture.key), let url = URL(string: gesture.value) {
-                    gestures[g] = url
+                if let gestureEnum = MessageGesture.fromString(gesture.key), let url = URL(string: gesture.value) {
+                    gestures[gestureEnum] = url
                 }
             }
 

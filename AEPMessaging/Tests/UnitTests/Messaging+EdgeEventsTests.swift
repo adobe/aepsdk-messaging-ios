@@ -18,30 +18,30 @@ import AEPCore
 import AEPServices
 
 class MessagingEdgeEventsTests: XCTestCase {
-    
+
     var mockRuntime: TestableExtensionRuntime!
     var messaging: Messaging!
     var mockRulesEngine: MockMessagingRulesEngine!
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
-    
+
     // Mock constants
     let MOCK_ECID = "mock_ecid"
     let MOCK_EVENT_DATASET = "mock_event_dataset"
     let MOCK_EXP_ORG_ID = "mock_exp_org_id"
     let MOCK_PUSH_TOKEN = "mock_pushToken"
     let MOCK_PUSH_PLATFORM = "apns"
-    
+
     override func setUp() {
         mockRuntime = TestableExtensionRuntime()
         mockCache = MockCache(name: "mockCache")
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mcokLaunchRulesEngine", extensionRuntime: mockRuntime)
-        mockRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockLaunchRulesEngine, cache: mockCache)        
+        mockRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockLaunchRulesEngine, cache: mockCache)
         messaging = Messaging(runtime: mockRuntime, rulesEngine: mockRulesEngine)
     }
-    
+
     // MARK: - helpers
-    
+
     //    {
     //        "eventType" : "pushTracking.applicationOpened",
     //        "applicationOpened" : true,
@@ -65,7 +65,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         var data: [String: Any] = [:]
         data[MessagingConstants.Event.Data.Key.EVENT_TYPE] = "testEventType"
         data[MessagingConstants.Event.Data.Key.MESSAGE_ID] = "testMessageId"
-        
+
         if addAdobeXdm! {
             var adobeXdmData: [String: Any] = [:]
             if addCjm! {
@@ -84,33 +84,33 @@ class MessagingEdgeEventsTests: XCTestCase {
             }
             data[MessagingConstants.XDM.Key.ADOBE_XDM] = adobeXdmData
         }
-        
+
         return data
     }
-    
+
     func setConfigSharedState(_ data: [String: Any]? = nil) {
         let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET: MOCK_EVENT_DATASET] as [String: Any]
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
                                         data: (value: data ?? mockConfig, status: SharedStateStatus.set))
     }
-    
+
     func setIdentitySharedState(_ data: [String: Any]? = nil) {
         let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: data ?? mockEdgeIdentity, status: SharedStateStatus.set))
     }
-    
+
     // MARK: - tests
-    
+
     func testHandleTrackingInfoHappy() throws {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedInfoEvent = mockRuntime.firstEvent
@@ -133,19 +133,19 @@ class MessagingEdgeEventsTests: XCTestCase {
         let eventType = xdm?["eventType"] as? String
         XCTAssertEqual("testEventType", eventType)
     }
-    
+
     func testGetPushPlatformNormal() throws {
         // setup
         setConfigSharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
-        
+
         // test
         let result = messaging.getPushPlatform(forEvent: event)
-        
+
         // verify
         XCTAssertEqual(MessagingConstants.XDM.Push.Value.APNS, result)
     }
-    
+
     func testGetPushPlatformSandbox() throws {
         // setup
         setConfigSharedState([
@@ -153,35 +153,35 @@ class MessagingEdgeEventsTests: XCTestCase {
             MessagingConstants.SharedState.Configuration.USE_SANDBOX: true
         ])
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
-        
+
         // test
         let result = messaging.getPushPlatform(forEvent: event)
-        
+
         // verify
         XCTAssertEqual(MessagingConstants.XDM.Push.Value.APNS_SANDBOX, result)
     }
-    
+
     func testGetPushPlatformNoConfig() throws {
         // setup
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
-        
+
         // test
         let result = messaging.getPushPlatform(forEvent: event)
-        
+
         // verify
         XCTAssertEqual(MessagingConstants.XDM.Push.Value.APNS, result)
     }
-    
+
     func testHandleTrackingInfoActionIdPresent() throws {
         // setup
         let eventData = getMessageTrackingEventData().merging([MessagingConstants.Event.Data.Key.ACTION_ID: "superActionId"]) { _, new in new }
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedInfoEvent = mockRuntime.firstEvent
@@ -195,76 +195,76 @@ class MessagingEdgeEventsTests: XCTestCase {
         let customAction = pushTracking?[MessagingConstants.XDM.Key.CUSTOM_ACTION] as? [String: Any]
         XCTAssertEqual("superActionId", customAction?[MessagingConstants.XDM.Key.ACTION_ID] as? String)
     }
-    
+
     func testHandleTrackingInfoNoDataset() throws {
         // setup
         setConfigSharedState([:])
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
-    
+
     func testHandleTrackingInfoEmptyDataset() throws {
         // setup
-        setConfigSharedState([MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET:""])
+        setConfigSharedState([MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET: ""])
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
-    
+
     func testHandleTrackingInfoNoXdmMap() throws {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: [:])
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
-    
+
     func testHandleTrackingInfoXdmMapMessageIdNil() throws {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType"])
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
-    
+
     func testHandleTrackingInfoXdmMapMessageIdEmpty() throws {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType", MessagingConstants.Event.Data.Key.MESSAGE_ID: ""])
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
-    
+
     func testSendPushTokenHappy() throws {
         // test
         messaging.sendPushToken(ecid: MOCK_ECID, token: MOCK_PUSH_TOKEN, platform: MOCK_PUSH_PLATFORM)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let pushTokenEvent = mockRuntime.firstEvent
@@ -292,17 +292,17 @@ class MessagingEdgeEventsTests: XCTestCase {
         let pushCode = namespace?[MessagingConstants.XDM.Push.CODE] as? String
         XCTAssertEqual(MessagingConstants.XDM.Push.Value.ECID, pushCode)
     }
-        
+
     func testAddAdobeDataHappy() throws {
         // setup
         let eventData = getMessageTrackingEventData()
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
@@ -325,17 +325,17 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(1, channelDict?.count)
         XCTAssertEqual("https://ns.adobe.com/xdm/channels/push", channelDict?["_id"] as? String)
     }
-    
+
     func testAddAdobeDataNoAdobeXdm() throws {
         // setup
         let eventData = getMessageTrackingEventData(addAdobeXdm: false)
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
@@ -345,17 +345,17 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.EVENT_TYPE])
         XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION])
     }
-    
+
     func testAddAdobeDataMixins() throws {
         // setup
         let eventData = getMessageTrackingEventData(addMixins: true)
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
@@ -366,17 +366,17 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION])
         XCTAssertEqual("present", dispatchedXdmMap?["mixin"] as? String)
     }
-    
+
     func testAddAdobeDataNoMixinsNoCjmTracking() throws {
         // setup
         let eventData = getMessageTrackingEventData(addMixins: false, addCjm: false)
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
@@ -386,17 +386,17 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.EVENT_TYPE])
         XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION])
     }
-    
+
     func testAddApplicationDataAppOpened() throws {
         // setup
         let eventData = getMessageTrackingEventData().merging([MessagingConstants.Event.Data.Key.APPLICATION_OPENED: true]) { _, new in new}
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
@@ -407,17 +407,17 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertNotNil(launchesData)
         XCTAssertEqual(1, launchesData?[MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE] as? Int)
     }
-    
+
     func testAddApplicationDataAppNotOpened() throws {
         // setup
         let eventData = getMessageTrackingEventData().merging([MessagingConstants.Event.Data.Key.APPLICATION_OPENED: false]) { _, new in new}
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
-        
+
         // test
         messaging.handleTrackingInfo(event: event)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
@@ -428,7 +428,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertNotNil(launchesData)
         XCTAssertEqual(0, launchesData?[MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE] as? Int)
     }
-    
+
     func testSendExperienceEventHappy() throws {
         // setup
         setConfigSharedState()
@@ -437,10 +437,10 @@ class MessagingEdgeEventsTests: XCTestCase {
         let mockEdgeEventType = MessagingEdgeEventType.inappInteract
         let mockInteraction = "swords"
         let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-        
+
         // test
         messaging.sendExperienceEvent(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
@@ -464,7 +464,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let xdmMetaCollectMap = dispatchedXdmMeta?[MessagingConstants.XDM.Key.COLLECT] as? [String: Any]
         XCTAssertEqual(MOCK_EVENT_DATASET, xdmMetaCollectMap?[MessagingConstants.XDM.Key.DATASET_ID] as? String)
     }
-    
+
     func testSendExperienceEventNoDataset() throws {
         // setup
         setConfigSharedState([:])
@@ -473,14 +473,14 @@ class MessagingEdgeEventsTests: XCTestCase {
         let mockEdgeEventType = MessagingEdgeEventType.inappInteract
         let mockInteraction = "swords"
         let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-        
+
         // test
         messaging.sendExperienceEvent(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
+
         // verify
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)        
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
-    
+
     func testSendExperienceEventNotInteractEventType() throws {
         // setup
         setConfigSharedState()
@@ -489,10 +489,10 @@ class MessagingEdgeEventsTests: XCTestCase {
         let mockEdgeEventType = MessagingEdgeEventType.inappTrigger
         let mockInteraction = "swords"
         let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-        
+
         // test
         messaging.sendExperienceEvent(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
@@ -501,7 +501,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let dispatchedXdmMap = dispatchedEventData?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
         XCTAssertNil(dispatchedXdmMap?[MessagingConstants.XDM.IAM.IN_APP_MIXIN_NAME])
     }
-    
+
     func testSendExperienceEventInteractEventTypeEmptyInteraction() throws {
         // setup
         setConfigSharedState()
@@ -510,10 +510,10 @@ class MessagingEdgeEventsTests: XCTestCase {
         let mockEdgeEventType = MessagingEdgeEventType.inappInteract
         let mockInteraction = ""
         let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-        
+
         // test
         messaging.sendExperienceEvent(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
@@ -522,7 +522,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let dispatchedXdmMap = dispatchedEventData?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
         XCTAssertNil(dispatchedXdmMap?[MessagingConstants.XDM.IAM.IN_APP_MIXIN_NAME])
     }
-    
+
     func testSendExperienceEventInteractEventTypeNilInteraction() throws {
         // setup
         setConfigSharedState()
@@ -531,10 +531,10 @@ class MessagingEdgeEventsTests: XCTestCase {
         let mockEdgeEventType = MessagingEdgeEventType.inappInteract
         let mockInteraction: String? = nil
         let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-        
+
         // test
         messaging.sendExperienceEvent(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
+
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent

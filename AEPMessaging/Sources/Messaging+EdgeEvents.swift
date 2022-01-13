@@ -122,7 +122,9 @@ extension Messaging {
         // 2. check the event's "cjm" key
         var mixins: [String: Any]
         if event.mixins != nil {
+            // swiftlint:disable all
             mixins = event.mixins!
+            // swiftlint:enable all
         } else {
             guard let cjm = event.cjm else {
                 Log.warning(label: MessagingConstants.LOG_TAG,

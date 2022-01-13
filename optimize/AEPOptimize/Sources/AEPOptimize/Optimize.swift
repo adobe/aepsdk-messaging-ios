@@ -26,9 +26,9 @@ public class Optimize: NSObject, Extension {
 
     /// Dictionary containing decision propositions currently cached in-memory in the SDK.
     #if DEBUG
-        var cachedPropositions: [DecisionScope: Proposition]
+    var cachedPropositions: [DecisionScope: Proposition]
     #else
-        private(set) var cachedPropositions: [DecisionScope: Proposition]
+    private(set) var cachedPropositions: [DecisionScope: Proposition]
     #endif
 
     public required init?(runtime: ExtensionRuntime) {
@@ -175,8 +175,8 @@ public class Optimize: NSObject, Extension {
                       """
                       No propositions with valid offers are present in the Edge response event for the provided scopes(\
                       \(propositions
-                          .map { $0.scope }
-                          .joined(separator: ","))
+                            .map { $0.scope }
+                            .joined(separator: ","))
                       ).
                       """)
             return

@@ -10,60 +10,60 @@
  governing permissions and limitations under the License.
  */
 
+@testable import AEPMessaging
 import Foundation
 import XCTest
-@testable import AEPMessaging
 
 class MessagingEdgeEventTypeTests: XCTestCase {
     func testInAppDismiss() throws {
         // setup
         let value = MessagingEdgeEventType(rawValue: 0)
-        
+
         // verify
         XCTAssertEqual(value, .inappDismiss)
         XCTAssertEqual(MessagingConstants.XDM.IAM.EventType.DISMISS, value?.toString())
     }
-    
+
     func testInAppInteract() throws {
         // setup
         let value = MessagingEdgeEventType(rawValue: 1)
-        
+
         // verify
         XCTAssertEqual(value, .inappInteract)
         XCTAssertEqual(MessagingConstants.XDM.IAM.EventType.INTERACT, value?.toString())
     }
-    
+
     func testInAppTrigger() throws {
         // setup
         let value = MessagingEdgeEventType(rawValue: 2)
-        
+
         // verify
         XCTAssertEqual(value, .inappTrigger)
         XCTAssertEqual(MessagingConstants.XDM.IAM.EventType.TRIGGER, value?.toString())
     }
-    
+
     func testInAppDisplay() throws {
         // setup
         let value = MessagingEdgeEventType(rawValue: 3)
-        
+
         // verify
         XCTAssertEqual(value, .inappDisplay)
         XCTAssertEqual(MessagingConstants.XDM.IAM.EventType.DISPLAY, value?.toString())
     }
-    
+
     func testPushApplicationOpened() throws {
         // setup
         let value = MessagingEdgeEventType(rawValue: 4)
-        
+
         // verify
         XCTAssertEqual(value, .pushApplicationOpened)
         XCTAssertEqual(MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED, value?.toString())
     }
-    
+
     func testPushCustomAction() throws {
         // setup
         let value = MessagingEdgeEventType(rawValue: 5)
-        
+
         // verify
         XCTAssertEqual(value, .pushCustomAction)
         XCTAssertEqual(MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION, value?.toString())

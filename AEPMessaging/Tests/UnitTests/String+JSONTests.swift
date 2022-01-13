@@ -21,23 +21,23 @@ class StringJsonTests: XCTestCase {
     func testToJsonDictionaryHappy() throws {
         // setup
         let jsonString = "{\"key\":\"value\"}"
-        
+
         // test
         let result = jsonString.toJsonDictionary()
-        
+
         // verify
         XCTAssertNotNil(result)
         XCTAssertEqual("value", result?["key"] as? String)
     }
-    
+
     func testToJsonDictionaryInvalidJson() throws {
         // setup
         let jsonString = "i am not valid json"
-        
+
         // test
         let result = jsonString.toJsonDictionary()
-        
+
         // verify
-        XCTAssertNil(result)        
+        XCTAssertNil(result)
     }
 }
