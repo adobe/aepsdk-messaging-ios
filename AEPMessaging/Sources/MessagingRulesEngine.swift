@@ -31,7 +31,7 @@ class MessagingRulesEngine {
         cache = Cache(name: messagingCacheName)
         loadCachedMessages()
     }
-    
+
     /// INTERNAL ONLY
     /// Initializer to provide a mock rules engine for testing
     init(extensionRuntime: ExtensionRuntime, rulesEngine: LaunchRulesEngine, cache: Cache) {
@@ -60,7 +60,7 @@ class MessagingRulesEngine {
 
             messagingRules.append(contentsOf: processedRule)
         }
-        
+
         rulesEngine.replaceRules(with: messagingRules)
         Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(messagingRules.count) message(s) into the rules engine.")
     }

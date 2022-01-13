@@ -83,7 +83,7 @@ enum MessagingConstants {
                     static let SOUND = "sound"
 
                     // layout keys
-                    static let MOBILE_PARAMETERS = "mobileParameters"                    
+                    static let MOBILE_PARAMETERS = "mobileParameters"
                     static let SCHEMA_VERSION = "schemaVersion"
                     static let WIDTH = "width"
                     static let HEIGHT = "height"
@@ -134,7 +134,7 @@ enum MessagingConstants {
                 }
             }
         }
-        
+
         enum Mask {
             enum XDM {
                 // mask values for experience event storage in event history

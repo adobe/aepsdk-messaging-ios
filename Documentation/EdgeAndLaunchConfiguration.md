@@ -6,8 +6,8 @@
 ![Datastream](png/edge-config.png)
 
 ### Setup launch mobile property
-- To create the property follow [this document](https://aep-sdks.gitbook.io/docs/v/AEP-Edge-Docs/getting-started/set-up-mobile-property) 
-- To configure AEP Edge Extension follow [this document](https://aep-sdks.gitbook.io/docs/v/AEP-Edge-Docs/using-mobile-extensions/adobe-edge#configure-the-adobe-experience-platform-edge-network-extension-in-experience-platform-launch)
-- To configure AEP Messaging Extension follow [this document](https://aep-sdks.gitbook.io/docs/v/AEP-Edge-Docs/using-mobile-extensions/adobe-experience-platform-messaging#configure-the-adobe-experience-platform-messaging-extension-in-experience-platform-launch)
+- To create the property follow [this document](https://aep-sdks.gitbook.io/docs/getting-started/create-a-mobile-property) 
+- To configure AEP Edge Extension follow [this document](https://aep-sdks.gitbook.io/docs/foundation-extensions/experience-platform-extension)
+- To configure AEP Messaging Extension follow [this document](https://aep-sdks.gitbook.io/docs/using-mobile-extensions/adobe-journey-optimizer)
 
 ### Now that a Mobile Property is created, head over to the [instructions](./SetupSDK.md) to install the SDK.

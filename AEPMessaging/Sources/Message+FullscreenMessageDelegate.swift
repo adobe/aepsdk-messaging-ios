@@ -50,13 +50,15 @@ extension Message: FullscreenMessageDelegate {
 
         if url.scheme == MessagingConstants.IAM.HTML.SCHEME {
             // handle request parameters
-            let queryParams = url.query?.components(separatedBy: "&").map {
-                $0.components(separatedBy: "=")
-            }.reduce(into: [String: String]()) { dict, pair in
-                if pair.count == 2 {
-                    dict[pair[0]] = pair[1]
+            let queryParams = url.query?.components(separatedBy: "&")
+                .map {
+                    $0.components(separatedBy: "=")
                 }
-            }
+                .reduce(into: [String: String]()) { dict, pair in
+                    if pair.count == 2 {
+                        dict[pair[0]] = pair[1]
+                    }
+                }
 
             let message = message.parent
 

@@ -29,7 +29,7 @@ class MessagingFunctionalTests: XCTestCase {
 
     // MARK: - Handle Notification Response
 
-    func testPushTokenSync() {        
+    func testPushTokenSync() {
         let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 

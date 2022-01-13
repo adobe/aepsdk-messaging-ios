@@ -10,27 +10,16 @@
  governing permissions and limitations under the License.
  */
 
-@testable import AEPCore
 import Foundation
 
-class MockLaunchRulesEngine: LaunchRulesEngine {
-    override init(name: String, extensionRuntime: ExtensionRuntime) {
-        super.init(name: name, extensionRuntime: extensionRuntime)
-    }
+// MARK: StringInterpolation extension
 
-    var processCalled: Bool = false
-    var paramProcessedEvent: Event?
-    override func process(event: Event) -> Event {
-        processCalled = true
-        paramProcessedEvent = event
-        return event
-    }
-
-    var replaceRulesCalled: Bool = false
-    var paramRules: [LaunchRule]?
-    override func replaceRules(with rules: [LaunchRule]) {
-        replaceRulesCalled = true
-        paramRules = rules
-
+extension String.StringInterpolation {
+    mutating func appendInterpolation(activityId: String, placementId: String, itemCount: UInt) {
+        if itemCount == 1 {
+            appendInterpolation("{\"activityId\":\"\(activityId)\",\"placementId\":\"\(placementId)\"}")
+        } else {
+            appendInterpolation("{\"activityId\":\"\(activityId)\",\"placementId\":\"\(placementId)\",\"itemCount\":\(itemCount)}")
+        }
     }
 }

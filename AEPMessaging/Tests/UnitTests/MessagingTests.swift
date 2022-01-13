@@ -23,7 +23,7 @@ class MessagingTests: XCTestCase {
     var mockMessagingRulesEngine: MockMessagingRulesEngine!
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
-    
+
     // Mock constants
     let MOCK_ECID = "mock_ecid"
     let MOCK_EVENT_DATASET = "mock_event_dataset"

@@ -10,27 +10,17 @@
  governing permissions and limitations under the License.
  */
 
-@testable import AEPCore
 import Foundation
 
-class MockLaunchRulesEngine: LaunchRulesEngine {
-    override init(name: String, extensionRuntime: ExtensionRuntime) {
-        super.init(name: name, extensionRuntime: extensionRuntime)
-    }
+// MARK: Array extension
 
-    var processCalled: Bool = false
-    var paramProcessedEvent: Event?
-    override func process(event: Event) -> Event {
-        processCalled = true
-        paramProcessedEvent = event
-        return event
-    }
+extension Array {
+    func toDictionary<Key: Hashable>(_ transform: (Element) throws -> Key) rethrows -> [Key: Element] {
+        var dictionary = [Key: Element]()
 
-    var replaceRulesCalled: Bool = false
-    var paramRules: [LaunchRule]?
-    override func replaceRules(with rules: [LaunchRule]) {
-        replaceRulesCalled = true
-        paramRules = rules
-
+        for element in self {
+            dictionary[try transform(element)] = element
+        }
+        return dictionary
     }
 }

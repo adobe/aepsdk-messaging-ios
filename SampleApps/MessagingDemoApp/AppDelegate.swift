@@ -17,9 +17,10 @@ import AEPEdgeConsent
 import AEPEdgeIdentity
 import AEPLifecycle
 import AEPMessaging
-import AEPOptimize
-import AEPSignal
+// TODO: add in AEPOptimize reference once it has a public release
+// import AEPOptimize
 import AEPAnalytics
+import AEPSignal
 import UIKit
 import UserNotifications
 
