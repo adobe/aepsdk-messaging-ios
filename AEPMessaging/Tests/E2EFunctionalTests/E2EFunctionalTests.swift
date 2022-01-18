@@ -115,6 +115,6 @@ class E2EFunctionalTests: XCTestCase {
         Messaging.refreshInAppMessages()
         
         // verify
-        wait(for: [messagingRequestContentExpectation, optimizeRequestContentExpectation, edgePersonalizationDecisionsExpectation], timeout: 10)
+        wait(for: [messagingRequestContentExpectation, optimizeRequestContentExpectation, edgePersonalizationDecisionsExpectation], timeout: 60)
     }
 }
