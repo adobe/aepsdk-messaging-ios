@@ -1,0 +1,18 @@
+<html>
+    <head>
+        <script type=\"text/javascript\">
+            function callNative(action) {
+                try {
+                    // the name of the message handler is the same name
+                    // that must be registered in native code -
+                    // in this case "buttonClicked"
+                    webkit.messageHandlers.buttonClicked.postMessage(action);
+                } catch(err) {
+                    console.log('The native context does not exist yet'); }
+                }
+            </script>
+    </head>
+    <body>
+        <button onclick=\"callNative('with custom context!')\">JS Magic!</button>
+    </body>
+</html>

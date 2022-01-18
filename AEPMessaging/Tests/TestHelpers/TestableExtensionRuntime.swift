@@ -1,5 +1,5 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
+ Copyright 2020 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -23,6 +23,10 @@ public class TestableExtensionRuntime: ExtensionRuntime {
     public var createdXdmSharedStates: [[String: Any]?] = []
     public var mockedSharedStates: [String: SharedStateResult] = [:]
     public var mockedXdmSharedStates: [String: SharedStateResult] = [:]
+    public var receivedEventHistoryRequests: [EventHistoryRequest] = []
+    public var receivedEnforceOrder: Bool = false
+    public var mockEventHistoryResults: [EventHistoryResult] = []
+    public var ignoredEvents = Set<String>()
 
     public init() {}
 
@@ -37,6 +41,9 @@ public class TestableExtensionRuntime: ExtensionRuntime {
     }
 
     public func dispatch(event: Event) {
+        if shouldIgnore(event) {
+            return
+        }
         dispatchedEvents += [event]
     }
 
@@ -45,7 +52,7 @@ public class TestableExtensionRuntime: ExtensionRuntime {
     }
 
     public func createPendingSharedState(event _: Event?) -> SharedStateResolver {
-        return { data in
+        { data in
             self.createdSharedStates += [data]
         }
     }
@@ -63,12 +70,12 @@ public class TestableExtensionRuntime: ExtensionRuntime {
     }
 
     public func createPendingXDMSharedState(event _: Event?) -> SharedStateResolver {
-        return { data in
+        { data in
             self.createdXdmSharedStates += [data]
         }
     }
 
-    public func getXDMSharedState(extensionName: String, event: Event?, barrier _: Bool) -> SharedStateResult? {
+    public func getXDMSharedState(extensionName: String, event: Event?, barrier _: Bool = false) -> SharedStateResult? {
         // if there is an shared state setup for the specific (extension, event id) pair, return it. Otherwise, return the shared state that is setup for the extension.
         if let id = event?.id {
             return mockedXdmSharedStates["\(extensionName)-\(id)"] ?? mockedXdmSharedStates["\(extensionName)"]
@@ -81,6 +88,25 @@ public class TestableExtensionRuntime: ExtensionRuntime {
     public func stopEvents() {}
 
     // MARK: - Helper methods
+
+    /// Ignores the events from being dispatched by event hub.
+    /// - Parameters:
+    ///  - type: `EventType` of the event to be ignored
+    ///  - source: `EventSource` of the event to be ignored
+    public func ignoreEvent(type: String, source: String) {
+        ignoredEvents.insert("\(type)-\(source)")
+    }
+
+    /// Removes all the ignored events.
+    public func resetIgnoredEvents() {
+        ignoredEvents.removeAll()
+    }
+
+    /// Determines if the event is to be ignored and not dispatched by event hub
+    /// - Parameter event: An `Event`
+    private func shouldIgnore(_ event: Event) -> Bool {
+        ignoredEvents.contains("\(event.type)-\(event.source)")
+    }
 
     /// Simulate the events that are being sent to event hub, if there is a listener registered for that type of event, that listener will receive the event
     /// - Parameters:
@@ -97,7 +123,7 @@ public class TestableExtensionRuntime: ExtensionRuntime {
     ///   - type: event type
     ///   - source: event source
     public func getListener(type: String, source: String) -> EventListener? {
-        return listeners["\(type)-\(source)"]
+        listeners["\(type)-\(source)"]
     }
 
     /// Simulate the shared state of an extension for a matching event
@@ -137,6 +163,12 @@ public class TestableExtensionRuntime: ExtensionRuntime {
         dispatchedEvents = []
         createdSharedStates = []
         createdXdmSharedStates = []
+    }
+
+    public func getHistoricalEvents(_ events: [EventHistoryRequest], enforceOrder: Bool, handler: @escaping ([EventHistoryResult]) -> Void) {
+        receivedEventHistoryRequests = events
+        receivedEnforceOrder = enforceOrder
+        handler(mockEventHistoryResults)
     }
 }
 

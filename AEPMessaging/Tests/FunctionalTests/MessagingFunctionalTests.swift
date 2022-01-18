@@ -22,6 +22,7 @@ class MessagingFunctionalTests: XCTestCase {
 
     override func setUp() {
         mockRuntime = TestableExtensionRuntime()
+        mockRuntime.ignoreEvent(type: EventType.rulesEngine, source: EventSource.requestReset)
         messaging = Messaging(runtime: mockRuntime)
         messaging.onRegistered()
     }
@@ -29,7 +30,7 @@ class MessagingFunctionalTests: XCTestCase {
     // MARK: - Handle Notification Response
 
     func testPushTokenSync() {
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
+        let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
@@ -41,18 +42,16 @@ class MessagingFunctionalTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        guard let edgeEvent = mockRuntime.dispatchedEvents.first else {
-            XCTFail()
-            return
-        }
-        XCTAssertEqual(edgeEvent.type, EventType.edge)
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
+        let edgeEvent = mockRuntime.firstEvent
+
+        XCTAssertEqual(edgeEvent?.type, EventType.edge)
+        let flattenEdgeEvent = edgeEvent?.data?.flattening()
         let pushNotification = flattenEdgeEvent?["data.pushNotificationDetails"] as? [[String: Any]]
         XCTAssertEqual(1, pushNotification?.count)
         let flattenedPushNotification = pushNotification?.first?.flattening()
         XCTAssertEqual("MOCK_ECID", flattenedPushNotification?["identity.id"] as? String)
         XCTAssertEqual("mockPushToken", flattenedPushNotification?["token"] as? String)
-        XCTAssertEqual("com.apple.dt.xctest.tool", flattenedPushNotification?["appID"] as? String)
+        XCTAssertEqual("com.adobe.FunctionalTestApp", flattenedPushNotification?["appID"] as? String)
         XCTAssertEqual(false, flattenedPushNotification?["denylisted"] as? Bool)
         XCTAssertEqual("ECID", flattenedPushNotification?["identity.namespace.code"] as? String)
         XCTAssertEqual("apns", flattenedPushNotification?["platform"] as? String)
@@ -63,7 +62,7 @@ class MessagingFunctionalTests: XCTestCase {
     }
 
     func testPushTokenSync_emptyToken() {
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: ""] as [String: Any]
+        let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: ""] as [String: Any]
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
@@ -81,7 +80,7 @@ class MessagingFunctionalTests: XCTestCase {
     }
 
     func testPushTokenSync_noECID() {
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: true] as [String: Any] // pushtoken is an boolean instead of string
+        let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: true] as [String: Any] // pushtoken is an boolean instead of string
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
@@ -99,7 +98,7 @@ class MessagingFunctionalTests: XCTestCase {
     }
 
     func testPushTokenSync_invalidPushId() {
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
+        let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
@@ -119,7 +118,7 @@ class MessagingFunctionalTests: XCTestCase {
 
     func testPushTokenSync_withSandbox() {
         mockConfigSharedState["messaging.useSandbox"] = true
-        let data = [MessagingConstants.EventDataKeys.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
+        let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: "mockPushToken"] as [String: Any]
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
@@ -131,10 +130,8 @@ class MessagingFunctionalTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        guard let edgeEvent = mockRuntime.dispatchedEvents.first else {
-            XCTFail()
-            return
-        }
+        let edgeEvent = mockRuntime.dispatchedEvents[0]
+
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         let flattenEdgeEvent = edgeEvent.data?.flattening()
         let pushNotification = flattenEdgeEvent?["data.pushNotificationDetails"] as? [[String: Any]]
@@ -142,7 +139,7 @@ class MessagingFunctionalTests: XCTestCase {
         let flattenedPushNotification = pushNotification?.first?.flattening()
         XCTAssertEqual("MOCK_ECID", flattenedPushNotification?["identity.id"] as? String)
         XCTAssertEqual("mockPushToken", flattenedPushNotification?["token"] as? String)
-        XCTAssertEqual("com.apple.dt.xctest.tool", flattenedPushNotification?["appID"] as? String)
+        XCTAssertEqual("com.adobe.FunctionalTestApp", flattenedPushNotification?["appID"] as? String)
         XCTAssertEqual(false, flattenedPushNotification?["denylisted"] as? Bool)
         XCTAssertEqual("ECID", flattenedPushNotification?["identity.namespace.code"] as? String)
         XCTAssertEqual("apnsSandbox", flattenedPushNotification?["platform"] as? String)
