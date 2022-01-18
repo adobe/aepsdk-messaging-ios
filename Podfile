@@ -69,3 +69,7 @@ end
 target 'FunctionalTests' do
     core_dev
 end
+
+target 'E2EFunctionalTests' do
+    core_dev
+end
