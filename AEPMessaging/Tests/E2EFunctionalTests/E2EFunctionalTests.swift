@@ -24,8 +24,8 @@ import XCTest
 
 class E2EFunctionalTests: XCTestCase {
     
-    let activityIdBeingTested = "xcore:offer-activity:14090235e6b6757a"
-    let placementIdBeingTested = "xcore:offer-placement:14254cbbee5de2b8"
+    let activityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
+    let placementIdBeingTested = "xcore:offer-placement:143f66555f80e367"
     
     override func setUp() {
         initializeSdk()

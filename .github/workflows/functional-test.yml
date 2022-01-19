@@ -24,8 +24,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - name: Pre-start Simulator
-      run: xcrun instruments -w "iPhone 8 (13.1) [" || true
 
     - name: ${{ github.event.inputs.id }}
       run: echo Run Identifier is ${{ inputs.id }}
