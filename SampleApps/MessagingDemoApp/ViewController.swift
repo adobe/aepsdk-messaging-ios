@@ -140,5 +140,4 @@ class ViewController: UIViewController {
         let data = ["key": "value"]
         MobileCore.track(action: "buttonClicked", data: data)
     }
-
 }

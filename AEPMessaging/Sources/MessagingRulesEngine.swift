@@ -35,7 +35,7 @@ class MessagingRulesEngine {
     /// INTERNAL ONLY
     /// Initializer to provide a mock rules engine for testing
     init(extensionRuntime: ExtensionRuntime, rulesEngine: LaunchRulesEngine, cache: Cache) {
-        self.runtime = extensionRuntime
+        runtime = extensionRuntime
         self.rulesEngine = rulesEngine
         self.cache = cache
     }

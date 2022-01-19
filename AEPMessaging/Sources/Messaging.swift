@@ -16,7 +16,6 @@ import Foundation
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
-
     // MARK: - Class members
 
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
@@ -159,7 +158,8 @@ public class Messaging: NSObject, Extension {
 
         guard let messages = event.rulesJson,
               let json = event.rulesJson?.first,
-              json != MessagingConstants.XDM.IAM.Value.EMPTY_CONTENT else {
+              json != MessagingConstants.XDM.IAM.Value.EMPTY_CONTENT
+        else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Empty content returned in call to retrieve in-app messages.")
             rulesEngine.clearMessagingCache()
             return
@@ -241,7 +241,6 @@ public class Messaging: NSObject, Extension {
         // placementId = bundle identifier
         var placement = Bundle.main.bundleIdentifier
 
-        
         // hack to allow overriding of activity and placement from plist
         if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
             let nsDictionary = NSDictionary(contentsOfFile: path)

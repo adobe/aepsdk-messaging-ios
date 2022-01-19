@@ -17,7 +17,8 @@ class ConfigurationLoader {
     static func getConfig(_ fileName: String) -> [String: Any] {
         let testBundle = Bundle(for: ConfigurationLoader.self)
         guard let url = testBundle.url(forResource: fileName, withExtension: "json"),
-              let data = try? Data(contentsOf: url) else {
+              let data = try? Data(contentsOf: url)
+        else {
             return [:]
         }
 

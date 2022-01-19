@@ -20,7 +20,7 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
     let mockRuntime: TestableExtensionRuntime
     let mockRulesEngine: MockLaunchRulesEngine
 
-    init(name: String, runtime: ExtensionRuntime) {
+    init(name _: String, runtime: ExtensionRuntime) {
         mockCache = MockCache(name: "mockCache")
         mockRuntime = TestableExtensionRuntime()
         mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: runtime)

@@ -18,7 +18,6 @@ import AEPCore
 import AEPServices
 
 class MessagingEdgeEventsTests: XCTestCase {
-
     var mockRuntime: TestableExtensionRuntime!
     var messaging: Messaging!
     var mockRulesEngine: MockMessagingRulesEngine!
@@ -389,7 +388,7 @@ class MessagingEdgeEventsTests: XCTestCase {
 
     func testAddApplicationDataAppOpened() throws {
         // setup
-        let eventData = getMessageTrackingEventData().merging([MessagingConstants.Event.Data.Key.APPLICATION_OPENED: true]) { _, new in new}
+        let eventData = getMessageTrackingEventData().merging([MessagingConstants.Event.Data.Key.APPLICATION_OPENED: true]) { _, new in new }
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
@@ -410,7 +409,7 @@ class MessagingEdgeEventsTests: XCTestCase {
 
     func testAddApplicationDataAppNotOpened() throws {
         // setup
-        let eventData = getMessageTrackingEventData().merging([MessagingConstants.Event.Data.Key.APPLICATION_OPENED: false]) { _, new in new}
+        let eventData = getMessageTrackingEventData().merging([MessagingConstants.Event.Data.Key.APPLICATION_OPENED: false]) { _, new in new }
         setConfigSharedState()
         setIdentitySharedState()
         let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)

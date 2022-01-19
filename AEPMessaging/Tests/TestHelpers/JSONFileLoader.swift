@@ -18,7 +18,8 @@ class JSONFileLoader {
         let testBundle = Bundle(for: JSONFileLoader.self)
         guard let url = testBundle.url(forResource: fileName, withExtension: "json"),
               let data = try? Data(contentsOf: url),
-              let jsonString = String(data: data, encoding: .utf8) else {
+              let jsonString = String(data: data, encoding: .utf8)
+        else {
             return ""
         }
 
