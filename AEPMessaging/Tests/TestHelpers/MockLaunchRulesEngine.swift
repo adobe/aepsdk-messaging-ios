@@ -31,6 +31,5 @@ class MockLaunchRulesEngine: LaunchRulesEngine {
     override func replaceRules(with rules: [LaunchRule]) {
         replaceRulesCalled = true
         paramRules = rules
-
     }
 }

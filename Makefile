@@ -80,4 +80,4 @@ test-podspec:
 	(sh ./Script/test-podspec.sh)
 
 functional-test: pod-install
-	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme FunctionalTests -destination 'platform=iOS Simulator,name=iPhone 8' -derivedDataPath build/out
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme E2EFunctionalTests -destination 'platform=iOS Simulator,name=iPhone 8' -derivedDataPath build/out

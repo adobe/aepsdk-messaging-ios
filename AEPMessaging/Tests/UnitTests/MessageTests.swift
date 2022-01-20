@@ -141,6 +141,6 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     }
 
     public func overrideUrlLoad(message _: FullscreenMessage, url _: String?) -> Bool {
-        return true
+        true
     }
 }

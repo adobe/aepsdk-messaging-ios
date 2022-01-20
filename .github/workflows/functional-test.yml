@@ -6,8 +6,8 @@ name: E2E Functional Tests
 # or API.
 on:
   workflow_dispatch:
-    inputs: 
-      branch: 
+    inputs:
+      branch:
         description: 'Branch to use when running functional tests'
         required: false
         default: 'main'
@@ -24,15 +24,15 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    
+
     - name: ${{ github.event.inputs.id }}
       run: echo Run Identifier is ${{ inputs.id }}
-      
+
     - name: Checkout
       uses: actions/checkout@v2.4.0
       with:
         ref: ${{ github.event.inputs.branch }}
-    
+
     # Runs a single command using the runners shell
     - name: Execute functional tests
       run: make functional-test

@@ -10,6 +10,9 @@
 // governing permissions and limitations under the License.
 //
 
+// TODO: add in AEPOptimize reference once it has a public release
+// import AEPOptimize
+import AEPAnalytics
 import AEPAssurance
 import AEPCore
 import AEPEdge
@@ -17,9 +20,6 @@ import AEPEdgeConsent
 import AEPEdgeIdentity
 import AEPLifecycle
 import AEPMessaging
-// TODO: add in AEPOptimize reference once it has a public release
-// import AEPOptimize
-import AEPAnalytics
 import AEPSignal
 import UIKit
 import UserNotifications

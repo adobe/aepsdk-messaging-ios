@@ -11,29 +11,26 @@
  */
 
 @testable import AEPCore
-@testable import AEPMessaging
-@testable import AEPRulesEngine
-@testable import AEPServices
 // TODO: add in AEPOptimize reference once it has a public release
 // import AEPOptimize
 import AEPEdge
 import AEPEdgeConsent
 import AEPEdgeIdentity
+@testable import AEPMessaging
+@testable import AEPRulesEngine
+@testable import AEPServices
 
 import XCTest
 
-class OffersContractTests: XCTestCase {
-
-    let activityIdBeingTested = "xcore:offer-activity:14090235e6b6757a"
-    let placementIdBeingTested = "xcore:offer-placement:14254cbbee5de2b8"
+class E2EFunctionalTests: XCTestCase {
+    let activityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
+    let placementIdBeingTested = "xcore:offer-placement:143f66555f80e367"
 
     override func setUp() {
         initializeSdk()
     }
 
-    override func tearDown() {
-
-    }
+    override func tearDown() {}
 
     // MARK: - helpers
 
@@ -69,21 +66,21 @@ class OffersContractTests: XCTestCase {
     func testGetMessageDefinitionFromOptimize() throws {
         // setup
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
-        registerMessagingRequestContentListener({ event in
+        registerMessagingRequestContentListener { event in
             XCTAssertNotNil(event)
             let data = event.data
             XCTAssertNotNil(data)
             XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool)
             messagingRequestContentExpectation.fulfill()
-        })
+        }
 
         let optimizeRequestContentExpectation = XCTestExpectation(description: "optimize request content listener called")
-        registerOptimizeRequestContentListener({ _ in
+        registerOptimizeRequestContentListener { _ in
             optimizeRequestContentExpectation.fulfill()
-        })
+        }
 
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
-        registerEdgePersonalizationDecisionsListener({ event in
+        registerEdgePersonalizationDecisionsListener { event in
 
             guard let data = event.data else { XCTFail(); return }
             guard let payloadArray = data["payload"] as? [[String: Any]] else { XCTFail(); return }
@@ -109,12 +106,12 @@ class OffersContractTests: XCTestCase {
             XCTAssertEqual(1, messagingRulesEngine.rulesEngine.rulesEngine.rules.count)
 
             edgePersonalizationDecisionsExpectation.fulfill()
-        })
+        }
 
         // test
         Messaging.refreshInAppMessages()
 
         // verify
-        wait(for: [messagingRequestContentExpectation, optimizeRequestContentExpectation, edgePersonalizationDecisionsExpectation], timeout: 10)
+        wait(for: [messagingRequestContentExpectation, optimizeRequestContentExpectation, edgePersonalizationDecisionsExpectation], timeout: 60)
     }
 }

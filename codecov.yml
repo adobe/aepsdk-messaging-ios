@@ -17,6 +17,7 @@ coverage:
     - "./AEPMessaging/Tests/**/*"
     - "./SampleApps"
     - "./Documentation"
+    - "./optimize"
 
 parsers:
   gcov:
@@ -30,4 +31,3 @@ comment:
   layout: "header, diff"
   behavior: default
   require_changes: no
-
