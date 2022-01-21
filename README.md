@@ -7,12 +7,12 @@
 
 ## About this project
 
-Adobe Experience Platform Messaging Extension is an extension for the [Adobe Experience Platform Swift SDK](https://github.com/adobe/aepsdk-core-ios).
+Adobe Experience Platform (AEP) Messaging Extension is an extension for the [Adobe Experience Platform Swift SDK](https://github.com/adobe/aepsdk-core-ios).
 
 The AEPMessaging extension enables the following workflows:
 
-- Sending push notification tokens and push notification click-through feedback to the Adobe Experience Platform
-- Displaying in-app messages which were created and configured for this app in Adobe Journey Optimizer
+- Sending push notification tokens and push notification click-through feedback to AEP
+- Displaying in-app messages which were created and configured for this app in Adobe Journey Optimizer (AJO)
 
 For further information about this extension, reference [this documentation](https://aep-sdks.gitbook.io/docs/using-mobile-extensions/adobe-journey-optimizer).
 
@@ -82,7 +82,7 @@ Additional documentation for SDK usage and configuration can be found in the [Do
 
 ## Setup Demo Application
 
-The AEP Messaging Demo application is a sample app which demonstrates how to send the push notification token to Adobe Experience Platform and how to collect feedback from notification click-throughs.
+The AEP Messaging Demo application is a sample app which demonstrates how to send the push notification token to AEP and how to collect feedback from notification click-throughs. It can also be used to demonstrate showing an in-app message created in AJO. 
 
 ## Related Projects
 
