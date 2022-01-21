@@ -12,7 +12,6 @@
 
 // TODO: add in AEPOptimize reference once it has a public release
 // import AEPOptimize
-import AEPAnalytics
 import AEPAssurance
 import AEPCore
 import AEPEdge
@@ -50,8 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             Messaging.self,
             Edge.self,
             Signal.self,
-            Assurance.self,
-            Analytics.self
+            Assurance.self
         ]
 
         MobileCore.registerExtensions(extensions)
