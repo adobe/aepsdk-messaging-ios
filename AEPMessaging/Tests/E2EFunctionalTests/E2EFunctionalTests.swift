@@ -24,10 +24,10 @@ import XCTest
 
 class E2EFunctionalTests: XCTestCase {
     // config settings
-    let PRODactivityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
-    let PRODplacementIdBeingTested = "xcore:offer-placement:143f66555f80e367"
-    let activityIdBeingTested = "xcore:offer-activity:14090235e6b6757a"
-    let placementIdBeingTested = "xcore:offer-placement:14254cbbee5de2b8"
+    let activityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
+    let placementIdBeingTested = "xcore:offer-placement:143f66555f80e367"
+    let DEVactivityIdBeingTested = "xcore:offer-activity:14090235e6b6757a"
+    let DEVplacementIdBeingTested = "xcore:offer-placement:14254cbbee5de2b8"
 
     // testing variables
     var onShowExpectation: XCTestExpectation?
@@ -126,16 +126,16 @@ class E2EFunctionalTests: XCTestCase {
         
         // MARK: - trigger the loaded message
         
-        // setup
-        MobileCore.messagingDelegate = self
-        onShowExpectation = XCTestExpectation(description: "Message was shown")
-        onDismissExpectation = XCTestExpectation(description: "Message was dismissed")
-                
-        // test
-        MobileCore.track(action: nil, data: ["seahawks": "bad"])
-        
-        // verify
-        wait(for: [onShowExpectation!, onDismissExpectation!], timeout: 5, enforceOrder: true)
+//        // setup
+//        MobileCore.messagingDelegate = self
+//        onShowExpectation = XCTestExpectation(description: "Message was shown")
+//        onDismissExpectation = XCTestExpectation(description: "Message was dismissed")
+//
+//        // test
+//        MobileCore.track(action: nil, data: ["seahawks": "bad"])
+//
+//        // verify
+//        wait(for: [onShowExpectation!, onDismissExpectation!], timeout: 5, enforceOrder: true)
     }
     
     /// wait for `seconds` before running the code in the closure
