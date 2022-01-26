@@ -15,7 +15,23 @@ pod 'SwiftLint', '0.44.0'
 # ==================
 # SHARED POD GROUPS
 # ==================
-def core_main
+def lib_main
+    pod 'AEPCore'
+    pod 'AEPServices'
+    pod 'AEPRulesEngine'
+    # optimize has source copied locally until its public release
+    # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
+end
+
+def lib_dev
+    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'main'
+    # optimize has source copied locally until its public release
+    # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
+end
+
+def app_main
     pod 'AEPCore'
     pod 'AEPServices'
     pod 'AEPLifecycle'
@@ -24,11 +40,12 @@ def core_main
     pod 'AEPEdge'
     pod 'AEPEdgeConsent'
     pod 'AEPEdgeIdentity'
+    pod 'AEPAssurance'
     # optimize has source copied locally until its public release
     # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
 end
 
-def core_dev
+def app_dev
     pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
     pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
     pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
@@ -40,13 +57,6 @@ def core_dev
     # optimize has source copied locally until its public release
     # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
     pod 'AEPAnalytics'
-end
-
-def griffon_main
-  pod 'AEPAssurance'
-end
-
-def griffon_dev
     pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'dev'
 end
 
@@ -54,22 +64,21 @@ end
 # TARGET DEFINITIONS
 # ==================
 target 'AEPMessaging' do
-    core_dev
+    lib_main
 end
 
 target 'MessagingDemoApp' do
-    core_dev
-    griffon_main
+    app_main
 end
 
 target 'UnitTests' do
-    core_dev
+    lib_main
 end
 
 target 'FunctionalTests' do
-    core_dev
+    app_main
 end
 
 target 'E2EFunctionalTests' do
-    core_dev
+    app_main
 end
