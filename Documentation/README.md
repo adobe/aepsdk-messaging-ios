@@ -1,11 +1,20 @@
-#  AEPMessage Documentation
+# AEPMessaging Documentation
 
-### Contents:
+### Prerequisites
 
-* [Edge & Launch Configuration:](./EdgeAndLaunchConfiguration.md)
-* [Enabling Push Notification Service](./EnablingPushNotificationService.md)
-* Getting started with AEPMessaging SDK
-    * [Setup Sdk](./SetupSDK.md)
-    * [API usage](./APIUsage.md)
+- Push Messaging
+  - [Enable push notifications in your app](./enable-push-notifications.md)  
+- Push and In-app Messaging
+  - [Configure Adobe Data Collection and Adobe Experience Platform](./edge-and-launch-configuration.md)
 
 
+### Getting started with AEPMessaging Extension
+
+- [Setup](./setup-sdk.md)
+- [Usage](./usage.md)
+
+### Guides and How-tos
+
+- [Programmatically control the display of in-app messages](./how-to-messaging-delegate.md)
+- [Call native code from the Javascript of an in-app message](./how-to-call-native-from-javascript.md)
+- [Execute Javascript code in an in-app message from native code](./how-to-call-javascript-from-native.md)
