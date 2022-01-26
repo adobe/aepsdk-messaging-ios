@@ -25,7 +25,9 @@ import XCTest
 class E2EFunctionalTests: XCTestCase {
     // config settings
     let activityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
-    let placementIdBeingTested = "xcore:offer-placement:143f66555f80e367"
+    let placementIdBeingTested = "xcore:offer-placement:14886c056a17b37a"
+    let OLDactivityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
+    let OLDplacementIdBeingTested = "xcore:offer-placement:143f66555f80e367"
     let DEVactivityIdBeingTested = "xcore:offer-activity:14090235e6b6757a"
     let DEVplacementIdBeingTested = "xcore:offer-placement:14254cbbee5de2b8"
 
@@ -112,7 +114,7 @@ class E2EFunctionalTests: XCTestCase {
             messagingRulesEngine.loadRules(rules: [content])
             
             // rules load async - brief sleep to allow it to finish
-            self.runAfter(seconds: 1) {
+            self.runAfter(seconds: 3) {
                 XCTAssertEqual(1, messagingRulesEngine.rulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
                 edgePersonalizationDecisionsExpectation.fulfill()
             }
