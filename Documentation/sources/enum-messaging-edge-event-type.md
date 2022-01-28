@@ -2,6 +2,8 @@
 
 Provides mapping to XDM EventType strings needed for Experience Event requests.
 
+This enum is used in conjunction with the [`track`](./class-message.md#track) method of a `Message` object.
+
 ## Definition
 
 ```swift
@@ -37,11 +39,11 @@ public enum MessagingEdgeEventType: Int {
 
 Below is the table of values returned by calling the `toString` method for each case:
 
-| Case                  | String value                       |
-|-----------------------|------------------------------------|
-| inappDismiss          | ``inapp.dismiss``                  |
-| inappInteract         | ``inapp.interact``                 |
-| inappTrigger          | ``inapp.trigger``                  |
-| inappDisplay          | ``inapp.display``                  |
-| pushApplicationOpened | ``pushTracking.applicationOpened`` |
-| pushCustomAction      | ``pushTracking.customAction``      |
+| Case                  | String value                     |
+|-----------------------|----------------------------------|
+| inappDismiss          | `inapp.dismiss`                  |
+| inappInteract         | `inapp.interact`                 |
+| inappTrigger          | `inapp.trigger`                  |
+| inappDisplay          | `inapp.display`                  |
+| pushApplicationOpened | `pushTracking.applicationOpened` |
+| pushCustomAction      | `pushTracking.customAction`      |

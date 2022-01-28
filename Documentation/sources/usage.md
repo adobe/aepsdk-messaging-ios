@@ -4,25 +4,6 @@ This document details how to use the APIs provided by the AEPMessaging framework
 
 For more in-depth information about the Messaging extension, visit the [official SDK documentation for Adobe Journey Optimizer Messaging extension](https://aep-sdks.gitbook.io/docs/using-mobile-extensions/adobe-journey-optimizer).
 
-## Import and register the Messaging extension
-
-After importing the correct frameworks, register the Messaging extension in the `application(_: didFinishLaunchingWithOptions:)` method in the `AppDelegate`:
-
-###### Swift
-
-```swift
-import AEPMessaging
-import AEPCore
-
-class AppDelegate: UIResponder, UIApplicationDelegate {
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {        
-        MobileCore.registerExtensions([Messaging.self]) {
-            // handle completion of registration if desired
-        }
-    }
-}
-```
-
 ## Push Messaging APIs
 
 ### Sync the device's push token to the Adobe Experience Platform profile

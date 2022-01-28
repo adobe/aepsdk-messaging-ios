@@ -52,7 +52,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             Assurance.self
         ]
 
-        MobileCore.registerExtensions(extensions)
+        MobileCore.registerExtensions(extensions) {
+            
+        }
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
         // which has the edge configuration id needed by aep sdk
