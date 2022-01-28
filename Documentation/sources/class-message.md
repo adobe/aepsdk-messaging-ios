@@ -6,7 +6,7 @@ The `Message` class contains the definition of an in-app message and controls it
 
 # Public variables
 
-### id
+## id
 
 Identifier of the `Message`.
 
@@ -14,7 +14,7 @@ Identifier of the `Message`.
 public var id: String
 ```
 
-### autoTrack
+## autoTrack
 
 If set to `true` (default), Experience Edge events will automatically be generated when this `Message` is triggered, displayed, and dismissed.
 
@@ -22,7 +22,7 @@ If set to `true` (default), Experience Edge events will automatically be generat
 public var autoTrack: Bool = true
 ```
 
-### view
+## view
 
 Holds a reference to the message's `WKWebView` instance, if it exists.
 
@@ -34,7 +34,7 @@ public var view: UIView? {
 
 # Public functions
 
-### show
+## show
 
 Signals to the UIService (in `AEPServices`) that the message should be shown.
 
@@ -44,7 +44,7 @@ If `autoTrack` is true, calling this method will result in an "inapp.trigger" Ed
 public func show()
 ```
 
-### dismiss
+## dismiss
 
 Signals to the UIService that the message should be removed from the UI.
 
@@ -58,7 +58,7 @@ public func dismiss(suppressAutoTrack: Bool? = false)
 
 - _suppressAutoTrack_ - if set to `true`, the "inapp.dismiss" Edge Event will not be sent regardless of the `autoTrack` setting.
 
-### track
+## track
 
 Generates and dispatches an Edge Event for the provided `interaction` and `eventType`.
 
@@ -71,7 +71,7 @@ public func track(_ interaction: String?, withEdgeEventType eventType: Messaging
 - _interaction_ - a custom `String` value to be recorded in the interaction
 - _eventType_ - the [`MessagingEdgeEventType`](./enum-messaging-edge-event-type.md) to be used for the ensuing Edge Event
 
-### handleJavascriptMessage
+## handleJavascriptMessage
 
 Adds a handler for named Javascript messages sent from the message's `WKWebView`.
 

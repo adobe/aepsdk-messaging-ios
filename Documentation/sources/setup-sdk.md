@@ -1,6 +1,6 @@
 #  Setup AEPMessaging SDK
 
-## Import and register the Messaging extension
+### Import and register the Messaging extension
 
 Import the AEPMessaging framework and its dependencies, then register the Messaging extension and dependencies in the `application(_: didFinishLaunchingWithOptions:)` method in the `AppDelegate`:
 
@@ -32,7 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 ```
 
-#### Using an APNS sandbox push environment
+### Using an APNS sandbox push environment
 
 If testing in an APNS sandbox environment, add the `messaging.useSandbox` property to the SDK configuration.
 
