@@ -2,7 +2,7 @@
 
 Provides mapping to XDM EventType strings needed for Experience Event requests.
 
-This enum is used in conjunction with the [`track`](./class-message.md#track) method of a `Message` object.
+This enum is used in conjunction with the [`track`](./class-message.md#track_withedgeeventtype) method of a `Message` object.
 
 ## Definition
 

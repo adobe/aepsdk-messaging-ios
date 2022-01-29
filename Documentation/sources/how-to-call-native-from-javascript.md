@@ -2,19 +2,19 @@
 
 It is now possible to handle events from in-app message interactions in the native code of your application. This can be achieved by completing the following steps:
 
-- Implement and assign a `MessagingDelegate`
-- Register a Javascript handler for your In-App Message
-- Post the Javascript message from your In-App Message
+- [Implement and assign a `MessagingDelegate`](#implement-and-assign-a-messagingdelegate)
+- [Register a Javascript handler for your In-App Message](#register-a-javascript-handler-for-your-in-app-message)
+- [Post the Javascript message from your In-App Message](#post-the-javascript-message-from-your-in-app-message)
 
-### Implement and assign a `MessagingDelegate`
+## Implement and assign a `MessagingDelegate`
 
-To register a Javascript event handler with a `Message` object, the developer will need to implement and set a `MessagingDelegate`.
+To register a Javascript event handler with a `Message` object, the developer will first need to implement and set a `MessagingDelegate`.
 
-[This page describes how to implement a MessagingDelegate](./how-to-messaging-delegate.md).
+[This page describes how to implement and use a MessagingDelegate](./how-to-messaging-delegate.md).
 
-### Register a Javascript handler for your In-App Message
+## Register a Javascript handler for your In-App Message
 
-In the `shouldShowMessage` function of the `MessagingDelegate`, call [`handleJavascriptMessage(_:withHandler)`](./class-message.md#handlejavascriptmessage(_:withhandler)) to register your handler.
+In the `shouldShowMessage` function of the `MessagingDelegate`, call [`handleJavascriptMessage(_:withHandler)`](./class-message.md#handlejavascriptmessage_withhandler) to register your handler.
 
 The name of the message you intend to pass from the Javascript side should be specified in the first parameter.
 
@@ -26,8 +26,10 @@ func shouldShowMessage(message: Showable) -> Bool {
     let message = fullscreenMessage?.parent
 
     // in-line handling of javascript calls
-    message?.handleJavascriptMessage("myInappCallback") { content in
+    message?.handleJavascriptMessage("myInappCallback") { content
+
         print("javascript body passed to native callback: \(content ?? "empty")")
+        
         message?.track(content as? String, withEdgeEventType: .inappInteract)
     }
 
@@ -35,13 +37,11 @@ func shouldShowMessage(message: Showable) -> Bool {
 }
 ```
 
-### Post the Javascript message from your In-App Message
+## Post the Javascript message from your In-App Message
 
 Now that the in-app message has been displayed, the final step is to post the javascript message.
 
 Continuing from the previous example, the developer is going to post the "myInappCallback" message from their HTML, which will in turn call the handler previously configured:
-
-(The HTML in this example is intended only to demonstrate how the functionality works.)
 
 ```html
 <html>
@@ -63,6 +63,8 @@ Continuing from the previous example, the developer is going to post the "myInap
 </html>
 ```
 
-When the user clicks the button inside of this in-app message, the handler configured in the previous step will be called. The handler will send an Experience Event tracking the interaction, and print the following message to the console: 
+(The above HTML is not representative of a valid in-app message, and is intended only to demonstrate how to post the Javascript message)
+
+When the user clicks the button inside of this in-app message, the handler configured in the previous step will be called. The handler will send an Experience Event tracking the interaction, and print the following message to the console:
 
     javascript body passed to native callback: native callbacks are cool!
