@@ -2,7 +2,7 @@
 
 App developers can now implement a `MessagingDelegate` in order to be alerted when specific events occur during the lifecycle of an in-app message.
 
-### Register the delegate with MobileCore
+## Register the delegate with MobileCore
 
 The `MobileCore` framework maintains an optional property that holds reference to the `MessagingDelegate`.
 
@@ -19,7 +19,7 @@ let myMessagingDelegate = InAppMessagingHandler()
 MobileCore.messagingDelegate = messageHandler
 ```
 
-### MessagingDelegate protocol
+## MessagingDelegate protocol
 
 The `MessagingDelegate` protocol, which is implemented in the `AEPServices` framework, is defined below:
 
@@ -55,9 +55,9 @@ public protocol MessagingDelegate {
 }
 ```
 
-### Using the Showable object in the protocol methods
+## Using the Showable object in the protocol methods
 
-Each of the methods implemented in the `MessagingDelegate` will be passed a [`Showable`](https://github.com/adobe/aepsdk-core-ios/blob/main/AEPServices/Sources/ui/Showable.swift) object.  In the AEPMessaging SDK, the class implementing `Showable` is [`FullscreenMessage`](https://github.com/adobe/aepsdk-core-ios/blob/main/AEPServices/Sources/ui/fullscreen/FullscreenMessage.swift). A `FullscreenMessage` object is wrapped in the [`Message`](https://github.com/adobe/aepsdk-messaging-ios/blob/staging/AEPMessaging/Sources/Message.swift) class, which is the primary way for the developer to interact with the message.
+Each of the methods implemented in the `MessagingDelegate` will be passed a [`Showable`](https://github.com/adobe/aepsdk-core-ios/blob/main/AEPServices/Sources/ui/Showable.swift) object.  In the AEPMessaging SDK, the class implementing `Showable` is [`FullscreenMessage`](https://github.com/adobe/aepsdk-core-ios/blob/main/AEPServices/Sources/ui/fullscreen/FullscreenMessage.swift). A `FullscreenMessage` object is wrapped in the [`Message`](./class-message.md) class, which is the primary way for the developer to interact with the message.
 
 To get a reference to the `Message` object:
 
@@ -74,7 +74,7 @@ func onShow(message: Showable) {
 }
 ```
 
-### Controlling when a message should be shown to the end user
+## Controlling when a message should be shown to the end user
 
 If a `MessagingDelegate` has been provided to `MobileCore`, the delegate's `shouldShowMessage` method will be called prior to displaying an in-app message for which the end user has qualified. The developer is responsible for returning `true` if the message should be shown, or `false` if the message should be suppressed.
 
@@ -116,7 +116,7 @@ func shouldShowMessage(message: Showable) -> Bool {
 }
 ```
 
-### Integrating the message into an existing UI
+## Integrating the message into an existing UI
 
 If the developer would like to manually integrate the `View` that contains the UI for an in-app message, they can do so by accessing the `WKWebView` directly in a `MessagingDelegate` method.  
 
@@ -139,7 +139,7 @@ func shouldShowMessage(message: Showable) -> Bool {
 }
 ```
 
-### Further reading
+## Further reading
 
 - [More information on how to use the Message object](./class-message.md)
 - [Call native code from the Javascript of an in-app message](./how-to-call-native-from-javascript.md)
