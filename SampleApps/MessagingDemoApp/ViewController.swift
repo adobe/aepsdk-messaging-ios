@@ -76,9 +76,16 @@ class ViewController: UIViewController {
             }
 
             // get the uiview - add it
-            let messageWebView = message?.view as! WKWebView
-            print("message web view: \(messageWebView)")
-
+            let messageWebView = message?.view as? WKWebView
+            messageWebView?.evaluateJavaScript("startTimer();") { result, error in
+                if error != nil {
+                    // handle error
+                }
+                if result != nil {
+                    // do something with the result
+                }
+            }
+            
             // if we're not showing the message now, we can save it for later
             if !showMessages {
                 currentMessage = message

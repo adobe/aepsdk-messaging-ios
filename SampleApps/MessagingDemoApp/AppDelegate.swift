@@ -71,9 +71,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             "edge.environment": "int",
             "experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
             // prod
-            //            "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
+                        "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
             // ajo-sandbox
-            "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
+//            "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
             "messaging.eventDataset": "610ae80b3cbbc718dab06208"
         ]
         MobileCore.updateConfigurationWith(configDict: cjmStageConfig)

@@ -18,7 +18,7 @@
 - [Programmatically control the display of in-app messages](./sources/how-to-messaging-delegate.md)
 - [Call native code from the Javascript of an in-app message](./sources/how-to-call-native-from-javascript.md)
 - [Execute Javascript code in an in-app message from native code](./sources/how-to-call-javascript-from-native.md)
-- [Handling URL clicks from the message](./sources/how-to-handle-url-clicks.md)
+- [Handle URL clicks from an in-app message](./sources/how-to-handle-url-clicks.md)
 
 ### Other public classes, methods, and enums
 
