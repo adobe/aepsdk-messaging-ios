@@ -42,7 +42,7 @@ public class Message : NSObject {
 
     /// The `Event` that triggered this `Message`.  Primarily used for getting the correct `Configuration` for
     /// access to the AEP Dataset ID.
-    var triggeringEvent: Event?
+    var triggeringEvent: Event
 
     /// Holds XDM data necessary for tracking `Message` interactions with Adobe Journey Optimizer.
     let experienceInfo: [String: Any]
