@@ -52,7 +52,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             Assurance.self
         ]
 
-        MobileCore.registerExtensions(extensions)
+        MobileCore.registerExtensions(extensions) {
+            
+        }
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
         // which has the edge configuration id needed by aep sdk
@@ -69,9 +71,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             "edge.environment": "int",
             "experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
             // prod
-            //            "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
+                        "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
             // ajo-sandbox
-            "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
+//            "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
             "messaging.eventDataset": "610ae80b3cbbc718dab06208"
         ]
         MobileCore.updateConfigurationWith(configDict: cjmStageConfig)

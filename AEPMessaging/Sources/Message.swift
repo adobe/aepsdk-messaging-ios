@@ -67,7 +67,7 @@ public class Message {
     // MARK: - UI management
 
     /// Signals to the UIServices that the message should be shown.
-    /// If `autoTrack` is true, calling this method will result in a "trigger" Edge Event being dispatched.
+    /// If `autoTrack` is true, calling this method will result in an "inapp.display" Edge Event being dispatched.
     public func show() {
         if autoTrack {
             track(nil, withEdgeEventType: .inappDisplay)
@@ -77,7 +77,9 @@ public class Message {
     }
 
     /// Signals to the UIServices that the message should be dismissed.
-    /// If `autoTrack` is true, calling this method will result in a "dismiss" Edge Event being dispatched.
+    /// If `autoTrack` is true, calling this method will result in an "inapp.dismiss" Edge Event being dispatched.
+    /// - Parameter suppressAutoTrack: if set to `true`, the "inapp.dismiss" Edge Event will not be sent regardless
+    ///   of the `autoTrack` setting.
     public func dismiss(suppressAutoTrack: Bool? = false) {
         if autoTrack, let suppress = suppressAutoTrack, !suppress {
             track(nil, withEdgeEventType: .inappDismiss)
