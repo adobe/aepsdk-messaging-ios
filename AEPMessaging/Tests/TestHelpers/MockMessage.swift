@@ -24,9 +24,9 @@ class MockMessage: Message {
 
     var dismissCalled = false
     var paramDismissSuppressAutoTrack = false
-    override func dismiss(suppressAutoTrack: Bool? = false) {
+    override func dismiss(suppressAutoTrack: Bool = false) {
         dismissCalled = true
-        paramDismissSuppressAutoTrack = suppressAutoTrack ?? false
+        paramDismissSuppressAutoTrack = suppressAutoTrack
     }
 
     var trackCalled = false

@@ -16,18 +16,19 @@ import Foundation
 import WebKit
 
 /// Class that contains the definition of an in-app message and controls its tracking via Experience Edge events.
-public class Message {
+@objc(AEPMessage)
+public class Message : NSObject {
     // MARK: - public properties
 
     /// ID of the `Message`.
-    public var id: String
+    @objc public var id: String
 
     /// If set to `true` (default), Experience Edge events will automatically be generated when this `Message` is
     /// triggered, displayed, and dismissed.
-    public var autoTrack: Bool = true
+    @objc public var autoTrack: Bool = true
 
     /// Points to the message's `WKWebView` instance, if it exists.
-    public var view: UIView? {
+    @objc public var view: UIView? {
         fullscreenMessage?.webView
     }
 
@@ -41,7 +42,7 @@ public class Message {
 
     /// The `Event` that triggered this `Message`.  Primarily used for getting the correct `Configuration` for
     /// access to the AEP Dataset ID.
-    var triggeringEvent: Event?
+    var triggeringEvent: Event
 
     /// Holds XDM data necessary for tracking `Message` interactions with Adobe Journey Optimizer.
     let experienceInfo: [String: Any]
@@ -53,11 +54,11 @@ public class Message {
     ///   - event: the Rules Consequence `Event` that defines the message and contains reporting information
     init(parent: Messaging, event: Event) {
         self.parent = parent
-        triggeringEvent = event
-        id = event.messageId ?? ""
-        experienceInfo = event.experienceInfo ?? [:]
+        self.triggeringEvent = event
+        self.id = event.messageId ?? ""
+        self.experienceInfo = event.experienceInfo ?? [:]
+        super.init()
         let messageSettings = event.getMessageSettings(withParent: self)
-
         fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
                                                                                       listener: self,
                                                                                       isLocalImageUsed: false,
@@ -68,6 +69,7 @@ public class Message {
 
     /// Signals to the UIServices that the message should be shown.
     /// If `autoTrack` is true, calling this method will result in an "inapp.display" Edge Event being dispatched.
+    @objc
     public func show() {
         if autoTrack {
             track(nil, withEdgeEventType: .inappDisplay)
@@ -80,8 +82,9 @@ public class Message {
     /// If `autoTrack` is true, calling this method will result in an "inapp.dismiss" Edge Event being dispatched.
     /// - Parameter suppressAutoTrack: if set to `true`, the "inapp.dismiss" Edge Event will not be sent regardless
     ///   of the `autoTrack` setting.
-    public func dismiss(suppressAutoTrack: Bool? = false) {
-        if autoTrack, let suppress = suppressAutoTrack, !suppress {
+    @objc(dismissSuppressingAutoTrack:)
+    public func dismiss(suppressAutoTrack: Bool = false) {
+        if autoTrack, !suppressAutoTrack {
             track(nil, withEdgeEventType: .inappDismiss)
         }
 
@@ -95,6 +98,7 @@ public class Message {
     /// - Parameters:
     ///   - interaction: a custom `String` value to be recorded in the interaction
     ///   - eventType: the `MessagingEdgeEventType` to be used for the ensuing Edge Event
+    @objc(trackInteraction:withEdgeEventType:)
     public func track(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType) {
         parent?.sendExperienceEvent(withEventType: eventType, andInteraction: interaction, forMessage: self)
     }
@@ -108,6 +112,7 @@ public class Message {
     /// - Parameters:
     ///   - name: the name of the message that should be handled by `handler`
     ///   - handler: the closure to be called with the body of the message passed by the Javascript message
+    @objc(handleJavascriptMessage:withHandler:)
     public func handleJavascriptMessage(_ name: String, withHandler handler: @escaping (Any?) -> Void) {
         fullscreenMessage?.handleJavascriptMessage(name, withHandler: handler)
     }
