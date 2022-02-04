@@ -19,7 +19,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let extensions = [
             Messaging.self,
             Identity.self,
-            Edge.self
+            Edge.self,
+            Optimize.self, // only required if using in-app messaging
         ]
 
         MobileCore.registerExtensions(extensions) {            

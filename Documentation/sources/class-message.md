@@ -16,7 +16,7 @@ public var id: String
 
 ## autoTrack
 
-If set to `true` (default), Experience Edge events will automatically be generated when this `Message` is triggered, displayed, and dismissed.
+If set to `true` (default), Experience Edge events will automatically be generated when this `Message` is triggered, displayed, or dismissed.
 
 ```swift
 public var autoTrack: Bool = true

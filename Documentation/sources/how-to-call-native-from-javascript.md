@@ -29,7 +29,7 @@ func shouldShowMessage(message: Showable) -> Bool {
     message?.handleJavascriptMessage("myInappCallback") { content
 
         print("javascript body passed to native callback: \(content ?? "empty")")
-        
+
         message?.track(content as? String, withEdgeEventType: .inappInteract)
     }
 
@@ -67,4 +67,6 @@ Continuing from the previous example, the developer is going to post the "myInap
 
 When the user clicks the button inside of this in-app message, the handler configured in the previous step will be called. The handler will send an Experience Event tracking the interaction, and print the following message to the console:
 
-    javascript body passed to native callback: native callbacks are cool!
+```
+javascript body passed to native callback: native callbacks are cool!
+```
