@@ -112,6 +112,8 @@ enum MessagingConstants {
                     static let ACTIVITY = "activity"
                     static let PLACEMENT = "placement"
                     static let ITEMS = "items"
+                    static let XDM_NAME = "xdm:name"
+                    static let SCOPE = "scope"
                 }
             }
 
@@ -151,6 +153,11 @@ enum MessagingConstants {
             static let INTERACTION = "interaction"
             static let DISMISS = "dismiss"
             static let LINK = "link"
+        }
+        
+        enum Plist {
+            static let ACTIVITY_ID = "MESSAGING_ACTIVITY_ID"
+            static let PLACEMENT_ID = "MESSAGING_PLACEMENT_ID"
         }
     }
 

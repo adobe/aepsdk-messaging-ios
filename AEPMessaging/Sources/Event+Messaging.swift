@@ -226,6 +226,22 @@ extension Event {
     var offerPlacementId: String? {
         placement?[MessagingConstants.Event.Data.Key.Optimize.ID] as? String
     }
+    
+    var offerDecisionScope: String? {
+        guard let payload = payload, !payload.isEmpty else {
+            return nil
+        }
+        
+        guard let b64EncodedScope = payload.first?[MessagingConstants.Event.Data.Key.Optimize.SCOPE] as? String else {
+            return nil
+        }
+        
+        guard let scopeData = Data(base64Encoded: b64EncodedScope), let scopeDictionary = try? JSONSerialization.jsonObject(with: scopeData, options: .mutableContainers) as? [String: Any] else {
+            return nil
+        }
+        
+        return scopeDictionary[MessagingConstants.Event.Data.Key.Optimize.XDM_NAME] as? String
+    }
 
     /// each entry in the array represents "content" from an offer, which contains a rule
     var rulesJson: [String]? {
