@@ -115,7 +115,7 @@ public class Messaging: NSObject, Extension {
     /// decision scope.  Otherwise, use the bundleIdentifier for the app.
     private func fetchMessages() {
         var decisionScope = ""
-        let offersConfig = getActivityAndPlacement()
+        let offersConfig = getOffersMessageConfig()
         
         // check for activity and placement provided by info.plist
         if let activityId = offersConfig.0, let placementId = offersConfig.1 {
@@ -152,7 +152,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        let offersConfig = getActivityAndPlacement()
+        let offersConfig = getOffersMessageConfig()
         
         // validate that the offer contains messages by either matching the activity/placement from plist or bundle id
         if let activityId = offersConfig.0, let placementId = offersConfig.1 {
@@ -167,6 +167,9 @@ public class Messaging: NSObject, Extension {
                 // of in-app messaging
                 return
             }
+        } else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to handle Offer notification - an unknown error has occurred.")
+            return
         }
 
         guard let messages = event.rulesJson,
@@ -254,21 +257,22 @@ public class Messaging: NSObject, Extension {
         return decisionScopeData.base64EncodedString()
     }
 
-    /// Retrieves the activityId and placementId used to request the correct in-app messages from offers
+    /// Retrieves the correct configuration to retrieve in-app messages from offers
     ///
-    /// - Returns: a tuple containing (activityId, placementId) needed to generate the correct decision scope
-    private func getActivityAndPlacement() -> (String?, String?) {
-        var placement = Bundle.main.bundleIdentifier
-        var activity: String?
-
-        // hack to allow overriding of activity and placement from plist
-        if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
-            let nsDictionary = NSDictionary(contentsOfFile: path)
-            activity = nsDictionary?.value(forKey: MessagingConstants.IAM.Plist.ACTIVITY_ID) as? String
-            placement = nsDictionary?.value(forKey: MessagingConstants.IAM.Plist.PLACEMENT_ID) as? String
+    /// If an activityId/placementId are in the plist, those values will be used to generate the decision scope.
+    /// Otherwise, the bundle identifier will be used to generate the decision scope.
+    ///
+    /// - Returns: a tuple containing either (nil, bundleIdentifier) or (activityId, placementId)
+    private func getOffersMessageConfig() -> (String?, String?) {
+        if let path = Bundle.main.path(forResource: "Info", ofType: "plist"), let plistDictionary = NSDictionary(contentsOfFile: path) {
+            guard let activity = plistDictionary.value(forKey: MessagingConstants.IAM.Plist.ACTIVITY_ID) as? String,
+                  let placement = plistDictionary.value(forKey: MessagingConstants.IAM.Plist.PLACEMENT_ID) as? String else {
+                      return (nil, Bundle.main.bundleIdentifier)
+                  }
+            return (activity, placement)
         }
-
-        return (activity, placement)
+        
+        return (nil, Bundle.main.bundleIdentifier)
     }
 
     // MARK: - Event Handers
