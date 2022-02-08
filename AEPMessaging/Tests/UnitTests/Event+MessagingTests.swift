@@ -29,6 +29,8 @@ class EventPlusMessagingTests: XCTestCase {
     let mockXdmEventType = "xdmEventType"
     let mockMessagingId = "12345"
     let mockActionId = "67890"
+    let mockBundleIdentifier = "com.apple.dt.xctest.tool"
+    let mockDecisionScopeEncoded = "eyJ4ZG06bmFtZSI6ImNvbS5hcHBsZS5kdC54Y3Rlc3QudG9vbCJ9" // {"xdm:name":"com.apple.dt.xctest.tool"}
     let mockApplicationOpened = false
     let mockMixins: [String: Any] = [
         "mixin": "present"
@@ -102,6 +104,7 @@ class EventPlusMessagingTests: XCTestCase {
             let payload: [String: Any] = [
                 "activity": activity,
                 "placement": placement,
+                "scope": mockDecisionScopeEncoded,
                 "items": [item1, item2]
             ]
 
@@ -509,6 +512,53 @@ class EventPlusMessagingTests: XCTestCase {
         // verify
         XCTAssertNil(event.offerPlacementId)
     }
+    
+    func testOfferDecisionScopeHappy() {
+        // setup
+        let event = getAEPResponseEvent()
+        
+        // verify
+        XCTAssertEqual(mockBundleIdentifier, event.offerDecisionScope)
+    }
+    
+    func testOfferDecisionScopeEmpty() {
+        // setup
+        let data1 = ["content": mockContent1]
+        let item1 = ["data": data1]
+        let data2 = ["content": mockContent2]
+        let item2 = ["data": data2]
+        let placement: [String: Any] = [:]
+        let activity = ["id": mockActivityId]
+        let payload: [String: Any] = [
+            "activity": activity,
+            "placement": placement,
+            "items": [item1, item2]
+        ]
+        let event = getAEPResponseEvent(data: ["payload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.offerDecisionScope)
+    }
+    
+    func testOfferDecisionScopeMalformedFormat() {
+        // setup
+        let data1 = ["content": mockContent1]
+        let item1 = ["data": data1]
+        let data2 = ["content": mockContent2]
+        let item2 = ["data": data2]
+        let placement: [String: Any] = [:]
+        let activity = ["id": mockActivityId]
+        let payload: [String: Any] = [
+            "activity": activity,
+            "placement": placement,
+            "scope": "nope wrong scope",
+            "items": [item1, item2]
+        ]
+        let event = getAEPResponseEvent(data: ["payload": [payload]])
+        
+        // verify
+        XCTAssertNil(event.offerDecisionScope)
+    }
 
     func testPayloadIsNil() {
         // setup
@@ -518,6 +568,7 @@ class EventPlusMessagingTests: XCTestCase {
         // verify
         XCTAssertNil(event.offerActivityId)
         XCTAssertNil(event.offerPlacementId)
+        XCTAssertNil(event.offerDecisionScope)
         XCTAssertNil(event.rulesJson)
     }
 
