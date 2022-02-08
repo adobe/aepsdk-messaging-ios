@@ -25,10 +25,11 @@ extension Event {
 
     // MARK: In-app Message Properties
 
+    /// Grabs the messageExecutionID value from XDM
     var messageId: String? {
-        data?[MessagingConstants.Event.Data.Key.IAM.ID] as? String
+        xdmMessageExecution?[MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION_ID] as? String
     }
-
+    
     var template: String? {
         details?[MessagingConstants.Event.Data.Key.IAM.TEMPLATE] as? String
     }
@@ -300,6 +301,22 @@ extension Event {
         }
 
         return payload[0][MessagingConstants.Event.Data.Key.Optimize.ITEMS] as? [[String: Any]]
+    }
+    
+    private var xdmCustomerJourneyManagement: [String: Any]? {
+        guard let experienceInfo = experienceInfo else {
+            return nil
+        }
+        
+        return experienceInfo[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any]
+    }
+    
+    private var xdmMessageExecution: [String: Any]? {
+        guard let xdmCustomerJourneyManagement = xdmCustomerJourneyManagement else {
+            return nil
+        }
+        
+        return xdmCustomerJourneyManagement[MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION] as? [String: Any]
     }
 
     // MARK: Refresh Messages Public API Event
