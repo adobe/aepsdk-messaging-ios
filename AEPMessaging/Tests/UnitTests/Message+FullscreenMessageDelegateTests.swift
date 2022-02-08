@@ -84,7 +84,6 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
         XCTAssertEqual("testing", mockMessage.paramTrackInteraction)
         XCTAssertEqual(.inappInteract, mockMessage.paramTrackEventType)
         XCTAssertTrue(mockMessage.dismissCalled)
-        XCTAssertTrue(mockMessage.paramDismissSuppressAutoTrack)
     }
 
     func testOverrideUrlLoadDismissUrl() throws {
@@ -95,7 +94,6 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
         XCTAssertFalse(result)
         XCTAssertFalse(mockMessage.trackCalled)
         XCTAssertTrue(mockMessage.dismissCalled)
-        XCTAssertTrue(mockMessage.paramDismissSuppressAutoTrack)
     }
 
     func testOnShowCallable() throws {
