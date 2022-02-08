@@ -24,7 +24,14 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     var mockEvent: Event!
     var mockEventData: [String: Any]?
     let mockMessageId = "552"
-    var mockExperienceInfo: [String: Any] = ["experience": "present"]
+    var mockExperienceInfo: [String: Any] = [
+        "experience": "present",
+        MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT: [
+            MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION: [
+                MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION_ID: "552"
+            ]
+        ]
+    ]
     var onShowExpectation: XCTestExpectation?
     var onDismissExpectation: XCTestExpectation?
     var handleJavascriptMessageExpectation: XCTestExpectation?
@@ -32,8 +39,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     override func setUp() {
         mockMessaging = MockMessaging(runtime: mockRuntime)
 
-        mockEventData = [
-            MessagingConstants.Event.Data.Key.IAM.ID: mockMessageId,
+        mockEventData = [            
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
                 MessagingConstants.Event.Data.Key.DETAIL: [
                     MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: TestableMobileParameters.mobileParameters,
@@ -56,9 +62,8 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         // verify
         XCTAssertEqual(mockMessaging, message.parent)
         XCTAssertEqual(mockEvent, message.triggeringEvent)
-        // TODO: FIX ME
-//        XCTAssertEqual(mockMessageId, message.id)
-        XCTAssertEqual(1, message.experienceInfo.count)
+        XCTAssertEqual(mockMessageId, message.id)
+        XCTAssertEqual(2, message.experienceInfo.count)
         XCTAssertEqual("present", message.experienceInfo["experience"] as? String)
         XCTAssertNotNil(message.fullscreenMessage)
     }

@@ -55,7 +55,12 @@ class EventPlusMessagingTests: XCTestCase {
         let xdmExperienceInfo = xdmExperienceInfo ?? [
             MessagingConstants.XDM.AdobeKeys.MIXINS: [
                 MessagingConstants.XDM.AdobeKeys.EXPERIENCE: [
-                    "experience": "everything"
+                    "experience": "everything",
+                    MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT: [
+                        MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION: [
+                            MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION_ID: "552"
+                        ]
+                    ]
                 ]
             ]
         ]
@@ -80,7 +85,6 @@ class EventPlusMessagingTests: XCTestCase {
                 MessagingConstants.Event.Data.Key.TYPE: type!,
                 MessagingConstants.Event.Data.Key.DETAIL: details
             ],
-            MessagingConstants.Event.Data.Key.IAM.ID: "552"
         ]
         let rulesEvent = Event(name: "Test Rules Engine response",
                                type: EventType.rulesEngine,
@@ -165,9 +169,8 @@ class EventPlusMessagingTests: XCTestCase {
         // setup
         let event = getRulesResponseEvent()
 
-        // verify
-        // TODO: FIX ME
-//        XCTAssertEqual("552", event.messageId!)
+        // verify        
+        XCTAssertEqual("552", event.messageId!)
     }
 
     func testInAppMessageTemplate() throws {
@@ -202,7 +205,7 @@ class EventPlusMessagingTests: XCTestCase {
 
         // verify
         XCTAssertNotNil(event.experienceInfo)
-        XCTAssertEqual(1, event.experienceInfo?.count)
+        XCTAssertEqual(2, event.experienceInfo?.count)
         let experienceData = event.experienceInfo!["experience"] as! String
         XCTAssertEqual("everything", experienceData)
     }
