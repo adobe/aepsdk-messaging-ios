@@ -111,16 +111,22 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Generates and dispatches an event prompting the Personalization extension to fetch in-app messages.
+    /// If the config contains both an activity and a placement (retrieved from the app's plist), use that
+    /// decision scope.  Otherwise, use the bundleIdentifier for the app.
     private func fetchMessages() {
-        // activity and placement are both required for message definition retrieval
-        let offersConfig = getActivityAndPlacement()
-        guard let activityId = offersConfig.0, let placementId = offersConfig.1 else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to retrieve message definitions - activity and placement ids are both required.")
-            return
+        var decisionScope = ""
+        let offersConfig = getOffersMessageConfig()
+        
+        // check for activity and placement provided by info.plist
+        if let activityId = offersConfig.0, let placementId = offersConfig.1 {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Fetching messages using ActivityID (\(activityId)) and PlacementID (\(placementId)) values found in Info.plist.")
+            decisionScope = getEncodedDecisionScopeFor(activityId: activityId, placementId: placementId)
+        } else if let bundleIdentifier = offersConfig.1 {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Fetching messages using BundleIdentifier (\(bundleIdentifier)).")
+            decisionScope = getEncodedDecisionScopeFor(bundleIdentifier: bundleIdentifier)
         }
 
         // create event to be handled by optimize
-        let decisionScope = getEncodedDecisionScopeFor(activityId: activityId, placementId: placementId)
         let optimizeData: [String: Any] = [
             MessagingConstants.Event.Data.Key.Optimize.REQUEST_TYPE: MessagingConstants.Event.Data.Values.Optimize.UPDATE_PROPOSITIONS,
             MessagingConstants.Event.Data.Key.Optimize.DECISION_SCOPES: [
@@ -146,13 +152,23 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        let offersConfig = getActivityAndPlacement(forEvent: event)
-        let activityId = offersConfig.0
-        let placementId = offersConfig.1
-
-        guard event.offerActivityId == activityId, event.offerPlacementId == placementId else {
-            // no need to log here, as this case will be common if the app is using the optimize extension outside
-            // of in-app messaging
+        let offersConfig = getOffersMessageConfig()
+        
+        // validate that the offer contains messages by either matching the activity/placement from plist or bundle id
+        if let activityId = offersConfig.0, let placementId = offersConfig.1 {
+            guard event.offerActivityId == activityId, event.offerPlacementId == placementId else {
+                // no need to log here, as this case will be common if the app is using the optimize extension outside
+                // of in-app messaging
+                return
+            }
+        } else if let bundleIdentifier = offersConfig.1 {
+            guard bundleIdentifier == event.offerDecisionScope else {
+                // no need to log here, as this case will be common if the app is using the optimize extension outside
+                // of in-app messaging
+                return
+            }
+        } else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to handle Offer notification - an unknown error has occurred.")
             return
         }
 
@@ -205,7 +221,7 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Takes an activity and placement and returns an encoded string in the format expected
-    /// by the Optimize extension for retrieving offers
+    /// by the Optimize extension for retrieving offers by activity and placement.
     ///
     /// If encoding of the decision scope fails, empty string will be returned.
     ///
@@ -222,33 +238,41 @@ public class Messaging: NSObject, Extension {
 
         return decisionScopeData.base64EncodedString()
     }
-
-    /// Retrieves the activityId and placementId used to request the correct in-app messages from offers
+    
+    /// Takes a bundle identifier and returns an encoded string in the format expected
+    /// by the Optimize extension for retrieving offers by xdm:name.
     ///
-    /// The decision scope for the offer that contains the correct in-app messages for this user is created by
-    /// combining the IMS Org ID for the activity and the app's bundle identifier for the placement.
+    /// If encoding of the decision scope fails, empty string will be returned.
     ///
     /// - Parameters:
-    ///   - event: the `Event` used for getting configuration shared state
-    /// - Returns: a tuple containing (activityId, placementId) needed to generate the correct decision scope
-    private func getActivityAndPlacement(forEvent event: Event? = nil) -> (String?, String?) {
-        // activityId = IMS OrgID
-        let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value
-        let orgId = configuration?[MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG] as? String
-
-        var activity: String? = orgId
-
-        // placementId = bundle identifier
-        var placement = Bundle.main.bundleIdentifier
-
-        // hack to allow overriding of activity and placement from plist
-        if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
-            let nsDictionary = NSDictionary(contentsOfFile: path)
-            activity = nsDictionary?.value(forKey: "MESSAGING_ACTIVITY_ID") as? String
-            placement = nsDictionary?.value(forKey: "MESSAGING_PLACEMENT_ID") as? String
+    ///   - bundleIdentifier: the bundleIdentifier of the app
+    /// - Returns: a base64 encoded JSON string to be used by the Optimize extension
+    private func getEncodedDecisionScopeFor(bundleIdentifier: String) -> String {
+        let decisionScopeString = "{\"\(MessagingConstants.Event.Data.Key.Optimize.XDM_NAME)\":\"\(bundleIdentifier)\"}"
+        
+        guard let decisionScopeData = decisionScopeString.data(using: .utf8) else {
+            return ""
         }
+        
+        return decisionScopeData.base64EncodedString()
+    }
 
-        return (activity, placement)
+    /// Retrieves the correct configuration to retrieve in-app messages from offers
+    ///
+    /// If an activityId/placementId are in the plist, those values will be used to generate the decision scope.
+    /// Otherwise, the bundle identifier will be used to generate the decision scope.
+    ///
+    /// - Returns: a tuple containing either (nil, bundleIdentifier) or (activityId, placementId)
+    private func getOffersMessageConfig() -> (String?, String?) {
+        if let path = Bundle.main.path(forResource: "Info", ofType: "plist"), let plistDictionary = NSDictionary(contentsOfFile: path) {
+            guard let activity = plistDictionary.value(forKey: MessagingConstants.IAM.Plist.ACTIVITY_ID) as? String,
+                  let placement = plistDictionary.value(forKey: MessagingConstants.IAM.Plist.PLACEMENT_ID) as? String else {
+                      return (nil, Bundle.main.bundleIdentifier)
+                  }
+            return (activity, placement)
+        }
+        
+        return (nil, Bundle.main.bundleIdentifier)
     }
 
     // MARK: - Event Handers

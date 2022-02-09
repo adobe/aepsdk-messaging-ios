@@ -422,19 +422,19 @@
 		246EF9B9278CF4CE00C76A6B /* AEPOptimize */ = {
 			isa = PBXGroup;
 			children = (
-				246EF9BA278CF4CE00C76A6B /* Offer.swift */,
-				246EF9BB278CF4CE00C76A6B /* StringInterpolation+Optimize.swift */,
-				246EF9BC278CF4CE00C76A6B /* Optimize+PublicAPI.swift */,
-				246EF9BD278CF4CE00C76A6B /* OfferType.swift */,
-				246EF9BE278CF4CE00C76A6B /* Event+Optimize.swift */,
-				246EF9BF278CF4CE00C76A6B /* OptimizeConstants.swift */,
 				246EF9C0278CF4CE00C76A6B /* Array+Optimize.swift */,
 				246EF9C1278CF4CE00C76A6B /* DecisionScope.swift */,
-				246EF9C2278CF4CE00C76A6B /* Proposition+Tracking.swift */,
+				246EF9BE278CF4CE00C76A6B /* Event+Optimize.swift */,
+				246EF9BA278CF4CE00C76A6B /* Offer.swift */,
 				246EF9C3278CF4CE00C76A6B /* Offer+Tracking.swift */,
-				246EF9C4278CF4CE00C76A6B /* Proposition.swift */,
-				246EF9C5278CF4CE00C76A6B /* String+Optimize.swift */,
+				246EF9BD278CF4CE00C76A6B /* OfferType.swift */,
 				246EF9C6278CF4CE00C76A6B /* Optimize.swift */,
+				246EF9BC278CF4CE00C76A6B /* Optimize+PublicAPI.swift */,
+				246EF9BF278CF4CE00C76A6B /* OptimizeConstants.swift */,
+				246EF9C4278CF4CE00C76A6B /* Proposition.swift */,
+				246EF9C2278CF4CE00C76A6B /* Proposition+Tracking.swift */,
+				246EF9C5278CF4CE00C76A6B /* String+Optimize.swift */,
+				246EF9BB278CF4CE00C76A6B /* StringInterpolation+Optimize.swift */,
 			);
 			path = AEPOptimize;
 			sourceTree = "<group>";

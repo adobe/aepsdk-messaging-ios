@@ -129,7 +129,6 @@ class MessagingTests: XCTestCase {
 
     func testHandleOfferNotificationHappy() throws {
         // setup
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
 
@@ -146,11 +145,10 @@ class MessagingTests: XCTestCase {
         XCTAssertNotNil(mockCache.setParamEntry)
     }
 
-    func testHandleOfferNotificationMissmatchedActivity() throws {
+    func testHandleOfferNotificationMismatchedBundle() throws {
         // setup
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "not the correct org"], status: SharedStateStatus.set))
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
-                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
+                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(scope:"nope wrong scope"))
         try? mockMessagingRulesEngine.cache.remove(key: "messages")
 
         // test
@@ -162,7 +160,6 @@ class MessagingTests: XCTestCase {
 
     func testHandleOfferNotificationEmptyItems() throws {
         // setup
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(items: [:]))
 
@@ -472,13 +469,14 @@ class MessagingTests: XCTestCase {
         return nil
     }
 
-    func getOfferEventData(items: [String: Any]? = nil) -> [String: Any] {
+    func getOfferEventData(items: [String: Any]? = nil, scope: String? = nil) -> [String: Any] {
         [
             MessagingConstants.Event.Data.Key.Optimize.PAYLOAD: [
                 [
                     MessagingConstants.Event.Data.Key.Optimize.ACTIVITY: [
                         MessagingConstants.Event.Data.Key.Optimize.ID: "aTestOrgId"
                     ],
+                    MessagingConstants.Event.Data.Key.Optimize.SCOPE: scope ?? "eyJ4ZG06bmFtZSI6ImNvbS5hcHBsZS5kdC54Y3Rlc3QudG9vbCJ9", // {"xdm:name":"com.apple.dt.xctest.tool"}
                     MessagingConstants.Event.Data.Key.Optimize.PLACEMENT: [
                         MessagingConstants.Event.Data.Key.Optimize.ID: "com.apple.dt.xctest.tool"
                     ],

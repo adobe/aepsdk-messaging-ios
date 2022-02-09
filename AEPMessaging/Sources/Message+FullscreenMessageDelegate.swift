@@ -42,7 +42,7 @@ extension Message: FullscreenMessageDelegate {
     ///   - message: the message attempting to load a URL
     ///   - url: the URL attempting to be loaded
     /// - Returns: false if the message's webview will handle the loading of the URL
-    public func overrideUrlLoad(message: FullscreenMessage, url: String?) -> Bool {
+    public func overrideUrlLoad(message fullscreenMessage: FullscreenMessage, url: String?) -> Bool {
         guard let urlString = url?.removingPercentEncoding, let url = URL(string: urlString) else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load nil URL.")
             return true
@@ -60,7 +60,7 @@ extension Message: FullscreenMessageDelegate {
                     }
                 }
 
-            let message = message.parent
+            let message = fullscreenMessage.parent
 
             // handle optional tracking
             if let interaction = queryParams?[MessagingConstants.IAM.HTML.INTERACTION] {

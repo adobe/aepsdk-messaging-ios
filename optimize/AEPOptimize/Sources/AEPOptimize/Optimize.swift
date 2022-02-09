@@ -102,8 +102,7 @@ public class Optimize: NSObject, Extension {
             return
         }
 
-        let targetDecisionScopes = decisionScopes
-            .filter { $0.isValid }
+        let targetDecisionScopes = decisionScopes            
             .compactMap { $0.name }
 
         if targetDecisionScopes.isEmpty {

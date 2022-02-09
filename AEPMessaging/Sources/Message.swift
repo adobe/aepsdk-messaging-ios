@@ -87,7 +87,7 @@ public class Message : NSObject {
         if autoTrack, !suppressAutoTrack {
             track(nil, withEdgeEventType: .inappDismiss)
         }
-
+        
         fullscreenMessage?.dismiss()
     }
 

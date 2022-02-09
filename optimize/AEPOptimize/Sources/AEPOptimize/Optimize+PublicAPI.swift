@@ -25,7 +25,6 @@ public extension Optimize {
     @objc(updatePropositions:withXdm:andData:)
     static func updatePropositions(for decisionScopes: [DecisionScope], withXdm xdm: [String: Any]?, andData data: [String: Any]? = nil) {
         let flattenedDecisionScopes = decisionScopes
-            .filter { $0.isValid }
             .compactMap { $0.asDictionary() }
 
         guard !flattenedDecisionScopes.isEmpty else {
@@ -65,8 +64,7 @@ public extension Optimize {
     ///   - completion: The completion handler to be invoked when the decisions are retrieved from cache.
     @objc(getPropositions:completion:)
     static func getPropositions(for decisionScopes: [DecisionScope], _ completion: @escaping ([DecisionScope: Proposition]?, Error?) -> Void) {
-        let flattenedDecisionScopes = decisionScopes
-            .filter { $0.isValid }
+        let flattenedDecisionScopes = decisionScopes            
             .compactMap { $0.asDictionary() }
 
         guard !flattenedDecisionScopes.isEmpty else {

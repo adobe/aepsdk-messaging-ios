@@ -1,5 +1,13 @@
 #  Setup AEPMessaging SDK
 
+## BETA instructions
+
+While the in-app messaging feature is in beta, the developer will need to use the Messaging extension on the `staging` branch of this repo. The example below shows how to point to the `staging` branch in a Cocoapods `Podfile`:
+
+```
+pod 'AEPMessaging', :git => 'https://github.com/adobe/aepsdk-messaging-ios.git', :branch => 'staging'
+```
+
 ### Import and register the Messaging extension
 
 Import the AEPMessaging framework and its dependencies, then register the Messaging extension and dependencies in the `application(_: didFinishLaunchingWithOptions:)` method in the `AppDelegate`:

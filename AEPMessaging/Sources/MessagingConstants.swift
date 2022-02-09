@@ -112,6 +112,8 @@ enum MessagingConstants {
                     static let ACTIVITY = "activity"
                     static let PLACEMENT = "placement"
                     static let ITEMS = "items"
+                    static let XDM_NAME = "xdm:name"
+                    static let SCOPE = "scope"
                 }
             }
 
@@ -152,6 +154,11 @@ enum MessagingConstants {
             static let DISMISS = "dismiss"
             static let LINK = "link"
         }
+        
+        enum Plist {
+            static let ACTIVITY_ID = "MESSAGING_ACTIVITY_ID"
+            static let PLACEMENT_ID = "MESSAGING_PLACEMENT_ID"
+        }
     }
 
     enum XDM {
@@ -159,8 +166,10 @@ enum MessagingConstants {
             static let _XDM = "_xdm"
             static let CJM = "cjm"
             static let MIXINS = "mixins"
-            static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement"
             static let EXPERIENCE = "_experience"
+            static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement"
+            static let MESSAGE_EXECUTION = "messageExecution"
+            static let MESSAGE_EXECUTION_ID = "messageExecutionID"            
             static let APPLICATION = "application"
             static let LAUNCHES = "launches"
             static let LAUNCHES_VALUE = "value"
