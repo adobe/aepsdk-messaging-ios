@@ -69,7 +69,7 @@ extension Message: FullscreenMessageDelegate {
 
             // dismiss if requested
             if url.host == MessagingConstants.IAM.HTML.DISMISS {
-                onDismiss(message: fullscreenMessage)
+                message?.dismiss(suppressAutoTrack: true)
             }
 
             // handle optional deep link

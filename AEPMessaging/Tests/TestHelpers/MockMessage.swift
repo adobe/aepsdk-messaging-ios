@@ -23,8 +23,10 @@ class MockMessage: Message {
     }
 
     var dismissCalled = false
-    override func dismiss() {
-        dismissCalled = true        
+    var paramDismissSuppressAutoTrack = false
+    override func dismiss(suppressAutoTrack: Bool = false) {
+        dismissCalled = true
+        paramDismissSuppressAutoTrack = suppressAutoTrack
     }
 
     var trackCalled = false

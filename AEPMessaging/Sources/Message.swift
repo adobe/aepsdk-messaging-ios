@@ -80,12 +80,14 @@ public class Message : NSObject {
 
     /// Signals to the UIServices that the message should be dismissed.
     /// If `autoTrack` is true, calling this method will result in an "inapp.dismiss" Edge Event being dispatched.
-    @objc
-    public func dismiss() {
-        if autoTrack {
+    /// - Parameter suppressAutoTrack: if set to `true`, the "inapp.dismiss" Edge Event will not be sent regardless
+    ///   of the `autoTrack` setting.
+    @objc(dismissSuppressingAutoTrack:)
+    public func dismiss(suppressAutoTrack: Bool = false) {
+        if autoTrack, !suppressAutoTrack {
             track(nil, withEdgeEventType: .inappDismiss)
         }
-
+        
         fullscreenMessage?.dismiss()
     }
 
