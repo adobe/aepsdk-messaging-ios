@@ -145,7 +145,7 @@ class MessagingTests: XCTestCase {
         XCTAssertNotNil(mockCache.setParamEntry)
     }
 
-    func testHandleOfferNotificationMissmatchedBundle() throws {
+    func testHandleOfferNotificationMismatchedBundle() throws {
         // setup
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(scope:"nope wrong scope"))
