@@ -16,7 +16,7 @@ Assuming that `InAppMessagingHandler` is a class that implements `MessagingDeleg
 ```swift
 let myMessagingDelegate = InAppMessagingHandler()   
 
-MobileCore.messagingDelegate = messageHandler
+MobileCore.messagingDelegate = myMessagingDelegate
 ```
 
 ## MessagingDelegate protocol
