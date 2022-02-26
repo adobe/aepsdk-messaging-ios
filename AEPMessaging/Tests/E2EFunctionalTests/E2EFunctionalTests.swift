@@ -24,8 +24,11 @@ import XCTest
 
 class E2EFunctionalTests: XCTestCase {
     // config settings
+    // bundle id == "com.adobe.e2eonly.mchammer"
+    // env == "stage"
     let activityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
-    let placementIdBeingTested = "xcore:offer-placement:14886c056a17b37a"
+    let placementIdBeingTested = "xcore:offer-placement:14c7a0a8dee479e4"
+    
     let OLDactivityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
     let OLDplacementIdBeingTested = "xcore:offer-placement:143f66555f80e367"
     let DEVactivityIdBeingTested = "xcore:offer-activity:14090235e6b6757a"
