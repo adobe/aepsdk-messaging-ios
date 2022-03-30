@@ -59,9 +59,10 @@ public class Message : NSObject {
         self.experienceInfo = event.experienceInfo ?? [:]
         super.init()
         let messageSettings = event.getMessageSettings(withParent: self)
+        let usingLocalImages = (event.remoteAssets?.count ?? 0) > 0
         fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
                                                                                       listener: self,
-                                                                                      isLocalImageUsed: false,
+                                                                                      isLocalImageUsed: usingLocalImages,
                                                                                       settings: messageSettings) as? FullscreenMessage
     }
 

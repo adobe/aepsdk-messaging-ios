@@ -58,6 +58,9 @@ class MessagingRulesEngine {
                 continue
             }
 
+            // pre-fetch the assets for this message if there are any defined
+            cacheRemoteAssetsFor(processedRule)
+            
             messagingRules.append(contentsOf: processedRule)
         }
 

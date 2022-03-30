@@ -19,6 +19,7 @@ enum MessagingConstants {
     static let EXTENSION_VERSION = "1.1.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
+    static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
 
     enum ConsequenceTypes {
         static let IN_APP_MESSAGE = "cjmiam"
