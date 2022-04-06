@@ -1,14 +1,20 @@
 # Adobe Experience Platform - Messaging extension for iOS
 
+[![Cocoapods](https://img.shields.io/cocoapods/v/AEPMessaging.svg?color=orange&label=AEPMessaging&logo=apple&logoColor=white)](https://cocoapods.org/pods/AEPMessaging)
+[![SPM](https://img.shields.io/badge/SPM-Supported-orange.svg?logo=apple&logoColor=white)](https://swift.org/package-manager/)
+[![CircleCI](https://img.shields.io/circleci/project/github/adobe/aepsdk-messaging-ios/main.svg?logo=circleci)](https://circleci.com/gh/adobe/workflows/aepsdk-messaging-ios)
+[![Code Coverage](https://img.shields.io/codecov/c/github/adobe/aepsdk-messaging-ios/main.svg?logo=codecov)](https://codecov.io/gh/adobe/aepsdk-messaging-ios/branch/main)
+
 ## About this project
 
-Adobe Experience Platform Messaging Extension is an extension for the [Adobe Experience Platform Swift SDK](https://github.com/adobe/aepsdk-core-ios).
+Adobe Experience Platform (AEP) Messaging Extension is an extension for the [Adobe Experience Platform Swift SDK](https://github.com/adobe/aepsdk-core-ios).
 
-The AEPMessaging extension allows you to send push notification tokens and push notification click-through feedback to the Adobe Experience Platform.
+The AEPMessaging extension enables the following workflows:
 
-<!-- commenting this line out until the link is not dead :) 
-To learn more about this extension, read [the documentation](https://aep-sdks.gitbook.io/docs/Beta/experience-platform-messaging-extension).
--->
+- Sending push notification tokens and push notification click-through feedback to AEP
+- Displaying in-app messages which were created and configured for this app in Adobe Journey Optimizer (AJO)
+
+For further information about this extension, reference [this documentation](https://aep-sdks.gitbook.io/docs/using-mobile-extensions/adobe-journey-optimizer).
 
 ## Requirements
 - Xcode 11.0 (or newer)
@@ -39,23 +45,23 @@ $ pod install
 
 ### [Swift Package Manager](https://github.com/apple/swift-package-manager)
 
-To add the AEPEdge Package to your application, from the Xcode menu select:
+To add the AEPMessaging Package to your application, from the Xcode menu select:
 
 `File > Swift Packages > Add Package Dependency...`
 
 Enter the URL for the AEPMessaging package repository: `https://github.com/adobe/aepsdk-messaging-ios.git`.
 
-When prompted, make sure you change the branch to `main`. 
+When prompted, make sure you change the branch to `main`.
 
 Alternatively, if your project has a `Package.swift` file, you can add AEPMessaging directly to your dependencies:
 
 ```
 dependencies: [
-    .package(url: "https://github.com/adobe/aepsdk-messaging-ios.git", .upToNextMajor(from: "1.0.0"))
+    .package(url: "https://github.com/adobe/aepsdk-messaging-ios.git", .upToNextMajor(from: "1.1.0"))
 ],
 targets: [
-    .target(name: "YourTarget", 
-            dependencies: ["AEPMessaging"], 
+    .target(name: "YourTarget",
+            dependencies: ["AEPMessaging"],
             path: "your/path")
 ]
 ```
@@ -68,42 +74,15 @@ To generate `AEPMessaging.xcframework`, run the following command from the root 
 make archive
 ```
 
-This will generate an XCFramework under the `build` folder. Drag and drop all the .xcframeworks to your app target.
+This will generate an XCFramework under the `build` folder. Drag and drop `AEPMessaging.xcframework` to your app target.
 
 ## Documentation
-Additional documentation for configuration and sdk usage can be found under the [Documentation](Documentation/README.md) directory.
 
-## Development
-
-The first time you clone or download the project, you should run the following from the root directory to setup the environment:
-
-~~~
-make pod-install
-~~~
-
-Subsequently, you can make sure your environment is updated by running the following:
-
-~~~
-make pod-update
-~~~
-
-#### Open the Xcode workspace
-Open the workspace in Xcode by running the following command from the root directory of the repository:
-
-~~~
-make open
-~~~
-
-#### Command line integration
-
-You can run all the test suites from command line:
-
-~~~
-make test
-~~~
+Additional documentation for SDK usage and configuration can be found in the [Documentation](Documentation/README.md) directory.
 
 ## Setup Demo Application
-The AEP Messaging Demo application is a sample app which demonstrates how to send psuh notification token and notification click through feedback
+
+The AEP Messaging Demo application is a sample app which demonstrates how to send the push notification token to AEP and how to collect feedback from notification click-throughs. It can also be used to demonstrate showing an in-app message created in AJO. 
 
 ## Related Projects
 
@@ -119,6 +98,35 @@ The AEP Messaging Demo application is a sample app which demonstrates how to sen
 Looking to contribute to this project? Please review our [Contributing guidelines](.github/CONTRIBUTING.md) prior to opening a pull request.
 
 We look forward to working with you!
+
+#### Development
+
+The first time you clone or download the project, you should run the following from the root directory to setup the environment:
+
+~~~
+make pod-install
+~~~
+
+Subsequently, you can make sure your environment is updated by running the following:
+
+~~~
+make pod-update
+~~~
+
+##### Open the Xcode workspace
+Open the workspace in Xcode by running the following command from the root directory of the repository:
+
+~~~
+make open
+~~~
+
+##### Command line integration
+
+You can run all the test suites from command line:
+
+~~~
+make test
+~~~
 
 ## Licensing
 This project is licensed under the Apache V2 License. See [LICENSE](LICENSE) for more information.

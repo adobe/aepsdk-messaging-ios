@@ -23,6 +23,7 @@ class MessagingPublicAPITests: XCTestCase {
     override func setUp() {
         mockConfigSharedState = ["messaging.eventDataset": "mockEventDataset"]
         mockRuntime = TestableExtensionRuntime()
+        mockRuntime.ignoreEvent(type: EventType.rulesEngine, source: EventSource.requestReset)
         messaging = Messaging(runtime: mockRuntime)
         messaging.onRegistered()
     }
@@ -30,7 +31,7 @@ class MessagingPublicAPITests: XCTestCase {
     // MARK: - Handle Notification Response
 
     func testHandleNotificationResponse() {
-        let event = Event(name: "", type: MessagingConstants.EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getEventData())
 
         // mock configuration shared state
         mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: event), data: (value: mockConfigSharedState, status: .set))
@@ -41,10 +42,8 @@ class MessagingPublicAPITests: XCTestCase {
 
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        guard let edgeEvent = mockRuntime.dispatchedEvents.first else {
-            XCTFail()
-            return
-        }
+        let edgeEvent = mockRuntime.dispatchedEvents[0]
+
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         let flattenEdgeEvent = edgeEvent.data?.flattening()
         XCTAssertEqual("apns", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProvider"] as? String)
@@ -63,7 +62,7 @@ class MessagingPublicAPITests: XCTestCase {
     }
 
     func testHandleNotificationResponse_noEventDatasetId() {
-        let event = Event(name: "", type: MessagingConstants.EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getEventData())
 
         // empty datasetId
         mockConfigSharedState = [:]
@@ -81,7 +80,7 @@ class MessagingPublicAPITests: XCTestCase {
     }
 
     func testHandleNotificationResponse_datasetIdIsEmpty() {
-        let event = Event(name: "", type: MessagingConstants.EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getEventData())
 
         // empty datasetId
         mockConfigSharedState = ["messaging.eventDataset": ""]
@@ -100,8 +99,8 @@ class MessagingPublicAPITests: XCTestCase {
 
     func testHandleNotificationResponse_missingXDMData() {
         var data = getEventData()
-        data[MessagingConstants.EventDataKeys.ADOBE_XDM] = nil
-        let event = Event(name: "", type: MessagingConstants.EventType.messaging, source: EventSource.requestContent, data: data)
+        data[MessagingConstants.Event.Data.Key.ADOBE_XDM] = nil
+        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
         mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: event), data: (value: mockConfigSharedState, status: .set))
@@ -112,10 +111,8 @@ class MessagingPublicAPITests: XCTestCase {
 
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        guard let edgeEvent = mockRuntime.dispatchedEvents.first else {
-            XCTFail()
-            return
-        }
+        let edgeEvent = mockRuntime.dispatchedEvents[0]
+
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         let flattenEdgeEvent = edgeEvent.data?.flattening()
         XCTAssertEqual("apns", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProvider"] as? String)
@@ -135,12 +132,12 @@ class MessagingPublicAPITests: XCTestCase {
             "journeyVersionID": "some-journeyVersionId",
             "journeyVersionInstanceId": "someJourneyVersionInstanceId",
             "messageID": "567"
-            ]]]]]
-        let data = [MessagingConstants.EventDataKeys.MESSAGE_ID: "mockMessageId",
-                    MessagingConstants.EventDataKeys.APPLICATION_OPENED: true,
-                    MessagingConstants.EventDataKeys.EVENT_TYPE: MessagingConstants.EventDataValue.PUSH_TRACKING_CUSTOM_ACTION,
-                    MessagingConstants.EventDataKeys.ACTION_ID: "mockCustomActionId",
-                    MessagingConstants.EventDataKeys.ADOBE_XDM: cjmData] as [String: Any]
+        ]]]]]
+        let data = [MessagingConstants.Event.Data.Key.MESSAGE_ID: "mockMessageId",
+                    MessagingConstants.Event.Data.Key.APPLICATION_OPENED: true,
+                    MessagingConstants.Event.Data.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION,
+                    MessagingConstants.Event.Data.Key.ACTION_ID: "mockCustomActionId",
+                    MessagingConstants.Event.Data.Key.ADOBE_XDM: cjmData] as [String: Any]
         return data
     }
 }

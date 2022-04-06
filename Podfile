@@ -4,35 +4,81 @@ platform :ios, '10.0'
 # Comment the next line if you don't want to use dynamic frameworks
 use_frameworks!
 
+# don't warn me
+install! 'cocoapods', :warn_for_unused_master_specs_repo => false
+
 workspace 'AEPMessaging'
 project 'AEPMessaging.xcodeproj'
 
+pod 'SwiftLint', '0.44.0'
+
+# ==================
+# SHARED POD GROUPS
+# ==================
+def lib_main
+    pod 'AEPCore'
+    pod 'AEPServices'
+    pod 'AEPRulesEngine'
+    # optimize has source copied locally until its public release
+    # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
+end
+
+def lib_dev
+    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'main'
+    # optimize has source copied locally until its public release
+    # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
+end
+
+def app_main
+    pod 'AEPCore'
+    pod 'AEPServices'
+    pod 'AEPLifecycle'
+    pod 'AEPRulesEngine'
+    pod 'AEPSignal'
+    pod 'AEPEdge'
+    pod 'AEPEdgeConsent'
+    pod 'AEPEdgeIdentity'
+    pod 'AEPAssurance'
+    # optimize has source copied locally until its public release
+    # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
+end
+
+def app_dev
+    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'main'
+    pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'main'
+    pod 'AEPEdgeConsent'
+    pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'main'
+    # optimize has source copied locally until its public release
+    # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
+    pod 'AEPAnalytics'
+    pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'dev'
+end
+
+# ==================
+# TARGET DEFINITIONS
+# ==================
 target 'AEPMessaging' do
-  pod 'AEPCore'
-  pod 'AEPServices'
-  pod 'AEPRulesEngine'
+    lib_main
 end
 
 target 'MessagingDemoApp' do
-  pod 'AEPCore'  
-  pod 'AEPServices'
-  pod 'AEPRulesEngine'
-  pod 'AEPLifecycle'
-  pod 'AEPEdgeIdentity'
-  pod 'AEPEdge'
-  pod 'AEPSignal'
-  pod 'ACPCore'
-  pod 'AEPAssurance'
+    app_main
 end
 
 target 'UnitTests' do
-  pod 'AEPCore'
-  pod 'AEPServices'
-  pod 'AEPRulesEngine'
+    lib_main
 end
 
 target 'FunctionalTests' do
-  pod 'AEPCore'
-  pod 'AEPServices'
-  pod 'AEPRulesEngine'
+    app_main
+end
+
+target 'E2EFunctionalTests' do
+    app_main
 end
