@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>MESSAGING_ACTIVITY_ID_DEV</key>
+	<string>xcore:offer-activity:14090235e6b6757a</string>
+	<key>MESSAGING_PLACEMENT_ID_DEV</key>
+	<string>xcore:offer-placement:14254cbbee5de2b8</string>
+	<key>MESSAGING_ACTIVITY_ID</key>
+	<string>xcore:offer-activity:143614fd23c501cf</string>
+	<key>MESSAGING_PLACEMENT_ID</key>
+	<string>xcore:offer-placement:14c7a0a8dee479e4</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+</dict>
+</plist>
