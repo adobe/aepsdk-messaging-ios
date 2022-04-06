@@ -19,16 +19,13 @@ class MessagingRulesEngine {
     let rulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
     let cache: Cache
-    let messagingCacheName = "com.adobe.messaging.cache"
-    let cachedMessagesName = "messages"
-    let cachedMessagesDelimiter = "||"
-
+    
     /// Initialize this class, creating a new rules engine with the provided name and runtime
     init(name: String, extensionRuntime: ExtensionRuntime) {
         runtime = extensionRuntime
         rulesEngine = LaunchRulesEngine(name: name,
                                         extensionRuntime: extensionRuntime)
-        cache = Cache(name: messagingCacheName)
+        cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
         loadCachedMessages()
     }
 

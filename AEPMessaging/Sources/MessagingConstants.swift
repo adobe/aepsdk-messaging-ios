@@ -21,6 +21,12 @@ enum MessagingConstants {
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
 
+    enum Caches {
+        static let CACHE_NAME = "com.adobe.messaging.cache"
+        static let MESSAGES = "messages"
+        static let MESSAGES_DELIMITER = "||"
+    }
+    
     enum ConsequenceTypes {
         static let IN_APP_MESSAGE = "cjmiam"
     }
