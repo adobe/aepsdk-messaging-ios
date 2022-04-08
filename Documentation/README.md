@@ -24,3 +24,7 @@
 
 - [Message](./sources/class-message.md)
 - [MessagingEdgeEventType](./sources/enum-messaging-edge-event-type.md)
+
+### Troubleshooting
+
+- [Validate messages are being downloaded to the device using AEPAssurance and Griffon](./sources/troubleshooting/validate-messages-in-griffon.md)
