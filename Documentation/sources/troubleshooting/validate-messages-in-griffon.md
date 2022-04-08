@@ -121,3 +121,9 @@ Using the IAM plugin you can do the following for each message downloaded by the
 
 **Q:** Why can't I find an event named `Edge Optimize Personalization Request`? <br />
 **A:** Check to ensure each required extensions is on a version that meets its minimum requirement.
+
+**Q:** Why don't I see any messages in my `AEP Response Event Handle` event? <br />
+**A:** In the [Adobe Journey Optimizer UI](https://experience.adobe.com/#/@/journey-optimizer/home), make sure that there are in-app messages with a **Live** status for your application.
+
+**Q:** Why aren't there any messages to select in the `In-App Messaging` Assurance UI plugin? <br />
+**A:** The `In-App Messaging` plugin view will only be populated when there are messages returned in the `AEP Response Event Handle` event.
