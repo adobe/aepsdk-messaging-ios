@@ -5,15 +5,17 @@ This guide will walk you through steps necessary to ensure your app is properly 
 - [Complete prerequisites for your app](#prerequisites)
 - [Validate the correct extensions are registered](#validate-the-correct-extensions-are-registered)
 - [Validate the event requesting message definitions](#validate-the-event-requesting-message-definitions)
-- [Validate the event with message definition response](#validate-the-event-with-message-definition-response)
+- [Validate the event containing a message definition response](#validate-the-event-containing-a-message-definition-response)
 
-### Prerequisites
+## Prerequisites
 
-Hook up to assurance.
+This troubleshooting guide uses validation provided by the **AEPAssurance** extension and the **Adobe Griffon UI**.
+
+Integrate **AEPAssurance** in your application by following the [Adobe Experience Platform Assurance installation guide](https://aep-sdks.gitbook.io/docs/foundation-extensions/adobe-experience-platform-assurance).
 
 Launch the app
 
-### Validate the correct extensions are registered
+## Validate the correct extensions are registered
 
 Completing this section will validate that your app has registered all the AEP SDK extensions required to support in-app messaging. Perform validation by doing the following:
 
@@ -25,20 +27,20 @@ Completing this section will validate that your app has registered all the AEP S
 
 1. Open the **extensions** object, and validate that each of the required extensions exist, and meet the minimum version requirements. The table below shows the minimum versions required for in-app messaging dependencies:
 
-    | Extension       | Min version |
-    | --------------- | ----------: |
-    | AEPCore         | 3.4.2       |
-    | AEPEdge         | 1.3.0       |
-    | AEPEdgeConsent  | 1.0.0       |
-    | AEPEdgeIdentity | 1.0.1       |
-    | AEPMessaging    | 1.1.0       |
-    | AEPOptimize     | 1.0.0       |
+    | Extension       | Minimum version |
+    | --------------- | --------------: |
+    | AEPCore         | 3.4.2           |
+    | AEPEdge         | 1.3.0           |
+    | AEPEdgeConsent  | 1.0.0           |
+    | AEPEdgeIdentity | 1.0.1           |
+    | AEPMessaging    | 1.1.0           |
+    | AEPOptimize     | 1.0.0           |
 
 Below is an example of what the view in Griffon may look like:
 
 ![correct extensions registered](./../../assets/message_configuration.png)
 
-### Validate the event requesting message definitions
+## Validate the event requesting message definitions
 
 When the AEPMessaging extension has finished registration with the AEP SDK and a valid configuration exists, it will automatically initiate a network request to fetch message definitions from the remote.
 
@@ -61,7 +63,7 @@ The below example demonstrates validating a **decisionScope** for an app with bu
 
     ![Edge Optimize Personalization Request Payload](./../../assets/message_request_payload.png)
 
-### Validate the event with message definition response
+## Validate the event containing a message definition response
 
 After the request verified in the previous step returns, the AEPEdge extension will dispatch a response Event containing the data returned by the remote server.
 
@@ -75,13 +77,46 @@ Complete the following steps to validate a response containing in-app messages:
 
     ![AEP Response Event Handle](./../../assets/message_response.png)
 
-1. Expand the **Payload** section in the right window, and drill-down the tree until you find the **items** array. The full path to **items** is: `ACPExtensionEventData.payload.0.items`. This array contains an entry for each of this app's published messages. As shown in the screenshot below, the message is fully defined in the **content** property of each item's **data** object:
+1. Expand the **Payload** section in the right window, and drill-down the tree until you find the **items** array. The full path to **items** is:
+
+    ```
+    ACPExtensionEventData.payload.0.items
+    ```
+
+    This array contains an entry for each of this app's published messages. As shown in the screenshot below, the message is fully defined in the **content** property of each item's **data** object:
 
     ![AEP Response Event Handle Payload](./../../assets/message_response_payload.png)
 
-### Use the In-App Messaging Griffon plugin
+## Use the In-App Messaging Griffon plugin
 
-#### FAQs
+Once all of the above validation sections have been complete, you can use the **In-App Messaging** plugin view in Griffon to further debug at runtime.
+
+#### Install the In-App Messaging plugin
+
+> If you have already installed the **In-App Messaging** plugin in your Griffon setup, skip this section.
+
+1. In the Griffon UI, click on **Configure** button at the bottom of the left-rail navigation
+
+1. Search for the row named **In-App Messaging** under the **ADOBE JOURNEY OPTIMIZER (BETA)** heading, and click the **+** button on its right
+
+1. Click the **Save** button
+
+    ![Install the In-App Messaging plugin](./../../assets/install_iam_plugin.png)
+
+#### Inspecting a downloaded message
+
+Using the IAM plugin you can do the following for each message downloaded by the client:
+
+- In the **Rules** tab - view the rules defining when the message will be shown to the user
+- In the **History** tab - review a history of client events, including a comparison between the event's contents and the message's triggering criteria
+- In the **Message Preview** window - see a preview of the message's html
+- In the **Message Behavior** window - review message behavior, including its supported gestures and animations
+- In the **Message Behavior** window - review message size and positioning properties
+- Clicking the **Simulate on Device** button - trigger the currently selected message, causing it to be displayed on the connected client
+
+    ![Inspecting a downloaded message](./../../assets/iam_simulation.png)
+
+## FAQs
 
 Q: I don't see the XYZ event. Now what?
 A:
