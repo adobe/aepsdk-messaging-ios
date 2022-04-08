@@ -1,6 +1,6 @@
-# Validate messaging configuration using Assurance and Griffon
+# Validate in-app messaging using AEPAssurance SDK extension and the Assurance UI
 
-This guide will walk you through steps necessary to ensure your app is properly configured for in-app messaging with Adobe Journey Optimizer (AJO). Perform the following steps:
+This guide will walk you through steps necessary to ensure your app is properly configured for in-app messaging with Adobe Journey Optimizer (AJO).
 
 - [Complete prerequisites for your app](#prerequisites)
 - [Validate the correct extensions are registered](#validate-the-correct-extensions-are-registered)
@@ -9,19 +9,17 @@ This guide will walk you through steps necessary to ensure your app is properly 
 
 ## Prerequisites
 
-This troubleshooting guide uses validation provided by the **AEPAssurance** extension and the **Adobe Griffon UI**.
+- Your app must have the **AEPMessaging** SDK extension installed. Integrate **AEPMessaging** by following [Setup AEPMessaging SDK](./../setup-sdk.md).
 
-Integrate **AEPAssurance** in your application by following the [Adobe Experience Platform Assurance installation guide](https://aep-sdks.gitbook.io/docs/foundation-extensions/adobe-experience-platform-assurance).
-
-Launch the app
+- This troubleshooting guide uses validation provided by the **AEPAssurance** extension and the **Adobe Assurance UI**. Integrate **AEPAssurance** in your application by following the [Adobe Experience Platform Assurance installation guide](https://aep-sdks.gitbook.io/docs/foundation-extensions/adobe-experience-platform-assurance).
 
 ## Validate the correct extensions are registered
 
-Completing this section will validate that your app has registered all the AEP SDK extensions required to support in-app messaging. Perform validation by doing the following:
+Ensure that your app has registered all necessary AEP SDK extensions by doing the following:
 
 1. Launch your application with an **AEPAssurance** session active
 
-1. In the Griffon UI, click on **Shared States** in the left-rail navigation
+1. In the Assurance UI, click on **Shared States** in the left-rail navigation
 
 1. Click the **+** button next to the row with a **State Path** of **com.adobe.module.eventhub**
 
@@ -36,7 +34,7 @@ Completing this section will validate that your app has registered all the AEP S
     | AEPMessaging    | 1.1.0           |
     | AEPOptimize     | 1.0.0           |
 
-Below is an example of what the view in Griffon may look like:
+Below is an example of what the view in Assurance UI may look like:
 
 ![correct extensions registered](./../../assets/message_configuration.png)
 
@@ -48,7 +46,7 @@ Completing the following steps will validate that your app is making the necessa
 
 1. Launch your application with an **AEPAssurance** session active
 
-1. In the Griffon UI, click on **Events** in the left-rail navigation
+1. In the Assurance UI, click on **Events** in the left-rail navigation
 
 1. In the event list, select the event with type **Edge Optimize Personalization Request**
 
@@ -65,15 +63,15 @@ The below example demonstrates validating a **decisionScope** for an app with bu
 
 ## Validate the event containing a message definition response
 
-After the request verified in the previous step returns, the AEPEdge extension will dispatch a response Event containing the data returned by the remote server.
+After the request from the previous step returns, the **AEPEdge** extension will dispatch a response event containing data returned by the remote server.
 
 Complete the following steps to validate a response containing in-app messages:
 
 1. Launch your application with an **AEPAssurance** session active
 
-1. In the Griffon UI, click on **Events** in the left-rail navigation
+1. In the Assurance UI, click on **Events** in the left-rail navigation
 
-1. In the event list, select the event with type **AEP Response Event Handle**. There will likely be several events with this type - ensure the one selected has an `AEPExtensionEventSource` of **personalization:decisions**
+1. In the event list, select the event with type **AEP Response Event Handle**. There will likely be several events with this type - ensure the one selected has an **AEPExtensionEventSource** of `personalization:decisions`
 
     ![AEP Response Event Handle](./../../assets/message_response.png)
 
@@ -87,15 +85,15 @@ Complete the following steps to validate a response containing in-app messages:
 
     ![AEP Response Event Handle Payload](./../../assets/message_response_payload.png)
 
-## Use the In-App Messaging Griffon plugin
+## Use the In-App Messaging Assurance UI plugin
 
-Once all of the above validation sections have been complete, you can use the **In-App Messaging** plugin view in Griffon to further debug at runtime.
+Once all of the above validation sections are complete, you can use the **In-App Messaging** plugin view in the Assurance UI to further debug your app.
 
 #### Install the In-App Messaging plugin
 
-> If you have already installed the **In-App Messaging** plugin in your Griffon setup, skip this section.
+> If you have already installed the **In-App Messaging** plugin in your Assurance UI setup, skip this section.
 
-1. In the Griffon UI, click on **Configure** button at the bottom of the left-rail navigation
+1. In the Assurance UI, click on **Configure** button at the bottom of the left-rail navigation
 
 1. Search for the row named **In-App Messaging** under the **ADOBE JOURNEY OPTIMIZER (BETA)** heading, and click the **+** button on its right
 
@@ -118,5 +116,8 @@ Using the IAM plugin you can do the following for each message downloaded by the
 
 ## FAQs
 
-Q: I don't see the XYZ event. Now what?
-A:
+**Q:** What do I do when one of the required extensions is missing? <br />
+**A:** Ensure that each required extension is linked to your project and registered by `MobileCore`. Ref: [registerExtensions](https://aep-sdks.gitbook.io/docs/foundation-extensions/mobile-core/mobile-core-api-reference#registerextension-s)
+
+**Q:** Why can't I find an event named `Edge Optimize Personalization Request`? <br />
+**A:** Check to ensure each required extensions is on a version that meets its minimum requirement.

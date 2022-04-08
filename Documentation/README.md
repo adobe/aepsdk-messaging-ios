@@ -27,4 +27,4 @@
 
 ### Troubleshooting
 
-- [Validate messages are being downloaded to the device using AEPAssurance and Griffon](./sources/troubleshooting/validate-messages-in-griffon.md)
+- [Validate in-app messaging using AEPAssurance SDK extension and the Assurance UI](./sources/troubleshooting/validate-messages-in-griffon.md)
