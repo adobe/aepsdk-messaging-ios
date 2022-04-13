@@ -61,15 +61,14 @@ public class Message : NSObject {
         self.experienceInfo = event.experienceInfo ?? [:]
         super.init()
         let messageSettings = event.getMessageSettings(withParent: self)
-        var usingLocalAssets = false
-        if let remoteAssets = event.remoteAssets, !remoteAssets.isEmpty {
-            usingLocalAssets = true
-            generateAssetMap()
-        }
+        let usingLocalAssets = generateAssetMap()
         fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
                                                                                       listener: self,
                                                                                       isLocalImageUsed: usingLocalAssets,
-                                                                                      settings: messageSettings) as? FullscreenMessage
+                                                                                      settings: messageSettings) as? FullscreenMessage        
+        if usingLocalAssets {
+            fullscreenMessage?.setAssetMap(assets)
+        }
     }
 
     // MARK: - UI management
@@ -82,14 +81,26 @@ public class Message : NSObject {
             track(nil, withEdgeEventType: .inappDisplay)
         }
         
-
         fullscreenMessage?.show()
     }
     
-    private func generateAssetMap() {
-//        self.triggeringEvent.
+    private func generateAssetMap() -> Bool {
+        guard let remoteAssetsArray = self.triggeringEvent.remoteAssets, !remoteAssetsArray.isEmpty else {
+            return false
+        }
+        
+        let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
+        assets = [:]
+        for asset in remoteAssetsArray {
+            // check for a matching file in cache and add an entry to the assets map if it exists
+            if let cachedAsset = cache.get(key: asset) {
+                assets?[asset] = cachedAsset.metadata?[MessagingConstants.Caches.PATH]
+            }
+        }
+                
+        return true
     }
-
+    
     /// Signals to the UIServices that the message should be dismissed.
     /// If `autoTrack` is true, calling this method will result in an "inapp.dismiss" Edge Event being dispatched.
     /// - Parameter suppressAutoTrack: if set to `true`, the "inapp.dismiss" Edge Event will not be sent regardless

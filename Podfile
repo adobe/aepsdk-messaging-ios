@@ -17,7 +17,7 @@ pod 'SwiftLint', '0.44.0'
 # ==================
 def lib_main
     pod 'AEPCore'
-    pod 'AEPServices'
+    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.5.1'
     pod 'AEPRulesEngine'
     # optimize has source copied locally until its public release
     # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
@@ -33,7 +33,7 @@ end
 
 def app_main
     pod 'AEPCore'
-    pod 'AEPServices'
+    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.5.1'
     pod 'AEPLifecycle'
     pod 'AEPRulesEngine'
     pod 'AEPSignal'
