@@ -40,7 +40,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     override func setUp() {
         mockMessaging = MockMessaging(runtime: mockRuntime)
 
-        mockEventData = [            
+        mockEventData = [
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
                 MessagingConstants.Event.Data.Key.DETAIL: [
                     MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: [mockAssetString],
@@ -61,7 +61,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         // setup
         let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
         try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
-        
+
         // test
         let message = Message(parent: mockMessaging, event: mockEvent)
 
@@ -75,11 +75,11 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         XCTAssertNotNil(message.assets)
         XCTAssertEqual(1, message.assets?.count)
         XCTAssertEqual(true, message.fullscreenMessage?.isLocalImageUsed)
-        
+
         // cleanup
         try cache.remove(key: mockAssetString)
     }
-    
+
     func testMessageInitUsingDefaultValues() throws {
         // test
         mockEventData = [
@@ -89,7 +89,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         ]
         mockEvent = Event(name: "Message Test", type: "type", source: "source", data: mockEventData)
         let message = Message(parent: mockMessaging, event: mockEvent)
-        
+
         // verify
         XCTAssertEqual(mockMessaging, message.parent)
         XCTAssertEqual(mockEvent, message.triggeringEvent)

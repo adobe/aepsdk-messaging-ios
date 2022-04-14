@@ -29,7 +29,7 @@ extension Event {
     var messageId: String? {
         xdmMessageExecution?[MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION_ID] as? String
     }
-    
+
     var template: String? {
         details?[MessagingConstants.Event.Data.Key.IAM.TEMPLATE] as? String
     }
@@ -227,20 +227,20 @@ extension Event {
     var offerPlacementId: String? {
         placement?[MessagingConstants.Event.Data.Key.Optimize.ID] as? String
     }
-    
+
     var offerDecisionScope: String? {
         guard let payload = payload, !payload.isEmpty else {
             return nil
         }
-        
+
         guard let b64EncodedScope = payload.first?[MessagingConstants.Event.Data.Key.Optimize.SCOPE] as? String else {
             return nil
         }
-        
+
         guard let scopeData = Data(base64Encoded: b64EncodedScope), let scopeDictionary = try? JSONSerialization.jsonObject(with: scopeData, options: .mutableContainers) as? [String: Any] else {
             return nil
         }
-        
+
         return scopeDictionary[MessagingConstants.Event.Data.Key.Optimize.XDM_NAME] as? String
     }
 
@@ -302,20 +302,20 @@ extension Event {
 
         return payload[0][MessagingConstants.Event.Data.Key.Optimize.ITEMS] as? [[String: Any]]
     }
-    
+
     private var xdmCustomerJourneyManagement: [String: Any]? {
         guard let experienceInfo = experienceInfo else {
             return nil
         }
-        
+
         return experienceInfo[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any]
     }
-    
+
     private var xdmMessageExecution: [String: Any]? {
         guard let xdmCustomerJourneyManagement = xdmCustomerJourneyManagement else {
             return nil
         }
-        
+
         return xdmCustomerJourneyManagement[MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION] as? [String: Any]
     }
 

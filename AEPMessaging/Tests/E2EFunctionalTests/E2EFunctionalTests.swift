@@ -28,7 +28,7 @@ class E2EFunctionalTests: XCTestCase {
     // env == "stage"
     let activityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
     let placementIdBeingTested = "xcore:offer-placement:14c7a0a8dee479e4"
-    
+
     let OLDactivityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
     let OLDplacementIdBeingTested = "xcore:offer-placement:143f66555f80e367"
     let DEVactivityIdBeingTested = "xcore:offer-activity:14090235e6b6757a"
@@ -37,7 +37,7 @@ class E2EFunctionalTests: XCTestCase {
     // testing variables
     var onShowExpectation: XCTestExpectation?
     var onDismissExpectation: XCTestExpectation?
-    
+
     override func setUp() {
         initializeSdk()
     }
@@ -81,7 +81,7 @@ class E2EFunctionalTests: XCTestCase {
 
     func testGetMessageDefinitionFromOptimize() throws {
         // MARK: - fetch the message definition from Offers
-        
+
         // setup
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
         registerMessagingRequestContentListener { event in
@@ -103,7 +103,7 @@ class E2EFunctionalTests: XCTestCase {
             // validate the correct activity/placement
             XCTAssertEqual(self.activityIdBeingTested, event.activityId)
             XCTAssertEqual(self.placementIdBeingTested, event.placementId)
-            
+
             // validate the items array
             guard let firstItem = event.items?.first,
                   let itemData = firstItem["data"] as? [String: Any],
@@ -111,11 +111,11 @@ class E2EFunctionalTests: XCTestCase {
                 XCTFail()
                 return
             }
-            
+
             // validate the content is a valid rule containing a valid message
             let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
             messagingRulesEngine.loadRules(rules: [content])
-            
+
             // rules load async - brief sleep to allow it to finish
             self.runAfter(seconds: 3) {
                 XCTAssertEqual(1, messagingRulesEngine.rulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
@@ -128,21 +128,21 @@ class E2EFunctionalTests: XCTestCase {
 
         // verify
         wait(for: [messagingRequestContentExpectation, optimizeRequestContentExpectation, edgePersonalizationDecisionsExpectation], timeout: 60)
-        
+
         // MARK: - trigger the loaded message
-        
-//        // setup
-//        MobileCore.messagingDelegate = self
-//        onShowExpectation = XCTestExpectation(description: "Message was shown")
-//        onDismissExpectation = XCTestExpectation(description: "Message was dismissed")
-//
-//        // test
-//        MobileCore.track(action: nil, data: ["seahawks": "bad"])
-//
-//        // verify
-//        wait(for: [onShowExpectation!, onDismissExpectation!], timeout: 5, enforceOrder: true)
+
+        //        // setup
+        //        MobileCore.messagingDelegate = self
+        //        onShowExpectation = XCTestExpectation(description: "Message was shown")
+        //        onDismissExpectation = XCTestExpectation(description: "Message was dismissed")
+        //
+        //        // test
+        //        MobileCore.track(action: nil, data: ["seahawks": "bad"])
+        //
+        //        // verify
+        //        wait(for: [onShowExpectation!, onDismissExpectation!], timeout: 5, enforceOrder: true)
     }
-    
+
     /// wait for `seconds` before running the code in the closure
     func runAfter(seconds: Int, closure: @escaping () -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(seconds), execute: closure)
@@ -156,21 +156,21 @@ private extension Event {
         }
         return payloadArray.isEmpty ? nil : payloadArray.first
     }
-    
+
     var activityId: String? {
         guard let activityDictionary = payload?["activity"] as? [String: Any] else {
             return nil
         }
         return activityDictionary["id"] as? String
     }
-    
+
     var placementId: String? {
         guard let placementDictionary = payload?["placement"] as? [String: Any] else {
             return nil
         }
         return placementDictionary["id"] as? String
     }
-    
+
     var items: [[String: Any]]? {
         return payload?["items"] as? [[String: Any]]
     }
@@ -186,11 +186,11 @@ extension E2EFunctionalTests: MessagingDelegate {
             message.dismiss()
         }
     }
-    
+
     func onDismiss(message: Showable) {
         onDismissExpectation?.fulfill()
     }
-    
+
     func shouldShowMessage(message: Showable) -> Bool {
         return true
     }

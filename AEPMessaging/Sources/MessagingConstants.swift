@@ -27,7 +27,7 @@ enum MessagingConstants {
         static let MESSAGES_DELIMITER = "||"
         static let PATH = "PATH"
     }
-    
+
     enum ConsequenceTypes {
         static let IN_APP_MESSAGE = "cjmiam"
     }
@@ -162,7 +162,7 @@ enum MessagingConstants {
             static let DISMISS = "dismiss"
             static let LINK = "link"
         }
-        
+
         enum Plist {
             static let ACTIVITY_ID = "MESSAGING_ACTIVITY_ID"
             static let PLACEMENT_ID = "MESSAGING_PLACEMENT_ID"
@@ -177,7 +177,7 @@ enum MessagingConstants {
             static let EXPERIENCE = "_experience"
             static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement"
             static let MESSAGE_EXECUTION = "messageExecution"
-            static let MESSAGE_EXECUTION_ID = "messageExecutionID"            
+            static let MESSAGE_EXECUTION_ID = "messageExecutionID"
             static let APPLICATION = "application"
             static let LAUNCHES = "launches"
             static let LAUNCHES_VALUE = "value"

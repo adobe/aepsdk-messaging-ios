@@ -10,12 +10,12 @@
  governing permissions and limitations under the License.
  */
 
+import AEPCore
 import AEPServices
 import Foundation
-import AEPCore
 
 /// Helper methods for caching and loading previously retrieved in-app message definitions
-extension MessagingRulesEngine {    
+extension MessagingRulesEngine {
     /// Attempts to load in-app message definitions from cache into the `MessagingRulesEngine`.
     func loadCachedMessages() {
         guard let cachedMessages = cache.get(key: MessagingConstants.Caches.MESSAGES) else {
@@ -43,11 +43,11 @@ extension MessagingRulesEngine {
     func clearMessagingCache() {
         cacheMessages(nil)
     }
-    
+
     /// Caches any remote assets for RuleConsequence(s) found in provided rules.
     ///
     /// - Parameter rules: an array of `LaunchRule`s that may contain remote assets in their consequence(s)
-    func cacheRemoteAssetsFor(_ rules: [LaunchRule]) {        
+    func cacheRemoteAssetsFor(_ rules: [LaunchRule]) {
         for rule in rules {
             for consequence in rule.consequences {
                 if let assets = consequence.details[MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS] as? [String] {
@@ -56,7 +56,7 @@ extension MessagingRulesEngine {
                             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to cache message asset '\(asset)' for consequence id '\(consequence.id)'. Asset is not a valid URL.")
                             continue
                         }
-                        let task = URLSession.shared.downloadTask(with: url) { imageUrl, response, error in
+                        let task = URLSession.shared.downloadTask(with: url) { imageUrl, _, _ in
                             if let image = imageUrl, let imageData = try? Data(contentsOf: image, options: .mappedIfSafe) {
                                 let cacheEntry = CacheEntry(data: imageData,
                                                             expiry: CacheExpiry.seconds(MessagingConstants.THIRTY_DAYS_IN_SECONDS),
@@ -70,7 +70,7 @@ extension MessagingRulesEngine {
             }
         }
     }
-    
+
     /// Uses the provided messages to create or overwrite a cache entry for in-app messages.
     ///
     /// If `messages` is nil, the cache entry for in-app messages will be removed.

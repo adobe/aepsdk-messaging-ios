@@ -19,7 +19,7 @@ class MessagingRulesEngine {
     let rulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
     let cache: Cache
-    
+
     /// Initialize this class, creating a new rules engine with the provided name and runtime
     init(name: String, extensionRuntime: ExtensionRuntime) {
         runtime = extensionRuntime
@@ -57,7 +57,7 @@ class MessagingRulesEngine {
 
             // pre-fetch the assets for this message if there are any defined
             cacheRemoteAssetsFor(processedRule)
-            
+
             messagingRules.append(contentsOf: processedRule)
         }
 
