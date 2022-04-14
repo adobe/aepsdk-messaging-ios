@@ -82,19 +82,8 @@ extension MessagingRulesEngine {
             do {
                 try cache.remove(key: MessagingConstants.Caches.MESSAGES)
                 Log.trace(label: MessagingConstants.LOG_TAG, "In-app messaging cache has been deleted.")
-            } catch let error as NSError {
-                if #available(iOS 14.5, *) {
-                    guard let underlyingError = error.underlyingErrors.first as NSError? else {
-                        Log.trace(label: MessagingConstants.LOG_TAG, "Unable to remove in-app messaging cache: \(error).")
-                        return
-                    }
-                    let NO_SUCH_FILE_OR_DIRECTORY_ERROR_CODE = 2
-                    if underlyingError.code != NO_SUCH_FILE_OR_DIRECTORY_ERROR_CODE {
-                        Log.warning(label: MessagingConstants.LOG_TAG, "Error removing in-app messaging cache: \(error).")
-                    }
-                } else {
-                    Log.trace(label: MessagingConstants.LOG_TAG, "Unable to remove in-app messaging cache: \(error).")
-                }
+            } catch let error as NSError {                
+                Log.trace(label: MessagingConstants.LOG_TAG, "Unable to remove in-app messaging cache: \(error).")
             }
 
             return

@@ -17,15 +17,15 @@ pod 'SwiftLint', '0.44.0'
 # ==================
 def lib_main
     pod 'AEPCore'
-    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.5.1'
+    pod 'AEPServices'
     pod 'AEPRulesEngine'
     # optimize has source copied locally until its public release
     # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
 end
 
 def lib_dev
-    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
-    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.5.1'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.5.1'
     pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'main'
     # optimize has source copied locally until its public release
     # pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
@@ -33,7 +33,7 @@ end
 
 def app_main
     pod 'AEPCore'
-    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.5.1'
+    pod 'AEPServices'
     pod 'AEPLifecycle'
     pod 'AEPRulesEngine'
     pod 'AEPSignal'
@@ -46,10 +46,10 @@ def app_main
 end
 
 def app_dev
-    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
-    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
-    pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
-    pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature-iam'
+    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.5.1'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.5.1'
+    pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.5.1'
+    pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.5.1'
     pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'main'
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'main'
     pod 'AEPEdgeConsent'
@@ -64,21 +64,21 @@ end
 # TARGET DEFINITIONS
 # ==================
 target 'AEPMessaging' do
-    lib_main
+    lib_dev
 end
 
 target 'MessagingDemoApp' do
-    app_main
+    app_dev
 end
 
 target 'UnitTests' do
-    lib_main
+    lib_dev
 end
 
 target 'FunctionalTests' do
-    app_main
+    app_dev
 end
 
 target 'E2EFunctionalTests' do
-    app_main
+    app_dev
 end
