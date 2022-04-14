@@ -24,3 +24,7 @@
 
 - [Message](./sources/class-message.md)
 - [MessagingEdgeEventType](./sources/enum-messaging-edge-event-type.md)
+
+### Troubleshooting
+
+- [Validate in-app messaging using AEPAssurance SDK extension and the Assurance UI](./sources/troubleshooting/validate-messages-in-griffon.md)

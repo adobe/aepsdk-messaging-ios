@@ -72,6 +72,8 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         XCTAssertEqual(2, message.experienceInfo.count)
         XCTAssertEqual("present", message.experienceInfo["experience"] as? String)
         XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNotNil(message.assets)
+        XCTAssertEqual(1, message.assets?.count)
         XCTAssertEqual(true, message.fullscreenMessage?.isLocalImageUsed)
         
         // cleanup
@@ -94,6 +96,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         XCTAssertEqual("", message.id)
         XCTAssertEqual(0, message.experienceInfo.count)
         XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNil(message.assets)
         XCTAssertEqual(false, message.fullscreenMessage?.isLocalImageUsed)
     }
 
