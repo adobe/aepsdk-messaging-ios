@@ -10,9 +10,10 @@
  governing permissions and limitations under the License.
  */
 
-import AEPCore
+@testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+@testable import AEPRulesEngine
 import Foundation
 import XCTest
 
@@ -21,6 +22,12 @@ class MessagingRulesEngineCachingTests: XCTestCase {
     var mockRulesEngine: MockLaunchRulesEngine!
     var mockRuntime: TestableExtensionRuntime!
     var mockCache: MockCache!
+    
+    struct MockEvaluable: Evaluable {
+        public func evaluate(in context: Context) -> Result<Bool, RulesFailure> {
+            return Result.success(true)
+        }
+    }
 
     override func setUp() {
         mockRuntime = TestableExtensionRuntime()
@@ -57,7 +64,103 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         XCTAssertEqual("messages", mockCache.getParamKey)
         XCTAssertFalse(mockRulesEngine.replaceRulesCalled)
     }
+    
+    func testCacheRemoteAssetsHappy() throws {
+        // setup
+        let setCalledExpecation = XCTestExpectation(description: "Set should be called in the mock cache")
+        mockCache.setCalledExpectation = setCalledExpecation
+        let today = Date()
+        let thirtyDaysFromToday = Calendar.current.date(byAdding: .day, value: 30, to: today)
+        let assetString = "https://blog.adobe.com/en/publish/2020/05/28/media_1cc0fcc19cf0e64decbceb3a606707a3ad23f51dd.png"
+        let consequence = RuleConsequence(id: "552", type: "cjmiam", details: [
+            "remoteAssets": [assetString]
+        ])
+        let mockEvaluable = MockEvaluable()
+        let rule = LaunchRule(condition: mockEvaluable, consequences: [consequence])
+        let rules = [rule]
+        
+        // test
+        messagingRulesEngine.cacheRemoteAssetsFor(rules)
+        
+        // verify
+        wait(for: [setCalledExpecation], timeout: 1.0)
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertEqual(assetString, mockCache.setParamKey)
+        XCTAssertNotNil(mockCache.setParamEntry?.data)
+        XCTAssertEqual(.orderedSame, Calendar.current.compare(thirtyDaysFromToday!, to: mockCache.setParamEntry!.expiry.date, toGranularity: .hour))
+    }
+    
+    func testCacheRemoteAssetsMalformedAssetUrl() throws {
+        // setup
+        let setCalledExpecation = XCTestExpectation(description: "Set should be called in the mock cache")
+        setCalledExpecation.isInverted = true
+        mockCache.setCalledExpectation = setCalledExpecation
+        let assetString = "omgi'mnota valid url"
+        let consequence = RuleConsequence(id: "552", type: "cjmiam", details: [
+            "remoteAssets": [assetString]
+        ])
+        let mockEvaluable = MockEvaluable()
+        let rule = LaunchRule(condition: mockEvaluable, consequences: [consequence])
+        let rules = [rule]
+        
+        // test
+        messagingRulesEngine.cacheRemoteAssetsFor(rules)
+        
+        // verify
+        wait(for: [setCalledExpecation], timeout: 1.0)
+        XCTAssertFalse(mockCache.setCalled)
+    }
+    
+    func testCacheRemoteAssetsEmptyRules() throws {
+        // setup
+        let setCalledExpecation = XCTestExpectation(description: "Set should be called in the mock cache")
+        setCalledExpecation.isInverted = true
+        mockCache.setCalledExpectation = setCalledExpecation
+        let rules: [LaunchRule] = []
+        
+        // test
+        messagingRulesEngine.cacheRemoteAssetsFor(rules)
+        
+        // verify
+        wait(for: [setCalledExpecation], timeout: 1.0)
+        XCTAssertFalse(mockCache.setCalled)
+    }
+    
+    func testCacheRemoteAssetsNoRuleConsequences() throws {
+        // setup
+        let setCalledExpecation = XCTestExpectation(description: "Set should be called in the mock cache")
+        setCalledExpecation.isInverted = true
+        mockCache.setCalledExpectation = setCalledExpecation
+        let mockEvaluable = MockEvaluable()
+        let rule = LaunchRule(condition: mockEvaluable, consequences: [])
+        let rules = [rule]
+        
+        // test
+        messagingRulesEngine.cacheRemoteAssetsFor(rules)
+        
+        // verify
+        wait(for: [setCalledExpecation], timeout: 1.0)
+        XCTAssertFalse(mockCache.setCalled)
+    }
 
+    func testCacheRemoteAssetsNoAssetsInRuleConsequence() throws {
+        // setup
+        let setCalledExpecation = XCTestExpectation(description: "Set should be called in the mock cache")
+        setCalledExpecation.isInverted = true
+        mockCache.setCalledExpectation = setCalledExpecation
+        let consequence = RuleConsequence(id: "552", type: "cjmiam", details: [:])
+        let mockEvaluable = MockEvaluable()
+        let rule = LaunchRule(condition: mockEvaluable, consequences: [consequence])
+        let rules = [rule]
+        
+        // test
+        messagingRulesEngine.cacheRemoteAssetsFor(rules)
+        
+        // verify
+        wait(for: [setCalledExpecation], timeout: 1.0)
+        XCTAssertFalse(mockCache.setCalled)
+    }
+    
     /// The below tests for private func `cacheMessages` are executed via
     /// internal methods `setMessagingCache` and `clearMessagingCache`
     func testCacheMessagesClearCache() throws {
@@ -101,7 +204,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         // setup
         let messages = [JSONFileLoader.getRulesStringFromFile("showOnceRule")]
         mockCache.setShouldThrow = true
-
+        
         // test
         messagingRulesEngine.setMessagingCache(messages)
 
