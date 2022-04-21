@@ -161,6 +161,7 @@ enum MessagingConstants {
             static let INTERACTION = "interaction"
             static let DISMISS = "dismiss"
             static let LINK = "link"
+            static let ANIMATE = "animate"
         }
 
         enum Plist {

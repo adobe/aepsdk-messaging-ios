@@ -69,6 +69,11 @@ extension Message: FullscreenMessageDelegate {
 
             // dismiss if requested
             if url.host == MessagingConstants.IAM.HTML.DISMISS {
+                // check for an animation override
+                if let animationOverride = queryParams?[MessagingConstants.IAM.HTML.ANIMATE] {
+                    message?.fullscreenMessage?.settings?.setDismissAnimation(MessageAnimation.fromString(animationOverride))
+                }
+                
                 message?.dismiss(suppressAutoTrack: true)
             }
 
