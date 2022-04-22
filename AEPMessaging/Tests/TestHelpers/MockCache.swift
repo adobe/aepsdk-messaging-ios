@@ -12,6 +12,7 @@
 
 @testable import AEPServices
 import Foundation
+import XCTest
 
 class MockCache: Cache {
     var getCalled = false
@@ -35,6 +36,7 @@ class MockCache: Cache {
     }
 
     var setCalled = false
+    var setCalledExpectation: XCTestExpectation?
     var setParamKey: String?
     var setParamEntry: CacheEntry?
     var setShouldThrow = false
@@ -44,6 +46,9 @@ class MockCache: Cache {
         setParamEntry = entry
         if setShouldThrow {
             throw MockCacheError.mockThrow
+        }
+        if let expectation = setCalledExpectation {
+            expectation.fulfill()
         }
     }
 }

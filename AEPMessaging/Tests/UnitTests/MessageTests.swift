@@ -23,6 +23,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     var mockRuntime = TestableExtensionRuntime()
     var mockEvent: Event!
     var mockEventData: [String: Any]?
+    let mockAssetString = "https://blog.adobe.com/en/publish/2020/05/28/media_1cc0fcc19cf0e64decbceb3a606707a3ad23f51dd.png"
     let mockMessageId = "552"
     var mockExperienceInfo: [String: Any] = [
         "experience": "present",
@@ -39,9 +40,10 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     override func setUp() {
         mockMessaging = MockMessaging(runtime: mockRuntime)
 
-        mockEventData = [            
+        mockEventData = [
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
                 MessagingConstants.Event.Data.Key.DETAIL: [
+                    MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: [mockAssetString],
                     MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: TestableMobileParameters.mobileParameters,
                     MessagingConstants.XDM.AdobeKeys._XDM: [
                         MessagingConstants.XDM.AdobeKeys.MIXINS: [
@@ -56,6 +58,10 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     }
 
     func testMessageInitHappy() throws {
+        // setup
+        let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
+        try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
+
         // test
         let message = Message(parent: mockMessaging, event: mockEvent)
 
@@ -66,6 +72,32 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         XCTAssertEqual(2, message.experienceInfo.count)
         XCTAssertEqual("present", message.experienceInfo["experience"] as? String)
         XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNotNil(message.assets)
+        XCTAssertEqual(1, message.assets?.count)
+        XCTAssertEqual(true, message.fullscreenMessage?.isLocalImageUsed)
+
+        // cleanup
+        try cache.remove(key: mockAssetString)
+    }
+
+    func testMessageInitUsingDefaultValues() throws {
+        // test
+        mockEventData = [
+            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
+                MessagingConstants.Event.Data.Key.DETAIL: [:]
+            ]
+        ]
+        mockEvent = Event(name: "Message Test", type: "type", source: "source", data: mockEventData)
+        let message = Message(parent: mockMessaging, event: mockEvent)
+
+        // verify
+        XCTAssertEqual(mockMessaging, message.parent)
+        XCTAssertEqual(mockEvent, message.triggeringEvent)
+        XCTAssertEqual("", message.id)
+        XCTAssertEqual(0, message.experienceInfo.count)
+        XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNil(message.assets)
+        XCTAssertEqual(false, message.fullscreenMessage?.isLocalImageUsed)
     }
 
     func testShow() throws {

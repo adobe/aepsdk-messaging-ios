@@ -84,7 +84,7 @@ class EventPlusMessagingTests: XCTestCase {
                 MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
                 MessagingConstants.Event.Data.Key.TYPE: type!,
                 MessagingConstants.Event.Data.Key.DETAIL: details
-            ],
+            ]
         ]
         let rulesEvent = Event(name: "Test Rules Engine response",
                                type: EventType.rulesEngine,
@@ -169,7 +169,7 @@ class EventPlusMessagingTests: XCTestCase {
         // setup
         let event = getRulesResponseEvent()
 
-        // verify        
+        // verify
         XCTAssertEqual("552", event.messageId!)
     }
 
@@ -516,15 +516,15 @@ class EventPlusMessagingTests: XCTestCase {
         // verify
         XCTAssertNil(event.offerPlacementId)
     }
-    
+
     func testOfferDecisionScopeHappy() {
         // setup
         let event = getAEPResponseEvent()
-        
+
         // verify
         XCTAssertEqual(mockBundleIdentifier, event.offerDecisionScope)
     }
-    
+
     func testOfferDecisionScopeEmpty() {
         // setup
         let data1 = ["content": mockContent1]
@@ -539,11 +539,11 @@ class EventPlusMessagingTests: XCTestCase {
             "items": [item1, item2]
         ]
         let event = getAEPResponseEvent(data: ["payload": [payload]])
-        
+
         // verify
         XCTAssertNil(event.offerDecisionScope)
     }
-    
+
     func testOfferDecisionScopeMalformedFormat() {
         // setup
         let data1 = ["content": mockContent1]
@@ -559,7 +559,7 @@ class EventPlusMessagingTests: XCTestCase {
             "items": [item1, item2]
         ]
         let event = getAEPResponseEvent(data: ["payload": [payload]])
-        
+
         // verify
         XCTAssertNil(event.offerDecisionScope)
     }

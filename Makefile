@@ -61,14 +61,17 @@ install-githook:
 
 format: swift-format lint-autocorrect
 
+install-swiftformat:
+	(brew install swiftformat)
+
 swift-format:
-	swiftformat . --swiftversion 5.1
+	(swiftformat $(PROJECT_NAME)/Sources --swiftversion 5.1)
 
 lint-autocorrect:
-	./Pods/SwiftLint/swiftlint autocorrect --format
+	(./Pods/SwiftLint/swiftlint autocorrect $(PROJECT_NAME)/Sources --format)
 
 lint:
-	./Pods/SwiftLint/swiftlint lint AEPMessaging/Sources
+	(./Pods/SwiftLint/swiftlint lint $(PROJECT_NAME)/Sources)
 
 check-version:
 	(sh ./Script/version.sh $(VERSION))

@@ -10,6 +10,7 @@
  governing permissions and limitations under the License.
  */
 
+import AEPCore
 import AEPServices
 import Foundation
 
@@ -17,7 +18,7 @@ import Foundation
 extension MessagingRulesEngine {
     /// Attempts to load in-app message definitions from cache into the `MessagingRulesEngine`.
     func loadCachedMessages() {
-        guard let cachedMessages = cache.get(key: cachedMessagesName) else {
+        guard let cachedMessages = cache.get(key: MessagingConstants.Caches.MESSAGES) else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages - cache file not found.")
             return
         }
@@ -25,7 +26,7 @@ extension MessagingRulesEngine {
         // the below call to String(data:encoding:) never fails when using .utf8 encoding
         // https://forums.swift.org/t/can-encoding-string-to-data-with-utf8-fail/22437
         guard let cachedMessagesString = String(data: cachedMessages.data, encoding: .utf8) else { return }
-        let messagesStringArray = cachedMessagesString.components(separatedBy: cachedMessagesDelimiter)
+        let messagesStringArray = cachedMessagesString.components(separatedBy: MessagingConstants.Caches.MESSAGES_DELIMITER)
 
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
         loadRules(rules: messagesStringArray)
@@ -43,6 +44,33 @@ extension MessagingRulesEngine {
         cacheMessages(nil)
     }
 
+    /// Caches any remote assets for RuleConsequence(s) found in provided rules.
+    ///
+    /// - Parameter rules: an array of `LaunchRule`s that may contain remote assets in their consequence(s)
+    func cacheRemoteAssetsFor(_ rules: [LaunchRule]) {
+        for rule in rules {
+            for consequence in rule.consequences {
+                if let assets = consequence.details[MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS] as? [String] {
+                    for asset in assets {
+                        guard let url = URL(string: asset) else {
+                            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to cache message asset '\(asset)' for consequence id '\(consequence.id)'. Asset is not a valid URL.")
+                            continue
+                        }
+                        let task = URLSession.shared.downloadTask(with: url) { imageUrl, _, _ in
+                            if let image = imageUrl, let imageData = try? Data(contentsOf: image, options: .mappedIfSafe) {
+                                let cacheEntry = CacheEntry(data: imageData,
+                                                            expiry: CacheExpiry.seconds(MessagingConstants.THIRTY_DAYS_IN_SECONDS),
+                                                            metadata: nil)
+                                try? self.cache.set(key: asset, entry: cacheEntry)
+                            }
+                        }
+                        task.resume()
+                    }
+                }
+            }
+        }
+    }
+
     /// Uses the provided messages to create or overwrite a cache entry for in-app messages.
     ///
     /// If `messages` is nil, the cache entry for in-app messages will be removed.
@@ -52,16 +80,16 @@ extension MessagingRulesEngine {
         // remove cached messages if param is nil
         guard let messages = messages else {
             do {
-                try cache.remove(key: cachedMessagesName)
+                try cache.remove(key: MessagingConstants.Caches.MESSAGES)
                 Log.trace(label: MessagingConstants.LOG_TAG, "In-app messaging cache has been deleted.")
-            } catch {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Error removing in-app messaging cache: \(error).")
+            } catch let error as NSError {                
+                Log.trace(label: MessagingConstants.LOG_TAG, "Unable to remove in-app messaging cache: \(error).")
             }
 
             return
         }
 
-        let joinedMessagesString = messages.joined(separator: cachedMessagesDelimiter)
+        let joinedMessagesString = messages.joined(separator: MessagingConstants.Caches.MESSAGES_DELIMITER)
 
         // the below call to String(data:encoding:) never fails when using .utf8 encoding
         // https://forums.swift.org/t/can-encoding-string-to-data-with-utf8-fail/22437
@@ -69,7 +97,7 @@ extension MessagingRulesEngine {
 
         let cacheEntry = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
         do {
-            try cache.set(key: cachedMessagesName, entry: cacheEntry)
+            try cache.set(key: MessagingConstants.Caches.MESSAGES, entry: cacheEntry)
             Log.trace(label: MessagingConstants.LOG_TAG, "In-app messaging cache has been created.")
         } catch {
             Log.warning(label: MessagingConstants.LOG_TAG, "Error creating in-app messaging cache: \(error).")

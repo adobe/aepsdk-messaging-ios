@@ -19,16 +19,13 @@ class MessagingRulesEngine {
     let rulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
     let cache: Cache
-    let messagingCacheName = "com.adobe.messaging.cache"
-    let cachedMessagesName = "messages"
-    let cachedMessagesDelimiter = "||"
 
     /// Initialize this class, creating a new rules engine with the provided name and runtime
     init(name: String, extensionRuntime: ExtensionRuntime) {
         runtime = extensionRuntime
         rulesEngine = LaunchRulesEngine(name: name,
                                         extensionRuntime: extensionRuntime)
-        cache = Cache(name: messagingCacheName)
+        cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
         loadCachedMessages()
     }
 
@@ -57,6 +54,9 @@ class MessagingRulesEngine {
             guard let processedRule = JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime) else {
                 continue
             }
+
+            // pre-fetch the assets for this message if there are any defined
+            cacheRemoteAssetsFor(processedRule)
 
             messagingRules.append(contentsOf: processedRule)
         }

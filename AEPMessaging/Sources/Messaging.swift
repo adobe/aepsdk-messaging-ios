@@ -116,7 +116,7 @@ public class Messaging: NSObject, Extension {
     private func fetchMessages() {
         var decisionScope = ""
         let offersConfig = getOffersMessageConfig()
-        
+
         // check for activity and placement provided by info.plist
         if let activityId = offersConfig.0, let placementId = offersConfig.1 {
             Log.trace(label: MessagingConstants.LOG_TAG, "Fetching messages using ActivityID (\(activityId)) and PlacementID (\(placementId)) values found in Info.plist.")
@@ -153,7 +153,7 @@ public class Messaging: NSObject, Extension {
         }
 
         let offersConfig = getOffersMessageConfig()
-        
+
         // validate that the offer contains messages by either matching the activity/placement from plist or bundle id
         if let activityId = offersConfig.0, let placementId = offersConfig.1 {
             guard event.offerActivityId == activityId, event.offerPlacementId == placementId else {
@@ -238,7 +238,7 @@ public class Messaging: NSObject, Extension {
 
         return decisionScopeData.base64EncodedString()
     }
-    
+
     /// Takes a bundle identifier and returns an encoded string in the format expected
     /// by the Optimize extension for retrieving offers by xdm:name.
     ///
@@ -249,11 +249,11 @@ public class Messaging: NSObject, Extension {
     /// - Returns: a base64 encoded JSON string to be used by the Optimize extension
     private func getEncodedDecisionScopeFor(bundleIdentifier: String) -> String {
         let decisionScopeString = "{\"\(MessagingConstants.Event.Data.Key.Optimize.XDM_NAME)\":\"\(bundleIdentifier)\"}"
-        
+
         guard let decisionScopeData = decisionScopeString.data(using: .utf8) else {
             return ""
         }
-        
+
         return decisionScopeData.base64EncodedString()
     }
 
@@ -266,12 +266,13 @@ public class Messaging: NSObject, Extension {
     private func getOffersMessageConfig() -> (String?, String?) {
         if let path = Bundle.main.path(forResource: "Info", ofType: "plist"), let plistDictionary = NSDictionary(contentsOfFile: path) {
             guard let activity = plistDictionary.value(forKey: MessagingConstants.IAM.Plist.ACTIVITY_ID) as? String,
-                  let placement = plistDictionary.value(forKey: MessagingConstants.IAM.Plist.PLACEMENT_ID) as? String else {
-                      return (nil, Bundle.main.bundleIdentifier)
-                  }
+                  let placement = plistDictionary.value(forKey: MessagingConstants.IAM.Plist.PLACEMENT_ID) as? String
+            else {
+                return (nil, Bundle.main.bundleIdentifier)
+            }
             return (activity, placement)
         }
-        
+
         return (nil, Bundle.main.bundleIdentifier)
     }
 
