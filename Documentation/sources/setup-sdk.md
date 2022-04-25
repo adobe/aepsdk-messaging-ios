@@ -6,6 +6,8 @@ While the in-app messaging feature is in beta, the developer will need to use th
 
 ```
 pod 'AEPMessaging', :git => 'https://github.com/adobe/aepsdk-messaging-ios.git', :branch => 'staging'
+// until AEPOptimize is generally available, it must be manually included here
+pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'staging'
 ```
 
 ### Import and register the Messaging extension
@@ -17,6 +19,7 @@ import AEPMessaging
 import AEPCore
 import AEPEdge
 import AEPEdgeIdentity
+import AEPOptimize
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -28,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Messaging.self,
             Identity.self,
             Edge.self,
-            Optimize.self, // only required if using in-app messaging
+            Optimize.self
         ]
 
         MobileCore.registerExtensions(extensions) {            

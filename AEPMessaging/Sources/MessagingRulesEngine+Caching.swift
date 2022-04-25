@@ -82,7 +82,7 @@ extension MessagingRulesEngine {
             do {
                 try cache.remove(key: MessagingConstants.Caches.MESSAGES)
                 Log.trace(label: MessagingConstants.LOG_TAG, "In-app messaging cache has been deleted.")
-            } catch let error as NSError {                
+            } catch let error as NSError {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Unable to remove in-app messaging cache: \(error).")
             }
 
