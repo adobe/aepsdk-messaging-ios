@@ -11,8 +11,7 @@
  */
 
 @testable import AEPCore
-// TODO: add in AEPOptimize reference once it has a public release
-// import AEPOptimize
+import AEPOptimize
 import AEPEdge
 import AEPEdgeConsent
 import AEPEdgeIdentity

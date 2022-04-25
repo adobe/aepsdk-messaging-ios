@@ -18,6 +18,9 @@ PODS:
     - AEPCore (>= 3.1.1)
   - AEPLifecycle (3.5.0):
     - AEPCore (>= 3.5.0)
+  - AEPOptimize (1.0.0):
+    - AEPCore (>= 3.2.0)
+    - AEPEdge (>= 1.2.0)
   - AEPRulesEngine (1.1.0)
   - AEPServices (3.5.0)
   - AEPSignal (3.5.0):
@@ -32,6 +35,7 @@ DEPENDENCIES:
   - AEPEdgeConsent
   - AEPEdgeIdentity (from `https://github.com/adobe/aepsdk-edgeidentity-ios.git`, branch `main`)
   - AEPLifecycle (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v3.5.1`)
+  - AEPOptimize (from `https://github.com/adobe/aepsdk-optimize-ios.git`, branch `staging`)
   - AEPRulesEngine (from `https://github.com/adobe/aepsdk-rulesengine-ios.git`, branch `main`)
   - AEPServices (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v3.5.1`)
   - AEPSignal (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v3.5.1`)
@@ -59,6 +63,9 @@ EXTERNAL SOURCES:
   AEPLifecycle:
     :branch: dev-v3.5.1
     :git: https://github.com/adobe/aepsdk-core-ios.git
+  AEPOptimize:
+    :branch: staging
+    :git: https://github.com/adobe/aepsdk-optimize-ios.git
   AEPRulesEngine:
     :branch: main
     :git: https://github.com/adobe/aepsdk-rulesengine-ios.git
@@ -85,6 +92,9 @@ CHECKOUT OPTIONS:
   AEPLifecycle:
     :commit: 1e5a30a996b13e66750575997baca880033c7e36
     :git: https://github.com/adobe/aepsdk-core-ios.git
+  AEPOptimize:
+    :commit: 17d387e286fdee5a7db9e534490ba4b504af471d
+    :git: https://github.com/adobe/aepsdk-optimize-ios.git
   AEPRulesEngine:
     :commit: 8795703e92570d9744d7f39d59e2c6f44ecb3078
     :git: https://github.com/adobe/aepsdk-rulesengine-ios.git
@@ -103,11 +113,12 @@ SPEC CHECKSUMS:
   AEPEdgeConsent: a23b35ab331d2aa2013fcef49c9d6b80085d5597
   AEPEdgeIdentity: 5c42cef81835851232136a9e1fbbbe33b204ee11
   AEPLifecycle: d3ff90c661c4452fb1c619e7f02dad8ba49a8fd2
+  AEPOptimize: 7be718a9aaa494cf9bfd367c5f6c008f91dc1edf
   AEPRulesEngine: bb2927ed5501ddf9754c66e97f8d2b1cf8e33b19
   AEPServices: 2e869a387b67c04ab5f3f647026412ff410efbb0
   AEPSignal: 636e615dd02d670aa0fe6c2b9dcebee6c95e1f4f
   SwiftLint: e96c0a8c770c7ebbc4d36c55baf9096bb65c4584
 
-PODFILE CHECKSUM: 6268860ec379c5100ca420932fb5057fc3a01c48
+PODFILE CHECKSUM: 18ffad861dcea1d9d5ca58c77f999939827b17ca
 
 COCOAPODS: 1.11.2
