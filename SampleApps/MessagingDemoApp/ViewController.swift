@@ -30,12 +30,13 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_: Any) {
-//        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["seahawks": "bad"]))
         MobileCore.track(action: "animate", data: nil)
+                
+//        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["seahawks": "bad"]))
 //        MobileCore.track(action: "zkorczyc-test", data: nil)
-//         MobileCore.track(action: "mariners", data: nil)
+//        MobileCore.track(action: "mariners", data: nil)
 //        MobileCore.track(action: "marinersmar28", data: nil)
-//                MobileCore.track(: "triggerFullscreen", data: ["testFullscreen": "true"])
+//        MobileCore.track(: "triggerFullscreen", data: ["testFullscreen": "true"])
     }
 
     @IBAction func triggerModal(_: Any) {

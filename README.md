@@ -36,9 +36,18 @@ target 'YOUR_TARGET_NAME' do
       pod 'AEPCore'
       pod 'AEPServices'
       pod 'AEPRulesEngine'
+      pod 'AEPOptimize'
 end
 ```
+
+> **IMPORTANT:** Until AEPOptimize is generally available, you must manually include it in your list of pods:
+>
+> ```
+> pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'staging'
+>```
+
 Replace `YOUR_TARGET_NAME` and then, in the `Podfile` directory, type:
+
 ```ruby
 $ pod install
 ```
@@ -82,7 +91,7 @@ Additional documentation for SDK usage and configuration can be found in the [Do
 
 ## Setup Demo Application
 
-The AEP Messaging Demo application is a sample app which demonstrates how to send the push notification token to AEP and how to collect feedback from notification click-throughs. It can also be used to demonstrate showing an in-app message created in AJO. 
+The AEP Messaging Demo application is a sample app which demonstrates how to send the push notification token to AEP and how to collect feedback from notification click-throughs. It can also be used to demonstrate showing an in-app message created in AJO.
 
 ## Related Projects
 

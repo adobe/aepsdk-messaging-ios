@@ -18,7 +18,9 @@ Pod::Spec.new do |s|
   s.dependency 'AEPServices', '>= 3.4.2'
   s.dependency 'AEPEdge', '>= 1.1.0'
   s.dependency 'AEPEdgeIdentity', '>= 1.0.0'
+  # can only add this dependency in once AEPOptimize is released
+  # s.dependency 'AEPOptimize'
 
-  s.source_files = 'AEPMessaging/Sources/**/*.swift', 'optimize/**/*.swift'
+  s.source_files = 'AEPMessaging/Sources/**/*.swift'
 
 end

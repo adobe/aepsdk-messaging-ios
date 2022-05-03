@@ -10,8 +10,7 @@
 // governing permissions and limitations under the License.
 //
 
-// TODO: add in AEPOptimize reference once it has a public release
-// import AEPOptimize
+import AEPOptimize
 import AEPAssurance
 import AEPCore
 import AEPEdge
