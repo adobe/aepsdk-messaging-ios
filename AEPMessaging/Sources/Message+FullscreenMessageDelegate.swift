@@ -35,6 +35,8 @@ extension Message: FullscreenMessageDelegate {
     /// - If the `url` host equals "dismiss", the webview will be removed from its superview.
     /// - If the `url` has a query parameter named "interaction", an interact event will be sent to experience edge
     ///   using the value provided for the "interaction" parameter.
+    /// - If the `url` has a query parameter named "animate", the SDK will attempt to find a matching animation to be
+    ///   used when dismissing the message. If no matching animation can be found, `MessageAnimation.none` will be used.
     /// - If the `url` has a query parameter named "link" and its value is a valid URL, the URL will be loaded in
     ///   by the operating system's default web browser (mobile Safari by default).
     ///
@@ -43,7 +45,7 @@ extension Message: FullscreenMessageDelegate {
     ///   - url: the URL attempting to be loaded
     /// - Returns: false if the message's webview will handle the loading of the URL
     public func overrideUrlLoad(message fullscreenMessage: FullscreenMessage, url: String?) -> Bool {
-        guard let urlString = url?.removingPercentEncoding, let url = URL(string: urlString) else {
+        guard let urlString = url, let url = URL(string: urlString) else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load nil URL.")
             return true
         }
@@ -69,7 +71,8 @@ extension Message: FullscreenMessageDelegate {
             }
 
             // handle optional deep link
-            if let link = queryParams[MessagingConstants.IAM.HTML.LINK], !link.isEmpty, let deeplinkUrl = URL(string: link) {
+            if let link = queryParams[MessagingConstants.IAM.HTML.LINK], !link.isEmpty,
+               let deeplinkUrl = URL(string: link.removingPercentEncoding ?? "") {
                 UIApplication.shared.open(deeplinkUrl)
             }
 

@@ -13,6 +13,12 @@
 import Foundation
 
 extension URL {
+    /// Converts the query string of a URL into a dictionary.
+    ///
+    /// If they query string has a parameter without a value, its value will be represented as an empty string
+    /// in the resulting dictionary.
+    ///
+    /// - Returns: a map containing key-value pairs represented by the query string.
     func queryParamMap() -> [String: String] {
         return self.query?.components(separatedBy: "&")
             .map {
