@@ -49,28 +49,19 @@ extension Message: FullscreenMessageDelegate {
         }
 
         if url.scheme == MessagingConstants.IAM.HTML.SCHEME {
-            // handle request parameters
-            let queryParams = url.query?.components(separatedBy: "&")
-                .map {
-                    $0.components(separatedBy: "=")
-                }
-                .reduce(into: [String: String]()) { dict, pair in
-                    if pair.count == 2 {
-                        dict[pair[0]] = pair[1]
-                    }
-                }
-
+            // handle request parameters            
+            let queryParams = url.queryParamMap()
             let message = fullscreenMessage.parent
 
             // handle optional tracking
-            if let interaction = queryParams?[MessagingConstants.IAM.HTML.INTERACTION] {
+            if let interaction = queryParams[MessagingConstants.IAM.HTML.INTERACTION], !interaction.isEmpty {
                 message?.track(interaction, withEdgeEventType: .inappInteract)
             }
 
             // dismiss if requested
             if url.host == MessagingConstants.IAM.HTML.DISMISS {
                 // check for an animation override
-                if let animationOverride = queryParams?[MessagingConstants.IAM.HTML.ANIMATE] {
+                if let animationOverride = queryParams[MessagingConstants.IAM.HTML.ANIMATE], !animationOverride.isEmpty {
                     message?.fullscreenMessage?.settings?.setDismissAnimation(MessageAnimation.fromString(animationOverride))
                 }
                 
@@ -78,7 +69,7 @@ extension Message: FullscreenMessageDelegate {
             }
 
             // handle optional deep link
-            if let deeplinkUrl = URL(string: queryParams?[MessagingConstants.IAM.HTML.LINK] ?? "") {
+            if let link = queryParams[MessagingConstants.IAM.HTML.LINK], !link.isEmpty, let deeplinkUrl = URL(string: link) {
                 UIApplication.shared.open(deeplinkUrl)
             }
 

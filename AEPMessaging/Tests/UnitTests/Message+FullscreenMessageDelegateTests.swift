@@ -28,6 +28,7 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
     let genericUrlString = "https://www.adobe.com/"
     let inAppUrlString = "adbinapp://dismiss?interaction=testing&link=https://www.adobe.com/"
     let dismissUrlString = "adbinapp://dismiss"
+    let animationOverrideUrlString = "adbinapp://dismiss?animate=left"
 
     override func setUp() {
         mockMessaging = MockMessaging(runtime: mockRuntime)
@@ -102,5 +103,16 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
 
     func testOnShowFailureCallable() throws {
         message.onShowFailure()
+    }
+    
+    func testOverrideUrlLoadAnimationOverride() throws {
+        // test
+        let result = message.overrideUrlLoad(message: mockFullscreenMessage, url: animationOverrideUrlString)
+        
+        // verify
+        XCTAssertFalse(result)
+        XCTAssertNil(mockMessage.paramTrackInteraction)
+        XCTAssertEqual(.left, mockMessage.fullscreenMessage?.settings?.dismissAnimation)
+        XCTAssertTrue(mockMessage.dismissCalled)
     }
 }
