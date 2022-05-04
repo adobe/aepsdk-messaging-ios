@@ -16,6 +16,7 @@ import UserNotifications
 import XCTest
 
 class MessagingPublicApiTest: XCTestCase {
+    let ASYNC_TIMEOUT = 2.0
     var mockXdmData: [String: Any] = ["somekey": "somedata"]
     var notificationContent: [AnyHashable: Any] = [:]
     override func setUp() {
@@ -82,7 +83,7 @@ class MessagingPublicApiTest: XCTestCase {
         }
 
         Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActionId)
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
 
     func testHandleNotificationResponse_whenApplicationOpenedFalse_AndNilCustomActionID() {
@@ -117,7 +118,7 @@ class MessagingPublicApiTest: XCTestCase {
             return
         }
         Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: nil)
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
 
     func testHandleNotificationResponseNoXdmInNotification() {
@@ -165,7 +166,7 @@ class MessagingPublicApiTest: XCTestCase {
         }
 
         Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActionId)
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
 
     func testHandleNotificationResponseEmptyMessageId() {
@@ -192,7 +193,7 @@ class MessagingPublicApiTest: XCTestCase {
         }
 
         Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActionId)
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
 
     func testRefreshInAppMessages() throws {
@@ -220,6 +221,6 @@ class MessagingPublicApiTest: XCTestCase {
         Messaging.refreshInAppMessages()
 
         // verify
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
 }
