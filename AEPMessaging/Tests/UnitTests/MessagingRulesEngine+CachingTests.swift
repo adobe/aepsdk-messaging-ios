@@ -18,6 +18,7 @@ import Foundation
 import XCTest
 
 class MessagingRulesEngineCachingTests: XCTestCase {
+    let ASYNC_TIMEOUT = 2.0
     var messagingRulesEngine: MessagingRulesEngine!
     var mockRulesEngine: MockLaunchRulesEngine!
     var mockRuntime: TestableExtensionRuntime!
@@ -83,7 +84,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         messagingRulesEngine.cacheRemoteAssetsFor(rules)
 
         // verify
-        wait(for: [setCalledExpecation], timeout: 1.0)
+        wait(for: [setCalledExpecation], timeout: ASYNC_TIMEOUT)
         XCTAssertTrue(mockCache.setCalled)
         XCTAssertEqual(assetString, mockCache.setParamKey)
         XCTAssertNotNil(mockCache.setParamEntry?.data)
@@ -107,7 +108,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         messagingRulesEngine.cacheRemoteAssetsFor(rules)
 
         // verify
-        wait(for: [setCalledExpecation], timeout: 1.0)
+        wait(for: [setCalledExpecation], timeout: ASYNC_TIMEOUT)
         XCTAssertFalse(mockCache.setCalled)
     }
 
@@ -122,7 +123,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         messagingRulesEngine.cacheRemoteAssetsFor(rules)
 
         // verify
-        wait(for: [setCalledExpecation], timeout: 1.0)
+        wait(for: [setCalledExpecation], timeout: ASYNC_TIMEOUT)
         XCTAssertFalse(mockCache.setCalled)
     }
 
@@ -139,7 +140,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         messagingRulesEngine.cacheRemoteAssetsFor(rules)
 
         // verify
-        wait(for: [setCalledExpecation], timeout: 1.0)
+        wait(for: [setCalledExpecation], timeout: ASYNC_TIMEOUT)
         XCTAssertFalse(mockCache.setCalled)
     }
 
@@ -157,7 +158,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         messagingRulesEngine.cacheRemoteAssetsFor(rules)
 
         // verify
-        wait(for: [setCalledExpecation], timeout: 1.0)
+        wait(for: [setCalledExpecation], timeout: ASYNC_TIMEOUT)
         XCTAssertFalse(mockCache.setCalled)
     }
 

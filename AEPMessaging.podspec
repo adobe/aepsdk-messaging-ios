@@ -21,6 +21,6 @@ Pod::Spec.new do |s|
   # can only add this dependency in once AEPOptimize is released
   # s.dependency 'AEPOptimize'
 
-  s.source_files = 'AEPMessaging/Sources/**/*.swift', 'optimize/**/*.swift'
+  s.source_files = 'AEPMessaging/Sources/**/*.swift'
 
 end

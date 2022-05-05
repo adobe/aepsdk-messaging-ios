@@ -19,6 +19,7 @@ import XCTest
 import WebKit
 
 class MessageTests: XCTestCase, FullscreenMessageDelegate {
+    let ASYNC_TIMEOUT = 2.0
     var mockMessaging: MockMessaging!
     var mockRuntime = TestableExtensionRuntime()
     var mockEvent: Event!
@@ -110,7 +111,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         message.show()
 
         // verify
-        wait(for: [onShowExpectation!], timeout: 1.0)
+        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
     }
 
     func testDismiss() throws {
@@ -124,7 +125,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         message.dismiss()
 
         // verify
-        wait(for: [onDismissExpectation!], timeout: 1.0)
+        wait(for: [onDismissExpectation!], timeout: ASYNC_TIMEOUT)
     }
 
     func testHandleJavascriptMessage() throws {
@@ -142,7 +143,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         }
 
         // verify
-        wait(for: [handleJavascriptMessageExpectation!], timeout: 1.0)
+        wait(for: [handleJavascriptMessageExpectation!], timeout: ASYNC_TIMEOUT)
         XCTAssertTrue(mockFullscreenMessage.handleJavascriptMessageCalled)
         XCTAssertEqual("test", mockFullscreenMessage.paramJavascriptMessage)
     }
