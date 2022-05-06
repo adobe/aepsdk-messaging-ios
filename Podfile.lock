@@ -29,7 +29,7 @@ PODS:
 
 DEPENDENCIES:
   - AEPAnalytics
-  - AEPAssurance (from `https://github.com/adobe/aepsdk-assurance-ios.git`, branch `dev`)
+  - AEPAssurance (from `https://github.com/adobe/aepsdk-assurance-ios.git`, branch `main`)
   - AEPCore (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v3.5.1`)
   - AEPEdge (from `https://github.com/adobe/aepsdk-edge-ios.git`, branch `main`)
   - AEPEdgeConsent
@@ -49,7 +49,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   AEPAssurance:
-    :branch: dev
+    :branch: main
     :git: https://github.com/adobe/aepsdk-assurance-ios.git
   AEPCore:
     :branch: dev-v3.5.1
@@ -78,10 +78,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AEPAssurance:
-    :commit: 3f7a57cf4a9eb318f3df22a658bde4620cf07905
+    :commit: 06ea89a7f155aa2cc95dbdab9cdf0ab78fb38577
     :git: https://github.com/adobe/aepsdk-assurance-ios.git
   AEPCore:
-    :commit: 1e5a30a996b13e66750575997baca880033c7e36
+    :commit: fc1a5d495cebe2f02bf24de634ac8faed92c9c77
     :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPEdge:
     :commit: 3dfc11c96c0caa383521479ce4347b81463b9bea
@@ -90,7 +90,7 @@ CHECKOUT OPTIONS:
     :commit: e420d518c92f5b757e6dc7f5e2bfdedafdb44a82
     :git: https://github.com/adobe/aepsdk-edgeidentity-ios.git
   AEPLifecycle:
-    :commit: 1e5a30a996b13e66750575997baca880033c7e36
+    :commit: fc1a5d495cebe2f02bf24de634ac8faed92c9c77
     :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPOptimize:
     :commit: 17d387e286fdee5a7db9e534490ba4b504af471d
@@ -99,10 +99,10 @@ CHECKOUT OPTIONS:
     :commit: 8795703e92570d9744d7f39d59e2c6f44ecb3078
     :git: https://github.com/adobe/aepsdk-rulesengine-ios.git
   AEPServices:
-    :commit: 1e5a30a996b13e66750575997baca880033c7e36
+    :commit: fc1a5d495cebe2f02bf24de634ac8faed92c9c77
     :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPSignal:
-    :commit: 1e5a30a996b13e66750575997baca880033c7e36
+    :commit: fc1a5d495cebe2f02bf24de634ac8faed92c9c77
     :git: https://github.com/adobe/aepsdk-core-ios.git
 
 SPEC CHECKSUMS:
@@ -119,6 +119,6 @@ SPEC CHECKSUMS:
   AEPSignal: 636e615dd02d670aa0fe6c2b9dcebee6c95e1f4f
   SwiftLint: e96c0a8c770c7ebbc4d36c55baf9096bb65c4584
 
-PODFILE CHECKSUM: 18ffad861dcea1d9d5ca58c77f999939827b17ca
+PODFILE CHECKSUM: df0cf343ba89dbe9081537bcc2579d2ad9655767
 
 COCOAPODS: 1.11.2

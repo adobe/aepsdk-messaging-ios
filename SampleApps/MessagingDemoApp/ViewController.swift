@@ -13,6 +13,7 @@
 import AEPCore
 import AEPMessaging
 import AEPServices
+import AEPAssurance
 import UIKit
 import UserNotifications
 import WebKit
@@ -49,7 +50,8 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerBannerBottom(_: Any) {
-        MobileCore.track(state: "triggerInapp", data: ["testBannerBottom": "true"])
+        Assurance.startSession(url: URL(string: "demo://?adb_validation_sessionid=2c55fed1-f26b-418b-b568-2e25e8360e47"))
+//        MobileCore.track(state: "triggerInapp", data: ["testBannerBottom": "true"])
     }
 
     /// Messaging delegate
