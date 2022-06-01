@@ -17,7 +17,6 @@ coverage:
     - "./AEPMessaging/Tests/**/*"
     - "./SampleApps"
     - "./Documentation"
-    - "./optimize"
 
 parsers:
   gcov:

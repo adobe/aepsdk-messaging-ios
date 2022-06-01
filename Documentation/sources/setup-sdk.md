@@ -6,8 +6,6 @@ While the in-app messaging feature is in beta, the developer will need to use th
 
 ```
 pod 'AEPMessaging', :git => 'https://github.com/adobe/aepsdk-messaging-ios.git', :branch => 'staging'
-// until AEPOptimize is generally available, it must be manually included here
-pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'staging'
 ```
 
 ### Import and register the Messaging extension

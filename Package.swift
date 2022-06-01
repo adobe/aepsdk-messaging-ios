@@ -23,7 +23,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "3.4.2")),
-        .package(url: "https://github.com/adobe/aepsdk-optimize-ios.git", .branch("staging"))
+        .package(url: "https://github.com/adobe/aepsdk-optimize-ios.git", .upToNextMajor(from: "1.0.0"))
     ],
     targets: [
         .target(name: "AEPMessaging",
