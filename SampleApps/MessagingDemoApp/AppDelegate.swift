@@ -76,12 +76,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // 082b4ce8e11e/53c108dc4527/launch-0916d1b3fdb6-development
         
         
-        // wdw test
-        // com.example.pushnotificationtest
-        // launch-ENb873ccc54cfb45078827a1d1ce965262-development
-        
-        
-        MobileCore.configureWith(appId: "launch-ENb873ccc54cfb45078827a1d1ce965262-development")
+        MobileCore.configureWith(appId: "3149c49c3910/3759ced5ae7d/launch-6ec882280c23-development")
         
         // update config to use cjmstage for int integration
         let cjmStageConfig = [
