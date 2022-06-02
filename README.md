@@ -40,12 +40,6 @@ target 'YOUR_TARGET_NAME' do
 end
 ```
 
-> **IMPORTANT:** Until AEPOptimize is generally available, you must manually include it in your list of pods:
->
-> ```
-> pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'staging'
->```
-
 Replace `YOUR_TARGET_NAME` and then, in the `Podfile` directory, type:
 
 ```ruby

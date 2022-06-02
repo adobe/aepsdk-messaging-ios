@@ -76,9 +76,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // 082b4ce8e11e/53c108dc4527/launch-0916d1b3fdb6-development
         
         
+        MobileCore.configureWith(appId: "3149c49c3910/3759ced5ae7d/launch-6ec882280c23-development")
         
-        MobileCore.configureWith(appId: "3149c49c3910/cf7779260cdd/launch-be72758aa82a-development")
-
         // update config to use cjmstage for int integration
         let cjmStageConfig = [
             "edge.environment": "int",
