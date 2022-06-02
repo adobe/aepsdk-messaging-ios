@@ -17,6 +17,7 @@ import Foundation
 ///
 /// Enable easy setup for the input and verification of the output of an extension
 public class TestableExtensionRuntime: ExtensionRuntime {
+    
     public var listeners: [String: EventListener] = [:]
     public var dispatchedEvents: [Event] = []
     public var createdSharedStates: [[String: Any]?] = []
@@ -81,6 +82,14 @@ public class TestableExtensionRuntime: ExtensionRuntime {
             return mockedXdmSharedStates["\(extensionName)-\(id)"] ?? mockedXdmSharedStates["\(extensionName)"]
         }
         return mockedXdmSharedStates["\(extensionName)"]
+    }
+    
+    public func getSharedState(extensionName: String, event: Event?, barrier: Bool, resolution: SharedStateResolution) -> SharedStateResult? {
+        return getSharedState(extensionName: extensionName, event: event, barrier: barrier)
+    }
+    
+    public func getXDMSharedState(extensionName: String, event: Event?, barrier: Bool, resolution: SharedStateResolution) -> SharedStateResult? {
+        return getXDMSharedState(extensionName: extensionName, event: event, barrier: barrier)
     }
 
     public func startEvents() {}
