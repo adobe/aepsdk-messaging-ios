@@ -12,6 +12,7 @@
 
 import AEPServices
 import Foundation
+import UIKit
 
 extension Message: FullscreenMessageDelegate {
     public func onShow(message _: FullscreenMessage) {}
