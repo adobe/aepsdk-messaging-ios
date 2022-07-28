@@ -699,7 +699,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1320;
-				LastUpgradeCheck = 1330;
+				LastUpgradeCheck = 1340;
 				TargetAttributes = {
 					2469A6012759999E00E56457 = {
 						CreatedOnToolsVersion = 13.1;
@@ -1302,7 +1302,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.AEPMobileSampleApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.ccsdk.ESDK.RefApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1325,7 +1325,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.AEPMobileSampleApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.ccsdk.ESDK.RefApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

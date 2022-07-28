@@ -95,3 +95,4 @@ fastlane/test_output
 ## Cocoapods
 Pods/
 
+.vscode/

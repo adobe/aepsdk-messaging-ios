@@ -13,6 +13,7 @@
 import AEPCore
 import AEPServices
 import Foundation
+import CoreGraphics
 
 extension Event {
     // MARK: - In-app Message Consequence Event Handling
