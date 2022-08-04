@@ -42,7 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let extensions = [
             Optimize.self,
-            //Consent.self,
+            Consent.self,
             Lifecycle.self,
             Identity.self,
             Messaging.self,
@@ -52,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         ]
 
         MobileCore.registerExtensions(extensions) {
-            Assurance.startSession(url: URL(string: "demo://?adb_validation_sessionid=1c8fd798-1357-470c-8bdf-64573fdf8f9c"))
+//            Assurance.startSession(url: URL(string: "demo://?adb_validation_sessionid=1c8fd798-1357-470c-8bdf-64573fdf8f9c"))
         }
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
@@ -83,7 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // 7417321fe1d7/37be53c7214b/launch-a854f2463f5e-development
         
         
-        MobileCore.configureWith(appId: "7417321fe1d7/37be53c7214b/launch-a854f2463f5e-development")
+        MobileCore.configureWith(appId: "3149c49c3910/3759ced5ae7d/launch-6ec882280c23-development")
         
         // update config to use cjmstage for int integration
         let cjmStageConfig = [

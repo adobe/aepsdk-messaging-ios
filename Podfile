@@ -67,6 +67,10 @@ target 'MessagingDemoApp' do
     app_main
 end
 
+target 'MessagingDemoAppObjC' do
+    app_main
+end
+
 target 'UnitTests' do
     lib_main
 end
