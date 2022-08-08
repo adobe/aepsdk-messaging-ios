@@ -45,12 +45,11 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerBannerTop(_: Any) {
-        MobileCore.track(state: "triggerBannerTop", data: ["testBannerTop": "true"])
+        MobileCore.track(action: "triggerBannerTop", data: ["testBannerTop": "true"])
     }
 
     @IBAction func triggerBannerBottom(_: Any) {
-        Assurance.startSession(url: URL(string: "demo://?adb_validation_sessionid=2c55fed1-f26b-418b-b568-2e25e8360e47"))
-//        MobileCore.track(state: "triggerInapp", data: ["testBannerBottom": "true"])
+        MobileCore.track(action: "triggerBannerBottom", data: ["testBannerBottom": "true"])
     }
 
     /// Messaging delegate
