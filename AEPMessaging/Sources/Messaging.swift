@@ -68,10 +68,10 @@ public class Messaging: NSObject, Extension {
                          source: EventSource.responseContent,
                          listener: handleRulesResponse)
 
-        // register listener for offer notifications
+        // register listener for edge personalization notifications
         registerListener(type: EventType.edge,
                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
-                         listener: handleOfferNotification)
+                         listener: handleEdgePersonalizationNotification)
     }
 
     public func onUnregistered() {
@@ -125,7 +125,7 @@ public class Messaging: NSObject, Extension {
         
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION : [
-                MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
+                MessagingConstants.XDM.IAM.Key.SURFACES : [ "AC1d8645512e2546df81feaea0ee7042cf" ] // TODO: appSurface ]
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
@@ -146,31 +146,29 @@ public class Messaging: NSObject, Extension {
 
     /// Validates that the received event contains in-app message definitions and loads them in the `MessagingRulesEngine`.
     /// - Parameter event: an `Event` containing an in-app message definition in its data
-    private func handleOfferNotification(_ event: Event) {
+    private func handleEdgePersonalizationNotification(_ event: Event) {
         // validate the event
         guard event.isPersonalizationDecisionResponse else {
             return
         }
 
-        let offersConfig = getOffersMessageConfig()
-
         // validate that the offer contains messages by either matching the activity/placement from plist or bundle id
-        if let activityId = offersConfig.0, let placementId = offersConfig.1 {
-            guard event.offerActivityId == activityId, event.offerPlacementId == placementId else {
-                // no need to log here, as this case will be common if the app is using the optimize extension outside
-                // of in-app messaging
-                return
-            }
-        } else if let bundleIdentifier = offersConfig.1 {
-            guard bundleIdentifier == event.offerDecisionScope else {
-                // no need to log here, as this case will be common if the app is using the optimize extension outside
-                // of in-app messaging
-                return
-            }
-        } else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to handle Offer notification - an unknown error has occurred.")
-            return
-        }
+//        if let activityId = offersConfig.0, let placementId = offersConfig.1 {
+//            guard event.offerActivityId == activityId, event.offerPlacementId == placementId else {
+//                // no need to log here, as this case will be common if the app is using the optimize extension outside
+//                // of in-app messaging
+//                return
+//            }
+//        } else if let bundleIdentifier = offersConfig.1 {
+//            guard bundleIdentifier == event.offerDecisionScope else {
+//                // no need to log here, as this case will be common if the app is using the optimize extension outside
+//                // of in-app messaging
+//                return
+//            }
+//        } else {
+//            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to handle Offer notification - an unknown error has occurred.")
+//            return
+//        }
 
         guard let messages = event.rulesJson,
               let json = event.rulesJson?.first,
@@ -209,10 +207,10 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        guard event.experienceInfo != nil else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring message that does not contain information necessary for tracking with Adobe Journey Optimizer.")
-            return
-        }
+//        guard event.experienceInfo != nil else {
+//            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring message that does not contain information necessary for tracking with Adobe Journey Optimizer.")
+//            return
+//        }
 
         currentMessage = Message(parent: self, event: event)
 
@@ -255,25 +253,6 @@ public class Messaging: NSObject, Extension {
         }
 
         return decisionScopeData.base64EncodedString()
-    }
-
-    /// Retrieves the correct configuration to retrieve in-app messages from offers
-    ///
-    /// If an activityId/placementId are in the plist, those values will be used to generate the decision scope.
-    /// Otherwise, the bundle identifier will be used to generate the decision scope.
-    ///
-    /// - Returns: a tuple containing either (nil, bundleIdentifier) or (activityId, placementId)
-    private func getOffersMessageConfig() -> (String?, String?) {
-        if let path = Bundle.main.path(forResource: "Info", ofType: "plist"), let plistDictionary = NSDictionary(contentsOfFile: path) {
-            guard let activity = plistDictionary.value(forKey: MessagingConstants.IAM.Plist.ACTIVITY_ID) as? String,
-                  let placement = plistDictionary.value(forKey: MessagingConstants.IAM.Plist.PLACEMENT_ID) as? String
-            else {
-                return (nil, Bundle.main.bundleIdentifier)
-            }
-            return (activity, placement)
-        }
-
-        return (nil, Bundle.main.bundleIdentifier)
     }
 
     // MARK: - Event Handers

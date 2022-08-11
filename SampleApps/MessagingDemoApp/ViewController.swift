@@ -31,7 +31,9 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_: Any) {
-        MobileCore.track(action: "keep-fullscreen", data: nil)
+        MobileCore.track(action: "inbound_test", data: nil)
+//        MobileCore.track(action: "keep-fullscreen", data: nil)
+        
                 
 //        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["seahawks": "bad"]))
 //        MobileCore.track(action: "zkorczyc-test", data: nil)
