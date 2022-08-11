@@ -228,14 +228,22 @@ enum MessagingConstants {
         enum IAM {
             static let IN_APP_MIXIN_NAME = "inappMessageTracking"
             static let ACTION = "action"
+            static let SURFACE_BASE = "mobileapp://"
 
             enum EventType {
                 static let DISMISS = "inapp.dismiss"
                 static let INTERACT = "inapp.interact"
                 static let TRIGGER = "inapp.trigger"
                 static let DISPLAY = "inapp.display"
+                static let PERSONALIZATION_REQUEST = "personalization.request"
             }
 
+            enum Key {
+                static let PERSONALIZATION = "personalization"
+                static let QUERY = "query"
+                static let SURFACES = "surfaces"
+            }
+            
             enum Value {
                 static let TRIGGERED = "triggered"
                 static let DISPLAYED = "displayed"

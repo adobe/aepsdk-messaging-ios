@@ -99,7 +99,7 @@ public class Messaging: NSObject, Extension {
             initialLoadComplete = true
             fetchMessages()
         }
-
+        
         return true
     }
 
@@ -110,36 +110,36 @@ public class Messaging: NSObject, Extension {
         rulesEngine.process(event: event)
     }
 
-    /// Generates and dispatches an event prompting the Personalization extension to fetch in-app messages.
-    /// If the config contains both an activity and a placement (retrieved from the app's plist), use that
-    /// decision scope.  Otherwise, use the bundleIdentifier for the app.
+    /// Generates and dispatches an event prompting the Edge extension to fetch in-app messages.
+    /// The app surface used in the request is generated using the `bundleIdentifier` for the app.
+    /// If the `bundleIdentifier` is unavailable, calling this method will do nothing.
     private func fetchMessages() {
-        var decisionScope = ""
-        let offersConfig = getOffersMessageConfig()
-
-        // check for activity and placement provided by info.plist
-        if let activityId = offersConfig.0, let placementId = offersConfig.1 {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Fetching messages using ActivityID (\(activityId)) and PlacementID (\(placementId)) values found in Info.plist.")
-            decisionScope = getEncodedDecisionScopeFor(activityId: activityId, placementId: placementId)
-        } else if let bundleIdentifier = offersConfig.1 {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Fetching messages using BundleIdentifier (\(bundleIdentifier)).")
-            decisionScope = getEncodedDecisionScopeFor(bundleIdentifier: bundleIdentifier)
+        guard let bundleIdentifier = Bundle.main.bundleIdentifier, !bundleIdentifier.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve in-app messages - unable to retrieve bundle identifier.")
+            return
         }
-
-        // create event to be handled by optimize
-        let optimizeData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.Optimize.REQUEST_TYPE: MessagingConstants.Event.Data.Values.Optimize.UPDATE_PROPOSITIONS,
-            MessagingConstants.Event.Data.Key.Optimize.DECISION_SCOPES: [
-                [
-                    MessagingConstants.Event.Data.Key.Optimize.NAME: "\(decisionScope)"
-                ]
+        
+        let appSurface = MessagingConstants.XDM.IAM.SURFACE_BASE + bundleIdentifier
+        
+        var eventData: [String: Any] = [:]
+        
+        let messageRequestData: [String: Any] = [
+            MessagingConstants.XDM.IAM.Key.PERSONALIZATION : [
+                MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
             ]
         ]
+        eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
+        
+        let xdmData: [String: Any] = [
+            MessagingConstants.XDM.Key.EVENT_TYPE : MessagingConstants.XDM.IAM.EventType.PERSONALIZATION_REQUEST
+        ]
+        eventData[MessagingConstants.XDM.Key.XDM] = xdmData
+        
         let event = Event(name: MessagingConstants.Event.Name.RETRIEVE_MESSAGE_DEFINITIONS,
-                          type: EventType.optimize,
+                          type: EventType.edge,
                           source: EventSource.requestContent,
-                          data: optimizeData)
-
+                          data: eventData)
+        
         // send event
         runtime.dispatch(event: event)
     }

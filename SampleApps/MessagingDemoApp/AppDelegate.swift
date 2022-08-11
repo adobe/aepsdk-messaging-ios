@@ -10,7 +10,6 @@
 // governing permissions and limitations under the License.
 //
 
-import AEPOptimize
 import AEPAssurance
 import AEPCore
 import AEPEdge
@@ -41,7 +40,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         MobileCore.setLogLevel(.trace)
 
         let extensions = [
-            Optimize.self,
             Consent.self,
             Lifecycle.self,
             Identity.self,
@@ -66,6 +64,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // sotu_property
         // 3149c49c3910/787763e3fa93/launch-5ee93ddc2218-development
 
+        // ** staging environment **
+        // sb_stage on "CJM Stage" (AJO Web sandbox)
+        // App Surface - sb_app_configuration
+        // com.adobe.MessagingDemoApp
+        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
+        
+        
         
         // last one used below
         
@@ -83,21 +88,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // 7417321fe1d7/37be53c7214b/launch-a854f2463f5e-development
         
         
-        MobileCore.configureWith(appId: "3149c49c3910/3759ced5ae7d/launch-6ec882280c23-development")
+        MobileCore.configureWith(appId: "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development")
         
         // update config to use cjmstage for int integration
         let cjmStageConfig = [
             "edge.environment": "int",
-            "experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
+            //"experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
             // archanaInAppDatastream: prod (CJM Stage)
-            "edge.configId": "86527755-dd21-4618-a127-1d4102e45c0a",
+            //"edge.configId": "86527755-dd21-4618-a127-1d4102e45c0a",
             // prod
             // "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
             // ajo-sandbox
             // "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
-            "messaging.eventDataset": "610ae80b3cbbc718dab06208"
+            //"messaging.eventDataset": "610ae80b3cbbc718dab06208"
         ]
-//        MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
+        MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
 
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
         // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true

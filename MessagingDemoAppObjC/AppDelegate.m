@@ -13,7 +13,6 @@
 #import "AppDelegate.h"
 @import AEPCore;
 @import AEPAssurance;
-@import AEPOptimize;
 @import AEPEdge;
 @import AEPEdgeConsent;
 @import AEPEdgeIdentity;
@@ -33,7 +32,6 @@
     [AEPMobileCore setLogLevel:AEPLogLevelTrace];
     
     NSArray *extensions = @[
-        AEPMobileOptimize.class,
         AEPMobileEdgeConsent.class,
         AEPMobileEdgeIdentity.class,
         AEPMobileMessaging.class,
