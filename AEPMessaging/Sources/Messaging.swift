@@ -114,18 +114,18 @@ public class Messaging: NSObject, Extension {
     /// The app surface used in the request is generated using the `bundleIdentifier` for the app.
     /// If the `bundleIdentifier` is unavailable, calling this method will do nothing.
     private func fetchMessages() {
-        guard let bundleIdentifier = Bundle.main.bundleIdentifier, !bundleIdentifier.isEmpty else {
+        guard let appSurface = appSurface else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve in-app messages - unable to retrieve bundle identifier.")
             return
         }
-        
-        let appSurface = MessagingConstants.XDM.IAM.SURFACE_BASE + bundleIdentifier
-        
+                
         var eventData: [String: Any] = [:]
         
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION : [
-                MessagingConstants.XDM.IAM.Key.SURFACES : [ "AC1d8645512e2546df81feaea0ee7042cf" ] // TODO: appSurface ]
+                // TODO: pass `appSurface` into the array below
+                // "AC1d8645512e2546df81feaea0ee7042cf"
+                MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
@@ -143,6 +143,14 @@ public class Messaging: NSObject, Extension {
         // send event
         runtime.dispatch(event: event)
     }
+    
+    private var appSurface: String? {
+        guard let bundleIdentifier = Bundle.main.bundleIdentifier, !bundleIdentifier.isEmpty else {
+            return nil
+        }
+        
+        return MessagingConstants.XDM.IAM.SURFACE_BASE + bundleIdentifier
+    }
 
     /// Validates that the received event contains in-app message definitions and loads them in the `MessagingRulesEngine`.
     /// - Parameter event: an `Event` containing an in-app message definition in its data
@@ -151,24 +159,13 @@ public class Messaging: NSObject, Extension {
         guard event.isPersonalizationDecisionResponse else {
             return
         }
-
-        // validate that the offer contains messages by either matching the activity/placement from plist or bundle id
-//        if let activityId = offersConfig.0, let placementId = offersConfig.1 {
-//            guard event.offerActivityId == activityId, event.offerPlacementId == placementId else {
-//                // no need to log here, as this case will be common if the app is using the optimize extension outside
-//                // of in-app messaging
-//                return
-//            }
-//        } else if let bundleIdentifier = offersConfig.1 {
-//            guard bundleIdentifier == event.offerDecisionScope else {
-//                // no need to log here, as this case will be common if the app is using the optimize extension outside
-//                // of in-app messaging
-//                return
-//            }
-//        } else {
-//            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to handle Offer notification - an unknown error has occurred.")
-//            return
-//        }
+        
+        // validate that the notification contains the in-app messages we requested
+        guard event.scope == appSurface else {
+            // no need to log here, as this case will be common if the app is
+            // using personalization outside of in-app messaging
+            return
+        }
 
         guard let messages = event.rulesJson,
               let json = event.rulesJson?.first,
@@ -206,53 +203,16 @@ public class Messaging: NSObject, Extension {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to show message for event \(event.id) - it contains no HTML defining the message.")
             return
         }
-
-//        guard event.experienceInfo != nil else {
-//            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring message that does not contain information necessary for tracking with Adobe Journey Optimizer.")
-//            return
-//        }
+        
+        guard event.hasNecessaryTrackingInfo else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring message that does not contain information necessary for tracking with Adobe Journey Optimizer.")
+            return
+        }
 
         currentMessage = Message(parent: self, event: event)
 
         currentMessage?.trigger()
         currentMessage?.show()
-    }
-
-    /// Takes an activity and placement and returns an encoded string in the format expected
-    /// by the Optimize extension for retrieving offers by activity and placement.
-    ///
-    /// If encoding of the decision scope fails, empty string will be returned.
-    ///
-    /// - Parameters:
-    ///   - activityId: the activityId for the decision scope
-    ///   - placementId: the placementId for the decision scope
-    /// - Returns: a base64 encoded JSON string to be used by the Optimize extension
-    private func getEncodedDecisionScopeFor(activityId: String, placementId: String) -> String {
-        let decisionScopeString = "{\"activityId\":\"\(activityId)\",\"placementId\":\"\(placementId)\",\"itemCount\":\(MessagingConstants.DefaultValues.Optimize.MAX_ITEM_COUNT)}"
-
-        guard let decisionScopeData = decisionScopeString.data(using: .utf8) else {
-            return ""
-        }
-
-        return decisionScopeData.base64EncodedString()
-    }
-
-    /// Takes a bundle identifier and returns an encoded string in the format expected
-    /// by the Optimize extension for retrieving offers by xdm:name.
-    ///
-    /// If encoding of the decision scope fails, empty string will be returned.
-    ///
-    /// - Parameters:
-    ///   - bundleIdentifier: the bundleIdentifier of the app
-    /// - Returns: a base64 encoded JSON string to be used by the Optimize extension
-    private func getEncodedDecisionScopeFor(bundleIdentifier: String) -> String {
-        let decisionScopeString = "{\"\(MessagingConstants.Event.Data.Key.Optimize.XDM_NAME)\":\"\(bundleIdentifier)\"}"
-
-        guard let decisionScopeData = decisionScopeString.data(using: .utf8) else {
-            return ""
-        }
-
-        return decisionScopeData.base64EncodedString()
     }
 
     // MARK: - Event Handers

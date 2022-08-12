@@ -52,25 +52,17 @@ class EventPlusMessagingTests: XCTestCase {
                                triggeredConsequence: [String: Any]? = nil,
                                removeDetails: [String]? = nil,
                                xdmExperienceInfo: [String: Any]? = nil) -> Event {
-        let xdmExperienceInfo = xdmExperienceInfo ?? [
-            MessagingConstants.XDM.AdobeKeys.MIXINS: [
-                MessagingConstants.XDM.AdobeKeys.EXPERIENCE: [
-                    "experience": "everything",
-                    MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT: [
-                        MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION: [
-                            MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION_ID: "552"
-                        ]
-                    ]
-                ]
-            ]
-        ]
 
         // details are the same for postback and pii, different for open url
         var details = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
             MessagingConstants.Event.Data.Key.IAM.TEMPLATE: MessagingConstants.Event.Data.Values.IAM.FULLSCREEN,
             MessagingConstants.Event.Data.Key.IAM.HTML: testHtml,
             MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: testAssets,
-            MessagingConstants.XDM.AdobeKeys._XDM: xdmExperienceInfo
+            MessagingConstants.Event.Data.Key.Personalization.ID: "552",
+            MessagingConstants.Event.Data.Key.Personalization.SCOPE: "mobileapp://com.apple.dt.xctest.tool",
+            MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS: [
+                "akey": "avalue"
+            ]
         ] : [:]
 
         if let keysToBeRemoved = removeDetails {
@@ -197,17 +189,6 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(2, event.remoteAssets!.count)
         XCTAssertEqual(testAssets[0], event.remoteAssets![0])
         XCTAssertEqual(testAssets[1], event.remoteAssets![1])
-    }
-
-    func testInAppMessageExperienceInfo() throws {
-        // setup
-        let event = getRulesResponseEvent()
-
-        // verify
-        XCTAssertNotNil(event.experienceInfo)
-        XCTAssertEqual(2, event.experienceInfo?.count)
-        let experienceData = event.experienceInfo!["experience"] as! String
-        XCTAssertEqual("everything", experienceData)
     }
 
     func testInAppMessageExperienceInfoNoMixins() throws {
@@ -463,116 +444,13 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertFalse(event.isPersonalizationDecisionResponse)
     }
 
-    func testOfferActivityIdHappy() {
-        // setup
-        let event = getAEPResponseEvent()
-
-        // verify
-        XCTAssertEqual(mockActivityId, event.offerActivityId)
-    }
-
-    func testOfferActivityIdEmpty() {
-        // setup
-        let data1 = ["content": mockContent1]
-        let item1 = ["data": data1]
-        let data2 = ["content": mockContent2]
-        let item2 = ["data": data2]
-        let placement = ["id": mockPlacementId]
-        let activity: [String: Any] = [:]
-        let payload: [String: Any] = [
-            "activity": activity,
-            "placement": placement,
-            "items": [item1, item2]
-        ]
-        let event = getAEPResponseEvent(data: ["payload": [payload]])
-
-        // verify
-        XCTAssertNil(event.offerActivityId)
-    }
-
-    func testOfferPlacementIdHappy() {
-        // setup
-        let event = getAEPResponseEvent()
-
-        // verify
-        XCTAssertEqual(mockPlacementId, event.offerPlacementId)
-    }
-
-    func testOfferPlacementIdEmpty() {
-        // setup
-        let data1 = ["content": mockContent1]
-        let item1 = ["data": data1]
-        let data2 = ["content": mockContent2]
-        let item2 = ["data": data2]
-        let placement: [String: Any] = [:]
-        let activity = ["id": mockActivityId]
-        let payload: [String: Any] = [
-            "activity": activity,
-            "placement": placement,
-            "items": [item1, item2]
-        ]
-        let event = getAEPResponseEvent(data: ["payload": [payload]])
-
-        // verify
-        XCTAssertNil(event.offerPlacementId)
-    }
-
-    func testOfferDecisionScopeHappy() {
-        // setup
-        let event = getAEPResponseEvent()
-
-        // verify
-        XCTAssertEqual(mockBundleIdentifier, event.offerDecisionScope)
-    }
-
-    func testOfferDecisionScopeEmpty() {
-        // setup
-        let data1 = ["content": mockContent1]
-        let item1 = ["data": data1]
-        let data2 = ["content": mockContent2]
-        let item2 = ["data": data2]
-        let placement: [String: Any] = [:]
-        let activity = ["id": mockActivityId]
-        let payload: [String: Any] = [
-            "activity": activity,
-            "placement": placement,
-            "items": [item1, item2]
-        ]
-        let event = getAEPResponseEvent(data: ["payload": [payload]])
-
-        // verify
-        XCTAssertNil(event.offerDecisionScope)
-    }
-
-    func testOfferDecisionScopeMalformedFormat() {
-        // setup
-        let data1 = ["content": mockContent1]
-        let item1 = ["data": data1]
-        let data2 = ["content": mockContent2]
-        let item2 = ["data": data2]
-        let placement: [String: Any] = [:]
-        let activity = ["id": mockActivityId]
-        let payload: [String: Any] = [
-            "activity": activity,
-            "placement": placement,
-            "scope": "nope wrong scope",
-            "items": [item1, item2]
-        ]
-        let event = getAEPResponseEvent(data: ["payload": [payload]])
-
-        // verify
-        XCTAssertNil(event.offerDecisionScope)
-    }
-
     func testPayloadIsNil() {
         // setup
         let payload: [[String: Any]]? = nil
         let event = getAEPResponseEvent(data: ["payload": payload as Any])
 
         // verify
-        XCTAssertNil(event.offerActivityId)
-        XCTAssertNil(event.offerPlacementId)
-        XCTAssertNil(event.offerDecisionScope)
+        XCTAssertNil(event.scope)
         XCTAssertNil(event.rulesJson)
     }
 
@@ -582,8 +460,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getAEPResponseEvent(data: ["payload": payload as Any])
 
         // verify
-        XCTAssertNil(event.offerActivityId)
-        XCTAssertNil(event.offerPlacementId)
+        XCTAssertNil(event.scope)
         XCTAssertNil(event.rulesJson)
     }
 

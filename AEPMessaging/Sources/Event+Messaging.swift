@@ -28,7 +28,7 @@ extension Event {
 
     /// Grabs the messageExecutionID value from XDM
     var messageId: String? {
-        xdmMessageExecution?[MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION_ID] as? String
+        details?[MessagingConstants.Event.Data.Key.Personalization.ID] as? String
     }
 
     var template: String? {
@@ -196,9 +196,40 @@ extension Event {
         // but may be used later if new kinds of messages are introduced
         html != nil
     }
+    
+    // TODO: check for id, scope, scopeDetails
+    var hasNecessaryTrackingInfo: Bool {
+        return rulesConsequenceId != nil && !rulesConsequenceId!.isEmpty &&
+        rulesConsequenceScope != nil && !rulesConsequenceScope!.isEmpty &&
+        rulesConsequenceScopeDetails != nil && !rulesConsequenceScopeDetails!.isEmpty
+    }
 
     // MARK: Private
 
+    private var rulesConsequenceScope: String? {
+        guard let details = details, !details.isEmpty else {
+            return nil
+        }
+        
+        return details[MessagingConstants.Event.Data.Key.Personalization.SCOPE] as? String
+    }
+    
+    private var rulesConsequenceScopeDetails: [String: Any]? {
+        guard let details = details, !details.isEmpty else {
+            return nil
+        }
+        
+        return details[MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS] as? [String: Any]
+    }
+    
+    private var rulesConsequenceId: String? {
+        guard let details = details, !details.isEmpty else {
+            return nil
+        }
+        
+        return details[MessagingConstants.Event.Data.Key.Personalization.ID] as? String
+    }
+    
     // MARK: Consequence EventData Processing
 
     private var consequence: [String: Any]? {
@@ -220,29 +251,12 @@ extension Event {
     var isPersonalizationDecisionResponse: Bool {
         isEdgeType && isPersonalizationSource
     }
-
-    var offerActivityId: String? {
-        activity?[MessagingConstants.Event.Data.Key.Optimize.ID] as? String
-    }
-
-    var offerPlacementId: String? {
-        placement?[MessagingConstants.Event.Data.Key.Optimize.ID] as? String
-    }
-
-    var offerDecisionScope: String? {
+        
+    var scope: String? {
         guard let payload = payload, !payload.isEmpty else {
             return nil
         }
-
-        guard let b64EncodedScope = payload.first?[MessagingConstants.Event.Data.Key.Optimize.SCOPE] as? String else {
-            return nil
-        }
-
-        guard let scopeData = Data(base64Encoded: b64EncodedScope), let scopeDictionary = try? JSONSerialization.jsonObject(with: scopeData, options: .mutableContainers) as? [String: Any] else {
-            return nil
-        }
-
-        return scopeDictionary[MessagingConstants.Event.Data.Key.Optimize.XDM_NAME] as? String
+        return payload.first?[MessagingConstants.Event.Data.Key.Personalization.SCOPE] as? String
     }
 
     /// each entry in the array represents "content" from an offer, which contains a rule
@@ -253,10 +267,10 @@ extension Event {
 
         var rules: [String] = []
         for item in items {
-            guard let data = item[MessagingConstants.Event.Data.Key.Optimize.DATA] as? [String: Any] else {
+            guard let data = item[MessagingConstants.Event.Data.Key.Personalization.DATA] as? [String: Any] else {
                 continue
             }
-            if let content = data[MessagingConstants.Event.Data.Key.Optimize.CONTENT] as? String {
+            if let content = data[MessagingConstants.Event.Data.Key.Personalization.CONTENT] as? String {
                 rules.append(content)
             }
         }
@@ -277,23 +291,14 @@ extension Event {
     /// payload is an array of dictionaries, but since we are only asking for a single DecisionScope
     /// in the messaging sdk, we can assume this array will only have 0-1 items
     private var payload: [[String: Any]]? {
-        data?[MessagingConstants.Event.Data.Key.Optimize.PAYLOAD] as? [[String: Any]]
-    }
-
-    private var activity: [String: Any]? {
-        guard let payload = payload, !payload.isEmpty else {
-            return nil
-        }
-
-        return payload[0][MessagingConstants.Event.Data.Key.Optimize.ACTIVITY] as? [String: Any]
-    }
-
-    private var placement: [String: Any]? {
-        guard let payload = payload, !payload.isEmpty else {
-            return nil
-        }
-
-        return payload[0][MessagingConstants.Event.Data.Key.Optimize.PLACEMENT] as? [String: Any]
+        
+        
+        
+        // TODO: does the new format require handling multiple payloads???
+        
+        
+        
+        data?[MessagingConstants.Event.Data.Key.Personalization.PAYLOAD] as? [[String: Any]]
     }
 
     private var items: [[String: Any]]? {
@@ -301,7 +306,7 @@ extension Event {
             return nil
         }
 
-        return payload[0][MessagingConstants.Event.Data.Key.Optimize.ITEMS] as? [[String: Any]]
+        return payload[0][MessagingConstants.Event.Data.Key.Personalization.ITEMS] as? [[String: Any]]
     }
 
     private var xdmCustomerJourneyManagement: [String: Any]? {
