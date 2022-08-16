@@ -43,42 +43,34 @@ extension Event {
         details?[MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS] as? [String]
     }
 
-    /// Returns the `_experience` dictionary from the `_xdm.mixins` object for Experience Event tracking
-    var experienceInfo: [String: Any]? {
-        guard let xdm = details?[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any],
-              let xdmMixins = xdm[MessagingConstants.XDM.AdobeKeys.MIXINS] as? [String: Any]
-        else {
-            return nil
-        }
-
-        return xdmMixins[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
-    }
-
-    /*
-     "mobileParameters": {
-     "schemaVersion": "1.0",
-     "width": 80,
-     "height": 50,
-     "verticalAlign": "center",
-     "verticalInset": 0,
-     "horizontalAlign": "center",
-     "horizontalInset": 0,
-     "uiTakeover": true,
-     "displayAnimation": "top",
-     "dismissAnimation": "top",
-     "backdropColor": "000000",    // RRGGBB
-     "backdropOpacity: 0.3,
-     "cornerRadius": 15,
-     "gestures": {
-     "swipeUp": "adbinapp://dismiss",
-     "swipeDown": "adbinapp://dismiss",
-     "swipeLeft": "adbinapp://dismiss?interaction=negative",
-     "swipeRight": "adbinapp://dismiss?interaction=positive",
-     "tapBackground": "adbinapp://dismiss"
-     }
-     }
-     */
+    /// sample `mobileParameters` json which gets represented by a `MessageSettings` object:
+    /// {
+    ///     "mobileParameters": {
+    ///         "schemaVersion": "1.0",
+    ///         "width": 80,
+    ///         "height": 50,
+    ///         "verticalAlign": "center",
+    ///         "verticalInset": 0,
+    ///         "horizontalAlign": "center",
+    ///         "horizontalInset": 0,
+    ///         "uiTakeover": true,
+    ///         "displayAnimation": "top",
+    ///         "dismissAnimation": "top",
+    ///         "backdropColor": "000000",    // RRGGBB
+    ///         "backdropOpacity: 0.3,
+    ///         "cornerRadius": 15,
+    ///         "gestures": {
+    ///             "swipeUp": "adbinapp://dismiss",
+    ///             "swipeDown": "adbinapp://dismiss",
+    ///             "swipeLeft": "adbinapp://dismiss?interaction=negative",
+    ///             "swipeRight": "adbinapp://dismiss?interaction=positive",
+    ///             "tapBackground": "adbinapp://dismiss"
+    ///         }
+    ///     }
+    /// }
+     
     func getMessageSettings(withParent parent: Any?) -> MessageSettings {
+        let cornerRadius = CGFloat(messageCornerRadius ?? 0)
         let settings = MessageSettings(parent: parent)
             .setWidth(messageWidth)
             .setHeight(messageHeight)
@@ -89,7 +81,7 @@ extension Event {
             .setUiTakeover(messageUiTakeover)
             .setBackdropColor(messageBackdropColor)
             .setBackdropOpacity(messageBackdropOpacity)
-            .setCornerRadius(messageCornerRadius != nil ? CGFloat(messageCornerRadius ?? 0) : nil)
+            .setCornerRadius(messageCornerRadius != nil ? cornerRadius : nil)
             .setDisplayAnimation(messageDisplayAnimation)
             .setDismissAnimation(messageDismissAnimation)
             .setGestures(messageGestures)
@@ -206,28 +198,16 @@ extension Event {
 
     // MARK: Private
 
+    private var rulesConsequenceId: String? {
+        return details?[MessagingConstants.Event.Data.Key.Personalization.ID] as? String
+    }
+    
     private var rulesConsequenceScope: String? {
-        guard let details = details, !details.isEmpty else {
-            return nil
-        }
-        
-        return details[MessagingConstants.Event.Data.Key.Personalization.SCOPE] as? String
+        return details?[MessagingConstants.Event.Data.Key.Personalization.SCOPE] as? String
     }
     
     private var rulesConsequenceScopeDetails: [String: Any]? {
-        guard let details = details, !details.isEmpty else {
-            return nil
-        }
-        
-        return details[MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS] as? [String: Any]
-    }
-    
-    private var rulesConsequenceId: String? {
-        guard let details = details, !details.isEmpty else {
-            return nil
-        }
-        
-        return details[MessagingConstants.Event.Data.Key.Personalization.ID] as? String
+        return details?[MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS] as? [String: Any]
     }
     
     // MARK: Consequence EventData Processing
@@ -253,10 +233,7 @@ extension Event {
     }
         
     var scope: String? {
-        guard let payload = payload, !payload.isEmpty else {
-            return nil
-        }
-        return payload.first?[MessagingConstants.Event.Data.Key.Personalization.SCOPE] as? String
+        return payload?.first?[MessagingConstants.Event.Data.Key.Personalization.SCOPE] as? String
     }
 
     /// each entry in the array represents "content" from an offer, which contains a rule
@@ -309,22 +286,6 @@ extension Event {
         return payload[0][MessagingConstants.Event.Data.Key.Personalization.ITEMS] as? [[String: Any]]
     }
 
-    private var xdmCustomerJourneyManagement: [String: Any]? {
-        guard let experienceInfo = experienceInfo else {
-            return nil
-        }
-
-        return experienceInfo[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any]
-    }
-
-    private var xdmMessageExecution: [String: Any]? {
-        guard let xdmCustomerJourneyManagement = xdmCustomerJourneyManagement else {
-            return nil
-        }
-
-        return xdmCustomerJourneyManagement[MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION] as? [String: Any]
-    }
-
     // MARK: Refresh Messages Public API Event
 
     var isRefreshMessageEvent: Bool {
@@ -343,7 +304,8 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool ?? false
     }
 
-    /// Returns true if this event is a generic identity request content event
+    // MARK: - SetPushIdentifier Event
+    
     var isGenericIdentityRequestContentEvent: Bool {
         type == EventType.genericIdentity && source == EventSource.requestContent
     }
@@ -352,6 +314,12 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String
     }
 
+    // MARK: - PushClickthrough Event
+    
+    var isMessagingRequestContentEvent: Bool {
+        type == MessagingConstants.Event.EventType.messaging && source == EventSource.requestContent
+    }
+    
     var xdmEventType: String? {
         data?[MessagingConstants.Event.Data.Key.EVENT_TYPE] as? String
     }
@@ -378,9 +346,5 @@ extension Event {
 
     var adobeXdm: [String: Any]? {
         data?[MessagingConstants.XDM.Key.ADOBE_XDM] as? [String: Any]
-    }
-
-    var isMessagingRequestContentEvent: Bool {
-        type == MessagingConstants.Event.EventType.messaging && source == EventSource.requestContent
     }
 }

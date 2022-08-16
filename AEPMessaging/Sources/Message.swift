@@ -59,7 +59,8 @@ public class Message: NSObject {
         self.parent = parent
         triggeringEvent = event
         id = event.messageId ?? ""
-        experienceInfo = event.experienceInfo ?? [:]
+        //experienceInfo = event.experienceInfo ?? [:]
+        experienceInfo = [:]
         super.init()
         let messageSettings = event.getMessageSettings(withParent: self)
         let usingLocalAssets = generateAssetMap()
