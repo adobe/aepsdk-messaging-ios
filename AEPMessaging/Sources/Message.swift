@@ -46,8 +46,11 @@ public class Message: NSObject {
     /// The `Event` that triggered this `Message`.  Primarily used for getting the correct `Configuration` for
     /// access to the AEP Dataset ID.
     var triggeringEvent: Event
+    
+    var propositionInfo: PropositionInfo?
 
     /// Holds XDM data necessary for tracking `Message` interactions with Adobe Journey Optimizer.
+    // TODO: remove experienceInfo
     let experienceInfo: [String: Any]
 
     /// Creates a Message object which owns and controls UI and tracking behavior of an In-App Message.
@@ -132,7 +135,8 @@ public class Message: NSObject {
     ///   - eventType: the `MessagingEdgeEventType` to be used for the ensuing Edge Event
     @objc(trackInteraction:withEdgeEventType:)
     public func track(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType) {
-        parent?.sendExperienceEvent(withEventType: eventType, andInteraction: interaction, forMessage: self)
+        parent?.sendPropositionInteraction(withEventType: eventType, andInteraction: interaction, forMessage: self)
+//        parent?.sendExperienceEvent(withEventType: eventType, andInteraction: interaction, forMessage: self)
     }
 
     // MARK: - WebView javascript handling

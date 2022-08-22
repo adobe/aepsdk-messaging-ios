@@ -24,6 +24,7 @@ enum MessagingConstants {
     enum Caches {
         static let CACHE_NAME = "com.adobe.messaging.cache"
         static let MESSAGES = "messages"
+        static let PROPOSITIONS = "propositions"
         static let MESSAGES_DELIMITER = "||"
         static let PATH = "PATH"
     }
