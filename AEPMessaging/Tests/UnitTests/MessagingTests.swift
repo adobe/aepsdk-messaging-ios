@@ -119,12 +119,18 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let fetchEvent = mockRuntime.firstEvent
         XCTAssertNotNil(fetchEvent)
-        XCTAssertEqual(EventType.optimize, fetchEvent?.type)
+        XCTAssertEqual(EventType.edge, fetchEvent?.type)
         XCTAssertEqual(EventSource.requestContent, fetchEvent?.source)
         let fetchEventData = fetchEvent?.data
         XCTAssertNotNil(fetchEventData)
-        XCTAssertNotNil(fetchEventData?[MessagingConstants.Event.Data.Key.Optimize.DECISION_SCOPES])
-        XCTAssertEqual(MessagingConstants.Event.Data.Values.Optimize.UPDATE_PROPOSITIONS, fetchEventData?[MessagingConstants.Event.Data.Key.Optimize.REQUEST_TYPE] as! String)
+        let fetchEventQuery = fetchEventData?[MessagingConstants.XDM.IAM.Key.QUERY] as? [String: Any]
+        XCTAssertNotNil(fetchEventQuery)
+        let fetchEventPersonalization = fetchEventQuery?[MessagingConstants.XDM.IAM.Key.PERSONALIZATION] as? [String: Any]
+        XCTAssertNotNil(fetchEventPersonalization)
+        let fetchEventSurfaces = fetchEventPersonalization?[MessagingConstants.XDM.IAM.Key.SURFACES] as? [String]
+        XCTAssertNotNil(fetchEventSurfaces)
+        XCTAssertEqual(1, fetchEventSurfaces?.count)
+        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool", fetchEventSurfaces?.first)
     }
 
     func testHandleOfferNotificationHappy() throws {
@@ -219,7 +225,7 @@ class MessagingTests: XCTestCase {
         let event = Event(name: "Test Rules Engine Response Event",
                           type: EventType.rulesEngine,
                           source: EventSource.responseContent,
-                          data: getRulesResponseEventData(experienceInfo: [:]))
+                          data: getRulesResponseEventData(scopeDetails: [:]))
 
         // test
         mockRuntime.simulateComingEvents(event)
@@ -471,20 +477,18 @@ class MessagingTests: XCTestCase {
 
     func getOfferEventData(items: [String: Any]? = nil, scope: String? = nil) -> [String: Any] {
         [
-            MessagingConstants.Event.Data.Key.Optimize.PAYLOAD: [
+            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: [
                 [
-                    MessagingConstants.Event.Data.Key.Optimize.ACTIVITY: [
-                        MessagingConstants.Event.Data.Key.Optimize.ID: "aTestOrgId"
+                    MessagingConstants.Event.Data.Key.Personalization.ID: "someId",
+                    MessagingConstants.Event.Data.Key.Personalization.SCOPE: scope ?? "mobileapp://com.apple.dt.xctest.tool",
+                    MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS: [
+                        "akey": "avalue"
                     ],
-                    MessagingConstants.Event.Data.Key.Optimize.SCOPE: scope ?? "eyJ4ZG06bmFtZSI6ImNvbS5hcHBsZS5kdC54Y3Rlc3QudG9vbCJ9", // {"xdm:name":"com.apple.dt.xctest.tool"}
-                    MessagingConstants.Event.Data.Key.Optimize.PLACEMENT: [
-                        MessagingConstants.Event.Data.Key.Optimize.ID: "com.apple.dt.xctest.tool"
-                    ],
-                    MessagingConstants.Event.Data.Key.Optimize.ITEMS: [
+                    MessagingConstants.Event.Data.Key.Personalization.ITEMS: [
                         items ??
                             [
-                                MessagingConstants.Event.Data.Key.Optimize.DATA: [
-                                    MessagingConstants.Event.Data.Key.Optimize.CONTENT: "this is the content"
+                                MessagingConstants.Event.Data.Key.Personalization.DATA: [
+                                    MessagingConstants.Event.Data.Key.Personalization.CONTENT: "this is the content"
                                 ]
                             ]
                     ]
@@ -493,21 +497,17 @@ class MessagingTests: XCTestCase {
         ]
     }
 
-    func getRulesResponseEventData(experienceInfo: [String: Any]? = nil) -> [String: Any] {
-        let xdmExperienceInfo = experienceInfo ?? [
-            MessagingConstants.XDM.AdobeKeys.MIXINS: [
-                MessagingConstants.XDM.AdobeKeys.EXPERIENCE: [
-                    "experience": "everything"
-                ]
-            ]
-        ]
-
+    func getRulesResponseEventData(scopeDetails: [String: Any]? = nil) -> [String: Any] {
         return [
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
                 MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
                 MessagingConstants.Event.Data.Key.DETAIL: [
                     MessagingConstants.Event.Data.Key.IAM.HTML: "this is the html",
-                    MessagingConstants.XDM.AdobeKeys._XDM: xdmExperienceInfo
+                    MessagingConstants.Event.Data.Key.Personalization.ID: "id",
+                    MessagingConstants.Event.Data.Key.Personalization.SCOPE: "mobileapp://com.apple.dt.xctest.tool",
+                    MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS: scopeDetails ?? [
+                        "akey": "avalue"
+                    ]
                 ]
             ]
         ]

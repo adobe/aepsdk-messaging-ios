@@ -32,12 +32,6 @@ enum MessagingConstants {
         static let IN_APP_MESSAGE = "cjmiam"
     }
 
-    enum DefaultValues {
-        enum Optimize {
-            static let MAX_ITEM_COUNT = 30
-        }
-    }
-
     enum Event {
         enum Name {
             static let MESSAGE_INTERACTION = "Messaging interaction event"
@@ -88,7 +82,7 @@ enum MessagingConstants {
                     static let DEEPLINK = "adb_deeplink"
                     static let USER_DATA = "userData"
                     static let CATEGORY = "category"
-                    static let SOUND = "sound"
+                    static let SOUND = "sound"                    
 
                     // layout keys
                     static let MOBILE_PARAMETERS = "mobileParameters"
@@ -108,20 +102,15 @@ enum MessagingConstants {
                     static let BACKDROP_OPACITY = "backdropOpacity"
                     static let CORNER_RADIUS = "cornerRadius"
                 }
-
-                enum Optimize {
-                    static let REQUEST_TYPE = "requesttype"
-                    static let DECISION_SCOPES = "decisionscopes"
-                    static let NAME = "name"
-                    static let ID = "id"
+                
+                enum Personalization {
+                    static let PAYLOAD = "payload"
+                    static let ITEMS = "items"
                     static let DATA = "data"
                     static let CONTENT = "content"
-                    static let PAYLOAD = "payload"
-                    static let ACTIVITY = "activity"
-                    static let PLACEMENT = "placement"
-                    static let ITEMS = "items"
-                    static let XDM_NAME = "xdm:name"
+                    static let ID = "id"
                     static let SCOPE = "scope"
+                    static let SCOPE_DETAILS = "scopeDetails"
                 }
             }
 
@@ -137,10 +126,6 @@ enum MessagingConstants {
                     static let SWIPE_LEFT = "swipeLeft"
                     static let SWIPE_RIGHT = "swipeRight"
                     static let TAP_BACKGROUND = "tapBackground"
-                }
-
-                enum Optimize {
-                    static let UPDATE_PROPOSITIONS = "updatepropositions"
                 }
             }
         }
@@ -228,14 +213,22 @@ enum MessagingConstants {
         enum IAM {
             static let IN_APP_MIXIN_NAME = "inappMessageTracking"
             static let ACTION = "action"
+            static let SURFACE_BASE = "mobileapp://"
 
             enum EventType {
                 static let DISMISS = "inapp.dismiss"
                 static let INTERACT = "inapp.interact"
                 static let TRIGGER = "inapp.trigger"
                 static let DISPLAY = "inapp.display"
+                static let PERSONALIZATION_REQUEST = "personalization.request"
             }
 
+            enum Key {
+                static let PERSONALIZATION = "personalization"
+                static let QUERY = "query"
+                static let SURFACES = "surfaces"
+            }
+            
             enum Value {
                 static let TRIGGERED = "triggered"
                 static let DISPLAYED = "displayed"

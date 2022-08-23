@@ -19,14 +19,12 @@ def lib_main
     pod 'AEPCore'
     pod 'AEPServices'
     pod 'AEPRulesEngine'
-    pod 'AEPOptimize'
 end
 
 def lib_dev
     pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.6.1'
     pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.6.1'
     pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'main'
-    pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
 end
 
 def app_main
@@ -39,7 +37,6 @@ def app_main
     pod 'AEPEdgeConsent'
     pod 'AEPEdgeIdentity'
     pod 'AEPAssurance'
-    pod 'AEPOptimize'
 end
 
 def app_dev
@@ -51,7 +48,6 @@ def app_dev
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'main'
     pod 'AEPEdgeConsent'
     pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'main'
-    pod 'AEPOptimize', :git => 'https://github.com/adobe/aepsdk-optimize-ios.git', :branch => 'dev'
     pod 'AEPAnalytics'
     pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'main'
 end
@@ -64,6 +60,10 @@ target 'AEPMessaging' do
 end
 
 target 'MessagingDemoApp' do
+    app_main
+end
+
+target 'MessagingDemoAppObjC' do
     app_main
 end
 

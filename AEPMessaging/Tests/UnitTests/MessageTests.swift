@@ -26,14 +26,6 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     var mockEventData: [String: Any]?
     let mockAssetString = "https://blog.adobe.com/en/publish/2020/05/28/media_1cc0fcc19cf0e64decbceb3a606707a3ad23f51dd.png"
     let mockMessageId = "552"
-    var mockExperienceInfo: [String: Any] = [
-        "experience": "present",
-        MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT: [
-            MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION: [
-                MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION_ID: "552"
-            ]
-        ]
-    ]
     var onShowExpectation: XCTestExpectation?
     var onDismissExpectation: XCTestExpectation?
     var handleJavascriptMessageExpectation: XCTestExpectation?
@@ -46,10 +38,10 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
                 MessagingConstants.Event.Data.Key.DETAIL: [
                     MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: [mockAssetString],
                     MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: TestableMobileParameters.mobileParameters,
-                    MessagingConstants.XDM.AdobeKeys._XDM: [
-                        MessagingConstants.XDM.AdobeKeys.MIXINS: [
-                            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: mockExperienceInfo
-                        ]
+                    MessagingConstants.Event.Data.Key.Personalization.ID: mockMessageId,
+                    MessagingConstants.Event.Data.Key.Personalization.SCOPE: "mobileapp://com.apple.dt.xctest.tool",
+                    MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS: [
+                        "akey": "avalue"
                     ]
                 ]
             ]
@@ -69,9 +61,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         // verify
         XCTAssertEqual(mockMessaging, message.parent)
         XCTAssertEqual(mockEvent, message.triggeringEvent)
-        XCTAssertEqual(mockMessageId, message.id)
-        XCTAssertEqual(2, message.experienceInfo.count)
-        XCTAssertEqual("present", message.experienceInfo["experience"] as? String)
+        XCTAssertEqual(mockMessageId, message.id)        
         XCTAssertNotNil(message.fullscreenMessage)
         XCTAssertNotNil(message.assets)
         XCTAssertEqual(1, message.assets?.count)
