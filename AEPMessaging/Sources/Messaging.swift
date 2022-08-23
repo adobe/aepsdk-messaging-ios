@@ -127,8 +127,8 @@ public class Messaging: NSObject, Extension {
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION : [
                 // TODO: pass `appSurface` into the array below
-                // MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
-                MessagingConstants.XDM.IAM.Key.SURFACES : [ TEMP_APP_SURFACE ]
+                 MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
+//                MessagingConstants.XDM.IAM.Key.SURFACES : [ TEMP_APP_SURFACE ]
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
@@ -163,18 +163,18 @@ public class Messaging: NSObject, Extension {
             return
         }
         
-        // validate that the notification contains the in-app messages we requested
-        // TODO: use the real app surface
-        // guard event.scope == appSurface else {
-        guard event.scope == TEMP_APP_SURFACE else {
-            // no need to log here, as this case will be common if the app is
-            // using personalization outside of in-app messaging
-            return
-        }
-
         guard let propositions = event.payload, !propositions.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Payload for in-app messages was empty. Clearing local cache.")
             rulesEngine.clearPropositionsCache()
+            return
+        }
+        
+        // validate that the notification contains the in-app messages we requested
+        // TODO: use the real app surface
+        // guard event.scope == TEMP_APP_SURFACE else {
+        guard event.scope == appSurface else {
+            // no need to log here, as this case will be common if the app is
+            // using personalization outside of in-app messaging
             return
         }
         

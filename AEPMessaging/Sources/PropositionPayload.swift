@@ -14,8 +14,8 @@ import Foundation
 import AEPServices
 
 struct PropositionPayload: Codable {
-    var propositionInfo: PropositionInfo?
-    var items: [PayloadItem]?
+    var propositionInfo: PropositionInfo
+    var items: [PayloadItem]
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -36,9 +36,9 @@ struct PropositionPayload: Codable {
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(propositionInfo?.id, forKey: .id)
-        try container.encode(propositionInfo?.scope, forKey: .scope)
-        try container.encode(propositionInfo?.scopeDetails, forKey: .scopeDetails)
+        try container.encode(propositionInfo.id, forKey: .id)
+        try container.encode(propositionInfo.scope, forKey: .scope)
+        try container.encode(propositionInfo.scopeDetails, forKey: .scopeDetails)
         try container.encode(items, forKey: .items)
     }
 }

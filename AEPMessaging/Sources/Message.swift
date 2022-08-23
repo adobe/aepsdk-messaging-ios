@@ -47,11 +47,8 @@ public class Message: NSObject {
     /// access to the AEP Dataset ID.
     var triggeringEvent: Event
     
-    var propositionInfo: PropositionInfo?
-
     /// Holds XDM data necessary for tracking `Message` interactions with Adobe Journey Optimizer.
-    // TODO: remove experienceInfo
-    let experienceInfo: [String: Any]
+    var propositionInfo: PropositionInfo?
 
     /// Creates a Message object which owns and controls UI and tracking behavior of an In-App Message.
     ///
@@ -61,9 +58,7 @@ public class Message: NSObject {
     init(parent: Messaging, event: Event) {
         self.parent = parent
         triggeringEvent = event
-        id = event.messageId ?? ""
-        //experienceInfo = event.experienceInfo ?? [:]
-        experienceInfo = [:]
+        id = event.messageId ?? ""        
         super.init()
         let messageSettings = event.getMessageSettings(withParent: self)
         let usingLocalAssets = generateAssetMap()

@@ -14,7 +14,7 @@ import Foundation
 import AEPServices
 
 struct PropositionInfo: Codable {
-    var id: String?
-    var scope: String?
-    var scopeDetails: [String: AnyCodable]?
+    var id: String
+    var scope: String
+    var scopeDetails: [String: AnyCodable]
 }

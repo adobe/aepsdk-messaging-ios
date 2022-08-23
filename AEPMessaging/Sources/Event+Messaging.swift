@@ -234,7 +234,7 @@ extension Event {
     }
         
     var scope: String? {
-        return payload?.first?.propositionInfo?.scope
+        return payload?.first?.propositionInfo.scope
     }
 
     // MARK: Private

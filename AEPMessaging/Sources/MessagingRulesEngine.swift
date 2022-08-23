@@ -47,7 +47,7 @@ class MessagingRulesEngine {
     func loadPropositions(_ propositions: [PropositionPayload]) {
         var rules: [LaunchRule] = []
         for proposition in propositions {
-            guard let ruleString = proposition.items?.first?.data?.content else {
+            guard let ruleString = proposition.items.first?.data.content else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
                 continue
                 
@@ -84,29 +84,5 @@ class MessagingRulesEngine {
     
     func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
         return propositionInfo[messageId]
-    }
-    
-    // MARK: - to remove
-    func loadRules(rules: [String]?) {
-        guard let rules = rules else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load messages, array of rules was empty.")
-            return
-        }
-
-        var messagingRules: [LaunchRule] = []
-        for rule in rules {
-                       
-            guard let processedRule = JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime) else {
-                continue
-            }
-
-            // pre-fetch the assets for this message if there are any defined
-            cacheRemoteAssetsFor(processedRule)
-
-            messagingRules.append(contentsOf: processedRule)
-        }
-
-        rulesEngine.replaceRules(with: messagingRules)
-        Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(messagingRules.count) message(s) into the rules engine.")
     }
 }

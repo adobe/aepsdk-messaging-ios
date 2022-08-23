@@ -306,7 +306,7 @@ extension Messaging {
         // add eventType and prescribed data for the experience info
         var xdmMap: [String: Any] = [
             MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
-            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: message.experienceInfo
+//            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: message.experienceInfo
         ]
 
         // add iam mixin information if this is an interact eventType
@@ -376,7 +376,7 @@ extension Messaging {
         // add eventType and prescribed data for the experience info
         var xdmMap: [String: Any] = [
             MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
-            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: message.experienceInfo
+//            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: message.experienceInfo
         ]
 
         // add iam mixin information if this is an interact eventType

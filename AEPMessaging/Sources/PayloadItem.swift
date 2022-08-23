@@ -15,5 +15,5 @@ import Foundation
 struct PayloadItem: Codable {
     var id: String?
     var schema: String?
-    var data: ItemData?
+    var data: ItemData
 }

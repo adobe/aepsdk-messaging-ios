@@ -14,5 +14,5 @@ import Foundation
 
 struct ItemData: Codable {
     var id: String?
-    var content: String?
+    var content: String
 }
