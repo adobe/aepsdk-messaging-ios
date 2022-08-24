@@ -27,6 +27,7 @@ public class Messaging: NSObject, Extension {
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
 
+    private var requestMessagesEventId: String?
     private var initialLoadComplete = false
     private(set) var currentMessage: Message?
     private let rulesEngine: MessagingRulesEngine
@@ -127,8 +128,8 @@ public class Messaging: NSObject, Extension {
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION : [
                 // TODO: pass `appSurface` into the array below
-                 MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
-//                MessagingConstants.XDM.IAM.Key.SURFACES : [ TEMP_APP_SURFACE ]
+                MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
+                //MessagingConstants.XDM.IAM.Key.SURFACES : [ TEMP_APP_SURFACE ]
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
@@ -143,6 +144,10 @@ public class Messaging: NSObject, Extension {
                           source: EventSource.requestContent,
                           data: eventData)
         
+        // equal to `requestEventId` in aep response handles
+        // used for ensuring that the messaging extension is responding to the correct handle
+        requestMessagesEventId = event.id.uuidString
+                
         // send event
         runtime.dispatch(event: event)
     }
@@ -159,22 +164,16 @@ public class Messaging: NSObject, Extension {
     /// - Parameter event: an `Event` containing an in-app message definition in its data
     private func handleEdgePersonalizationNotification(_ event: Event) {
         // validate the event
-        guard event.isPersonalizationDecisionResponse else {
+        guard event.isPersonalizationDecisionResponse, event.requestEventId == requestMessagesEventId else {
+            // either this isn't the type of response we are waiting for, or it's not a response for our request
             return
         }
-        
-        guard let propositions = event.payload, !propositions.isEmpty else {
+                
+        // TODO: use the real app surface
+        guard let propositions = event.payload, !propositions.isEmpty, event.scope == appSurface else {
+        //guard let propositions = event.payload, !propositions.isEmpty, event.scope == TEMP_APP_SURFACE else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Payload for in-app messages was empty. Clearing local cache.")
             rulesEngine.clearPropositionsCache()
-            return
-        }
-        
-        // validate that the notification contains the in-app messages we requested
-        // TODO: use the real app surface
-        // guard event.scope == TEMP_APP_SURFACE else {
-        guard event.scope == appSurface else {
-            // no need to log here, as this case will be common if the app is
-            // using personalization outside of in-app messaging
             return
         }
         

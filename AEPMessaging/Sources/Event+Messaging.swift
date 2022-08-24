@@ -209,6 +209,10 @@ extension Event {
         isEdgeType && isPersonalizationSource
     }
     
+    var requestEventId: String? {
+        data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
+    }
+    
     /// payload is an array of dictionaries, each containing an in-app message and related tracking information
     var payload: [PropositionPayload]? {
         guard let payloadMap = data?[MessagingConstants.Event.Data.Key.Personalization.PAYLOAD] as? [[String: Any]] else {

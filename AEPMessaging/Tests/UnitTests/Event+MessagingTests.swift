@@ -27,6 +27,7 @@ class EventPlusMessagingTests: XCTestCase {
     let mockPayloadId1 = "id1"
     let mockPayloadId2 = "id2"
     let mockAppSurface = "mobileapp://com.apple.dt.xctest.tool"
+    let mockRequestEventId = "abc123"
 
     /// Push values
     let mockXdmEventType = "xdmEventType"
@@ -156,7 +157,10 @@ class EventPlusMessagingTests: XCTestCase {
                 "items": [item2]
             ]
             
-            eventData = ["payload": [payload1, payload2]]
+            eventData = [
+                "payload": [payload1, payload2],
+                "requestEventId": mockRequestEventId
+            ]
         }
 
         let rulesEvent = Event(name: "Test AEP Response Event",
@@ -480,12 +484,28 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertFalse(event.isPersonalizationDecisionResponse)
     }
 
-    func testIsPersonalizationDecisionResponseNotPersonalizationSource() {
+    func testIsPersonalizationDecisionResponseNotPersonalizationSource() throws {
         // setup
         let event = getAEPResponseEvent(source: "notPersonalization")
 
         // verify
         XCTAssertFalse(event.isPersonalizationDecisionResponse)
+    }
+    
+    func testRequestEventIdHappy() throws {
+        // setup
+        let event = getAEPResponseEvent()
+
+        // verify
+        XCTAssertEqual(mockRequestEventId, event.requestEventId)
+    }
+    
+    func testRequestEventIdNotPresent() throws {
+        // setup
+        let event = getAEPResponseEvent(data: [:])
+
+        // verify
+        XCTAssertNil(event.requestEventId)
     }
     
     func testPayloadHappy() throws {
