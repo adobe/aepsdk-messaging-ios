@@ -25,13 +25,13 @@ public enum MessagingEdgeEventType: Int {
     public func toString() -> String {
         switch self {
         case .inappDismiss:
-            return MessagingConstants.XDM.IAM.EventType.DISMISS
+            return MessagingConstants.XDM.IAM.PropositionEventType.DISMISS
         case .inappTrigger:
-            return MessagingConstants.XDM.IAM.EventType.TRIGGER
+            return MessagingConstants.XDM.IAM.PropositionEventType.SEND
         case .inappInteract:
-            return MessagingConstants.XDM.IAM.EventType.INTERACT
+            return MessagingConstants.XDM.IAM.PropositionEventType.INTERACT
         case .inappDisplay:
-            return MessagingConstants.XDM.IAM.EventType.DISPLAY
+            return MessagingConstants.XDM.IAM.PropositionEventType.DISPLAY
         case .pushCustomAction:
             return MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
         case .pushApplicationOpened:

@@ -128,8 +128,8 @@ public class Messaging: NSObject, Extension {
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION : [
                 // TODO: pass `appSurface` into the array below
-                MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
-                //MessagingConstants.XDM.IAM.Key.SURFACES : [ TEMP_APP_SURFACE ]
+                //MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
+                MessagingConstants.XDM.IAM.Key.SURFACES : [ TEMP_APP_SURFACE ]
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
@@ -170,8 +170,8 @@ public class Messaging: NSObject, Extension {
         }
                 
         // TODO: use the real app surface
-        guard let propositions = event.payload, !propositions.isEmpty, event.scope == appSurface else {
-        //guard let propositions = event.payload, !propositions.isEmpty, event.scope == TEMP_APP_SURFACE else {
+        //guard let propositions = event.payload, !propositions.isEmpty, event.scope == appSurface else {
+        guard let propositions = event.payload, !propositions.isEmpty, event.scope == TEMP_APP_SURFACE else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Payload for in-app messages was empty. Clearing local cache.")
             rulesEngine.clearPropositionsCache()
             return

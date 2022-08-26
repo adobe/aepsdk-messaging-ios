@@ -18,3 +18,9 @@ struct PropositionInfo: Codable {
     var scope: String
     var scopeDetails: [String: AnyCodable]
 }
+
+extension PropositionInfo {
+    var correlationId: String {
+        return scopeDetails[MessagingConstants.Event.Data.Key.Personalization.CORRELATION_ID]?.stringValue ?? ""
+    }
+}

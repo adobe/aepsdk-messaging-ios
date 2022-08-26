@@ -131,7 +131,6 @@ public class Message: NSObject {
     @objc(trackInteraction:withEdgeEventType:)
     public func track(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType) {
         parent?.sendPropositionInteraction(withEventType: eventType, andInteraction: interaction, forMessage: self)
-//        parent?.sendExperienceEvent(withEventType: eventType, andInteraction: interaction, forMessage: self)
     }
 
     // MARK: - WebView javascript handling
