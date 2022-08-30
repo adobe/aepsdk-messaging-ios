@@ -119,4 +119,12 @@ class PropositionInfoTests: XCTestCase {
         // verify
         XCTAssertNil(decodedPropositionInfo)
     }
+    
+    func testCorrelationIdExtensionMethodNoCorrelationId() throws {
+        // setup
+        let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: [:])
+        
+        // verify
+        XCTAssertEqual("", propositionInfo.correlationId)
+    }
 }

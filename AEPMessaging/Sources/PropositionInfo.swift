@@ -10,8 +10,8 @@
  governing permissions and limitations under the License.
  */
 
-import Foundation
 import AEPServices
+import Foundation
 
 struct PropositionInfo: Codable {
     var id: String

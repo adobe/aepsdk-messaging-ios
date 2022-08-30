@@ -85,7 +85,7 @@ enum MessagingConstants {
                     static let DEEPLINK = "adb_deeplink"
                     static let USER_DATA = "userData"
                     static let CATEGORY = "category"
-                    static let SOUND = "sound"                    
+                    static let SOUND = "sound"
 
                     // layout keys
                     static let MOBILE_PARAMETERS = "mobileParameters"
@@ -105,7 +105,7 @@ enum MessagingConstants {
                     static let BACKDROP_OPACITY = "backdropOpacity"
                     static let CORNER_RADIUS = "cornerRadius"
                 }
-                
+
                 enum Personalization {
                     static let PAYLOAD = "payload"
                     static let CORRELATION_ID = "correlationID"
@@ -127,7 +127,7 @@ enum MessagingConstants {
                 }
             }
         }
-        
+
         enum History {
             enum Keys {
                 // these kvps are embedded in an object named `iam`,
@@ -145,7 +145,7 @@ enum MessagingConstants {
 
         enum Mask {
             enum IAM {
-                
+
             }
         }
     }
@@ -196,7 +196,7 @@ enum MessagingConstants {
             static let PUSH_NOTIFICATION_TRACKING = "pushNotificationTracking"
             static let DATA = "data"
         }
-        
+
         enum IAM {
             static let SURFACE_BASE = "mobileapp://"
 
@@ -205,7 +205,7 @@ enum MessagingConstants {
                 static let DISPLAY = "decisioning.propositionDisplay"
                 static let PERSONALIZATION_REQUEST = "personalization.request"
             }
-            
+
             enum PropositionEventType {
                 static let SEND = "send"
                 static let DISPLAY = "display"
@@ -228,7 +228,7 @@ enum MessagingConstants {
                 static let IN_APP_MESSAGE_TRACKING = "inappMessageTracking"
                 static let ACTION = "action"
             }
-            
+
             enum Value {
                 static let TRIGGERED = "triggered"
                 static let DISPLAYED = "displayed"

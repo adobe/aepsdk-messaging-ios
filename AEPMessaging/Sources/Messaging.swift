@@ -16,9 +16,7 @@ import Foundation
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
-    // TODO: remove me
-    private let TEMP_APP_SURFACE = "appconfig://AC0eb0fc6ebc6e419ab307120224569c16"
-    
+
     // MARK: - Class members
 
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
@@ -103,7 +101,7 @@ public class Messaging: NSObject, Extension {
             initialLoadComplete = true
             fetchMessages()
         }
-        
+
         return true
     }
 
@@ -122,41 +120,39 @@ public class Messaging: NSObject, Extension {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve in-app messages - unable to retrieve bundle identifier.")
             return
         }
-                
+
         var eventData: [String: Any] = [:]
-        
+
         let messageRequestData: [String: Any] = [
-            MessagingConstants.XDM.IAM.Key.PERSONALIZATION : [
-                // TODO: pass `appSurface` into the array below
-                MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
-//                MessagingConstants.XDM.IAM.Key.SURFACES : [ TEMP_APP_SURFACE ]
+            MessagingConstants.XDM.IAM.Key.PERSONALIZATION: [
+                MessagingConstants.XDM.IAM.Key.SURFACES: [ appSurface ]
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
-        
+
         let xdmData: [String: Any] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE : MessagingConstants.XDM.IAM.EventType.PERSONALIZATION_REQUEST
+            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.IAM.EventType.PERSONALIZATION_REQUEST
         ]
         eventData[MessagingConstants.XDM.Key.XDM] = xdmData
-        
+
         let event = Event(name: MessagingConstants.Event.Name.RETRIEVE_MESSAGE_DEFINITIONS,
                           type: EventType.edge,
                           source: EventSource.requestContent,
                           data: eventData)
-        
+
         // equal to `requestEventId` in aep response handles
         // used for ensuring that the messaging extension is responding to the correct handle
         requestMessagesEventId = event.id.uuidString
-                
+
         // send event
         runtime.dispatch(event: event)
     }
-    
+
     private var appSurface: String? {
         guard let bundleIdentifier = Bundle.main.bundleIdentifier, !bundleIdentifier.isEmpty else {
             return nil
         }
-        
+
         return MessagingConstants.XDM.IAM.SURFACE_BASE + bundleIdentifier
     }
 
@@ -168,15 +164,13 @@ public class Messaging: NSObject, Extension {
             // either this isn't the type of response we are waiting for, or it's not a response for our request
             return
         }
-                
-        // TODO: use the real app surface
+
         guard let propositions = event.payload, !propositions.isEmpty, event.scope == appSurface else {
-//        guard let propositions = event.payload, !propositions.isEmpty, event.scope == TEMP_APP_SURFACE else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Payload for in-app messages was empty. Clearing local cache.")
             rulesEngine.clearPropositionsCache()
             return
         }
-        
+
         rulesEngine.setPropositionsCache(propositions)
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from network response.")
         rulesEngine.loadPropositions(propositions)
@@ -204,15 +198,15 @@ public class Messaging: NSObject, Extension {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to show message for event \(event.id) - it contains no HTML defining the message.")
             return
         }
-                
-        currentMessage = Message(parent: self, event: event)
-        
-        guard let messageId = currentMessage?.id,
-              let propositionInfo = rulesEngine.propositionInfoForMessageId(messageId) else {
+
+        let message = Message(parent: self, event: event)
+
+        guard let propositionInfo = rulesEngine.propositionInfoForMessageId(message.id) else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring message that does not contain information necessary for tracking with Adobe Journey Optimizer.")
             return
         }
-        
+
+        currentMessage = message
         currentMessage?.propositionInfo = propositionInfo
 
         currentMessage?.trigger()

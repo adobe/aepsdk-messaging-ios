@@ -239,10 +239,10 @@ extension Messaging {
 
         return configuration.pushPlatform
     }
-    
+
     /// {
     ///     "xdm": {
-    ///         "eventType": "inappMessageTracking.interact",
+    ///         "eventType": "decisioning.propositionInteract",
     ///         "_experience": {
     ///             "decisioning": {
     ///                 "propositionEventType": {
@@ -255,11 +255,7 @@ extension Messaging {
     ///                         "correlationID": "d7e644d7-9312-4d7b-8b52-7fa08ce5eccf",
     ///                         "characteristics": {
     ///                             "cjmEventToken": "aCm/+7TFk4ojIuGQc+N842qipfsIHvVzTQxHolz2IpTMromRrB5ztP5VMxjHbs7c6qPG9UF4rvQTJZniWgqbOw==",
-    ///                             "cjmXdm": {
-    ///                                 "inappMessageTracking": {
-    ///                                     "action": "button3"
-    ///                                 }
-    ///                             }
+    ///                             "cjmXdm": "{\"inappMessageTracking\": {\"action\": \"button3\"}}"
     ///                         }
     ///                     }
     ///                 }]
@@ -267,22 +263,32 @@ extension Messaging {
     ///         }
     ///     }
     /// }
-    
+
+    /// Sends a proposition interaction to the customer's experience event dataset.
+    ///
+    /// If the message does not contain the required values for properly tracking in AJO, this method will return as a no-op.
+    /// Required properties include:
+    /// - scopeDetails
+    /// - scopeDetails.characteristics
+    ///
+    /// - Parameters:
+    ///   - eventType: type of event corresponding to this interaction
+    ///   - interaction: a `String` describing the interaction
+    ///   - message: the `Message` for which the interaction should be recorded
     func sendPropositionInteraction(withEventType eventType: MessagingEdgeEventType, andInteraction interaction: String?, forMessage message: Message) {
-        guard let propInfo = message.propositionInfo else {
+        guard let propInfo = message.propositionInfo,
+              var scopeDetails = propInfo.scopeDetails.asDictionary() else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction - `scopeDetails` were not found for message (\(message.id)).")
             return
         }
-        
-        guard var scopeDetails = propInfo.scopeDetails.asDictionary() else {
-            return
-        }
-        
+
         // need to add cjmXdm object to characteristics if this is an interact event
         if eventType == .inappInteract {
             guard var characteristics = scopeDetails[MessagingConstants.XDM.IAM.Key.CHARACTERISTICS] as? [String: Any] else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction - `characteristics` were not found for message (\(message.id)).")
                 return
             }
-            
+
             let inappMessageTracking = [
                 MessagingConstants.XDM.IAM.Key.ACTION: interaction
             ]
@@ -290,14 +296,12 @@ extension Messaging {
                 MessagingConstants.XDM.IAM.Key.IN_APP_MESSAGE_TRACKING: inappMessageTracking
             ]
             let encoder = JSONEncoder()
-            guard let cjmXdmData = try? encoder.encode(cjmXdm) else {
-                return
-            }
+            guard let cjmXdmData = try? encoder.encode(cjmXdm) else { return }
             let cjmXdmString = String(data: cjmXdmData, encoding: .utf8)
             characteristics[MessagingConstants.XDM.IAM.Key.CJM_XDM] = cjmXdmString
             scopeDetails[MessagingConstants.XDM.IAM.Key.CHARACTERISTICS] = characteristics
         }
-        
+
         let propositions: [[String: Any]] = [
             [
                 MessagingConstants.XDM.IAM.Key.ID: propInfo.id,
@@ -313,7 +317,7 @@ extension Messaging {
             MessagingConstants.XDM.IAM.Key.PROPOSITIONS: propositions
         ]
         let experience: [String: Any] = [
-            MessagingConstants.XDM.IAM.Key.DECISIONING: decisioning,
+            MessagingConstants.XDM.IAM.Key.DECISIONING: decisioning
         ]
         let xdm: [String: Any] = [
             MessagingConstants.XDM.Key.EVENT_TYPE: eventType == .inappDisplay ? MessagingConstants.XDM.IAM.EventType.DISPLAY : MessagingConstants.XDM.IAM.EventType.INTERACT,
@@ -334,7 +338,7 @@ extension Messaging {
             MessagingConstants.XDM.Key.XDM: xdm,
             MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory
         ]
-        
+
         // Creating xdm edge event with request content source type
         let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
                           type: EventType.edge,

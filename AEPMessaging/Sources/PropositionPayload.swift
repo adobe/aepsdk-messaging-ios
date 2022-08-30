@@ -10,30 +10,30 @@
  governing permissions and limitations under the License.
  */
 
-import Foundation
 import AEPServices
+import Foundation
 
 struct PropositionPayload: Codable {
     var propositionInfo: PropositionInfo
     var items: [PayloadItem]
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case scope
         case scopeDetails
         case items
     }
-    
+
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         let id = try values.decode(String.self, forKey: .id)
         let scope = try values.decode(String.self, forKey: .scope)
         let scopeDetails = try values.decode([String: AnyCodable].self, forKey: .scopeDetails)
-        
+
         propositionInfo = PropositionInfo(id: id, scope: scope, scopeDetails: scopeDetails)
         items = try values.decode([PayloadItem].self, forKey: .items)
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(propositionInfo.id, forKey: .id)

@@ -48,4 +48,11 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
         loadPropositionsCalled = true
         paramLoadPropositionsPropositions = propositions
     }
+    
+    var propositionInfoForMessageIdCalled = false
+    var propositionInfoForMessageIdReturnValue: PropositionInfo?
+    override func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
+        propositionInfoForMessageIdCalled = true
+        return propositionInfoForMessageIdReturnValue
+    }
 }

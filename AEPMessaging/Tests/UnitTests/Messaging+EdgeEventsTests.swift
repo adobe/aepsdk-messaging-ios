@@ -427,117 +427,205 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertNotNil(launchesData)
         XCTAssertEqual(0, launchesData?[MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE] as? Int)
     }
-
-//    func testSendExperienceEventHappy() throws {
-//        // setup
-//        setConfigSharedState()
-//        setIdentitySharedState()
-//        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-//        let mockEdgeEventType = MessagingEdgeEventType.inappInteract
-//        let mockInteraction = "swords"
-//        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-//
-//        // test
-//        messaging.sendExperienceEvent(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-//
-//        // verify
-//        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-//        let dispatchedEvent = mockRuntime.firstEvent
-//        // validate type and source
-//        XCTAssertEqual(EventType.edge, dispatchedEvent?.type)
-//        XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
-//        // validate event mask entries
-//        XCTAssertEqual(MessagingConstants.Event.Mask.XDM.EVENT_TYPE, dispatchedEvent?.mask?[0])
-//        XCTAssertEqual(MessagingConstants.Event.Mask.XDM.MESSAGE_EXECUTION_ID, dispatchedEvent?.mask?[1])
-//        XCTAssertEqual(MessagingConstants.Event.Mask.XDM.TRACKING_ACTION, dispatchedEvent?.mask?[2])
-//        // validate xdm map
-//        let dispatchedEventData = dispatchedEvent?.data
-//        let dispatchedXdmMap = dispatchedEventData?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
-//        let iamInteractionMap = dispatchedXdmMap?[MessagingConstants.XDM.IAM.IN_APP_MIXIN_NAME] as? [String: Any]
-//        XCTAssertEqual(mockInteraction, iamInteractionMap?[MessagingConstants.XDM.IAM.ACTION] as? String)
-//        XCTAssertEqual(mockEdgeEventType.toString(), dispatchedXdmMap?[MessagingConstants.XDM.Key.EVENT_TYPE] as? String)
-//        // validate xdm meta data
-//        let dispatchedXdmMeta = dispatchedEventData?[MessagingConstants.XDM.Key.META] as? [String: Any]
-//        let xdmMetaCollectMap = dispatchedXdmMeta?[MessagingConstants.XDM.Key.COLLECT] as? [String: Any]
-//        XCTAssertEqual(MOCK_EVENT_DATASET, xdmMetaCollectMap?[MessagingConstants.XDM.Key.DATASET_ID] as? String)
-//    }
-//
-//    func testSendExperienceEventNoDataset() throws {
-//        // setup
-//        setConfigSharedState([:])
-//        setIdentitySharedState()
-//        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-//        let mockEdgeEventType = MessagingEdgeEventType.inappInteract
-//        let mockInteraction = "swords"
-//        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-//
-//        // test
-//        messaging.sendExperienceEvent(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-//
-//        // verify
-//        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
-//    }
-//
-//    func testSendExperienceEventNotInteractEventType() throws {
-//        // setup
-//        setConfigSharedState()
-//        setIdentitySharedState()
-//        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-//        let mockEdgeEventType = MessagingEdgeEventType.inappTrigger
-//        let mockInteraction = "swords"
-//        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-//
-//        // test
-//        messaging.sendExperienceEvent(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-//
-//        // verify
-//        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-//        let dispatchedEvent = mockRuntime.firstEvent
-//        // validate no mixin in xdm map
-//        let dispatchedEventData = dispatchedEvent?.data
-//        let dispatchedXdmMap = dispatchedEventData?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
-//        XCTAssertNil(dispatchedXdmMap?[MessagingConstants.XDM.IAM.IN_APP_MIXIN_NAME])
-//    }
-//
-//    func testSendExperienceEventInteractEventTypeEmptyInteraction() throws {
-//        // setup
-//        setConfigSharedState()
-//        setIdentitySharedState()
-//        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-//        let mockEdgeEventType = MessagingEdgeEventType.inappInteract
-//        let mockInteraction = ""
-//        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-//
-//        // test
-//        messaging.sendExperienceEvent(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-//
-//        // verify
-//        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-//        let dispatchedEvent = mockRuntime.firstEvent
-//        // validate no mixin in xdm map
-//        let dispatchedEventData = dispatchedEvent?.data
-//        let dispatchedXdmMap = dispatchedEventData?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
-//        XCTAssertNil(dispatchedXdmMap?[MessagingConstants.XDM.IAM.IN_APP_MIXIN_NAME])
-//    }
-//
-//    func testSendExperienceEventInteractEventTypeNilInteraction() throws {
-//        // setup
-//        setConfigSharedState()
-//        setIdentitySharedState()
-//        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-//        let mockEdgeEventType = MessagingEdgeEventType.inappInteract
-//        let mockInteraction: String? = nil
-//        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-//
-//        // test
-//        messaging.sendExperienceEvent(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-//
-//        // verify
-//        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-//        let dispatchedEvent = mockRuntime.firstEvent
-//        // validate no mixin in xdm map
-//        let dispatchedEventData = dispatchedEvent?.data
-//        let dispatchedXdmMap = dispatchedEventData?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
-//        XCTAssertNil(dispatchedXdmMap?[MessagingConstants.XDM.IAM.IN_APP_MIXIN_NAME])
-//    }
+    
+    func testSendPropositionInteractionInteract() throws {
+        // setup
+        setConfigSharedState()
+        setIdentitySharedState()
+        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.inappInteract
+        let mockInteraction = "swords"
+        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
+        
+        // test
+        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        
+        // verify
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.firstEvent
+        // validate type and source
+        XCTAssertEqual(EventType.edge, dispatchedEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
+        // validate event mask entries
+        XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
+        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
+        // validate xdm map
+        let dispatchedEventData = dispatchedEvent?.data
+        let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
+        let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
+        let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
+        XCTAssertEqual(1, propositionEventTypeMap?["interact"] as? Int)
+        let propositionsArray = decisioningMap?["propositions"] as? [[String: Any]]
+        XCTAssertEqual(1, propositionsArray?.count)
+        let prop = propositionsArray?.first!
+        XCTAssertEqual("propId", prop?["id"] as? String)
+        XCTAssertEqual("propScope", prop?["scope"] as? String)
+        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
+        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
+        XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
+        XCTAssertEqual("{\"inappMessageTracking\":{\"action\":\"swords\"}}", characteristics?["cjmXdm"] as? String)
+    }
+    
+    func testSendPropositionInteractionDisplay() throws {
+        // setup
+        setConfigSharedState()
+        setIdentitySharedState()
+        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.inappDisplay
+        let mockInteraction = "swords"
+        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
+        
+        // test
+        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        
+        // verify
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.firstEvent
+        // validate type and source
+        XCTAssertEqual(EventType.edge, dispatchedEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
+        // validate event mask entries
+        XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
+        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
+        // validate xdm map
+        let dispatchedEventData = dispatchedEvent?.data
+        let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
+        let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
+        let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
+        XCTAssertEqual(1, propositionEventTypeMap?["display"] as? Int)
+        let propositionsArray = decisioningMap?["propositions"] as? [[String: Any]]
+        XCTAssertEqual(1, propositionsArray?.count)
+        let prop = propositionsArray?.first!
+        XCTAssertEqual("propId", prop?["id"] as? String)
+        XCTAssertEqual("propScope", prop?["scope"] as? String)
+        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
+        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
+        XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
+        XCTAssertNil(characteristics?["cjmXdm"])
+    }
+    
+    func testSendPropositionInteractionDismiss() throws {
+        // setup
+        setConfigSharedState()
+        setIdentitySharedState()
+        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.inappDismiss
+        let mockInteraction = "swords"
+        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
+        
+        // test
+        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        
+        // verify
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.firstEvent
+        // validate type and source
+        XCTAssertEqual(EventType.edge, dispatchedEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
+        // validate event mask entries
+        XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
+        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
+        // validate xdm map
+        let dispatchedEventData = dispatchedEvent?.data
+        let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
+        let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
+        let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
+        XCTAssertEqual(1, propositionEventTypeMap?["dismiss"] as? Int)
+        let propositionsArray = decisioningMap?["propositions"] as? [[String: Any]]
+        XCTAssertEqual(1, propositionsArray?.count)
+        let prop = propositionsArray?.first!
+        XCTAssertEqual("propId", prop?["id"] as? String)
+        XCTAssertEqual("propScope", prop?["scope"] as? String)
+        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
+        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
+        XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
+        XCTAssertNil(characteristics?["cjmXdm"])
+    }
+    
+    func testSendPropositionInteractionTrigger() throws {
+        // setup
+        setConfigSharedState()
+        setIdentitySharedState()
+        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.inappTrigger
+        let mockInteraction = "swords"
+        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
+        
+        // test
+        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        
+        // verify
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.firstEvent
+        // validate type and source
+        XCTAssertEqual(EventType.edge, dispatchedEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
+        // validate event mask entries
+        XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
+        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
+        // validate xdm map
+        let dispatchedEventData = dispatchedEvent?.data
+        let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
+        let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
+        let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
+        XCTAssertEqual(1, propositionEventTypeMap?["send"] as? Int)
+        let propositionsArray = decisioningMap?["propositions"] as? [[String: Any]]
+        XCTAssertEqual(1, propositionsArray?.count)
+        let prop = propositionsArray?.first!
+        XCTAssertEqual("propId", prop?["id"] as? String)
+        XCTAssertEqual("propScope", prop?["scope"] as? String)
+        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
+        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
+        XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
+        XCTAssertNil(characteristics?["cjmXdm"])
+    }
+    
+    func testSendPropositionInteractionNoScopeDetails() throws {
+        // setup
+        setConfigSharedState()
+        setIdentitySharedState()
+        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.inappInteract
+        let mockInteraction = "swords"
+        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+                
+        // test
+        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        
+        // verify
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+    
+    func testSendPropositionInteractionInteractNoCharacteristics() throws {
+        // setup
+        setConfigSharedState()
+        setIdentitySharedState()
+        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.inappInteract
+        let mockInteraction = "swords"
+        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID"])
+        
+        // test
+        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        
+        // verify
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
 }

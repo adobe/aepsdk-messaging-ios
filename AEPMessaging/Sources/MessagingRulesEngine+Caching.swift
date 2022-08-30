@@ -16,9 +16,9 @@ import Foundation
 
 /// Helper methods for caching and loading previously retrieved in-app message definitions
 extension MessagingRulesEngine {
-    
+
     // MARK: - remote asset caching
-    
+
     /// Caches any remote assets for RuleConsequence(s) found in provided rules.
     ///
     /// - Parameter rules: an array of `LaunchRule`s that may contain remote assets in their consequence(s)
@@ -45,9 +45,9 @@ extension MessagingRulesEngine {
             }
         }
     }
-    
+
     // MARK: - proposition caching
-    
+
     /// Loads propositions in
     func loadCachedPropositions() {
         guard let cachedPropositions = cache.get(key: MessagingConstants.Caches.PROPOSITIONS) else {
@@ -59,15 +59,15 @@ extension MessagingRulesEngine {
         guard let propostions: [PropositionPayload] = try? decoder.decode([PropositionPayload].self, from: cachedPropositions.data) else {
             return
         }
-        
+
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
         loadPropositions(propostions)
     }
-    
+
     func setPropositionsCache(_ propositions: [PropositionPayload]) {
         cachePropositions(propositions)
     }
-    
+
     func clearPropositionsCache() {
         cachePropositions(nil)
     }
@@ -84,7 +84,7 @@ extension MessagingRulesEngine {
 
             return
         }
-        
+
         let encoder = JSONEncoder()
         guard let cacheData = try? encoder.encode(propositions) else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Error creating in-app messaging cache: unable to encode proposition.")
