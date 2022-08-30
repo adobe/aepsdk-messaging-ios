@@ -21,7 +21,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
 
         // verify
         XCTAssertEqual(value, .inappDismiss)
-        XCTAssertEqual(MessagingConstants.XDM.IAM.EventType.DISMISS, value?.toString())
+        XCTAssertEqual("dismiss", value?.toString())
     }
 
     func testInAppInteract() throws {
@@ -30,7 +30,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
 
         // verify
         XCTAssertEqual(value, .inappInteract)
-        XCTAssertEqual(MessagingConstants.XDM.IAM.EventType.INTERACT, value?.toString())
+        XCTAssertEqual("interact", value?.toString())
     }
 
     func testInAppTrigger() throws {
@@ -39,7 +39,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
 
         // verify
         XCTAssertEqual(value, .inappTrigger)
-        XCTAssertEqual(MessagingConstants.XDM.IAM.EventType.TRIGGER, value?.toString())
+        XCTAssertEqual("send", value?.toString())
     }
 
     func testInAppDisplay() throws {
@@ -48,7 +48,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
 
         // verify
         XCTAssertEqual(value, .inappDisplay)
-        XCTAssertEqual(MessagingConstants.XDM.IAM.EventType.DISPLAY, value?.toString())
+        XCTAssertEqual("display", value?.toString())
     }
 
     func testPushApplicationOpened() throws {
