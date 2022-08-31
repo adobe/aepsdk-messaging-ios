@@ -17,7 +17,6 @@ import AEPMessaging
 import AEPCore
 import AEPEdge
 import AEPEdgeIdentity
-import AEPOptimize
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -28,8 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let extensions = [
             Messaging.self,
             Identity.self,
-            Edge.self,
-            Optimize.self
+            Edge.self
         ]
 
         MobileCore.registerExtensions(extensions) {            
