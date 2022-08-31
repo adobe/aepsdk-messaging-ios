@@ -26,6 +26,10 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     var mockEventData: [String: Any]?
     let mockAssetString = "https://blog.adobe.com/en/publish/2020/05/28/media_1cc0fcc19cf0e64decbceb3a606707a3ad23f51dd.png"
     let mockMessageId = "552"
+    var mockPropositionInfo: PropositionInfo!
+    let mockPropId = "1337"
+    let mockPropScope = "mobileapp://com.apple.dt.xctest.tool"
+    let mockPropScopeDetails: [String: AnyCodable] = ["akey":"avalue"]
     var onShowExpectation: XCTestExpectation?
     var onDismissExpectation: XCTestExpectation?
     var handleJavascriptMessageExpectation: XCTestExpectation?
@@ -35,19 +39,16 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
 
         mockEventData = [
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
+                MessagingConstants.Event.Data.Key.ID: mockMessageId,
                 MessagingConstants.Event.Data.Key.DETAIL: [
                     MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: [mockAssetString],
-                    MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: TestableMobileParameters.mobileParameters,
-                    MessagingConstants.Event.Data.Key.Personalization.ID: mockMessageId,
-                    MessagingConstants.Event.Data.Key.Personalization.SCOPE: "mobileapp://com.apple.dt.xctest.tool",
-                    MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS: [
-                        "akey": "avalue"
-                    ]
+                    MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: TestableMobileParameters.mobileParameters
                 ]
             ]
         ]
-
+        
         mockEvent = Event(name: "Message Test", type: "type", source: "source", data: mockEventData)
+        mockPropositionInfo = PropositionInfo(id: mockPropId, scope: mockPropScope, scopeDetails: mockPropScopeDetails)
     }
 
     func testMessageInitHappy() throws {
@@ -85,10 +86,24 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         XCTAssertEqual(mockMessaging, message.parent)
         XCTAssertEqual(mockEvent, message.triggeringEvent)
         XCTAssertEqual("", message.id)
-        XCTAssertEqual(0, message.experienceInfo.count)
         XCTAssertNotNil(message.fullscreenMessage)
         XCTAssertNil(message.assets)
         XCTAssertEqual(false, message.fullscreenMessage?.isLocalImageUsed)
+    }
+    
+    func testPropositionInfo() throws {
+        // setup
+        let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
+        try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
+
+        // test
+        let message = Message(parent: mockMessaging, event: mockEvent)
+        message.propositionInfo = mockPropositionInfo
+
+        // verify
+        XCTAssertEqual(mockPropositionInfo.id, message.propositionInfo?.id)
+        XCTAssertEqual(mockPropositionInfo.scope, message.propositionInfo?.scope)
+        XCTAssertEqual(mockPropositionInfo.scopeDetails, message.propositionInfo?.scopeDetails)
     }
 
     func testShow() throws {

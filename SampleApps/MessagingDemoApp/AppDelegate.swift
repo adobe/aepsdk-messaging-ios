@@ -67,7 +67,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // ** staging environment **
         // sb_stage on "CJM Stage" (AJO Web sandbox)
         // App Surface - sb_app_configuration
-        // com.adobe.MessagingDemoApp  // AC1d8645512e2546df81feaea0ee7042cf <-- artur
+        // com.adobe.MessagingDemoApp
         // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
         
         

@@ -16,34 +16,9 @@ import Foundation
 
 /// Helper methods for caching and loading previously retrieved in-app message definitions
 extension MessagingRulesEngine {
-    /// Attempts to load in-app message definitions from cache into the `MessagingRulesEngine`.
-    func loadCachedMessages() {
-        guard let cachedMessages = cache.get(key: MessagingConstants.Caches.MESSAGES) else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages - cache file not found.")
-            return
-        }
-
-        // the below call to String(data:encoding:) never fails when using .utf8 encoding
-        // https://forums.swift.org/t/can-encoding-string-to-data-with-utf8-fail/22437
-        guard let cachedMessagesString = String(data: cachedMessages.data, encoding: .utf8) else { return }
-        let messagesStringArray = cachedMessagesString.components(separatedBy: MessagingConstants.Caches.MESSAGES_DELIMITER)
-
-        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
-        loadRules(rules: messagesStringArray)
-    }
-
-    /// Uses the provided messages to create or overwrite a cache entry for in-app messages.
-    ///
-    /// - Parameter messages: a `[String]` where each element is JSON representation of a `LaunchRule`
-    func setMessagingCache(_ messages: [String]) {
-        cacheMessages(messages)
-    }
-
-    /// Removes the cache for in-app messages.
-    func clearMessagingCache() {
-        cacheMessages(nil)
-    }
-
+    
+    // MARK: - remote asset caching
+    
     /// Caches any remote assets for RuleConsequence(s) found in provided rules.
     ///
     /// - Parameter rules: an array of `LaunchRule`s that may contain remote assets in their consequence(s)
@@ -70,17 +45,38 @@ extension MessagingRulesEngine {
             }
         }
     }
+    
+    // MARK: - proposition caching
+    
+    /// Loads propositions in
+    func loadCachedPropositions() {
+        guard let cachedPropositions = cache.get(key: MessagingConstants.Caches.PROPOSITIONS) else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages - cache file not found.")
+            return
+        }
 
-    /// Uses the provided messages to create or overwrite a cache entry for in-app messages.
-    ///
-    /// If `messages` is nil, the cache entry for in-app messages will be removed.
-    ///
-    /// - Parameter messages: a `[String]` where each element is JSON representation of a `LaunchRule`
-    private func cacheMessages(_ messages: [String]?) {
-        // remove cached messages if param is nil
-        guard let messages = messages else {
+        let decoder = JSONDecoder()
+        guard let propostions: [PropositionPayload] = try? decoder.decode([PropositionPayload].self, from: cachedPropositions.data) else {
+            return
+        }
+        
+        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
+        loadPropositions(propostions)
+    }
+    
+    func setPropositionsCache(_ propositions: [PropositionPayload]) {
+        cachePropositions(propositions)
+    }
+    
+    func clearPropositionsCache() {
+        cachePropositions(nil)
+    }
+
+    private func cachePropositions(_ propositions: [PropositionPayload]?) {
+        // remove cached propositions if param is nil
+        guard let propositions = propositions else {
             do {
-                try cache.remove(key: MessagingConstants.Caches.MESSAGES)
+                try cache.remove(key: MessagingConstants.Caches.PROPOSITIONS)
                 Log.trace(label: MessagingConstants.LOG_TAG, "In-app messaging cache has been deleted.")
             } catch let error as NSError {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Unable to remove in-app messaging cache: \(error).")
@@ -88,16 +84,15 @@ extension MessagingRulesEngine {
 
             return
         }
-
-        let joinedMessagesString = messages.joined(separator: MessagingConstants.Caches.MESSAGES_DELIMITER)
-
-        // the below call to String(data:encoding:) never fails when using .utf8 encoding
-        // https://forums.swift.org/t/can-encoding-string-to-data-with-utf8-fail/22437
-        guard let cacheData = joinedMessagesString.data(using: .utf8) else { return }
-
+        
+        let encoder = JSONEncoder()
+        guard let cacheData = try? encoder.encode(propositions) else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Error creating in-app messaging cache: unable to encode proposition.")
+            return
+        }
         let cacheEntry = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
         do {
-            try cache.set(key: MessagingConstants.Caches.MESSAGES, entry: cacheEntry)
+            try cache.set(key: MessagingConstants.Caches.PROPOSITIONS, entry: cacheEntry)
             Log.trace(label: MessagingConstants.LOG_TAG, "In-app messaging cache has been created.")
         } catch {
             Log.warning(label: MessagingConstants.LOG_TAG, "Error creating in-app messaging cache: \(error).")

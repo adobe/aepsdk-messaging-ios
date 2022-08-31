@@ -16,6 +16,9 @@ import Foundation
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
+    // TODO: remove me
+    private let TEMP_APP_SURFACE = "appconfig://AC0eb0fc6ebc6e419ab307120224569c16"
+    
     // MARK: - Class members
 
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
@@ -24,6 +27,7 @@ public class Messaging: NSObject, Extension {
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
 
+    private var requestMessagesEventId: String?
     private var initialLoadComplete = false
     private(set) var currentMessage: Message?
     private let rulesEngine: MessagingRulesEngine
@@ -124,8 +128,8 @@ public class Messaging: NSObject, Extension {
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION : [
                 // TODO: pass `appSurface` into the array below
-                // "AC1d8645512e2546df81feaea0ee7042cf"
                 MessagingConstants.XDM.IAM.Key.SURFACES : [ appSurface ]
+                //MessagingConstants.XDM.IAM.Key.SURFACES : [ TEMP_APP_SURFACE ]
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
@@ -140,6 +144,10 @@ public class Messaging: NSObject, Extension {
                           source: EventSource.requestContent,
                           data: eventData)
         
+        // equal to `requestEventId` in aep response handles
+        // used for ensuring that the messaging extension is responding to the correct handle
+        requestMessagesEventId = event.id.uuidString
+                
         // send event
         runtime.dispatch(event: event)
     }
@@ -156,29 +164,22 @@ public class Messaging: NSObject, Extension {
     /// - Parameter event: an `Event` containing an in-app message definition in its data
     private func handleEdgePersonalizationNotification(_ event: Event) {
         // validate the event
-        guard event.isPersonalizationDecisionResponse else {
+        guard event.isPersonalizationDecisionResponse, event.requestEventId == requestMessagesEventId else {
+            // either this isn't the type of response we are waiting for, or it's not a response for our request
+            return
+        }
+                
+        // TODO: use the real app surface
+        guard let propositions = event.payload, !propositions.isEmpty, event.scope == appSurface else {
+        //guard let propositions = event.payload, !propositions.isEmpty, event.scope == TEMP_APP_SURFACE else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Payload for in-app messages was empty. Clearing local cache.")
+            rulesEngine.clearPropositionsCache()
             return
         }
         
-        // validate that the notification contains the in-app messages we requested
-        guard event.scope == appSurface else {
-            // no need to log here, as this case will be common if the app is
-            // using personalization outside of in-app messaging
-            return
-        }
-
-        guard let messages = event.rulesJson,
-              let json = event.rulesJson?.first,
-              json != MessagingConstants.XDM.IAM.Value.EMPTY_CONTENT
-        else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Empty content returned in call to retrieve in-app messages.")
-            rulesEngine.clearMessagingCache()
-            return
-        }
-
-        rulesEngine.setMessagingCache(messages)
+        rulesEngine.setPropositionsCache(propositions)
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from network response.")
-        rulesEngine.loadRules(rules: messages)
+        rulesEngine.loadPropositions(propositions)
     }
 
     /// Handles Rules Consequence events containing message definitions.
@@ -203,13 +204,16 @@ public class Messaging: NSObject, Extension {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to show message for event \(event.id) - it contains no HTML defining the message.")
             return
         }
+                
+        currentMessage = Message(parent: self, event: event)
         
-        guard event.hasNecessaryTrackingInfo else {
+        guard let messageId = currentMessage?.id,
+              let propositionInfo = rulesEngine.propositionInfoForMessageId(messageId) else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring message that does not contain information necessary for tracking with Adobe Journey Optimizer.")
             return
         }
-
-        currentMessage = Message(parent: self, event: event)
+        
+        currentMessage?.propositionInfo = propositionInfo
 
         currentMessage?.trigger()
         currentMessage?.show()

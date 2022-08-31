@@ -306,7 +306,7 @@ extension Messaging {
         // add eventType and prescribed data for the experience info
         var xdmMap: [String: Any] = [
             MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
-            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: message.experienceInfo
+//            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: message.experienceInfo
         ]
 
         // add iam mixin information if this is an interact eventType
@@ -325,6 +325,71 @@ extension Messaging {
                     MessagingConstants.XDM.Key.DATASET_ID: datasetId
                 ]
             ]
+        ]
+
+        // create the mask for storing event history
+        let mask = [
+            MessagingConstants.Event.Mask.XDM.EVENT_TYPE,
+            MessagingConstants.Event.Mask.XDM.MESSAGE_EXECUTION_ID,
+            MessagingConstants.Event.Mask.XDM.TRACKING_ACTION
+        ]
+
+        // Creating xdm edge event with request content source type
+        let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
+                          type: EventType.edge,
+                          source: EventSource.requestContent,
+                          data: xdmEventData,
+                          mask: mask)
+        dispatch(event: event)
+    }
+    
+    /// {
+    ///     "xdm": {
+    ///         "eventType": "inappMessageTracking.interact",
+    ///         "_experience": {
+    ///             "decisioning": {
+    ///                 "propositionEventType": {
+    ///                     "interact": 1
+    ///                 },
+    ///                 "propositions": [{
+    ///                     "id": "fe47f125-dc8f-454f-b4e8-cf462d65eb67",
+    ///                     "scope": "mobileapp://com.adobe.MessagingDemoApp",
+    ///                     "scopeDetails": {
+    ///                         "correlationID": "d7e644d7-9312-4d7b-8b52-7fa08ce5eccf",
+    ///                         "characteristics": {
+    ///                             "cjmEventToken": "aCm/+7TFk4ojIuGQc+N842qipfsIHvVzTQxHolz2IpTMromRrB5ztP5VMxjHbs7c6qPG9UF4rvQTJZniWgqbOw==",
+    ///                             "cjmXdm": {
+    ///                                 "inappMessageTracking": {
+    ///                                     "action": "button3"
+    ///                                 }
+    ///                             }
+    ///                         }
+    ///                     }
+    ///                 }]
+    ///             }
+    ///         }
+    ///     }
+    /// }
+    
+    func sendPropositionInteraction(withEventType eventType: MessagingEdgeEventType, andInteraction interaction: String?, forMessage message: Message) {
+        
+        // add eventType and prescribed data for the experience info
+        var xdmMap: [String: Any] = [
+            MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
+//            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: message.experienceInfo
+        ]
+
+        // add iam mixin information if this is an interact eventType
+        if eventType == .inappInteract, let interaction = interaction, !interaction.isEmpty {
+            let actionDict: [String: Any] = [
+                MessagingConstants.XDM.IAM.ACTION: interaction
+            ]
+            xdmMap[MessagingConstants.XDM.IAM.IN_APP_MIXIN_NAME] = actionDict
+        }
+
+        // Creating xdm edge event data
+        let xdmEventData: [String: Any] = [
+            MessagingConstants.XDM.Key.XDM: xdmMap
         ]
 
         // create the mask for storing event history

@@ -24,6 +24,7 @@ enum MessagingConstants {
     enum Caches {
         static let CACHE_NAME = "com.adobe.messaging.cache"
         static let MESSAGES = "messages"
+        static let PROPOSITIONS = "propositions"
         static let MESSAGES_DELIMITER = "||"
         static let PATH = "PATH"
     }
@@ -59,6 +60,7 @@ enum MessagingConstants {
                 static let ACTION_ID = "actionId"
                 static let REFRESH_MESSAGES = "refreshmessages"
                 static let ADOBE_XDM = "adobe_xdm"
+                static let REQUEST_EVENT_ID = "requestEventId"
 
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"

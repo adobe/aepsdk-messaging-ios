@@ -456,8 +456,6 @@ class MessagingEdgeEventsTests: XCTestCase {
         let iamInteractionMap = dispatchedXdmMap?[MessagingConstants.XDM.IAM.IN_APP_MIXIN_NAME] as? [String: Any]
         XCTAssertEqual(mockInteraction, iamInteractionMap?[MessagingConstants.XDM.IAM.ACTION] as? String)
         XCTAssertEqual(mockEdgeEventType.toString(), dispatchedXdmMap?[MessagingConstants.XDM.Key.EVENT_TYPE] as? String)
-        let experienceInfo = dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
-        XCTAssertEqual(0, experienceInfo?.count)
         // validate xdm meta data
         let dispatchedXdmMeta = dispatchedEventData?[MessagingConstants.XDM.Key.META] as? [String: Any]
         let xdmMetaCollectMap = dispatchedXdmMeta?[MessagingConstants.XDM.Key.COLLECT] as? [String: Any]

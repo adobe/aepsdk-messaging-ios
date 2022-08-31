@@ -18,17 +18,15 @@ import CoreGraphics
 extension Event {
     // MARK: - In-app Message Consequence Event Handling
 
-    // MARK: Internal
-
     var isInAppMessage: Bool {
         consequenceType == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE
     }
 
-    // MARK: In-app Message Properties
+    // MARK: - In-app Message Properties
 
     /// Grabs the messageExecutionID value from XDM
     var messageId: String? {
-        details?[MessagingConstants.Event.Data.Key.Personalization.ID] as? String
+        consequence?[MessagingConstants.Event.Data.Key.IAM.ID] as? String        
     }
 
     var template: String? {
@@ -89,6 +87,8 @@ extension Event {
         return settings
     }
 
+    // MARK: Private
+    
     private var mobileParametersDictionary: [String: Any]? {
         details?[MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS] as? [String: Any]
     }
@@ -180,7 +180,7 @@ extension Event {
         return nil
     }
 
-    // MARK: Message Object Validation
+    // MARK: - Message Object Validation
 
     var containsValidInAppMessage: Bool {
         // remoteAssets are always optional.
@@ -188,29 +188,8 @@ extension Event {
         // but may be used later if new kinds of messages are introduced
         html != nil
     }
-    
-    // TODO: check for id, scope, scopeDetails
-    var hasNecessaryTrackingInfo: Bool {
-        return rulesConsequenceId != nil && !rulesConsequenceId!.isEmpty &&
-        rulesConsequenceScope != nil && !rulesConsequenceScope!.isEmpty &&
-        rulesConsequenceScopeDetails != nil && !rulesConsequenceScopeDetails!.isEmpty
-    }
-
-    // MARK: Private
-
-    private var rulesConsequenceId: String? {
-        return details?[MessagingConstants.Event.Data.Key.Personalization.ID] as? String
-    }
-    
-    private var rulesConsequenceScope: String? {
-        return details?[MessagingConstants.Event.Data.Key.Personalization.SCOPE] as? String
-    }
-    
-    private var rulesConsequenceScopeDetails: [String: Any]? {
-        return details?[MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS] as? [String: Any]
-    }
-    
-    // MARK: Consequence EventData Processing
+        
+    // MARK: - Consequence EventData Processing
 
     private var consequence: [String: Any]? {
         data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] as? [String: Any]
@@ -226,33 +205,40 @@ extension Event {
 
     // MARK: - AEP Response Event Handling
 
-    // MARK: Public
-
     var isPersonalizationDecisionResponse: Bool {
         isEdgeType && isPersonalizationSource
     }
-        
-    var scope: String? {
-        return payload?.first?[MessagingConstants.Event.Data.Key.Personalization.SCOPE] as? String
+    
+    var requestEventId: String? {
+        data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
     }
-
-    /// each entry in the array represents "content" from an offer, which contains a rule
-    var rulesJson: [String]? {
-        guard let items = items else {
+    
+    /// payload is an array of dictionaries, each containing an in-app message and related tracking information
+    var payload: [PropositionPayload]? {
+        guard let payloadMap = data?[MessagingConstants.Event.Data.Key.Personalization.PAYLOAD] as? [[String: Any]] else {
             return nil
         }
-
-        var rules: [String] = []
-        for item in items {
-            guard let data = item[MessagingConstants.Event.Data.Key.Personalization.DATA] as? [String: Any] else {
-                continue
-            }
-            if let content = data[MessagingConstants.Event.Data.Key.Personalization.CONTENT] as? String {
-                rules.append(content)
+        
+        var returnablePayloads: [PropositionPayload] = []
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        for thisPayloadAny in payloadMap {
+            if let thisPayload = AnyCodable.from(dictionary: thisPayloadAny),
+               let payloadData = try? encoder.encode(thisPayload) {
+                do {
+                    let payloadObject = try decoder.decode(PropositionPayload.self, from: payloadData)
+                    returnablePayloads.append(payloadObject)
+                } catch {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Failed to decode an invalid personalization response: \(error)")
+                }
             }
         }
-
-        return rules.isEmpty ? nil : rules
+                
+        return returnablePayloads
+    }
+        
+    var scope: String? {
+        return payload?.first?.propositionInfo.scope
     }
 
     // MARK: Private
@@ -265,28 +251,7 @@ extension Event {
         source == MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS
     }
 
-    /// payload is an array of dictionaries, but since we are only asking for a single DecisionScope
-    /// in the messaging sdk, we can assume this array will only have 0-1 items
-    private var payload: [[String: Any]]? {
-        
-        
-        
-        // TODO: does the new format require handling multiple payloads???
-        
-        
-        
-        data?[MessagingConstants.Event.Data.Key.Personalization.PAYLOAD] as? [[String: Any]]
-    }
-
-    private var items: [[String: Any]]? {
-        guard let payload = payload, !payload.isEmpty else {
-            return nil
-        }
-
-        return payload[0][MessagingConstants.Event.Data.Key.Personalization.ITEMS] as? [[String: Any]]
-    }
-
-    // MARK: Refresh Messages Public API Event
+    // MARK: - Refresh Messages Public API Event
 
     var isRefreshMessageEvent: Bool {
         isMessagingType && isRequestContentSource && refreshMessages
@@ -314,7 +279,7 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String
     }
 
-    // MARK: - PushClickthrough Event
+    // MARK: - Push Clickthrough Event
     
     var isMessagingRequestContentEvent: Bool {
         type == MessagingConstants.Event.EventType.messaging && source == EventSource.requestContent

@@ -133,7 +133,7 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool", fetchEventSurfaces?.first)
     }
 
-    func testHandleOfferNotificationHappy() throws {
+    func testHandleEdgePersonalizationNotificationHappy() throws {
         // setup
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
@@ -142,26 +142,26 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertTrue(mockMessagingRulesEngine.loadRulesCalled)
-        let loadedRules = mockMessagingRulesEngine.paramLoadRulesRules
+        XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)
+        let loadedRules = mockMessagingRulesEngine.paramLoadPropositionsPropositions
         XCTAssertNotNil(loadedRules)
-        XCTAssertEqual("this is the content", loadedRules?.first)
+        XCTAssertNotNil(loadedRules?.first)
         XCTAssertTrue(mockCache.setCalled)
-        XCTAssertEqual("messages", mockCache.setParamKey)
+        XCTAssertEqual("propositions", mockCache.setParamKey)
         XCTAssertNotNil(mockCache.setParamEntry)
     }
 
-    func testHandleOfferNotificationMismatchedBundle() throws {
+    func testHandleEdgePersonalizationNotificationWrongAppSurface() throws {
         // setup
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(scope: "nope wrong scope"))
-        try? mockMessagingRulesEngine.cache.remove(key: "messages")
+        try? mockMessagingRulesEngine.cache.remove(key: "propositions")
 
         // test
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertFalse(mockMessagingRulesEngine.loadRulesCalled)
+        XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)
     }
 
     func testHandleOfferNotificationEmptyItems() throws {
@@ -173,9 +173,9 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertFalse(mockMessagingRulesEngine.loadRulesCalled)
+        XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)
         XCTAssertTrue(mockCache.removeCalled)
-        XCTAssertEqual("messages", mockCache.removeParamKey)
+        XCTAssertEqual("propositions", mockCache.removeParamKey)
     }
 
     func testHandleRulesResponseHappy() throws {
@@ -212,20 +212,6 @@ class MessagingTests: XCTestCase {
                           type: EventType.rulesEngine,
                           source: EventSource.responseContent,
                           data: [:])
-
-        // test
-        mockRuntime.simulateComingEvents(event)
-
-        // verify
-        XCTAssertNil(messaging.currentMessage)
-    }
-
-    func testHandleRulesResponseNoExperienceInfoInData() throws {
-        // setup
-        let event = Event(name: "Test Rules Engine Response Event",
-                          type: EventType.rulesEngine,
-                          source: EventSource.responseContent,
-                          data: getRulesResponseEventData(scopeDetails: [:]))
 
         // test
         mockRuntime.simulateComingEvents(event)
@@ -475,39 +461,44 @@ class MessagingTests: XCTestCase {
         return nil
     }
 
+    let mockContent1 = "content1"
+    let mockContent2 = "content2"
+    let mockPayloadId1 = "id1"
+    let mockPayloadId2 = "id2"
+    let mockAppSurface = "mobileapp://com.apple.dt.xctest.tool"
     func getOfferEventData(items: [String: Any]? = nil, scope: String? = nil) -> [String: Any] {
-        [
-            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: [
-                [
-                    MessagingConstants.Event.Data.Key.Personalization.ID: "someId",
-                    MessagingConstants.Event.Data.Key.Personalization.SCOPE: scope ?? "mobileapp://com.apple.dt.xctest.tool",
-                    MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS: [
-                        "akey": "avalue"
-                    ],
-                    MessagingConstants.Event.Data.Key.Personalization.ITEMS: [
-                        items ??
-                            [
-                                MessagingConstants.Event.Data.Key.Personalization.DATA: [
-                                    MessagingConstants.Event.Data.Key.Personalization.CONTENT: "this is the content"
-                                ]
-                            ]
-                    ]
-                ]
-            ]
+        let data1 = ["content": mockContent1]
+        let item1 = ["data": data1]
+        let payload1: [String: Any] = [
+            "id": mockPayloadId1,
+            "scope": scope ?? mockAppSurface,
+            "scopeDetails": [
+                "someInnerKey": "someInnerValue"
+            ],
+            "items": items ?? [item1]
         ]
+        
+        let data2 = ["content": mockContent2]
+        let item2 = ["data": data2]
+        let payload2: [String: Any] = [
+            "id": mockPayloadId2,
+            "scope": scope ?? mockAppSurface,
+            "scopeDetails": [
+                "someInnerKey": "someInnerValue2"
+            ],
+            "items": items ?? [item2]
+        ]
+        
+        let eventData: [String: Any] = ["payload": [payload1, payload2]]
+        return eventData
     }
 
-    func getRulesResponseEventData(scopeDetails: [String: Any]? = nil) -> [String: Any] {
+    func getRulesResponseEventData() -> [String: Any] {
         return [
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
                 MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
                 MessagingConstants.Event.Data.Key.DETAIL: [
-                    MessagingConstants.Event.Data.Key.IAM.HTML: "this is the html",
-                    MessagingConstants.Event.Data.Key.Personalization.ID: "id",
-                    MessagingConstants.Event.Data.Key.Personalization.SCOPE: "mobileapp://com.apple.dt.xctest.tool",
-                    MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS: scopeDetails ?? [
-                        "akey": "avalue"
-                    ]
+                    MessagingConstants.Event.Data.Key.IAM.HTML: "this is the html"
                 ]
             ]
         ]

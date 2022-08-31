@@ -37,32 +37,32 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         messagingRulesEngine = MessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockRulesEngine, cache: mockCache)
     }
 
-    func testLoadCachedMessagesHappy() throws {
+    func testLoadCachedPropositionsHappy() throws {
         // setup
         let aJsonString = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let cacheEntry = CacheEntry(data: aJsonString.data(using: .utf8)!, expiry: .never, metadata: nil)
         mockCache.getReturnValue = cacheEntry
 
         // test
-        messagingRulesEngine.loadCachedMessages()
+        messagingRulesEngine.loadCachedPropositions()
 
         // verify
         XCTAssertTrue(mockCache.getCalled)
-        XCTAssertEqual("messages", mockCache.getParamKey)
+        XCTAssertEqual("propositions", mockCache.getParamKey)
         XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
         XCTAssertEqual(1, mockRulesEngine.paramRules?.count)
     }
 
-    func testLoadCachedMessagesNoCacheFound() throws {
+    func testLoadCachedPropositionsNoCacheFound() throws {
         // setup
         mockCache.getReturnValue = nil
 
         // test
-        messagingRulesEngine.loadCachedMessages()
+        messagingRulesEngine.loadCachedPropositions()
 
         // verify
         XCTAssertTrue(mockCache.getCalled)
-        XCTAssertEqual("messages", mockCache.getParamKey)
+        XCTAssertEqual("propositions", mockCache.getParamKey)
         XCTAssertFalse(mockRulesEngine.replaceRulesCalled)
     }
 
@@ -162,59 +162,67 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         XCTAssertFalse(mockCache.setCalled)
     }
 
-    /// The below tests for private func `cacheMessages` are executed via
-    /// internal methods `setMessagingCache` and `clearMessagingCache`
-    func testCacheMessagesClearCache() throws {
+    /// The below tests for private func `cachePropositions` are executed via
+    /// internal methods `setPropositionsCache` and `clearPropositionsCache`
+    func testCachePropositionsClearCache() throws {
         // test
-        messagingRulesEngine.clearMessagingCache()
+        messagingRulesEngine.clearPropositionsCache()
 
         // verify
         XCTAssertTrue(mockCache.removeCalled)
-        XCTAssertEqual("messages", mockCache.removeParamKey)
+        XCTAssertEqual("propositions", mockCache.removeParamKey)
     }
 
-    func testCacheMessagesClearCacheThrows() throws {
+    func testCachePropositionsClearCacheThrows() throws {
         // setup
         mockCache.removeShouldThrow = true
 
         // test
-        messagingRulesEngine.clearMessagingCache()
+        messagingRulesEngine.clearPropositionsCache()
 
         // verify
         XCTAssertTrue(mockCache.removeCalled)
-        XCTAssertEqual("messages", mockCache.removeParamKey)
+        XCTAssertEqual("propositions", mockCache.removeParamKey)
     }
 
-    func testCacheMessagesSetCache() throws {
+    func testCachePropositionsSetCache() throws {
         // setup
-        let messages = [JSONFileLoader.getRulesStringFromFile("showOnceRule")]
-
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let decoder = JSONDecoder()
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        
         // test
-        messagingRulesEngine.setMessagingCache(messages)
+        messagingRulesEngine.setPropositionsCache(propositions)
 
         // verify
         XCTAssertTrue(mockCache.setCalled)
-        XCTAssertEqual("messages", mockCache.setParamKey)
+        XCTAssertEqual("propositions", mockCache.setParamKey)
         XCTAssertNotNil(mockCache.setParamEntry)
         let cacheEntryData = mockCache.setParamEntry!.data
-        let cacheString = String(data: cacheEntryData, encoding: .utf8)?.components(separatedBy: "||")
-        XCTAssertEqual(messages, cacheString)
+        let cacheString = String(data: cacheEntryData, encoding: .utf8)!
+        let cachedProps = try decoder.decode([PropositionPayload].self, from: cacheString.data(using: .utf8)!)
+        XCTAssertEqual(1, cachedProps.count)
+        XCTAssertEqual(propositions.first?.propositionInfo.id, cachedProps.first?.propositionInfo.id)
     }
 
-    func testCacheMessagesSetCacheThrows() throws {
+    func testCachePropositionsSetCacheThrows() throws {
         // setup
-        let messages = [JSONFileLoader.getRulesStringFromFile("showOnceRule")]
+        let propString = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let decoder = JSONDecoder()
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
         mockCache.setShouldThrow = true
 
         // test
-        messagingRulesEngine.setMessagingCache(messages)
+        messagingRulesEngine.setPropositionsCache(propositions)
 
         // verify
         XCTAssertTrue(mockCache.setCalled)
-        XCTAssertEqual("messages", mockCache.setParamKey)
+        XCTAssertEqual("propositions", mockCache.setParamKey)
         XCTAssertNotNil(mockCache.setParamEntry)
         let cacheEntryData = mockCache.setParamEntry!.data
-        let cacheString = String(data: cacheEntryData, encoding: .utf8)?.components(separatedBy: "||")
-        XCTAssertEqual(messages, cacheString)
+        let cacheString = String(data: cacheEntryData, encoding: .utf8)!
+        let cachedProps = try decoder.decode([PropositionPayload].self, from: cacheString.data(using: .utf8)!)
+        XCTAssertEqual(1, cachedProps.count)
+        XCTAssertEqual(propositions.first?.propositionInfo.id, cachedProps.first?.propositionInfo.id)
     }
 }

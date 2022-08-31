@@ -24,7 +24,10 @@ class EventPlusMessagingTests: XCTestCase {
     let testAssets = ["asset1", "asset2"]
     let mockContent1 = "content1"
     let mockContent2 = "content2"
+    let mockPayloadId1 = "id1"
+    let mockPayloadId2 = "id2"
     let mockAppSurface = "mobileapp://com.apple.dt.xctest.tool"
+    let mockRequestEventId = "abc123"
 
     /// Push values
     let mockXdmEventType = "xdmEventType"
@@ -56,12 +59,7 @@ class EventPlusMessagingTests: XCTestCase {
         var details = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
             MessagingConstants.Event.Data.Key.IAM.TEMPLATE: MessagingConstants.Event.Data.Values.IAM.FULLSCREEN,
             MessagingConstants.Event.Data.Key.IAM.HTML: testHtml,
-            MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: testAssets,
-            MessagingConstants.Event.Data.Key.Personalization.ID: "552",
-            MessagingConstants.Event.Data.Key.Personalization.SCOPE: mockAppSurface,
-            MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS: [
-                "akey": "avalue"
-            ]
+            MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: testAssets
         ] : [:]
 
         if let keysToBeRemoved = removeDetails {
@@ -71,7 +69,7 @@ class EventPlusMessagingTests: XCTestCase {
         }
         
         let triggeredConsequence: [String: Any] = triggeredConsequence ?? [
-            MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
+            MessagingConstants.Event.Data.Key.ID: "552",
             MessagingConstants.Event.Data.Key.TYPE: type!,
             MessagingConstants.Event.Data.Key.DETAIL: details
         ]
@@ -87,22 +85,82 @@ class EventPlusMessagingTests: XCTestCase {
         return rulesEvent
     }
 
+    /* sample payload response:
+     
+    "payload": [
+     {
+        "id": "fe47f125-dc8f-454f-b4e8-cf462d65eb67",
+        "scope": "mobileapp://com.adobe.MessagingDemoApp",
+        "scopeDetails": {
+            "decisionProvider": "AJO",
+            "correlationID": "d7e644d7-9312-4d7b-8b52-7fa08ce5eccf",
+            "characteristics": {
+                "cjmEventToken": "aCm/+7TFk4ojIuGQc+N842qipfsIHvVzTQxHolz2IpTMromRrB5ztP5VMxjHbs7c6qPG9UF4rvQTJZniWgqbOw=="
+            }
+        },
+        "items": [
+            {
+                "schema": "https://ns.adobe.com/personalization/json-content-item",
+                "data": {
+                    "content": "{\"version\":1,\"rules\":[{\"condition\":{...}],\"consequences\":[{\"id\":\"0517276e-70a5-4d89-bc5c-81ba77e35588\",\"type\":\"cjmiam\",\"detail\":{\"mobileParameters\":{...},\"html\":\"...\",\"remoteAssets\":[...]}}]}",
+                    "id": "0ac7fe11-6fa0-4bcc-a986-bb6302c30059"
+                },
+                "id": "716708a1-eedb-4d50-8404-82edced7c06f"
+            }
+        ]
+    },
+    {
+        ... another proposition for another campaign running on the surface ...
+    }
+  ]
+     */
+    
     /// Gets an AEP Response Event for testing
     func getAEPResponseEvent(type: String = EventType.edge,
                              source: String = MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
                              data: [String: Any]? = nil) -> Event {
         var eventData = data
         if eventData == nil {
-            let data1 = ["content": mockContent1]
-            let item1 = ["data": data1]
-            let data2 = ["content": mockContent2]
-            let item2 = ["data": data2]
-            let payload: [String: Any] = [
-                "scope": mockAppSurface,
-                "items": [item1, item2]
+            let data1 = [
+                "content": mockContent1,
+                "id": "id"
             ]
-
-            eventData = ["payload": [payload]]
+            let item1: [String: Any] = [
+                "data": data1,
+                "id": "id",
+                "schema": "schema"
+            ]
+            let payload1: [String: Any] = [
+                "id": mockPayloadId1,
+                "scope": mockAppSurface,
+                "scopeDetails": [
+                    "someInnerKey": "someInnerValue"
+                ],
+                "items": [item1]
+            ]
+            
+            let data2 = [
+                "content": mockContent2,
+                "id": "id"
+            ]
+            let item2: [String: Any] = [
+                "data": data2,
+                "id": "id",
+                "schema": "schema"
+            ]
+            let payload2: [String: Any] = [
+                "id": mockPayloadId2,
+                "scope": mockAppSurface,
+                "scopeDetails": [
+                    "someInnerKey": "someInnerValue"
+                ],
+                "items": [item2]
+            ]
+            
+            eventData = [
+                "payload": [payload1, payload2],
+                "requestEventId": mockRequestEventId
+            ]
         }
 
         let rulesEvent = Event(name: "Test AEP Response Event",
@@ -313,38 +371,6 @@ class EventPlusMessagingTests: XCTestCase {
         // verify
         XCTAssertFalse(event.containsValidInAppMessage)
     }
-    
-    func testHasNecessaryTrackingInfoHappy() throws {
-        // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
-
-        // verify
-        XCTAssertTrue(event.hasNecessaryTrackingInfo)
-    }
-    
-    func testHasNecessaryTrackingInfoNoId() throws {
-        // setup
-        let event = getRulesResponseEvent(removeDetails: [MessagingConstants.Event.Data.Key.Personalization.ID])
-
-        // verify
-        XCTAssertFalse(event.hasNecessaryTrackingInfo)
-    }
-    
-    func testHasNecessaryTrackingInfoNoScope() throws {
-        // setup
-        let event = getRulesResponseEvent(removeDetails: [MessagingConstants.Event.Data.Key.Personalization.SCOPE])
-
-        // verify
-        XCTAssertFalse(event.hasNecessaryTrackingInfo)
-    }
-    
-    func testHasNecessaryTrackingInfoNoScopeDetails() throws {
-        // setup
-        let event = getRulesResponseEvent(removeDetails: [MessagingConstants.Event.Data.Key.Personalization.SCOPE_DETAILS])
-
-        // verify
-        XCTAssertFalse(event.hasNecessaryTrackingInfo)
-    }
 
     // MARK: - Testing Invalid Events
 
@@ -458,7 +484,7 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertFalse(event.isPersonalizationDecisionResponse)
     }
 
-    func testIsPersonalizationDecisionResponseNotPersonalizationSource() {
+    func testIsPersonalizationDecisionResponseNotPersonalizationSource() throws {
         // setup
         let event = getAEPResponseEvent(source: "notPersonalization")
 
@@ -466,136 +492,98 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertFalse(event.isPersonalizationDecisionResponse)
     }
     
-    func testPayloadContainsScope() throws {
+    func testRequestEventIdHappy() throws {
         // setup
         let event = getAEPResponseEvent()
 
         // verify
-        XCTAssertEqual(mockAppSurface, event.scope)
-        
+        XCTAssertEqual(mockRequestEventId, event.requestEventId)
     }
+    
+    func testRequestEventIdNotPresent() throws {
+        // setup
+        let event = getAEPResponseEvent(data: [:])
 
-    func testPayloadIsNil() {
+        // verify
+        XCTAssertNil(event.requestEventId)
+    }
+    
+    func testPayloadHappy() throws {
+        // setup
+        let event = getAEPResponseEvent()
+        
+        // verify
+        XCTAssertEqual(2, event.payload?.count)
+        
+        let p1 = event.payload?[0]
+        XCTAssertNotNil(p1)
+        XCTAssertEqual(mockPayloadId1, p1?.propositionInfo.id)
+        XCTAssertEqual(mockAppSurface, p1?.propositionInfo.scope)
+        let scopeDetails1 = p1?.propositionInfo.scopeDetails
+        XCTAssertNotNil(scopeDetails1)
+        XCTAssertEqual(1, scopeDetails1?.count)
+        let item1 = p1?.items.first
+        XCTAssertNotNil(item1)
+        let item1data = item1!.data
+        XCTAssertNotNil(item1data)
+        XCTAssertEqual(mockContent1, item1data.content)
+        
+        let p2 = event.payload?[1]
+        XCTAssertNotNil(p2)
+        XCTAssertEqual(mockPayloadId2, p2?.propositionInfo.id)
+        XCTAssertEqual(mockAppSurface, p2?.propositionInfo.scope)
+        let scopeDetails2 = p2?.propositionInfo.scopeDetails
+        XCTAssertNotNil(scopeDetails2)
+        XCTAssertEqual(1, scopeDetails2?.count)
+        let item2 = p2?.items.first
+        XCTAssertNotNil(item2)
+        let item2data = item2!.data
+        XCTAssertNotNil(item2data)
+        XCTAssertEqual(mockContent2, item2data.content)
+    }
+    
+    func testPayloadIsNil() throws {
         // setup
         let payload: [[String: Any]]? = nil
         let event = getAEPResponseEvent(data: ["payload": payload as Any])
 
         // verify
+        XCTAssertNil(event.payload)
         XCTAssertNil(event.scope)
-        XCTAssertNil(event.rulesJson)
     }
 
-    func testPayloadIsEmpty() {
+    func testPayloadIsEmpty() throws {
         // setup
         let payload: [[String: Any]]? = []
         let event = getAEPResponseEvent(data: ["payload": payload as Any])
 
         // verify
+        XCTAssertEqual(0, event.payload?.count)
         XCTAssertNil(event.scope)
-        XCTAssertNil(event.rulesJson)
     }
+    
+    func testPayloadContainsInvalidProposition() throws {
+        // setup
+        let payload: [[String: Any]]? = [
+            [
+                "i am not a valid payload": "and will throw a json decoder error"
+            ]
+        ]
+        let event = getAEPResponseEvent(data: ["payload": payload as Any])
 
-    func testRulesJsonHappy() {
+        // verify
+        XCTAssertEqual(0, event.payload?.count)
+        XCTAssertNil(event.scope)
+    }
+    
+    func testScopeHappy() throws {
         // setup
         let event = getAEPResponseEvent()
 
-        // test
-        let rulesJson = event.rulesJson
-
         // verify
-        XCTAssertNotNil(rulesJson)
-        XCTAssertEqual(2, rulesJson?.count)
-        XCTAssertEqual(mockContent1, rulesJson?[0])
-        XCTAssertEqual(mockContent2, rulesJson?[1])
+        XCTAssertEqual(mockAppSurface, event.scope)
     }
 
-    func testRulesJsonBadPayloadKey() {
-        // setup
-        let data1 = ["content": mockContent1]
-        let item1 = ["data": data1]
-        let payload: [String: Any] = ["items": [item1]]
-        let event = getAEPResponseEvent(data: ["notthecorrectpayload": [payload]])
-
-        // verify
-        XCTAssertNil(event.rulesJson)
-    }
-
-    func testRulesJsonPayloadNotArrayOfDictionaries() {
-        // setup
-        let data1 = ["content": mockContent1]
-        let item1 = ["data": data1]
-        let payload: [String: Any] = ["items": [item1]]
-        let event = getAEPResponseEvent(data: ["payload": payload])
-
-        // verify
-        XCTAssertNil(event.rulesJson)
-    }
-
-    func testRulesJsonBadItemsKey() {
-        // setup
-        let data1 = ["content": mockContent1]
-        let item1 = ["data": data1]
-        let payload: [String: Any] = ["itemsbutnotreally": [item1]]
-        let event = getAEPResponseEvent(data: ["payload": [payload]])
-
-        // verify
-        XCTAssertNil(event.rulesJson)
-    }
-
-    func testRulesJsonItemsNotArray() {
-        // setup
-        let data1 = ["content": mockContent1]
-        let item1 = ["data": data1]
-        let payload: [String: Any] = ["items": item1]
-        let event = getAEPResponseEvent(data: ["payload": [payload]])
-
-        // verify
-        XCTAssertNil(event.rulesJson)
-    }
-
-    func testRulesJsonBadDataKey() {
-        // setup
-        let data1 = ["content": mockContent1]
-        let item1 = ["databutnotreally": data1]
-        let payload: [String: Any] = ["items": [item1]]
-        let event = getAEPResponseEvent(data: ["payload": [payload]])
-
-        // verify
-        XCTAssertNil(event.rulesJson)
-    }
-
-    func testRulesJsonDataNotDictionary() {
-        // setup
-        let data1 = "content"
-        let item1 = ["data": data1]
-        let payload: [String: Any] = ["items": [item1]]
-        let event = getAEPResponseEvent(data: ["payload": [payload]])
-
-        // verify
-        XCTAssertNil(event.rulesJson)
-    }
-
-    func testRulesJsonBadContentKey() {
-        // setup
-        let data1 = ["contentbutnotreally": mockContent1]
-        let item1 = ["data": data1]
-        let payload: [String: Any] = ["items": [item1]]
-        let event = getAEPResponseEvent(data: ["payload": [payload]])
-
-        // verify
-        XCTAssertNil(event.rulesJson)
-    }
-
-    func testRulesJsonContentIsNotString() {
-        // setup
-        let data1 = ["content": 12345]
-        let item1 = ["data": data1]
-        let payload: [String: Any] = ["items": [item1]]
-        let event = getAEPResponseEvent(data: ["payload": [payload]])
-
-        // verify
-        XCTAssertNil(event.rulesJson)
-    }
 
     // MARK: - Test Refresh Messages Public API Event
 
