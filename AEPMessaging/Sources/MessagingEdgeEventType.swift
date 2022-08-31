@@ -25,17 +25,37 @@ public enum MessagingEdgeEventType: Int {
     public func toString() -> String {
         switch self {
         case .inappDismiss:
-            return MessagingConstants.XDM.IAM.PropositionEventType.DISMISS
+            return MessagingConstants.XDM.IAM.EventType.DISMISS
         case .inappTrigger:
-            return MessagingConstants.XDM.IAM.PropositionEventType.SEND
+            return MessagingConstants.XDM.IAM.EventType.INTERACT
         case .inappInteract:
-            return MessagingConstants.XDM.IAM.PropositionEventType.INTERACT
+            return MessagingConstants.XDM.IAM.EventType.INTERACT
         case .inappDisplay:
-            return MessagingConstants.XDM.IAM.PropositionEventType.DISPLAY
+            return MessagingConstants.XDM.IAM.EventType.DISPLAY
         case .pushCustomAction:
             return MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
         case .pushApplicationOpened:
             return MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
+        }
+    }
+}
+
+extension MessagingEdgeEventType {
+    /// Used to generate `propositionEventType` payload in outgoing proposition interaction events
+    var propositionEventType: String {
+        switch self {
+        case .inappDismiss:
+            return MessagingConstants.XDM.IAM.PropositionEventType.DISMISS
+        case .inappInteract:
+            return MessagingConstants.XDM.IAM.PropositionEventType.INTERACT
+        case .inappTrigger:
+            return MessagingConstants.XDM.IAM.PropositionEventType.SEND
+        case .inappDisplay:
+            return MessagingConstants.XDM.IAM.PropositionEventType.DISPLAY
+        case .pushApplicationOpened, .pushCustomAction:
+            return ""
+        default:
+            return ""
         }
     }
 }

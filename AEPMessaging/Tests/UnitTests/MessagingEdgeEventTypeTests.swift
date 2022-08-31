@@ -21,7 +21,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
 
         // verify
         XCTAssertEqual(value, .inappDismiss)
-        XCTAssertEqual("dismiss", value?.toString())
+        XCTAssertEqual("decisioning.propositionDismiss", value?.toString())
     }
 
     func testInAppInteract() throws {
@@ -30,7 +30,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
 
         // verify
         XCTAssertEqual(value, .inappInteract)
-        XCTAssertEqual("interact", value?.toString())
+        XCTAssertEqual("decisioning.propositionInteract", value?.toString())
     }
 
     func testInAppTrigger() throws {
@@ -39,7 +39,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
 
         // verify
         XCTAssertEqual(value, .inappTrigger)
-        XCTAssertEqual("send", value?.toString())
+        XCTAssertEqual("decisioning.propositionInteract", value?.toString())
     }
 
     func testInAppDisplay() throws {
@@ -48,7 +48,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
 
         // verify
         XCTAssertEqual(value, .inappDisplay)
-        XCTAssertEqual("display", value?.toString())
+        XCTAssertEqual("decisioning.propositionDisplay", value?.toString())
     }
 
     func testPushApplicationOpened() throws {
@@ -67,5 +67,21 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         // verify
         XCTAssertEqual(value, .pushCustomAction)
         XCTAssertEqual(MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION, value?.toString())
+    }
+    
+    func testPropEventTypeDismiss() throws {
+        XCTAssertEqual("dismiss", MessagingEdgeEventType.inappDismiss.propositionEventType)
+    }
+    
+    func testPropEventTypeDisplay() throws {
+        XCTAssertEqual("display", MessagingEdgeEventType.inappDisplay.propositionEventType)
+    }
+    
+    func testPropEventTypeInteract() throws {
+        XCTAssertEqual("interact", MessagingEdgeEventType.inappInteract.propositionEventType)
+    }
+    
+    func testPropEventTypeTrigger() throws {
+        XCTAssertEqual("send", MessagingEdgeEventType.inappTrigger.propositionEventType)
     }
 }

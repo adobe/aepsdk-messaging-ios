@@ -203,6 +203,7 @@ enum MessagingConstants {
             enum EventType {
                 static let INTERACT = "decisioning.propositionInteract"
                 static let DISPLAY = "decisioning.propositionDisplay"
+                static let DISMISS = "decisioning.propositionDismiss"
                 static let PERSONALIZATION_REQUEST = "personalization.request"
             }
 

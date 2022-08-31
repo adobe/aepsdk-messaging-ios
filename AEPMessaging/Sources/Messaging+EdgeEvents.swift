@@ -310,7 +310,7 @@ extension Messaging {
             ]
         ]
         let propositionEventType: [String: Int] = [
-            eventType.toString(): 1
+            eventType.propositionEventType: 1
         ]
         let decisioning: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PROPOSITION_EVENT_TYPE: propositionEventType,
@@ -320,12 +320,12 @@ extension Messaging {
             MessagingConstants.XDM.IAM.Key.DECISIONING: decisioning
         ]
         let xdm: [String: Any] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE: eventType == .inappDisplay ? MessagingConstants.XDM.IAM.EventType.DISPLAY : MessagingConstants.XDM.IAM.EventType.INTERACT,
+            MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
             MessagingConstants.XDM.AdobeKeys.EXPERIENCE: experience
         ]
         // iam dictionary used for event history
         let iamHistory: [String: String] = [
-            MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.toString(),
+            MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
             MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.correlationId,
             MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? ""
         ]

@@ -454,6 +454,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
         let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        XCTAssertEqual("decisioning.propositionInteract", dispatchedXdmMap?["eventType"] as? String)
         let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
@@ -496,6 +497,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
         let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        XCTAssertEqual("decisioning.propositionDisplay", dispatchedXdmMap?["eventType"] as? String)
         let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
@@ -538,6 +540,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
         let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        XCTAssertEqual("decisioning.propositionDismiss", dispatchedXdmMap?["eventType"] as? String)
         let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
@@ -580,6 +583,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
         let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        XCTAssertEqual("decisioning.propositionInteract", dispatchedXdmMap?["eventType"] as? String)
         let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
