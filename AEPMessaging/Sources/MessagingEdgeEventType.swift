@@ -27,7 +27,7 @@ public enum MessagingEdgeEventType: Int {
         case .inappDismiss:
             return MessagingConstants.XDM.IAM.EventType.DISMISS
         case .inappTrigger:
-            return MessagingConstants.XDM.IAM.EventType.INTERACT
+            return MessagingConstants.XDM.IAM.EventType.TRIGGER
         case .inappInteract:
             return MessagingConstants.XDM.IAM.EventType.INTERACT
         case .inappDisplay:
@@ -49,7 +49,7 @@ extension MessagingEdgeEventType {
         case .inappInteract:
             return MessagingConstants.XDM.IAM.PropositionEventType.INTERACT
         case .inappTrigger:
-            return MessagingConstants.XDM.IAM.PropositionEventType.SEND
+            return MessagingConstants.XDM.IAM.PropositionEventType.TRIGGER
         case .inappDisplay:
             return MessagingConstants.XDM.IAM.PropositionEventType.DISPLAY
         case .pushApplicationOpened, .pushCustomAction:

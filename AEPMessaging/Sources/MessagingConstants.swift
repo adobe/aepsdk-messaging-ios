@@ -201,14 +201,15 @@ enum MessagingConstants {
             static let SURFACE_BASE = "mobileapp://"
 
             enum EventType {
-                static let INTERACT = "decisioning.propositionInteract"
+                static let TRIGGER = "decisioning.propositionTrigger"
                 static let DISPLAY = "decisioning.propositionDisplay"
+                static let INTERACT = "decisioning.propositionInteract"
                 static let DISMISS = "decisioning.propositionDismiss"
                 static let PERSONALIZATION_REQUEST = "personalization.request"
             }
 
             enum PropositionEventType {
-                static let SEND = "send"
+                static let TRIGGER = "trigger"
                 static let DISPLAY = "display"
                 static let INTERACT = "interact"
                 static let DISMISS = "dismiss"

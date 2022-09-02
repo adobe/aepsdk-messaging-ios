@@ -39,7 +39,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
 
         // verify
         XCTAssertEqual(value, .inappTrigger)
-        XCTAssertEqual("decisioning.propositionInteract", value?.toString())
+        XCTAssertEqual("decisioning.propositionTrigger", value?.toString())
     }
 
     func testInAppDisplay() throws {
@@ -82,6 +82,6 @@ class MessagingEdgeEventTypeTests: XCTestCase {
     }
     
     func testPropEventTypeTrigger() throws {
-        XCTAssertEqual("send", MessagingEdgeEventType.inappTrigger.propositionEventType)
+        XCTAssertEqual("trigger", MessagingEdgeEventType.inappTrigger.propositionEventType)
     }
 }

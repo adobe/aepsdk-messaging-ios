@@ -246,19 +246,22 @@ extension Messaging {
     ///         "_experience": {
     ///             "decisioning": {
     ///                 "propositionEventType": {
-    ///                     "interact": 1
+    ///                     "interact": 1,
+    ///                     "dismiss": 1
     ///                 },
-    ///                 "propositions": [{
-    ///                     "id": "fe47f125-dc8f-454f-b4e8-cf462d65eb67",
-    ///                     "scope": "mobileapp://com.adobe.MessagingDemoApp",
-    ///                     "scopeDetails": {
-    ///                         "correlationID": "d7e644d7-9312-4d7b-8b52-7fa08ce5eccf",
-    ///                         "characteristics": {
-    ///                             "cjmEventToken": "aCm/+7TFk4ojIuGQc+N842qipfsIHvVzTQxHolz2IpTMromRrB5ztP5VMxjHbs7c6qPG9UF4rvQTJZniWgqbOw==",
-    ///                             "cjmXdm": "{\"inappMessageTracking\": {\"action\": \"button3\"}}"
+    ///                 "propositions": [
+    ///                     {
+    ///                         "id": "fe47f125-dc8f-454f-b4e8-cf462d65eb67",
+    ///                         "scope": "mobileapp://com.adobe.MessagingDemoApp",
+    ///                         "scopeDetails": {
+    ///                             "correlationID": "d7e644d7-9312-4d7b-8b52-7fa08ce5eccf",
+    ///                             "characteristics": {
+    ///                                 "cjmEventToken": "aCm/+7TFk4ojIuGQc+N842qipfsIHvVzTQxHolz2IpTMromRrB5ztP5VMxjHbs7c6qPG9UF4rvQTJZniWgqbOw==",
+    ///                                 "cjmXdm": "{\"inappMessageTracking\": {\"action\": \"button3\"}}"
+    ///                             }
     ///                         }
     ///                     }
-    ///                 }]
+    ///                 ]
     ///             }
     ///         }
     ///     }

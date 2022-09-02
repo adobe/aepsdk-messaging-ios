@@ -583,11 +583,11 @@ class MessagingEdgeEventsTests: XCTestCase {
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
         let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
-        XCTAssertEqual("decisioning.propositionInteract", dispatchedXdmMap?["eventType"] as? String)
+        XCTAssertEqual("decisioning.propositionTrigger", dispatchedXdmMap?["eventType"] as? String)
         let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
-        XCTAssertEqual(1, propositionEventTypeMap?["send"] as? Int)
+        XCTAssertEqual(1, propositionEventTypeMap?["trigger"] as? Int)
         let propositionsArray = decisioningMap?["propositions"] as? [[String: Any]]
         XCTAssertEqual(1, propositionsArray?.count)
         let prop = propositionsArray?.first!
