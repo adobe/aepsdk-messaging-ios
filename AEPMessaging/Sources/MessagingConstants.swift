@@ -142,12 +142,6 @@ enum MessagingConstants {
                 static let TRACKING_ACTION = "iam.action"
             }
         }
-
-        enum Mask {
-            enum IAM {
-
-            }
-        }
     }
 
     enum IAM {

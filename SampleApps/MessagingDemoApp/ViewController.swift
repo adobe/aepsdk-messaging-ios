@@ -58,7 +58,7 @@ class ViewController: UIViewController {
     private class MessageHandler: MessagingDelegate {
         var showMessages = true
         var currentMessage: Message?
-        let autoDismiss = true
+        let autoDismiss = false
 
         func onShow(message: Showable) {
             let fullscreenMessage = message as? FullscreenMessage
