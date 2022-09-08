@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     @IBOutlet var switchShowMessages: UISwitch?
 
     private let messageHandler = MessageHandler()
-
+    
     weak var appDelegate = UIApplication.shared.delegate as? AppDelegate
 
     override func viewDidLoad() {
@@ -58,6 +58,7 @@ class ViewController: UIViewController {
     private class MessageHandler: MessagingDelegate {
         var showMessages = true
         var currentMessage: Message?
+        let autoDismiss = false
 
         func onShow(message: Showable) {
             let fullscreenMessage = message as? FullscreenMessage
@@ -96,6 +97,13 @@ class ViewController: UIViewController {
             if !showMessages {
                 currentMessage = message
                 currentMessage?.track("message suppressed", withEdgeEventType: .inappTrigger)
+            } else if autoDismiss {
+                currentMessage = message
+                let _ = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { timer in
+                    timer.invalidate()
+                    self.currentMessage?.track("test for reporting", withEdgeEventType: .inappInteract)
+                    self.currentMessage?.dismiss()
+                }
             }
 
             return showMessages

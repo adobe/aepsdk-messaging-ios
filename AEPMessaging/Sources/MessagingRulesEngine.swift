@@ -43,29 +43,29 @@ class MessagingRulesEngine {
     func process(event: Event) {
         _ = rulesEngine.process(event: event)
     }
-    
+
     func loadPropositions(_ propositions: [PropositionPayload]) {
         var rules: [LaunchRule] = []
         for proposition in propositions {
             guard let ruleString = proposition.items.first?.data.content else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
                 continue
-                
+
             }
-            
+
             guard let rule = processRule(ruleString) else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with malformed in-app message content.")
                 continue
             }
-            
+
             // pre-fetch the assets for this message if there are any defined
             cacheRemoteAssetsFor(rule)
             // store reporting data for this payload for later use
             storePropositionInfo(proposition, forMessageId: rule.first?.consequences.first?.id)
-                        
+
             rules.append(contentsOf: rule)
         }
-        
+
         rulesEngine.replaceRules(with: rules)
         Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
     }
@@ -77,11 +77,11 @@ class MessagingRulesEngine {
         }
         propositionInfo[messageId] = proposition.propositionInfo
     }
-    
+
     func processRule(_ rule: String) -> [LaunchRule]? {
         return JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime)
     }
-    
+
     func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
         return propositionInfo[messageId]
     }

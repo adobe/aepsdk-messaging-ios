@@ -10,11 +10,17 @@
  governing permissions and limitations under the License.
  */
 
-import Foundation
 import AEPServices
+import Foundation
 
 struct PropositionInfo: Codable {
     var id: String
     var scope: String
     var scopeDetails: [String: AnyCodable]
+}
+
+extension PropositionInfo {
+    var correlationId: String {
+        return scopeDetails[MessagingConstants.Event.Data.Key.Personalization.CORRELATION_ID]?.stringValue ?? ""
+    }
 }

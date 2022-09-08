@@ -61,32 +61,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // "steve - messaging tester" on "AEM Assets Departmental - Campaign"
         // 3149c49c3910/cf7779260cdd/launch-be72758aa82a-development
         
-        // sotu_property
-        // 3149c49c3910/787763e3fa93/launch-5ee93ddc2218-development
-
-        // ** staging environment **
-        // sb_stage on "CJM Stage" (AJO Web sandbox)
-        // App Surface - sb_app_configuration
-        // com.adobe.MessagingDemoApp
-        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
-        
-        
-        
-        
-        // last one used below
-        
         // sb_sample_app_property on "AEM Assets Departmental - Campaign"
         // App Surface - AEPMobileSampleApp
         // com.adobe.AEPMobileSampleApp
         // 3149c49c3910/3759ced5ae7d/launch-6ec882280c23-development
         
-        // zofia app
-        // com.adobe.demosystem.dxdemo
-        // 082b4ce8e11e/53c108dc4527/launch-0916d1b3fdb6-development
         
-        // esdk app
-        // com.adobe.ccsdk.ESDK.RefApp
-        // 7417321fe1d7/37be53c7214b/launch-a854f2463f5e-development
+        // ** staging environment **
+        // sb_stage on "CJM Stage" (AJO Web sandbox)
+        // App Surface - sb_app_configuration
+        // com.adobe.MessagingDemoApp
+        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
         
         
         MobileCore.configureWith(appId: "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development")

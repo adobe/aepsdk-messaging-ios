@@ -12,8 +12,8 @@
 
 import AEPCore
 import AEPServices
-import Foundation
 import CoreGraphics
+import Foundation
 
 extension Event {
     // MARK: - In-app Message Consequence Event Handling
@@ -26,7 +26,7 @@ extension Event {
 
     /// Grabs the messageExecutionID value from XDM
     var messageId: String? {
-        consequence?[MessagingConstants.Event.Data.Key.IAM.ID] as? String        
+        consequence?[MessagingConstants.Event.Data.Key.IAM.ID] as? String
     }
 
     var template: String? {
@@ -66,7 +66,7 @@ extension Event {
     ///         }
     ///     }
     /// }
-     
+
     func getMessageSettings(withParent parent: Any?) -> MessageSettings {
         let cornerRadius = CGFloat(messageCornerRadius ?? 0)
         let settings = MessageSettings(parent: parent)
@@ -88,7 +88,7 @@ extension Event {
     }
 
     // MARK: Private
-    
+
     private var mobileParametersDictionary: [String: Any]? {
         details?[MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS] as? [String: Any]
     }
@@ -188,7 +188,7 @@ extension Event {
         // but may be used later if new kinds of messages are introduced
         html != nil
     }
-        
+
     // MARK: - Consequence EventData Processing
 
     private var consequence: [String: Any]? {
@@ -208,17 +208,17 @@ extension Event {
     var isPersonalizationDecisionResponse: Bool {
         isEdgeType && isPersonalizationSource
     }
-    
+
     var requestEventId: String? {
         data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
     }
-    
-    /// payload is an array of dictionaries, each containing an in-app message and related tracking information
+
+    /// payload is an array of `PropositionPayload` objects, each containing an in-app message and related tracking information
     var payload: [PropositionPayload]? {
         guard let payloadMap = data?[MessagingConstants.Event.Data.Key.Personalization.PAYLOAD] as? [[String: Any]] else {
             return nil
         }
-        
+
         var returnablePayloads: [PropositionPayload] = []
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()
@@ -233,10 +233,10 @@ extension Event {
                 }
             }
         }
-                
+
         return returnablePayloads
     }
-        
+
     var scope: String? {
         return payload?.first?.propositionInfo.scope
     }
@@ -270,7 +270,7 @@ extension Event {
     }
 
     // MARK: - SetPushIdentifier Event
-    
+
     var isGenericIdentityRequestContentEvent: Bool {
         type == EventType.genericIdentity && source == EventSource.requestContent
     }
@@ -280,11 +280,11 @@ extension Event {
     }
 
     // MARK: - Push Clickthrough Event
-    
+
     var isMessagingRequestContentEvent: Bool {
         type == MessagingConstants.Event.EventType.messaging && source == EventSource.requestContent
     }
-    
+
     var xdmEventType: String? {
         data?[MessagingConstants.Event.Data.Key.EVENT_TYPE] as? String
     }

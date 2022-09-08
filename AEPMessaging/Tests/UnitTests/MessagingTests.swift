@@ -180,6 +180,7 @@ class MessagingTests: XCTestCase {
 
     func testHandleRulesResponseHappy() throws {
         // setup
+        mockMessagingRulesEngine.propositionInfoForMessageIdReturnValue = PropositionInfo(id: "id", scope: "scope", scopeDetails: [:])
         let event = Event(name: "Test Rules Engine Response Event",
                           type: EventType.rulesEngine,
                           source: EventSource.responseContent,
@@ -190,6 +191,35 @@ class MessagingTests: XCTestCase {
 
         // verify
         XCTAssertNotNil(messaging.currentMessage)
+    }
+    
+    func testHandleRulesResponseNoHtml() throws {
+        // setup
+        mockMessagingRulesEngine.propositionInfoForMessageIdReturnValue = PropositionInfo(id: "id", scope: "scope", scopeDetails: [:])
+        let event = Event(name: "Test Rules Engine Response Event",
+                          type: EventType.rulesEngine,
+                          source: EventSource.responseContent,
+                          data: getRulesResponseEventData(html: nil))
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertNil(messaging.currentMessage)
+    }
+    
+    func testHandleRulesResponseNoPropositionInfoForMessage() throws {
+        // setup
+        let event = Event(name: "Test Rules Engine Response Event",
+                          type: EventType.rulesEngine,
+                          source: EventSource.responseContent,
+                          data: getRulesResponseEventData())
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertNil(messaging.currentMessage)
     }
 
     func testHandleRulesResponseNilData() throws {
@@ -493,13 +523,15 @@ class MessagingTests: XCTestCase {
         return eventData
     }
 
-    func getRulesResponseEventData() -> [String: Any] {
+    func getRulesResponseEventData(html: String? = "this is the html") -> [String: Any] {
+        var detailDictionary: [String: Any] = [:]
+        if html != nil {
+            detailDictionary["html"] = html
+        }
         return [
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
                 MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
-                MessagingConstants.Event.Data.Key.DETAIL: [
-                    MessagingConstants.Event.Data.Key.IAM.HTML: "this is the html"
-                ]
+                MessagingConstants.Event.Data.Key.DETAIL: detailDictionary
             ]
         ]
     }
