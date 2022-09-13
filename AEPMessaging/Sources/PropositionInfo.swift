@@ -25,6 +25,9 @@ extension PropositionInfo {
     }
     
     var activityId: String {
-        return scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY_ID]?.stringValue ?? ""
+        guard let activity = scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY]?.dictionaryValue else {
+            return ""
+        }
+        return activity[MessagingConstants.Event.Data.Key.Personalization.ID] as? String ?? ""
     }
 }

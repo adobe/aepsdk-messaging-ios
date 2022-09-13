@@ -109,7 +109,8 @@ enum MessagingConstants {
                 enum Personalization {
                     static let PAYLOAD = "payload"
                     static let CORRELATION_ID = "correlationID"
-                    static let ACTIVITY_ID = "activityId"
+                    static let ACTIVITY = "activity"
+                    static let ID = "id"
                 }
             }
 
