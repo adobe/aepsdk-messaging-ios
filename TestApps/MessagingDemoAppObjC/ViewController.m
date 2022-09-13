@@ -22,19 +22,21 @@
 
 @implementation MessageHandler
 
-- (void)onDismissWithMessage:(id<AEPShowable> _Nonnull)message {
+- (void) onDismiss:(id<AEPShowable> _Nonnull)message {
     
 }
 
-- (void)onShowWithMessage:(id<AEPShowable> _Nonnull)message {
+
+- (void) onShow:(id<AEPShowable> _Nonnull)message {
     
 }
 
-- (BOOL)shouldShowMessage:(id<AEPShowable> _Nonnull)message {
+- (BOOL) shouldShowMessage:(id<AEPShowable> _Nonnull)message {
     AEPFullscreenMessage *fullscreenMessage = (AEPFullscreenMessage *)message;
     AEPMessage *aepMessage = fullscreenMessage.settings.parent;
     WKWebView *webView = (WKWebView *)aepMessage.view;
     NSLog(@"aepMessage.id: %@", aepMessage.id);
+    NSLog(@"webView: %@", webView);
     
     return YES;
 }
@@ -63,7 +65,6 @@
 - (IBAction) triggerFullscreen:(id)sender {
     [AEPMobileCore trackAction:@"keep-fullscreen" data:nil];
 }
-
 
 @end
 

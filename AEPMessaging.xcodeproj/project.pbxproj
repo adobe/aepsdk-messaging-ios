@@ -426,7 +426,8 @@
 				2414ED922899BA0A0036D505 /* Info.plist */,
 				2414ED932899BA0A0036D505 /* main.m */,
 			);
-			path = MessagingDemoAppObjC;
+			name = MessagingDemoAppObjC;
+			path = TestApps/MessagingDemoAppObjC;
 			sourceTree = "<group>";
 		};
 		2469A5DD2744657000E56457 /* Resources */ = {
@@ -608,7 +609,7 @@
 				925DF44F2522785700A5DE31 /* Info.plist */,
 			);
 			name = MessagingDemoApp;
-			path = SampleApps/MessagingDemoApp;
+			path = TestApps/MessagingDemoApp;
 			sourceTree = "<group>";
 		};
 		925DF44D2522785700A5DE31 /* Assets */ = {
@@ -1409,7 +1410,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = U7WJX8Z527;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MessagingDemoAppObjC/Info.plist;
+				INFOPLIST_FILE = TestApps/MessagingDemoAppObjC/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -1439,7 +1440,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = U7WJX8Z527;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MessagingDemoAppObjC/Info.plist;
+				INFOPLIST_FILE = TestApps/MessagingDemoAppObjC/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -1566,10 +1567,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
-				CODE_SIGN_ENTITLEMENTS = MessagingDemoApp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = TestApps/MessagingDemoApp/MessagingDemoApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FKGEE875K4;
-				INFOPLIST_FILE = SampleApps/MessagingDemoApp/Info.plist;
+				INFOPLIST_FILE = TestApps/MessagingDemoApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1589,10 +1590,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
-				CODE_SIGN_ENTITLEMENTS = MessagingDemoApp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = TestApps/MessagingDemoApp/MessagingDemoApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FKGEE875K4;
-				INFOPLIST_FILE = SampleApps/MessagingDemoApp/Info.plist;
+				INFOPLIST_FILE = TestApps/MessagingDemoApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
