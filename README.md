@@ -36,7 +36,6 @@ target 'YOUR_TARGET_NAME' do
       pod 'AEPCore'
       pod 'AEPServices'
       pod 'AEPRulesEngine'
-      pod 'AEPOptimize'
 end
 ```
 

@@ -14,35 +14,66 @@
 @import AEPCore;
 @import AEPServices;
 @import AEPMessaging;
-
+@import WebKit;
 
 @interface MessageHandler : NSObject <AEPMessagingDelegate>
+
+@property (nonatomic) bool showMessages;
+@property (nonatomic, strong) AEPMessage* currentMessage;
 
 @end
 
 @implementation MessageHandler
 
 - (void) onDismiss:(id<AEPShowable> _Nonnull)message {
-    
+    AEPFullscreenMessage *fullscreenMessage = (AEPFullscreenMessage *)message;
+    AEPMessage *aepMessage = fullscreenMessage.settings.parent;
+    NSLog(@"message was dismissed: %@", aepMessage.id);
 }
 
-
 - (void) onShow:(id<AEPShowable> _Nonnull)message {
-    
+    AEPFullscreenMessage *fullscreenMessage = (AEPFullscreenMessage *)message;
+    AEPMessage *aepMessage = fullscreenMessage.settings.parent;
+    NSLog(@"message was shown: %@", aepMessage.id);
 }
 
 - (BOOL) shouldShowMessage:(id<AEPShowable> _Nonnull)message {
+    // access to the whole message object from the parent
     AEPFullscreenMessage *fullscreenMessage = (AEPFullscreenMessage *)message;
     AEPMessage *aepMessage = fullscreenMessage.settings.parent;
-    WKWebView *webView = (WKWebView *)aepMessage.view;
-    NSLog(@"aepMessage.id: %@", aepMessage.id);
-    NSLog(@"webView: %@", webView);
     
-    return YES;
+    // in-line handling of javascript calls
+    // see Assets/nativeMethodCallingSample.html for an example of how to call this method
+    [aepMessage handleJavascriptMessage:@"buttonClicked" withHandler:^(NSString* content) {
+        NSLog(@"handling content from JS! content is: %@", content ?: @"empty");
+        if (aepMessage) {
+            [aepMessage trackInteraction:content withEdgeEventType:AEPMessagingEdgeEventTypeInappInteract];
+        }
+    }];
+    
+    // access the WKWebView containing the message's UI
+    WKWebView *webView = (WKWebView *)aepMessage.view;
+    // execute JavaScript inside of the message's WKWebView
+    [webView evaluateJavaScript:@"startTimer();" completionHandler:^(id result, NSError * _Nullable error) {
+        if (error) {
+            // handle error
+        }
+        if (result) {
+            // do something with the result
+        }
+    }];
+    
+    // if we're not showing the message now, we can save it for later
+    if (!_showMessages) {
+        _currentMessage = aepMessage;
+        [_currentMessage trackInteraction:@"message suppressed" withEdgeEventType:AEPMessagingEdgeEventTypeInappInteract];
+    }
+    
+    return _showMessages;
 }
 
 - (void) urlLoaded:(NSURL *)url byMessage:(id<AEPShowable>)message {
-    
+    NSLog(@"message loaded url: %@", url);
 }
 
 @end
@@ -58,6 +89,7 @@
     [super viewDidLoad];
     
     _messageHandler = [[MessageHandler alloc] init];
+    _messageHandler.showMessages = true;
     
     [AEPMobileCore setMessagingDelegate:_messageHandler];
 }
