@@ -246,19 +246,23 @@ extension Messaging {
     ///         "_experience": {
     ///             "decisioning": {
     ///                 "propositionEventType": {
-    ///                     "interact": 1
+    ///                     "interact": 1,
+    ///                     "dismiss": 1
     ///                 },
-    ///                 "propositions": [{
-    ///                     "id": "fe47f125-dc8f-454f-b4e8-cf462d65eb67",
-    ///                     "scope": "mobileapp://com.adobe.MessagingDemoApp",
-    ///                     "scopeDetails": {
-    ///                         "correlationID": "d7e644d7-9312-4d7b-8b52-7fa08ce5eccf",
-    ///                         "characteristics": {
-    ///                             "cjmEventToken": "aCm/+7TFk4ojIuGQc+N842qipfsIHvVzTQxHolz2IpTMromRrB5ztP5VMxjHbs7c6qPG9UF4rvQTJZniWgqbOw==",
-    ///                             "cjmXdm": "{\"inappMessageTracking\": {\"action\": \"button3\"}}"
+    ///                 "propositions": [
+    ///                     {
+    ///                         "id": "fe47f125-dc8f-454f-b4e8-cf462d65eb67",
+    ///                         "scope": "mobileapp://com.adobe.MessagingDemoApp",
+    ///                         "scopeDetails": {
+    ///                             "activityId": "<campaignId:packageId>",
+    ///                             "correlationID": "d7e644d7-9312-4d7b-8b52-7fa08ce5eccf",
+    ///                             "characteristics": {
+    ///                                 "cjmEventToken": "aCm/+7TFk4ojIuGQc+N842qipfsIHvVzTQxHolz2IpTMromRrB5ztP5VMxjHbs7c6qPG9UF4rvQTJZniWgqbOw==",
+    ///                                 "cjmXdm": "{\"inappMessageTracking\": {\"action\": \"button3\"}}"
+    ///                             }
     ///                         }
     ///                     }
-    ///                 }]
+    ///                 ]
     ///             }
     ///         }
     ///     }
@@ -310,7 +314,7 @@ extension Messaging {
             ]
         ]
         let propositionEventType: [String: Int] = [
-            eventType.toString(): 1
+            eventType.propositionEventType: 1
         ]
         let decisioning: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PROPOSITION_EVENT_TYPE: propositionEventType,
@@ -320,13 +324,13 @@ extension Messaging {
             MessagingConstants.XDM.IAM.Key.DECISIONING: decisioning
         ]
         let xdm: [String: Any] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE: eventType == .inappDisplay ? MessagingConstants.XDM.IAM.EventType.DISPLAY : MessagingConstants.XDM.IAM.EventType.INTERACT,
+            MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
             MessagingConstants.XDM.AdobeKeys.EXPERIENCE: experience
         ]
         // iam dictionary used for event history
         let iamHistory: [String: String] = [
-            MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.toString(),
-            MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.correlationId,
+            MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
+            MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.activityId,
             MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? ""
         ]
         let mask = [

@@ -20,11 +20,15 @@ class PropositionInfoTests: XCTestCase {
     let mockId = "mockId"
     let mockScope = "mockScope"
     let mockCorrelationId = "mockCorrelationId"
+    let mockActivityId = "552"
     var mockScopeDetails: [String: AnyCodable]!
     
     override func setUp() {
         mockScopeDetails = [
-            "correlationID": AnyCodable(mockCorrelationId)
+            "correlationID": AnyCodable(mockCorrelationId),
+            "activity": [
+                "id": mockActivityId
+            ]
         ]
     }
     
@@ -37,8 +41,10 @@ class PropositionInfoTests: XCTestCase {
         XCTAssertNotNil(propositionInfo)
         XCTAssertEqual(mockId, propositionInfo.id)
         XCTAssertEqual(mockScope, propositionInfo.scope)
-        XCTAssertEqual(1, propositionInfo.scopeDetails.count)
+        XCTAssertEqual(2, propositionInfo.scopeDetails.count)
         XCTAssertEqual(mockCorrelationId, propositionInfo.scopeDetails["correlationID"]?.stringValue)
+        let activity = propositionInfo.scopeDetails["activity"]?.dictionaryValue
+        XCTAssertEqual(mockActivityId, activity?["id"] as? String)
     }
     
     func testIsEncodable() throws {
@@ -53,13 +59,13 @@ class PropositionInfoTests: XCTestCase {
         }
         
         // verify
-        XCTAssertEqual("{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"correlationID\":\"\(mockCorrelationId)\"}}", String(data: encodedPropositionInfo, encoding: .utf8))
+        XCTAssertEqual("{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"activity\":{\"id\":\"\(mockActivityId)\"},\"correlationID\":\"\(mockCorrelationId)\"}}", String(data: encodedPropositionInfo, encoding: .utf8))
     }
     
     func testIsDecodable() throws {
         // setup
         let decoder = JSONDecoder()
-        let propositionInfo = "{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"correlationID\":\"\(mockCorrelationId)\"}}".data(using: .utf8)!
+        let propositionInfo = "{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"activity\":{\"id\":\"\(mockActivityId)\"},\"correlationID\":\"\(mockCorrelationId)\"}}".data(using: .utf8)!
         
         // test
         guard let decodedPropositionInfo = try? decoder.decode(PropositionInfo.self, from: propositionInfo) else {
@@ -71,8 +77,10 @@ class PropositionInfoTests: XCTestCase {
         XCTAssertNotNil(decodedPropositionInfo)
         XCTAssertEqual(mockId, decodedPropositionInfo.id)
         XCTAssertEqual(mockScope, decodedPropositionInfo.scope)
-        XCTAssertEqual(1, decodedPropositionInfo.scopeDetails.count)
+        XCTAssertEqual(2, decodedPropositionInfo.scopeDetails.count)
         XCTAssertEqual(mockCorrelationId, decodedPropositionInfo.scopeDetails["correlationID"]?.stringValue)
+        let activity = decodedPropositionInfo.scopeDetails["activity"]?.dictionaryValue
+        XCTAssertEqual(mockActivityId, activity?["id"] as? String)
     }
     
     func testCorrelationIdExtensionMethod() throws {
@@ -81,6 +89,14 @@ class PropositionInfoTests: XCTestCase {
         
         // verify
         XCTAssertEqual(mockCorrelationId, propositionInfo.correlationId)
+    }
+    
+    func testActivityIdExtensionMethod() throws {
+        // setup
+        let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: mockScopeDetails)
+        
+        // verify
+        XCTAssertEqual(mockActivityId, propositionInfo.activityId)
     }
     
     // MARK: - Exception path
@@ -126,5 +142,13 @@ class PropositionInfoTests: XCTestCase {
         
         // verify
         XCTAssertEqual("", propositionInfo.correlationId)
+    }
+    
+    func testActivityIdExtensionMethodWhenNoActivityId() throws {
+        // setup
+        let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: [:])
+        
+        // verify
+        XCTAssertEqual("", propositionInfo.activityId)
     }
 }

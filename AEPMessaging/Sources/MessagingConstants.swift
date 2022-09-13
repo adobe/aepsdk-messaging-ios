@@ -109,6 +109,8 @@ enum MessagingConstants {
                 enum Personalization {
                     static let PAYLOAD = "payload"
                     static let CORRELATION_ID = "correlationID"
+                    static let ACTIVITY = "activity"
+                    static let ID = "id"
                 }
             }
 
@@ -138,14 +140,8 @@ enum MessagingConstants {
             }
             enum Mask {
                 static let EVENT_TYPE = "iam.eventType"
-                static let MESSAGE_ID = "iam.messageId"
+                static let MESSAGE_ID = "iam.id"
                 static let TRACKING_ACTION = "iam.action"
-            }
-        }
-
-        enum Mask {
-            enum IAM {
-
             }
         }
     }
@@ -201,13 +197,15 @@ enum MessagingConstants {
             static let SURFACE_BASE = "mobileapp://"
 
             enum EventType {
-                static let INTERACT = "decisioning.propositionInteract"
+                static let TRIGGER = "decisioning.propositionTrigger"
                 static let DISPLAY = "decisioning.propositionDisplay"
+                static let INTERACT = "decisioning.propositionInteract"
+                static let DISMISS = "decisioning.propositionDismiss"
                 static let PERSONALIZATION_REQUEST = "personalization.request"
             }
 
             enum PropositionEventType {
-                static let SEND = "send"
+                static let TRIGGER = "trigger"
                 static let DISPLAY = "display"
                 static let INTERACT = "interact"
                 static let DISMISS = "dismiss"

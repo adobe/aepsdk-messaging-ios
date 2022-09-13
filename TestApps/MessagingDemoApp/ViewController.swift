@@ -42,7 +42,8 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerModal(_: Any) {
-        MobileCore.track(action: "animate", data: nil)
+        MobileCore.track(action: "showOnce", data: nil)
+//        MobileCore.track(action: "animate", data: nil)
 //        MobileCore.track(state: "triggerModal", data: ["testSteveModal": "true"])
     }
 
@@ -58,7 +59,7 @@ class ViewController: UIViewController {
     private class MessageHandler: MessagingDelegate {
         var showMessages = true
         var currentMessage: Message?
-        let autoDismiss = true
+        let autoDismiss = false
 
         func onShow(message: Showable) {
             let fullscreenMessage = message as? FullscreenMessage

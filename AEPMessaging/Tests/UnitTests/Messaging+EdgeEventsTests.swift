@@ -449,11 +449,12 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
         let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        XCTAssertEqual("decisioning.propositionInteract", dispatchedXdmMap?["eventType"] as? String)
         let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
@@ -491,11 +492,12 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
         let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        XCTAssertEqual("decisioning.propositionDisplay", dispatchedXdmMap?["eventType"] as? String)
         let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
@@ -533,11 +535,12 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
         let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        XCTAssertEqual("decisioning.propositionDismiss", dispatchedXdmMap?["eventType"] as? String)
         let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
@@ -575,15 +578,16 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
         let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
+        XCTAssertEqual("decisioning.propositionTrigger", dispatchedXdmMap?["eventType"] as? String)
         let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
-        XCTAssertEqual(1, propositionEventTypeMap?["send"] as? Int)
+        XCTAssertEqual(1, propositionEventTypeMap?["trigger"] as? Int)
         let propositionsArray = decisioningMap?["propositions"] as? [[String: Any]]
         XCTAssertEqual(1, propositionsArray?.count)
         let prop = propositionsArray?.first!
