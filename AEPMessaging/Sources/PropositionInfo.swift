@@ -23,4 +23,8 @@ extension PropositionInfo {
     var correlationId: String {
         return scopeDetails[MessagingConstants.Event.Data.Key.Personalization.CORRELATION_ID]?.stringValue ?? ""
     }
+    
+    var activityId: String {
+        return scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY_ID]?.stringValue ?? ""
+    }
 }

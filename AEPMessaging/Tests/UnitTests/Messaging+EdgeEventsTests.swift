@@ -449,7 +449,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
@@ -492,7 +492,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
@@ -535,7 +535,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
@@ -578,7 +578,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data

@@ -109,6 +109,7 @@ enum MessagingConstants {
                 enum Personalization {
                     static let PAYLOAD = "payload"
                     static let CORRELATION_ID = "correlationID"
+                    static let ACTIVITY_ID = "activityId"
                 }
             }
 
@@ -138,7 +139,7 @@ enum MessagingConstants {
             }
             enum Mask {
                 static let EVENT_TYPE = "iam.eventType"
-                static let MESSAGE_ID = "iam.messageId"
+                static let MESSAGE_ID = "iam.id"
                 static let TRACKING_ACTION = "iam.action"
             }
         }
