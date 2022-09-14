@@ -249,7 +249,11 @@ extension Messaging {
     ///                     "interact": 1,
     ///                     "dismiss": 1
     ///                 },
-    ///                 "propositions": [
+    ///                 "propositionAction": {
+    ///                     "id": "blah",
+    ///                     "label": "blah"
+    ///                 }
+    ///                 "propositions": [               //  `propositions` data is an echo back of what was originally provided by XAS
     ///                     {
     ///                         "id": "fe47f125-dc8f-454f-b4e8-cf462d65eb67",
     ///                         "scope": "mobileapp://com.adobe.MessagingDemoApp",
@@ -259,8 +263,7 @@ extension Messaging {
     ///                             },
     ///                             "correlationID": "d7e644d7-9312-4d7b-8b52-7fa08ce5eccf",
     ///                             "characteristics": {
-    ///                                 "cjmEventToken": "aCm/+7TFk4ojIuGQc+N842qipfsIHvVzTQxHolz2IpTMromRrB5ztP5VMxjHbs7c6qPG9UF4rvQTJZniWgqbOw==",
-    ///                                 "cjmXdm": "{\"inappMessageTracking\": {\"action\": \"button3\"}}"
+    ///                                 "cjmEventToken": "aCm/+7TFk4ojIuGQc+N842qipfsIHvVzTQxHolz2IpTMromRrB5ztP5VMxjHbs7c6qPG9UF4rvQTJZniWgqbOw=="
     ///                             }
     ///                         }
     ///                     }
@@ -272,74 +275,66 @@ extension Messaging {
 
     /// Sends a proposition interaction to the customer's experience event dataset.
     ///
-    /// If the message does not contain the required values for properly tracking in AJO, this method will return as a no-op.
-    /// Required properties include:
-    /// - scopeDetails
-    /// - scopeDetails.characteristics
+    /// If the message does not contain `scopeDetails`, required for properly tracking in AJO, this method will return as a no-op.
     ///
     /// - Parameters:
     ///   - eventType: type of event corresponding to this interaction
     ///   - interaction: a `String` describing the interaction
     ///   - message: the `Message` for which the interaction should be recorded
     func sendPropositionInteraction(withEventType eventType: MessagingEdgeEventType, andInteraction interaction: String?, forMessage message: Message) {
-        guard let propInfo = message.propositionInfo,
-              var scopeDetails = propInfo.scopeDetails.asDictionary() else {
+        guard let propInfo = message.propositionInfo, !propInfo.scopeDetails.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction - `scopeDetails` were not found for message (\(message.id)).")
             return
-        }
-
-        // need to add cjmXdm object to characteristics if this is an interact event
-        if eventType == .inappInteract {
-            guard var characteristics = scopeDetails[MessagingConstants.XDM.IAM.Key.CHARACTERISTICS] as? [String: Any] else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction - `characteristics` were not found for message (\(message.id)).")
-                return
-            }
-
-            let inappMessageTracking = [
-                MessagingConstants.XDM.IAM.Key.ACTION: interaction
-            ]
-            let cjmXdm = [
-                MessagingConstants.XDM.IAM.Key.IN_APP_MESSAGE_TRACKING: inappMessageTracking
-            ]
-            let encoder = JSONEncoder()
-            guard let cjmXdmData = try? encoder.encode(cjmXdm) else { return }
-            let cjmXdmString = String(data: cjmXdmData, encoding: .utf8)
-            characteristics[MessagingConstants.XDM.IAM.Key.CJM_XDM] = cjmXdmString
-            scopeDetails[MessagingConstants.XDM.IAM.Key.CHARACTERISTICS] = characteristics
         }
 
         let propositions: [[String: Any]] = [
             [
                 MessagingConstants.XDM.IAM.Key.ID: propInfo.id,
                 MessagingConstants.XDM.IAM.Key.SCOPE: propInfo.scope,
-                MessagingConstants.XDM.IAM.Key.SCOPE_DETAILS: scopeDetails
+                MessagingConstants.XDM.IAM.Key.SCOPE_DETAILS: propInfo.scopeDetails
             ]
         ]
+        
         let propositionEventType: [String: Int] = [
             eventType.propositionEventType: 1
         ]
-        let decisioning: [String: Any] = [
+        
+        var decisioning: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PROPOSITION_EVENT_TYPE: propositionEventType,
             MessagingConstants.XDM.IAM.Key.PROPOSITIONS: propositions
         ]
+        
+        // only add `propositionAction` data if this is an interact event
+        if eventType == .inappInteract {
+            let propositionAction: [String: String] = [
+                MessagingConstants.XDM.IAM.Key.ID: interaction ?? "",
+                MessagingConstants.XDM.IAM.Key.LABEL: interaction ?? ""
+            ]
+            decisioning[MessagingConstants.XDM.IAM.Key.PROPOSITION_ACTION] = propositionAction
+        }
+        
         let experience: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.DECISIONING: decisioning
         ]
+        
         let xdm: [String: Any] = [
             MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
             MessagingConstants.XDM.AdobeKeys.EXPERIENCE: experience
         ]
+        
         // iam dictionary used for event history
         let iamHistory: [String: String] = [
             MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
             MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.activityId,
             MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? ""
         ]
+        
         let mask = [
             MessagingConstants.Event.History.Mask.EVENT_TYPE,
             MessagingConstants.Event.History.Mask.MESSAGE_ID,
             MessagingConstants.Event.History.Mask.TRACKING_ACTION
         ]
+        
         let xdmEventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: xdm,
             MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory

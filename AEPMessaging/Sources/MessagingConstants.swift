@@ -216,6 +216,8 @@ enum MessagingConstants {
                 static let QUERY = "query"
                 static let SURFACES = "surfaces"
                 static let DECISIONING = "decisioning"
+                static let PROPOSITION_ACTION = "propositionAction"
+                static let LABEL = "label"
                 static let PROPOSITION_EVENT_TYPE = "propositionEventType"
                 static let PROPOSITIONS = "propositions"
                 static let ID = "id"
