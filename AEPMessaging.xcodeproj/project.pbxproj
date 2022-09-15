@@ -32,6 +32,7 @@
 		2414ED942899BA0A0036D505 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED932899BA0A0036D505 /* main.m */; };
 		2414ED982899BAC50036D505 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; platformFilter = ios; };
 		2414ED992899BAC50036D505 /* AEPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		2415598528D1217500729136 /* nativeMethodCallingSample.html in Resources */ = {isa = PBXBuildFile; fileRef = 2415598428D1217500729136 /* nativeMethodCallingSample.html */; };
 		241B2DD42821C80C00E4FF67 /* URL+QueryParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241B2DD32821C80C00E4FF67 /* URL+QueryParams.swift */; };
 		241B2DD62821C99500E4FF67 /* URL+QueryParamsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241B2DD52821C99500E4FF67 /* URL+QueryParamsTests.swift */; };
 		243B1AFC28AD7FCE0074327E /* PropositionPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243B1AFB28AD7FCE0074327E /* PropositionPayload.swift */; };
@@ -239,6 +240,7 @@
 		2414ED902899BA0A0036D505 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2414ED922899BA0A0036D505 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2414ED932899BA0A0036D505 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		2415598428D1217500729136 /* nativeMethodCallingSample.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = nativeMethodCallingSample.html; sourceTree = "<group>"; };
 		241B2DD32821C80C00E4FF67 /* URL+QueryParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+QueryParams.swift"; sourceTree = "<group>"; };
 		241B2DD52821C99500E4FF67 /* URL+QueryParamsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+QueryParamsTests.swift"; sourceTree = "<group>"; };
 		243B1AFB28AD7FCE0074327E /* PropositionPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionPayload.swift; sourceTree = "<group>"; };
@@ -426,7 +428,8 @@
 				2414ED922899BA0A0036D505 /* Info.plist */,
 				2414ED932899BA0A0036D505 /* main.m */,
 			);
-			path = MessagingDemoAppObjC;
+			name = MessagingDemoAppObjC;
+			path = TestApps/MessagingDemoAppObjC;
 			sourceTree = "<group>";
 		};
 		2469A5DD2744657000E56457 /* Resources */ = {
@@ -608,12 +611,13 @@
 				925DF44F2522785700A5DE31 /* Info.plist */,
 			);
 			name = MessagingDemoApp;
-			path = SampleApps/MessagingDemoApp;
+			path = TestApps/MessagingDemoApp;
 			sourceTree = "<group>";
 		};
 		925DF44D2522785700A5DE31 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				2415598428D1217500729136 /* nativeMethodCallingSample.html */,
 				925DF44E2522785700A5DE31 /* ADBMobileConfig.json */,
 			);
 			path = Assets;
@@ -907,6 +911,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2415598528D1217500729136 /* nativeMethodCallingSample.html in Resources */,
 				9285941E25228A1500B2BE47 /* ADBMobileConfig.json in Resources */,
 				9285941C2522899700B2BE47 /* Main.storyboard in Resources */,
 				928594152522880900B2BE47 /* Assets.xcassets in Resources */,
@@ -1409,7 +1414,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = U7WJX8Z527;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MessagingDemoAppObjC/Info.plist;
+				INFOPLIST_FILE = TestApps/MessagingDemoAppObjC/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -1439,7 +1444,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = U7WJX8Z527;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MessagingDemoAppObjC/Info.plist;
+				INFOPLIST_FILE = TestApps/MessagingDemoAppObjC/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -1566,10 +1571,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
-				CODE_SIGN_ENTITLEMENTS = MessagingDemoApp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = TestApps/MessagingDemoApp/MessagingDemoApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FKGEE875K4;
-				INFOPLIST_FILE = SampleApps/MessagingDemoApp/Info.plist;
+				INFOPLIST_FILE = TestApps/MessagingDemoApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1589,10 +1594,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
-				CODE_SIGN_ENTITLEMENTS = MessagingDemoApp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = TestApps/MessagingDemoApp/MessagingDemoApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FKGEE875K4;
-				INFOPLIST_FILE = SampleApps/MessagingDemoApp/Info.plist;
+				INFOPLIST_FILE = TestApps/MessagingDemoApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

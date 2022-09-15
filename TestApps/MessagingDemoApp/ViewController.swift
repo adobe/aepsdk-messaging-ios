@@ -42,7 +42,8 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerModal(_: Any) {
-        MobileCore.track(action: "animate", data: nil)
+        MobileCore.track(action: "showOnce", data: nil)
+//        MobileCore.track(action: "animate", data: nil)
 //        MobileCore.track(state: "triggerModal", data: ["testSteveModal": "true"])
     }
 
@@ -77,13 +78,15 @@ class ViewController: UIViewController {
             let message = fullscreenMessage?.parent
 
             // in-line handling of javascript calls
-            message?.handleJavascriptMessage("magic") { content in
+            // see Assets/nativeMethodCallingSample.html for an example of how to call this method
+            message?.handleJavascriptMessage("buttonClicked") { content in
                 print("magical handling of our content from js! content is: \(content ?? "empty")")
                 message?.track(content as? String, withEdgeEventType: .inappInteract)
             }
 
-            // get the uiview - add it
+            // access the WKWebView containing the message's UI
             let messageWebView = message?.view as? WKWebView
+            // execute JavaScript inside of the message's WKWebView
             messageWebView?.evaluateJavaScript("startTimer();") { result, error in
                 if error != nil {
                     // handle error

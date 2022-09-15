@@ -139,6 +139,13 @@ func shouldShowMessage(message: Showable) -> Bool {
 }
 ```
 
+## Examples
+
+The test apps in this repository demonstrate using a `MessagingDelegate`:
+
+- [Swift](./../../TestApps/MessagingDemoApp/)
+- [Objective-c](./../../TestApps/MessagingDemoAppObjC/)
+
 ## Further reading
 
 - [More information on how to use the Message object](./class-message.md)

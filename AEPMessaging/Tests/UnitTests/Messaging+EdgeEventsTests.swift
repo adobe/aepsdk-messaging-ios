@@ -449,7 +449,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
@@ -459,16 +459,19 @@ class MessagingEdgeEventsTests: XCTestCase {
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
         XCTAssertEqual(1, propositionEventTypeMap?["interact"] as? Int)
+        let propositionActionMap = decisioningMap?["propositionAction"] as? [String: Any]
+        XCTAssertEqual(2, propositionActionMap?.count)
+        XCTAssertEqual(mockInteraction, propositionActionMap?["id"] as? String)
+        XCTAssertEqual(mockInteraction, propositionActionMap?["label"] as? String)
         let propositionsArray = decisioningMap?["propositions"] as? [[String: Any]]
         XCTAssertEqual(1, propositionsArray?.count)
         let prop = propositionsArray?.first!
         XCTAssertEqual("propId", prop?["id"] as? String)
         XCTAssertEqual("propScope", prop?["scope"] as? String)
-        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
-        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
-        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
+        let scopeDetails = prop?["scopeDetails"] as? [String: AnyCodable]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"]?.stringValue)
+        let characteristics = scopeDetails?["characteristics"]?.dictionaryValue
         XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
-        XCTAssertEqual("{\"inappMessageTracking\":{\"action\":\"swords\"}}", characteristics?["cjmXdm"] as? String)
     }
     
     func testSendPropositionInteractionDisplay() throws {
@@ -492,7 +495,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
@@ -502,16 +505,17 @@ class MessagingEdgeEventsTests: XCTestCase {
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
         XCTAssertEqual(1, propositionEventTypeMap?["display"] as? Int)
+        let propositionActionMap = decisioningMap?["propositionAction"] as? [String: Any]
+        XCTAssertNil(propositionActionMap)
         let propositionsArray = decisioningMap?["propositions"] as? [[String: Any]]
         XCTAssertEqual(1, propositionsArray?.count)
         let prop = propositionsArray?.first!
         XCTAssertEqual("propId", prop?["id"] as? String)
         XCTAssertEqual("propScope", prop?["scope"] as? String)
-        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
-        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
-        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
+        let scopeDetails = prop?["scopeDetails"] as? [String: AnyCodable]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"]?.stringValue)
+        let characteristics = scopeDetails?["characteristics"]?.dictionaryValue
         XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
-        XCTAssertNil(characteristics?["cjmXdm"])
     }
     
     func testSendPropositionInteractionDismiss() throws {
@@ -535,7 +539,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
@@ -545,16 +549,17 @@ class MessagingEdgeEventsTests: XCTestCase {
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
         XCTAssertEqual(1, propositionEventTypeMap?["dismiss"] as? Int)
+        let propositionActionMap = decisioningMap?["propositionAction"] as? [String: Any]
+        XCTAssertNil(propositionActionMap)
         let propositionsArray = decisioningMap?["propositions"] as? [[String: Any]]
         XCTAssertEqual(1, propositionsArray?.count)
         let prop = propositionsArray?.first!
         XCTAssertEqual("propId", prop?["id"] as? String)
         XCTAssertEqual("propScope", prop?["scope"] as? String)
-        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
-        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
-        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
+        let scopeDetails = prop?["scopeDetails"] as? [String: AnyCodable]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"]?.stringValue)
+        let characteristics = scopeDetails?["characteristics"]?.dictionaryValue
         XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
-        XCTAssertNil(characteristics?["cjmXdm"])
     }
     
     func testSendPropositionInteractionTrigger() throws {
@@ -578,7 +583,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         // validate event mask entries
         XCTAssertEqual("iam.eventType", dispatchedEvent?.mask?[0])
-        XCTAssertEqual("iam.messageId", dispatchedEvent?.mask?[1])
+        XCTAssertEqual("iam.id", dispatchedEvent?.mask?[1])
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
@@ -588,16 +593,17 @@ class MessagingEdgeEventsTests: XCTestCase {
         let decisioningMap = experienceMap?["decisioning"] as? [String: Any]
         let propositionEventTypeMap = decisioningMap?["propositionEventType"] as? [String: Any]
         XCTAssertEqual(1, propositionEventTypeMap?["trigger"] as? Int)
+        let propositionActionMap = decisioningMap?["propositionAction"] as? [String: Any]
+        XCTAssertNil(propositionActionMap)
         let propositionsArray = decisioningMap?["propositions"] as? [[String: Any]]
         XCTAssertEqual(1, propositionsArray?.count)
         let prop = propositionsArray?.first!
         XCTAssertEqual("propId", prop?["id"] as? String)
         XCTAssertEqual("propScope", prop?["scope"] as? String)
-        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
-        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
-        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
+        let scopeDetails = prop?["scopeDetails"] as? [String: AnyCodable]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"]?.stringValue)
+        let characteristics = scopeDetails?["characteristics"]?.dictionaryValue
         XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
-        XCTAssertNil(characteristics?["cjmXdm"])
     }
     
     func testSendPropositionInteractionNoScopeDetails() throws {
@@ -609,23 +615,6 @@ class MessagingEdgeEventsTests: XCTestCase {
         let mockInteraction = "swords"
         let mockMessage = MockMessage(parent: messaging, event: mockEvent)
                 
-        // test
-        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
-        // verify
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
-    }
-    
-    func testSendPropositionInteractionInteractNoCharacteristics() throws {
-        // setup
-        setConfigSharedState()
-        setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.inappInteract
-        let mockInteraction = "swords"
-        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID"])
-        
         // test
         messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
         
