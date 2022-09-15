@@ -23,7 +23,7 @@ extension PropositionInfo {
     var correlationId: String {
         return scopeDetails[MessagingConstants.Event.Data.Key.Personalization.CORRELATION_ID]?.stringValue ?? ""
     }
-    
+
     var activityId: String {
         guard let activity = scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY]?.dictionaryValue else {
             return ""

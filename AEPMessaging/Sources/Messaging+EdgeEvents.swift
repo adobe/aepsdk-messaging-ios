@@ -294,16 +294,16 @@ extension Messaging {
                 MessagingConstants.XDM.IAM.Key.SCOPE_DETAILS: propInfo.scopeDetails
             ]
         ]
-        
+
         let propositionEventType: [String: Int] = [
             eventType.propositionEventType: 1
         ]
-        
+
         var decisioning: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PROPOSITION_EVENT_TYPE: propositionEventType,
             MessagingConstants.XDM.IAM.Key.PROPOSITIONS: propositions
         ]
-        
+
         // only add `propositionAction` data if this is an interact event
         if eventType == .inappInteract {
             let propositionAction: [String: String] = [
@@ -312,29 +312,29 @@ extension Messaging {
             ]
             decisioning[MessagingConstants.XDM.IAM.Key.PROPOSITION_ACTION] = propositionAction
         }
-        
+
         let experience: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.DECISIONING: decisioning
         ]
-        
+
         let xdm: [String: Any] = [
             MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
             MessagingConstants.XDM.AdobeKeys.EXPERIENCE: experience
         ]
-        
+
         // iam dictionary used for event history
         let iamHistory: [String: String] = [
             MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
             MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.activityId,
             MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? ""
         ]
-        
+
         let mask = [
             MessagingConstants.Event.History.Mask.EVENT_TYPE,
             MessagingConstants.Event.History.Mask.MESSAGE_ID,
             MessagingConstants.Event.History.Mask.TRACKING_ACTION
         ]
-        
+
         let xdmEventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: xdm,
             MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory

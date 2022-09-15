@@ -219,7 +219,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertNil(messaging.currentMessage)
+        XCTAssertNotNil(messaging.currentMessage)
     }
 
     func testHandleRulesResponseNilData() throws {
