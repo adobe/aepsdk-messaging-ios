@@ -200,14 +200,13 @@ public class Messaging: NSObject, Extension {
         }
 
         let message = Message(parent: self, event: event)
-
-        guard let propositionInfo = rulesEngine.propositionInfoForMessageId(message.id) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring message that does not contain information necessary for tracking with Adobe Journey Optimizer.")
-            return
-        }
-
         currentMessage = message
-        currentMessage?.propositionInfo = propositionInfo
+        
+        if let propositionInfo = rulesEngine.propositionInfoForMessageId(message.id) {
+            currentMessage?.propositionInfo = propositionInfo
+        } else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Preparing to show a message that does not contain information necessary for tracking with Adobe Journey Optimizer. If you are spoofing this message from the AJO authoring UI or from Assurance, ignore this message.")
+        }
 
         currentMessage?.trigger()
         currentMessage?.show()
