@@ -468,9 +468,9 @@ class MessagingEdgeEventsTests: XCTestCase {
         let prop = propositionsArray?.first!
         XCTAssertEqual("propId", prop?["id"] as? String)
         XCTAssertEqual("propScope", prop?["scope"] as? String)
-        let scopeDetails = prop?["scopeDetails"] as? [String: AnyCodable]
-        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"]?.stringValue)
-        let characteristics = scopeDetails?["characteristics"]?.dictionaryValue
+        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
+        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
         XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
     }
     
@@ -512,9 +512,9 @@ class MessagingEdgeEventsTests: XCTestCase {
         let prop = propositionsArray?.first!
         XCTAssertEqual("propId", prop?["id"] as? String)
         XCTAssertEqual("propScope", prop?["scope"] as? String)
-        let scopeDetails = prop?["scopeDetails"] as? [String: AnyCodable]
-        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"]?.stringValue)
-        let characteristics = scopeDetails?["characteristics"]?.dictionaryValue
+        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
+        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
         XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
     }
     
@@ -556,9 +556,9 @@ class MessagingEdgeEventsTests: XCTestCase {
         let prop = propositionsArray?.first!
         XCTAssertEqual("propId", prop?["id"] as? String)
         XCTAssertEqual("propScope", prop?["scope"] as? String)
-        let scopeDetails = prop?["scopeDetails"] as? [String: AnyCodable]
-        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"]?.stringValue)
-        let characteristics = scopeDetails?["characteristics"]?.dictionaryValue
+        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
+        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
         XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
     }
     
@@ -600,9 +600,9 @@ class MessagingEdgeEventsTests: XCTestCase {
         let prop = propositionsArray?.first!
         XCTAssertEqual("propId", prop?["id"] as? String)
         XCTAssertEqual("propScope", prop?["scope"] as? String)
-        let scopeDetails = prop?["scopeDetails"] as? [String: AnyCodable]
-        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"]?.stringValue)
-        let characteristics = scopeDetails?["characteristics"]?.dictionaryValue
+        let scopeDetails = prop?["scopeDetails"] as? [String: Any]
+        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
+        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
         XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
     }
     
