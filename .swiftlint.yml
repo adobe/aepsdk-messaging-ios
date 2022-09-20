@@ -1,5 +1,6 @@
 disabled_rules: # rule identifiers to exclude from running
 - nesting
+- identifier_name
 opt_in_rules: # some rules are opt-in only
 - closure_end_indentation
 - convenience_type

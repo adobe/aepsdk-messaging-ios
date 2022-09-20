@@ -291,7 +291,7 @@ extension Messaging {
             [
                 MessagingConstants.XDM.IAM.Key.ID: propInfo.id,
                 MessagingConstants.XDM.IAM.Key.SCOPE: propInfo.scope,
-                MessagingConstants.XDM.IAM.Key.SCOPE_DETAILS: propInfo.scopeDetails
+                MessagingConstants.XDM.IAM.Key.SCOPE_DETAILS: propInfo.scopeDetails.asDictionary() ?? [:]
             ]
         ]
 
