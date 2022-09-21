@@ -569,8 +569,9 @@ class MessagingEdgeEventsTests: XCTestCase {
         let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
         let mockEdgeEventType = MessagingEdgeEventType.inappTrigger
         let mockInteraction = "swords"
+        let mockMessageId = "SUCHMESSAGEVERYID"
         let mockMessage = MockMessage(parent: messaging, event: mockEvent)
-        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
+        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["activity":["id":mockMessageId], "correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
         
         // test
         messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
@@ -587,6 +588,10 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual("iam.action", dispatchedEvent?.mask?[2])
         // validate xdm map
         let dispatchedEventData = dispatchedEvent?.data
+        let dispatchedEventHistoryData = dispatchedEventData?["iam"] as? [String: Any]
+        XCTAssertEqual(mockInteraction, dispatchedEventHistoryData?["action"] as? String)
+        XCTAssertEqual(mockEdgeEventType.propositionEventType, dispatchedEventHistoryData?["eventType"] as? String)
+        XCTAssertEqual(mockMessageId, dispatchedEventHistoryData?["id"] as? String)
         let dispatchedXdmMap = dispatchedEventData?["xdm"] as? [String: Any]
         XCTAssertEqual("decisioning.propositionTrigger", dispatchedXdmMap?["eventType"] as? String)
         let experienceMap = dispatchedXdmMap?["_experience"] as? [String: Any]
