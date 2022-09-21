@@ -135,7 +135,7 @@ enum MessagingConstants {
                 // these kvps are embedded in an object named `iam`,
                 // so the mask path to them is e.g. "iam.eventType"
                 static let EVENT_TYPE = "eventType"
-                static let MESSAGE_ID = "messageId"
+                static let MESSAGE_ID = "id"
                 static let TRACKING_ACTION = "action"
             }
             enum Mask {
