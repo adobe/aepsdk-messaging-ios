@@ -50,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         ]
 
         MobileCore.registerExtensions(extensions) {
-            Assurance.startSession(url: URL(string: "demo://?adb_validation_sessionid=d5f8391b-4d54-46f8-b3c6-2f828d027e2f"))
+            Assurance.startSession(url: URL(string: "demo://?adb_validation_sessionid=219fc021-102d-492f-8f64-106e8f228715&env=qa"))
         }
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)

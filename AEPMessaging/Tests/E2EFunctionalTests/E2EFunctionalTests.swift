@@ -11,7 +11,6 @@
  */
 
 @testable import AEPCore
-import AEPOptimize
 import AEPEdge
 import AEPEdgeConsent
 import AEPEdgeIdentity
@@ -22,17 +21,7 @@ import AEPEdgeIdentity
 import XCTest
 
 class E2EFunctionalTests: XCTestCase {
-    // config settings
-    // bundle id == "com.adobe.e2eonly.mchammer"
-    // env == "stage"
-    let activityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
-    let placementIdBeingTested = "xcore:offer-placement:14c7a0a8dee479e4"
-
-    let OLDactivityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
-    let OLDplacementIdBeingTested = "xcore:offer-placement:143f66555f80e367"
-    let DEVactivityIdBeingTested = "xcore:offer-activity:14090235e6b6757a"
-    let DEVplacementIdBeingTested = "xcore:offer-placement:14254cbbee5de2b8"
-
+    
     // testing variables
     var onShowExpectation: XCTestExpectation?
     var onDismissExpectation: XCTestExpectation?
@@ -50,11 +39,15 @@ class E2EFunctionalTests: XCTestCase {
 
     func initializeSdk() {
         MobileCore.setLogLevel(.trace)
+        // ** staging environment **
+        // sb_stage on "CJM Stage" (AJO Web sandbox)
+        // App Surface - sb_app_configuration
+        // com.adobe.MessagingDemoApp
+        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
         let configDict = ConfigurationLoader.getConfig("functionalTestConfigStage")
         MobileCore.updateConfigurationWith(configDict: configDict)
 
         let extensions = [
-            Optimize.self,
             Consent.self,
             Identity.self,
             Messaging.self,
@@ -68,17 +61,13 @@ class E2EFunctionalTests: XCTestCase {
         MobileCore.registerEventListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, listener: listener)
     }
 
-    func registerOptimizeRequestContentListener(_ listener: @escaping EventListener) {
-        MobileCore.registerEventListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, listener: listener)
-    }
-
     func registerEdgePersonalizationDecisionsListener(_ listener: @escaping EventListener) {
         MobileCore.registerEventListener(type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, listener: listener)
     }
 
     // MARK: - tests
 
-    func testGetMessageDefinitionFromOptimize() throws {
+    func testGetMessageDefinitionFromXAS() throws {
         // MARK: - fetch the message definition from Offers
 
         // setup
@@ -91,42 +80,36 @@ class E2EFunctionalTests: XCTestCase {
             messagingRequestContentExpectation.fulfill()
         }
 
-        let optimizeRequestContentExpectation = XCTestExpectation(description: "optimize request content listener called")
-        registerOptimizeRequestContentListener { _ in
-            optimizeRequestContentExpectation.fulfill()
-        }
-
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
         registerEdgePersonalizationDecisionsListener { event in
 
-            // validate the correct activity/placement
-            XCTAssertEqual(self.activityIdBeingTested, event.activityId)
-            XCTAssertEqual(self.placementIdBeingTested, event.placementId)
-
+            XCTAssertNotNil(event)
+            edgePersonalizationDecisionsExpectation.fulfill()
+            
             // validate the items array
-            guard let firstItem = event.items?.first,
-                  let itemData = firstItem["data"] as? [String: Any],
-                  let content = itemData["content"] as? String else {
-                XCTFail()
-                return
-            }
-
-            // validate the content is a valid rule containing a valid message
-            let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
-            messagingRulesEngine.loadRules(rules: [content])
-
-            // rules load async - brief sleep to allow it to finish
-            self.runAfter(seconds: 3) {
-                XCTAssertEqual(1, messagingRulesEngine.rulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
-                edgePersonalizationDecisionsExpectation.fulfill()
-            }
+//            guard let firstItem = event.items?.first,
+//                  let itemData = firstItem["data"] as? [String: Any],
+//                  let content = itemData["content"] as? String else {
+//                XCTFail()
+//                return
+//            }
+//
+//            // validate the content is a valid rule containing a valid message
+//            let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
+//            messagingRulesEngine.loadRules(rules: [content])
+//
+//            // rules load async - brief sleep to allow it to finish
+//            self.runAfter(seconds: 3) {
+//                XCTAssertEqual(1, messagingRulesEngine.rulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
+//                edgePersonalizationDecisionsExpectation.fulfill()
+//            }
         }
 
         // test
         Messaging.refreshInAppMessages()
 
         // verify
-        wait(for: [messagingRequestContentExpectation, optimizeRequestContentExpectation, edgePersonalizationDecisionsExpectation], timeout: 60)
+        wait(for: [messagingRequestContentExpectation, edgePersonalizationDecisionsExpectation], timeout: 10)
 
         // MARK: - trigger the loaded message
 
@@ -145,33 +128,6 @@ class E2EFunctionalTests: XCTestCase {
     /// wait for `seconds` before running the code in the closure
     func runAfter(seconds: Int, closure: @escaping () -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(seconds), execute: closure)
-    }
-}
-
-private extension Event {
-    var payload: [String: Any]? {
-        guard let payloadArray = data?["payload"] as? [[String: Any]] else {
-            return nil
-        }
-        return payloadArray.isEmpty ? nil : payloadArray.first
-    }
-
-    var activityId: String? {
-        guard let activityDictionary = payload?["activity"] as? [String: Any] else {
-            return nil
-        }
-        return activityDictionary["id"] as? String
-    }
-
-    var placementId: String? {
-        guard let placementDictionary = payload?["placement"] as? [String: Any] else {
-            return nil
-        }
-        return placementDictionary["id"] as? String
-    }
-
-    var items: [[String: Any]]? {
-        return payload?["items"] as? [[String: Any]]
     }
 }
 

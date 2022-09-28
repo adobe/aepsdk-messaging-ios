@@ -68,7 +68,7 @@ swift-format:
 	(swiftformat $(PROJECT_NAME)/Sources --swiftversion 5.1)
 
 lint-autocorrect:
-	(./Pods/SwiftLint/swiftlint autocorrect $(PROJECT_NAME)/Sources --format)
+	(./Pods/SwiftLint/swiftlint --fix $(PROJECT_NAME)/Sources --format)
 
 lint:
 	(./Pods/SwiftLint/swiftlint lint $(PROJECT_NAME)/Sources)
