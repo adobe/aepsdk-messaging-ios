@@ -66,50 +66,66 @@ class E2EFunctionalTests: XCTestCase {
     }
 
     // MARK: - tests
-
-    func testGetMessageDefinitionFromXAS() throws {
-        // MARK: - fetch the message definition from Offers
-
+    
+    func testRefreshInAppMessagesHappy() throws {
         // setup
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
-        registerMessagingRequestContentListener { event in
+        registerMessagingRequestContentListener() { event in
             XCTAssertNotNil(event)
             let data = event.data
             XCTAssertNotNil(data)
             XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool)
             messagingRequestContentExpectation.fulfill()
         }
+        
+        // test
+        Messaging.refreshInAppMessages()
+        
+        // verify
+        wait(for: [messagingRequestContentExpectation], timeout: 2)
+    }
 
+    func testMessagesReturnedFromXAS() throws {
+        // setup
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
-        registerEdgePersonalizationDecisionsListener { event in
-
+        registerEdgePersonalizationDecisionsListener() { event in
             XCTAssertNotNil(event)
-            edgePersonalizationDecisionsExpectation.fulfill()
             
-            // validate the items array
-//            guard let firstItem = event.items?.first,
-//                  let itemData = firstItem["data"] as? [String: Any],
-//                  let content = itemData["content"] as? String else {
-//                XCTFail()
-//                return
-//            }
-//
+            // validate the payload exists
+            guard let payload = event.data?["payload"] as? [[String: Any]] else {
+                XCTFail("expected a payload in the response but none was found")
+                return
+            }
+            
+            // validate the payload is not empty
+            guard let payloadObject = payload.first else {
+                XCTFail("expected a payload object, but payload is empty")
+                return
+            }
+            
+            // validate required fields are in first payload item and their types are correct
+            let objectId = payloadObject["id"] as? String
+            XCTAssertNotNil(objectId, "required field 'id' is missing or not the correct type 'String'")
+            XCTAssertNotNil(payloadObject["scope"])
+            
 //            // validate the content is a valid rule containing a valid message
 //            let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
 //            messagingRulesEngine.loadRules(rules: [content])
-//
-//            // rules load async - brief sleep to allow it to finish
+
+            // rules load async - brief sleep to allow it to finish
 //            self.runAfter(seconds: 3) {
 //                XCTAssertEqual(1, messagingRulesEngine.rulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
 //                edgePersonalizationDecisionsExpectation.fulfill()
 //            }
+            
+            edgePersonalizationDecisionsExpectation.fulfill()
         }
 
         // test
         Messaging.refreshInAppMessages()
 
         // verify
-        wait(for: [messagingRequestContentExpectation, edgePersonalizationDecisionsExpectation], timeout: 10)
+        wait(for: [edgePersonalizationDecisionsExpectation], timeout: 10)
 
         // MARK: - trigger the loaded message
 
