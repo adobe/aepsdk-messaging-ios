@@ -31,8 +31,7 @@ Ensure that your app has registered all necessary AEP SDK extensions by doing th
     | AEPEdge         | 1.3.0           |
     | AEPEdgeConsent  | 1.0.0           |
     | AEPEdgeIdentity | 1.0.1           |
-    | AEPMessaging    | 1.1.0-beta      |
-    | AEPOptimize     | 1.0.0           |
+    | AEPMessaging    | 1.1.0-beta2     |
 
 Below is an example of what the view in Assurance UI may look like:
 
@@ -48,18 +47,11 @@ Completing the following steps will validate that your app is making the necessa
 
 1. In the Assurance UI, click on **Events** in the left-rail navigation
 
-1. In the event list, select the event with type **Edge Optimize Personalization Request**
+1. In the event list, select the event with type **Retrieve message definitions**
 
-    ![Edge Optimize Personalization Request](./../../assets/message_request.png)
+    ![Retrieve message definitions](./../../assets/message_request.png)
 
-1. Expand the **Payload** section in the right window and ensure the correct **decisionScope** is being used. The **decisionScope** is a base64 representation of a JSON payload that should contain your app's bundle identifier. You can use an [online base64 decoder](https://www.base64decode.org/) to decode the text. Verifying the request is using the correct **decisionScope** is important, since there may be multiple events with the same event type.
-
-The below example demonstrates validating a **decisionScope** for an app with bundle identifier `com.adobe.demosystem.dxdemo`:
-- **decisionScope** == `eyJ4ZG06bmFtZSI6ImNvbS5hZG9iZS5kZW1vc3lzdGVtLmR4ZGVtbyJ9`
-- Base64 decoded representation of **decisionScope** == `{"xdm:name":"com.adobe.demosystem.dxdemo"}`
-- `com.adobe.demosystem.dxdemo` matches the application's bundle identifier
-
-    ![Edge Optimize Personalization Request Payload](./../../assets/message_request_payload.png)
+1. Expand the **Payload** section in the right window and ensure the correct **surface** is being used. The **surface** URI represents a collection of messages specific for your application and is identifiable based on its bundle identifier. The format for the URI will be `mobileapp://APP_BUNDLE_IDENTIFIER`.  From the screenshot above, the surface in use is `mobileapp://com.adobe.MessagingDemoApp`.
 
 ## Validate the event containing a message definition response
 
@@ -75,14 +67,14 @@ Complete the following steps to validate a response containing in-app messages:
 
     ![AEP Response Event Handle](./../../assets/message_response.png)
 
-1. Expand the **Payload** section in the right window, and drill-down the tree until you find the **items** array. The full path to **items** is:
+1. Expand the **Payload** section in the right window. Each entry in the **payload** array contains the rule for a single in-app message that has been previously published in AJO and is now live. The full path to find a message definition is:
 
     ```
-    ACPExtensionEventData.payload.0.items
+    ACPExtensionEventData.payload.N.items.0.data.content
     ```
 
-    This array contains an entry for each of this app's published messages. As shown in the screenshot below, the message is fully defined in the **content** property of each item's **data** object:
-
+    To find definitions for other live in-app messages, follow the above path for each object in the **payload** array.
+    
     ![AEP Response Event Handle Payload](./../../assets/message_response_payload.png)
 
 ## Use the In-App Messaging Assurance UI plugin
@@ -119,7 +111,7 @@ Using the IAM plugin you can do the following for each message downloaded by the
 **Q:** What do I do when one of the required extensions is missing? <br />
 **A:** Ensure that each required extension is linked to your project and registered by `MobileCore`. Ref: [registerExtensions](https://aep-sdks.gitbook.io/docs/foundation-extensions/mobile-core/mobile-core-api-reference#registerextension-s)
 
-**Q:** Why can't I find an event named `Edge Optimize Personalization Request`? <br />
+**Q:** Why can't I find an event named `Retrieve message definitions`? <br />
 **A:** Check to ensure each required extensions is on a version that meets its minimum requirement.
 
 **Q:** Why don't I see any messages in my `AEP Response Event Handle` event? <br />

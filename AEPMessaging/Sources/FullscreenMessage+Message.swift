@@ -14,6 +14,7 @@ import AEPServices
 import Foundation
 
 public extension FullscreenMessage {
+    /// Retrieve the `Message` instance that owns the calling `FullscreenMessage`.
     var parent: Message? {
         settings?.parent as? Message
     }

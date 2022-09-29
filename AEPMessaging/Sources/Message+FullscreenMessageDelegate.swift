@@ -52,7 +52,7 @@ extension Message: FullscreenMessageDelegate {
         }
 
         if url.scheme == MessagingConstants.IAM.HTML.SCHEME {
-            // handle request parameters            
+            // handle request parameters
             let queryParams = url.queryParamMap()
             let message = fullscreenMessage.parent
 
@@ -67,7 +67,7 @@ extension Message: FullscreenMessageDelegate {
                 if let animationOverride = queryParams[MessagingConstants.IAM.HTML.ANIMATE] {
                     message?.fullscreenMessage?.settings?.setDismissAnimation(MessageAnimation.fromString(animationOverride))
                 }
-                
+
                 message?.dismiss(suppressAutoTrack: true)
             }
 

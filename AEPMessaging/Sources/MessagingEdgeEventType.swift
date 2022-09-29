@@ -39,3 +39,23 @@ public enum MessagingEdgeEventType: Int {
         }
     }
 }
+
+extension MessagingEdgeEventType {
+    /// Used to generate `propositionEventType` payload in outgoing proposition interaction events
+    var propositionEventType: String {
+        switch self {
+        case .inappDismiss:
+            return MessagingConstants.XDM.IAM.PropositionEventType.DISMISS
+        case .inappInteract:
+            return MessagingConstants.XDM.IAM.PropositionEventType.INTERACT
+        case .inappTrigger:
+            return MessagingConstants.XDM.IAM.PropositionEventType.TRIGGER
+        case .inappDisplay:
+            return MessagingConstants.XDM.IAM.PropositionEventType.DISPLAY
+        case .pushApplicationOpened, .pushCustomAction:
+            return ""
+        default:
+            return ""
+        }
+    }
+}

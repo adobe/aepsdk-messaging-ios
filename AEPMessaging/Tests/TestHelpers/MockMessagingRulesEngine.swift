@@ -42,10 +42,17 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
         paramProcessEvent = event
     }
 
-    var loadRulesCalled = false
-    var paramLoadRulesRules: [String]?
-    override func loadRules(rules: [String]?) {
-        loadRulesCalled = true
-        paramLoadRulesRules = rules
+    var loadPropositionsCalled = false
+    var paramLoadPropositionsPropositions: [PropositionPayload]?
+    override func loadPropositions(_ propositions: [PropositionPayload]) {
+        loadPropositionsCalled = true
+        paramLoadPropositionsPropositions = propositions
+    }
+    
+    var propositionInfoForMessageIdCalled = false
+    var propositionInfoForMessageIdReturnValue: PropositionInfo?
+    override func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
+        propositionInfoForMessageIdCalled = true
+        return propositionInfoForMessageIdReturnValue
     }
 }

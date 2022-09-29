@@ -48,7 +48,7 @@ public class Message: NSObject {
     var triggeringEvent: Event
 
     /// Holds XDM data necessary for tracking `Message` interactions with Adobe Journey Optimizer.
-    let experienceInfo: [String: Any]
+    var propositionInfo: PropositionInfo?
 
     /// Creates a Message object which owns and controls UI and tracking behavior of an In-App Message.
     ///
@@ -59,7 +59,6 @@ public class Message: NSObject {
         self.parent = parent
         triggeringEvent = event
         id = event.messageId ?? ""
-        experienceInfo = event.experienceInfo ?? [:]
         super.init()
         let messageSettings = event.getMessageSettings(withParent: self)
         let usingLocalAssets = generateAssetMap()
@@ -131,7 +130,7 @@ public class Message: NSObject {
     ///   - eventType: the `MessagingEdgeEventType` to be used for the ensuing Edge Event
     @objc(trackInteraction:withEdgeEventType:)
     public func track(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType) {
-        parent?.sendExperienceEvent(withEventType: eventType, andInteraction: interaction, forMessage: self)
+        parent?.sendPropositionInteraction(withEventType: eventType, andInteraction: interaction, forMessage: self)
     }
 
     // MARK: - WebView javascript handling

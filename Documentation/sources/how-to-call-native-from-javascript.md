@@ -39,7 +39,7 @@ func shouldShowMessage(message: Showable) -> Bool {
 
 ## Post the Javascript message from your In-App Message
 
-Now that the in-app message has been displayed, the final step is to post the javascript message.
+Now that the in-app message has been displayed, the final step is to post the Javascript message.
 
 Continuing from the previous example, the developer is going to post the "myInappCallback" message from their HTML, which will in turn call the handler previously configured:
 
@@ -70,3 +70,10 @@ When the user clicks the button inside of this in-app message, the handler confi
 ```
 javascript body passed to native callback: native callbacks are cool!
 ```
+
+## Examples
+
+The test apps in this repository demonstrate calling native code from Javascript:
+
+- [Swift](./../../TestApps/MessagingDemoApp/)
+- [Objective-c](./../../TestApps/MessagingDemoAppObjC/)
