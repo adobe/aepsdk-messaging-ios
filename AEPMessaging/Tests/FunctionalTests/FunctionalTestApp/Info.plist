@@ -2,14 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>MESSAGING_ACTIVITY_ID_DEV</key>
-	<string>xcore:offer-activity:14090235e6b6757a</string>
-	<key>MESSAGING_PLACEMENT_ID_DEV</key>
-	<string>xcore:offer-placement:14254cbbee5de2b8</string>
-	<key>MESSAGING_ACTIVITY_ID</key>
-	<string>xcore:offer-activity:143614fd23c501cf</string>
-	<key>MESSAGING_PLACEMENT_ID</key>
-	<string>xcore:offer-placement:14c7a0a8dee479e4</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

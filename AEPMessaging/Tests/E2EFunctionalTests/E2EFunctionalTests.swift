@@ -11,7 +11,6 @@
  */
 
 @testable import AEPCore
-import AEPOptimize
 import AEPEdge
 import AEPEdgeConsent
 import AEPEdgeIdentity
@@ -22,17 +21,7 @@ import AEPEdgeIdentity
 import XCTest
 
 class E2EFunctionalTests: XCTestCase {
-    // config settings
-    // bundle id == "com.adobe.e2eonly.mchammer"
-    // env == "stage"
-    let activityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
-    let placementIdBeingTested = "xcore:offer-placement:14c7a0a8dee479e4"
-
-    let OLDactivityIdBeingTested = "xcore:offer-activity:143614fd23c501cf"
-    let OLDplacementIdBeingTested = "xcore:offer-placement:143f66555f80e367"
-    let DEVactivityIdBeingTested = "xcore:offer-activity:14090235e6b6757a"
-    let DEVplacementIdBeingTested = "xcore:offer-placement:14254cbbee5de2b8"
-
+    
     // testing variables
     var onShowExpectation: XCTestExpectation?
     var onDismissExpectation: XCTestExpectation?
@@ -50,11 +39,23 @@ class E2EFunctionalTests: XCTestCase {
 
     func initializeSdk() {
         MobileCore.setLogLevel(.trace)
-        let configDict = ConfigurationLoader.getConfig("functionalTestConfigStage")
-        MobileCore.updateConfigurationWith(configDict: configDict)
+        // ** staging environment **
+        // sb_stage on "CJM Stage" (AJO Web sandbox)
+        // App Surface - sb_app_configuration
+        // com.adobe.MessagingDemoApp
+        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
+        
+//        MobileCore.configureWith(appId: "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development")
+//        let configDict = ConfigurationLoader.getConfig("functionalTestConfigStage")
+//        MobileCore.updateConfigurationWith(configDict: configDict)
+        
+        // DC Tag > AJO - IAM end-to-end Functional Tests on "AEM Assets Departmental - Campaign" (Prod - VA7)
+        // App Surface > AJO - IAM end-to-end Functional Tests
+        // com.adobe.ajo.e2eTestApp
+        // 3149c49c3910/04253786b724/launch-0cb6f35aacd0-development
+        MobileCore.configureWith(appId: "3149c49c3910/04253786b724/launch-0cb6f35aacd0-development")
 
         let extensions = [
-            Optimize.self,
             Consent.self,
             Identity.self,
             Messaging.self,
@@ -68,65 +69,75 @@ class E2EFunctionalTests: XCTestCase {
         MobileCore.registerEventListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, listener: listener)
     }
 
-    func registerOptimizeRequestContentListener(_ listener: @escaping EventListener) {
-        MobileCore.registerEventListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, listener: listener)
-    }
-
     func registerEdgePersonalizationDecisionsListener(_ listener: @escaping EventListener) {
         MobileCore.registerEventListener(type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, listener: listener)
     }
 
     // MARK: - tests
-
-    func testGetMessageDefinitionFromOptimize() throws {
-        // MARK: - fetch the message definition from Offers
-
+    
+    func testRefreshInAppMessagesHappy() throws {
         // setup
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
-        registerMessagingRequestContentListener { event in
+        registerMessagingRequestContentListener() { event in
             XCTAssertNotNil(event)
             let data = event.data
             XCTAssertNotNil(data)
             XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool)
             messagingRequestContentExpectation.fulfill()
         }
+        
+        // test
+        Messaging.refreshInAppMessages()
+        
+        // verify
+        wait(for: [messagingRequestContentExpectation], timeout: 2)
+    }
 
-        let optimizeRequestContentExpectation = XCTestExpectation(description: "optimize request content listener called")
-        registerOptimizeRequestContentListener { _ in
-            optimizeRequestContentExpectation.fulfill()
-        }
-
+    func testMessagesReturnedFromXAS() throws {
+        // setup
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
-        registerEdgePersonalizationDecisionsListener { event in
-
-            // validate the correct activity/placement
-            XCTAssertEqual(self.activityIdBeingTested, event.activityId)
-            XCTAssertEqual(self.placementIdBeingTested, event.placementId)
-
-            // validate the items array
-            guard let firstItem = event.items?.first,
-                  let itemData = firstItem["data"] as? [String: Any],
-                  let content = itemData["content"] as? String else {
-                XCTFail()
+        registerEdgePersonalizationDecisionsListener() { event in
+            XCTAssertNotNil(event)
+            
+            // validate the payload exists
+            guard let payload = event.data?["payload"] as? [[String: Any]] else {
+                XCTFail("SDK TEST ERROR - expected a payload in the response but none was found")
                 return
             }
-
-            // validate the content is a valid rule containing a valid message
-            let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
-            messagingRulesEngine.loadRules(rules: [content])
+            
+            // validate the payload is not empty
+            guard !payload.isEmpty else {
+                XCTFail("SDK TEST ERROR - expected a payload object, but payload is empty")
+                return
+            }
+            
+            // loop through the payload and verify the format for each object
+            for payloadObject in payload {
+                XCTAssertTrue(self.payloadObjectIsValid(payloadObject), "SDK TEST ERROR - payload object returned was invalid: \(payloadObject)")
+            }
+            
+            
+//            let scope = payloadObject["scope"] as? String
+//            XCTAssertNotNil(scope, "required field '' is missing or not the correct type 'String'")
+            
+//            // validate the content is a valid rule containing a valid message
+//            let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
+//            messagingRulesEngine.loadRules(rules: [content])
 
             // rules load async - brief sleep to allow it to finish
-            self.runAfter(seconds: 3) {
-                XCTAssertEqual(1, messagingRulesEngine.rulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
-                edgePersonalizationDecisionsExpectation.fulfill()
-            }
+//            self.runAfter(seconds: 3) {
+//                XCTAssertEqual(1, messagingRulesEngine.rulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
+//                edgePersonalizationDecisionsExpectation.fulfill()
+//            }
+            
+            edgePersonalizationDecisionsExpectation.fulfill()
         }
 
         // test
         Messaging.refreshInAppMessages()
 
         // verify
-        wait(for: [messagingRequestContentExpectation, optimizeRequestContentExpectation, edgePersonalizationDecisionsExpectation], timeout: 60)
+        wait(for: [edgePersonalizationDecisionsExpectation], timeout: 10)
 
         // MARK: - trigger the loaded message
 
@@ -146,32 +157,218 @@ class E2EFunctionalTests: XCTestCase {
     func runAfter(seconds: Int, closure: @escaping () -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(seconds), execute: closure)
     }
-}
-
-private extension Event {
-    var payload: [String: Any]? {
-        guard let payloadArray = data?["payload"] as? [[String: Any]] else {
-            return nil
+    
+    func payloadObjectIsValid(_ payload: [String: Any]) -> Bool {
+        
+        var objectIsValid = true
+                
+        /// {
+        ///     "id": "string",
+        ///     "scope": "string",
+        ///     "scopeDetails": {
+        ///         "activity": {
+        ///             "id": "string"
+        ///         },
+        ///         "characteristics": {
+        ///             "eventToken": "string"
+        ///         },
+        ///         "correlationID": "string",
+        ///         "decisionProvider": "string"
+        ///     },
+        ///     "items": [
+        ///         {
+        ///             "id": "string",
+        ///             "schema": "string",
+        ///             "data": {
+        ///                 "content": "string", // <<< sdk rule
+        ///                 "id": "string"
+        ///             }
+        ///         }
+        ///     ]
+        /// }
+        
+        // validate required fields are in first payload item and their types are correct
+        if !payload.contains(where: { $0.key == "id" }) {
+            XCTFail(self.missingField("id"))
+            objectIsValid = false
+        } else {
+            let value = payload["id"] as? String
+            if value == nil {
+                XCTFail(self.wrongType("id", expected: "String"))
+                objectIsValid = false
+            }
         }
-        return payloadArray.isEmpty ? nil : payloadArray.first
-    }
-
-    var activityId: String? {
-        guard let activityDictionary = payload?["activity"] as? [String: Any] else {
-            return nil
+        
+        if !payload.contains(where: { $0.key == "scope" }) {
+            XCTFail(self.missingField("scope"))
+            objectIsValid = false
+        } else {
+            let value = payload["scope"] as? String
+            if value == nil {
+                XCTFail(self.wrongType("scope", expected: "String"))
+                objectIsValid = false
+            }
         }
-        return activityDictionary["id"] as? String
-    }
-
-    var placementId: String? {
-        guard let placementDictionary = payload?["placement"] as? [String: Any] else {
-            return nil
+        
+        var scopeDetails: [String: Any]?
+        if !payload.contains(where: { $0.key == "scopeDetails" }) {
+            XCTFail(self.missingField("scopeDetails"))
+            objectIsValid = false
+        } else {
+            scopeDetails = payload["scopeDetails"] as? [String: Any]
+            if scopeDetails == nil {
+                XCTFail(self.wrongType("scopeDetails", expected: "[String: Any]"))
+                objectIsValid = false
+            }
         }
-        return placementDictionary["id"] as? String
+        
+        var activity: [String: Any]?
+        if !(scopeDetails?.contains(where: { $0.key == "activity" }) ?? false) {
+            XCTFail(self.missingField("scopeDetails.activity"))
+            objectIsValid = false
+        } else {
+            activity = scopeDetails?["activity"] as? [String: Any]
+            if activity == nil {
+                XCTFail(self.wrongType("scopeDetails.activity", expected: "[String: Any]"))
+                objectIsValid = false
+            }
+        }
+        
+        if !(activity?.contains(where: { $0.key == "id" }) ?? false) {
+            XCTFail(self.missingField("scopeDetails.activity.id"))
+            objectIsValid = false
+        } else {
+            let value = activity?["id"] as? String
+            if value == nil {
+                XCTFail(self.wrongType("scopeDetails.activity.id", expected: "String"))
+                objectIsValid = false
+            }
+        }
+        
+        var characteristics: [String: Any]?
+        if !(scopeDetails?.contains(where: { $0.key == "characteristics" }) ?? false) {
+            XCTFail(self.missingField("scopeDetails.characteristics"))
+            objectIsValid = false
+        } else {
+            characteristics = scopeDetails?["characteristics"] as? [String: Any]
+            if characteristics == nil {
+                XCTFail(self.wrongType("scopeDetails.characteristics", expected: "[String: Any]"))
+                objectIsValid = false
+            }
+        }
+        
+        if !(characteristics?.contains(where: { $0.key == "eventToken" }) ?? false) {
+            XCTFail(self.missingField("scopeDetails.characteristics.eventToken"))
+            objectIsValid = false
+        } else {
+            let value = characteristics?["eventToken"] as? String
+            if value == nil {
+                XCTFail(self.wrongType("scopeDetails.characteristics.eventToken", expected: "String"))
+                objectIsValid = false
+            }
+        }
+        
+        if !(scopeDetails?.contains(where: { $0.key == "correlationID" }) ?? false) {
+            XCTFail(self.missingField("scopeDetails.correlationID"))
+            objectIsValid = false
+        } else {
+            let value = scopeDetails?["correlationID"] as? String
+            if value == nil {
+                XCTFail(self.wrongType("scopeDetails.correlationID", expected: "String"))
+                objectIsValid = false
+            }
+        }
+        
+        if !(scopeDetails?.contains(where: { $0.key == "decisionProvider" }) ?? false) {
+            XCTFail(self.missingField("scopeDetails.decisionProvider"))
+            objectIsValid = false
+        } else {
+            let value = scopeDetails?["decisionProvider"] as? String
+            if value == nil {
+                XCTFail(self.wrongType("scopeDetails.decisionProvider", expected: "String"))
+                objectIsValid = false
+            }
+        }
+        
+        var items: [[String: Any]]?
+        if !payload.contains(where: { $0.key == "items" }) {
+            XCTFail(self.missingField("items"))
+            objectIsValid = false
+        } else {
+            items = payload["items"] as? [[String: Any]]
+            if items == nil {
+                XCTFail(self.wrongType("items", expected: "[[String: Any]]"))
+                objectIsValid = false
+            }
+        }
+        
+        let item = items?.first
+        
+        if !(item?.contains(where: { $0.key == "id" }) ?? false) {
+            XCTFail(self.missingField("items[0].id"))
+            objectIsValid = false
+        } else {
+            let value = item?["id"] as? String
+            if value == nil {
+                XCTFail(self.wrongType("items[0].id", expected: "String"))
+                objectIsValid = false
+            }
+        }
+        
+        if !(item?.contains(where: { $0.key == "schema" }) ?? false) {
+            XCTFail(self.missingField("items[0].schema"))
+            objectIsValid = false
+        } else {
+            let value = item?["schema"] as? String
+            if value == nil {
+                XCTFail(self.wrongType("items[0].schema", expected: "String"))
+                objectIsValid = false
+            }
+        }
+        
+        var itemData: [String: Any]?
+        if !(item?.contains(where: { $0.key == "data" }) ?? false) {
+            XCTFail(self.missingField("items[0].data"))
+            objectIsValid = false
+        } else {
+            itemData = item?["data"] as? [String: Any]
+            if itemData == nil {
+                XCTFail(self.wrongType("items[0].data", expected: "[String: Any]"))
+                objectIsValid = false
+            }
+        }
+        
+        if !(itemData?.contains(where: { $0.key == "content" }) ?? false) {
+            XCTFail(self.missingField("items[0].data.content"))
+            objectIsValid = false
+        } else {
+            let value = itemData?["content"] as? String
+            if value == nil {
+                XCTFail(self.wrongType("items[0].data.content", expected: "String"))
+                objectIsValid = false
+            }
+        }
+        
+        if !(itemData?.contains(where: { $0.key == "id" }) ?? false) {
+            XCTFail(self.missingField("items[0].data.id"))
+            objectIsValid = false
+        } else {
+            let value = itemData?["id"] as? String
+            if value == nil {
+                XCTFail(self.wrongType("items[0].data.id", expected: "String"))
+                objectIsValid = false
+            }
+        }
+        
+        return objectIsValid
     }
-
-    var items: [[String: Any]]? {
-        return payload?["items"] as? [[String: Any]]
+    
+    func missingField(_ key: String) -> String {
+        return "SDK TEST ERROR - Required field '\(key)' is missing from the map."
+    }
+    
+    func wrongType(_ key: String, expected: String) -> String {
+        return "SDK TEST ERROR - Required field '\(key)' is present, but is not expected type '\(expected)'."
     }
 }
 
