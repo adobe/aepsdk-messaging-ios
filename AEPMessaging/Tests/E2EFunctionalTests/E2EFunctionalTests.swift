@@ -90,7 +90,7 @@ class E2EFunctionalTests: XCTestCase {
         Messaging.refreshInAppMessages()
         
         // verify
-        wait(for: [messagingRequestContentExpectation], timeout: 2)
+        wait(for: [messagingRequestContentExpectation], timeout: 10)
     }
 
     func testMessagesReturnedFromXAS() throws {
