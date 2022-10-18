@@ -31,7 +31,7 @@ Ensure that your app has registered all necessary AEP SDK extensions by doing th
     | AEPEdge         | 1.3.0           |
     | AEPEdgeConsent  | 1.0.0           |
     | AEPEdgeIdentity | 1.0.1           |
-    | AEPMessaging    | 1.1.0-beta      |
+    | AEPMessaging    | 1.1.0-beta2     |
 
 Below is an example of what the view in Assurance UI may look like:
 
