@@ -11,12 +11,43 @@
  */
 
 import UIKit
+import AEPCore
+import AEPEdgeConsent
+import AEPEdgeIdentity
+import AEPMessaging
+import AEPEdge
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
-        true
+        
+        MobileCore.setLogLevel(.trace)
+        // ** staging environment **
+        // sb_stage on "CJM Stage" (AJO Web sandbox)
+        // App Surface - sb_app_configuration
+        // com.adobe.MessagingDemoApp
+        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
+        
+        // MobileCore.configureWith(appId: "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development")
+        // let configDict = ConfigurationLoader.getConfig("functionalTestConfigStage")
+        // MobileCore.updateConfigurationWith(configDict: configDict)
+        
+        // DC Tag > AJO - IAM end-to-end Functional Tests on "AEM Assets Departmental - Campaign" (Prod - VA7)
+        // App Surface > AJO - IAM end-to-end Functional Tests
+        // com.adobe.ajo.e2eTestApp
+        // 3149c49c3910/04253786b724/launch-0cb6f35aacd0-development
+        MobileCore.configureWith(appId: "3149c49c3910/04253786b724/launch-0cb6f35aacd0-development")
+
+        let extensions = [
+            Consent.self,
+            Identity.self,
+            Messaging.self,
+            Edge.self
+        ]
+
+        MobileCore.registerExtensions(extensions)
+        
+        return true
     }
 
     // MARK: UISceneSession Lifecycle

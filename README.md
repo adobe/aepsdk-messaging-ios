@@ -47,7 +47,7 @@ $ pod install
 
 ### [Swift Package Manager](https://github.com/apple/swift-package-manager)
 
-To add the AEPMessaging Package to your application, from the Xcode 13.x menu select:
+To add the AEPMessaging Package to your application, from the Xcode menu select:
 
 `File > Add Packages...`
 

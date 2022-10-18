@@ -11,10 +11,23 @@
  */
 
 import UIKit
+import AEPCore
 
 class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+    }
+    
+    @IBAction func showFullscreen() {
+        MobileCore.track(action: "showUntilClicked", data: nil)
+    }
+    
+    @IBAction func showModal() {
+        MobileCore.track(action: "showModal", data: nil)
+    }
+    
+    @IBAction func showTopBanner() {
+        MobileCore.track(action: "showOnce", data: nil)
     }
 }
