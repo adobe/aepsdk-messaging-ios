@@ -88,7 +88,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         XCTAssertTrue(mockCache.setCalled)
         XCTAssertEqual(assetString, mockCache.setParamKey)
         XCTAssertNotNil(mockCache.setParamEntry?.data)
-        XCTAssertEqual(.orderedSame, Calendar.current.compare(thirtyDaysFromToday!, to: mockCache.setParamEntry!.expiry.date, toGranularity: .hour))
+        XCTAssertEqual(.orderedSame, Calendar.current.compare((thirtyDaysFromToday! - NSTimeZone.local.daylightSavingTimeOffset()), to: mockCache.setParamEntry!.expiry.date, toGranularity: .hour))
     }
 
     func testCacheRemoteAssetsMalformedAssetUrl() throws {
