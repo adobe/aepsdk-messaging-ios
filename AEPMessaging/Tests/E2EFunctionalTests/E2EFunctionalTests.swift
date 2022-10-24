@@ -22,6 +22,8 @@ import XCTest
 
 class E2EFunctionalTests: XCTestCase {
     
+    let asyncTimeout: TimeInterval = 30
+    
     // testing variables
     var onShowExpectation: XCTestExpectation?
     var onDismissExpectation: XCTestExpectation?
@@ -95,7 +97,7 @@ class E2EFunctionalTests: XCTestCase {
         Messaging.refreshInAppMessages()
         
         // verify
-        wait(for: [messagingRequestContentExpectation], timeout: 10)
+        wait(for: [messagingRequestContentExpectation], timeout: asyncTimeout)
     }
 
     func testMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
@@ -128,7 +130,7 @@ class E2EFunctionalTests: XCTestCase {
         Messaging.refreshInAppMessages()
 
         // verify
-        wait(for: [edgePersonalizationDecisionsExpectation], timeout: 10)
+        wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
     }
     
     func testMessagesReturnedFromXASHaveCorrectRuleFormat() throws {
@@ -156,7 +158,7 @@ class E2EFunctionalTests: XCTestCase {
         Messaging.refreshInAppMessages()
 
         // verify
-        wait(for: [edgePersonalizationDecisionsExpectation], timeout: 10)
+        wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
 
         // MARK: - trigger the loaded message
 

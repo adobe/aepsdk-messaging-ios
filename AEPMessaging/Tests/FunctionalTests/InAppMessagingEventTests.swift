@@ -25,6 +25,7 @@ class InAppMessagingEventTests: XCTestCase {
     // testing variables
     var onShowExpectation: XCTestExpectation?
     var onDismissExpectation: XCTestExpectation?
+    let asyncTimeout: TimeInterval = 30
 
     override func setUp() {
         initializeSdk()
@@ -82,7 +83,7 @@ class InAppMessagingEventTests: XCTestCase {
         Messaging.refreshInAppMessages()
         
         // verify
-        wait(for: [messagingRequestContentExpectation], timeout: 10)
+        wait(for: [messagingRequestContentExpectation], timeout: asyncTimeout)
     }
 
     func testMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
@@ -115,7 +116,7 @@ class InAppMessagingEventTests: XCTestCase {
         Messaging.refreshInAppMessages()
 
         // verify
-        wait(for: [edgePersonalizationDecisionsExpectation], timeout: 10)
+        wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
     }
     
     func testMessagesReturnedFromXASHaveCorrectRuleFormat() throws {
@@ -143,7 +144,7 @@ class InAppMessagingEventTests: XCTestCase {
         Messaging.refreshInAppMessages()
 
         // verify
-        wait(for: [edgePersonalizationDecisionsExpectation], timeout: 10)
+        wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
 
         // MARK: - trigger the loaded message
 
