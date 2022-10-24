@@ -82,3 +82,7 @@ end
 target 'FunctionalTestApp' do
   app_main
 end
+
+target 'E2EFunctionalTestApp' do
+    app_main
+  end

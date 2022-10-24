@@ -1,5 +1,5 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
+ Copyright 2022 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -20,7 +20,7 @@ import AEPEdgeIdentity
 
 import XCTest
 
-class E2EFunctionalTests: XCTestCase {
+class InAppMessagingEventTests: XCTestCase {
     
     // testing variables
     var onShowExpectation: XCTestExpectation?
@@ -40,25 +40,12 @@ class E2EFunctionalTests: XCTestCase {
     func initializeSdk() {
         MobileCore.setLogLevel(.trace)
         
-        /// Environment: Production
-        /// Org: AEM Assets Departmental - Campaign (906E3A095DC834230A495FD6@AdobeOrg)
-        /// Sandbox: Prod (VA7)
-        /// Data Collection tag: AJO - IAM E2E Automated Tests
-        /// App Surface: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
-        /// Datastream: cjm-prod-va7 (0814ac07-ffeb-44c4-8633-85301d5e721c)
-        /// AppID for SDK configuration: 3149c49c3910/8398c2585133/launch-1780400a22e8-development
-        MobileCore.configureWith(appId: "3149c49c3910/8398c2585133/launch-1780400a22e8-development")
+        // DC Tag > AJO - IAM end-to-end Functional Tests on "AEM Assets Departmental - Campaign" (Prod - VA7)
+        // App Surface > AJO - IAM end-to-end Functional Tests
+        // com.adobe.ajo.e2eTestApp
+        // 3149c49c3910/04253786b724/launch-0cb6f35aacd0-development
         
-        
-        // ** staging environment **
-        // sb_stage on "CJM Stage" (AJO Web sandbox)
-        // App Surface - sb_app_configuration
-        // com.adobe.MessagingDemoApp
-        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
-        
-//        MobileCore.configureWith(appId: "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development")
-//        let configDict = ConfigurationLoader.getConfig("functionalTestConfigStage")
-//        MobileCore.updateConfigurationWith(configDict: configDict)
+        MobileCore.configureWith(appId: "3149c49c3910/04253786b724/launch-0cb6f35aacd0-development")
 
         let extensions = [
             Consent.self,
@@ -391,7 +378,7 @@ class E2EFunctionalTests: XCTestCase {
     }
 }
 
-extension E2EFunctionalTests: MessagingDelegate {
+extension InAppMessagingEventTests: MessagingDelegate {
     func onShow(message: Showable) {
         onShowExpectation?.fulfill()
         guard let message = message as? FullscreenMessage else {
