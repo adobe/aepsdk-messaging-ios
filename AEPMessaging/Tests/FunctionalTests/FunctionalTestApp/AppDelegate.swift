@@ -19,6 +19,11 @@ import AEPEdge
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    /// Set this value to false if using the functional test app to run automated functional tests
+    /// Set this value to true if running the functional test app as a stand-alone app
+    let RUNNING_AS_APP = false
+    
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         MobileCore.setLogLevel(.trace)
@@ -36,16 +41,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // App Surface > AJO - IAM end-to-end Functional Tests
         // com.adobe.ajo.e2eTestApp
         // 3149c49c3910/04253786b724/launch-0cb6f35aacd0-development
-        MobileCore.configureWith(appId: "3149c49c3910/04253786b724/launch-0cb6f35aacd0-development")
-
-        let extensions = [
-            Consent.self,
-            Identity.self,
-            Messaging.self,
-            Edge.self
-        ]
-
-        MobileCore.registerExtensions(extensions)
+        
+        if RUNNING_AS_APP {
+            
+            MobileCore.configureWith(appId: "3149c49c3910/04253786b724/launch-0cb6f35aacd0-development")
+            
+            let extensions = [
+                Consent.self,
+                Identity.self,
+                Messaging.self,
+                Edge.self
+            ]
+            
+            MobileCore.registerExtensions(extensions)
+        }
         
         return true
     }
