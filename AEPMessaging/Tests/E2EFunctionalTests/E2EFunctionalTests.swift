@@ -22,24 +22,31 @@ import XCTest
 
 class E2EFunctionalTests: XCTestCase {
     
-    let asyncTimeout: TimeInterval = 30
-    
     // testing variables
-    var onShowExpectation: XCTestExpectation?
-    var onDismissExpectation: XCTestExpectation?
+    var currentMessage: Message?
+    let asyncTimeout: TimeInterval = 30
 
-    override func setUp() {
+    override class func setUp() {
+        // before all
         initializeSdk()
     }
-
+        
+    override class func tearDown() {
+        // after all
+    }
+        
+    override func setUp() {
+        // before each
+    }
+    
     override func tearDown() {
-        onShowExpectation = nil
-        onDismissExpectation = nil
+        // after each
+        currentMessage = nil
     }
 
     // MARK: - helpers
 
-    func initializeSdk() {
+    class func initializeSdk() {
         MobileCore.setLogLevel(.trace)
         
         /// Environment: Production
@@ -51,16 +58,33 @@ class E2EFunctionalTests: XCTestCase {
         /// AppID for SDK configuration: 3149c49c3910/8398c2585133/launch-1780400a22e8-development
         MobileCore.configureWith(appId: "3149c49c3910/8398c2585133/launch-1780400a22e8-development")
         
+        /// Environment: Production
+        /// Org: CJM Prod AUS5 (404C2CDA605B7E960A495FCE@AdobeOrg)
+        /// Sandbox: Prod (AUS5)
+        /// Data Collection tag: AJO - IAM E2E Automated Tests
+        /// App Surface: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
+        /// Datastream: cjm-prod-aus5 (40b09983-9d1e-4472-af7d-947290ad8480)
+        /// AppID for SDK configuration: 3269cfd2f1f9/73343fae78b8/launch-b2d301f72010-development
+        //MobileCore.configureWith(appId: "3269cfd2f1f9/73343fae78b8/launch-b2d301f72010-development")
         
-        // ** staging environment **
-        // sb_stage on "CJM Stage" (AJO Web sandbox)
-        // App Surface - sb_app_configuration
-        // com.adobe.MessagingDemoApp
-        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
+        /// Environment: Production
+        /// Org: CJM Prod NLD2 (4DA0571C5FDC4BF70A495FC2@AdobeOrg)
+        /// Sandbox: Prod (NLD2)
+        /// Data Collection tag: AJO - IAM E2E Automated Tests
+        /// App Surface: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
+        /// Datastream: cjm-prod-nld2 (3e808bee-74f7-468f-be1d-99b498f36fa8)
+        /// AppID for SDK configuration: bf7248f92b53/1d83dbc6cd95/launch-3102a655964f-development
+        //MobileCore.configureWith(appId: "bf7248f92b53/1d83dbc6cd95/launch-3102a655964f-development")
         
-//        MobileCore.configureWith(appId: "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development")
-//        let configDict = ConfigurationLoader.getConfig("functionalTestConfigStage")
-//        MobileCore.updateConfigurationWith(configDict: configDict)
+        /// Environment: Stage
+        /// Org: CJM Stage (745F37C35E4B776E0A49421B@AdobeOrg)
+        /// Sandbox: AJO Web (VA7)
+        /// Data Collection tag: AJO - IAM E2E Automated Tests
+        /// App Surface: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
+        /// Datastream: ajo-stage: Production Environment (19fc5fe9-37df-46da-8f5c-9eeff4f75ed9)
+        /// AppID for SDK configuration: 1b50a869c4a2/8a2b5f4bc2f0/launch-302971d67c36-development
+        //MobileCore.configureWith(appId: "staging/1b50a869c4a2/8a2b5f4bc2f0/launch-302971d67c36-development")
+        //MobileCore.updateConfigurationWith(configDict: ["edge.environment": "int"])
 
         let extensions = [
             Consent.self,
@@ -78,6 +102,10 @@ class E2EFunctionalTests: XCTestCase {
 
     func registerEdgePersonalizationDecisionsListener(_ listener: @escaping EventListener) {
         MobileCore.registerEventListener(type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, listener: listener)
+    }
+    
+    func registerEdgeRequestContentListener(_ listener: @escaping EventListener) {
+        MobileCore.registerEventListener(type: EventType.edge, source: EventSource.requestContent, listener: listener)
     }
 
     // MARK: - tests
@@ -108,7 +136,7 @@ class E2EFunctionalTests: XCTestCase {
             
             // validate the payload exists
             guard let payload = event.data?["payload"] as? [[String: Any]] else {
-                XCTFail("SDK TEST ERROR - expected a payload in the response but none was found")
+                // no payload means this event is a request, not a response
                 return
             }
             
@@ -140,7 +168,7 @@ class E2EFunctionalTests: XCTestCase {
             
             // validate the content is a valid rule containing a valid message
             guard let propositions = event.payload else {
-                XCTFail("SDK TEST ERROR - unable to de-serialize propositions returned by the Edge.")
+                // no payload means this event is a request, not a response
                 return
             }
             
@@ -159,19 +187,35 @@ class E2EFunctionalTests: XCTestCase {
 
         // verify
         wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
+    }
+    
+    func testMessagesDisplayInteractDismissEvents() throws {
+        // setup
+        let edgeRequestDisplayEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == display received.")
+        let edgeRequestInteractEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == interact received.")
+        let edgeRequestDismissEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == dismiss received.")
+        registerEdgeRequestContentListener() { event in
+            if event.isPropositionEvent(withType: "display") {
+                self.currentMessage?.track("clicked", withEdgeEventType: .inappInteract)
+                edgeRequestDisplayEventExpectation.fulfill()
+            }
+            if event.isPropositionEvent(withType: "interact") {
+                self.currentMessage?.dismiss()
+                edgeRequestInteractEventExpectation.fulfill()
+            }
+            if event.isPropositionEvent(withType: "dismiss") {
+                edgeRequestDismissEventExpectation.fulfill()
+            }
+        }
+        MobileCore.messagingDelegate = self
+        
+        // allow rules engine to be hydrated
+        runAfter(seconds: 5) {
+            MobileCore.track(action: "showModal", data: nil)
+        }
 
-        // MARK: - trigger the loaded message
-
-        //        // setup
-        //        MobileCore.messagingDelegate = self
-        //        onShowExpectation = XCTestExpectation(description: "Message was shown")
-        //        onDismissExpectation = XCTestExpectation(description: "Message was dismissed")
-        //
-        //        // test
-        //        MobileCore.track(action: nil, data: ["seahawks": "bad"])
-        //
-        //        // verify
-        //        wait(for: [onShowExpectation!, onDismissExpectation!], timeout: 5, enforceOrder: true)
+        // verify
+        wait(for: [edgeRequestDisplayEventExpectation, edgeRequestInteractEventExpectation, edgeRequestDismissEventExpectation], timeout: asyncTimeout)
     }
 
     /// wait for `seconds` before running the code in the closure
@@ -395,20 +439,29 @@ class E2EFunctionalTests: XCTestCase {
 
 extension E2EFunctionalTests: MessagingDelegate {
     func onShow(message: Showable) {
-        onShowExpectation?.fulfill()
-        guard let message = message as? FullscreenMessage else {
-            return
-        }
-        runAfter(seconds: 1) {
-            message.dismiss()
-        }
+        currentMessage?.track("clicked", withEdgeEventType: .inappInteract)
     }
 
     func onDismiss(message: Showable) {
-        onDismissExpectation?.fulfill()
+        
     }
 
     func shouldShowMessage(message: Showable) -> Bool {
+        currentMessage = (message as? FullscreenMessage)?.parent
         return true
+    }
+}
+
+extension Event {
+    func isPropositionEvent(withType type: String) -> Bool {
+        guard let data = data,
+              let xdm = data["xdm"] as? [String: Any],
+              let experience = xdm["_experience"] as? [String: Any],
+              let decisioning = experience["decisioning"] as? [String: Any],
+              let propositionEventType = decisioning["propositionEventType"] as? [String: Any] else {
+            return false
+        }
+        
+        return propositionEventType.contains(where: { $0.key == type})
     }
 }

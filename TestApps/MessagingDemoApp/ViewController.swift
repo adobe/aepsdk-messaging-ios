@@ -31,9 +31,10 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_: Any) {
-//        MobileCore.track(action: "sampleAppFullscreen", data: nil)
+        MobileCore.track(action: "fullscreenTakeover", data: nil)
         
-        MobileCore.track(action: "kitteh", data: nil)
+//        MobileCore.track(action: "test", data: nil)
+//        MobileCore.track(action: "kitteh", data: nil)
 //        MobileCore.track(action: "testForSurbhi", data: nil)
 //        MobileCore.track(action: "inbound_test", data: nil)
 //        MobileCore.track(action: "keep-fullscreen", data: nil)
@@ -46,19 +47,21 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerModal(_: Any) {
-        MobileCore.track(action: "showOnce106", data: nil)
+        MobileCore.track(action: "fullscreenNontakeover", data: nil)
+        
 //        MobileCore.track(action: "animate", data: nil)
 //        MobileCore.track(state: "triggerModal", data: ["testSteveModal": "true"])
     }
 
     @IBAction func triggerBannerTop(_: Any) {
-        MobileCore.track(action: "untilClickFixed", data: nil)
+        MobileCore.track(action: "modalTakeoverNoGestures", data: nil)
         
 //        MobileCore.track(action: "triggerBannerTop", data: ["testBannerTop": "true"])
     }
 
     @IBAction func triggerBannerBottom(_: Any) {
-        MobileCore.track(action: "triggerBannerBottom", data: ["testBannerBottom": "true"])
+        MobileCore.track(action: "modalTakeoverGestures", data: nil)
+        
     }
 
     /// Messaging delegate
