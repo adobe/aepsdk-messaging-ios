@@ -23,29 +23,39 @@ import XCTest
 class InAppMessagingEventTests: XCTestCase {
     
     // testing variables
-    var onShowExpectation: XCTestExpectation?
-    var onDismissExpectation: XCTestExpectation?
+    var currentMessage: Message?
     let asyncTimeout: TimeInterval = 30
 
-    override func setUp() {
+    override class func setUp() {
+        // before all
         initializeSdk()
     }
-
+    
+    
+    override class func tearDown() {
+        // after all
+    }
+        
+    override func setUp() {
+        // before each
+    }
+    
     override func tearDown() {
-        onShowExpectation = nil
-        onDismissExpectation = nil
+        // after each
+        currentMessage = nil
     }
 
     // MARK: - helpers
 
-    func initializeSdk() {
+    class func initializeSdk() {
         MobileCore.setLogLevel(.trace)
         
-        // DC Tag > AJO - IAM end-to-end Functional Tests on "AEM Assets Departmental - Campaign" (Prod - VA7)
-        // App Surface > AJO - IAM end-to-end Functional Tests
-        // com.adobe.ajo.e2eTestApp
-        // 3149c49c3910/04253786b724/launch-0cb6f35aacd0-development
-        
+        /// Environment: Production
+        /// Org: AEM Assets Departmental - Campaign
+        /// Sandbox: Prod (VA7)
+        /// Data Collection Tag: AJO - IAM Functional Tests
+        /// App Surface: AJO - IAM Functional Tests (com.adobe.ajo.e2eTestApp)
+        /// DC Environment App ID: 3149c49c3910/04253786b724/launch-0cb6f35aacd0-development
         MobileCore.configureWith(appId: "3149c49c3910/04253786b724/launch-0cb6f35aacd0-development")
 
         let extensions = [
@@ -64,6 +74,10 @@ class InAppMessagingEventTests: XCTestCase {
 
     func registerEdgePersonalizationDecisionsListener(_ listener: @escaping EventListener) {
         MobileCore.registerEventListener(type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, listener: listener)
+    }
+    
+    func registerEdgeRequestContentListener(_ listener: @escaping EventListener) {
+        MobileCore.registerEventListener(type: EventType.edge, source: EventSource.requestContent, listener: listener)
     }
 
     // MARK: - tests
@@ -94,7 +108,7 @@ class InAppMessagingEventTests: XCTestCase {
             
             // validate the payload exists
             guard let payload = event.data?["payload"] as? [[String: Any]] else {
-                XCTFail("SDK TEST ERROR - expected a payload in the response but none was found")
+                // no payload means this event is a request, not a response
                 return
             }
             
@@ -126,7 +140,7 @@ class InAppMessagingEventTests: XCTestCase {
             
             // validate the content is a valid rule containing a valid message
             guard let propositions = event.payload else {
-                XCTFail("SDK TEST ERROR - unable to de-serialize propositions returned by the Edge.")
+                // no payload means this event is a request, not a response
                 return
             }
             
@@ -145,19 +159,35 @@ class InAppMessagingEventTests: XCTestCase {
 
         // verify
         wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
+    }
+    
+    func testMessagesDisplayInteractDismissEvents() throws {
+        // setup
+        let edgeRequestDisplayEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == display received.")
+        let edgeRequestInteractEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == interact received.")
+        let edgeRequestDismissEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == dismiss received.")
+        registerEdgeRequestContentListener() { event in
+            if event.isPropositionEvent(withType: "display") {
+                self.currentMessage?.track("clicked", withEdgeEventType: .inappInteract)
+                edgeRequestDisplayEventExpectation.fulfill()
+            }
+            if event.isPropositionEvent(withType: "interact") {
+                self.currentMessage?.dismiss()
+                edgeRequestInteractEventExpectation.fulfill()
+            }
+            if event.isPropositionEvent(withType: "dismiss") {
+                edgeRequestDismissEventExpectation.fulfill()
+            }
+        }
+        MobileCore.messagingDelegate = self
+        
+        // allow rules engine to be hydrated
+        runAfter(seconds: 5) {
+            MobileCore.track(action: "showModal", data: nil)
+        }
 
-        // MARK: - trigger the loaded message
-
-        //        // setup
-        //        MobileCore.messagingDelegate = self
-        //        onShowExpectation = XCTestExpectation(description: "Message was shown")
-        //        onDismissExpectation = XCTestExpectation(description: "Message was dismissed")
-        //
-        //        // test
-        //        MobileCore.track(action: nil, data: ["seahawks": "bad"])
-        //
-        //        // verify
-        //        wait(for: [onShowExpectation!, onDismissExpectation!], timeout: 5, enforceOrder: true)
+        // verify
+        wait(for: [edgeRequestDisplayEventExpectation, edgeRequestInteractEventExpectation, edgeRequestDismissEventExpectation], timeout: asyncTimeout)
     }
 
     /// wait for `seconds` before running the code in the closure
@@ -381,20 +411,29 @@ class InAppMessagingEventTests: XCTestCase {
 
 extension InAppMessagingEventTests: MessagingDelegate {
     func onShow(message: Showable) {
-        onShowExpectation?.fulfill()
-        guard let message = message as? FullscreenMessage else {
-            return
-        }
-        runAfter(seconds: 1) {
-            message.dismiss()
-        }
+        currentMessage?.track("clicked", withEdgeEventType: .inappInteract)
     }
 
     func onDismiss(message: Showable) {
-        onDismissExpectation?.fulfill()
+        
     }
 
     func shouldShowMessage(message: Showable) -> Bool {
+        currentMessage = (message as? FullscreenMessage)?.parent
         return true
+    }
+}
+
+extension Event {
+    func isPropositionEvent(withType type: String) -> Bool {
+        guard let data = data,
+              let xdm = data["xdm"] as? [String: Any],
+              let experience = xdm["_experience"] as? [String: Any],
+              let decisioning = experience["decisioning"] as? [String: Any],
+              let propositionEventType = decisioning["propositionEventType"] as? [String: Any] else {
+            return false
+        }
+        
+        return propositionEventType.contains(where: { $0.key == type})
     }
 }
