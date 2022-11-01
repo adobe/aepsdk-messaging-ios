@@ -19,6 +19,7 @@ class MessagingRulesEngine {
     let rulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
     let cache: Cache
+    private var propositionInfo: [String: PropositionInfo] = [:]
 
     /// Initialize this class, creating a new rules engine with the provided name and runtime
     init(name: String, extensionRuntime: ExtensionRuntime) {
@@ -26,7 +27,7 @@ class MessagingRulesEngine {
         rulesEngine = LaunchRulesEngine(name: name,
                                         extensionRuntime: extensionRuntime)
         cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
-        loadCachedMessages()
+        loadCachedPropositions()
     }
 
     /// INTERNAL ONLY
@@ -43,25 +44,45 @@ class MessagingRulesEngine {
         _ = rulesEngine.process(event: event)
     }
 
-    func loadRules(rules: [String]?) {
-        guard let rules = rules else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load messages, array of rules was empty.")
-            return
-        }
+    func loadPropositions(_ propositions: [PropositionPayload]) {
+        var rules: [LaunchRule] = []
+        for proposition in propositions {
+            guard let ruleString = proposition.items.first?.data.content else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
+                continue
 
-        var messagingRules: [LaunchRule] = []
-        for rule in rules {
-            guard let processedRule = JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime) else {
+            }
+
+            guard let rule = processRule(ruleString) else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with malformed in-app message content.")
                 continue
             }
 
             // pre-fetch the assets for this message if there are any defined
-            cacheRemoteAssetsFor(processedRule)
+            cacheRemoteAssetsFor(rule)
+            // store reporting data for this payload for later use
+            storePropositionInfo(proposition, forMessageId: rule.first?.consequences.first?.id)
 
-            messagingRules.append(contentsOf: processedRule)
+            rules.append(contentsOf: rule)
         }
 
-        rulesEngine.replaceRules(with: messagingRules)
-        Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(messagingRules.count) message(s) into the rules engine.")
+        rulesEngine.replaceRules(with: rules)
+        Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
+    }
+
+    func storePropositionInfo(_ proposition: PropositionPayload, forMessageId messageId: String?) {
+        guard let messageId = messageId else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to associate proposition information for in-app message. MessageId unavailable in rule consequence.")
+            return
+        }
+        propositionInfo[messageId] = proposition.propositionInfo
+    }
+
+    func processRule(_ rule: String) -> [LaunchRule]? {
+        return JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime)
+    }
+
+    func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
+        return propositionInfo[messageId]
     }
 }

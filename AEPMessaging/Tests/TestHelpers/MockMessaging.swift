@@ -23,6 +23,6 @@ class MockMessaging: Messaging {
 
     var paramEventType: MessagingEdgeEventType?
     var paramInteraction: String?
-    var paramMessage: Message?
-    var sendExperienceEventCalled = false
+    var paramMessage: Message?    
+    var sendPropositionInteractionCalled = false
 }

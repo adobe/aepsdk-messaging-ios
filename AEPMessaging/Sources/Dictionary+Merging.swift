@@ -16,8 +16,6 @@ extension Dictionary where Key == String, Value == Any {
     /// Merges the values of `rhs` into `self`, preferring values in `rhs` when there is conflict.
     /// - Parameter rhs: a `[String: Any]` that will have its values merged into `self`.
     mutating func mergeXdm(rhs: [String: Any]) {
-        merge(rhs) {
-            _, new in new
-        }
+        merge(rhs) { _, new in new }
     }
 }

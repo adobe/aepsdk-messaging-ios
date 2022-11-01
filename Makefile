@@ -12,32 +12,32 @@ IOS_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios.xcarchive/dSYMs/
 
 setup:
 	(pod install)
-	(cd SampleApps/$(APP_NAME) && pod install)
+	(cd TestApps/$(APP_NAME) && pod install)
 
 setup-tools: install-githook
 
 pod-repo-update:
 	(pod repo update)
-	(cd SampleApps/$(APP_NAME) && pod repo update)
+	(cd TestApps/$(APP_NAME) && pod repo update)
 
 # pod repo update may fail if there is no repo (issue fixed in v1.8.4). Use pod install --repo-update instead
 pod-install:
 	(pod install --repo-update)
-	(cd SampleApps/$(APP_NAME) && pod install --repo-update)
+	(cd TestApps/$(APP_NAME) && pod install --repo-update)
 
 ci-pod-install:
 	(bundle exec pod install --repo-update)
-	(cd SampleApps/$(APP_NAME) && bundle exec pod install --repo-update)
+	(cd TestApps/$(APP_NAME) && bundle exec pod install --repo-update)
 
 pod-update: pod-repo-update
 	(pod update)
-	(cd SampleApps/$(APP_NAME) && pod update)
+	(cd TestApps/$(APP_NAME) && pod update)
 
 open:
 	open $(PROJECT_NAME).xcworkspace
 
 open-app:
-	open ./SampleApps/$(APP_NAME)/*.xcworkspace
+	open ./TestApps/$(APP_NAME)/*.xcworkspace
 
 clean:
 	(rm -rf build)
@@ -68,7 +68,7 @@ swift-format:
 	(swiftformat $(PROJECT_NAME)/Sources --swiftversion 5.1)
 
 lint-autocorrect:
-	(./Pods/SwiftLint/swiftlint autocorrect $(PROJECT_NAME)/Sources --format)
+	(./Pods/SwiftLint/swiftlint --fix $(PROJECT_NAME)/Sources --format)
 
 lint:
 	(./Pods/SwiftLint/swiftlint lint $(PROJECT_NAME)/Sources)

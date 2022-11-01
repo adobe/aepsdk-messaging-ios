@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "1.1.0-beta"
+    static let EXTENSION_VERSION = "1.1.0-beta2"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
@@ -24,18 +24,13 @@ enum MessagingConstants {
     enum Caches {
         static let CACHE_NAME = "com.adobe.messaging.cache"
         static let MESSAGES = "messages"
+        static let PROPOSITIONS = "propositions"
         static let MESSAGES_DELIMITER = "||"
         static let PATH = "PATH"
     }
 
     enum ConsequenceTypes {
         static let IN_APP_MESSAGE = "cjmiam"
-    }
-
-    enum DefaultValues {
-        enum Optimize {
-            static let MAX_ITEM_COUNT = 30
-        }
     }
 
     enum Event {
@@ -65,6 +60,8 @@ enum MessagingConstants {
                 static let ACTION_ID = "actionId"
                 static let REFRESH_MESSAGES = "refreshmessages"
                 static let ADOBE_XDM = "adobe_xdm"
+                static let REQUEST_EVENT_ID = "requestEventId"
+                static let IAM_HISTORY = "iam"
 
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
@@ -109,19 +106,11 @@ enum MessagingConstants {
                     static let CORNER_RADIUS = "cornerRadius"
                 }
 
-                enum Optimize {
-                    static let REQUEST_TYPE = "requesttype"
-                    static let DECISION_SCOPES = "decisionscopes"
-                    static let NAME = "name"
-                    static let ID = "id"
-                    static let DATA = "data"
-                    static let CONTENT = "content"
+                enum Personalization {
                     static let PAYLOAD = "payload"
+                    static let CORRELATION_ID = "correlationID"
                     static let ACTIVITY = "activity"
-                    static let PLACEMENT = "placement"
-                    static let ITEMS = "items"
-                    static let XDM_NAME = "xdm:name"
-                    static let SCOPE = "scope"
+                    static let ID = "id"
                 }
             }
 
@@ -138,19 +127,21 @@ enum MessagingConstants {
                     static let SWIPE_RIGHT = "swipeRight"
                     static let TAP_BACKGROUND = "tapBackground"
                 }
-
-                enum Optimize {
-                    static let UPDATE_PROPOSITIONS = "updatepropositions"
-                }
             }
         }
 
-        enum Mask {
-            enum XDM {
-                // mask values for experience event storage in event history
-                static let EVENT_TYPE = "xdm.eventType"
-                static let MESSAGE_EXECUTION_ID = "xdm._experience.customerJourneyManagement.messageExecution.messageExecutionID"
-                static let TRACKING_ACTION = "xdm.inappMessageTracking.action"
+        enum History {
+            enum Keys {
+                // these kvps are embedded in an object named `iam`,
+                // so the mask path to them is e.g. "iam.eventType"
+                static let EVENT_TYPE = "eventType"
+                static let MESSAGE_ID = "id"
+                static let TRACKING_ACTION = "action"
+            }
+            enum Mask {
+                static let EVENT_TYPE = "iam.eventType"
+                static let MESSAGE_ID = "iam.id"
+                static let TRACKING_ACTION = "iam.action"
             }
         }
     }
@@ -202,6 +193,51 @@ enum MessagingConstants {
             static let DATA = "data"
         }
 
+        enum IAM {
+            static let SURFACE_BASE = "mobileapp://"
+
+            enum EventType {
+                static let TRIGGER = "decisioning.propositionTrigger"
+                static let DISPLAY = "decisioning.propositionDisplay"
+                static let INTERACT = "decisioning.propositionInteract"
+                static let DISMISS = "decisioning.propositionDismiss"
+                static let PERSONALIZATION_REQUEST = "personalization.request"
+            }
+
+            enum PropositionEventType {
+                static let TRIGGER = "trigger"
+                static let DISPLAY = "display"
+                static let INTERACT = "interact"
+                static let DISMISS = "dismiss"
+            }
+
+            enum Key {
+                static let PERSONALIZATION = "personalization"
+                static let QUERY = "query"
+                static let SURFACES = "surfaces"
+                static let DECISIONING = "decisioning"
+                static let PROPOSITION_ACTION = "propositionAction"
+                static let LABEL = "label"
+                static let PROPOSITION_EVENT_TYPE = "propositionEventType"
+                static let PROPOSITIONS = "propositions"
+                static let ID = "id"
+                static let SCOPE = "scope"
+                static let SCOPE_DETAILS = "scopeDetails"
+                static let CHARACTERISTICS = "characteristics"
+                static let CJM_XDM = "cjmXdm"
+                static let IN_APP_MESSAGE_TRACKING = "inappMessageTracking"
+                static let ACTION = "action"
+            }
+
+            enum Value {
+                static let TRIGGERED = "triggered"
+                static let DISPLAYED = "displayed"
+                static let CLICKED = "clicked"
+                static let DISMISSED = "dismissed"
+                static let EMPTY_CONTENT = "{}"
+            }
+        }
+
         enum Push {
             static let PUSH_NOTIFICATION_DETAILS = "pushNotificationDetails"
             static let APP_ID = "appID"
@@ -222,26 +258,6 @@ enum MessagingConstants {
                 static let ECID = "ECID"
                 static let APNS = "apns"
                 static let APNS_SANDBOX = "apnsSandbox"
-            }
-        }
-
-        enum IAM {
-            static let IN_APP_MIXIN_NAME = "inappMessageTracking"
-            static let ACTION = "action"
-
-            enum EventType {
-                static let DISMISS = "inapp.dismiss"
-                static let INTERACT = "inapp.interact"
-                static let TRIGGER = "inapp.trigger"
-                static let DISPLAY = "inapp.display"
-            }
-
-            enum Value {
-                static let TRIGGERED = "triggered"
-                static let DISPLAYED = "displayed"
-                static let CLICKED = "clicked"
-                static let DISMISSED = "dismissed"
-                static let EMPTY_CONTENT = "{}"
             }
         }
     }

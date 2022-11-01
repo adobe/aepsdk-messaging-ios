@@ -10,7 +10,6 @@
 // governing permissions and limitations under the License.
 //
 
-import AEPOptimize
 import AEPAssurance
 import AEPCore
 import AEPEdge
@@ -41,8 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         MobileCore.setLogLevel(.trace)
 
         let extensions = [
-            Optimize.self,
-            //Consent.self,
+            Consent.self,
             Lifecycle.self,
             Identity.self,
             Messaging.self,
@@ -52,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         ]
 
         MobileCore.registerExtensions(extensions) {
-            Assurance.startSession(url: URL(string: "demo://?adb_validation_sessionid=1c8fd798-1357-470c-8bdf-64573fdf8f9c"))
+            Assurance.startSession(url: URL(string: "app://?adb_validation_sessionid=acd4cd71-6236-4929-bf92-3d27bf189650"))
         }
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
@@ -63,40 +61,43 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // "steve - messaging tester" on "AEM Assets Departmental - Campaign"
         // 3149c49c3910/cf7779260cdd/launch-be72758aa82a-development
         
-        // sotu_property
-        // 3149c49c3910/787763e3fa93/launch-5ee93ddc2218-development
-
-        
-        // last one used below
-        
         // sb_sample_app_property on "AEM Assets Departmental - Campaign"
         // App Surface - AEPMobileSampleApp
         // com.adobe.AEPMobileSampleApp
         // 3149c49c3910/3759ced5ae7d/launch-6ec882280c23-development
         
-        // zofia app
-        // com.adobe.demosystem.dxdemo
-        // 082b4ce8e11e/53c108dc4527/launch-0916d1b3fdb6-development
         
-        // esdk app
-        // com.adobe.ccsdk.ESDK.RefApp
-        // 7417321fe1d7/37be53c7214b/launch-a854f2463f5e-development
+        // ** staging environment **
+        // sb_stage on "CJM Stage" (AJO Web sandbox)
+        // App Surface - sb_app_configuration
+        // com.adobe.MessagingDemoApp
+        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
         
         
-        MobileCore.configureWith(appId: "7417321fe1d7/37be53c7214b/launch-a854f2463f5e-development")
+        // ** prod environment
+        // sb_prod_iam_app on "AEM Assets Departmental - Campaign"
+        // App Surface - sb_prod_iam_surface
+        // Datastream - sb_prod_iam_datastream - com.adobe.steveMessaging
+        // 3149c49c3910/504b1f3bb44e/launch-8823a1bd2800-development
+        MobileCore.configureWith(appId: "3149c49c3910/504b1f3bb44e/launch-8823a1bd2800-development")
+        
+        // archana test
+        // bf7248f92b53/cfda95902448/launch-a98533f28fc3-development
+        // com.adobe.ArchanaSampleApplication
+        // MobileCore.configureWith(appId: "bf7248f92b53/cfda95902448/launch-a98533f28fc3-development")
         
         // update config to use cjmstage for int integration
-        let cjmStageConfig = [
-            "edge.environment": "int",
-            "experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
+        //let cjmStageConfig = [
+        //    "edge.environment": "int",
+            //"experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
             // archanaInAppDatastream: prod (CJM Stage)
-            "edge.configId": "86527755-dd21-4618-a127-1d4102e45c0a",
+            //"edge.configId": "86527755-dd21-4618-a127-1d4102e45c0a",
             // prod
             // "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
             // ajo-sandbox
             // "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
-            "messaging.eventDataset": "610ae80b3cbbc718dab06208"
-        ]
+            //"messaging.eventDataset": "610ae80b3cbbc718dab06208"
+        //]
 //        MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
 
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN

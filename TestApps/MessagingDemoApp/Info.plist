@@ -20,10 +20,6 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>MESSAGING_ACTIVITY_ID_x</key>
-	<string>xcore:offer-activity:1315ce8f616d30e9</string>
-	<key>MESSAGING_PLACEMENT_ID_x</key>
-	<string>xcore:offer-placement:1315cd7dc3ed30e1</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     @IBOutlet var switchShowMessages: UISwitch?
 
     private let messageHandler = MessageHandler()
-
+    
     weak var appDelegate = UIApplication.shared.delegate as? AppDelegate
 
     override func viewDidLoad() {
@@ -31,33 +31,44 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_: Any) {
-        MobileCore.track(action: "animate", data: nil)
+        MobileCore.track(action: "fullscreenTakeover", data: nil)
+        
+//        MobileCore.track(action: "test", data: nil)
+//        MobileCore.track(action: "kitteh", data: nil)
+//        MobileCore.track(action: "testForSurbhi", data: nil)
+//        MobileCore.track(action: "inbound_test", data: nil)
+//        MobileCore.track(action: "keep-fullscreen", data: nil)
+        
                 
 //        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["seahawks": "bad"]))
 //        MobileCore.track(action: "zkorczyc-test", data: nil)
-//        MobileCore.track(action: "mariners", data: nil)
-//        MobileCore.track(action: "marinersmar28", data: nil)
+
 //        MobileCore.track(: "triggerFullscreen", data: ["testFullscreen": "true"])
     }
 
     @IBAction func triggerModal(_: Any) {
-        MobileCore.track(state: "triggerModal", data: ["testSteveModal": "true"])
-        //        MobileCore.track(state: "triggerModal", data: ["testModal": "true"])
+        MobileCore.track(action: "fullscreenNontakeover", data: nil)
+        
+//        MobileCore.track(action: "animate", data: nil)
+//        MobileCore.track(state: "triggerModal", data: ["testSteveModal": "true"])
     }
 
     @IBAction func triggerBannerTop(_: Any) {
-        MobileCore.track(state: "triggerBannerTop", data: ["testBannerTop": "true"])
+        MobileCore.track(action: "modalTakeoverNoGestures", data: nil)
+        
+//        MobileCore.track(action: "triggerBannerTop", data: ["testBannerTop": "true"])
     }
 
     @IBAction func triggerBannerBottom(_: Any) {
-        Assurance.startSession(url: URL(string: "demo://?adb_validation_sessionid=2c55fed1-f26b-418b-b568-2e25e8360e47"))
-//        MobileCore.track(state: "triggerInapp", data: ["testBannerBottom": "true"])
+        MobileCore.track(action: "modalTakeoverGestures", data: nil)
+        
     }
 
     /// Messaging delegate
     private class MessageHandler: MessagingDelegate {
         var showMessages = true
         var currentMessage: Message?
+        let autoDismiss = false
 
         func onShow(message: Showable) {
             let fullscreenMessage = message as? FullscreenMessage
@@ -76,13 +87,15 @@ class ViewController: UIViewController {
             let message = fullscreenMessage?.parent
 
             // in-line handling of javascript calls
-            message?.handleJavascriptMessage("magic") { content in
+            // see Assets/nativeMethodCallingSample.html for an example of how to call this method
+            message?.handleJavascriptMessage("buttonClicked") { content in
                 print("magical handling of our content from js! content is: \(content ?? "empty")")
                 message?.track(content as? String, withEdgeEventType: .inappInteract)
             }
 
-            // get the uiview - add it
+            // access the WKWebView containing the message's UI
             let messageWebView = message?.view as? WKWebView
+            // execute JavaScript inside of the message's WKWebView
             messageWebView?.evaluateJavaScript("startTimer();") { result, error in
                 if error != nil {
                     // handle error
@@ -96,6 +109,13 @@ class ViewController: UIViewController {
             if !showMessages {
                 currentMessage = message
                 currentMessage?.track("message suppressed", withEdgeEventType: .inappTrigger)
+            } else if autoDismiss {
+                currentMessage = message
+                let _ = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { timer in
+                    timer.invalidate()
+                    self.currentMessage?.track("test for reporting", withEdgeEventType: .inappInteract)
+                    self.currentMessage?.dismiss()
+                }
             }
 
             return showMessages

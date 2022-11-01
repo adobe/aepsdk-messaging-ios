@@ -32,10 +32,10 @@ class MessagingRulesEngineTests: XCTestCase {
 
     func testInitializer() throws {
         // setup
-        let aJsonString = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let cacheEntry = CacheEntry(data: aJsonString.data(using: .utf8)!, expiry: .never, metadata: nil)
+        let propString = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let cacheEntry = CacheEntry(data: propString.data(using: .utf8)!, expiry: .never, metadata: nil)
         let cache = Cache(name: "com.adobe.messaging.cache")
-        try? cache.set(key: "messages", entry: cacheEntry)
+        try? cache.set(key: "propositions", entry: cacheEntry)
 
         // test
         let mre = MessagingRulesEngine(name: "mockRE", extensionRuntime: TestableExtensionRuntime())
@@ -58,38 +58,40 @@ class MessagingRulesEngineTests: XCTestCase {
         XCTAssertEqual(event, mockRulesEngine.paramProcessedEvent)
     }
 
-    func testLoadRulesHappy() throws {
+    func testLoadPropositionsHappy() throws {
         // setup
-        let rules = [
-            JSONFileLoader.getRulesStringFromFile("eventSequenceRule"),
-            JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        ]
-
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        
         // test
-        messagingRulesEngine.loadRules(rules: rules)
+        messagingRulesEngine.loadPropositions(propositions)
 
         // verify
         XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(2, mockRulesEngine.paramRules?.count)
+        XCTAssertEqual(1, mockRulesEngine.paramRules?.count)
     }
-
-    func testLoadRulesNilParam() throws {
+    
+    func testLoadPropositionsEventSequence() throws {
         // setup
-        let rules: [String]? = nil
-
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("eventSequenceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        
         // test
-        messagingRulesEngine.loadRules(rules: rules)
+        messagingRulesEngine.loadPropositions(propositions)
 
         // verify
-        XCTAssertFalse(mockRulesEngine.replaceRulesCalled)
+        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, mockRulesEngine.paramRules?.count)
     }
 
-    func testLoadRulesInvalidJsonRule() throws {
+    func testLoadPropositionsEmptyPropositions() throws {
         // setup
-        let rules: [String]? = ["i am not json"]
+        let propositions: [PropositionPayload] = []
 
         // test
-        messagingRulesEngine.loadRules(rules: rules)
+        messagingRulesEngine.loadPropositions(propositions)
 
         // verify
         XCTAssertTrue(mockRulesEngine.replaceRulesCalled)

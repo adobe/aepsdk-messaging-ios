@@ -119,15 +119,21 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let fetchEvent = mockRuntime.firstEvent
         XCTAssertNotNil(fetchEvent)
-        XCTAssertEqual(EventType.optimize, fetchEvent?.type)
+        XCTAssertEqual(EventType.edge, fetchEvent?.type)
         XCTAssertEqual(EventSource.requestContent, fetchEvent?.source)
         let fetchEventData = fetchEvent?.data
         XCTAssertNotNil(fetchEventData)
-        XCTAssertNotNil(fetchEventData?[MessagingConstants.Event.Data.Key.Optimize.DECISION_SCOPES])
-        XCTAssertEqual(MessagingConstants.Event.Data.Values.Optimize.UPDATE_PROPOSITIONS, fetchEventData?[MessagingConstants.Event.Data.Key.Optimize.REQUEST_TYPE] as! String)
+        let fetchEventQuery = fetchEventData?[MessagingConstants.XDM.IAM.Key.QUERY] as? [String: Any]
+        XCTAssertNotNil(fetchEventQuery)
+        let fetchEventPersonalization = fetchEventQuery?[MessagingConstants.XDM.IAM.Key.PERSONALIZATION] as? [String: Any]
+        XCTAssertNotNil(fetchEventPersonalization)
+        let fetchEventSurfaces = fetchEventPersonalization?[MessagingConstants.XDM.IAM.Key.SURFACES] as? [String]
+        XCTAssertNotNil(fetchEventSurfaces)
+        XCTAssertEqual(1, fetchEventSurfaces?.count)
+        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool", fetchEventSurfaces?.first)
     }
 
-    func testHandleOfferNotificationHappy() throws {
+    func testHandleEdgePersonalizationNotificationHappy() throws {
         // setup
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
@@ -136,26 +142,26 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertTrue(mockMessagingRulesEngine.loadRulesCalled)
-        let loadedRules = mockMessagingRulesEngine.paramLoadRulesRules
+        XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)
+        let loadedRules = mockMessagingRulesEngine.paramLoadPropositionsPropositions
         XCTAssertNotNil(loadedRules)
-        XCTAssertEqual("this is the content", loadedRules?.first)
+        XCTAssertNotNil(loadedRules?.first)
         XCTAssertTrue(mockCache.setCalled)
-        XCTAssertEqual("messages", mockCache.setParamKey)
+        XCTAssertEqual("propositions", mockCache.setParamKey)
         XCTAssertNotNil(mockCache.setParamEntry)
     }
 
-    func testHandleOfferNotificationMismatchedBundle() throws {
+    func testHandleEdgePersonalizationNotificationWrongAppSurface() throws {
         // setup
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(scope: "nope wrong scope"))
-        try? mockMessagingRulesEngine.cache.remove(key: "messages")
+        try? mockMessagingRulesEngine.cache.remove(key: "propositions")
 
         // test
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertFalse(mockMessagingRulesEngine.loadRulesCalled)
+        XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)
     }
 
     func testHandleOfferNotificationEmptyItems() throws {
@@ -167,12 +173,42 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertFalse(mockMessagingRulesEngine.loadRulesCalled)
+        XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)
         XCTAssertTrue(mockCache.removeCalled)
-        XCTAssertEqual("messages", mockCache.removeParamKey)
+        XCTAssertEqual("propositions", mockCache.removeParamKey)
     }
 
     func testHandleRulesResponseHappy() throws {
+        // setup
+        mockMessagingRulesEngine.propositionInfoForMessageIdReturnValue = PropositionInfo(id: "id", scope: "scope", scopeDetails: [:])
+        let event = Event(name: "Test Rules Engine Response Event",
+                          type: EventType.rulesEngine,
+                          source: EventSource.responseContent,
+                          data: getRulesResponseEventData())
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertNotNil(messaging.currentMessage)
+    }
+    
+    func testHandleRulesResponseNoHtml() throws {
+        // setup
+        mockMessagingRulesEngine.propositionInfoForMessageIdReturnValue = PropositionInfo(id: "id", scope: "scope", scopeDetails: [:])
+        let event = Event(name: "Test Rules Engine Response Event",
+                          type: EventType.rulesEngine,
+                          source: EventSource.responseContent,
+                          data: getRulesResponseEventData(html: nil))
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertNil(messaging.currentMessage)
+    }
+    
+    func testHandleRulesResponseNoPropositionInfoForMessage() throws {
         // setup
         let event = Event(name: "Test Rules Engine Response Event",
                           type: EventType.rulesEngine,
@@ -206,20 +242,6 @@ class MessagingTests: XCTestCase {
                           type: EventType.rulesEngine,
                           source: EventSource.responseContent,
                           data: [:])
-
-        // test
-        mockRuntime.simulateComingEvents(event)
-
-        // verify
-        XCTAssertNil(messaging.currentMessage)
-    }
-
-    func testHandleRulesResponseNoExperienceInfoInData() throws {
-        // setup
-        let event = Event(name: "Test Rules Engine Response Event",
-                          type: EventType.rulesEngine,
-                          source: EventSource.responseContent,
-                          data: getRulesResponseEventData(experienceInfo: [:]))
 
         // test
         mockRuntime.simulateComingEvents(event)
@@ -469,46 +491,47 @@ class MessagingTests: XCTestCase {
         return nil
     }
 
+    let mockContent1 = "content1"
+    let mockContent2 = "content2"
+    let mockPayloadId1 = "id1"
+    let mockPayloadId2 = "id2"
+    let mockAppSurface = "mobileapp://com.apple.dt.xctest.tool"
     func getOfferEventData(items: [String: Any]? = nil, scope: String? = nil) -> [String: Any] {
-        [
-            MessagingConstants.Event.Data.Key.Optimize.PAYLOAD: [
-                [
-                    MessagingConstants.Event.Data.Key.Optimize.ACTIVITY: [
-                        MessagingConstants.Event.Data.Key.Optimize.ID: "aTestOrgId"
-                    ],
-                    MessagingConstants.Event.Data.Key.Optimize.SCOPE: scope ?? "eyJ4ZG06bmFtZSI6ImNvbS5hcHBsZS5kdC54Y3Rlc3QudG9vbCJ9", // {"xdm:name":"com.apple.dt.xctest.tool"}
-                    MessagingConstants.Event.Data.Key.Optimize.PLACEMENT: [
-                        MessagingConstants.Event.Data.Key.Optimize.ID: "com.apple.dt.xctest.tool"
-                    ],
-                    MessagingConstants.Event.Data.Key.Optimize.ITEMS: [
-                        items ??
-                            [
-                                MessagingConstants.Event.Data.Key.Optimize.DATA: [
-                                    MessagingConstants.Event.Data.Key.Optimize.CONTENT: "this is the content"
-                                ]
-                            ]
-                    ]
-                ]
-            ]
+        let data1 = ["content": mockContent1]
+        let item1 = ["data": data1]
+        let payload1: [String: Any] = [
+            "id": mockPayloadId1,
+            "scope": scope ?? mockAppSurface,
+            "scopeDetails": [
+                "someInnerKey": "someInnerValue"
+            ],
+            "items": items ?? [item1]
         ]
+        
+        let data2 = ["content": mockContent2]
+        let item2 = ["data": data2]
+        let payload2: [String: Any] = [
+            "id": mockPayloadId2,
+            "scope": scope ?? mockAppSurface,
+            "scopeDetails": [
+                "someInnerKey": "someInnerValue2"
+            ],
+            "items": items ?? [item2]
+        ]
+        
+        let eventData: [String: Any] = ["payload": [payload1, payload2]]
+        return eventData
     }
 
-    func getRulesResponseEventData(experienceInfo: [String: Any]? = nil) -> [String: Any] {
-        let xdmExperienceInfo = experienceInfo ?? [
-            MessagingConstants.XDM.AdobeKeys.MIXINS: [
-                MessagingConstants.XDM.AdobeKeys.EXPERIENCE: [
-                    "experience": "everything"
-                ]
-            ]
-        ]
-
+    func getRulesResponseEventData(html: String? = "this is the html") -> [String: Any] {
+        var detailDictionary: [String: Any] = [:]
+        if html != nil {
+            detailDictionary["html"] = html
+        }
         return [
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
                 MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
-                MessagingConstants.Event.Data.Key.DETAIL: [
-                    MessagingConstants.Event.Data.Key.IAM.HTML: "this is the html",
-                    MessagingConstants.XDM.AdobeKeys._XDM: xdmExperienceInfo
-                ]
+                MessagingConstants.Event.Data.Key.DETAIL: detailDictionary
             ]
         ]
     }

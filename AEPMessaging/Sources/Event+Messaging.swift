@@ -12,23 +12,21 @@
 
 import AEPCore
 import AEPServices
-import Foundation
 import CoreGraphics
+import Foundation
 
 extension Event {
     // MARK: - In-app Message Consequence Event Handling
-
-    // MARK: Internal
 
     var isInAppMessage: Bool {
         consequenceType == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE
     }
 
-    // MARK: In-app Message Properties
+    // MARK: - In-app Message Properties
 
     /// Grabs the messageExecutionID value from XDM
     var messageId: String? {
-        xdmMessageExecution?[MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION_ID] as? String
+        consequence?[MessagingConstants.Event.Data.Key.IAM.ID] as? String
     }
 
     var template: String? {
@@ -43,42 +41,34 @@ extension Event {
         details?[MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS] as? [String]
     }
 
-    /// Returns the `_experience` dictionary from the `_xdm.mixins` object for Experience Event tracking
-    var experienceInfo: [String: Any]? {
-        guard let xdm = details?[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any],
-              let xdmMixins = xdm[MessagingConstants.XDM.AdobeKeys.MIXINS] as? [String: Any]
-        else {
-            return nil
-        }
+    /// sample `mobileParameters` json which gets represented by a `MessageSettings` object:
+    /// {
+    ///     "mobileParameters": {
+    ///         "schemaVersion": "1.0",
+    ///         "width": 80,
+    ///         "height": 50,
+    ///         "verticalAlign": "center",
+    ///         "verticalInset": 0,
+    ///         "horizontalAlign": "center",
+    ///         "horizontalInset": 0,
+    ///         "uiTakeover": true,
+    ///         "displayAnimation": "top",
+    ///         "dismissAnimation": "top",
+    ///         "backdropColor": "000000",    // RRGGBB
+    ///         "backdropOpacity: 0.3,
+    ///         "cornerRadius": 15,
+    ///         "gestures": {
+    ///             "swipeUp": "adbinapp://dismiss",
+    ///             "swipeDown": "adbinapp://dismiss",
+    ///             "swipeLeft": "adbinapp://dismiss?interaction=negative",
+    ///             "swipeRight": "adbinapp://dismiss?interaction=positive",
+    ///             "tapBackground": "adbinapp://dismiss"
+    ///         }
+    ///     }
+    /// }
 
-        return xdmMixins[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
-    }
-
-    /*
-     "mobileParameters": {
-     "schemaVersion": "1.0",
-     "width": 80,
-     "height": 50,
-     "verticalAlign": "center",
-     "verticalInset": 0,
-     "horizontalAlign": "center",
-     "horizontalInset": 0,
-     "uiTakeover": true,
-     "displayAnimation": "top",
-     "dismissAnimation": "top",
-     "backdropColor": "000000",    // RRGGBB
-     "backdropOpacity: 0.3,
-     "cornerRadius": 15,
-     "gestures": {
-     "swipeUp": "adbinapp://dismiss",
-     "swipeDown": "adbinapp://dismiss",
-     "swipeLeft": "adbinapp://dismiss?interaction=negative",
-     "swipeRight": "adbinapp://dismiss?interaction=positive",
-     "tapBackground": "adbinapp://dismiss"
-     }
-     }
-     */
     func getMessageSettings(withParent parent: Any?) -> MessageSettings {
+        let cornerRadius = CGFloat(messageCornerRadius ?? 0)
         let settings = MessageSettings(parent: parent)
             .setWidth(messageWidth)
             .setHeight(messageHeight)
@@ -89,13 +79,15 @@ extension Event {
             .setUiTakeover(messageUiTakeover)
             .setBackdropColor(messageBackdropColor)
             .setBackdropOpacity(messageBackdropOpacity)
-            .setCornerRadius(messageCornerRadius != nil ? CGFloat(messageCornerRadius ?? 0) : nil)
+            .setCornerRadius(messageCornerRadius != nil ? cornerRadius : nil)
             .setDisplayAnimation(messageDisplayAnimation)
             .setDismissAnimation(messageDismissAnimation)
             .setGestures(messageGestures)
 
         return settings
     }
+
+    // MARK: Private
 
     private var mobileParametersDictionary: [String: Any]? {
         details?[MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS] as? [String: Any]
@@ -188,7 +180,7 @@ extension Event {
         return nil
     }
 
-    // MARK: Message Object Validation
+    // MARK: - Message Object Validation
 
     var containsValidInAppMessage: Bool {
         // remoteAssets are always optional.
@@ -197,9 +189,7 @@ extension Event {
         html != nil
     }
 
-    // MARK: Private
-
-    // MARK: Consequence EventData Processing
+    // MARK: - Consequence EventData Processing
 
     private var consequence: [String: Any]? {
         data?[MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE] as? [String: Any]
@@ -215,53 +205,40 @@ extension Event {
 
     // MARK: - AEP Response Event Handling
 
-    // MARK: Public
-
     var isPersonalizationDecisionResponse: Bool {
         isEdgeType && isPersonalizationSource
     }
 
-    var offerActivityId: String? {
-        activity?[MessagingConstants.Event.Data.Key.Optimize.ID] as? String
+    var requestEventId: String? {
+        data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
     }
 
-    var offerPlacementId: String? {
-        placement?[MessagingConstants.Event.Data.Key.Optimize.ID] as? String
-    }
-
-    var offerDecisionScope: String? {
-        guard let payload = payload, !payload.isEmpty else {
+    /// payload is an array of `PropositionPayload` objects, each containing an in-app message and related tracking information
+    var payload: [PropositionPayload]? {
+        guard let payloadMap = data?[MessagingConstants.Event.Data.Key.Personalization.PAYLOAD] as? [[String: Any]] else {
             return nil
         }
 
-        guard let b64EncodedScope = payload.first?[MessagingConstants.Event.Data.Key.Optimize.SCOPE] as? String else {
-            return nil
-        }
-
-        guard let scopeData = Data(base64Encoded: b64EncodedScope), let scopeDictionary = try? JSONSerialization.jsonObject(with: scopeData, options: .mutableContainers) as? [String: Any] else {
-            return nil
-        }
-
-        return scopeDictionary[MessagingConstants.Event.Data.Key.Optimize.XDM_NAME] as? String
-    }
-
-    /// each entry in the array represents "content" from an offer, which contains a rule
-    var rulesJson: [String]? {
-        guard let items = items else {
-            return nil
-        }
-
-        var rules: [String] = []
-        for item in items {
-            guard let data = item[MessagingConstants.Event.Data.Key.Optimize.DATA] as? [String: Any] else {
-                continue
-            }
-            if let content = data[MessagingConstants.Event.Data.Key.Optimize.CONTENT] as? String {
-                rules.append(content)
+        var returnablePayloads: [PropositionPayload] = []
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        for thisPayloadAny in payloadMap {
+            if let thisPayload = AnyCodable.from(dictionary: thisPayloadAny),
+               let payloadData = try? encoder.encode(thisPayload) {
+                do {
+                    let payloadObject = try decoder.decode(PropositionPayload.self, from: payloadData)
+                    returnablePayloads.append(payloadObject)
+                } catch {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Failed to decode an invalid personalization response: \(error)")
+                }
             }
         }
 
-        return rules.isEmpty ? nil : rules
+        return returnablePayloads
+    }
+
+    var scope: String? {
+        return payload?.first?.propositionInfo.scope
     }
 
     // MARK: Private
@@ -274,53 +251,7 @@ extension Event {
         source == MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS
     }
 
-    /// payload is an array of dictionaries, but since we are only asking for a single DecisionScope
-    /// in the messaging sdk, we can assume this array will only have 0-1 items
-    private var payload: [[String: Any]]? {
-        data?[MessagingConstants.Event.Data.Key.Optimize.PAYLOAD] as? [[String: Any]]
-    }
-
-    private var activity: [String: Any]? {
-        guard let payload = payload, !payload.isEmpty else {
-            return nil
-        }
-
-        return payload[0][MessagingConstants.Event.Data.Key.Optimize.ACTIVITY] as? [String: Any]
-    }
-
-    private var placement: [String: Any]? {
-        guard let payload = payload, !payload.isEmpty else {
-            return nil
-        }
-
-        return payload[0][MessagingConstants.Event.Data.Key.Optimize.PLACEMENT] as? [String: Any]
-    }
-
-    private var items: [[String: Any]]? {
-        guard let payload = payload, !payload.isEmpty else {
-            return nil
-        }
-
-        return payload[0][MessagingConstants.Event.Data.Key.Optimize.ITEMS] as? [[String: Any]]
-    }
-
-    private var xdmCustomerJourneyManagement: [String: Any]? {
-        guard let experienceInfo = experienceInfo else {
-            return nil
-        }
-
-        return experienceInfo[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any]
-    }
-
-    private var xdmMessageExecution: [String: Any]? {
-        guard let xdmCustomerJourneyManagement = xdmCustomerJourneyManagement else {
-            return nil
-        }
-
-        return xdmCustomerJourneyManagement[MessagingConstants.XDM.AdobeKeys.MESSAGE_EXECUTION] as? [String: Any]
-    }
-
-    // MARK: Refresh Messages Public API Event
+    // MARK: - Refresh Messages Public API Event
 
     var isRefreshMessageEvent: Bool {
         isMessagingType && isRequestContentSource && refreshMessages
@@ -338,13 +269,20 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool ?? false
     }
 
-    /// Returns true if this event is a generic identity request content event
+    // MARK: - SetPushIdentifier Event
+
     var isGenericIdentityRequestContentEvent: Bool {
         type == EventType.genericIdentity && source == EventSource.requestContent
     }
 
     var token: String? {
         data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String
+    }
+
+    // MARK: - Push Clickthrough Event
+
+    var isMessagingRequestContentEvent: Bool {
+        type == MessagingConstants.Event.EventType.messaging && source == EventSource.requestContent
     }
 
     var xdmEventType: String? {
@@ -373,9 +311,5 @@ extension Event {
 
     var adobeXdm: [String: Any]? {
         data?[MessagingConstants.XDM.Key.ADOBE_XDM] as? [String: Any]
-    }
-
-    var isMessagingRequestContentEvent: Bool {
-        type == MessagingConstants.Event.EventType.messaging && source == EventSource.requestContent
     }
 }
