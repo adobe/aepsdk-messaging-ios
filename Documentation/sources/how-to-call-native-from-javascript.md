@@ -18,7 +18,7 @@ In the `shouldShowMessage` function of the `MessagingDelegate`, call [`handleJav
 
 The name of the message you intend to pass from the Javascript side should be specified in the first parameter.
 
-The below example shows a handler that dispatches an "inapp.interact" Experience Event natively when the Javascript of the in-app message posts a "myInappCallback" message:
+The below example shows a handler that dispatches a "decisioning.propositionInteract" Experience Event natively when the Javascript of the in-app message posts a "myInappCallback" message:
 
 ```swift
 func shouldShowMessage(message: Showable) -> Bool {    
