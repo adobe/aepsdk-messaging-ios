@@ -38,7 +38,7 @@ public var view: UIView? {
 
 Signals to the UIService (in `AEPServices`) that the message should be shown.
 
-If `autoTrack` is true, calling this method will result in an "inapp.trigger" Edge Event being dispatched.
+If `autoTrack` is true, calling this method will result in an "decisioning.propositionTrigger" Edge Event being dispatched.
 
 ```swift
 public func show()
@@ -48,7 +48,7 @@ public func show()
 
 Signals to the UIService that the message should be removed from the UI.
 
-If `autoTrack` is true, calling this method will result in an "inapp.dismiss" Edge Event being dispatched.
+If `autoTrack` is true, calling this method will result in an "decisioning.propositionDismiss" Edge Event being dispatched.
 
 ```swift
 public func dismiss(suppressAutoTrack: Bool? = false)
@@ -56,7 +56,7 @@ public func dismiss(suppressAutoTrack: Bool? = false)
 
 ###### Parameters
 
-- _suppressAutoTrack_ - if set to `true`, the "inapp.dismiss" Edge Event will not be sent regardless of the `autoTrack` setting.
+- _suppressAutoTrack_ - if set to `true`, the "decisioning.propositionDismiss" Edge Event will not be sent regardless of the `autoTrack` setting.
 
 ## track(_:withEdgeEventType:)
 

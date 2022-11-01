@@ -39,11 +39,11 @@ public enum MessagingEdgeEventType: Int {
 
 Below is the table of values returned by calling the `toString` method for each case:
 
-| Case                  | String value                     |
-|-----------------------|----------------------------------|
-| inappDismiss          | `inapp.dismiss`                  |
-| inappInteract         | `inapp.interact`                 |
-| inappTrigger          | `inapp.trigger`                  |
-| inappDisplay          | `inapp.display`                  |
-| pushApplicationOpened | `pushTracking.applicationOpened` |
-| pushCustomAction      | `pushTracking.customAction`      |
+| Case                  | String value                      |
+|-----------------------|-----------------------------------|
+| inappDismiss          | `decisioning.propositionDismiss`  |
+| inappInteract         | `decisioning.propositionInteract` |
+| inappTrigger          | `decisioning.propositionTrigger`  |
+| inappDisplay          | `decisioning.propositionDisplay`  |
+| pushApplicationOpened | `pushTracking.applicationOpened`  |
+| pushCustomAction      | `pushTracking.customAction`       |
