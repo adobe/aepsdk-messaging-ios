@@ -4,10 +4,10 @@
 
 - Overview
     - Getting Started
-        - [Setup Sdk](/getting-started/install-sdk-extensions.md)
+        - [Setup SDK](/getting-started/install-sdk-extensions.md)
         - [Initialize SDK](/getting-started/init-sdk.md)
     - [API Reference](api-reference.md)
-    - [Frequently Asked Questions](faqs.md)
+    - [Terminology](terminology.md)
 - Tutorials
     - [Messaging Tutorial](/tutorials/README.md)
 - Advanced
