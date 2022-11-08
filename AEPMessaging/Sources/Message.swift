@@ -74,14 +74,22 @@ public class Message: NSObject {
     // MARK: - UI management
 
     /// Signals to the UIServices that the message should be shown.
+    /// This method will bypass calling the `shouldShowMessage(:)` method of the `MessagingDelegate` if one exists.
     /// If `autoTrack` is true, calling this method will result in an "inapp.display" Edge Event being dispatched.
     @objc
     public func show() {
+        show(withMessagingDelegateControl: false)
+    }
+    
+    /// Signals to the UIServices that the message should be shown.
+    /// Pass `false` to this method to bypass the `MessagingDelegate` control over showing the message.
+    /// - Parameter withMessagingDelegateControl: if `true`, the `shouldShowMessage(:)` method of `MessagingDelegate` will be called before the message is shown.
+    func show(withMessagingDelegateControl callDelegate: Bool) {
         if autoTrack {
             track(nil, withEdgeEventType: .inappDisplay)
         }
 
-        fullscreenMessage?.show()
+        fullscreenMessage?.show(withMessagingDelegateControl: callDelegate)
     }
 
     /// Generates a mapping of the message's assets to their representation in local cache.
