@@ -1,6 +1,6 @@
 # Review in-app messaging schema
 
-Before any app changes, some configuration items on the Adobe Experience Platform (AEP) side need to be set up. First, create an XDM schema (the format for data that the Edge Network uses).
+Before starting configuration of your app, we will take a moment to review some auto-provisioned data structures in Adobe Experience Platform (AEP). 
  
 At a high level, a schema is a definition for the structure of your data; what properties you are expecting, what format they should be in, and checks for the actual values coming in.  
 
