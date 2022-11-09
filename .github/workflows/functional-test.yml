@@ -29,7 +29,7 @@ jobs:
       run: echo Run Identifier is ${{ inputs.id }}
 
     - name: Checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v3
       with:
         ref: ${{ github.event.inputs.branch }}
 
