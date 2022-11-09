@@ -54,7 +54,7 @@ test:
 	@echo "######################################################################"
 	@echo "### Testing iOS"
 	@echo "######################################################################"
-	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -destination 'platform=iOS Simulator,name=iPhone 8' -derivedDataPath build/out -enableCodeCoverage YES
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -destination 'platform=iOS Simulator,name=iPhone 12' -derivedDataPath build/out -enableCodeCoverage YES
 
 install-githook:
 	./tools/git-hooks/setup.sh
@@ -83,4 +83,4 @@ test-podspec:
 	(sh ./Script/test-podspec.sh)
 
 functional-test: pod-install
-	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme E2EFunctionalTests -destination 'platform=iOS Simulator,name=iPhone 8' -derivedDataPath build/out
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme E2EFunctionalTests -destination 'platform=iOS Simulator,name=iPhone 12' -derivedDataPath build/out
