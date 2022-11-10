@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
 
-        MobileCore.setLogLevel(.trace)
+        MobileCore.setLogLevel(.error)
 
         let extensions = [
             Consent.self,
@@ -50,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         ]
 
         MobileCore.registerExtensions(extensions) {
-            Assurance.startSession(url: URL(string: "app://?adb_validation_sessionid=acd4cd71-6236-4929-bf92-3d27bf189650"))
+            Assurance.startSession(url: URL(string: "iamtutorial://?adb_validation_sessionid=68e94147-cf1c-48ba-b7da-45aa1262ce1f"))
         }
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)

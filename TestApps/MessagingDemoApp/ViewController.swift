@@ -31,10 +31,10 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_: Any) {
-        MobileCore.track(action: "fullscreenTakeover", data: nil)
+//        MobileCore.track(action: "once113", data: nil)
         
 //        MobileCore.track(action: "test", data: nil)
-//        MobileCore.track(action: "kitteh", data: nil)
+        MobileCore.track(action: "kitteh", data: nil)
 //        MobileCore.track(action: "testForSurbhi", data: nil)
 //        MobileCore.track(action: "inbound_test", data: nil)
 //        MobileCore.track(action: "keep-fullscreen", data: nil)
@@ -47,7 +47,7 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerModal(_: Any) {
-        MobileCore.track(action: "fullscreenNontakeover", data: nil)
+        MobileCore.track(action: "untilClick113", data: nil)
         
 //        MobileCore.track(action: "animate", data: nil)
 //        MobileCore.track(state: "triggerModal", data: ["testSteveModal": "true"])
@@ -72,8 +72,7 @@ class ViewController: UIViewController {
 
         func onShow(message: Showable) {
             let fullscreenMessage = message as? FullscreenMessage
-            let message = fullscreenMessage?.parent
-            print("message was shown \(message?.id ?? "undefined")")
+            print("message was shown \(fullscreenMessage?.debugDescription ?? "undefined")")
         }
 
         func onDismiss(message: Showable) {
@@ -82,6 +81,7 @@ class ViewController: UIViewController {
         }
 
         func shouldShowMessage(message: Showable) -> Bool {
+            
             // access to the whole message from the parent
             let fullscreenMessage = message as? FullscreenMessage
             let message = fullscreenMessage?.parent
@@ -93,15 +93,18 @@ class ViewController: UIViewController {
                 message?.track(content as? String, withEdgeEventType: .inappInteract)
             }
 
-            // access the WKWebView containing the message's UI
-            let messageWebView = message?.view as? WKWebView
-            // execute JavaScript inside of the message's WKWebView
-            messageWebView?.evaluateJavaScript("startTimer();") { result, error in
-                if error != nil {
-                    // handle error
-                }
-                if result != nil {
-                    // do something with the result
+            // if using the webview for something, make sure to dispatch back to the main thread
+            DispatchQueue.main.async {
+                // access the WKWebView containing the message's UI
+                let messageWebView = message?.view as? WKWebView
+                // execute JavaScript inside of the message's WKWebView
+                messageWebView?.evaluateJavaScript("startTimer();") { result, error in
+                    if error != nil {
+                        // handle error
+                    }
+                    if result != nil {
+                        // do something with the result
+                    }
                 }
             }
             

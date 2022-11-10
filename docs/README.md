@@ -1,18 +1,33 @@
 # Intro
 
-Doc repository for aepsdk-messaging and tutorials. 
+Documentation and tutorials for **aepsdk-messaging-ios**. 
 
-The GitHub page can be seen at 
+## Contributing to this guide
 
-#To contribute to this guide
-1. Clone the repository 
-2. Install docsify by running following command
-      "npm i docsify-cli -g"
-3. Run docsify on your computer by running following command
-      "docsify serve docs"
-4. The guides will be available on your localhost at "http://localhost:3000"
+1. Clone the **aepsdk-messaging-ios** repository:
 
-5. You can add more tutorials, run and validate them on your local computer and after that create merge requests
+    ```
+    git clone git@github.com:adobe/aepsdk-messaging-ios.git
+    ```
 
-To learn more about Docsify use this guide: https://docsify.js.org/#/
+1. Ensure _Docsify_ is installed by running the following command:
+
+    ```
+    npm i docsify-cli -g
+    ```
+
+1. Navigate into the **aepsdk-messaging-ios** repository, then serve the documentation files on your local computer by running following command:
+
+      ```
+      cd aepsdk-messaging-ios
+      docsify serve docs
+      ```
+
+1. Browse to **http://localhost:3000** to view your local _Docsify_ website
+
+1. If you have added to or modified the documentation and would like to merge them in, please open a pull request to be reviewed by the Adobe team
+
+#### Further reading
+
+Learn more about _Docsify_ at their website: https://docsify.js.org/#/
 

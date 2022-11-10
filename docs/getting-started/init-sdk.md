@@ -3,40 +3,34 @@
 Initialize the Experience Platform Mobile SDKs by adding the below code in your `AppDelegate` file.
 
 > [!TIP]
-> You can find your Environment File ID and also the mobile SDK initialization code in your tag property on Experience Platform Data Collection UI. Navigate to Environments (select your environment - Production, Staging, or Development), click <small>INSTALL<small>.
-
-| ![SDK Initialization Code](../assets/sdk-init-code.png?raw=true) |
-| :---: |
-| **SDK Initialization Code** |
+> You can find your Environment File ID and SDK initialization code in your _Tag_ property in the _Experience Platform Data Collection_ UI. <br /><br />Navigate to **Environments** > select your environment (**Production**, **Staging**, or **Development**) > click **INSTALL**.
 
 **AppDelegate Example**
 <!-- tabs:start -->
 
 #### **Swift**
+
 ```swift
 // AppDelegate.swift
 
-import AEPCore
-import AEPLifecycle
 import AEPAssurance
+import AEPCore
 import AEPEdge
-import AEPEdgeConsent
 import AEPEdgeIdentity
-import AEPOptimize
-import SwiftUI
+import AEPMessaging
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         MobileCore.setLogLevel(.trace)
 
-        MobileCore.registerExtensions([
-                Lifecycle.self,
-                Edge.self,
-                Consent.self,
-                AEPEdgeIdentity.Identity.self,
-                Assurance.self,
-                Optimize.self ]) {
-            
+        let extensions = [
+            Edge.self,                
+            AEPEdgeIdentity.Identity.self,
+            Assurance.self,
+            Messaging.self 
+        ]
+
+        MobileCore.registerExtensions(extensions) {            
             MobileCore.configureWith(appId: "yourEnvironmentFileID")
         }
         return true
@@ -48,14 +42,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 
 ```objc
 // AppDelegate.h
-@import AEPCore;
-@import AEPServices;
-@import AEPLifecycle;
 @import AEPAssurance;
+@import AEPCore;
 @import AEPEdge;
-@import AEPEdgeConsent;
 @import AEPEdgeIdentity;
-@import AEPOptimize;
+@import AEPMessaging;
 ```
 
 ```objc
@@ -64,18 +55,17 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     // Override point for customization after application launch.
     [AEPMobileCore setLogLevel:AEPLogLevelTrace];
     
-    [AEPMobileCore registerExtensions:@[
-        AEPMobileLifecycle.class,
-        AEPMobileEdge.class,
-        AEPMobileEdgeConsent.class,
+    NSArray *extensions = @[
+        AEPMobileEdge.class        
         AEPMobileEdgeIdentity.class,
         AEPMobileAssurance.class,
-        AEPMobileOptimize.class
-    ] completion:^{
-        [AEPMobileCore lifecycleStart:@{}];
+        AEPMobileMessaging.class
+    ];
+
+    [AEPMobileCore registerExtensions:extensions completion:^{
+        [AEPMobileCore configureWithAppId: @"yourEnvironmentFileID"];
     }];
-    [AEPMobileCore configureWithAppId: @"yourEnvironmentFileID"];
-    
+        
     return YES;
 }
 ```
