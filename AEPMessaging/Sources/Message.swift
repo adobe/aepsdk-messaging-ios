@@ -89,7 +89,7 @@ public class Message: NSObject {
             track(nil, withEdgeEventType: .inappDisplay)
         }
 
-        fullscreenMessage?.show(withMessagingDelegateControl: callDelegate)
+        fullscreenMessage?.show()
     }
 
     /// Generates a mapping of the message's assets to their representation in local cache.

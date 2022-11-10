@@ -1,35 +1,43 @@
 # Create an in-app message
 
- A dataset is a storage and management construct for a collection of data, typically a table, that contains a schema (columns) and fields (rows). Datasets also contain metadata that describes various aspects of the data they store.
+ Intro text here.
 
 1. Go to the [Adobe Experience Platform](https://experience.adobe.com/#/platform), using your Adobe ID credentials to log in if prompted.
 
-2. Navigate to the Experience Platform UI by selecting the nine-dot menu in the top right (**1**), and selecting `Experience Platform` (**2**).
+2. Navigate to the **Journey Optimizer** UI by selecting the nine-dot menu in the top right (**1**), and selecting `Journey Optimizer` (**2**).
 
-| ![Navigating to Experience Platform](assets/aep-nav.png?raw=true) |
+| ![Navigating to Journey Optimizer](assets/ajo-nav.png?raw=true) |
 | :---: |
-| **Navigating to Experience Platform** |
+| **Navigating to Journey Optimizer** |
 
-3. Select **Datasets** (**1**) in the left navigation window
+3. Select **Campaigns** (**1**) in the left navigation window.
 
-| ![Navigating to Datasets in Experience Platform](assets/aep-datasets.png?raw=true) |
+| ![Navigating to Campaigns](assets/ajo-campaigns.png?raw=true) |
 | :---: |
-| **Navigating to Datasets in Experience Platform** |
+| **Navigating to Campaigns** |
 
-4. Switch to the **Browse** tab if necessary.  
-
-5. Type the following text into the **search box** (**1**) in the top left: 
-
-    `AJO Inbound`
-
-6. Click on the `AJO Inbound Experience Event` link from the list. (**2**)
-
-| ![Selecting AJO Inbound Experience Event dataset](assets/aep-dataset-select.png?raw=true) |
+| ![Create a new Campaign](assets/ajo-create-campaign.png?raw=true) |
 | :---: |
-| **Selecting AJO Inbound Experience Event dataset** |
+| **Create a new Campaign** |
 
-7. The details page for the dataset highlights several data points including number of ingested batches, failed batches, and number of ingested records.
-
-| ![AJO Inbound Experience Event dataset details](assets/aep-dataset-details.png?raw=true) |
+| ![Create an in-app message](assets/ajo-create-iam.png?raw=true) |
 | :---: |
-| **AJO Inbound Experience Event dataset details** |
+| **Create an in-app message** |
+
+| ![Configure in-app message audience](assets/ajo-iam-triggers.png?raw=true) |
+| :---: |
+| **Configure in-app message audience** |
+
+| ![Configure in-app message content](assets/ajo-iam-content.png?raw=true) |
+| :---: |
+| **Configure in-app message content** |
+
+| ![Activate in-app message](assets/ajo-iam-review.png?raw=true) |
+| :---: |
+| **Activate in-app message** |
+
+| ![In-app message live in list of Campaigns](assets/ajo-iam-activated.png?raw=true) |
+| :---: |
+| **In-app message live in list of Campaigns** |
+
+https://t4.ftcdn.net/jpg/00/63/83/29/360_F_63832907_SA64nRfoIU8qaPKDkcYT7Ax2T0eVFJDY.jpg

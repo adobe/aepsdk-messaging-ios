@@ -2,18 +2,14 @@
 
 - [Home](/)
 - Tutorials
-    - [Introduction](/tutorials/README.md)
-    - Adobe Experience Platform
-        - [Review AJO Inbound Activity Event schema](/tutorials/aep/ajo-schema.md)
-        - [Review AJO Inbound Experience Event dataset](/tutorials/aep/ajo-dataset.md)
-    - Adobe Journey Optimizer
-        - [Create an in-app message](/tutorials/ajo/create-iam.md)
-        - [View in-app message reporting](/tutorials/ajo/iam-reporting.md)
-    - Adobe Data Collection
-        - [Create a Datastream](/tutorials/dc/create-datastream.md)
-        - [Create an App Surface](/tutorials/dc/create-surface.md)
-        - [Create a Tag Property](/tutorials/dc/create-tag-property.md)
-    - Mobile App
-        - [In-app Messaging tutorial](/tutorials/app/iam-tutorial-app.md)
-    - Adobe Assurance
-        - [Assurance Validation](/tutorials/assurance/assurance-validation.md)
+    - [In-app messaging](/tutorials/README.md)        
+        - [1. Review AEP schema configuration](/tutorials/aep/ajo-schema.md)
+        - [2. Review AEP dataset configuration](/tutorials/aep/ajo-dataset.md)
+        - [3. Create Datastream in Data Collection](/tutorials/dc/create-datastream.md)
+        - [4. Create App Surface in Data Collection](/tutorials/dc/create-surface.md)
+        - [5. Create Tag Property in Data Collection](/tutorials/dc/create-tag-property.md)        
+        - [6. Create in-app message in AJO](/tutorials/ajo/create-iam.md)
+        - [7. Review SDK install instructions](/tutorials/app/review-install.md)
+        - [8. Use tutorial app to trigger message](/tutorials/app/iam-tutorial.md)
+        - [9. Connect to Adobe Assurance](/tutorials/assurance/assurance-validation.md)
+        - [10. Review in-app message reports in AJO](/tutorials/ajo/iam-reporting.md)    
