@@ -16,6 +16,10 @@
 | :---: |
 | **Navigating to Campaigns** |
 
-| ![Create a new Campaign](assets/ajo-nav-report.png?raw=true) |
+| ![Create a new Campaign](assets/ajo-report-nav.png?raw=true) |
+| :---: |
+| **Create a new Campaign** |
+
+| ![Create a new Campaign](assets/ajo-report-details.png?raw=true) |
 | :---: |
 | **Create a new Campaign** |

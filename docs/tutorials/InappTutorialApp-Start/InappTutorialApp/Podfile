@@ -1,0 +1,16 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'InappTutorialApp' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for InappTutorialApp
+
+  pod 'AEPCore'
+  pod 'AEPEdge'
+  pod 'AEPEdgeIdentity'
+  pod 'AEPMessaging', :git => 'https://github.com/adobe/aepsdk-messaging-ios.git', :branch => 'staging'
+  pod 'AEPAssurance'
+
+end

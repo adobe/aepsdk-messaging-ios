@@ -1,0 +1,58 @@
+PODS:
+  - AEPAssurance (3.0.1):
+    - AEPCore (>= 3.1.0)
+    - AEPServices (>= 3.1.0)
+  - AEPCore (3.7.2):
+    - AEPRulesEngine (>= 1.1.0)
+    - AEPServices (>= 3.7.2)
+  - AEPEdge (1.5.0):
+    - AEPCore (>= 3.5.0)
+    - AEPEdgeIdentity
+  - AEPEdgeIdentity (1.1.0):
+    - AEPCore (>= 3.6.0)
+  - AEPMessaging (1.1.0-beta2):
+    - AEPCore (>= 3.4.2)
+    - AEPEdge (>= 1.1.0)
+    - AEPEdgeIdentity (>= 1.0.0)
+    - AEPServices (>= 3.4.2)
+  - AEPRulesEngine (1.2.0)
+  - AEPServices (3.7.2)
+
+DEPENDENCIES:
+  - AEPAssurance
+  - AEPCore
+  - AEPEdge
+  - AEPEdgeIdentity
+  - AEPMessaging (from `https://github.com/adobe/aepsdk-messaging-ios.git`, branch `staging`)
+
+SPEC REPOS:
+  trunk:
+    - AEPAssurance
+    - AEPCore
+    - AEPEdge
+    - AEPEdgeIdentity
+    - AEPRulesEngine
+    - AEPServices
+
+EXTERNAL SOURCES:
+  AEPMessaging:
+    :branch: staging
+    :git: https://github.com/adobe/aepsdk-messaging-ios.git
+
+CHECKOUT OPTIONS:
+  AEPMessaging:
+    :commit: a2171bb77cb5338c2aedcc28159bc0b55a74c91b
+    :git: https://github.com/adobe/aepsdk-messaging-ios.git
+
+SPEC CHECKSUMS:
+  AEPAssurance: b25880cd4b14f22c61a1dce19807bd0ca0fe9b17
+  AEPCore: b606a373e01673d3d9ee244d95010cd75f26d50d
+  AEPEdge: 924cd8ace3db40b9c42bc2bc5e8fb1fcad3a9b77
+  AEPEdgeIdentity: 47f0c6ecbec5857b2a8cb9b7bf717c2424c6bae0
+  AEPMessaging: 31635f7570be215f1bd2781f0e67a7a3a49952aa
+  AEPRulesEngine: 71228dfdac24c9ded09be13e3257a7eb22468ccc
+  AEPServices: 243909789b9961d07ebe92ec8350e2d5954d5be7
+
+PODFILE CHECKSUM: cc378186c8e67ab91cba39e02480d17782054880
+
+COCOAPODS: 1.11.3

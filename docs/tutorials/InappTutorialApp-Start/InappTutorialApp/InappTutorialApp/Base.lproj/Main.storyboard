@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="InappTutorialApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Do4-Ug-M7r">
+                                <rect key="frame" x="127" y="389" width="121" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="35" id="A4u-PY-eC0"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="PKh-3e-1e5"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Get 50% off!">
+                                    <fontDescription key="titleFontDescription" name="Futura-Medium" family="Futura" pointSize="16"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="triggerInappMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="cGG-qs-aWl"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="tutorial application" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ieH-FO-xyw">
+                                <rect key="frame" x="59" y="145" width="257" height="39"/>
+                                <fontDescription key="fontDescription" name="Futura-Medium" family="Futura" pointSize="30"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="In-app messaging" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kMl-aA-fl3">
+                                <rect key="frame" x="68" y="98" width="239" height="39"/>
+                                <fontDescription key="fontDescription" name="Futura-Medium" family="Futura" pointSize="30"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Do4-Ug-M7r" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="1kR-Ar-Riw"/>
+                            <constraint firstItem="kMl-aA-fl3" firstAttribute="centerX" secondItem="Do4-Ug-M7r" secondAttribute="centerX" id="4hu-h0-066"/>
+                            <constraint firstItem="kMl-aA-fl3" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="51" id="AdI-BZ-7eN"/>
+                            <constraint firstItem="ieH-FO-xyw" firstAttribute="top" secondItem="kMl-aA-fl3" secondAttribute="bottom" constant="8" id="MKy-L2-6SY"/>
+                            <constraint firstItem="kMl-aA-fl3" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="68" id="PcC-Wm-jvl"/>
+                            <constraint firstItem="kMl-aA-fl3" firstAttribute="centerX" secondItem="ieH-FO-xyw" secondAttribute="centerX" id="QA4-UG-DUC"/>
+                            <constraint firstItem="Do4-Ug-M7r" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="342" id="TeX-EU-q6M"/>
+                            <constraint firstItem="kMl-aA-fl3" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="nTY-cr-B0P"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Do4-Ug-M7r" secondAttribute="trailing" constant="127" id="yBv-bM-0g6"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="140" y="5"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
