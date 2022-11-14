@@ -1772,7 +1772,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4DBE357820DAAEE02A221D75 /* Pods-E2EFunctionalTests.debug.xcconfig */;
 			buildSettings = {
-				ADOBE_ENVIRONMENT = stage;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1794,7 +1793,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FBDFB0BBF7979F0FEEFDE155 /* Pods-E2EFunctionalTests.release.xcconfig */;
 			buildSettings = {
-				ADOBE_ENVIRONMENT = stage;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

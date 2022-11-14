@@ -49,17 +49,19 @@ class E2EFunctionalTests: XCTestCase {
     class func initializeSdk() {
         MobileCore.setLogLevel(.trace)
         
+        // clear out previous runs that may contain settings for connecting w/ staging environment
+        MobileCore.clearUpdatedConfiguration()
+        
+        // need access to Info.plist for reading out the test environment
         guard let infoDictionary = Bundle.main.infoDictionary else {
             return
         }
-        
-        MobileCore.clearUpdatedConfiguration()
         
         let environment = Environment.get(infoDictionary)
         MobileCore.configureWith(appId: environment.appId)
         if environment.isStaging {
             MobileCore.updateConfigurationWith(configDict: ["edge.environment": "int"])
-        } 
+        }
        
         let extensions = [
             Consent.self,

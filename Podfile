@@ -22,8 +22,8 @@ def lib_main
 end
 
 def lib_dev
-    pod 'AEPCore', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
-    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
+    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
     pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'main'
 end
 
@@ -40,10 +40,10 @@ def app_main
 end
 
 def app_dev
-    pod 'AEPCore', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
-    pod 'AEPServices', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
-    pod 'AEPLifecycle', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
-    pod 'AEPSignal', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
+    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
+    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
+    pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
+    pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v3.7.3'
     pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'main'
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'main'
     pod 'AEPEdgeConsent'
@@ -56,33 +56,33 @@ end
 # TARGET DEFINITIONS
 # ==================
 target 'AEPMessaging' do
-  lib_dev
+  lib_main
 end
 
 target 'MessagingDemoApp' do
-  app_dev
+  app_main
 end
 
 target 'MessagingDemoAppObjC' do
-  app_dev
+  app_main
 end
 
 target 'UnitTests' do
-  lib_dev
+  lib_main
 end
 
 target 'FunctionalTests' do
-  app_dev
+  app_main
 end
 
 target 'E2EFunctionalTests' do
-  app_dev
+  app_main
 end
 
 target 'FunctionalTestApp' do
-  app_dev
+  app_main
 end
 
 target 'E2EFunctionalTestApp' do
-  app_dev
+  app_main
 end
