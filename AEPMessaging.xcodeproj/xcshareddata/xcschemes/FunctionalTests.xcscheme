@@ -21,6 +21,11 @@
                BlueprintName = "FunctionalTests"
                ReferencedContainer = "container:AEPMessaging.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "InAppMessagingEventTests">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
