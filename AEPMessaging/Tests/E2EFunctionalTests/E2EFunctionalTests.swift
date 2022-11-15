@@ -49,43 +49,20 @@ class E2EFunctionalTests: XCTestCase {
     class func initializeSdk() {
         MobileCore.setLogLevel(.trace)
         
-        /// Environment: Production
-        /// Org: AEM Assets Departmental - Campaign (906E3A095DC834230A495FD6@AdobeOrg)
-        /// Sandbox: Prod (VA7)
-        /// Data Collection tag: AJO - IAM E2E Automated Tests
-        /// App Surface: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
-        /// Datastream: cjm-prod-va7 (0814ac07-ffeb-44c4-8633-85301d5e721c)
-        /// AppID for SDK configuration: 3149c49c3910/8398c2585133/launch-1780400a22e8-development
-        MobileCore.configureWith(appId: "3149c49c3910/8398c2585133/launch-1780400a22e8-development")
+        // clear out previous runs that may contain settings for connecting w/ staging environment
+        MobileCore.clearUpdatedConfiguration()
         
-        /// Environment: Production
-        /// Org: CJM Prod AUS5 (404C2CDA605B7E960A495FCE@AdobeOrg)
-        /// Sandbox: Prod (AUS5)
-        /// Data Collection tag: AJO - IAM E2E Automated Tests
-        /// App Surface: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
-        /// Datastream: cjm-prod-aus5 (40b09983-9d1e-4472-af7d-947290ad8480)
-        /// AppID for SDK configuration: 3269cfd2f1f9/73343fae78b8/launch-b2d301f72010-development
-        //MobileCore.configureWith(appId: "3269cfd2f1f9/73343fae78b8/launch-b2d301f72010-development")
+        // need access to Info.plist for reading out the test environment
+        guard let infoDictionary = Bundle.main.infoDictionary else {
+            return
+        }
         
-        /// Environment: Production
-        /// Org: CJM Prod NLD2 (4DA0571C5FDC4BF70A495FC2@AdobeOrg)
-        /// Sandbox: Prod (NLD2)
-        /// Data Collection tag: AJO - IAM E2E Automated Tests
-        /// App Surface: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
-        /// Datastream: cjm-prod-nld2 (3e808bee-74f7-468f-be1d-99b498f36fa8)
-        /// AppID for SDK configuration: bf7248f92b53/1d83dbc6cd95/launch-3102a655964f-development
-        //MobileCore.configureWith(appId: "bf7248f92b53/1d83dbc6cd95/launch-3102a655964f-development")
-        
-        /// Environment: Stage
-        /// Org: CJM Stage (745F37C35E4B776E0A49421B@AdobeOrg)
-        /// Sandbox: AJO Web (VA7)
-        /// Data Collection tag: AJO - IAM E2E Automated Tests
-        /// App Surface: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
-        /// Datastream: ajo-stage: Production Environment (19fc5fe9-37df-46da-8f5c-9eeff4f75ed9)
-        /// AppID for SDK configuration: 1b50a869c4a2/8a2b5f4bc2f0/launch-302971d67c36-development
-        //MobileCore.configureWith(appId: "staging/1b50a869c4a2/8a2b5f4bc2f0/launch-302971d67c36-development")
-        //MobileCore.updateConfigurationWith(configDict: ["edge.environment": "int"])
-
+        let environment = Environment.get(infoDictionary)
+        MobileCore.configureWith(appId: environment.appId)
+        if environment.isStaging {
+            MobileCore.updateConfigurationWith(configDict: ["edge.environment": "int"])
+        }
+       
         let extensions = [
             Consent.self,
             Identity.self,

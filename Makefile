@@ -10,6 +10,8 @@ SIMULATOR_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive
 IOS_ARCHIVE_PATH = ./build/ios.xcarchive/Products/Library/Frameworks/
 IOS_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios.xcarchive/dSYMs/
 
+E2E_PROJECT_PLIST_FILE = $(CURRENT_DIRECTORY)/AEPMessaging/Tests/E2EFunctionalTests/E2EFunctionalTestApp/Info.plist
+
 setup:
 	(pod install)
 	(cd TestApps/$(APP_NAME) && pod install)
@@ -84,3 +86,9 @@ test-podspec:
 
 functional-test: pod-install
 	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme E2EFunctionalTests -destination 'platform=iOS Simulator,name=iPhone 12' -derivedDataPath build/out
+
+# usage - 
+# make set-environment ENV=[environment]
+set-environment:
+	@echo "Setting E2E functional testing to run in environment '$(ENV)'"
+	plutil -replace ADOBE_ENVIRONMENT -string $(ENV) $(E2E_PROJECT_PLIST_FILE)
