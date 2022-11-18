@@ -24,7 +24,8 @@ At a high level, a schema is a definition for the structure of your data; what p
 
 5. Click on the `AJO Inbound Experience Event Schema` link from the list. (**2**)
 
-> Note: The **AJO Inbound Experience Event Schema** is automatically generated for you when Adobe Journey Optimizer is provisioned for your company.
+> [!NOTE]
+> The **AJO Inbound Experience Event Schema** is automatically generated for you when Adobe Journey Optimizer is provisioned for your company.
 
 | ![Selecting AJO Inbound Experience Event Schema](assets/aep-schema-select.png?raw=true) |
 | :---: |

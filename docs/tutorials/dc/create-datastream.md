@@ -36,10 +36,10 @@ With the datastream set up, data can be directed to its destination by adding se
 | :---: |
 | **Add Datastream Service** |
 
-2. From the **Service (required)** dropdown, select **Adobe Experience Platform** (**1**) and make sure it is enabled (**2**).
-3. From the `Event Dataset`dropdown, select the AJO Inbound dataset reviewed earlier in this tutorial (**3**).
-4. Ensure the **Edge Segmentation** and **Adobe Journey Optimizer** boxes (**4**) are checked.
-4. Hit the **Save** (**5**) button.
+2. From the **Service (required)** dropdown, select **Adobe Experience Platform** and make sure it is enabled (**1**).
+3. From the `Event Dataset`dropdown, select the AJO Inbound dataset reviewed earlier in this tutorial (**2**).
+4. Ensure the **Edge Segmentation** and **Adobe Journey Optimizer** boxes (**3**) are checked.
+4. Hit the **Save** (**4**) button.
 
 | ![Add Experience Platform to Datastream](assets/datastream-service-save.png?raw=true) |
 | :---: |

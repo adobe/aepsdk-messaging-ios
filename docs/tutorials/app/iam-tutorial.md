@@ -1,99 +1,62 @@
-# Optimize Tutorial: Fetch and track Target Offers
+# Using the Tutorial App to trigger the in-app message
 
-## Getting Started
+### Getting Started
 
-Follow the steps below to download the Optimize Tutorial Starter App from the [Optimize GitHub repository](https://github.com/adobe/aepsdk-optimize-ios).
+Follow the steps below to download the InappTutorialApp from the [Messaging GitHub repository](https://github.com/adobe/aepsdk-messaging-ios).
 
-1. Navigate to the GitHub repository using the URL https://github.com/adobe/aepsdk-optimize-ios/tree/optimize-target-tutorial.
+1. Navigate to the GitHub repository using the URL https://github.com/adobe/aepsdk-messaging-ios/tree/messaging-tutorials.
 
 2. Click on **Code (1)** then select **Download ZIP (2)** from the pop-up dialog.
 
-| ![Optimize Extension Code](../../assets/optimize-github-code.png?raw=true) |
+| ![Messaging Extension Code](assets/messaging-github-code.png?raw=true) |
 | :---: |
-| **Optimize GitHub Code** |
+| **Messaging Extension Code** |
 
-3. Copy the `aepsdk-optimize-ios-optimize-target-tutorial.zip` file from Downloads directory to another appropriate location. For example, your home directory
+> [!NOTE]
+> Steps 3-6 in this section include commands you can run from your favorite Terminal app.  
 
-**Command-line command**
-```text
-mv ~/Downloads/aepsdk-optimize-ios-optimize-target-tutorial.zip ~/
+3. Copy the `aepsdk-messaging-ios-messaging-tutorials.zip` file from your `Downloads` directory to another appropriate location. For example, your home directory
+
+```
+mv ~/Downloads/aepsdk-messaging-ios-messaging-tutorials.zip ~/
 ```
 
 4. Unzip the file in the target location.
 
-**Command-line command**
-```text
+```
 cd ~/
-unzip aepsdk-optimize-ios-optimize-target-tutorial.zip
+unzip aepsdk-messaging-ios-messaging-tutorials.zip
 ```
 
-5. Change directory to the `OptimizeTutorialStarterApp`
+5. Change directory to the `InappTutorialApp-Start`
 
-**Command-line command**
-```text
-cd aepsdk-optimize-ios-optimize-target-tutorial/docs/tutorials/OptimizeTutotialStarterApp
+```
+cd aepsdk-messaging-ios-messaging-tutorials/docs/tutorials/InappTutorialApp-Start
 ```
 
-6. Open Xcode workspace file `OptimizeTutorialStarterApp.xcworkspace` in Xcode.
+6. Open Xcode workspace file `InappTutorialApp.xcworkspace` in Xcode.
 
-**Command-line command**
-```text
-open OptimizeTutorialStarterApp.xcworkspace
+```
+open InappTutorialApp.xcworkspace
 ```
 
-## Install AEPOptimize SDK Extension in your mobile application
+### Install AEPMessaging SDK Extension in your mobile application
 
-Follow the steps in [Install SDK Extensions guide](https://opensource.adobe.com/aepsdk-optimize-ios/#/tutorials/mobile-app/install-sdk-extensions) to install AEPOptimize SDK extension and its dependencies in your mobile application.
+Follow the steps in [Install SDK Extensions guide](../getting-started/install-sdk-extensions.md) to install the AEPMessaging SDK extension and its dependencies in your mobile application.
 
-For this tutorial, the `OptimizeTutorialStarterApp` uses [CocoaPods](https://guides.cocoapods.org/using/getting-started.html) for dependency management. The `Podfile` is already integrated in the workspace and the pod dependencies are installed. Verify `Podfile.lock` to inspect the dependency versions.
+For this tutorial, the `InappTutorialApp` uses [CocoaPods](https://guides.cocoapods.org/using/getting-started.html) for dependency management. The `Podfile` is already integrated in the workspace and the pod dependencies are installed. Verify `Podfile.lock` to inspect the dependency versions.
 
-## Initialize the mobile SDK
+### Initialize the mobile SDK
 
-Follow the steps in [Initialize SDK guide](https://opensource.adobe.com/aepsdk-optimize-ios/#/tutorials/mobile-app/init-sdk) to initialize the Experience Platform mobile SDK by registering the SDK extensions with `Mobile Core`.
+Follow the steps in [Initialize SDK guide](../getting-started/init-sdk.md) to initialize the Experience Platform mobile SDK by registering the SDK extensions with `Mobile Core`.
 
-For this tutorial, initlization code is already implemented in `OptimizeTutorialStarterApp`.
+For this tutorial, initlization code is already implemented in `InappTutorialApp`.
 
-## Enable Optimize API implementation code
+### Run the mobile application
 
-Follow the steps below to enable the SDK implementation code:
+Follow the steps below to run the `InappTutorialApp` app:
 
-1. In Xcode, expand `OptimizeTutorialStarterApp` project. You will see all the `.swift` source files in `OptimizeTutorialStarterApp` folder. Select `AppDelegate.swift` file and provide your `DATA_COLLECTION_ENVIRONMENT_FILE_ID` value. For more details, see [Getting the Environment File ID guide](https://opensource.adobe.com/aepsdk-optimize-ios/#/tutorials/setup/create-tag-property?id=getting-the-environment-file-id).
-
-| ![AppDelegate - Configure Data Collection Environment File ID](../../assets/mobile-app-appdelegate.png?raw=true) |
-| :---: |
-| **AppDelegate - Configure Data Collection Environment File ID** |
-
-2. Click on the search icon (1) and enter text `Optimize Tutorial: CODE SECTION` in the search bar (2). It will list all the code implementation sections for this tutorial. The code sections follow the below format:
-
-```text
-/* Optimize Tutorial: CODE SECTION n/m BEGINS
-...
-Code Implementation
-...
-// Optimize Tutorial: CODE SECTION n ENDS */
-```
-where n = Current section number, m = Total number of sections in the mobile app
-
-| ![Mobile App - Code Implementation Search](../../assets/mobile-app-code-section-search.png?raw=true) |
-| :---: |
-| **Mobile App - Code Implementation Search** |
-
-
-3. Enable all the code sections sequentially, simply by adding a forward slash (/) at the beginning of every `/* Optimize Tutorial: CODE SECTION n/m BEGINS` statement:
-
-```text
-//* Optimize Tutorial: CODE SECTION n/m BEGINS
-```
-
-| ![Mobile App - Code Implementation Enable](../../assets/mobile-app-code-section-enable.png?raw=true) |
-| :---: |
-| **Mobile App - Code Implementation Enable** |
-
-## Run the mobile application
-
-Follow the steps below to run the `OptimizeTutorialStarterApp` app:
-
-1. Select the mobile app target **OptimizeTutorialStarterApp (1)** and the destination device e.g. iPhone 11 Pro Max simulator (2). Click on Play icon (3).
+1. Select the mobile app target **InappTutorialApp (1)** and the destination device e.g. iPhone 14 simulator (2). Click on Play icon (3).
 
 | ![Run Mobile App](../../assets/mobile-app-run.png?raw=true) |
 | :---: |
