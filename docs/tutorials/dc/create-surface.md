@@ -8,13 +8,13 @@ In order for you to properly select the destination app of an in-app message in 
 | :---: |
 | **Navigating to Data Collection** |
 
-2. Select **App Surfaces** (**1**) in the left side navigation panel. 
+2. Select **App Surfaces** in the left side navigation panel. 
 
 | ![Navigating to App Surfaces](assets/surface-nav.png?raw=true) |
 | :---: |
 | **Navigating to App Surfaces** |
 
-3. Click the **Create App Surface** (**1**) button in the top right.
+3. Click the **Create App Surface** button in the top right.
 
 | ![Create new App Surface](assets/surface-new.png?raw=true) |
 | :---: |

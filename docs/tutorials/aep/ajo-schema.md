@@ -33,7 +33,7 @@ At a high level, a schema is a definition for the structure of your data; what p
 
 6. Expand the tree starting with **_experience** and notice the two parts which are important for in-app messaging reporting. 
     - `propositionAction.label` (**1**) will hold the custom string for your interact events
-    - The values `dismiss`, `display`, `interact`, and `trigger` will be present in `propositionEventType` for each of their respective events.
+    - The values `dismiss`, `display`, `interact`, and `trigger` will be present in `propositionEventType` (**2**) for each of their respective events.
 
 | ![AJO Inbound Experience Event Schema Details](assets/aep-schema-details.png?raw=true) |
 | :---: |

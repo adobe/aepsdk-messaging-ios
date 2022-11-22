@@ -7,7 +7,6 @@
  it.
  */
 
-
 import UIKit
 import AEPAssurance
 import AEPCore
@@ -29,9 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         MobileCore.setLogLevel(.trace)
         
-        MobileCore.registerExtensions(extensions) {
-            Assurance.startSession(url: URL(string: "sampleapp://?adb_validation_sessionid=06a42541-16dd-4963-a31a-7cbbe1bc6d94"))
-        }
+        MobileCore.registerExtensions(extensions)
         
         MobileCore.configureWith(appId: "3149c49c3910/ade9986818bd/launch-10fefb329b07-development")
         
@@ -51,7 +48,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-
 
 }
 

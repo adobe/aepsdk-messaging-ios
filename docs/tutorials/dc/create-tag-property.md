@@ -33,13 +33,13 @@ In this section we will create a mobile property which contains the configuratio
 | :---: |
 | **Select Tag Property** |
 
-2. Select **Extensions** in the left side navigation panel (**1**).
+2. Select **Extensions** in the left side navigation panel.
 
 | ![Navigate to Extensions](assets/tag-nav-extensions.png?raw=true) |
 | :---: |
 | **Navigate to Extensions** |
 
-3. Click the **Catalog** tab near the tag name and scroll down until you see the **Identity** extension. Click the **Install** button (**1**).
+3. Click the **Catalog** tab near the tag name and scroll down until you see the **Identity** extension. Click the **Install** button.
 
 > [!NOTE]
 > No additional configuration is needed for the **Identity** extension.
@@ -48,7 +48,7 @@ In this section we will create a mobile property which contains the configuratio
 | :---: |
 | **Install Identity extension** |
 
-4. Click the **Catalog** tab near the tag name and scroll down until you see the **Adobe Experience Platform Edge Network** extension. Click the **Install** button (**1**).
+4. Click the **Catalog** tab near the tag name and scroll down until you see the **Adobe Experience Platform Edge Network** extension. Click the **Install** button.
 
 | ![Install Adobe Experience Platform Edge Network extension](assets/tag-extensions-aep.png?raw=true) |
 | :---: |
@@ -58,19 +58,20 @@ In this section we will create a mobile property which contains the configuratio
 > When configuring the Edge extension, we will be using the Datastream created in part three (3) of this tutorial.
 
 5. For each of the **Production**, **Staging**, and **Development** environments (**1**), ensure the sandbox matches the sandbox in which you created your Datastream.
+
 6. In the **Datastream** dropdown, select your Datastream (**2**).
 
 | ![Adobe Experience Platform Edge Network extension configuration](assets/tag-aep-details.png?raw=true) |
 | :---: |
 | **Adobe Experience Platform Edge Network extension configuration** |
 
-7. Click the **Catalog** tab near the tag name and scroll down until you see the **Adobe Journey Optimizer** extension. Click the **Install** button (**1**).
+7. Click the **Catalog** tab near the tag name and scroll down until you see the **Adobe Journey Optimizer** extension. Click the **Install** button.
 
 | ![Install Adobe Journey Optimizer extension](assets/tag-extensions-ajo.png?raw=true) |
 | :---: |
 | **Install Adobe Journey Optimizer extension** |
 
-8. In the **Event Dataset** dropdown, select the **AJO Push Tracking Experience Event Dataset** Dataset (**1**).
+8. In the **Event Dataset** dropdown, select the **AJO Push Tracking Experience Event Dataset** Dataset.
 
 > [!NOTE]
 > This is the correct datastream for configuring Push Messaging in AJO, which will not be covered in this tutorial.
@@ -82,7 +83,7 @@ In this section we will create a mobile property which contains the configuratio
 
 ### Publish the Tag Property
 
-1. In the top right of the screen, click the dropdown that says **Select a working library** then click **Add library...** (**1**).
+1. In the top right of the screen, click the dropdown that says **Select a working library** then click **Add library...**.
 
 | ![Create a Library](assets/tag-library-create.png?raw=true) |
 | :---: |
@@ -97,7 +98,7 @@ In this section we will create a mobile property which contains the configuratio
 | :---: |
 | **Configure Library** |
 
-6. When the library has completed building, the dot next to its name will turn green (**1**).
+6. When the library has completed building, the dot next to its name will turn green.
 
 | ![A successfully built Library](assets/tag-library-build.png?raw=true) |
 | :---: |

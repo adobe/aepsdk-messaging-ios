@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
 
-        MobileCore.setLogLevel(.error)
+        MobileCore.setLogLevel(.trace)
 
         let extensions = [
             Consent.self,
@@ -50,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         ]
 
         MobileCore.registerExtensions(extensions) {
-            Assurance.startSession(url: URL(string: "iamtutorial://?adb_validation_sessionid=68e94147-cf1c-48ba-b7da-45aa1262ce1f"))
+            //Assurance.startSession(url: URL(string: "iamtutorial://?adb_validation_sessionid=68e94147-cf1c-48ba-b7da-45aa1262ce1f"))
         }
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
@@ -72,7 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // App Surface - sb_app_configuration
         // com.adobe.MessagingDemoApp
         // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
-        
+        // MobileCore.configureWith(appId: "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development")
         
         // ** prod environment
         // sb_prod_iam_app on "AEM Assets Departmental - Campaign"
@@ -88,17 +88,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         // update config to use cjmstage for int integration
         //let cjmStageConfig = [
-        //    "edge.environment": "int",
-            //"experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
-            // archanaInAppDatastream: prod (CJM Stage)
-            //"edge.configId": "86527755-dd21-4618-a127-1d4102e45c0a",
-            // prod
-            // "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
-            // ajo-sandbox
-            // "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
-            //"messaging.eventDataset": "610ae80b3cbbc718dab06208"
+          //  "edge.environment": "int",
+//            "experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
+//             archanaInAppDatastream: prod (CJM Stage)
+//            "edge.configId": "86527755-dd21-4618-a127-1d4102e45c0a",
+//             prod
+//             "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
+//             ajo-sandbox
+//             "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
+//            "messaging.eventDataset": "610ae80b3cbbc718dab06208"
         //]
-//        MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
+        //MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
 
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
         // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true

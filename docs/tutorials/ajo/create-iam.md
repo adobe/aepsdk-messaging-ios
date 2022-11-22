@@ -14,11 +14,7 @@
 
 3. Select **Campaigns** (**1**) in the left navigation window.
 
-| ![Navigating to Campaigns](assets/ajo-campaigns.png?raw=true) |
-| :---: |
-| **Navigating to Campaigns** |
-
-4. Click the **Create campaign** button on the upper right of the screen (**1**).
+4. Click the **Create campaign** button (**2**) on the upper right of the screen.
 
 | ![Create a new Campaign](assets/ajo-create-campaign.png?raw=true) |
 | :---: |
@@ -26,7 +22,7 @@
 
 ### Configure the audience and the message
 
-1. Check the box for `In-app message` and select the app surface you created earlier in this tutorial (**1**).
+1. Check the box for `In-app message` and select the app surface you created earlier in this tutorial.
 
 | ![Create an in-app message](assets/ajo-create-iam.png?raw=true) |
 | :---: |
@@ -67,19 +63,19 @@
 | :---: |
 | **Configure in-app message content** |
 
-11. Hit the **Review to activate** button (**1**).
+11. Hit the **Review to activate** button.
 
-| ![Review to activate](assets/ajo-iam-triggers.png?raw=true) |
+| ![Review to activate](assets/ajo-iam-review-to-activate.png?raw=true) |
 | :---: |
 | **Review to activate** |
 
-12. This page shows a summary of all the configuration for the message.  Hit the **Activate** button in the top right (**1**).
+12. This page shows a summary of all the configuration for the message.  Hit the **Activate** button in the top right.
 
 | ![Activate in-app message](assets/ajo-iam-review.png?raw=true) |
 | :---: |
 | **Activate in-app message** |
 
-13. In the Campaigns list, your new message should be visible.  It will take some time to activate, but eventually you should see a **Status** of `Live` for your message (**1**).
+13. In the Campaigns list, your new message should be visible.  It will take some time to activate, but eventually you should see a **Status** of `Live` for your message.
 
 | ![In-app message live in list of Campaigns](assets/ajo-iam-activated.png?raw=true) |
 | :---: |

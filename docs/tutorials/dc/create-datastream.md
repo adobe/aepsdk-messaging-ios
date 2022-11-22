@@ -8,13 +8,13 @@ In order to send data to the Edge Network, the datastream must be configured wit
 | :---: |
 | **Navigating to Data Collection** |
 
-2. Select **Datastreams** (**1**) in the left side navigation panel. 
+2. Select **Datastreams** in the left side navigation panel. 
 
 | ![Navigating to Datastreams](assets/datastream-nav.png?raw=true) |
 | :---: |
 | **Navigating to Datastreams** |
 
-3. Click the **New Datastream** (**1**) button in the top right.
+3. Click the **New Datastream** button in the top right.
 
 | ![Add a new Datastream](assets/datastream-new.png?raw=true) |
 | :---: |
@@ -30,7 +30,7 @@ With the datastream set up, data can be directed to its destination by adding se
 
 ### Adobe Experience Platform Datastream configuration
 
-1. Click the **Add Service** (**1**) button.
+1. Click the **Add Service** button.
 
 | ![Add Datastream Service](assets/datastream-add-service.png?raw=true) |
 | :---: |
