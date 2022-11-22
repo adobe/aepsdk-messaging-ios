@@ -74,6 +74,7 @@ public class Message: NSObject {
     // MARK: - UI management
 
     /// Signals to the UIServices that the message should be shown.
+    /// This method will bypass calling the `shouldShowMessage(:)` method of the `MessagingDelegate` if one exists.
     /// If `autoTrack` is true, calling this method will result in an "inapp.display" Edge Event being dispatched.
     @objc
     public func show() {
