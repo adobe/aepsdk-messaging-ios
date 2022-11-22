@@ -22,11 +22,11 @@ extension Message: FullscreenMessageDelegate {
     ///
     /// - Parameter message: the `FullscreenMessage` being dismissed
     public func onDismiss(message: FullscreenMessage) {
-//        guard let message = message.parent else {
-//            return
-//        }
-//
-//        message.dismiss()
+        guard let message = message.parent else {
+            return
+        }
+
+        message.dismiss()
     }
 
     /// Handles URL loading for links triggered from within the webview of the message.
