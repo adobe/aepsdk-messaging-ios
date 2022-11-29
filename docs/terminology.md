@@ -1,26 +1,21 @@
-# Terminology
+# Definition of Terms
 
-`Datastream` : A datastream is a server-side configuration on Platform Edge Network that controls where data goes. Datastreams ensure that incoming data is routed to the Adobe Experience Platform application and services (like Target) appropriatel. For more information, see the [datastreams documentation](https://experienceleague.adobe.com/docs/experience-platform/edge/datastreams/overview.html?lang=en) or this [video](https://experienceleague.adobe.com/docs/platform-learn/data-collection/edge-network/configure-datastreams.html?lang=en).
+### Product descriptions
 
-`Decision` (or `Activity`): A decision contains the logic that informs the selection of an offer.
+| Product | Description |
+| ------- | ----------- |
+| [Adobe Assurance](https://developer.adobe.com/client-sdks/documentation/platform-assurance/) | Adobe Experience Platform **Assurance** is a product from Adobe Experience Cloud to help you inspect, proof, simulate, and validate how you collect data or serve experiences in your mobile app. |
+| [Adobe Data Collection (DC)](https://experienceleague.adobe.com/docs/experience-platform/collection/home.html) | Adobe Experience Platform provides a suite of technologies that allow you to collect customer experience data from client-side sources, and send it to the Adobe Experience Platform Edge Network where it can be enriched, transformed, and distributed to Adobe or non-Adobe destinations in seconds. |
+| [Adobe Experience Platform (AEP)](https://experienceleague.adobe.com/docs/experience-platform.html?lang=en) | **Adobe Experience Platform** enables organizations to centralize and standardize customer data from any system. It then applies data science and machine learning to dramatically improve the design and delivery of rich, personalized experiences. |
+| [Adobe Journey Optimizer (AJO)](https://experienceleague.adobe.com/docs/journey-optimizer/using/get-started/get-started.html?lang=en) | **Adobe Journey Optimizer** helps companies deliver connected, contextual, and personalized experiences to their customers. The customer journey is the entire process of a customer’s interactions with the brand, from the first moment of contact until the customer leaves. It starts with the awareness phase, where the customer learns about the brand and starts engaging. The customer will then further interact with the brand, visit online and physical sites, and make purchases, send messages or post reviews. | 
 
-`Decision Scope`: An Adobe Target mbox location name or a base64 encoded JSON, containing Offer Decisioning activityId, placementId and an optional itemCount, serialized to UTF-8 string. It specifies the context in which an offer appears to the user and is usually associated with a decision activity.
+### Term definitions
 
-`Field group` : A schema is made up of building blocks called field groups. Think of field groups as blueprints for specific groups of data; the data properties describing things like: the current device in use, products and contents/state of carts, information about the users themselves, etc. 
-
-For example, the `Commerce Details` field group has properties for common commerce-related data like: 
-- Product information (SKU, name, quantity)
-- Cart state (abandons, product add sources, etc.). 
-
-This logical grouping helps organize individual data properties into easily understandable sections. They are even reusable! Once you define a field group, you can use it in any schema that has a compatible class (some field groups only make sense with the capabilities of certain schema classes). There are two types of field groups available:
-
-1. Adobe defined - standardized templates of common use-cases and datasets created and updated by Adobe
-    - Note that Adobe Experience Platform services implicitly understand standard field groups and can provide additional functionality on top of just reading and writing data. That's why it is strongly recommended that you use standard field groups wherever possible.
-2. Custom defined - any field group outside of the Adobe defined ones that users can use to create their own custom collections of data properties  
-
-See the [Field Groups section in the Basics of schema composition](https://experienceleague.adobe.com/docs/experience-platform/xdm/schema/composition.html?lang=en#field-group) for an in depth look at how field groups work in the context of XDM schemas.
-
-`Offer`: An offer is a marketing message that may have rules associated with it that specify who is eligible to see the offer.
-
-`Proposition`: It encapsulates the offers proposed for a given scope based on certain eligibility rules and constraints.
-
+| Term | Definition |
+| ---- | ---------- |
+| App Surface | Configuration containing the **bundle identifier** (iOS) and **package name** (Android) for a mobile application. Also where push certificates and credentials are provided to Adobe enabling push messaging. <br /><br />Configured in **Adobe Data Collection**. |
+| Dataset | A database table in **AEP** that holds data injested by a **Datastream**. <br /><br />Configured in **Adobe Experience Platform**. |
+| Datastream | A server-side configuration on Adobe's **Edge Network** that controls where data goes. Datastreams ensure that incoming data is routed to the **Adobe Experience Platform** appropriately. For more information, see the [datastreams documentation](https://experienceleague.adobe.com/docs/experience-platform/edge/datastreams/overview.html?lang=en) or this [video](https://experienceleague.adobe.com/docs/platform-learn/data-collection/edge-network/configure-datastreams.html?lang=en). <br /><br />Configured in **Adobe Data Collection**. |
+| In-App Message | A self-contained user interface presented to a mobile user for the purposes of advertising or providing information. An in-app message is shown while the user is already using the mobile application, and is triggered by a client-side event or action. <br /><br />Created in **Adobe Journey Optimizer**.|
+| Schema | A definition of fields and their respective types used to create a **Dataset**. <br /><br />Configured in **Adobe Experience Platform**. |
+| Tag Property (Mobile) | Provides a definition for extensions used by a mobile application. Each extension may have specific configuration, used by the Adobe Experience Platform Mobile SDKs for proper app configuration. <br /><br />Configured in **Adobe Data Collection**. |
