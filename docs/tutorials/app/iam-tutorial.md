@@ -56,14 +56,14 @@ For this tutorial, initlization code is already implemented in `InappTutorialApp
 
 Follow the steps below to run the `InappTutorialApp` app:
 
-1. Select the mobile app target **InappTutorialApp (1)** and the destination device e.g. iPhone 14 simulator (2). Click on Play icon (3).
+1. Select the mobile app target **InappTutorialApp** and destination of **iPhone 14** (**1**). Click on Play icon (**2**) to launch the app.
 
-| ![Run Mobile App](../../assets/mobile-app-run.png?raw=true) |
+| ![Run Mobile App](assets/messaging-app-run.png?raw=true) |
 | :---: |
 | **Run Mobile App** |
 
-2. You should see the mobile app running on your simulator device.
+2. The iOS simulator will launch and you should see the app running. Click the **Get 50% off!** button to show the in-app message.
 
-|![Offers View](../../assets/mobile-app-offers-view.png?raw=true) | ![Settings View](../../assets/mobile-app-settings-view.png?raw=true) |
-| :---------: | :------------: |
-| **Offers View** |  **Settings View** |
+|![Running App](assets/messaging-app-simulator.png?raw=true) | ![In-app message showing](assets/messaging-app-showing.png?raw=true) |
+| :---------: | :---------: |
+| **Running App** | **In-app message showing** |
