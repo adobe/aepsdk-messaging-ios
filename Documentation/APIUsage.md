@@ -5,7 +5,7 @@
 To do this, add the following code to Application Delegate's `application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data)` method:
 ```swift
 func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    MobileCore.setPushIdentifier(deviceToken: deviceToken)
+    MobileCore.setPushIdentifier(deviceToken)
 }
 ```
 
