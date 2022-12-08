@@ -50,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         ]
 
         MobileCore.registerExtensions(extensions) {
-            Assurance.startSession(url: URL(string: "app://?adb_validation_sessionid=acd4cd71-6236-4929-bf92-3d27bf189650"))
+//            Assurance.startSession(url: URL(string: "app://?adb_validation_sessionid=acd4cd71-6236-4929-bf92-3d27bf189650"))
         }
 
         // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
@@ -72,14 +72,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // App Surface - sb_app_configuration
         // com.adobe.MessagingDemoApp
         // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
-        
+        MobileCore.configureWith(appId: "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development")
         
         // ** prod environment
         // sb_prod_iam_app on "AEM Assets Departmental - Campaign"
         // App Surface - sb_prod_iam_surface
         // Datastream - sb_prod_iam_datastream - com.adobe.steveMessaging
         // 3149c49c3910/504b1f3bb44e/launch-8823a1bd2800-development
-        MobileCore.configureWith(appId: "3149c49c3910/504b1f3bb44e/launch-8823a1bd2800-development")
+        //MobileCore.configureWith(appId: "3149c49c3910/504b1f3bb44e/launch-8823a1bd2800-development")
         
         // archana test
         // bf7248f92b53/cfda95902448/launch-a98533f28fc3-development
@@ -87,8 +87,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // MobileCore.configureWith(appId: "bf7248f92b53/cfda95902448/launch-a98533f28fc3-development")
         
         // update config to use cjmstage for int integration
-        //let cjmStageConfig = [
-        //    "edge.environment": "int",
+        let cjmStageConfig = [
+            "edge.environment": "int",
             //"experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
             // archanaInAppDatastream: prod (CJM Stage)
             //"edge.configId": "86527755-dd21-4618-a127-1d4102e45c0a",
@@ -97,8 +97,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             // ajo-sandbox
             // "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
             //"messaging.eventDataset": "610ae80b3cbbc718dab06208"
-        //]
-//        MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
+        ]
+        MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
 
         // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
         // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
