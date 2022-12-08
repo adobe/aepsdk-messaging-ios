@@ -50,12 +50,22 @@ enum Environment: String {
     case prodNLD2 = "prodNLD2"
     case stageVA7 = "stageVA7"
     
-    static func get(_ info: [String: Any]) -> Environment {
-        guard let env = info["ADOBE_ENVIRONMENT"] as? String else {
-            return .stageVA7
+    /// Gets the current environment from the Info.plist file
+    /// If the bundle is unavailable or does not contain the correct setting,
+    /// this method returns `Environment.prodVA7`.
+    ///
+    /// - returns: the environment to use for testing
+    static func get() -> Environment {
+        // need access to Info.plist for reading out the test environment
+        guard let infoDictionary = Bundle.main.infoDictionary else {
+            return .prodVA7
         }
         
-        return Environment(rawValue: env) ?? .stageVA7
+        guard let env = infoDictionary["ADOBE_ENVIRONMENT"] as? String else {
+            return .prodVA7
+        }
+        
+        return Environment(rawValue: env) ?? .prodVA7
     }
 }
 
@@ -73,7 +83,15 @@ extension Environment {
         }
     }
     
-    var isStaging: Bool {
+    var configurationUpdates: [String: Any]? {
+        guard isStaging else {
+            return nil
+        }
+        
+        return ["edge.environment": "int"]
+    }
+    
+    private var isStaging: Bool {
         switch self {
         case .prodVA7, .prodAUS5, .prodNLD2:
             return false
