@@ -67,6 +67,7 @@
 		2450599D2673FABF00CC7CA0 /* Messaging+PublicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */; };
 		245059A22673FAC200CC7CA0 /* Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92315436261E3B36004AE7D3 /* Messaging.swift */; };
 		245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923155762620FC53004AE7D3 /* Event+Messaging.swift */; };
+		24552E69291F08CF000744AD /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24552E68291F08CF000744AD /* Environment.swift */; };
 		2469A5DC27445CAF00E56457 /* MockLaunchRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */; };
 		2469A5DF274465C900E56457 /* showOnceRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2469A5DE274465C900E56457 /* showOnceRule.json */; };
 		2469A5E12744696400E56457 /* eventSequenceRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2469A5E02744696400E56457 /* eventSequenceRule.json */; };
@@ -309,6 +310,7 @@
 		245059632673DBFD00CC7CA0 /* Messaging+PublicApiTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Messaging+PublicApiTest.swift"; sourceTree = "<group>"; };
 		245059642673DBFD00CC7CA0 /* MessagingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingTests.swift; sourceTree = "<group>"; };
 		2450596B2673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngineTests.swift; sourceTree = "<group>"; };
+		24552E68291F08CF000744AD /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockLaunchRulesEngine.swift; sourceTree = "<group>"; };
 		2469A5DE274465C900E56457 /* showOnceRule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = showOnceRule.json; sourceTree = "<group>"; };
 		2469A5E02744696400E56457 /* eventSequenceRule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = eventSequenceRule.json; sourceTree = "<group>"; };
@@ -524,6 +526,7 @@
 			children = (
 				24B071A629072E9800F4B18A /* E2EFunctionalTestApp */,
 				246EFA0F27973E7400C76A6B /* E2EFunctionalTests.swift */,
+				24552E68291F08CF000744AD /* Environment.swift */,
 			);
 			path = E2EFunctionalTests;
 			sourceTree = "<group>";
@@ -1406,6 +1409,7 @@
 				246EFA242797441600C76A6B /* MockNetworkService.swift in Sources */,
 				246EFA252797441600C76A6B /* MockNotificationResponseCoder.swift in Sources */,
 				246EFA262797441600C76A6B /* TestableExtensionRuntime.swift in Sources */,
+				24552E69291F08CF000744AD /* Environment.swift in Sources */,
 				246EFA272797441600C76A6B /* TestableMessagingMobileParameters.swift in Sources */,
 				246EFA282797441600C76A6B /* TestableNetworkService.swift in Sources */,
 				246EFA1027973E7400C76A6B /* E2EFunctionalTests.swift in Sources */,
@@ -1884,7 +1888,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.steveMessaging;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1907,7 +1911,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.steveMessaging;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
