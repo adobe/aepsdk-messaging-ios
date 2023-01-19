@@ -2,9 +2,9 @@ PODS:
   - AEPAssurance (3.0.1):
     - AEPCore (>= 3.1.0)
     - AEPServices (>= 3.1.0)
-  - AEPCore (3.7.3):
+  - AEPCore (3.7.4):
     - AEPRulesEngine (>= 1.1.0)
-    - AEPServices (>= 3.7.3)
+    - AEPServices (>= 3.7.4)
   - AEPEdge (1.5.0):
     - AEPCore (>= 3.5.0)
     - AEPEdgeIdentity
@@ -13,12 +13,12 @@ PODS:
     - AEPEdge (>= 1.4.0)
   - AEPEdgeIdentity (1.1.0):
     - AEPCore (>= 3.6.0)
-  - AEPLifecycle (3.7.3):
-    - AEPCore (>= 3.7.3)
+  - AEPLifecycle (3.7.4):
+    - AEPCore (>= 3.7.4)
   - AEPRulesEngine (1.2.0)
-  - AEPServices (3.7.3)
-  - AEPSignal (3.7.3):
-    - AEPCore (>= 3.7.3)
+  - AEPServices (3.7.4)
+  - AEPSignal (3.7.4):
+    - AEPCore (>= 3.7.4)
   - SwiftLint (0.44.0)
 
 DEPENDENCIES:
@@ -48,14 +48,14 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   AEPAssurance: b25880cd4b14f22c61a1dce19807bd0ca0fe9b17
-  AEPCore: 30a98ef716b06958a7b6a9ba1ab74b8fb9a9a1a7
+  AEPCore: 4f2d6af62f492e87a6cc9cbf4c89ae6f0ea89d81
   AEPEdge: 924cd8ace3db40b9c42bc2bc5e8fb1fcad3a9b77
   AEPEdgeConsent: a23b35ab331d2aa2013fcef49c9d6b80085d5597
   AEPEdgeIdentity: 47f0c6ecbec5857b2a8cb9b7bf717c2424c6bae0
-  AEPLifecycle: f5a0917fc46b90801bd9c438df5b05bfa83c6aa2
+  AEPLifecycle: 64107400233d9add603a87d2a4b36002bccb0129
   AEPRulesEngine: 71228dfdac24c9ded09be13e3257a7eb22468ccc
-  AEPServices: b71815dfa69d572f5975137c81e17bd80888b449
-  AEPSignal: edc7dfceb680b48a62aca90235ddf3e427a914e4
+  AEPServices: 1c66ce125f9b3bbd46e42687b6929cd584bffdf4
+  AEPSignal: d6473de3410183f1f0754b92b2938a571332362e
   SwiftLint: e96c0a8c770c7ebbc4d36c55baf9096bb65c4584
 
 PODFILE CHECKSUM: 83165eb311788d20fc1a1e2c6a32e403783a1ecd

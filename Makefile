@@ -92,3 +92,6 @@ functional-test: pod-install
 set-environment:
 	@echo "Setting E2E functional testing to run in environment '$(ENV)'"
 	plutil -replace ADOBE_ENVIRONMENT -string $(ENV) $(E2E_PROJECT_PLIST_FILE)
+
+test-versions:
+	(sh ./Script/update-versions.sh -n Messaging -v 9.9.9 -d "AEPCore 5.5.5, AEPServices 5.5.5, AEPEdge 7.7.7, AEPEdgeIdentity 8.8.8")

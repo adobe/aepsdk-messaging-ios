@@ -40,6 +40,11 @@ public protocol MessagingDelegate {
     func onDismiss(message: Showable)
 
     /// Used to find whether messages should be shown or not
+    ///
+    /// IMPORTANT! - this method is called on a background thread. 
+    /// Any direct interactions with the Message's WKWebView made by the delegate
+    /// should be dispatched back to the main thread.
+    ///
     /// - Parameters:
     ///     - message: UIMessaging message that is about to get displayed
     /// - Returns: true if the message should be shown else false
@@ -119,6 +124,8 @@ func shouldShowMessage(message: Showable) -> Bool {
 ## Integrating the message into an existing UI
 
 If the developer would like to manually integrate the `View` that contains the UI for an in-app message, they can do so by accessing the `WKWebView` directly in a `MessagingDelegate` method.  
+
+> IMPORTANT! - the `shouldShowMessage` delegate method is called on a background thread. Any direct interactions with the Message's `WKWebView` made by the delegate should be dispatched back to the main thread.
 
 In the below example, the developer decides whether or not the in-app message should be directly integrated into their existing UI.  If so, they capture a reference to the message's `WKWebView` and return `false` to prevent the message from being shown by the SDK:
 

@@ -19,7 +19,7 @@ import XCTest
 import WebKit
 
 class MessageTests: XCTestCase, FullscreenMessageDelegate {
-    let ASYNC_TIMEOUT = 2.0
+    let ASYNC_TIMEOUT = 5.0
     var mockMessaging: MockMessaging!
     var mockRuntime = TestableExtensionRuntime()
     var mockEvent: Event!
@@ -122,9 +122,13 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     func testDismiss() throws {
         // setup
         let message = Message(parent: mockMessaging, event: mockEvent)
-        message.show() // onDismiss will not get called if the message isn't currently being shown
         message.fullscreenMessage?.listener = self
         onDismissExpectation = XCTestExpectation(description: "onDismiss called")
+        
+        // onDismiss will not get called if the message isn't currently being shown
+        onShowExpectation = XCTestExpectation(description: "onShow called")
+        message.show()
+        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
 
         // test
         message.dismiss()

@@ -208,7 +208,7 @@ public class Messaging: NSObject, Extension {
         }
 
         message.trigger()
-        message.show()
+        message.show(withMessagingDelegateControl: true)
         currentMessage = message
     }
 

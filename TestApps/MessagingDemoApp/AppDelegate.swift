@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
 
-        MobileCore.setLogLevel(.trace)
+        MobileCore.setLogLevel(.error)
 
         let extensions = [
             Consent.self,
