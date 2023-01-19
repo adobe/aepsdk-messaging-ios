@@ -16,7 +16,6 @@ DEPENDENCIES=none
 # getRepo AEPCore
 
 declare "repos_AEPCore=https:\/\/github\.com\/adobe\/aepsdk-core-ios\.git"
-declare "repos_AEPServices=https:\/\/github\.com\/adobe\/aepsdk-core-ios\.git"
 declare "repos_AEPEdge=https:\/\/github\.com\/adobe\/aepsdk-edge-ios\.git"
 declare "repos_AEPEdgeIdentity=https:\/\/github\.com\/adobe\/aepsdk-edgeidentity-ios\.git"
 
