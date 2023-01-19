@@ -27,11 +27,12 @@ Ensure that your app has registered all necessary AEP SDK extensions by doing th
 
     | Extension       | Minimum version |
     | --------------- | --------------: |
-    | AEPCore         | 3.4.2           |
-    | AEPEdge         | 1.3.0           |
-    | AEPEdgeConsent  | 1.0.0           |
-    | AEPEdgeIdentity | 1.0.1           |
-    | AEPMessaging    | 1.1.0-beta2     |
+    | AEPCore         | 3.7.4           |
+    | AEPEdge         | 1.1.0           |
+    | AEPEdgeIdentity | 1.0.0           |
+    | AEPMessaging    | 1.1.0-beta3     |
+
+> IMPORTANT - If your app uses the Edge Consent extension, the device must be consenting (i.e. - a consent value of Yes) in order to download in-app messages.
 
 Below is an example of what the view in Assurance UI may look like:
 
