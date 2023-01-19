@@ -22,11 +22,13 @@ let package = Package(
         .library(name: "AEPMessaging", targets: ["AEPMessaging"])
     ],
     dependencies: [
-        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "3.4.2"))
+        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "3.7.4")),
+        .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .upToNextMajor(from: "1.1.0")),
+        .package(url: "https://github.com/adobe/aepsdk-edgeidentity-ios.git", .upToNextMajor(from: "1.0.0"))
     ],
     targets: [
         .target(name: "AEPMessaging",
-                dependencies: ["AEPCore"],
+                dependencies: ["AEPCore", "AEPServices", "AEPEdge", "AEPEdgeIdentity"],
                 path: "AEPMessaging/Sources")
     ]
 )
