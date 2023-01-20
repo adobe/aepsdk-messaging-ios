@@ -83,9 +83,3 @@ jobs:
         delete-branch: true
         title: Updating versions to ${{ github.event.inputs.version }}
         body: Updating versions to ${{ github.event.inputs.version }}
-
-
-        s.dependency 'AEPCore', '>= 3.4.2'
-  s.dependency 'AEPServices', '>= 3.4.2'
-  s.dependency 'AEPEdge', '>= 1.1.0'
-  s.dependency 'AEPEdgeIdentity', '>= 1.0.0'
