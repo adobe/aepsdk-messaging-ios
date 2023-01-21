@@ -95,3 +95,6 @@ set-environment:
 
 test-versions:
 	(sh ./Script/update-versions.sh -n Messaging -v 9.9.9 -d "AEPCore 5.5.5, AEPServices 5.5.5, AEPEdge 7.7.7, AEPEdgeIdentity 8.8.8")
+
+test-no-edge:
+	(sh ./Script/update-versions.sh -n Messaging -v 9.9.9 -d "AEPCore 5.5.5, AEPServices 5.5.5, AEPEdge , AEPEdgeIdentity 8.8.8")
