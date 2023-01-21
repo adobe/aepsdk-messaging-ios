@@ -41,51 +41,15 @@ jobs:
       with:
         ref: ${{ github.event.inputs.branch }}
     
-    # Eight permutations of dependency update options to account for
-    - if: ${{ github.event.inputs.core-dependency != '' && github.event.inputs.edge-dependency != '' && github.event.inputs.edge-identity-dependency != '' }}
-      name: Update AEPMessaging (All dependencies updated)
+    - name: Update AEPMessaging
       run: (sh ./Script/update-versions.sh -n Messaging -v ${{ github.event.inputs.version }} -d "AEPCore ${{ github.event.inputs.core-dependency }}, AEPServices ${{ github.event.inputs.core-dependency }}, AEPEdge ${{ github.event.inputs.edge-dependency }}, AEPEdgeIdentity ${{ github.event.inputs.edge-identity-dependency }}")
-
-    - if: ${{ github.event.inputs.core-dependency != '' && github.event.inputs.edge-dependency != '' && github.event.inputs.edge-identity-dependency == '' }}
-      name: Update AEPMessaging (AEPCore, AEPServices, and AEPEdge dependencies updated)
-      run: (sh ./Script/update-versions.sh -n Messaging -v ${{ github.event.inputs.version }} -d "AEPCore ${{ github.event.inputs.core-dependency }}, AEPServices ${{ github.event.inputs.core-dependency }}, AEPEdge ${{ github.event.inputs.edge-dependency }}")
-
-    - if: ${{ github.event.inputs.core-dependency != '' && github.event.inputs.edge-dependency == '' && github.event.inputs.edge-identity-dependency != '' }}
-      name: Update AEPMessaging (AEPCore, AEPServices, and AEPEdgeIdentity dependencies updated)
-      run: (sh ./Script/update-versions.sh -n Messaging -v ${{ github.event.inputs.version }} -d "AEPCore ${{ github.event.inputs.core-dependency }}, AEPServices ${{ github.event.inputs.core-dependency }}, AEPEdgeIdentity ${{ github.event.inputs.edge-identity-dependency }}")
-
-    - if: ${{ github.event.inputs.core-dependency != '' && github.event.inputs.edge-dependency == '' && github.event.inputs.edge-identity-dependency == '' }}
-      name: Update AEPMessaging (AEPCore and AEPServices dependencies updated)
-      run: (sh ./Script/update-versions.sh -n Messaging -v ${{ github.event.inputs.version }} -d "AEPCore ${{ github.event.inputs.core-dependency }}, AEPServices ${{ github.event.inputs.core-dependency }}")
-
-    - if: ${{ github.event.inputs.core-dependency == '' && github.event.inputs.edge-dependency != '' && github.event.inputs.edge-identity-dependency != '' }}
-      name: Update AEPMessaging (AEPEdge and AEPEdgeIdentity dependencies updated)
-      run: (sh ./Script/update-versions.sh -n Messaging -v ${{ github.event.inputs.version }} -d "AEPEdge ${{ github.event.inputs.edge-dependency }}, AEPEdgeIdentity ${{ github.event.inputs.edge-identity-dependency }}")
-
-    - if: ${{ github.event.inputs.core-dependency == '' && github.event.inputs.edge-dependency != '' && github.event.inputs.edge-identity-dependency == '' }}
-      name: Update AEPMessaging (AEPEdge dependency updated)
-      run: (sh ./Script/update-versions.sh -n Messaging -v ${{ github.event.inputs.version }} -d "AEPEdge ${{ github.event.inputs.edge-dependency }}")
-
-    - if: ${{ github.event.inputs.core-dependency == '' && github.event.inputs.edge-dependency == '' && github.event.inputs.edge-identity-dependency != '' }}
-      name: Update AEPMessaging (AEPEdgeIdentity dependency updated)
-      run: (sh ./Script/update-versions.sh -n Messaging -v ${{ github.event.inputs.version }} -d "AEPEdgeIdentity ${{ github.event.inputs.edge-identity-dependency }}")
-    
-    - if: ${{ github.event.inputs.core-dependency == '' && github.event.inputs.edge-dependency == '' && github.event.inputs.edge-identity-dependency == '' }}
-      name: Update AEPMessaging (no dependencies updated)
-      run: (sh ./Script/update-versions.sh -n Messaging -v ${{ github.event.inputs.version }}")
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4.2.3
       with:
         token: ${{ github.token }}
-        commit-message: Updating versions to ${{ github.event.inputs.version }}.
+        commit-message: Updating version to ${{ github.event.inputs.version }}.
         branch: version-${{ github.event.inputs.version }}-update
         delete-branch: true
-        title: Updating versions to ${{ github.event.inputs.version }}
-        body: Updating versions to ${{ github.event.inputs.version }}
-
-
-        s.dependency 'AEPCore', '>= 3.4.2'
-  s.dependency 'AEPServices', '>= 3.4.2'
-  s.dependency 'AEPEdge', '>= 1.1.0'
-  s.dependency 'AEPEdgeIdentity', '>= 1.0.0'
+        title: Updating version to ${{ github.event.inputs.version }}
+        body: Updating version to ${{ github.event.inputs.version }}
