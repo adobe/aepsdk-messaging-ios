@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // MobileCore.updateConfigurationWith(configDict: configDict)
         
         // DC Tag > AJO - IAM end-to-end Functional Tests on "AEM Assets Departmental - Campaign" (Prod - VA7)
-        // App Surface > AJO - IAM end-to-end Functional Tests
+        // App Surface > AJO - IAM Functional Tests
         // com.adobe.ajo.e2eTestApp
         // 3149c49c3910/04253786b724/launch-0cb6f35aacd0-development
         
