@@ -22,21 +22,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     /// Set this value to false if using the functional test app to run automated functional tests
     /// Set this value to true if running the functional test app as a stand-alone app
-    let RUNNING_AS_APP = false
+    let RUNNING_AS_APP = true
     
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         MobileCore.setLogLevel(.trace)
-        // ** staging environment **
-        // sb_stage on "CJM Stage" (AJO Web sandbox)
-        // App Surface - sb_app_configuration
-        // com.adobe.MessagingDemoApp
-        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
-        
-        // MobileCore.configureWith(appId: "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development")
-        // let configDict = ConfigurationLoader.getConfig("functionalTestConfigStage")
-        // MobileCore.updateConfigurationWith(configDict: configDict)
-        
         // DC Tag > AJO - IAM end-to-end Functional Tests on "AEM Assets Departmental - Campaign" (Prod - VA7)
         // App Surface > AJO - IAM Functional Tests
         // com.adobe.ajo.e2eTestApp
@@ -44,8 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if RUNNING_AS_APP {
             
-            MobileCore.configureWith(appId: "3149c49c3910/04253786b724/launch-0cb6f35aacd0-development")
-            
+            MobileCore.configureWith(appId: "3149c49c3910/04253786b724/launch-0cb6f35aacd0-development")            
             let extensions = [
                 Consent.self,
                 Identity.self,

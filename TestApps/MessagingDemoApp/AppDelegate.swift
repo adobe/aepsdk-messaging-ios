@@ -30,14 +30,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
 
-        notificationCenter.requestAuthorization(options: options) {
-            didAllow, _ in
+        notificationCenter.requestAuthorization(options: options) { didAllow, _ in
             if !didAllow {
                 print("User has declined notifications")
             }
         }
 
-        MobileCore.setLogLevel(.error)
+        MobileCore.setLogLevel(.trace)
 
         let extensions = [
             Consent.self,
@@ -50,73 +49,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         ]
 
         MobileCore.registerExtensions(extensions) {
-//            Assurance.startSession(url: URL(string: "app://?adb_validation_sessionid=acd4cd71-6236-4929-bf92-3d27bf189650"))
+            // Assurance.startSession(url: URL(string: ""))
+            
+            // only start lifecycle if the application is not in the background
+            if application.applicationState != .background {
+                MobileCore.lifecycleStart(additionalContextData: nil)
+            }
         }
-
-        // Necessary property id for NotificationAppMessagingSDK (https://experience.adobe.com/#/@acopprod3/launch/companies/COa96b22326ef241ca883c272f14b0cbb1/properties/PR0f2ba40cd15b4cc68f6806f5e7ef9d72/publishing/LB05cace4d350c40bcb751ffb26eec12d3)
-        // which has the edge configuration id needed by aep sdk
-
-        // pre-existing appid: 3149c49c3910/37b8929440ac/launch-cd35ef2ff581-development
-
-        // "steve - messaging tester" on "AEM Assets Departmental - Campaign"
-        // 3149c49c3910/cf7779260cdd/launch-be72758aa82a-development
         
-        // sb_sample_app_property on "AEM Assets Departmental - Campaign"
-        // App Surface - AEPMobileSampleApp
-        // com.adobe.AEPMobileSampleApp
-        // 3149c49c3910/3759ced5ae7d/launch-6ec882280c23-development
+        MobileCore.configureWith(appId: "")
         
-        
-        // ** staging environment **
-        // sb_stage on "CJM Stage" (AJO Web sandbox)
-        // App Surface - sb_app_configuration
-        // com.adobe.MessagingDemoApp
-        // staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development
-        MobileCore.configureWith(appId: "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development")
-        
-        // ** prod environment
-        // sb_prod_iam_app on "AEM Assets Departmental - Campaign"
-        // App Surface - sb_prod_iam_surface
-        // Datastream - sb_prod_iam_datastream - com.adobe.steveMessaging
-        // 3149c49c3910/504b1f3bb44e/launch-8823a1bd2800-development
-        //MobileCore.configureWith(appId: "3149c49c3910/504b1f3bb44e/launch-8823a1bd2800-development")
-        
-        // archana test
-        // bf7248f92b53/cfda95902448/launch-a98533f28fc3-development
-        // com.adobe.ArchanaSampleApplication
-        // MobileCore.configureWith(appId: "bf7248f92b53/cfda95902448/launch-a98533f28fc3-development")
-        
-        // update config to use cjmstage for int integration
-        let cjmStageConfig = [
-            "edge.environment": "int",
-            //"experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
-            // archanaInAppDatastream: prod (CJM Stage)
-            //"edge.configId": "86527755-dd21-4618-a127-1d4102e45c0a",
-            // prod
-            // "edge.configId": "1f0eb783-2464-4bdd-951d-7f8afbf527f5:dev",
-            // ajo-sandbox
-            // "edge.configId": "d9457e9f-cacc-4280-88f2-6c846e3f9531",
-            //"messaging.eventDataset": "610ae80b3cbbc718dab06208"
-        ]
-        MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
-
-        // UPDATE CONFIGURATION WITH THE DCCS URL TO BE USED FOR SENDING PUSH TOKEN
-        // Current dccs url is from acopprod3 Sandbox VA7 org with sources account https://experience.adobe.com/#/@acopprod3/platform/source/accounts/c9c00169-59d5-46db-8001-6959d5b6dbbf/activity?limit=50&page=1&sortDescending=1&sortField=created&us_redirect=true
-
-        //        MobileCore.configureWith(appId: "3149c49c3910/6a68c2e19c81/launch-4b2394565377-development")
-        //        MobileCore.updateConfigurationWith(configDict: [
-        //            "messaging.eventDataset": "5f8623492312f418dcc6b3d9",
-        //            "messaging.useSandbox": true,
-        //        ])
-
-        //        MobileCore.updateConfigurationWith(configDict: [
-        //            "messaging.useSandbox": true
-        //        ])
-
-        // only start lifecycle if the application is not in the background
-        //        if application.applicationState != .background {
-        MobileCore.lifecycleStart(additionalContextData: nil)
-        //        }
+        // set `messaging.useSandbox` to "true" if testing push messaging in a non-production (or testflight) environment
+        // let cjmStageConfig = [ "messaging.useSandbox": true ]
+        // MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
 
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
@@ -129,9 +74,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 application.registerForRemoteNotifications()
             }
         }
-
-        print("launches: \(UserDefaults.standard.launches ?? "nil"), daysSinceFirstUse: \(UserDefaults.standard.daysSinceFirstUse ?? "nil")")
-                        
+            
         return true
     }
 
@@ -177,6 +120,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.title = "Notification Title"
         content.body = "This is example how to create "
 
+        // userInfo is mimicing data that would be provided in the push payload by Adobe Journey Optimizer
         content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
                                                                 ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
                                                                                       "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
@@ -198,6 +142,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.title = "Notification Title"
         content.body = "This is example how to create "
         content.categoryIdentifier = "MEETING_INVITATION"
+        // userInfo is mimicing data that would be provided in the push payload by Adobe Journey Optimizer
         content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
                                                                 ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
                                                                                       "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
@@ -255,32 +200,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // Always call the completion handler when done.
         completionHandler()
-    }
-}
-
-/// UserDefaults + Adobe SDK helper
-extension UserDefaults {
-    var launches: String? {
-        lifecycleMetrics?["launches"] as? String
-    }
-
-    var daysSinceFirstUse: String? {
-        lifecycleMetrics?["dayssincefirstuse"] as? String
-    }
-
-    private var lifecycleMetrics: [String: Any]? {
-        lifecycleData?["lifecycleMetrics"] as? [String: Any]
-    }
-
-    private var lifecycleData: [String: Any?]? {
-        guard let lifecycleAsJson = object(forKey: "Adobe.com.adobe.module.lifecycle.lifecycle.data") as? Data else {
-            return nil
-        }
-
-        guard let lifecycleDictionary = try? JSONSerialization.jsonObject(with: lifecycleAsJson, options: .mutableContainers) as? [String: Any] else {
-            return nil
-        }
-
-        return lifecycleDictionary
     }
 }

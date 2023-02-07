@@ -42,10 +42,10 @@
     ];
     
     [AEPMobileCore registerExtensions:extensions completion:^{
-        //[AEPMobileAssurance startSessionWithUrl:[NSURL URLWithString:@"demo://?adb_validation_sessionid=1c8fd798-1357-470c-8bdf-64573fdf8f9c"]];
+        // [AEPMobileAssurance startSessionWithUrl:[NSURL URLWithString:@""]];
     }];
     
-    [AEPMobileCore configureWithAppId:@"3149c49c3910/3759ced5ae7d/launch-6ec882280c23-development"];
+    [AEPMobileCore configureWithAppId:@""];
     
     return YES;
 }

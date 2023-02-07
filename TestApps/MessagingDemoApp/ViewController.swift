@@ -31,41 +31,19 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_: Any) {
-
-//        MobileCore.track(action: "once113", data: nil)
-
-        MobileCore.track(action: "1130", data: nil)
-
-        
-//        MobileCore.track(action: "test", data: nil)
-        MobileCore.track(action: "kitteh", data: nil)
-//        MobileCore.track(action: "testForSurbhi", data: nil)
-//        MobileCore.track(action: "inbound_test", data: nil)
-//        MobileCore.track(action: "keep-fullscreen", data: nil)
-        
-                
-//        MobileCore.dispatch(event: Event(name: "test", type: "iamtest", source: "iamtest", data: ["seahawks": "bad"]))
-//        MobileCore.track(action: "zkorczyc-test", data: nil)
-
-//        MobileCore.track(: "triggerFullscreen", data: ["testFullscreen": "true"])
+        MobileCore.track(action: "triggerFullscreen", data: ["testFullscreen": "true"])
     }
 
     @IBAction func triggerModal(_: Any) {
-        MobileCore.track(action: "untilClick113", data: nil)
-        
-//        MobileCore.track(action: "animate", data: nil)
-//        MobileCore.track(state: "triggerModal", data: ["testSteveModal": "true"])
+        MobileCore.track(action: "triggerModal", data: ["testModal": "true"])
     }
 
     @IBAction func triggerBannerTop(_: Any) {
-        MobileCore.track(action: "modalTakeoverNoGestures", data: nil)
-        
-//        MobileCore.track(action: "triggerBannerTop", data: ["testBannerTop": "true"])
+        MobileCore.track(action: "triggerBannerTop", data: ["testBannerTop": "true"])
     }
 
     @IBAction func triggerBannerBottom(_: Any) {
         MobileCore.track(action: "modalTakeoverGestures", data: nil)
-        
     }
 
     /// Messaging delegate
