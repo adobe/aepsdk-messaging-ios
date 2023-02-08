@@ -120,7 +120,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.title = "Notification Title"
         content.body = "This is example how to create "
 
-        // userInfo is mimicing data that would be provided in the push payload by Adobe Journey Optimizer
+        // userInfo is mimicking data that would be provided in the push payload by Adobe Journey Optimizer
         content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
                                                                 ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
                                                                                       "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
@@ -142,7 +142,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.title = "Notification Title"
         content.body = "This is example how to create "
         content.categoryIdentifier = "MEETING_INVITATION"
-        // userInfo is mimicing data that would be provided in the push payload by Adobe Journey Optimizer
+        // userInfo is mimicking data that would be provided in the push payload by Adobe Journey Optimizer
         content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
                                                                 ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
                                                                                       "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
