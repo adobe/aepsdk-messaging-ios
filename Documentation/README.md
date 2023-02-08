@@ -10,7 +10,7 @@
 
 ### Getting started with AEPMessaging Extension
 
-- [Setup](./sources/setup-sdk.md)
+- [Getting started](./sources/getting-started.md)
 - [Usage](./sources/usage.md)
 
 ### Guides and How-tos
