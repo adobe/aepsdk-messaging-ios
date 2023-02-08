@@ -9,9 +9,9 @@ This guide will walk you through steps necessary to ensure your app is properly 
 
 ## Prerequisites
 
-- Your app must have the **AEPMessaging** SDK extension installed. Integrate **AEPMessaging** by following [Setup AEPMessaging SDK](./../setup-sdk.md).
+- Your app must have the **AEPMessaging** SDK extension installed. Integrate **AEPMessaging** by following the [Getting started](./../getting-started.md) guide.
 
-- This troubleshooting guide uses validation provided by the **AEPAssurance** extension and the **Adobe Assurance UI**. Integrate **AEPAssurance** in your application by following the [Adobe Experience Platform Assurance installation guide](https://aep-sdks.gitbook.io/docs/foundation-extensions/adobe-experience-platform-assurance).
+- This troubleshooting guide uses validation provided by the **AEPAssurance** extension and the **Adobe Assurance UI**. Integrate **AEPAssurance** in your application by following the [Adobe Experience Platform Assurance installation guide](https://developer.adobe.com/client-sdks/documentation/platform-assurance/).
 
 ## Validate the correct extensions are registered
 
@@ -30,7 +30,7 @@ Ensure that your app has registered all necessary AEP SDK extensions by doing th
     | AEPCore         | 3.7.4           |
     | AEPEdge         | 1.1.0           |
     | AEPEdgeIdentity | 1.0.0           |
-    | AEPMessaging    | 1.1.0-beta3     |
+    | AEPMessaging    | 1.1.0           |
 
 > IMPORTANT - If your app uses the Edge Consent extension, the device must be consenting (i.e. - a consent value of Yes) in order to download in-app messages.
 
@@ -110,7 +110,7 @@ Using the IAM plugin you can do the following for each message downloaded by the
 ## FAQs
 
 **Q:** What do I do when one of the required extensions is missing? <br />
-**A:** Ensure that each required extension is linked to your project and registered by `MobileCore`. Ref: [registerExtensions](https://aep-sdks.gitbook.io/docs/foundation-extensions/mobile-core/mobile-core-api-reference#registerextension-s)
+**A:** Ensure that each required extension is linked to your project and registered by `MobileCore`. Ref: [registerExtensions](https://developer.adobe.com/client-sdks/documentation/mobile-core/api-reference/#registerextensions)
 
 **Q:** Why can't I find an event named `Retrieve message definitions`? <br />
 **A:** Check to ensure each required extensions is on a version that meets its minimum requirement.
