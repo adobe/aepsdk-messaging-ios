@@ -12,7 +12,7 @@ Add the following code to the `application(_: didRegisterForRemoteNotificationsW
 
 ```swift
 func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    MobileCore.setPushIdentifier(deviceToken: deviceToken)
+    MobileCore.setPushIdentifier(deviceToken)
 }
 ```
 
