@@ -94,7 +94,4 @@ set-environment:
 	plutil -replace ADOBE_ENVIRONMENT -string $(ENV) $(E2E_PROJECT_PLIST_FILE)
 
 test-versions:
-	(sh ./Script/update-versions.sh -n Messaging -v 9.9.9 -d "AEPCore 5.5.5, AEPServices 5.5.5, AEPEdge 7.7.7, AEPEdgeIdentity 8.8.8")
-
-test-no-edge:
-	(sh ./Script/update-versions.sh -n Messaging -v 9.9.9 -d "AEPCore 5.5.5, AEPServices 5.5.5, AEPEdge , AEPEdgeIdentity 8.8.8")
+	(sh ./Script/update-versions.sh -n Messaging -v 1.1.0 -d "AEPCore 3.7.4, AEPServices 3.7.4, AEPEdge 1.5.0, AEPEdgeIdentity 1.1.0")
