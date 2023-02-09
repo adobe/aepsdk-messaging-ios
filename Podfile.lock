@@ -1,61 +1,63 @@
 PODS:
-  - ACPCore (2.9.3):
-    - ACPCore/main (= 2.9.3)
-  - ACPCore/main (2.9.3)
-  - AEPAssurance (1.1.2):
-    - ACPCore (>= 2.9.0)
-    - AEPAssurance/xcframeworks (= 1.1.2)
-  - AEPAssurance/xcframeworks (1.1.2):
-    - ACPCore (>= 2.9.0)
-  - AEPCore (3.2.0):
-    - AEPRulesEngine (= 1.0.1)
-    - AEPServices (= 3.2.0)
-  - AEPEdge (1.1.1):
-    - AEPCore (>= 3.1.1)
+  - AEPAssurance (3.0.1):
+    - AEPCore (>= 3.1.0)
+    - AEPServices (>= 3.1.0)
+  - AEPCore (3.7.4):
+    - AEPRulesEngine (>= 1.1.0)
+    - AEPServices (>= 3.7.4)
+  - AEPEdge (1.5.0):
+    - AEPCore (>= 3.5.0)
     - AEPEdgeIdentity
-  - AEPEdgeIdentity (1.0.0):
-    - AEPCore (>= 3.1.1)
-  - AEPLifecycle (3.2.0):
-    - AEPCore (= 3.2.0)
-  - AEPRulesEngine (1.0.1)
-  - AEPServices (3.2.0)
-  - AEPSignal (3.2.0):
-    - AEPCore (= 3.2.0)
+  - AEPEdgeConsent (1.0.1):
+    - AEPCore (>= 3.5.0)
+    - AEPEdge (>= 1.4.0)
+  - AEPEdgeIdentity (1.1.0):
+    - AEPCore (>= 3.6.0)
+  - AEPLifecycle (3.7.4):
+    - AEPCore (>= 3.7.4)
+  - AEPRulesEngine (1.2.0)
+  - AEPServices (3.7.4)
+  - AEPSignal (3.7.4):
+    - AEPCore (>= 3.7.4)
+  - SwiftLint (0.44.0)
 
 DEPENDENCIES:
-  - ACPCore
   - AEPAssurance
   - AEPCore
   - AEPEdge
+  - AEPEdgeConsent
   - AEPEdgeIdentity
   - AEPLifecycle
   - AEPRulesEngine
   - AEPServices
   - AEPSignal
+  - SwiftLint (= 0.44.0)
 
 SPEC REPOS:
   trunk:
-    - ACPCore
     - AEPAssurance
     - AEPCore
     - AEPEdge
+    - AEPEdgeConsent
     - AEPEdgeIdentity
     - AEPLifecycle
     - AEPRulesEngine
     - AEPServices
     - AEPSignal
+    - SwiftLint
 
 SPEC CHECKSUMS:
-  ACPCore: 5f00fcf7aba597b29b359e4c14f7f4f1f95503f3
-  AEPAssurance: c53056ea40b3566b36f7340c5f779624c1ef6359
-  AEPCore: 741e1ffb754d042919c37291dbec506bfd014598
-  AEPEdge: ff0cf67e25c342a7a9d48e9a77e9485869dad043
-  AEPEdgeIdentity: 40d312b4434b710a46c1738ab2a221dda4cfd67e
-  AEPLifecycle: 64e0319f9fadc40fef0fae6ee4060927b4e4b6e4
-  AEPRulesEngine: 5075ed294026a12e37bd26fe260f74604d205354
-  AEPServices: 3120a4824903b60229644f84de35d49c502cda9c
-  AEPSignal: b066f0f9a31dda84791451db9e54b1c648607092
+  AEPAssurance: b25880cd4b14f22c61a1dce19807bd0ca0fe9b17
+  AEPCore: 4f2d6af62f492e87a6cc9cbf4c89ae6f0ea89d81
+  AEPEdge: 924cd8ace3db40b9c42bc2bc5e8fb1fcad3a9b77
+  AEPEdgeConsent: a23b35ab331d2aa2013fcef49c9d6b80085d5597
+  AEPEdgeIdentity: 47f0c6ecbec5857b2a8cb9b7bf717c2424c6bae0
+  AEPLifecycle: 64107400233d9add603a87d2a4b36002bccb0129
+  AEPRulesEngine: 71228dfdac24c9ded09be13e3257a7eb22468ccc
+  AEPServices: 1c66ce125f9b3bbd46e42687b6929cd584bffdf4
+  AEPSignal: d6473de3410183f1f0754b92b2938a571332362e
+  SwiftLint: e96c0a8c770c7ebbc4d36c55baf9096bb65c4584
 
-PODFILE CHECKSUM: b17401cb9908d8aeea408418e5b622d09b889bc5
+PODFILE CHECKSUM: 55e266e3d13ad5645619c8088ce7030e14628ad3
 
-COCOAPODS: 1.10.0
+COCOAPODS: 1.11.3

@@ -1,0 +1,23 @@
+{
+    "global.privacy": "optedin",
+    "edge.configId": "15525167-fd4e-4511-b9e0-02119485784f",
+    "edge.domain": "edge.adobedc.net",
+    "edge.environment": "int",
+    "__stage__edge.configId": "15525167-fd4e-4511-b9e0-02119485784f",
+    "__dev__messaging.eventDataset": "619c11f84c55c718dbc1d1a8",
+    "build.environment": "dev",
+    "rules.url": "https://assets.adobedtm.com/staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development-rules.zip",
+    "experienceCloud.org": "745F37C35E4B776E0A49421B@AdobeOrg",
+    "lifecycle.sessionTimeout": 300,
+    "__dev__edge.configId": "15525167-fd4e-4511-b9e0-02119485784f",
+    "__stage__messaging.eventDataset": "619c11f84c55c718dbc1d1a8",
+    "messaging.eventDataset": "619c11f84c55c718dbc1d1a8",
+    "property.id": "PR0b0c9c51f73b43f3bf6bdbaf8ed629db",
+    "consent.default": {
+        "consents": {
+            "collect": {
+                "val": "y"
+            }
+        }
+    }
+}

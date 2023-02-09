@@ -17,16 +17,18 @@ import PackageDescription
 
 let package = Package(
     name: "AEPMessaging",
-    platforms: [.iOS(.v10)],
+    platforms: [.iOS(.v11)],
     products: [
         .library(name: "AEPMessaging", targets: ["AEPMessaging"])
     ],
     dependencies: [
-        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "3.2.2"))
+        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "3.7.4")),
+        .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .upToNextMajor(from: "1.5.0")),
+        .package(url: "https://github.com/adobe/aepsdk-edgeidentity-ios.git", .upToNextMajor(from: "1.1.0"))
     ],
     targets: [
         .target(name: "AEPMessaging",
-                dependencies: ["AEPCore"],
+                dependencies: ["AEPCore", "AEPServices", "AEPEdge", "AEPEdgeIdentity"],
                 path: "AEPMessaging/Sources")
     ]
 )
