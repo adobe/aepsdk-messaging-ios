@@ -7,14 +7,6 @@ The following installation options are currently supported when integrating the 
 
 ## CocoaPods
 
-#### BETA instructions
-
-While the in-app messaging feature is in beta, the developer will need to use the Messaging extension on the `staging` branch of its repo. The example below shows how to point to the `staging` branch in a Cocoapods `Podfile`:
-
-```
-pod 'AEPMessaging', :git => 'https://github.com/adobe/aepsdk-messaging-ios.git', :branch => 'staging'
-```
-
 #### Podfile Example
 
 ```ruby
@@ -32,7 +24,7 @@ target 'MessagingTutorialStarterApp' do
   pod 'AEPCore'  
   pod 'AEPEdge'
   pod 'AEPEdgeIdentity'
-  pod 'AEPMessaging', :git => 'https://github.com/adobe/aepsdk-messaging-ios.git', :branch => 'staging'
+  pod 'AEPMessaging'
   pod 'AEPAssurance'
 end
 ```
@@ -65,7 +57,7 @@ PODS:
     - AEPEdgeIdentity
   - AEPEdgeIdentity (1.1.0):
     - AEPCore (>= 3.6.0)
-  - AEPMessaging (1.1.0-beta2):
+  - AEPMessaging (1.1.0):
     - AEPCore (>= 3.4.2)
     - AEPEdge (>= 1.1.0)
     - AEPEdgeIdentity (>= 1.0.0)
@@ -75,7 +67,7 @@ PODS:
 
 DEPENDENCIES:
   - AEPAssurance
-  - AEPMessaging (from `https://github.com/adobe/aepsdk-messaging-ios.git`, branch `staging`)
+  - AEPMessaging
 
 SPEC REPOS:
   trunk:
@@ -141,8 +133,36 @@ For more details, see [CocoaPods - issue 10518](https://github.com/CocoaPods/Coc
 
 ## Swift Package Manager (SPM)
 
-SPM installations are not currently supported during the beta.
+To add the AEPMessaging Package to your application, from the Xcode menu select:
+
+`File > Add Packages...`
+
+> [!INFO]
+> The menu options may vary depending on the version of Xcode being used.
+
+Enter the URL for the AEPMessaging package repository: `https://github.com/adobe/aepsdk-messaging-ios.git`.
+
+For `Dependency Rule`, select `Up to Next Major Version`.
+
+Alternatively, if your project has a `Package.swift` file, you can add AEPMessaging directly to your dependencies:
+
+```
+dependencies: [
+    .package(url: "https://github.com/adobe/aepsdk-messaging-ios.git", .upToNextMajor(from: "1.1.0"))
+],
+targets: [
+    .target(name: "YourTarget",
+            dependencies: ["AEPMessaging"],
+            path: "your/path")
+]
+```
 
 ## Manual Installation
 
-Manual installations are not currently supported during the beta.
+To generate `AEPMessaging.xcframework`, run the following command from the root directory:
+
+```
+make archive
+```
+
+This will generate an XCFramework under the `build` folder. Drag and drop `AEPMessaging.xcframework` to your app target.
