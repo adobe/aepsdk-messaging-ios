@@ -84,14 +84,29 @@ This plugin has three tabs across the top (**2**) that provide three new, in-app
 | :---: |
 | **In-App Messaging plugin** |
 
-# TODO - Finish this section when Segmentation bug is fixed
-
 ##### Messages on Device
 
-##### Validation
+4. Select the message from **Message** dropdown (**1**).
+
+5. Click the **Simulate on Device** button (**2**) to force the message to be shown on the device.
+
+| ![Simulate on device](assets/assurance-preview-on-device.png?raw=true) |
+| :---: |
+| **Simulate on device** |
 
 ##### Event List
 
+6. Click the **Event List** tab.
+
+7. The list now shows all in-app messaging related events, including:
+    * Requests for new messages from the remote server
+    * Messages received from the remote server
+    * Messages being displayed and dismissed
+    * Custom user interactions with the message
+
+| ![Simulate on device](assets/assurance-messaging-event-list.png?raw=true) |
+| :---: |
+| **Simulate on device** |
 
 > [!NOTE]
 > Assurance sessions are deleted after a period of 30 days.

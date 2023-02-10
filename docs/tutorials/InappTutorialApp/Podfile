@@ -10,7 +10,7 @@ target 'InappTutorialApp' do
   pod 'AEPCore'
   pod 'AEPEdge'
   pod 'AEPEdgeIdentity'
-  pod 'AEPMessaging', :git => 'https://github.com/adobe/aepsdk-messaging-ios.git', :branch => 'staging'
+  pod 'AEPMessaging'
   pod 'AEPAssurance'
 
 end

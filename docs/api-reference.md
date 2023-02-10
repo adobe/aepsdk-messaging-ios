@@ -87,7 +87,7 @@ public func track(_ interaction: String?, withEdgeEventType eventType: Messaging
 ###### Parameters
 
 - _interaction_ - a custom `String` value to be recorded in the interaction
-- _eventType_ - the [`MessagingEdgeEventType`](./enum-messaging-edge-event-type.md) to be used for the ensuing Edge Event
+- _eventType_ - the [`MessagingEdgeEventType`](./api-reference?id=messagingedgeeventtype-enum) to be used for the ensuing Edge Event
 
 #### handleJavascriptMessage(_:withHandler:)
 
@@ -104,13 +104,13 @@ public func handleJavascriptMessage(_ name: String, withHandler handler: @escapi
 - _name_ - the name of the message that should be handled by `handler`
 - _handler_ - the method or closure to be called with the body of the message created in Message's Javascript
 
-For more information on how to use `handleJavascriptMessage`, read [Call native code from the Javascript of an in-app message](./how-to-call-native-from-javascript.md).
+For more information on how to use `handleJavascriptMessage`, read [Call native code from the Javascript of an in-app message](https://github.com/adobe/aepsdk-messaging-ios/tree/main/Documentation/sources/how-to-call-native-from-javascript.md).
 
 ## MessagingEdgeEventType (enum)
 
 Provides mapping to XDM EventType strings needed for Experience Event requests.
 
-This enum is used in conjunction with the [`track(_:withEdgeEventType:)`](./class-message.md#track_withedgeeventtype) method of a `Message` object.
+This enum is used in conjunction with the [`track(_:withEdgeEventType:)`](./api-reference?id=track_withedgeeventtype) method of a `Message` object.
 
 ### Definition
 
