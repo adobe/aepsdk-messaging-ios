@@ -55,11 +55,11 @@ In this section we will create a mobile property which contains the configuratio
 | **Install Adobe Experience Platform Edge Network extension** |
 
 > [!Tip]
-> When configuring the Edge extension, we will be using the Datastream created in part three (3) of this tutorial.
+> When configuring the Edge extension, we will be using the Datastream created in part one (1) of this tutorial.
 
-5. For each of the **Production**, **Staging**, and **Development** environments (**1**), ensure the sandbox matches the sandbox in which you created your Datastream.
+5. For each of the **Production**, **Staging**, and **Development** environments (**1**), ensure the sandbox matches the sandbox in which you created your Datastream. and select your Datastream from the dropdown.
 
-6. In the **Datastream** dropdown, select your Datastream (**2**).
+6. In the **Edge Network domain** text field, enter your domain (**2**). If you don't have a custom domain, enter `edge.adobedc.net`
 
 | ![Adobe Experience Platform Edge Network extension configuration](assets/tag-aep-details.png?raw=true) |
 | :---: |
