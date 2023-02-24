@@ -55,4 +55,9 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
         propositionInfoForMessageIdCalled = true
         return propositionInfoForMessageIdReturnValue
     }
+    
+    var clearPropositionsCalled = false
+    override func clearPropositions() {
+        clearPropositionsCalled = true
+    }
 }
