@@ -23,19 +23,8 @@ import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-    let notificationCenter = UNUserNotificationCenter.current()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        notificationCenter.delegate = self
-
-        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
-
-        notificationCenter.requestAuthorization(options: options) { didAllow, _ in
-            if !didAllow {
-                print("User has declined notifications")
-            }
-        }
-
         MobileCore.setLogLevel(.trace)
 
         let extensions = [
@@ -49,63 +38,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         ]
 
         MobileCore.registerExtensions(extensions) {
-            // Assurance.startSession(url: URL(string: ""))
-            
             // only start lifecycle if the application is not in the background
-            if application.applicationState != .background {
-                MobileCore.lifecycleStart(additionalContextData: nil)
-            }
-        }
-        
-        MobileCore.configureWith(appId: "")
-        
-        // set `messaging.useSandbox` to "true" if testing push messaging in a non-production (or testflight) environment
-        // let cjmStageConfig = [ "messaging.useSandbox": true ]
-        // MobileCore.updateConfigurationWith(configDict: cjmStageConfig)
-
-        let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
-
-            if let error = error {
-                print("error requesting authorization: \(error)")
-            }
-
             DispatchQueue.main.async {
-                application.registerForRemoteNotifications()
+                if application.applicationState != .background {
+                    MobileCore.lifecycleStart(additionalContextData: nil)
+                }
             }
-        }
             
+            // configure
+            MobileCore.configureWith(appId: "")
+            // set `messaging.useSandbox` to "true"  to test push notifications in debug environment (Apps signed with Development Certificate)
+            #if DEBUG
+                let debugConfig = ["messaging.useSandbox": true]
+                MobileCore.updateConfigurationWith(configDict: debugConfig)
+            #endif
+        }
+        
+        registerForPushNotifications(application)
         return true
     }
 
-    // MARK: - UISceneSession Lifecycle
-
-    func application(_: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options _: UIScene.ConnectionOptions) -> UISceneConfiguration {
-        // Called when a new scene session is being created.
-        // Use this method to select a configuration to create the new scene with.
-        UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
-    }
-
-    func application(_: UIApplication, didDiscardSceneSessions _: Set<UISceneSession>) {
-        // Called when the user discards a scene session.
-        // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
-        // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
-    }
-
-    // MARK: - Push Notification handling
-
-    func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        print("Token is - ")
-        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
-        let token = tokenParts.joined()
-        print(token)
-        MobileCore.setPushIdentifier(deviceToken)
-    }
-
-    func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError _: Error) {
-        MobileCore.setPushIdentifier(nil)
-    }
-
+    // MARK: - Push Notification registration methods
     func applicationWillEnterForeground(_: UIApplication) {
         MobileCore.lifecycleStart(additionalContextData: nil)
     }
@@ -113,75 +66,52 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func applicationDidEnterBackground(_: UIApplication) {
         MobileCore.lifecyclePause()
     }
-
-    func scheduleNotification() {
-        let content = UNMutableNotificationContent()
-
-        content.title = "Notification Title"
-        content.body = "This is example how to create "
-
-        // userInfo is mimicking data that would be provided in the push payload by Adobe Journey Optimizer
-        content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
-                                                                ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
-                                                                                      "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
-
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
-        let identifier = "Local Notification"
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-
-        notificationCenter.add(request) { error in
-            if let error = error {
-                print("Error \(error.localizedDescription)")
+    
+    // MARK: - Push Notification registration methods
+    func registerForPushNotifications(_ application : UIApplication) {
+        let center = UNUserNotificationCenter.current()
+        // Ask for user permission
+        center.requestAuthorization(options: [.badge, .sound, .alert]) { [weak self] granted, _ in
+            guard granted else { return }
+            
+            center.delegate = self
+            
+            DispatchQueue.main.async {
+                application.registerForRemoteNotifications()
             }
         }
     }
-
-    func scheduleNotificationWithCustomAction() {
-        let content = UNMutableNotificationContent()
-
-        content.title = "Notification Title"
-        content.body = "This is example how to create "
-        content.categoryIdentifier = "MEETING_INVITATION"
-        // userInfo is mimicking data that would be provided in the push payload by Adobe Journey Optimizer
-        content.userInfo = ["_xdm": ["cjm": ["_experience": ["customerJourneyManagement":
-                                                                ["messageExecution": ["messageExecutionID": "16-Sept-postman", "messageID": "567",
-                                                                                      "journeyVersionID": "some-journeyVersionId", "journeyVersionInstanceId": "someJourneyVersionInstanceId"]]]]]]
-
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
-        let identifier = "Local Notification"
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-
-        // Define the custom actions.
-        let acceptAction = UNNotificationAction(identifier: "ACCEPT_ACTION",
-                                                title: "Accept",
-                                                options: UNNotificationActionOptions(rawValue: 0))
-        let declineAction = UNNotificationAction(identifier: "DECLINE_ACTION",
-                                                 title: "Decline",
-                                                 options: UNNotificationActionOptions(rawValue: 0))
-        // Define the notification type
-        let meetingInviteCategory =
-            UNNotificationCategory(identifier: "MEETING_INVITATION",
-                                   actions: [acceptAction, declineAction],
-                                   intentIdentifiers: [],
-                                   hiddenPreviewsBodyPlaceholder: "",
-                                   options: .customDismissAction)
-        // Register the notification type.
-        let notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter.setNotificationCategories([meetingInviteCategory])
-
-        notificationCenter.add(request) { error in
-            if let error = error {
-                print("Error \(error.localizedDescription)")
-            }
-        }
+    
+    func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
+        let token = tokenParts.joined()
+        print("Device token is - \(token)")
+        MobileCore.setPushIdentifier(deviceToken)
     }
 
+    func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError _: Error) {
+        MobileCore.setPushIdentifier(nil)
+    }
+    
+    // MARK: - Handle Push Notification Reception
+    // Delegate method that tells the app that a remote notification arrived that indicates there is data to be fetched.
+    func application(_ application: UIApplication,
+                     didReceiveRemoteNotification userInfo: [AnyHashable : Any],
+                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        // Handle the silent notifications received from AJO in here
+        print("silent notification received")
+        completionHandler(.noData)
+    }
+    
+
+    // Delegate method to handle a notification that arrived while the app was running in the foreground.
     func userNotificationCenter(_: UNUserNotificationCenter,
                                 willPresent _: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.alert, .sound])
+        completionHandler([.alert, .sound, .badge])
     }
 
+    // Delegate method is called when a notification is interacted with
     func userNotificationCenter(_: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
