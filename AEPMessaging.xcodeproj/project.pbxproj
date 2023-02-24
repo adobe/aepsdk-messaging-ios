@@ -789,7 +789,8 @@
 				B6165DA529A67ADA0031B84D /* NotificationService.swift */,
 				B6165DA729A67ADA0031B84D /* Info.plist */,
 			);
-			path = NotificationService;
+			name = NotificationService;
+			path = TestApps/MessagingDemoApp/NotificationService;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2388,7 +2389,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = FKGEE875K4;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = NotificationService/Info.plist;
+				INFOPLIST_FILE = TestApps/MessagingDemoApp/NotificationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -2415,7 +2416,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = FKGEE875K4;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = NotificationService/Info.plist;
+				INFOPLIST_FILE = TestApps/MessagingDemoApp/NotificationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
