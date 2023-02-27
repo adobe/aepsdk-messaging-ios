@@ -72,6 +72,34 @@ class MessagingRulesEngineTests: XCTestCase {
         XCTAssertEqual(1, mockRulesEngine.paramRules?.count)
     }
     
+    func testLoadPropositionsNoItemsInPayload() throws {
+        // setup
+        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
+        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [])
+        
+        // test
+        messagingRulesEngine.loadPropositions([propPayload])
+        
+        // verify
+        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
+    }
+    
+    func testLoadPropositionsEmptyContentInPayload() throws {
+        // setup
+        let itemData = ItemData(content: "")
+        let payloadItem = PayloadItem(data: itemData)
+        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
+        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
+        
+        // test
+        messagingRulesEngine.loadPropositions([propPayload])
+        
+        // verify
+        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
+    }
+    
     func testLoadPropositionsEventSequence() throws {
         // setup
         let decoder = JSONDecoder()
@@ -96,5 +124,43 @@ class MessagingRulesEngineTests: XCTestCase {
         // verify
         XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
         XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
+    }
+    
+    func testClearPropositions() throws {
+        // setup
+        let itemData = ItemData(content: "")
+        let payloadItem = PayloadItem(data: itemData)
+        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
+        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
+        messagingRulesEngine.storePropositionInfo(propPayload, forMessageId: "a")
+        let preInfo = messagingRulesEngine.propositionInfoForMessageId("a")
+        XCTAssertNotNil(preInfo)
+        
+        // test
+        messagingRulesEngine.clearPropositions()
+        
+        // verify
+        let postInfo = messagingRulesEngine.propositionInfoForMessageId("a")
+        XCTAssertNil(postInfo)
+        XCTAssertEqual(0, messagingRulesEngine.propositionInfoCount())
+        XCTAssertTrue(mockCache.removeCalled)
+        XCTAssertEqual("propositions", mockCache.removeParamKey)
+        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
+    }
+    
+    func testStorePropositionInfo() throws {
+        // setup
+        let itemData = ItemData(content: "")
+        let payloadItem = PayloadItem(data: itemData)
+        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
+        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
+        XCTAssertEqual(0, messagingRulesEngine.propositionInfoCount())
+        
+        // test
+        messagingRulesEngine.storePropositionInfo(propPayload, forMessageId: nil)
+        
+        // verify
+        XCTAssertEqual(0, messagingRulesEngine.propositionInfoCount())
     }
 }

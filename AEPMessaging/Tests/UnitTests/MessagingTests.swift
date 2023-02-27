@@ -161,7 +161,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)
+        XCTAssertTrue(mockMessagingRulesEngine.clearPropositionsCalled)        
     }
 
     func testHandleOfferNotificationEmptyItems() throws {
@@ -174,8 +174,7 @@ class MessagingTests: XCTestCase {
 
         // verify
         XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)
-        XCTAssertTrue(mockCache.removeCalled)
-        XCTAssertEqual("propositions", mockCache.removeParamKey)
+        XCTAssertTrue(mockMessagingRulesEngine.clearPropositionsCalled)
     }
 
     func testHandleRulesResponseHappy() throws {
