@@ -69,6 +69,13 @@ class MessagingRulesEngine {
         rulesEngine.replaceRules(with: rules)
         Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
     }
+    
+    func clearPropositions() {
+        propositionInfo.removeAll()
+        clearPropositionsCache()
+        rulesEngine.replaceRules(with: [])        
+        Log.debug(label: MessagingConstants.LOG_TAG, "In-app messages cleared from Messaging rules engine and NSUserDefaults.")
+    }
 
     func storePropositionInfo(_ proposition: PropositionPayload, forMessageId messageId: String?) {
         guard let messageId = messageId else {
@@ -84,5 +91,9 @@ class MessagingRulesEngine {
 
     func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
         return propositionInfo[messageId]
+    }
+    
+    func propositionInfoCount() -> Int {
+        return propositionInfo.count
     }
 }
