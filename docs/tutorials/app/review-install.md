@@ -6,7 +6,7 @@ The screenshots taken in this section are from the [SDK documentation](https://d
 
 ### Install the AEPMessaging extension
 
-To install the **AEPMessaging** beta SDK, use the following in your Cocoapods `Podfile`:
+To install the **AEPMessaging** SDK, use the following in your Cocoapods `Podfile`:
 
     pod 'AEPMessaging'
 
@@ -15,7 +15,7 @@ To install the **AEPMessaging** beta SDK, use the following in your Cocoapods `P
 | **Installing the Messaging extension** |
 
 > [!TIP]
-> For details on installation using SPM or XCFrameworks, [refer to this page](./../../getting-started/install-sdk-extensions.md).
+> For details on installation using SPM or XCFrameworks, [refer to this page](/getting-started/install-sdk-extensions.md).
 
 ### Register the AEPMessaging extension
 
