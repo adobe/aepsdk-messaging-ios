@@ -13,7 +13,10 @@ Follow the steps below to download the InappTutorialApp from the [Messaging GitH
 | **Messaging Extension Code** |
 
 > [!NOTE]
-> Steps 3-6 in this section include commands you can run from your favorite Terminal app.  
+> Steps 3-6 in this section include commands you can run from your favorite Terminal app.
+
+> [!WARNING]
+> The tutorial app is only available in the `messaging-tutorials` branch of the GitHub repo. If you are accessing this tutorial from a manual clone of the repo, ensure you are on the correct branch.
 
 3. Copy the `aepsdk-messaging-ios-messaging-tutorials.zip` file from your `Downloads` directory to another appropriate location. For example, your home directory
 
@@ -31,7 +34,7 @@ unzip aepsdk-messaging-ios-messaging-tutorials.zip
 5. Change directory to the `InappTutorialApp-Start`
 
 ```
-cd aepsdk-messaging-ios-messaging-tutorials/docs/tutorials/InappTutorialApp-Start
+cd aepsdk-messaging-ios-messaging-tutorials/docs/tutorials/InappTutorialApp
 ```
 
 6. Open Xcode workspace file `InappTutorialApp.xcworkspace` in Xcode.
