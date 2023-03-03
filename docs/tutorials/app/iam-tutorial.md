@@ -31,7 +31,7 @@ cd ~/
 unzip aepsdk-messaging-ios-messaging-tutorials.zip
 ```
 
-5. Change directory to the `InappTutorialApp-Start`
+5. Change directory to the `InappTutorialApp`
 
 ```
 cd aepsdk-messaging-ios-messaging-tutorials/docs/tutorials/InappTutorialApp
