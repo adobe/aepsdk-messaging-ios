@@ -2,7 +2,7 @@
 
 In this section is for reference only.  It covers how to get access to the **AEPMessaging** SDK extension that supports in-app messaging in AJO. 
 
-The screenshots taken in this section are from the [SDK documentation](https://developer.adobe.com/client-sdks/documentation/iam/setup/) during the AEPMessaging beta. Ignore the part about pointing to the `staging` branch of the repo, as that is no longer a requirement.
+The screenshots taken in this section are from the [SDK documentation](https://developer.adobe.com/client-sdks/documentation/adobe-journey-optimizer/) during the AEPMessaging beta. Ignore the part about pointing to the `staging` branch of the repo, as that is no longer a requirement.
 
 ### Install the AEPMessaging extension
 
