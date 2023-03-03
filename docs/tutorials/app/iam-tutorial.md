@@ -69,3 +69,4 @@ Follow the steps below to run the `InappTutorialApp` app:
 
 |![Running App](assets/messaging-app-simulator.png?raw=true) | ![In-app message showing](assets/messaging-app-showing.png?raw=true) |
 | :---------: | :---------: |
+| **Running App** | **In-app message showing** |
