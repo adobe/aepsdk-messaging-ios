@@ -13,28 +13,41 @@
 import AEPServices
 import Foundation
 
-struct FeedItem: Codable {
+@objc(AEPFeedItem)
+@objcMembers
+public class FeedItem: NSObject, Codable {
     /// Plain-text title for the feed item
-    var title: String
+    public var title: String
     
     /// Plain-text body representing the content for the feed item
-    var body: String
+    public var body: String
     
     /// String representing a URI that contains an image to be used for this feed item
-    var imageUrl: String?
+    public var imageUrl: String?
     
     /// Contains a URL to be opened if the user interacts with the feed item
-    var actionUrl: String?
+    public var actionUrl: String?
     
     /// Required if `actionUrl` is provided. Text to be used in title of button or link in feed item
-    var actionTitle: String?
+    public var actionTitle: String?
     
     /// Represents when this feed item went live. Represented in seconds since January 1, 1970
-    var publishedDate: Int
+    public var publishedDate: Int
     
     /// Represents when this feed item exires. Represented in seconds since January 1, 1970
-    var expiryDate: Int
+    public var expiryDate: Int
     
     /// Contains additional key-value pairs associated with this feed item
-    var meta: [String: AnyCodable]?
+    public var meta: [String: AnyCodable]?
+    
+    public init(title: String, body: String, imageUrl: String? = nil, actionUrl: String? = nil, actionTitle: String? = nil, publishedDate: Int, expiryDate: Int, meta: [String : AnyCodable]? = nil) {
+        self.title = title
+        self.body = body
+        self.imageUrl = imageUrl
+        self.actionUrl = actionUrl
+        self.actionTitle = actionTitle
+        self.publishedDate = publishedDate
+        self.expiryDate = expiryDate
+        self.meta = meta
+    }
 }
