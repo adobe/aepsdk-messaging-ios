@@ -161,7 +161,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertTrue(mockMessagingRulesEngine.clearPropositionsCalled)        
+        XCTAssertFalse(mockMessagingRulesEngine.clearPropositionsCalled)        
     }
 
     func testHandleOfferNotificationEmptyItems() throws {

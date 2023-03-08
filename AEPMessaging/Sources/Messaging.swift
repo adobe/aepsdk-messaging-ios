@@ -164,10 +164,20 @@ public class Messaging: NSObject, Extension {
             // either this isn't the type of response we are waiting for, or it's not a response for our request
             return
         }
-
-        guard let propositions = event.payload, !propositions.isEmpty, event.scope == appSurface else {
+        
+        guard let propositions = event.payload else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring response for personalization:decisions that contains an empty payload.")
+            return
+        }
+        
+        guard !propositions.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Payload for in-app messages was empty. Clearing in-app messages from cache and persistence.")
-            rulesEngine.clearPropositions()                        
+            rulesEngine.clearPropositions()
+            return
+        }
+                
+        guard event.scope != nil && event.scope == appSurface else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring response for personalization:decisions where the scope does not match the surface for in-app messages.")
             return
         }
 
