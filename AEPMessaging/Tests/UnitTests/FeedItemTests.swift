@@ -34,7 +34,7 @@ class FeedItemTests: XCTestCase {
     }
     
     // MARK: - Helpers
-    public func dictionariesAreEqual (lhs: [String: Any]?, rhs: [String: Any]?) -> Bool {
+    func dictionariesAreEqual (lhs: [String: Any]?, rhs: [String: Any]?) -> Bool {
         if let l = lhs, let r = rhs {
             return NSDictionary(dictionary: l).isEqual(to: r)
         }
