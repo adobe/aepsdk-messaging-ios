@@ -1,0 +1,10 @@
+${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks.sh
+${BUILT_PRODUCTS_DIR}/AEPCore/AEPCore.framework
+${BUILT_PRODUCTS_DIR}/AEPRulesEngine/AEPRulesEngine.framework
+${BUILT_PRODUCTS_DIR}/AEPServices/AEPServices.framework
+${BUILT_PRODUCTS_DIR}/AEPAssurance/AEPAssurance.framework
+${BUILT_PRODUCTS_DIR}/AEPEdge/AEPEdge.framework
+${BUILT_PRODUCTS_DIR}/AEPEdgeConsent/AEPEdgeConsent.framework
+${BUILT_PRODUCTS_DIR}/AEPEdgeIdentity/AEPEdgeIdentity.framework
+${BUILT_PRODUCTS_DIR}/AEPLifecycle/AEPLifecycle.framework
+${BUILT_PRODUCTS_DIR}/AEPSignal/AEPSignal.framework
