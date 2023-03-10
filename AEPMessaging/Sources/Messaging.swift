@@ -25,7 +25,8 @@ public class Messaging: NSObject, Extension {
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
 
-    private var requestMessagesEventId: String?
+    private var messagesRequestEventId: String?
+    private var lastProcessedRequestEventId: String?
     private var initialLoadComplete = false
     private(set) var currentMessage: Message?
     private let rulesEngine: MessagingRulesEngine
@@ -142,7 +143,7 @@ public class Messaging: NSObject, Extension {
 
         // equal to `requestEventId` in aep response handles
         // used for ensuring that the messaging extension is responding to the correct handle
-        requestMessagesEventId = event.id.uuidString
+        messagesRequestEventId = event.id.uuidString
 
         // send event
         runtime.dispatch(event: event)
@@ -160,29 +161,29 @@ public class Messaging: NSObject, Extension {
     /// - Parameter event: an `Event` containing an in-app message definition in its data
     private func handleEdgePersonalizationNotification(_ event: Event) {
         // validate the event
-        guard event.isPersonalizationDecisionResponse, event.requestEventId == requestMessagesEventId else {
+        guard event.isPersonalizationDecisionResponse, event.requestEventId == messagesRequestEventId else {
             // either this isn't the type of response we are waiting for, or it's not a response for our request
             return
         }
         
-        guard let propositions = event.payload else {
+        // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
+        if lastProcessedRequestEventId != event.requestEventId {
+            rulesEngine.clearPropositions()
+            lastProcessedRequestEventId = event.requestEventId
+        }
+        
+        guard let propositions = event.payload, !propositions.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring response for personalization:decisions that contains an empty payload.")
             return
         }
-        
-        guard !propositions.isEmpty else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Payload for in-app messages was empty. Clearing in-app messages from cache and persistence.")
-            rulesEngine.clearPropositions()
-            return
-        }
-                
+                        
         guard event.scope != nil && event.scope == appSurface else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring response for personalization:decisions where the scope does not match the surface for in-app messages.")
             return
         }
 
+        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definitions from network response.")
         rulesEngine.setPropositionsCache(propositions)
-        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from network response.")
         rulesEngine.loadPropositions(propositions)
     }
 
