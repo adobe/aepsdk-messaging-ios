@@ -19,6 +19,7 @@ class MessagingRulesEngine {
     let rulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
     let cache: Cache
+    var propositions: [PropositionPayload]?
     private var propositionInfo: [String: PropositionInfo] = [:]
 
     /// Initialize this class, creating a new rules engine with the provided name and runtime
@@ -44,37 +45,41 @@ class MessagingRulesEngine {
         _ = rulesEngine.process(event: event)
     }
 
-    func loadPropositions(_ propositions: [PropositionPayload]) {
+    func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool) {
+        if clearExisting {
+            propositionInfo.removeAll()
+        }
+        
         var rules: [LaunchRule] = []
-        for proposition in propositions {
-            guard let ruleString = proposition.items.first?.data.content else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
-                continue
-
+        if let propositions = propositions {
+            for proposition in propositions {
+                guard let ruleString = proposition.items.first?.data.content else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
+                    continue
+                    
+                }
+                
+                guard let rule = processRule(ruleString) else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with malformed in-app message content.")
+                    continue
+                }
+                
+                // pre-fetch the assets for this message if there are any defined
+                cacheRemoteAssetsFor(rule)
+                // store reporting data for this payload for later use
+                storePropositionInfo(proposition, forMessageId: rule.first?.consequences.first?.id)
+                
+                rules.append(contentsOf: rule)
             }
-
-            guard let rule = processRule(ruleString) else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with malformed in-app message content.")
-                continue
-            }
-
-            // pre-fetch the assets for this message if there are any defined
-            cacheRemoteAssetsFor(rule)
-            // store reporting data for this payload for later use
-            storePropositionInfo(proposition, forMessageId: rule.first?.consequences.first?.id)
-
-            rules.append(contentsOf: rule)
         }
 
-        rulesEngine.replaceRules(with: rules)
-        Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
-    }
-    
-    func clearPropositions() {
-        propositionInfo.removeAll()
-        clearPropositionsCache()
-        rulesEngine.replaceRules(with: [])        
-        Log.debug(label: MessagingConstants.LOG_TAG, "In-app messages cleared from Messaging rules engine and NSUserDefaults.")
+        if clearExisting {
+            rulesEngine.replaceRules(with: rules)
+            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
+        } else {
+            rulesEngine.addRules(rules)
+            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully added \(rules.count) message(s) into the rules engine.")
+        }
     }
 
     func storePropositionInfo(_ proposition: PropositionPayload, forMessageId messageId: String?) {

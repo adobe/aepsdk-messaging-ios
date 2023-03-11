@@ -166,25 +166,23 @@ public class Messaging: NSObject, Extension {
             return
         }
         
-        // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
-        if lastProcessedRequestEventId != event.requestEventId {
-            rulesEngine.clearPropositions()
-            lastProcessedRequestEventId = event.requestEventId
-        }
-        
-        guard let propositions = event.payload, !propositions.isEmpty else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring response for personalization:decisions that contains an empty payload.")
-            return
-        }
-                        
-        guard event.scope != nil && event.scope == appSurface else {
+        // quick out if we have a scope (implying payload is not empty) and the scope doesn't match our app surface
+        if event.scope != nil && event.scope != appSurface {
             Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring response for personalization:decisions where the scope does not match the surface for in-app messages.")
             return
         }
-
+        
+        // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
+        var clearExistingRules = false
+        if lastProcessedRequestEventId != event.requestEventId {
+            clearExistingRules = true
+            rulesEngine.clearPropositionsCache()
+            lastProcessedRequestEventId = event.requestEventId
+        }
+                 
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definitions from network response.")
-        rulesEngine.setPropositionsCache(propositions)
-        rulesEngine.loadPropositions(propositions)
+        rulesEngine.addPropositionsToCache(event.payload)
+        rulesEngine.loadPropositions(event.payload, clearExisting: clearExistingRules)
     }
 
     /// Handles Rules Consequence events containing message definitions.
