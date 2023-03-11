@@ -61,6 +61,7 @@ extension MessagingRulesEngine {
         }
 
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
+        self.propositions = propostions
         loadPropositions(propostions, clearExisting: true)
     }
 
