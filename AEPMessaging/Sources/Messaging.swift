@@ -175,8 +175,7 @@ public class Messaging: NSObject, Extension {
         // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
         var clearExistingRules = false
         if lastProcessedRequestEventId != event.requestEventId {
-            clearExistingRules = true
-            rulesEngine.clearPropositionsCache()
+            clearExistingRules = true            
             lastProcessedRequestEventId = event.requestEventId
         }
                  

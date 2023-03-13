@@ -70,12 +70,13 @@ extension MessagingRulesEngine {
             return
         }
         
-        inMemoryPropositions?.append(contentsOf: propositions)
+        inMemoryPropositions.append(contentsOf: propositions)
         cachePropositions(inMemoryPropositions)
     }
 
     func clearPropositionsCache() {
-        inMemoryPropositions?.removeAll()
+        propositionInfo.removeAll()
+        inMemoryPropositions.removeAll()
         cachePropositions(nil)
     }
 

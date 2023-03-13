@@ -19,8 +19,8 @@ class MessagingRulesEngine {
     let rulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
     let cache: Cache
-    var inMemoryPropositions: [PropositionPayload]? = []
-    private var propositionInfo: [String: PropositionInfo] = [:]
+    var inMemoryPropositions: [PropositionPayload] = []
+    var propositionInfo: [String: PropositionInfo] = [:]
 
     /// Initialize this class, creating a new rules engine with the provided name and runtime
     init(name: String, extensionRuntime: ExtensionRuntime) {
@@ -47,7 +47,7 @@ class MessagingRulesEngine {
 
     func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool) {
         if clearExisting {
-            propositionInfo.removeAll()
+            clearPropositionsCache()            
         }
         
         var rules: [LaunchRule] = []
