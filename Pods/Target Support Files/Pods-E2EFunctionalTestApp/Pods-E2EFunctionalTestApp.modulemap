@@ -1,0 +1,6 @@
+framework module Pods_E2EFunctionalTestApp {
+  umbrella header "Pods-E2EFunctionalTestApp-umbrella.h"
+
+  export *
+  module * { export * }
+}

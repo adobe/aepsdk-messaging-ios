@@ -1,0 +1,6 @@
+framework module Pods_E2EFunctionalTests {
+  umbrella header "Pods-E2EFunctionalTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
