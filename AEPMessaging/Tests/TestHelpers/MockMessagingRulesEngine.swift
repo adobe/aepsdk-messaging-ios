@@ -44,9 +44,13 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
 
     var loadPropositionsCalled = false
     var paramLoadPropositionsPropositions: [PropositionPayload]?
-    override func loadPropositions(_ propositions: [PropositionPayload]) {
+    var paramLoadPropositionsClearExisting: Bool?
+    var paramLoadPropositionsPersistChanges: Bool?
+    override func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool, persistChanges: Bool = true) {
         loadPropositionsCalled = true
         paramLoadPropositionsPropositions = propositions
+        paramLoadPropositionsClearExisting = clearExisting
+        paramLoadPropositionsPersistChanges = persistChanges
     }
     
     var propositionInfoForMessageIdCalled = false
@@ -56,8 +60,8 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
         return propositionInfoForMessageIdReturnValue
     }
     
-    var clearPropositionsCalled = false
-    override func clearPropositions() {
-        clearPropositionsCalled = true
+    var clearPropositionsCacheCalled = false
+    override func clearPropositionsCache() {
+        clearPropositionsCacheCalled = true
     }
 }

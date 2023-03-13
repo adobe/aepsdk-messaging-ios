@@ -45,9 +45,13 @@ class MessagingRulesEngine {
         _ = rulesEngine.process(event: event)
     }
 
-    func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool) {
+    func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool, persistChanges: Bool = true) {
         if clearExisting {
             clearPropositionsCache()            
+        }
+        
+        if persistChanges {
+            addPropositionsToCache(propositions)
         }
         
         var rules: [LaunchRule] = []
@@ -98,7 +102,21 @@ class MessagingRulesEngine {
         return propositionInfo[messageId]
     }
     
-    func propositionInfoCount() -> Int {
+    func clearPropositionsCache() {
+        propositionInfo.removeAll()
+        inMemoryPropositions.removeAll()
+        cachePropositions(nil)
+    }
+    
+    #if DEBUG
+    /// For testing purposes only
+    internal func propositionInfoCount() -> Int {
         return propositionInfo.count
     }
+    
+    /// For testing purposes only
+    internal func inMemoryPropositionsCount() -> Int {
+        return inMemoryPropositions.count
+    }
+    #endif
 }

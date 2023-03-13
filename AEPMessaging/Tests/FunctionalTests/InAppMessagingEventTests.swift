@@ -24,7 +24,7 @@ class InAppMessagingEventTests: XCTestCase {
     
     // testing variables
     var currentMessage: Message?
-    let asyncTimeout: TimeInterval = 30
+    let asyncTimeout: TimeInterval = 10
 
     override class func setUp() {
         // before all
@@ -145,7 +145,7 @@ class InAppMessagingEventTests: XCTestCase {
             }
             
             let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
-            messagingRulesEngine.loadPropositions(propositions)
+            messagingRulesEngine.loadPropositions(propositions, clearExisting: true)
             
             // rules load async - brief sleep to allow it to finish
             self.runAfter(seconds: 3) {

@@ -185,14 +185,14 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         XCTAssertEqual("propositions", mockCache.removeParamKey)
     }
 
-    func testCachePropositionsSetCache() throws {
+    func testCachePropositionsAddCache() throws {
         // setup
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let decoder = JSONDecoder()
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
         
         // test
-        messagingRulesEngine.setPropositionsCache(propositions)
+        messagingRulesEngine.addPropositionsToCache(propositions)
 
         // verify
         XCTAssertTrue(mockCache.setCalled)
@@ -205,7 +205,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         XCTAssertEqual(propositions.first?.propositionInfo.id, cachedProps.first?.propositionInfo.id)
     }
 
-    func testCachePropositionsSetCacheThrows() throws {
+    func testCachePropositionsAddCacheThrows() throws {
         // setup
         let propString = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let decoder = JSONDecoder()
@@ -213,7 +213,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         mockCache.setShouldThrow = true
 
         // test
-        messagingRulesEngine.setPropositionsCache(propositions)
+        messagingRulesEngine.addPropositionsToCache(propositions)
 
         // verify
         XCTAssertTrue(mockCache.setCalled)

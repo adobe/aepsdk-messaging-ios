@@ -49,7 +49,7 @@ public class Messaging: NSObject, Extension {
 
         super.init()
     }
-
+    
     public func onRegistered() {
         // register listener for set push identifier event
         registerListener(type: EventType.genericIdentity,
@@ -175,12 +175,11 @@ public class Messaging: NSObject, Extension {
         // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
         var clearExistingRules = false
         if lastProcessedRequestEventId != event.requestEventId {
-            clearExistingRules = true            
+            clearExistingRules = true
             lastProcessedRequestEventId = event.requestEventId
         }
                  
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definitions from network response.")
-        rulesEngine.addPropositionsToCache(event.payload)
         rulesEngine.loadPropositions(event.payload, clearExisting: clearExistingRules)
     }
 
@@ -288,4 +287,16 @@ public class Messaging: NSObject, Extension {
             return
         }
     }
+    
+    #if DEBUG
+    /// Used for testing only
+    internal func setMessagesRequestEventId(_ newId: String?) {
+        messagesRequestEventId = newId
+    }
+    
+    /// Used for testing only
+    internal func setLastProcessedRequestEventId(_ newId: String?) {
+        lastProcessedRequestEventId = newId
+    }
+    #endif
 }

@@ -65,7 +65,21 @@ class MessagingRulesEngineTests: XCTestCase {
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
         
         // test
-        messagingRulesEngine.loadPropositions(propositions)
+        messagingRulesEngine.loadPropositions(propositions, clearExisting: false)
+
+        // verify
+        XCTAssertTrue(mockRulesEngine.addRulesCalled)
+        XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
+    }
+    
+    func testLoadPropositionsClearExisting() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        
+        // test
+        messagingRulesEngine.loadPropositions(propositions, clearExisting: true)
 
         // verify
         XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
@@ -78,11 +92,11 @@ class MessagingRulesEngineTests: XCTestCase {
         let propPayload = PropositionPayload(propositionInfo: propInfo, items: [])
         
         // test
-        messagingRulesEngine.loadPropositions([propPayload])
+        messagingRulesEngine.loadPropositions([propPayload], clearExisting: false)
         
         // verify
-        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
+        XCTAssertTrue(mockRulesEngine.addRulesCalled)
+        XCTAssertEqual(0, mockRulesEngine.paramAddRulesRules?.count)
     }
     
     func testLoadPropositionsEmptyContentInPayload() throws {
@@ -93,11 +107,11 @@ class MessagingRulesEngineTests: XCTestCase {
         let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
         
         // test
-        messagingRulesEngine.loadPropositions([propPayload])
+        messagingRulesEngine.loadPropositions([propPayload], clearExisting: false)
         
         // verify
-        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
+        XCTAssertTrue(mockRulesEngine.addRulesCalled)
+        XCTAssertEqual(0, mockRulesEngine.paramAddRulesRules?.count)
     }
     
     func testLoadPropositionsEventSequence() throws {
@@ -107,11 +121,11 @@ class MessagingRulesEngineTests: XCTestCase {
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
         
         // test
-        messagingRulesEngine.loadPropositions(propositions)
+        messagingRulesEngine.loadPropositions(propositions, clearExisting: false)
 
         // verify
-        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(1, mockRulesEngine.paramRules?.count)
+        XCTAssertTrue(mockRulesEngine.addRulesCalled)
+        XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
     }
 
     func testLoadPropositionsEmptyPropositions() throws {
@@ -119,7 +133,7 @@ class MessagingRulesEngineTests: XCTestCase {
         let propositions: [PropositionPayload] = []
 
         // test
-        messagingRulesEngine.loadPropositions(propositions)
+        messagingRulesEngine.loadPropositions(propositions, clearExisting: true)
 
         // verify
         XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
@@ -133,20 +147,22 @@ class MessagingRulesEngineTests: XCTestCase {
         let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
         let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
         messagingRulesEngine.storePropositionInfo(propPayload, forMessageId: "a")
+        XCTAssertEqual(1, messagingRulesEngine.propositionInfoCount())
         let preInfo = messagingRulesEngine.propositionInfoForMessageId("a")
         XCTAssertNotNil(preInfo)
+        messagingRulesEngine.addPropositionsToCache([propPayload])
+        XCTAssertEqual(1, messagingRulesEngine.inMemoryPropositionsCount())
         
         // test
-        messagingRulesEngine.clearPropositions()
+        messagingRulesEngine.clearPropositionsCache()
         
         // verify
         let postInfo = messagingRulesEngine.propositionInfoForMessageId("a")
         XCTAssertNil(postInfo)
         XCTAssertEqual(0, messagingRulesEngine.propositionInfoCount())
+        XCTAssertEqual(0, messagingRulesEngine.inMemoryPropositionsCount())
         XCTAssertTrue(mockCache.removeCalled)
         XCTAssertEqual("propositions", mockCache.removeParamKey)
-        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
     }
     
     func testStorePropositionInfo() throws {
