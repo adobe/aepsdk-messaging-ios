@@ -61,7 +61,7 @@ extension MessagingRulesEngine {
         }
 
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
-        self.propositions = propostions
+        inMemoryPropositions = propostions
         loadPropositions(propostions, clearExisting: true)
     }
 
@@ -74,11 +74,12 @@ extension MessagingRulesEngine {
             return
         }
         
-        self.propositions?.append(contentsOf: propositions)
-        cachePropositions(self.propositions)
+        inMemoryPropositions?.append(contentsOf: propositions)
+        cachePropositions(inMemoryPropositions)
     }
 
     func clearPropositionsCache() {
+        inMemoryPropositions?.removeAll()
         cachePropositions(nil)
     }
 

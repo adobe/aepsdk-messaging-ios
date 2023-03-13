@@ -19,7 +19,7 @@ class MessagingRulesEngine {
     let rulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
     let cache: Cache
-    var propositions: [PropositionPayload]?
+    var inMemoryPropositions: [PropositionPayload]? = []
     private var propositionInfo: [String: PropositionInfo] = [:]
 
     /// Initialize this class, creating a new rules engine with the provided name and runtime
