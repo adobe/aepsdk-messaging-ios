@@ -196,6 +196,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         let cachedProps = try decoder.decode([PropositionPayload].self, from: cacheString.data(using: .utf8)!)
         XCTAssertEqual(1, cachedProps.count)
         XCTAssertEqual(propositions.first?.propositionInfo.id, cachedProps.first?.propositionInfo.id)
+        XCTAssertEqual(1, messagingRulesEngine.inMemoryPropositionsCount())
     }
 
     func testCachePropositionsAddCacheThrows() throws {

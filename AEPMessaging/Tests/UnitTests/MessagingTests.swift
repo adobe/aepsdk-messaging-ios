@@ -179,6 +179,7 @@ class MessagingTests: XCTestCase {
         // verify
         XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)        
         XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsClearExisting)
+        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
     }
     
     func testHandleEdgePersonalizationNotificationRequestEventDoesNotMatch() throws {
