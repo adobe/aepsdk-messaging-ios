@@ -25,7 +25,8 @@ public class Messaging: NSObject, Extension {
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
 
-    private var requestMessagesEventId: String?
+    private var messagesRequestEventId: String?
+    private var lastProcessedRequestEventId: String?
     private var initialLoadComplete = false
     private(set) var currentMessage: Message?
     private let rulesEngine: MessagingRulesEngine
@@ -48,7 +49,7 @@ public class Messaging: NSObject, Extension {
 
         super.init()
     }
-
+    
     public func onRegistered() {
         // register listener for set push identifier event
         registerListener(type: EventType.genericIdentity,
@@ -142,7 +143,7 @@ public class Messaging: NSObject, Extension {
 
         // equal to `requestEventId` in aep response handles
         // used for ensuring that the messaging extension is responding to the correct handle
-        requestMessagesEventId = event.id.uuidString
+        messagesRequestEventId = event.id.uuidString
 
         // send event
         runtime.dispatch(event: event)
@@ -160,20 +161,26 @@ public class Messaging: NSObject, Extension {
     /// - Parameter event: an `Event` containing an in-app message definition in its data
     private func handleEdgePersonalizationNotification(_ event: Event) {
         // validate the event
-        guard event.isPersonalizationDecisionResponse, event.requestEventId == requestMessagesEventId else {
+        guard event.isPersonalizationDecisionResponse, event.requestEventId == messagesRequestEventId else {
             // either this isn't the type of response we are waiting for, or it's not a response for our request
             return
         }
-
-        guard let propositions = event.payload, !propositions.isEmpty, event.scope == appSurface else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Payload for in-app messages was empty. Clearing in-app messages from cache and persistence.")
-            rulesEngine.clearPropositions()                        
+        
+        // quick out if we have a scope (implying payload is not empty) and the scope doesn't match our app surface
+        if event.scope != nil && event.scope != appSurface {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response. The scope does not match the surface (\(appSurface ?? "unknown")) for in-app messages.")
             return
         }
-
-        rulesEngine.setPropositionsCache(propositions)
-        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from network response.")
-        rulesEngine.loadPropositions(propositions)
+        
+        // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
+        var clearExistingRules = false
+        if lastProcessedRequestEventId != event.requestEventId {
+            clearExistingRules = true
+            lastProcessedRequestEventId = event.requestEventId
+        }
+                 
+        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definitions from personalization:decisions network response.")
+        rulesEngine.loadPropositions(event.payload, clearExisting: clearExistingRules)
     }
 
     /// Handles Rules Consequence events containing message definitions.
@@ -280,4 +287,16 @@ public class Messaging: NSObject, Extension {
             return
         }
     }
+    
+    #if DEBUG
+    /// Used for testing only
+    internal func setMessagesRequestEventId(_ newId: String?) {
+        messagesRequestEventId = newId
+    }
+    
+    /// Used for testing only
+    internal func setLastProcessedRequestEventId(_ newId: String?) {
+        lastProcessedRequestEventId = newId
+    }
+    #endif
 }

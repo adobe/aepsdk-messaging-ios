@@ -48,7 +48,7 @@ extension MessagingRulesEngine {
 
     // MARK: - proposition caching
 
-    /// Loads propositions in
+    /// Loads propositions from persistence into memory then hydrates the messaging rules engine
     func loadCachedPropositions() {
         guard let cachedPropositions = cache.get(key: MessagingConstants.Caches.PROPOSITIONS) else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages - cache file not found.")
@@ -56,25 +56,26 @@ extension MessagingRulesEngine {
         }
 
         let decoder = JSONDecoder()
-        guard let propostions: [PropositionPayload] = try? decoder.decode([PropositionPayload].self, from: cachedPropositions.data) else {
+        guard let propositions: [PropositionPayload] = try? decoder.decode([PropositionPayload].self, from: cachedPropositions.data) else {
             return
         }
 
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
-        loadPropositions(propostions)
+        loadPropositions(propositions, clearExisting: false, persistChanges: false)
+    }
+    
+    func addPropositionsToCache(_ propositions: [PropositionPayload]?) {
+        guard let propositions = propositions, !propositions.isEmpty else {
+            return
+        }
+        
+        inMemoryPropositions.append(contentsOf: propositions)
+        cachePropositions(inMemoryPropositions)
     }
 
-    func setPropositionsCache(_ propositions: [PropositionPayload]) {
-        cachePropositions(propositions)
-    }
-
-    func clearPropositionsCache() {
-        cachePropositions(nil)
-    }
-
-    private func cachePropositions(_ propositions: [PropositionPayload]?) {
-        // remove cached propositions if param is nil
-        guard let propositions = propositions else {
+    func cachePropositions(_ propositions: [PropositionPayload]?) {
+        // remove cached propositions if param is nil or empty
+        guard let propositions = propositions, !propositions.isEmpty else {
             do {
                 try cache.remove(key: MessagingConstants.Caches.PROPOSITIONS)
                 Log.trace(label: MessagingConstants.LOG_TAG, "In-app messaging cache has been deleted.")
