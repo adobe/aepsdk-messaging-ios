@@ -49,8 +49,8 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         // verify
         XCTAssertTrue(mockCache.getCalled)
         XCTAssertEqual("propositions", mockCache.getParamKey)
-        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(1, mockRulesEngine.paramRules?.count)
+        XCTAssertTrue(mockRulesEngine.addRulesCalled)
+        XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
     }
 
     func testLoadCachedPropositionsNoCacheFound() throws {
@@ -160,29 +160,6 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         // verify
         wait(for: [setCalledExpecation], timeout: ASYNC_TIMEOUT)
         XCTAssertFalse(mockCache.setCalled)
-    }
-
-    /// The below tests for private func `cachePropositions` are executed via
-    /// internal methods `setPropositionsCache` and `clearPropositionsCache`
-    func testCachePropositionsClearCache() throws {
-        // test
-        messagingRulesEngine.clearPropositionsCache()
-
-        // verify
-        XCTAssertTrue(mockCache.removeCalled)
-        XCTAssertEqual("propositions", mockCache.removeParamKey)
-    }
-
-    func testCachePropositionsClearCacheThrows() throws {
-        // setup
-        mockCache.removeShouldThrow = true
-
-        // test
-        messagingRulesEngine.clearPropositionsCache()
-
-        // verify
-        XCTAssertTrue(mockCache.removeCalled)
-        XCTAssertEqual("propositions", mockCache.removeParamKey)
     }
 
     func testCachePropositionsAddCache() throws {

@@ -139,44 +139,4 @@ class MessagingRulesEngineTests: XCTestCase {
         XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
         XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
     }
-    
-    func testClearPropositions() throws {
-        // setup
-        let itemData = ItemData(content: "")
-        let payloadItem = PayloadItem(data: itemData)
-        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
-        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
-        messagingRulesEngine.storePropositionInfo(propPayload, forMessageId: "a")
-        XCTAssertEqual(1, messagingRulesEngine.propositionInfoCount())
-        let preInfo = messagingRulesEngine.propositionInfoForMessageId("a")
-        XCTAssertNotNil(preInfo)
-        messagingRulesEngine.addPropositionsToCache([propPayload])
-        XCTAssertEqual(1, messagingRulesEngine.inMemoryPropositionsCount())
-        
-        // test
-        messagingRulesEngine.clearPropositionsCache()
-        
-        // verify
-        let postInfo = messagingRulesEngine.propositionInfoForMessageId("a")
-        XCTAssertNil(postInfo)
-        XCTAssertEqual(0, messagingRulesEngine.propositionInfoCount())
-        XCTAssertEqual(0, messagingRulesEngine.inMemoryPropositionsCount())
-        XCTAssertTrue(mockCache.removeCalled)
-        XCTAssertEqual("propositions", mockCache.removeParamKey)
-    }
-    
-    func testStorePropositionInfo() throws {
-        // setup
-        let itemData = ItemData(content: "")
-        let payloadItem = PayloadItem(data: itemData)
-        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
-        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
-        XCTAssertEqual(0, messagingRulesEngine.propositionInfoCount())
-        
-        // test
-        messagingRulesEngine.storePropositionInfo(propPayload, forMessageId: nil)
-        
-        // verify
-        XCTAssertEqual(0, messagingRulesEngine.propositionInfoCount())
-    }
 }
