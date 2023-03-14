@@ -25,6 +25,7 @@ class E2EFunctionalTests: XCTestCase {
     // testing variables
     var currentMessage: Message?
     let asyncTimeout: TimeInterval = 30
+    let appScope = "mobileapp://com.adobe.ajoinbounde2etestsonly"
 
     override class func setUp() {
         // before all
@@ -145,7 +146,7 @@ class E2EFunctionalTests: XCTestCase {
             }
             
             let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
-            messagingRulesEngine.loadPropositions(propositions, clearExisting: true)
+            messagingRulesEngine.loadPropositions(propositions, clearExisting: true, expectedScope: self.appScope)
             
             // rules load async - brief sleep to allow it to finish
             self.runAfter(seconds: 3) {
