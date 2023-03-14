@@ -49,7 +49,7 @@ extension MessagingRulesEngine {
     // MARK: - proposition caching
 
     /// Loads propositions from persistence into memory then hydrates the messaging rules engine
-    func loadCachedPropositions() {
+    func loadCachedPropositions(for expectedScope: String) {
         guard let cachedPropositions = cache.get(key: MessagingConstants.Caches.PROPOSITIONS) else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages - cache file not found.")
             return
@@ -61,7 +61,7 @@ extension MessagingRulesEngine {
         }
 
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
-        loadPropositions(propositions, clearExisting: false, persistChanges: false)
+        loadPropositions(propositions, clearExisting: false, persistChanges: false, expectedScope: expectedScope)
     }
     
     func addPropositionsToCache(_ propositions: [PropositionPayload]?) {

@@ -23,6 +23,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
     var mockRulesEngine: MockLaunchRulesEngine!
     var mockRuntime: TestableExtensionRuntime!
     var mockCache: MockCache!
+    let mockIamSurface = "mobileapp://com.apple.dt.xctest.tool"
 
     struct MockEvaluable: Evaluable {
         public func evaluate(in context: Context) -> Result<Bool, RulesFailure> {
@@ -44,7 +45,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         mockCache.getReturnValue = cacheEntry
 
         // test
-        messagingRulesEngine.loadCachedPropositions()
+        messagingRulesEngine.loadCachedPropositions(for: mockIamSurface)
 
         // verify
         XCTAssertTrue(mockCache.getCalled)
@@ -52,13 +53,28 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         XCTAssertTrue(mockRulesEngine.addRulesCalled)
         XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
     }
+    
+    func testLoadCachedPropositionsWrongScope() throws {
+        // setup
+        let aJsonString = JSONFileLoader.getRulesStringFromFile("wrongScopeRule")
+        let cacheEntry = CacheEntry(data: aJsonString.data(using: .utf8)!, expiry: .never, metadata: nil)
+        mockCache.getReturnValue = cacheEntry
+
+        // test
+        messagingRulesEngine.loadCachedPropositions(for: mockIamSurface)
+
+        // verify
+        XCTAssertTrue(mockCache.getCalled)
+        XCTAssertEqual("propositions", mockCache.getParamKey)
+        XCTAssertFalse(mockRulesEngine.addRulesCalled)
+    }
 
     func testLoadCachedPropositionsNoCacheFound() throws {
         // setup
         mockCache.getReturnValue = nil
 
         // test
-        messagingRulesEngine.loadCachedPropositions()
+        messagingRulesEngine.loadCachedPropositions(for: mockIamSurface)
 
         // verify
         XCTAssertTrue(mockCache.getCalled)

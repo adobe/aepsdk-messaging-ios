@@ -22,6 +22,7 @@ class MessagingRulesEngineTests: XCTestCase {
     var mockRulesEngine: MockLaunchRulesEngine!
     var mockRuntime: TestableExtensionRuntime!
     var mockCache: MockCache!
+    let mockIamSurface = "mobileapp://com.apple.dt.xctest.tool"
 
     override func setUp() {
         mockRuntime = TestableExtensionRuntime()
@@ -65,7 +66,7 @@ class MessagingRulesEngineTests: XCTestCase {
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
         
         // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false)
+        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, expectedScope: mockIamSurface)
 
         // verify
         XCTAssertTrue(mockRulesEngine.addRulesCalled)
@@ -79,7 +80,7 @@ class MessagingRulesEngineTests: XCTestCase {
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
         
         // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: true)
+        messagingRulesEngine.loadPropositions(propositions, clearExisting: true, expectedScope: mockIamSurface)
 
         // verify
         XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
@@ -92,7 +93,7 @@ class MessagingRulesEngineTests: XCTestCase {
         let propPayload = PropositionPayload(propositionInfo: propInfo, items: [])
         
         // test
-        messagingRulesEngine.loadPropositions([propPayload], clearExisting: false)
+        messagingRulesEngine.loadPropositions([propPayload], clearExisting: false, expectedScope: mockIamSurface)
         
         // verify
         XCTAssertTrue(mockRulesEngine.addRulesCalled)
@@ -107,7 +108,7 @@ class MessagingRulesEngineTests: XCTestCase {
         let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
         
         // test
-        messagingRulesEngine.loadPropositions([propPayload], clearExisting: false)
+        messagingRulesEngine.loadPropositions([propPayload], clearExisting: false, expectedScope: mockIamSurface)
         
         // verify
         XCTAssertTrue(mockRulesEngine.addRulesCalled)
@@ -121,7 +122,7 @@ class MessagingRulesEngineTests: XCTestCase {
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
         
         // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false)
+        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, expectedScope: mockIamSurface)
 
         // verify
         XCTAssertTrue(mockRulesEngine.addRulesCalled)
@@ -133,7 +134,7 @@ class MessagingRulesEngineTests: XCTestCase {
         let propositions: [PropositionPayload] = []
 
         // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: true)
+        messagingRulesEngine.loadPropositions(propositions, clearExisting: true, expectedScope: mockIamSurface)
 
         // verify
         XCTAssertTrue(mockRulesEngine.replaceRulesCalled)

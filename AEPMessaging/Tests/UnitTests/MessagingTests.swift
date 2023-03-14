@@ -23,6 +23,7 @@ class MessagingTests: XCTestCase {
     var mockMessagingRulesEngine: MockMessagingRulesEngine!
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
+    let mockIamSurface = "mobileapp://com.apple.dt.xctest.tool"
 
     // Mock constants
     let MOCK_ECID = "mock_ecid"
@@ -36,7 +37,7 @@ class MessagingTests: XCTestCase {
         mockCache = MockCache(name: "mockCache")
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mockLaunchRulesEngine", extensionRuntime: mockRuntime)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockLaunchRulesEngine, cache: mockCache)
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, expectedScope: mockIamSurface)
         messaging.onRegistered()
 
         mockNetworkService = MockNetworkService()

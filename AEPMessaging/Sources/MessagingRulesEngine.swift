@@ -27,8 +27,7 @@ class MessagingRulesEngine {
         runtime = extensionRuntime
         rulesEngine = LaunchRulesEngine(name: name,
                                         extensionRuntime: extensionRuntime)
-        cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
-        loadCachedPropositions()
+        cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)        
     }
 
     /// INTERNAL ONLY
@@ -45,17 +44,21 @@ class MessagingRulesEngine {
         _ = rulesEngine.process(event: event)
     }
 
-    func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool, persistChanges: Bool = true) {
+    func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool, persistChanges: Bool = true, expectedScope: String) {
                 
         var rules: [LaunchRule] = []
         var tempPropInfo: [String: PropositionInfo] = [:]
         
         if let propositions = propositions {
             for proposition in propositions {
+                guard expectedScope == proposition.propositionInfo.scope else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring proposition where scope (\(proposition.propositionInfo.scope)) does not match expected scope (\(expectedScope)).")
+                    continue
+                }
+                                
                 guard let ruleString = proposition.items.first?.data.content else {
                     Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
                     continue
-                    
                 }
                 
                 guard let rule = processRule(ruleString) else {
@@ -80,11 +83,13 @@ class MessagingRulesEngine {
             cachePropositions(nil)
             propositionInfo = tempPropInfo
             rulesEngine.replaceRules(with: rules)
-            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
-        } else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine for scope '\(expectedScope)'.")
+        } else if !rules.isEmpty {
             propositionInfo.merge(tempPropInfo) { _, new in new }
             rulesEngine.addRules(rules)
-            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully added \(rules.count) message(s) into the rules engine.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully added \(rules.count) message(s) into the rules engine for scope '\(expectedScope)'.")
+        } else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring request to load in-app messages for scope '\(expectedScope)'. The propositions parameter provided was empty.")
         }
         
         if persistChanges {

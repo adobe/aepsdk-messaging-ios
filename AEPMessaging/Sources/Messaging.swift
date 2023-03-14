@@ -37,15 +37,16 @@ public class Messaging: NSObject, Extension {
         self.runtime = runtime
         rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME,
                                            extensionRuntime: runtime)
-
         super.init()
+        rulesEngine.loadCachedPropositions(for: appSurface)
     }
 
     /// INTERNAL ONLY
     /// used for testing
-    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine) {
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, expectedScope: String) {
         self.runtime = runtime
         self.rulesEngine = rulesEngine
+        self.rulesEngine.loadCachedPropositions(for: expectedScope)
 
         super.init()
     }
@@ -117,7 +118,7 @@ public class Messaging: NSObject, Extension {
     /// The app surface used in the request is generated using the `bundleIdentifier` for the app.
     /// If the `bundleIdentifier` is unavailable, calling this method will do nothing.
     private func fetchMessages() {
-        guard let appSurface = appSurface else {
+        guard appSurface != "unknown" else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve in-app messages - unable to retrieve bundle identifier.")
             return
         }
@@ -149,9 +150,9 @@ public class Messaging: NSObject, Extension {
         runtime.dispatch(event: event)
     }
 
-    private var appSurface: String? {
+    private var appSurface: String {
         guard let bundleIdentifier = Bundle.main.bundleIdentifier, !bundleIdentifier.isEmpty else {
-            return nil
+            return "unknown"
         }
 
         return MessagingConstants.XDM.IAM.SURFACE_BASE + bundleIdentifier
@@ -166,12 +167,6 @@ public class Messaging: NSObject, Extension {
             return
         }
         
-        // quick out if we have a scope (implying payload is not empty) and the scope doesn't match our app surface
-        if event.scope != nil && event.scope != appSurface {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response. The scope does not match the surface (\(appSurface ?? "unknown")) for in-app messages.")
-            return
-        }
-        
         // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
         var clearExistingRules = false
         if lastProcessedRequestEventId != event.requestEventId {
@@ -180,7 +175,7 @@ public class Messaging: NSObject, Extension {
         }
                  
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definitions from personalization:decisions network response.")
-        rulesEngine.loadPropositions(event.payload, clearExisting: clearExistingRules)
+        rulesEngine.loadPropositions(event.payload, clearExisting: clearExistingRules, expectedScope: appSurface)
     }
 
     /// Handles Rules Consequence events containing message definitions.
