@@ -3872,42 +3872,6 @@
 			};
 			name = Debug;
 		};
-		1426B863ACC6557582E4E4B65D2DD033 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = F6AD118F8BDA66CCA8E6B74706DCD3FF /* AEPCore.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GCC_PREFIX_HEADER = "Target Support Files/AEPCore/AEPCore-prefix.pch";
-				INFOPLIST_FILE = "Target Support Files/AEPCore/AEPCore-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULEMAP_FILE = "Target Support Files/AEPCore/AEPCore.modulemap";
-				PRODUCT_MODULE_NAME = AEPCore;
-				PRODUCT_NAME = AEPCore;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.1;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Release;
-		};
 		18A097D7711E557A9F737C957D419096 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6B61FA4EE5E95D4F2A46DB9C12260F8E /* Pods-MessagingDemoAppObjC.debug.xcconfig */;
@@ -3980,6 +3944,41 @@
 			};
 			name = Debug;
 		};
+		1ECCD046C23DBA43F02F69BF8C38725B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F3601706B93BE2D009D4416A9817DF62 /* AEPSignal.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/AEPSignal/AEPSignal-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/AEPSignal/AEPSignal-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/AEPSignal/AEPSignal.modulemap";
+				PRODUCT_MODULE_NAME = AEPSignal;
+				PRODUCT_NAME = AEPSignal;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
 		256892AA2601102F8E29797365D0AE6D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9514777F467A7301F7DFF82F1F5A8740 /* Pods-AEPMessaging.debug.xcconfig */;
@@ -4011,41 +4010,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Debug;
-		};
-		28470A6F2ADBD47876DA01F4C0D5AFB0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = F3601706B93BE2D009D4416A9817DF62 /* AEPSignal.debug.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GCC_PREFIX_HEADER = "Target Support Files/AEPSignal/AEPSignal-prefix.pch";
-				INFOPLIST_FILE = "Target Support Files/AEPSignal/AEPSignal-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULEMAP_FILE = "Target Support Files/AEPSignal/AEPSignal.modulemap";
-				PRODUCT_MODULE_NAME = AEPSignal;
-				PRODUCT_NAME = AEPSignal;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -4090,9 +4054,9 @@
 			};
 			name = Release;
 		};
-		2CE3EC709EE1BACB8B14F66F38599C9C /* Debug */ = {
+		34A7FB4E862A73C2F0FAF6EF6A261889 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1590EB62ADD047B0EA2FF5437A140854 /* AEPRulesEngine.debug.xcconfig */;
+			baseConfigurationReference = 18BBA5BD9CACB8B90F5111ABB0197C79 /* AEPServices.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -4103,18 +4067,18 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GCC_PREFIX_HEADER = "Target Support Files/AEPRulesEngine/AEPRulesEngine-prefix.pch";
-				INFOPLIST_FILE = "Target Support Files/AEPRulesEngine/AEPRulesEngine-Info.plist";
+				GCC_PREFIX_HEADER = "Target Support Files/AEPServices/AEPServices-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/AEPServices/AEPServices-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "Target Support Files/AEPRulesEngine/AEPRulesEngine.modulemap";
-				PRODUCT_MODULE_NAME = AEPRulesEngine;
-				PRODUCT_NAME = AEPRulesEngine;
+				MODULEMAP_FILE = "Target Support Files/AEPServices/AEPServices.modulemap";
+				PRODUCT_MODULE_NAME = AEPServices;
+				PRODUCT_NAME = AEPServices;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
@@ -4124,42 +4088,6 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
-		};
-		30194BF288A7816E3FFCB35B563F57B4 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 510FC4581A9A689645ABA1DBFECC135C /* AEPLifecycle.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GCC_PREFIX_HEADER = "Target Support Files/AEPLifecycle/AEPLifecycle-prefix.pch";
-				INFOPLIST_FILE = "Target Support Files/AEPLifecycle/AEPLifecycle-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULEMAP_FILE = "Target Support Files/AEPLifecycle/AEPLifecycle.modulemap";
-				PRODUCT_MODULE_NAME = AEPLifecycle;
-				PRODUCT_NAME = AEPLifecycle;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.1;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Release;
 		};
 		3556F1497D64BB6D31C89C776255A072 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -4269,6 +4197,41 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
+		};
+		591BEA12C3BA3F7AA715C0E7E302411E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E049DEA394D6D98BF9C26957FFE7AC57 /* AEPCore.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/AEPCore/AEPCore-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/AEPCore/AEPCore-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/AEPCore/AEPCore.modulemap";
+				PRODUCT_MODULE_NAME = AEPCore;
+				PRODUCT_NAME = AEPCore;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
 		};
 		6FC0BA1A3110297D5D4593F57A648D1B /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -4384,6 +4347,41 @@
 			};
 			name = Release;
 		};
+		8AC8C414706AB99BB4976538FBADC7AD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1590EB62ADD047B0EA2FF5437A140854 /* AEPRulesEngine.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/AEPRulesEngine/AEPRulesEngine-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/AEPRulesEngine/AEPRulesEngine-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/AEPRulesEngine/AEPRulesEngine.modulemap";
+				PRODUCT_MODULE_NAME = AEPRulesEngine;
+				PRODUCT_NAME = AEPRulesEngine;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
 		903A0004D3E6651EFD5D2E16214D101B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -4483,7 +4481,7 @@
 			};
 			name = Debug;
 		};
-		9A12BADC692397589AACFECE2C384737 /* Release */ = {
+		A30F26280D96E58C8F1E7529150D282B /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 14DDAF3C2E900FD1A4BA31D1F5F8FDA9 /* AEPServices.release.xcconfig */;
 			buildSettings = {
@@ -4499,7 +4497,7 @@
 				GCC_PREFIX_HEADER = "Target Support Files/AEPServices/AEPServices-prefix.pch";
 				INFOPLIST_FILE = "Target Support Files/AEPServices/AEPServices-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4519,9 +4517,9 @@
 			};
 			name = Release;
 		};
-		9ACEC66C417F4A1E9E0972882DBE7319 /* Debug */ = {
+		A76F8B33111298AF50103CE32914F53A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E049DEA394D6D98BF9C26957FFE7AC57 /* AEPCore.debug.xcconfig */;
+			baseConfigurationReference = E600AE571B010245D03F6761AF9F7C42 /* AEPSignal.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -4532,27 +4530,28 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GCC_PREFIX_HEADER = "Target Support Files/AEPCore/AEPCore-prefix.pch";
-				INFOPLIST_FILE = "Target Support Files/AEPCore/AEPCore-Info.plist";
+				GCC_PREFIX_HEADER = "Target Support Files/AEPSignal/AEPSignal-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/AEPSignal/AEPSignal-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "Target Support Files/AEPCore/AEPCore.modulemap";
-				PRODUCT_MODULE_NAME = AEPCore;
-				PRODUCT_NAME = AEPCore;
+				MODULEMAP_FILE = "Target Support Files/AEPSignal/AEPSignal.modulemap";
+				PRODUCT_MODULE_NAME = AEPSignal;
+				PRODUCT_NAME = AEPSignal;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
 				SWIFT_VERSION = 5.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
-			name = Debug;
+			name = Release;
 		};
 		AAA0BB0F2D2F28D86A1B389F00C19412 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -4590,6 +4589,42 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
+		};
+		AC8C169FB986AF3D9E7E019A9D044382 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 510FC4581A9A689645ABA1DBFECC135C /* AEPLifecycle.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/AEPLifecycle/AEPLifecycle-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/AEPLifecycle/AEPLifecycle-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/AEPLifecycle/AEPLifecycle.modulemap";
+				PRODUCT_MODULE_NAME = AEPLifecycle;
+				PRODUCT_NAME = AEPLifecycle;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
 		};
 		AD81E62ACCB0B7A923FC8AA288F9921E /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -4642,42 +4677,6 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
-		};
-		AEBC8DE862F2F7DD2FD3DE95B750841F /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = E600AE571B010245D03F6761AF9F7C42 /* AEPSignal.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GCC_PREFIX_HEADER = "Target Support Files/AEPSignal/AEPSignal-prefix.pch";
-				INFOPLIST_FILE = "Target Support Files/AEPSignal/AEPSignal-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULEMAP_FILE = "Target Support Files/AEPSignal/AEPSignal.modulemap";
-				PRODUCT_MODULE_NAME = AEPSignal;
-				PRODUCT_NAME = AEPSignal;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.1;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Release;
 		};
 		B4AB9F4245513CD13ED81740C5158D89 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -4781,7 +4780,7 @@
 			};
 			name = Debug;
 		};
-		B793547F6A3AAA707932C2EFC9FF697D /* Debug */ = {
+		D9299D02D61BF8E60C4CDC0273CA27AF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B507EDBDA26324C298B06DFC86AD7C7 /* AEPLifecycle.debug.xcconfig */;
 			buildSettings = {
@@ -4797,7 +4796,7 @@
 				GCC_PREFIX_HEADER = "Target Support Files/AEPLifecycle/AEPLifecycle-prefix.pch";
 				INFOPLIST_FILE = "Target Support Files/AEPLifecycle/AEPLifecycle-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4806,77 +4805,6 @@
 				MODULEMAP_FILE = "Target Support Files/AEPLifecycle/AEPLifecycle.modulemap";
 				PRODUCT_MODULE_NAME = AEPLifecycle;
 				PRODUCT_NAME = AEPLifecycle;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.1;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Debug;
-		};
-		BDBB83F1D6BEE81D2911C06E09041E4C /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = EDCB9B79DA8E96602191E38655A16D1E /* AEPRulesEngine.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GCC_PREFIX_HEADER = "Target Support Files/AEPRulesEngine/AEPRulesEngine-prefix.pch";
-				INFOPLIST_FILE = "Target Support Files/AEPRulesEngine/AEPRulesEngine-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULEMAP_FILE = "Target Support Files/AEPRulesEngine/AEPRulesEngine.modulemap";
-				PRODUCT_MODULE_NAME = AEPRulesEngine;
-				PRODUCT_NAME = AEPRulesEngine;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.1;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Release;
-		};
-		D175AFCFD832FA0F4E18353AD6375A79 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 18BBA5BD9CACB8B90F5111ABB0197C79 /* AEPServices.debug.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GCC_PREFIX_HEADER = "Target Support Files/AEPServices/AEPServices-prefix.pch";
-				INFOPLIST_FILE = "Target Support Files/AEPServices/AEPServices-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULEMAP_FILE = "Target Support Files/AEPServices/AEPServices.modulemap";
-				PRODUCT_MODULE_NAME = AEPServices;
-				PRODUCT_NAME = AEPServices;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
@@ -5164,6 +5092,42 @@
 			};
 			name = Release;
 		};
+		F5FC7EB733C1BABF998EA603F5444F78 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EDCB9B79DA8E96602191E38655A16D1E /* AEPRulesEngine.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/AEPRulesEngine/AEPRulesEngine-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/AEPRulesEngine/AEPRulesEngine-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/AEPRulesEngine/AEPRulesEngine.modulemap";
+				PRODUCT_MODULE_NAME = AEPRulesEngine;
+				PRODUCT_NAME = AEPRulesEngine;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 		F6A95BB3E7720CA4D70AC97C31EC5AE6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = AEDB48B9E8304F923DED1CB8A0AA4ABB /* Pods-FunctionalTestApp.debug.xcconfig */;
@@ -5200,6 +5164,42 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
+		};
+		FD67EDCE6DD5B0EC26048AEADD94DCB3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F6AD118F8BDA66CCA8E6B74706DCD3FF /* AEPCore.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/AEPCore/AEPCore-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/AEPCore/AEPCore-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/AEPCore/AEPCore.modulemap";
+				PRODUCT_MODULE_NAME = AEPCore;
+				PRODUCT_NAME = AEPCore;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
@@ -5252,8 +5252,8 @@
 		5395398039C322DB8969696EFE1E6137 /* Build configuration list for PBXNativeTarget "AEPSignal" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				28470A6F2ADBD47876DA01F4C0D5AFB0 /* Debug */,
-				AEBC8DE862F2F7DD2FD3DE95B750841F /* Release */,
+				1ECCD046C23DBA43F02F69BF8C38725B /* Debug */,
+				A76F8B33111298AF50103CE32914F53A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -5261,8 +5261,8 @@
 		568CD0FA4E40B939BC44A85FEC8BF7B6 /* Build configuration list for PBXNativeTarget "AEPCore" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				9ACEC66C417F4A1E9E0972882DBE7319 /* Debug */,
-				1426B863ACC6557582E4E4B65D2DD033 /* Release */,
+				591BEA12C3BA3F7AA715C0E7E302411E /* Debug */,
+				FD67EDCE6DD5B0EC26048AEADD94DCB3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -5297,8 +5297,8 @@
 		715B7EBC8E36EAE870FEF4063F00198F /* Build configuration list for PBXNativeTarget "AEPRulesEngine" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2CE3EC709EE1BACB8B14F66F38599C9C /* Debug */,
-				BDBB83F1D6BEE81D2911C06E09041E4C /* Release */,
+				8AC8C414706AB99BB4976538FBADC7AD /* Debug */,
+				F5FC7EB733C1BABF998EA603F5444F78 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -5351,8 +5351,8 @@
 		CF20A1B0BE6B1DA85F1988E6734CFB1C /* Build configuration list for PBXNativeTarget "AEPLifecycle" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B793547F6A3AAA707932C2EFC9FF697D /* Debug */,
-				30194BF288A7816E3FFCB35B563F57B4 /* Release */,
+				D9299D02D61BF8E60C4CDC0273CA27AF /* Debug */,
+				AC8C169FB986AF3D9E7E019A9D044382 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -5369,8 +5369,8 @@
 		F608BA64D14621DDDD80E1E4F1F4DC72 /* Build configuration list for PBXNativeTarget "AEPServices" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D175AFCFD832FA0F4E18353AD6375A79 /* Debug */,
-				9A12BADC692397589AACFECE2C384737 /* Release */,
+				34A7FB4E862A73C2F0FAF6EF6A261889 /* Debug */,
+				A30F26280D96E58C8F1E7529150D282B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
