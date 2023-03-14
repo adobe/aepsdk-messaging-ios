@@ -30,15 +30,11 @@
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter action name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="iHZ-uy-g0b">
                                 <rect key="frame" x="21.666666666666657" y="193" width="332" height="34"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="332" id="EzE-ZO-PDt"/>
-                                    <constraint firstAttribute="height" constant="34" id="POU-rk-etI"/>
-                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ywa-gM-LKk">
-                                <rect key="frame" x="106" y="264" width="163" height="35"/>
+                                <rect key="frame" x="100" y="260" width="175" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Send Track Action"/>
                                 <connections>
@@ -51,26 +47,34 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fnY-TU-AV9">
+                                <rect key="frame" x="100" y="317" width="175" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Refresh Messages"/>
+                                <connections>
+                                    <action selector="refreshMessages:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QUY-ia-0gR"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="Lda-17-0lF" firstAttribute="top" secondItem="G9y-ij-5vu" secondAttribute="bottom" constant="8" id="4c4-4o-2CF"/>
-                            <constraint firstItem="ywa-gM-LKk" firstAttribute="top" secondItem="iHZ-uy-g0b" secondAttribute="bottom" constant="37" id="5iW-FE-oH6"/>
-                            <constraint firstItem="ywa-gM-LKk" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="6I3-hy-HSe"/>
-                            <constraint firstItem="k8f-YP-q4L" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="6Lo-BL-Q8O"/>
-                            <constraint firstItem="G9y-ij-5vu" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Ek8-yX-YwT"/>
-                            <constraint firstItem="G9y-ij-5vu" firstAttribute="centerX" secondItem="ywa-gM-LKk" secondAttribute="centerX" id="GT4-y9-oiG"/>
-                            <constraint firstItem="k8f-YP-q4L" firstAttribute="top" secondItem="Lda-17-0lF" secondAttribute="bottom" constant="14" id="I72-mJ-xcl"/>
-                            <constraint firstItem="G9y-ij-5vu" firstAttribute="centerX" secondItem="Lda-17-0lF" secondAttribute="centerX" id="P15-SB-3WE"/>
-                            <constraint firstItem="G9y-ij-5vu" firstAttribute="centerX" secondItem="k8f-YP-q4L" secondAttribute="centerX" id="SyF-JJ-dVF"/>
-                            <constraint firstItem="Lda-17-0lF" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Voh-IM-ZI4"/>
-                            <constraint firstItem="G9y-ij-5vu" firstAttribute="centerX" secondItem="iHZ-uy-g0b" secondAttribute="centerX" id="bQJ-68-ygo"/>
-                            <constraint firstItem="G9y-ij-5vu" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="15" id="fV5-26-8N8"/>
-                            <constraint firstItem="G9y-ij-5vu" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="wDG-Ga-rz2"/>
-                            <constraint firstItem="iHZ-uy-g0b" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="wQp-LJ-hlf"/>
-                            <constraint firstItem="iHZ-uy-g0b" firstAttribute="top" secondItem="k8f-YP-q4L" secondAttribute="bottom" constant="8" symbolic="YES" id="xas-Um-g1X"/>
-                            <constraint firstItem="G9y-ij-5vu" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="86" id="zfd-qN-E8z"/>
+                            <constraint firstItem="k8f-YP-q4L" firstAttribute="centerX" secondItem="Lda-17-0lF" secondAttribute="centerX" id="0sF-cn-eYL"/>
+                            <constraint firstItem="iHZ-uy-g0b" firstAttribute="top" secondItem="k8f-YP-q4L" secondAttribute="bottom" constant="8" symbolic="YES" id="1Er-TU-i2M"/>
+                            <constraint firstItem="k8f-YP-q4L" firstAttribute="centerX" secondItem="iHZ-uy-g0b" secondAttribute="centerX" id="3LH-jO-OOz"/>
+                            <constraint firstItem="k8f-YP-q4L" firstAttribute="centerX" secondItem="ywa-gM-LKk" secondAttribute="centerX" id="4Y4-Ze-kKr"/>
+                            <constraint firstItem="k8f-YP-q4L" firstAttribute="leading" secondItem="iHZ-uy-g0b" secondAttribute="leading" id="81x-JO-3BR"/>
+                            <constraint firstItem="fnY-TU-AV9" firstAttribute="top" secondItem="ywa-gM-LKk" secondAttribute="bottom" constant="22" id="8Ho-zz-6Dk"/>
+                            <constraint firstItem="G9y-ij-5vu" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="86" id="F2K-Rd-aim"/>
+                            <constraint firstItem="fnY-TU-AV9" firstAttribute="leading" secondItem="ywa-gM-LKk" secondAttribute="leading" id="PAI-04-WVa"/>
+                            <constraint firstItem="k8f-YP-q4L" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="142" id="Wc4-cR-x61"/>
+                            <constraint firstItem="k8f-YP-q4L" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ayP-S6-tyO"/>
+                            <constraint firstItem="k8f-YP-q4L" firstAttribute="top" secondItem="Lda-17-0lF" secondAttribute="bottom" constant="14" id="gD1-0O-Z4p"/>
+                            <constraint firstItem="Lda-17-0lF" firstAttribute="top" secondItem="G9y-ij-5vu" secondAttribute="bottom" constant="8" symbolic="YES" id="okK-L6-vx8"/>
+                            <constraint firstItem="fnY-TU-AV9" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="100" id="omR-JT-Swz"/>
+                            <constraint firstItem="k8f-YP-q4L" firstAttribute="centerX" secondItem="G9y-ij-5vu" secondAttribute="centerX" id="pYs-cK-hgC"/>
+                            <constraint firstItem="k8f-YP-q4L" firstAttribute="centerX" secondItem="fnY-TU-AV9" secondAttribute="centerX" id="rVi-1u-KGP"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="fnY-TU-AV9" secondAttribute="bottom" constant="426" id="tbL-qL-i0q"/>
                         </constraints>
                     </view>
                     <connections>

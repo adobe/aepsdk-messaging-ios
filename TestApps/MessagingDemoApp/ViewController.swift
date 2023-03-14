@@ -11,6 +11,7 @@
 //
 
 import AEPCore
+import AEPMessaging
 import UIKit
 
 class ViewController: UIViewController {
@@ -24,5 +25,9 @@ class ViewController: UIViewController {
         if let actionName = txtActionName?.text {
             MobileCore.track(action: actionName, data: nil)
         }
+    }
+    
+    @IBAction func refreshMessages(_: Any) {
+        Messaging.refreshInAppMessages()
     }
 }
