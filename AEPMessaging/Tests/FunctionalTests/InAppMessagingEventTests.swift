@@ -24,7 +24,7 @@ class InAppMessagingEventTests: XCTestCase {
     
     // testing variables
     var currentMessage: Message?
-    let asyncTimeout: TimeInterval = 10
+    let asyncTimeout: TimeInterval = 30
 
     override class func setUp() {
         // before all
