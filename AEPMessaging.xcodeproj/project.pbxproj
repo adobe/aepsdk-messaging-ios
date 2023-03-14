@@ -35,6 +35,9 @@
 		2415598528D1217500729136 /* nativeMethodCallingSample.html in Resources */ = {isa = PBXBuildFile; fileRef = 2415598428D1217500729136 /* nativeMethodCallingSample.html */; };
 		241B2DD42821C80C00E4FF67 /* URL+QueryParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241B2DD32821C80C00E4FF67 /* URL+QueryParams.swift */; };
 		241B2DD62821C99500E4FF67 /* URL+QueryParamsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241B2DD52821C99500E4FF67 /* URL+QueryParamsTests.swift */; };
+		2438B92C29C10B2D001D6F3A /* wrongScopeRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2438B92B29C10B2D001D6F3A /* wrongScopeRule.json */; };
+		2438B92F29C12179001D6F3A /* emptyContentStringRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2438B92D29C12179001D6F3A /* emptyContentStringRule.json */; };
+		2438B93029C12179001D6F3A /* malformedContentRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2438B92E29C12179001D6F3A /* malformedContentRule.json */; };
 		243B1AFC28AD7FCE0074327E /* PropositionPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243B1AFB28AD7FCE0074327E /* PropositionPayload.swift */; };
 		243B1AFE28AEB1E60074327E /* PropositionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243B1AFD28AEB1E60074327E /* PropositionInfo.swift */; };
 		243B1B0028B411630074327E /* PayloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243B1AFF28B411630074327E /* PayloadItem.swift */; };
@@ -301,6 +304,9 @@
 		2415598428D1217500729136 /* nativeMethodCallingSample.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = nativeMethodCallingSample.html; sourceTree = "<group>"; };
 		241B2DD32821C80C00E4FF67 /* URL+QueryParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+QueryParams.swift"; sourceTree = "<group>"; };
 		241B2DD52821C99500E4FF67 /* URL+QueryParamsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+QueryParamsTests.swift"; sourceTree = "<group>"; };
+		2438B92B29C10B2D001D6F3A /* wrongScopeRule.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = wrongScopeRule.json; sourceTree = "<group>"; };
+		2438B92D29C12179001D6F3A /* emptyContentStringRule.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = emptyContentStringRule.json; sourceTree = "<group>"; };
+		2438B92E29C12179001D6F3A /* malformedContentRule.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = malformedContentRule.json; sourceTree = "<group>"; };
 		243B1AFB28AD7FCE0074327E /* PropositionPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionPayload.swift; sourceTree = "<group>"; };
 		243B1AFD28AEB1E60074327E /* PropositionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionInfo.swift; sourceTree = "<group>"; };
 		243B1AFF28B411630074327E /* PayloadItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayloadItem.swift; sourceTree = "<group>"; };
@@ -530,9 +536,12 @@
 		2469A5DD2744657000E56457 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2438B92D29C12179001D6F3A /* emptyContentStringRule.json */,
 				2469A5E02744696400E56457 /* eventSequenceRule.json */,
-				2469A5DE274465C900E56457 /* showOnceRule.json */,
 				2469A5EC2755A60E00E56457 /* functionalTestConfigStage.json */,
+				2438B92E29C12179001D6F3A /* malformedContentRule.json */,
+				2469A5DE274465C900E56457 /* showOnceRule.json */,
+				2438B92B29C10B2D001D6F3A /* wrongScopeRule.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1123,6 +1132,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				2469A5DF274465C900E56457 /* showOnceRule.json in Resources */,
+				2438B92C29C10B2D001D6F3A /* wrongScopeRule.json in Resources */,
+				2438B93029C12179001D6F3A /* malformedContentRule.json in Resources */,
+				2438B92F29C12179001D6F3A /* emptyContentStringRule.json in Resources */,
 				2469A5E12744696400E56457 /* eventSequenceRule.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
