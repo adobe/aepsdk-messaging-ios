@@ -56,7 +56,7 @@ class MessagingRulesEngine {
                     continue
                 }
                                 
-                guard let ruleString = proposition.items.first?.data.content else {
+                guard let ruleString = proposition.items.first?.data.content, !ruleString.isEmpty else {
                     Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
                     continue
                 }
@@ -95,7 +95,7 @@ class MessagingRulesEngine {
         if persistChanges {
             addPropositionsToCache(propositions)
         } else {
-            inMemoryPropositions = propositions ?? []
+            inMemoryPropositions.append(contentsOf: propositions ?? [])
         }
     }
 
