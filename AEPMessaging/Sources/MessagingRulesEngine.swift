@@ -46,15 +46,10 @@ class MessagingRulesEngine {
     }
 
     func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool, persistChanges: Bool = true) {
-        if clearExisting {
-            clearPropositionsCache()            
-        }
-        
-        if persistChanges {
-            addPropositionsToCache(propositions)
-        }
-        
+                
         var rules: [LaunchRule] = []
+        var tempPropInfo: [String: PropositionInfo] = [:]
+        
         if let propositions = propositions {
             for proposition in propositions {
                 guard let ruleString = proposition.items.first?.data.content else {
@@ -70,28 +65,33 @@ class MessagingRulesEngine {
                 
                 // pre-fetch the assets for this message if there are any defined
                 cacheRemoteAssetsFor(rule)
+                
                 // store reporting data for this payload for later use
-                storePropositionInfo(proposition, forMessageId: rule.first?.consequences.first?.id)
+                if let messageId = rule.first?.consequences.first?.id {
+                    tempPropInfo[messageId] = proposition.propositionInfo
+                }
                 
                 rules.append(contentsOf: rule)
             }
         }
 
         if clearExisting {
+            inMemoryPropositions.removeAll()
+            cachePropositions(nil)
+            propositionInfo = tempPropInfo
             rulesEngine.replaceRules(with: rules)
             Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
         } else {
+            propositionInfo.merge(tempPropInfo) { _, new in new }
             rulesEngine.addRules(rules)
             Log.debug(label: MessagingConstants.LOG_TAG, "Successfully added \(rules.count) message(s) into the rules engine.")
         }
-    }
-
-    func storePropositionInfo(_ proposition: PropositionPayload, forMessageId messageId: String?) {
-        guard let messageId = messageId else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to associate proposition information for in-app message. MessageId unavailable in rule consequence.")
-            return
+        
+        if persistChanges {
+            addPropositionsToCache(propositions)
+        } else {
+            inMemoryPropositions = propositions ?? []
         }
-        propositionInfo[messageId] = proposition.propositionInfo
     }
 
     func processRule(_ rule: String) -> [LaunchRule]? {
@@ -101,13 +101,7 @@ class MessagingRulesEngine {
     func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
         return propositionInfo[messageId]
     }
-    
-    func clearPropositionsCache() {
-        propositionInfo.removeAll()
-        inMemoryPropositions.removeAll()
-        cachePropositions(nil)
-    }
-    
+        
     #if DEBUG
     /// For testing purposes only
     internal func propositionInfoCount() -> Int {

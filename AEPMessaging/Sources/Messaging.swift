@@ -168,7 +168,7 @@ public class Messaging: NSObject, Extension {
         
         // quick out if we have a scope (implying payload is not empty) and the scope doesn't match our app surface
         if event.scope != nil && event.scope != appSurface {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring response for personalization:decisions where the scope does not match the surface for in-app messages.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response. The scope does not match the surface (\(appSurface ?? "unknown")) for in-app messages.")
             return
         }
         
@@ -179,7 +179,7 @@ public class Messaging: NSObject, Extension {
             lastProcessedRequestEventId = event.requestEventId
         }
                  
-        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definitions from network response.")
+        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definitions from personalization:decisions network response.")
         rulesEngine.loadPropositions(event.payload, clearExisting: clearExistingRules)
     }
 

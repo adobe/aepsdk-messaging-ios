@@ -56,13 +56,12 @@ extension MessagingRulesEngine {
         }
 
         let decoder = JSONDecoder()
-        guard let propostions: [PropositionPayload] = try? decoder.decode([PropositionPayload].self, from: cachedPropositions.data) else {
+        guard let propositions: [PropositionPayload] = try? decoder.decode([PropositionPayload].self, from: cachedPropositions.data) else {
             return
         }
 
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
-        inMemoryPropositions = propostions
-        loadPropositions(propostions, clearExisting: true, persistChanges: false)
+        loadPropositions(propositions, clearExisting: false, persistChanges: false)
     }
     
     func addPropositionsToCache(_ propositions: [PropositionPayload]?) {
