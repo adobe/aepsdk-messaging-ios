@@ -167,7 +167,7 @@ public class Messaging: NSObject, Extension {
 
         guard let propositions = event.payload, !propositions.isEmpty, event.scope == appSurface else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Payload for in-app messages was empty. Clearing in-app messages from cache and persistence.")
-            rulesEngine.clearPropositions()                        
+//            rulesEngine.clearPropositions()                        
             return
         }
 
