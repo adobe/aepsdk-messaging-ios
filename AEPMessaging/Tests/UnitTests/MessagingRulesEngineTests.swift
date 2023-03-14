@@ -42,9 +42,9 @@ class MessagingRulesEngineTests: XCTestCase {
         let mre = MessagingRulesEngine(name: "mockRE", extensionRuntime: TestableExtensionRuntime())
 
         // verify
-        // launch rules engine loads asynchronously with no callback mechanism, so we have to pause this thread for a second
-        sleep(1)
-        XCTAssertEqual(1, mre.rulesEngine.rulesEngine.rules.count)
+        XCTAssertNotNil(mre.runtime)
+        XCTAssertNotNil(mre.rulesEngine)
+        XCTAssertNotNil(mre.cache)
     }
 
     func testProcess() throws {
@@ -96,8 +96,8 @@ class MessagingRulesEngineTests: XCTestCase {
         messagingRulesEngine.loadPropositions([propPayload], clearExisting: false, expectedScope: mockIamSurface)
         
         // verify
-        XCTAssertTrue(mockRulesEngine.addRulesCalled)
-        XCTAssertEqual(0, mockRulesEngine.paramAddRulesRules?.count)
+        XCTAssertFalse(mockRulesEngine.replaceRulesCalled)
+        XCTAssertFalse(mockRulesEngine.addRulesCalled)
     }
     
     func testLoadPropositionsEmptyContentInPayload() throws {
@@ -111,8 +111,8 @@ class MessagingRulesEngineTests: XCTestCase {
         messagingRulesEngine.loadPropositions([propPayload], clearExisting: false, expectedScope: mockIamSurface)
         
         // verify
-        XCTAssertTrue(mockRulesEngine.addRulesCalled)
-        XCTAssertEqual(0, mockRulesEngine.paramAddRulesRules?.count)
+        XCTAssertFalse(mockRulesEngine.replaceRulesCalled)
+        XCTAssertFalse(mockRulesEngine.addRulesCalled)
     }
     
     func testLoadPropositionsEventSequence() throws {

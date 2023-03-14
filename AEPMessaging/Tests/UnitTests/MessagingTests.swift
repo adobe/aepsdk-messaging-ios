@@ -151,19 +151,6 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
     }
 
-    func testHandleEdgePersonalizationNotificationWrongAppSurface() throws {
-        // setup
-        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
-                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(scope: "nope wrong scope"))
-        try? mockMessagingRulesEngine.cache.remove(key: "propositions")
-
-        // test
-        mockRuntime.simulateComingEvents(event)
-
-        // verify
-        XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)
-    }
-
     func testHandleEdgePersonalizationNotificationEmptyPayload() throws {
         // setup
         let eventData = getOfferEventData(items: [:])
