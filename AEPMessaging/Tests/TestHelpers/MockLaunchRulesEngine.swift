@@ -32,4 +32,11 @@ class MockLaunchRulesEngine: LaunchRulesEngine {
         replaceRulesCalled = true
         paramRules = rules
     }
+    
+    var addRulesCalled: Bool = false
+    var paramAddRulesRules: [LaunchRule]?
+    override func addRules(_ rules: [LaunchRule]) {
+        addRulesCalled = true
+        paramAddRulesRules = rules
+    }
 }

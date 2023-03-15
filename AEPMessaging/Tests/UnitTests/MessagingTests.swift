@@ -23,6 +23,7 @@ class MessagingTests: XCTestCase {
     var mockMessagingRulesEngine: MockMessagingRulesEngine!
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
+    let mockIamSurface = "mobileapp://com.apple.dt.xctest.tool"
 
     // Mock constants
     let MOCK_ECID = "mock_ecid"
@@ -36,7 +37,7 @@ class MessagingTests: XCTestCase {
         mockCache = MockCache(name: "mockCache")
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mockLaunchRulesEngine", extensionRuntime: mockRuntime)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockLaunchRulesEngine, cache: mockCache)
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, expectedScope: mockIamSurface)
         messaging.onRegistered()
 
         mockNetworkService = MockNetworkService()
@@ -146,35 +147,52 @@ class MessagingTests: XCTestCase {
         let loadedRules = mockMessagingRulesEngine.paramLoadPropositionsPropositions
         XCTAssertNotNil(loadedRules)
         XCTAssertNotNil(loadedRules?.first)
-        XCTAssertTrue(mockCache.setCalled)
-        XCTAssertEqual("propositions", mockCache.setParamKey)
-        XCTAssertNotNil(mockCache.setParamEntry)
+        XCTAssertEqual(false, mockMessagingRulesEngine.paramLoadPropositionsClearExisting)
+        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
     }
 
-    func testHandleEdgePersonalizationNotificationWrongAppSurface() throws {
+    func testHandleEdgePersonalizationNotificationEmptyPayload() throws {
         // setup
+        let eventData = getOfferEventData(items: [:])
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
-                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(scope: "nope wrong scope"))
-        try? mockMessagingRulesEngine.cache.remove(key: "propositions")
+                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: eventData)
 
         // test
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertTrue(mockMessagingRulesEngine.clearPropositionsCalled)        
+        XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)
+        XCTAssertEqual(0, mockMessagingRulesEngine.paramLoadPropositionsPropositions?.count)
+        XCTAssertEqual(false, mockMessagingRulesEngine.paramLoadPropositionsClearExisting)
+        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
     }
-
-    func testHandleOfferNotificationEmptyItems() throws {
+    
+    func testHandleEdgePersonalizationNotificationNewRequestEvent() throws {
         // setup
+        messaging.setLastProcessedRequestEventId("oldEventId")
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
-                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(items: [:]))
+                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
 
         // test
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)
-        XCTAssertTrue(mockMessagingRulesEngine.clearPropositionsCalled)
+        XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)        
+        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsClearExisting)
+        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
+    }
+    
+    func testHandleEdgePersonalizationNotificationRequestEventDoesNotMatch() throws {
+        // setup
+        messaging.setMessagesRequestEventId("requestEventId")
+        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
+                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)        
     }
 
     func testHandleRulesResponseHappy() throws {
