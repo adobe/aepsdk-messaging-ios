@@ -64,4 +64,31 @@ import UserNotifications
 
         MobileCore.dispatch(event: event)
     }
+    
+    // MARK: Message Feed
+    
+    /// This API dispatches an event to fetch message feeds for the provided surface paths from the Adobe Journey Optimizer via the Experience Edge network.
+    /// - Parameter surfacePaths: An array of surface path strings
+    static func updateFeedsForSurfacePaths(_ surfacePaths: [String]) {
+        let validSurfacePaths = surfacePaths
+            .filter { !$0.isEmpty }
+        
+        guard !validSurfacePaths.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Cannot update feeds as the provided surface paths array is empty, or has one or more empty items.")
+            return
+        }
+
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.UPDATE_FEEDS: true,
+            MessagingConstants.Event.Data.Key.SURFACES: validSurfacePaths
+        ]
+
+        let event = Event(name: MessagingConstants.Event.Name.UPDATE_MESSAGE_FEEDS,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: eventData)
+
+        MobileCore.dispatch(event: event)
+    }
 }
