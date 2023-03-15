@@ -30,7 +30,7 @@ let package = Package(
     name: \"TestProject\",
     defaultLocalization: \"en-US\",
     platforms: [
-        .iOS(.v10)
+        .iOS(.v11)
     ],
     products: [
         .library(
@@ -66,7 +66,7 @@ swift package resolve
 
 # This is nececery to avoid internal PIF error
 swift package dump-pif > /dev/null
-xcodebuild clean -scheme TestProject -destination 'generic/platform=iOS' > /dev/null
+(xcodebuild clean -scheme TestProject -destination 'generic/platform=iOS' > /dev/null) || :
 
 # Archive for generic iOS device
 echo '############# Archive for generic iOS device ###############'

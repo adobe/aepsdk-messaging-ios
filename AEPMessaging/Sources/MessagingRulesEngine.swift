@@ -19,15 +19,15 @@ class MessagingRulesEngine {
     let rulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
     let cache: Cache
-    private var propositionInfo: [String: PropositionInfo] = [:]
+    var inMemoryPropositions: [PropositionPayload] = []
+    var propositionInfo: [String: PropositionInfo] = [:]
 
     /// Initialize this class, creating a new rules engine with the provided name and runtime
     init(name: String, extensionRuntime: ExtensionRuntime) {
         runtime = extensionRuntime
         rulesEngine = LaunchRulesEngine(name: name,
                                         extensionRuntime: extensionRuntime)
-        cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
-        loadCachedPropositions()
+        cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)        
     }
 
     /// INTERNAL ONLY
@@ -44,45 +44,59 @@ class MessagingRulesEngine {
         _ = rulesEngine.process(event: event)
     }
 
-    func loadPropositions(_ propositions: [PropositionPayload]) {
+    func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool, persistChanges: Bool = true, expectedScope: String) {
+                
         var rules: [LaunchRule] = []
-        for proposition in propositions {
-            guard let ruleString = proposition.items.first?.data.content else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
-                continue
-
+        var tempPropInfo: [String: PropositionInfo] = [:]
+        
+        if let propositions = propositions {
+            for proposition in propositions {
+                guard expectedScope == proposition.propositionInfo.scope else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring proposition where scope (\(proposition.propositionInfo.scope)) does not match expected scope (\(expectedScope)).")
+                    continue
+                }
+                                
+                guard let ruleString = proposition.items.first?.data.content, !ruleString.isEmpty else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
+                    continue
+                }
+                
+                guard let rule = processRule(ruleString) else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with malformed in-app message content.")
+                    continue
+                }
+                
+                // pre-fetch the assets for this message if there are any defined
+                cacheRemoteAssetsFor(rule)
+                
+                // store reporting data for this payload for later use
+                if let messageId = rule.first?.consequences.first?.id {
+                    tempPropInfo[messageId] = proposition.propositionInfo
+                }
+                
+                rules.append(contentsOf: rule)
             }
-
-            guard let rule = processRule(ruleString) else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with malformed in-app message content.")
-                continue
-            }
-
-            // pre-fetch the assets for this message if there are any defined
-            cacheRemoteAssetsFor(rule)
-            // store reporting data for this payload for later use
-            storePropositionInfo(proposition, forMessageId: rule.first?.consequences.first?.id)
-
-            rules.append(contentsOf: rule)
         }
 
-        rulesEngine.replaceRules(with: rules)
-        Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
-    }
-    
-    func clearPropositions() {
-        propositionInfo.removeAll()
-        clearPropositionsCache()
-        rulesEngine.replaceRules(with: [])        
-        Log.debug(label: MessagingConstants.LOG_TAG, "In-app messages cleared from Messaging rules engine and NSUserDefaults.")
-    }
-
-    func storePropositionInfo(_ proposition: PropositionPayload, forMessageId messageId: String?) {
-        guard let messageId = messageId else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to associate proposition information for in-app message. MessageId unavailable in rule consequence.")
-            return
+        if clearExisting {
+            inMemoryPropositions.removeAll()
+            cachePropositions(nil)
+            propositionInfo = tempPropInfo
+            rulesEngine.replaceRules(with: rules)
+            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine for scope '\(expectedScope)'.")
+        } else if !rules.isEmpty {
+            propositionInfo.merge(tempPropInfo) { _, new in new }
+            rulesEngine.addRules(rules)
+            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully added \(rules.count) message(s) into the rules engine for scope '\(expectedScope)'.")
+        } else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring request to load in-app messages for scope '\(expectedScope)'. The propositions parameter provided was empty.")
         }
-        propositionInfo[messageId] = proposition.propositionInfo
+        
+        if persistChanges {
+            addPropositionsToCache(propositions)
+        } else {
+            inMemoryPropositions.append(contentsOf: propositions ?? [])
+        }
     }
 
     func processRule(_ rule: String) -> [LaunchRule]? {
@@ -92,8 +106,16 @@ class MessagingRulesEngine {
     func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
         return propositionInfo[messageId]
     }
-    
-    func propositionInfoCount() -> Int {
+        
+    #if DEBUG
+    /// For testing purposes only
+    internal func propositionInfoCount() -> Int {
         return propositionInfo.count
     }
+    
+    /// For testing purposes only
+    internal func inMemoryPropositionsCount() -> Int {
+        return inMemoryPropositions.count
+    }
+    #endif
 }
