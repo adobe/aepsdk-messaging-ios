@@ -23,6 +23,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
     var mockRulesEngine: MockLaunchRulesEngine!
     var mockRuntime: TestableExtensionRuntime!
     var mockCache: MockCache!
+    let mockIamSurface = "mobileapp://com.apple.dt.xctest.tool"
 
     struct MockEvaluable: Evaluable {
         public func evaluate(in context: Context) -> Result<Bool, RulesFailure> {
@@ -44,13 +45,28 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         mockCache.getReturnValue = cacheEntry
 
         // test
-        messagingRulesEngine.loadCachedPropositions()
+        messagingRulesEngine.loadCachedPropositions(for: mockIamSurface)
 
         // verify
         XCTAssertTrue(mockCache.getCalled)
         XCTAssertEqual("propositions", mockCache.getParamKey)
-        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(1, mockRulesEngine.paramRules?.count)
+        XCTAssertTrue(mockRulesEngine.addRulesCalled)
+        XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
+    }
+    
+    func testLoadCachedPropositionsWrongScope() throws {
+        // setup
+        let aJsonString = JSONFileLoader.getRulesStringFromFile("wrongScopeRule")
+        let cacheEntry = CacheEntry(data: aJsonString.data(using: .utf8)!, expiry: .never, metadata: nil)
+        mockCache.getReturnValue = cacheEntry
+
+        // test
+        messagingRulesEngine.loadCachedPropositions(for: mockIamSurface)
+
+        // verify
+        XCTAssertTrue(mockCache.getCalled)
+        XCTAssertEqual("propositions", mockCache.getParamKey)
+        XCTAssertFalse(mockRulesEngine.addRulesCalled)
     }
 
     func testLoadCachedPropositionsNoCacheFound() throws {
@@ -58,7 +74,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         mockCache.getReturnValue = nil
 
         // test
-        messagingRulesEngine.loadCachedPropositions()
+        messagingRulesEngine.loadCachedPropositions(for: mockIamSurface)
 
         // verify
         XCTAssertTrue(mockCache.getCalled)
@@ -162,37 +178,14 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         XCTAssertFalse(mockCache.setCalled)
     }
 
-    /// The below tests for private func `cachePropositions` are executed via
-    /// internal methods `setPropositionsCache` and `clearPropositionsCache`
-    func testCachePropositionsClearCache() throws {
-        // test
-        messagingRulesEngine.clearPropositionsCache()
-
-        // verify
-        XCTAssertTrue(mockCache.removeCalled)
-        XCTAssertEqual("propositions", mockCache.removeParamKey)
-    }
-
-    func testCachePropositionsClearCacheThrows() throws {
-        // setup
-        mockCache.removeShouldThrow = true
-
-        // test
-        messagingRulesEngine.clearPropositionsCache()
-
-        // verify
-        XCTAssertTrue(mockCache.removeCalled)
-        XCTAssertEqual("propositions", mockCache.removeParamKey)
-    }
-
-    func testCachePropositionsSetCache() throws {
+    func testCachePropositionsAddCache() throws {
         // setup
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let decoder = JSONDecoder()
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
         
         // test
-        messagingRulesEngine.setPropositionsCache(propositions)
+        messagingRulesEngine.addPropositionsToCache(propositions)
 
         // verify
         XCTAssertTrue(mockCache.setCalled)
@@ -203,9 +196,10 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         let cachedProps = try decoder.decode([PropositionPayload].self, from: cacheString.data(using: .utf8)!)
         XCTAssertEqual(1, cachedProps.count)
         XCTAssertEqual(propositions.first?.propositionInfo.id, cachedProps.first?.propositionInfo.id)
+        XCTAssertEqual(1, messagingRulesEngine.inMemoryPropositionsCount())
     }
 
-    func testCachePropositionsSetCacheThrows() throws {
+    func testCachePropositionsAddCacheThrows() throws {
         // setup
         let propString = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let decoder = JSONDecoder()
@@ -213,7 +207,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         mockCache.setShouldThrow = true
 
         // test
-        messagingRulesEngine.setPropositionsCache(propositions)
+        messagingRulesEngine.addPropositionsToCache(propositions)
 
         // verify
         XCTAssertTrue(mockCache.setCalled)

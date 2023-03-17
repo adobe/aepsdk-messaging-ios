@@ -25,7 +25,8 @@ public class Messaging: NSObject, Extension {
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
 
-    private var requestMessagesEventId: String?
+    private var messagesRequestEventId: String?
+    private var lastProcessedRequestEventId: String?
     private var initialLoadComplete = false
     private(set) var currentMessage: Message?
     private let rulesEngine: MessagingRulesEngine
@@ -36,19 +37,20 @@ public class Messaging: NSObject, Extension {
         self.runtime = runtime
         rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME,
                                            extensionRuntime: runtime)
-
         super.init()
+        rulesEngine.loadCachedPropositions(for: appSurface)
     }
 
     /// INTERNAL ONLY
     /// used for testing
-    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine) {
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, expectedScope: String) {
         self.runtime = runtime
         self.rulesEngine = rulesEngine
+        self.rulesEngine.loadCachedPropositions(for: expectedScope)
 
         super.init()
     }
-
+    
     public func onRegistered() {
         // register listener for set push identifier event
         registerListener(type: EventType.genericIdentity,
@@ -116,7 +118,7 @@ public class Messaging: NSObject, Extension {
     /// The app surface used in the request is generated using the `bundleIdentifier` for the app.
     /// If the `bundleIdentifier` is unavailable, calling this method will do nothing.
     private func fetchMessages() {
-        guard let appSurface = appSurface else {
+        guard appSurface != "unknown" else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve in-app messages - unable to retrieve bundle identifier.")
             return
         }
@@ -142,15 +144,15 @@ public class Messaging: NSObject, Extension {
 
         // equal to `requestEventId` in aep response handles
         // used for ensuring that the messaging extension is responding to the correct handle
-        requestMessagesEventId = event.id.uuidString
+        messagesRequestEventId = event.id.uuidString
 
         // send event
         runtime.dispatch(event: event)
     }
 
-    private var appSurface: String? {
+    private var appSurface: String {
         guard let bundleIdentifier = Bundle.main.bundleIdentifier, !bundleIdentifier.isEmpty else {
-            return nil
+            return "unknown"
         }
 
         return MessagingConstants.XDM.IAM.SURFACE_BASE + bundleIdentifier
@@ -160,20 +162,20 @@ public class Messaging: NSObject, Extension {
     /// - Parameter event: an `Event` containing an in-app message definition in its data
     private func handleEdgePersonalizationNotification(_ event: Event) {
         // validate the event
-        guard event.isPersonalizationDecisionResponse, event.requestEventId == requestMessagesEventId else {
+        guard event.isPersonalizationDecisionResponse, event.requestEventId == messagesRequestEventId else {
             // either this isn't the type of response we are waiting for, or it's not a response for our request
             return
         }
-
-        guard let propositions = event.payload, !propositions.isEmpty, event.scope == appSurface else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Payload for in-app messages was empty. Clearing in-app messages from cache and persistence.")
-            rulesEngine.clearPropositions()                        
-            return
+        
+        // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
+        var clearExistingRules = false
+        if lastProcessedRequestEventId != event.requestEventId {
+            clearExistingRules = true
+            lastProcessedRequestEventId = event.requestEventId
         }
-
-        rulesEngine.setPropositionsCache(propositions)
-        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from network response.")
-        rulesEngine.loadPropositions(propositions)
+                 
+        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definitions from personalization:decisions network response.")
+        rulesEngine.loadPropositions(event.payload, clearExisting: clearExistingRules, expectedScope: appSurface)
     }
 
     /// Handles Rules Consequence events containing message definitions.
@@ -280,4 +282,16 @@ public class Messaging: NSObject, Extension {
             return
         }
     }
+    
+    #if DEBUG
+    /// Used for testing only
+    internal func setMessagesRequestEventId(_ newId: String?) {
+        messagesRequestEventId = newId
+    }
+    
+    /// Used for testing only
+    internal func setLastProcessedRequestEventId(_ newId: String?) {
+        lastProcessedRequestEventId = newId
+    }
+    #endif
 }
