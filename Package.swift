@@ -17,7 +17,7 @@ import PackageDescription
 
 let package = Package(
     name: "AEPMessaging",
-    platforms: [.iOS(.v11)],
+    platforms: [.iOS(.v10)],
     products: [
         .library(name: "AEPMessaging", targets: ["AEPMessaging"])
     ],
