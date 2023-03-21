@@ -41,4 +41,10 @@ struct PropositionPayload: Codable {
         try container.encode(propositionInfo.scopeDetails, forKey: .scopeDetails)
         try container.encode(items, forKey: .items)
     }
+    
+    /// internal use only for testing
+    init(propositionInfo: PropositionInfo, items: [PayloadItem]) {
+        self.propositionInfo = propositionInfo
+        self.items = items
+    }
 }
