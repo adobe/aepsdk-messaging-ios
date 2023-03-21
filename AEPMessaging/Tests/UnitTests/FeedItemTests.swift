@@ -34,7 +34,7 @@ class FeedItemTests: XCTestCase {
     }
     
     // MARK: - Helpers
-    public func dictionariesAreEqual (lhs: [String: Any]?, rhs: [String: Any]?) -> Bool {
+    func dictionariesAreEqual (_ lhs: [String: Any]?, _ rhs: [String: Any]?) -> Bool {
         if let l = lhs, let r = rhs {
             return NSDictionary(dictionary: l).isEqual(to: r)
         }
@@ -72,7 +72,7 @@ class FeedItemTests: XCTestCase {
         XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
         XCTAssertEqual(mockPublishedDate, feedItem.publishedDate)
         XCTAssertEqual(mockExpiryDate, feedItem.expiryDate)
-        XCTAssertTrue(dictionariesAreEqual(lhs: mockMeta, rhs: feedItem.meta))
+        XCTAssertTrue(dictionariesAreEqual(mockMeta, feedItem.meta))
     }
     
     func testIsEncodable() throws {
@@ -137,7 +137,7 @@ class FeedItemTests: XCTestCase {
         XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
         XCTAssertEqual(mockPublishedDate, feedItem.publishedDate)
         XCTAssertEqual(mockExpiryDate, feedItem.expiryDate)
-        XCTAssertTrue(dictionariesAreEqual(lhs: mockMeta, rhs: feedItem.meta))
+        XCTAssertTrue(dictionariesAreEqual(mockMeta, feedItem.meta))
     }
     
     // MARK: - test required properties
@@ -276,7 +276,7 @@ class FeedItemTests: XCTestCase {
         XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
         XCTAssertEqual(mockPublishedDate, feedItem.publishedDate)
         XCTAssertEqual(mockExpiryDate, feedItem.expiryDate)
-        XCTAssertTrue(dictionariesAreEqual(lhs: mockMeta, rhs: feedItem.meta))
+        XCTAssertTrue(dictionariesAreEqual(mockMeta, feedItem.meta))
     }
     
     func testActionUrlIsNotRequired() throws {
@@ -312,7 +312,7 @@ class FeedItemTests: XCTestCase {
         XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
         XCTAssertEqual(mockPublishedDate, feedItem.publishedDate)
         XCTAssertEqual(mockExpiryDate, feedItem.expiryDate)
-        XCTAssertTrue(dictionariesAreEqual(lhs: mockMeta, rhs: feedItem.meta))
+        XCTAssertTrue(dictionariesAreEqual(mockMeta, feedItem.meta))
     }
     
     func testActionTitleIsNotRequired() throws {
@@ -348,7 +348,7 @@ class FeedItemTests: XCTestCase {
         XCTAssertNil(feedItem.actionTitle)
         XCTAssertEqual(mockPublishedDate, feedItem.publishedDate)
         XCTAssertEqual(mockExpiryDate, feedItem.expiryDate)
-        XCTAssertTrue(dictionariesAreEqual(lhs: mockMeta, rhs: feedItem.meta))
+        XCTAssertTrue(dictionariesAreEqual(mockMeta, feedItem.meta))
     }
     
     func testMetaIsNotRequired() throws {
