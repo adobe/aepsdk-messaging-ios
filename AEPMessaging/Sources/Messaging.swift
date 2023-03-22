@@ -114,34 +114,37 @@ public class Messaging: NSObject, Extension {
         rulesEngine.process(event: event)
     }
 
-    /// Generates and dispatches an event prompting the Edge extension to fetch in-app messages.
-    /// The app surface used in the request is generated using the `bundleIdentifier` for the app.
+    /// Generates and dispatches an event prompting the Edge extension to fetch in-app or feed messages.
+    ///
+    /// The surface URIs used in the request are generated using the `bundleIdentifier` for the app.
     /// If the `bundleIdentifier` is unavailable, calling this method will do nothing.
-    private func fetchMessages(for surfaces: [String]? = nil) {
+    ///
+    /// - Parameter surfacePaths: an array of surface path strings for fetching feed messages, if available.
+    private func fetchMessages(for surfacePaths: [String]? = nil) {
         guard appSurface != "unknown" else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve in-app or feed messages, cannot read the bundle identifier.")
             return
         }
         
-        var targetSurfaces: [String] = []
-        if let surfaces = surfaces {
-            targetSurfaces = surfaces
+        var surfaceUri: [String] = []
+        if let surfacePaths = surfacePaths {
+            surfaceUri = surfacePaths
                 .filter { !$0.isEmpty }
                 .map { appSurface + MessagingConstants.PATH_SEPARATOR + $0 }
+            
+            if (surfaceUri.isEmpty) {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve feed messages, no valid surface paths found.")
+                return
+            }
         } else {
-            targetSurfaces = [ appSurface ]
-        }
-        
-        if (targetSurfaces.isEmpty) {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve feed messages, no valid surface paths found.")
-            return
+            surfaceUri = [ appSurface ]
         }
 
         var eventData: [String: Any] = [:]
 
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION: [
-                MessagingConstants.XDM.IAM.Key.SURFACES: targetSurfaces
+                MessagingConstants.XDM.IAM.Key.SURFACES: surfaceUri
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
@@ -248,7 +251,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // handle an event to request message feeds from the
+        // handle an event to request message feeds from the remote
         if event.isUpdateFeedsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update message feed definitions from the remote.")
             fetchMessages(for: event.surfaces ?? [])

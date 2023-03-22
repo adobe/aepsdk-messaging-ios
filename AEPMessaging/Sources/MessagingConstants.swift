@@ -43,7 +43,7 @@ enum MessagingConstants {
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
             
-            static let UPDATE_MESSAGE_FEEDS = "Update message feeds event"
+            static let UPDATE_MESSAGE_FEEDS = "Update message feeds"
         }
 
         enum Source {
