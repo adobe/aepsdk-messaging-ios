@@ -231,7 +231,7 @@ class MessagingPublicApiTest: XCTestCase {
         let expectation = XCTestExpectation(description: "updateFeedsforSurfacePaths should dispatch an event with expected data.")
         expectation.assertForOverFulfill = true
 
-        let testEvent = Event(name: "Update message feeds event",
+        let testEvent = Event(name: "Update message feeds",
                               type: "com.adobe.eventType.messaging",
                               source: "com.adobe.eventSource.requestContent",
                               data: [
@@ -274,7 +274,7 @@ class MessagingPublicApiTest: XCTestCase {
         let expectation = XCTestExpectation(description: "updateFeedsforSurfacePaths should dispatch an event with expected data.")
         expectation.assertForOverFulfill = true
 
-        let testEvent = Event(name: "Update message feeds event",
+        let testEvent = Event(name: "Update message feeds",
                               type: "com.adobe.eventType.messaging",
                               source: "com.adobe.eventSource.requestContent",
                               data: [
