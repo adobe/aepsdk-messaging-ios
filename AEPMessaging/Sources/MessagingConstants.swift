@@ -16,10 +16,11 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "1.1.2"
+    static let EXTENSION_VERSION = "1.1.3"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
+    static let PATH_SEPARATOR = "/"
 
     enum Caches {
         static let CACHE_NAME = "com.adobe.messaging.cache"
@@ -41,6 +42,8 @@ enum MessagingConstants {
             static let PUSH_TRACKING_EDGE = "Push tracking edge event"
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
+            
+            static let UPDATE_MESSAGE_FEEDS = "Update message feeds"
         }
 
         enum Source {
@@ -62,6 +65,8 @@ enum MessagingConstants {
                 static let ADOBE_XDM = "adobe_xdm"
                 static let REQUEST_EVENT_ID = "requestEventId"
                 static let IAM_HISTORY = "iam"
+                static let UPDATE_FEEDS = "updatefeeds"
+                static let SURFACES = "surfaces"
 
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"

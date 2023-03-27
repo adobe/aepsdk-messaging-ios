@@ -223,4 +223,129 @@ class MessagingPublicApiTest: XCTestCase {
         // verify
         wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
+    
+    // MARK: Message Feed Tests
+    
+    func testUpdateFeedsForSurfacePaths() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "updateFeedsforSurfacePaths should dispatch an event with expected data.")
+        expectation.assertForOverFulfill = true
+
+        let testEvent = Event(name: "Update message feeds",
+                              type: "com.adobe.eventType.messaging",
+                              source: "com.adobe.eventSource.requestContent",
+                              data: [
+                                "updatefeeds": true,
+                                "surfaces": [
+                                    "promos/feed1",
+                                    "promos/feed2"
+                                ]
+                              ])
+
+        
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+            type: testEvent.type,
+            source: testEvent.source) { event in
+            
+            XCTAssertEqual(testEvent.name, event.name)
+            XCTAssertNotNil(event.data)
+            XCTAssertEqual(true, event.data?["updatefeeds"] as? Bool)
+            guard let surfaces = event.data?["surfaces"] as? [String], !surfaces.isEmpty else {
+                XCTFail("Surface path strings array should be valid.")
+                return
+            }
+            XCTAssertEqual(2, surfaces.count)
+            XCTAssertEqual("promos/feed1", surfaces[0])
+            XCTAssertEqual("promos/feed2", surfaces[1])
+
+            expectation.fulfill()
+        }
+
+        // test
+        Messaging.updateFeedsForSurfacePaths(["promos/feed1", "promos/feed2"])
+
+        // verify
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+    }
+    
+    func testUpdateFeedsForSurfacePaths_whenValidAndEmptySurfacesInArray() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "updateFeedsforSurfacePaths should dispatch an event with expected data.")
+        expectation.assertForOverFulfill = true
+
+        let testEvent = Event(name: "Update message feeds",
+                              type: "com.adobe.eventType.messaging",
+                              source: "com.adobe.eventSource.requestContent",
+                              data: [
+                                "updatefeeds": true,
+                                "surfaces": [
+                                    "",
+                                    "promos/feed2"
+                                ]
+                              ])
+
+        
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+            type: testEvent.type,
+            source: testEvent.source) { event in
+            
+            XCTAssertEqual(testEvent.name, event.name)
+            XCTAssertNotNil(event.data)
+            XCTAssertEqual(true, event.data?["updatefeeds"] as? Bool)
+            guard let surfaces = event.data?["surfaces"] as? [String], !surfaces.isEmpty else {
+                XCTFail("Surface path strings array should be valid.")
+                return
+            }
+            XCTAssertEqual(1, surfaces.count)
+            XCTAssertEqual("promos/feed2", surfaces[0])
+
+            expectation.fulfill()
+        }
+
+        // test
+        Messaging.updateFeedsForSurfacePaths(["", "promos/feed2"])
+
+        // verify
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+    }
+    
+    func testUpdateFeedsForSurfacePaths_whenEmptySurfaceInArray() {
+        // setup
+        let expectation = XCTestExpectation(description: "updateFeedsforSurfacePaths should not dispatch an event.")
+        expectation.isInverted = true
+
+        // test
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+            type: "com.adobe.eventType.messaging",
+            source: "com.adobe.eventSource.requestContent") { _ in
+            expectation.fulfill()
+        }
+
+        // test
+        Messaging.updateFeedsForSurfacePaths([""])
+
+        // verify
+        wait(for: [expectation], timeout: 1)
+    }
+    
+    func testUpdateFeedsForSurfacePaths_whenEmptySurfacesArray() {
+        // setup
+        let expectation = XCTestExpectation(description: "updateFeedsforSurfacePaths should not dispatch an event.")
+        expectation.isInverted = true
+
+        // test
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+            type: "com.adobe.eventType.messaging",
+            source: "com.adobe.eventSource.requestContent") { _ in
+            expectation.fulfill()
+        }
+
+        // test
+        Messaging.updateFeedsForSurfacePaths([])
+
+        // verify
+        wait(for: [expectation], timeout: 1)
+    }
 }

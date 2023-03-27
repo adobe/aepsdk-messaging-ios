@@ -133,6 +133,82 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(1, fetchEventSurfaces?.count)
         XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool", fetchEventSurfaces?.first)
     }
+    
+    func testFetchMessages_whenUpdateFeedsRequest() throws {
+        // setup
+        let event = Event(name: "Update message feeds event",
+                          type: "com.adobe.eventType.messaging",
+                          source: "com.adobe.eventSource.requestContent",
+                          data: [
+                            "updatefeeds": true,
+                            "surfaces": [
+                                "promos/feed1"
+                            ]
+                          ])
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let fetchEvent = mockRuntime.firstEvent
+        XCTAssertNotNil(fetchEvent)
+        XCTAssertEqual(EventType.edge, fetchEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, fetchEvent?.source)
+        let fetchEventData = fetchEvent?.data
+        XCTAssertNotNil(fetchEventData)
+        let fetchEventQuery = fetchEventData?[MessagingConstants.XDM.IAM.Key.QUERY] as? [String: Any]
+        XCTAssertNotNil(fetchEventQuery)
+        let fetchEventPersonalization = fetchEventQuery?[MessagingConstants.XDM.IAM.Key.PERSONALIZATION] as? [String: Any]
+        XCTAssertNotNil(fetchEventPersonalization)
+        let fetchEventSurfaces = fetchEventPersonalization?[MessagingConstants.XDM.IAM.Key.SURFACES] as? [String]
+        XCTAssertNotNil(fetchEventSurfaces)
+        XCTAssertEqual(1, fetchEventSurfaces?.count)
+        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", fetchEventSurfaces?.first)
+    }
+    
+    func testFetchMessages_whenUpdateFeedsRequest_emptySurfacesInArray() throws {
+        // setup
+        let event = Event(name: "Update message feeds event",
+                          type: "com.adobe.eventType.messaging",
+                          source: "com.adobe.eventSource.requestContent",
+                          data: [
+                            "updatefeeds": true,
+                            "surfaces": [
+                                "",
+                                ""
+                            ]
+                          ])
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+    
+    func testFetchMessages_whenUpdateFeedsRequest_emptySurfacesArray() throws {
+        // setup
+        let event = Event(name: "Update message feeds event",
+                          type: "com.adobe.eventType.messaging",
+                          source: "com.adobe.eventSource.requestContent",
+                          data: [
+                            "updatefeeds": true,
+                            "surfaces": []
+                          ])
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
 
     func testHandleEdgePersonalizationNotificationHappy() throws {
         // setup
@@ -448,6 +524,35 @@ class MessagingTests: XCTestCase {
 
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
+    }
+
+    func testHandleProcessEventUpdateFeedsEvent() throws {
+        // setup
+        let event = Event(name: "Update message feeds event",
+                          type: MessagingConstants.Event.EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: [
+                            MessagingConstants.Event.Data.Key.UPDATE_FEEDS: true,
+                            MessagingConstants.Event.Data.Key.SURFACES: ["promos/feed1"]
+                          ])
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [:], status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, dispatchedEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
+        
+        let eventData = try XCTUnwrap(dispatchedEvent?.data as? [String: Any])
+        let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
+        XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
+        let query =  try XCTUnwrap(eventData["query"] as? [String: Any])
+        let personalization =  try XCTUnwrap(query["personalization"] as? [String: Any])
+        let surfaces = try XCTUnwrap(personalization["surfaces"] as? [String])
+        XCTAssertEqual(1, surfaces.count)
+        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", surfaces[0])
     }
 
     func testHandleProcessEventNoIdentityMap() throws {
