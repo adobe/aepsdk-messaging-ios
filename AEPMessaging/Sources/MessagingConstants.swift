@@ -32,6 +32,7 @@ enum MessagingConstants {
 
     enum ConsequenceTypes {
         static let IN_APP_MESSAGE = "cjmiam"
+        static let FEED_ITEM = "ajofeeditem"
     }
 
     enum Event {
@@ -44,6 +45,7 @@ enum MessagingConstants {
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
             
             static let UPDATE_MESSAGE_FEEDS = "Update message feeds"
+            static let MESSAGE_FEEDS_NOTIFICATION = "Message feeds notification"
         }
 
         enum Source {
@@ -67,6 +69,7 @@ enum MessagingConstants {
                 static let IAM_HISTORY = "iam"
                 static let UPDATE_FEEDS = "updatefeeds"
                 static let SURFACES = "surfaces"
+                static let FEEDS = "feeds"
 
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
