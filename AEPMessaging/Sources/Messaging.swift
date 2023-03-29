@@ -361,5 +361,3 @@ public class Messaging: NSObject, Extension {
     }
     #endif
 }
-
-// MARK: - proposition caching
