@@ -22,6 +22,7 @@
 
 /* Begin PBXBuildFile section */
 		01B9DD6617C6AD6E99EE8472 /* Pods_E2EFunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB180620A608D2821FE98F37 /* Pods_E2EFunctionalTests.framework */; };
+		090290C229D39D4900388226 /* Messaging+Caching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C129D39D4900388226 /* Messaging+Caching.swift */; };
 		240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */; };
 		2414ED832899BA080036D505 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED822899BA080036D505 /* AppDelegate.m */; };
 		2414ED862899BA080036D505 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED852899BA080036D505 /* SceneDelegate.m */; };
@@ -290,6 +291,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		090290C129D39D4900388226 /* Messaging+Caching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+Caching.swift"; sourceTree = "<group>"; };
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedStateResult+Messaging.swift"; sourceTree = "<group>"; };
 		2414ED7F2899BA080036D505 /* MessagingDemoAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -655,6 +657,7 @@
 				244E9583268262C7001DC957 /* Message.swift */,
 				244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
+				090290C129D39D4900388226 /* Messaging+Caching.swift */,
 				244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */,
 				92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */,
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
@@ -1542,6 +1545,7 @@
 				243B1AFE28AEB1E60074327E /* PropositionInfo.swift in Sources */,
 				240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */,
 				2469A5E3274863F600E56457 /* MessagingRulesEngine+Caching.swift in Sources */,
+				090290C229D39D4900388226 /* Messaging+Caching.swift in Sources */,
 				244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */,
 				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
 				244FEA4829B8E2950058FA1C /* Feed.swift in Sources */,
