@@ -49,13 +49,13 @@ public class Messaging: NSObject, Extension {
 
     /// INTERNAL ONLY
     /// used for testing
-    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, expectedScope: String, cache: Cache) {
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, expectedSurface: String, cache: Cache) {
         self.runtime = runtime
         self.cache = cache
         self.rulesEngine = rulesEngine
         
         super.init()
-        loadCachedPropositions(for: expectedScope)
+        loadCachedPropositions(for: expectedSurface)
     }
     
     public func onRegistered() {

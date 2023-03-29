@@ -41,24 +41,13 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
         processCalled = true
         paramProcessEvent = event
     }
-
-    var loadPropositionsCalled = false
-    var paramLoadPropositionsPropositions: [PropositionPayload]?
-    var paramLoadPropositionsClearExisting: Bool?
-    var paramLoadPropositionsPersistChanges: Bool?
-    var paramLoadPropositionsExpectedScope: String?
-    override func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool, persistChanges: Bool = true, expectedScope: String) {
-        loadPropositionsCalled = true
-        paramLoadPropositionsPropositions = propositions
-        paramLoadPropositionsClearExisting = clearExisting
-        paramLoadPropositionsPersistChanges = persistChanges
-        paramLoadPropositionsExpectedScope = expectedScope
-    }
     
-    var propositionInfoForMessageIdCalled = false
-    var propositionInfoForMessageIdReturnValue: PropositionInfo?
-    override func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
-        propositionInfoForMessageIdCalled = true
-        return propositionInfoForMessageIdReturnValue
+    var loadRulesCalled = false
+    var paramLoadRulesRules: [LaunchRule]?
+    var paramLoadRulesClearExisting: Bool?
+    override func loadRules(_ rules: [LaunchRule], clearExisting: Bool) {
+        loadRulesCalled = true
+        paramLoadRulesRules = rules
+        paramLoadRulesClearExisting = clearExisting
     }
 }

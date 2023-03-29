@@ -37,7 +37,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         mockCache = MockCache(name: "mockCache")
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mcokLaunchRulesEngine", extensionRuntime: mockRuntime)
         mockRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockLaunchRulesEngine, cache: mockCache)
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockRulesEngine, expectedScope: mockIamSurface)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockRulesEngine, expectedSurface: mockIamSurface, cache: mockCache)
     }
 
     // MARK: - helpers
