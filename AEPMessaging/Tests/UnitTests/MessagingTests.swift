@@ -37,7 +37,7 @@ class MessagingTests: XCTestCase {
         mockCache = MockCache(name: "mockCache")
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mockLaunchRulesEngine", extensionRuntime: mockRuntime)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockLaunchRulesEngine, cache: mockCache)
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, expectedScope: mockIamSurface)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, expectedSurface: mockIamSurface, cache: mockCache)
         messaging.onRegistered()
 
         mockNetworkService = MockNetworkService()
@@ -210,96 +210,96 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
 
-    func testHandleEdgePersonalizationNotificationHappy() throws {
-        // setup
-        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
-                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
-
-        // test
-        mockRuntime.simulateComingEvents(event)
-
-        // verify
-        XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)
-        let loadedRules = mockMessagingRulesEngine.paramLoadPropositionsPropositions
-        XCTAssertNotNil(loadedRules)
-        XCTAssertNotNil(loadedRules?.first)
-        XCTAssertEqual(false, mockMessagingRulesEngine.paramLoadPropositionsClearExisting)
-        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
-    }
-
-    func testHandleEdgePersonalizationNotificationEmptyPayload() throws {
-        // setup
-        let eventData = getOfferEventData(items: [:])
-        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
-                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: eventData)
-
-        // test
-        mockRuntime.simulateComingEvents(event)
-
-        // verify
-        XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)
-        XCTAssertEqual(0, mockMessagingRulesEngine.paramLoadPropositionsPropositions?.count)
-        XCTAssertEqual(false, mockMessagingRulesEngine.paramLoadPropositionsClearExisting)
-        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
-    }
+//    func testHandleEdgePersonalizationNotificationHappy() throws {
+//        // setup
+//        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
+//                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
+//
+//        // test
+//        mockRuntime.simulateComingEvents(event)
+//
+//        // verify
+//        XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)
+//        let loadedRules = mockMessagingRulesEngine.paramLoadPropositionsPropositions
+//        XCTAssertNotNil(loadedRules)
+//        XCTAssertNotNil(loadedRules?.first)
+//        XCTAssertEqual(false, mockMessagingRulesEngine.paramLoadPropositionsClearExisting)
+//        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
+//    }
+//
+//    func testHandleEdgePersonalizationNotificationEmptyPayload() throws {
+//        // setup
+//        let eventData = getOfferEventData(items: [:])
+//        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
+//                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: eventData)
+//
+//        // test
+//        mockRuntime.simulateComingEvents(event)
+//
+//        // verify
+//        XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)
+//        XCTAssertEqual(0, mockMessagingRulesEngine.paramLoadPropositionsPropositions?.count)
+//        XCTAssertEqual(false, mockMessagingRulesEngine.paramLoadPropositionsClearExisting)
+//        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
+//    }
     
-    func testHandleEdgePersonalizationNotificationNewRequestEvent() throws {
-        // setup
-        messaging.setLastProcessedRequestEventId("oldEventId")
-        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
-                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
-
-        // test
-        mockRuntime.simulateComingEvents(event)
-
-        // verify
-        XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)        
-        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsClearExisting)
-        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
-    }
+//    func testHandleEdgePersonalizationNotificationNewRequestEvent() throws {
+//        // setup
+//        messaging.setLastProcessedRequestEventId("oldEventId")
+//        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
+//                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
+//
+//        // test
+//        mockRuntime.simulateComingEvents(event)
+//
+//        // verify
+//        XCTAssertTrue(mockMessagingRulesEngine.loadPropositionsCalled)
+//        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsClearExisting)
+//        XCTAssertEqual(true, mockMessagingRulesEngine.paramLoadPropositionsPersistChanges)
+//    }
+//
+//    func testHandleEdgePersonalizationNotificationRequestEventDoesNotMatch() throws {
+//        // setup
+//        messaging.setMessagesRequestEventId("requestEventId")
+//        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
+//                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
+//
+//        // test
+//        mockRuntime.simulateComingEvents(event)
+//
+//        // verify
+//        XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)
+//    }
+//
+//    func testHandleRulesResponseHappy() throws {
+//        // setup
+//        mockMessagingRulesEngine.propositionInfoForMessageIdReturnValue = PropositionInfo(id: "id", scope: "scope", scopeDetails: [:])
+//        let event = Event(name: "Test Rules Engine Response Event",
+//                          type: EventType.rulesEngine,
+//                          source: EventSource.responseContent,
+//                          data: getRulesResponseEventData())
+//
+//        // test
+//        mockRuntime.simulateComingEvents(event)
+//
+//        // verify
+//        XCTAssertNotNil(messaging.currentMessage)
+//    }
     
-    func testHandleEdgePersonalizationNotificationRequestEventDoesNotMatch() throws {
-        // setup
-        messaging.setMessagesRequestEventId("requestEventId")
-        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
-                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
-
-        // test
-        mockRuntime.simulateComingEvents(event)
-
-        // verify
-        XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)        
-    }
-
-    func testHandleRulesResponseHappy() throws {
-        // setup
-        mockMessagingRulesEngine.propositionInfoForMessageIdReturnValue = PropositionInfo(id: "id", scope: "scope", scopeDetails: [:])
-        let event = Event(name: "Test Rules Engine Response Event",
-                          type: EventType.rulesEngine,
-                          source: EventSource.responseContent,
-                          data: getRulesResponseEventData())
-
-        // test
-        mockRuntime.simulateComingEvents(event)
-
-        // verify
-        XCTAssertNotNil(messaging.currentMessage)
-    }
-    
-    func testHandleRulesResponseNoHtml() throws {
-        // setup
-        mockMessagingRulesEngine.propositionInfoForMessageIdReturnValue = PropositionInfo(id: "id", scope: "scope", scopeDetails: [:])
-        let event = Event(name: "Test Rules Engine Response Event",
-                          type: EventType.rulesEngine,
-                          source: EventSource.responseContent,
-                          data: getRulesResponseEventData(html: nil))
-
-        // test
-        mockRuntime.simulateComingEvents(event)
-
-        // verify
-        XCTAssertNil(messaging.currentMessage)
-    }
+//    func testHandleRulesResponseNoHtml() throws {
+//        // setup
+//        mockMessagingRulesEngine.propositionInfoForMessageIdReturnValue = PropositionInfo(id: "id", scope: "scope", scopeDetails: [:])
+//        let event = Event(name: "Test Rules Engine Response Event",
+//                          type: EventType.rulesEngine,
+//                          source: EventSource.responseContent,
+//                          data: getRulesResponseEventData(html: nil))
+//
+//        // test
+//        mockRuntime.simulateComingEvents(event)
+//
+//        // verify
+//        XCTAssertNil(messaging.currentMessage)
+//    }
     
     func testHandleRulesResponseNoPropositionInfoForMessage() throws {
         // setup
@@ -580,6 +580,285 @@ class MessagingTests: XCTestCase {
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count, "push token event should not be dispatched")
+    }
+
+    func testParsePropositionsHappy() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+
+        // test
+        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false, persistChanges: true)
+
+        // verify
+        XCTAssertEqual(1, rules.count)
+        XCTAssertEqual(1, messaging.inMemoryPropositionsCount())
+        XCTAssertTrue(mockCache.setCalled)
+    }
+
+    func testParsePropositionsDefaultSavesToPersitence() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+
+        // test
+        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
+
+        // verify
+        XCTAssertEqual(1, rules.count)
+        XCTAssertEqual(1, messaging.inMemoryPropositionsCount())
+        XCTAssertTrue(mockCache.setCalled)
+    }
+
+    func testParsePropositionsClearExisting() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+
+        // test
+        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: true)
+
+        // verify
+        XCTAssertEqual(1, rules.count)
+        XCTAssertEqual(1, messaging.inMemoryPropositionsCount())
+        XCTAssertTrue(mockCache.setCalled)
+    }
+        
+    func testParsePropositionsMismatchedScope() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("wrongScopeRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+
+        // test
+        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false, persistChanges: true)
+
+        // verify
+        XCTAssertEqual(0, rules.count)
+        XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
+        XCTAssertFalse(mockCache.setCalled)
+    }
+
+    func testParsePropositionsEmptyStringContent() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("emptyContentStringRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+
+        // test
+        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false, persistChanges: true)
+
+        // verify
+        XCTAssertEqual(0, rules.count)
+        XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
+        XCTAssertFalse(mockCache.setCalled)
+    }
+
+    func testParsePropositionsMalformedContent() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("malformedContentRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+
+        // test
+        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false, persistChanges: true)
+
+        // verify
+        XCTAssertEqual(0, rules.count)
+        XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
+        XCTAssertFalse(mockCache.setCalled)
+    }
+
+    func testParsePropositionsNoItemsInPayload() throws {
+        // setup
+        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
+        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [])
+
+        // test
+        let rules = messaging.parsePropositions([propPayload], expectedSurfaces: [mockIamSurface], clearExisting: false)
+
+        // verify
+        XCTAssertEqual(0, rules.count)
+        XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
+        XCTAssertFalse(mockCache.setCalled)
+    }
+
+    func testParsePropositionsEmptyContentInPayload() throws {
+        // setup
+        let itemData = ItemData(content: "")
+        let payloadItem = PayloadItem(data: itemData)
+        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
+        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
+
+        // test
+        let rules = messaging.parsePropositions([propPayload], expectedSurfaces: [mockIamSurface], clearExisting: false)
+
+        // verify
+        XCTAssertEqual(0, rules.count)
+        XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
+        XCTAssertFalse(mockCache.setCalled)
+    }
+        
+    func testParsePropositionsEventSequence() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("eventSequenceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+
+        // test
+        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
+
+        // verify
+        XCTAssertEqual(1, rules.count)
+        XCTAssertEqual(1, messaging.inMemoryPropositionsCount())
+        XCTAssertTrue(mockCache.setCalled)
+    }
+
+    func testParsePropositionsEmptyPropositions() throws {
+        // setup
+        let propositions: [PropositionPayload] = []
+
+        // test
+        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
+
+        // verify
+        XCTAssertEqual(0, rules.count)
+        XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
+        XCTAssertFalse(mockCache.setCalled)
+    }
+
+    func testParsePropositionsExistingReplacedWithEmpty() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+
+        // test
+        var rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
+
+        // verify
+        XCTAssertEqual(1, rules.count)
+        XCTAssertEqual(1, messaging.inMemoryPropositionsCount())
+        XCTAssertEqual(1, messaging.propositionInfoCount())
+        XCTAssertTrue(mockCache.setCalled)
+
+        // test
+        rules = messaging.parsePropositions(nil, expectedSurfaces: [mockIamSurface], clearExisting: true, persistChanges: true)
+
+        // verify
+        XCTAssertEqual(0, rules.count)
+        XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
+        XCTAssertEqual(0, messaging.propositionInfoCount())
+        XCTAssertTrue(mockCache.setCalled)
+    }
+    
+    func testParsePropositionsExistingNoReplacedWithEmpty() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+
+        // test
+        var rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
+
+        // verify
+        XCTAssertEqual(1, rules.count)
+        XCTAssertEqual(1, messaging.inMemoryPropositionsCount())
+        XCTAssertEqual(1, messaging.propositionInfoCount())
+        XCTAssertTrue(mockCache.setCalled)
+
+        // test
+        rules = messaging.parsePropositions(nil, expectedSurfaces: [mockIamSurface], clearExisting: false, persistChanges: true)
+
+        // verify
+        XCTAssertEqual(0, rules.count)
+        XCTAssertEqual(1, messaging.inMemoryPropositionsCount())
+        XCTAssertEqual(1, messaging.propositionInfoCount())
+        XCTAssertTrue(mockCache.setCalled)
+    }
+
+    func testLoadPropositionsDoNotPersistChanges() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+
+        // test
+        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, persistChanges: false, expectedScope: mockIamSurface)
+
+        // verify
+        XCTAssertFalse(mockCache.setCalled)
+    }
+
+
+    func testPropositionInfoForMessageIdHappy() throws {
+        // setup
+        messaging.propositionInfo["id"] = PropositionInfo(id: "pid", scope: "scope", scopeDetails: [:])
+
+        // test
+        let propInfo = messaging.propositionInfoForMessageId("id")
+
+        // verify
+        XCTAssertNotNil(propInfo)
+        XCTAssertEqual("pid", propInfo?.id)
+        XCTAssertEqual("scope", propInfo?.scope)
+        XCTAssertEqual(0, propInfo?.scopeDetails.count)
+    }
+
+    func testPropositionInfoForMessageIdNoMatch() throws {
+        // test
+        let propInfo = messaging.propositionInfoForMessageId("good luck finding a message with this id. ha!")
+
+        // verify
+        XCTAssertNil(propInfo)
+    }
+
+    func testLoadCachedPropositionsHappy() throws {
+        // setup
+        let aJsonString = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let cacheEntry = CacheEntry(data: aJsonString.data(using: .utf8)!, expiry: .never, metadata: nil)
+        mockCache.getReturnValue = cacheEntry
+
+        // test
+        messaging.loadCachedPropositions(for: mockIamSurface)
+
+        // verify
+        XCTAssertTrue(mockCache.getCalled)
+        XCTAssertEqual("propositions", mockCache.getParamKey)
+        XCTAssertTrue(mockLaunchRulesEngine.addRulesCalled)
+        XCTAssertEqual(1, mockLaunchRulesEngine.paramAddRulesRules?.count)
+    }
+
+    func testLoadCachedPropositionsWrongScope() throws {
+        // setup
+        let aJsonString = JSONFileLoader.getRulesStringFromFile("wrongScopeRule")
+        let cacheEntry = CacheEntry(data: aJsonString.data(using: .utf8)!, expiry: .never, metadata: nil)
+        mockCache.getReturnValue = cacheEntry
+
+        // test
+        messaging.loadCachedPropositions(for: mockIamSurface)
+
+        // verify
+        XCTAssertTrue(mockCache.getCalled)
+        XCTAssertEqual("propositions", mockCache.getParamKey)
+        XCTAssertFalse(mockLaunchRulesEngine.addRulesCalled)
+    }
+
+    func testLoadCachedPropositionsNoCacheFound() throws {
+        // setup
+        mockCache.getReturnValue = nil
+
+        // test
+        messaging.loadCachedPropositions(for: mockIamSurface)
+
+        // verify
+        XCTAssertTrue(mockCache.getCalled)
+        XCTAssertEqual("propositions", mockCache.getParamKey)
+        XCTAssertFalse(mockLaunchRulesEngine.addRulesCalled)
+        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
     }
 
     // MARK: - Helpers

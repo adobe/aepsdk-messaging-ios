@@ -15,93 +15,6 @@ import AEPServices
 import Foundation
 
 extension Messaging {
-    func parsePropositions(_ propositions: [PropositionPayload]?, expectedSurfaces: [String], clearExisting: Bool, persistChanges: Bool = true) -> [LaunchRule] {
-        var rules: [LaunchRule] = []
-        var tempPropInfo: [String: PropositionInfo] = [:]
-        var consequenceType: String = ""
-        var feedsReset: Bool = false
-        
-        guard let propositions = propositions, !propositions.isEmpty else {
-            if clearExisting {
-                inMemoryFeeds.removeAll()
-                inMemoryPropositions.removeAll()
-                cachePropositions(shouldReset: true)
-            }
-            return rules
-        }
-        
-        for proposition in propositions {
-            guard expectedSurfaces.contains(proposition.propositionInfo.scope)  else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring proposition where scope (\(proposition.propositionInfo.scope)) does not match one of the expected surfaces (\(expectedSurfaces)).")
-                continue
-            }
-
-            guard let ruleString = proposition.items.first?.data.content, !ruleString.isEmpty else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
-                continue
-            }
-            
-            guard let rule = rulesEngine.parseRule(ruleString) else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with malformed in-app message content.")
-                continue
-            }
-            
-            // pre-fetch the assets for this message if there are any defined
-            rulesEngine.cacheRemoteAssetsFor(rule)
-            
-            // store reporting data for this payload
-            if let messageId = rule.first?.consequences.first?.id {
-                tempPropInfo[messageId] = proposition.propositionInfo
-            }
-            
-            consequenceType = rule.first?.consequences.first?.type ?? ""
-            if consequenceType == MessagingConstants.ConsequenceTypes.FEED_ITEM {
-                // clear existing feeds as needed
-                if clearExisting && !feedsReset {
-                    inMemoryFeeds.removeAll()
-                    feedsReset = true
-                }
-                updateFeeds(rule.first?.consequences.first?.details as? [String: Any], scope: proposition.propositionInfo.scope, scopeDetails: proposition.propositionInfo.scopeDetails)
-            }
-
-            rules.append(contentsOf: rule)
-        }
-        
-        if consequenceType == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE {
-            updateAndCachePropositions(propositions, propInfo: tempPropInfo,clearExisting: clearExisting, persistChanges: persistChanges)
-        }
-        
-        return rules
-    }
-    
-    func updateFeeds(_ data: [String: Any]?, scope: String, scopeDetails: [String: Any]) {
-        if let feedItem = FeedItem.from(data: data) {
-            // set scope details for reporting purposes
-            feedItem.scopeDetails = scopeDetails
-            
-            // find the feed to insert the feed item else create a new feed for it
-            if let feed = inMemoryFeeds.first(where: { $0.surfaceUri == scope }) {
-                feed.items.append(feedItem)
-            } else {
-                inMemoryFeeds.append(Feed(surfaceUri: scope, items: [feedItem]))
-            }
-        }
-    }
-    
-    func updateAndCachePropositions(_ propositions: [PropositionPayload], propInfo: [String: PropositionInfo], clearExisting: Bool, persistChanges: Bool = true) {
-        if clearExisting {
-            propositionInfo = propInfo
-            inMemoryPropositions = propositions
-        } else {
-            propositionInfo.merge(propInfo) { _, new in new }
-            inMemoryPropositions.append(contentsOf: propositions)
-        }
-        
-        if persistChanges {
-            cachePropositions()
-        }
-    }
-    
     /// Loads propositions from persistence into memory then hydrates the messaging rules engine
     func loadCachedPropositions(for expectedSurface: String) {
         guard let cachedPropositions = cache.get(key: MessagingConstants.Caches.PROPOSITIONS) else {
@@ -115,7 +28,7 @@ extension Messaging {
         }
 
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
-        var rules = parsePropositions(propositions, expectedSurfaces: [expectedSurface], clearExisting: false, persistChanges: false)
+        let rules = parsePropositions(propositions, expectedSurfaces: [expectedSurface], clearExisting: false, persistChanges: false)
         rulesEngine.loadRules(rules, clearExisting: false)
     }
 

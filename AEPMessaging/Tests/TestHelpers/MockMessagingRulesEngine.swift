@@ -41,13 +41,4 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
         processCalled = true
         paramProcessEvent = event
     }
-    
-    var loadRulesCalled = false
-    var paramLoadRulesRules: [LaunchRule]?
-    var paramLoadRulesClearExisting: Bool?
-    override func loadRules(_ rules: [LaunchRule], clearExisting: Bool) {
-        loadRulesCalled = true
-        paramLoadRulesRules = rules
-        paramLoadRulesClearExisting = clearExisting
-    }
 }
