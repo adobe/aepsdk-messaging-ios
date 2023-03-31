@@ -28,6 +28,6 @@ public class Feed: NSObject, Codable {
     public init(surfaceUri: String, items: [FeedItem]) {
         self.surfaceUri = surfaceUri
         self.items = items
-        self.name = self.items.first?.meta?["name"] as? String ?? ""
+        self.name = self.items.first?.meta?["feedName"] as? String ?? ""
     }
 }

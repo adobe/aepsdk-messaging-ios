@@ -25,8 +25,8 @@ public class Messaging: NSObject, Extension {
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
 
-    private var messagesRequestEventId: String?
-    private var lastProcessedRequestEventId: String?
+    private var messagesRequestEventId: String = ""
+    private var lastProcessedRequestEventId: String = ""
     private var initialLoadComplete = false
     private(set) var currentMessage: Message?
     let rulesEngine: MessagingRulesEngine
@@ -169,7 +169,7 @@ public class Messaging: NSObject, Extension {
         // equal to `requestEventId` in aep response handles
         // used for ensuring that the messaging extension is responding to the correct handle
         messagesRequestEventId = event.id.uuidString
-        requestedSurfacesforEventId[messagesRequestEventId!] = surfaceUri
+        requestedSurfacesforEventId[messagesRequestEventId] = surfaceUri
 
         // send event
         runtime.dispatch(event: event)
@@ -196,15 +196,11 @@ public class Messaging: NSObject, Extension {
         var clearExistingRules = false
         if lastProcessedRequestEventId != event.requestEventId {
             clearExistingRules = true
-            lastProcessedRequestEventId = event.requestEventId
+            lastProcessedRequestEventId = event.requestEventId ?? ""
         }
                  
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app or feed message definitions from personalization:decisions network response.")
-        var expectedSurfaces: [String] = []
-        if let messagesRequestEventId = messagesRequestEventId {
-            expectedSurfaces = requestedSurfacesforEventId[messagesRequestEventId] ?? []
-        }
-        var rules = parsePropositions(event.payload, expectedSurfaces: expectedSurfaces, clearExisting: clearExistingRules)
+        var rules = parsePropositions(event.payload, expectedSurfaces: requestedSurfacesforEventId[messagesRequestEventId] ?? [], clearExisting: clearExistingRules)
         
         // parse and load in-app message rules
         let consequenceType = rules.first?.consequences.first?.type
@@ -439,13 +435,18 @@ public class Messaging: NSObject, Extension {
     }
     
     /// Used for testing only
-    internal func setMessagesRequestEventId(_ newId: String?) {
+    internal func setMessagesRequestEventId(_ newId: String) {
         messagesRequestEventId = newId
     }
     
     /// Used for testing only
-    internal func setLastProcessedRequestEventId(_ newId: String?) {
+    internal func setLastProcessedRequestEventId(_ newId: String) {
         lastProcessedRequestEventId = newId
+    }
+    
+    /// Used for testing only
+    internal func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [String]) {
+        requestedSurfacesforEventId[eventId] = expectedSurfaces
     }
     #endif
 }
