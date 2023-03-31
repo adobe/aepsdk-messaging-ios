@@ -43,7 +43,7 @@ enum MessagingConstants {
             static let PUSH_TRACKING_EDGE = "Push tracking edge event"
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
-            
+
             static let UPDATE_MESSAGE_FEEDS = "Update message feeds"
             static let MESSAGE_FEEDS_NOTIFICATION = "Message feeds notification"
         }
@@ -146,6 +146,7 @@ enum MessagingConstants {
                 static let MESSAGE_ID = "id"
                 static let TRACKING_ACTION = "action"
             }
+
             enum Mask {
                 static let EVENT_TYPE = "iam.eventType"
                 static let MESSAGE_ID = "iam.id"

@@ -40,11 +40,11 @@ class MessagingRulesEngine {
     func process(event: Event) {
         _ = rulesEngine.process(event: event)
     }
-    
+
     func parseRule(_ rule: String) -> [LaunchRule]? {
-        return JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime)
+        JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime)
     }
-    
+
     func loadRules(_ rules: [LaunchRule], clearExisting: Bool) {
         if clearExisting {
             rulesEngine.replaceRules(with: rules)
@@ -54,7 +54,7 @@ class MessagingRulesEngine {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring request to load in-app messages, the provided rules array is empty.")
                 return
             }
-             
+
             rulesEngine.addRules(rules)
             Log.debug(label: MessagingConstants.LOG_TAG, "Successfully added \(rules.count) message(s) into the rules engine.")
         }

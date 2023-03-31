@@ -16,7 +16,6 @@ import Foundation
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
-
     // MARK: - Class members
 
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
@@ -35,14 +34,13 @@ public class Messaging: NSObject, Extension {
     var propositionInfo: [String: PropositionInfo] = [:]
     var inMemoryFeeds: [Feed] = []
     private var requestedSurfacesforEventId: [String: [String]] = [:]
-    
+
     // MARK: - Extension protocol methods
 
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
-        cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)        
-        rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME,
-                                           extensionRuntime: runtime, cache: cache)
+        cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
+        rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
         super.init()
         loadCachedPropositions(for: appSurface)
     }
@@ -53,11 +51,11 @@ public class Messaging: NSObject, Extension {
         self.runtime = runtime
         self.cache = cache
         self.rulesEngine = rulesEngine
-        
+
         super.init()
         loadCachedPropositions(for: expectedSurface)
     }
-    
+
     public func onRegistered() {
         // register listener for set push identifier event
         registerListener(type: EventType.genericIdentity,
@@ -132,19 +130,19 @@ public class Messaging: NSObject, Extension {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve in-app or feed messages, cannot read the bundle identifier.")
             return
         }
-        
+
         var surfaceUri: [String] = []
         if let surfacePaths = surfacePaths {
             surfaceUri = surfacePaths
                 .filter { !$0.isEmpty }
                 .map { appSurface + MessagingConstants.PATH_SEPARATOR + $0 }
-            
-            if (surfaceUri.isEmpty) {
+
+            if surfaceUri.isEmpty {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve feed messages, no valid surface paths found.")
                 return
             }
         } else {
-            surfaceUri = [ appSurface ]
+            surfaceUri = [appSurface]
         }
 
         var eventData: [String: Any] = [:]
@@ -191,17 +189,17 @@ public class Messaging: NSObject, Extension {
             // either this isn't the type of response we are waiting for, or it's not a response for our request
             return
         }
-        
+
         // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
         var clearExistingRules = false
         if lastProcessedRequestEventId != event.requestEventId {
             clearExistingRules = true
             lastProcessedRequestEventId = event.requestEventId ?? ""
         }
-                 
+
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app or feed message definitions from personalization:decisions network response.")
         let rules = parsePropositions(event.payload, expectedSurfaces: requestedSurfacesforEventId[messagesRequestEventId] ?? [], clearExisting: clearExistingRules)
-        
+
         // parse and load in-app message rules
         let consequenceType = rules.first?.consequences.first?.type
         if consequenceType == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE {
@@ -210,7 +208,7 @@ public class Messaging: NSObject, Extension {
         } else if consequenceType == MessagingConstants.ConsequenceTypes.FEED_ITEM {
             // dispatch an event with the feeds received from the remote
             let eventData = [MessagingConstants.Event.Data.Key.FEEDS: inMemoryFeeds]
-    
+
             let event = Event(name: MessagingConstants.Event.Name.MESSAGE_FEEDS_NOTIFICATION,
                               type: EventType.messaging,
                               source: EventSource.notification,
@@ -281,7 +279,7 @@ public class Messaging: NSObject, Extension {
             fetchMessages(for: event.surfaces ?? [])
             return
         }
-        
+
         // handle an event for refreshing in-app messages from the remote
         if event.isRefreshMessageEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing manual request to refresh In-App Message definitions from the remote.")
@@ -330,17 +328,17 @@ public class Messaging: NSObject, Extension {
             return
         }
     }
-    
+
     func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
-        return propositionInfo[messageId]
+        propositionInfo[messageId]
     }
-    
+
     func parsePropositions(_ propositions: [PropositionPayload]?, expectedSurfaces: [String], clearExisting: Bool, persistChanges: Bool = true) -> [LaunchRule] {
         var rules: [LaunchRule] = []
         var tempPropInfo: [String: PropositionInfo] = [:]
-        var consequenceType: String = ""
-        var feedsReset: Bool = false
-        
+        var consequenceType = ""
+        var feedsReset = false
+
         guard let propositions = propositions, !propositions.isEmpty else {
             if clearExisting {
                 inMemoryFeeds.removeAll()
@@ -350,10 +348,11 @@ public class Messaging: NSObject, Extension {
             }
             return rules
         }
-        
+
         for proposition in propositions {
-            guard expectedSurfaces.contains(proposition.propositionInfo.scope)  else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring proposition where scope (\(proposition.propositionInfo.scope)) does not match one of the expected surfaces (\(expectedSurfaces)).")
+            guard expectedSurfaces.contains(proposition.propositionInfo.scope) else {
+                Log.debug(label: MessagingConstants.LOG_TAG,
+                          "Ignoring proposition where scope (\(proposition.propositionInfo.scope)) does not match one of the expected surfaces (\(expectedSurfaces)).")
                 continue
             }
 
@@ -361,40 +360,42 @@ public class Messaging: NSObject, Extension {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
                 continue
             }
-            
+
             guard let rule = rulesEngine.parseRule(ruleString) else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with malformed in-app message content.")
                 continue
             }
-            
+
             // pre-fetch the assets for this message if there are any defined
             rulesEngine.cacheRemoteAssetsFor(rule)
-            
+
             // store reporting data for this payload
             if let messageId = rule.first?.consequences.first?.id {
                 tempPropInfo[messageId] = proposition.propositionInfo
             }
-            
+
             consequenceType = rule.first?.consequences.first?.type ?? ""
             if consequenceType == MessagingConstants.ConsequenceTypes.FEED_ITEM {
                 // clear existing feeds as needed
-                if clearExisting && !feedsReset {
+                if clearExisting, !feedsReset {
                     inMemoryFeeds.removeAll()
                     feedsReset = true
                 }
-                updateFeeds(rule.first?.consequences.first?.details as? [String: Any], scope: proposition.propositionInfo.scope, scopeDetails: proposition.propositionInfo.scopeDetails)
+                updateFeeds(rule.first?.consequences.first?.details as? [String: Any],
+                            scope: proposition.propositionInfo.scope,
+                            scopeDetails: proposition.propositionInfo.scopeDetails)
             }
 
             rules.append(contentsOf: rule)
         }
-        
+
         if consequenceType == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE {
-            updateAndCachePropositions(propositions, propInfo: tempPropInfo,clearExisting: clearExisting, persistChanges: persistChanges)
+            updateAndCachePropositions(propositions, propInfo: tempPropInfo, clearExisting: clearExisting, persistChanges: persistChanges)
         }
-        
+
         return rules
     }
-    
+
     func updateFeeds(_ data: [String: Any]?, scope: String, scopeDetails: [String: AnyCodable]) {
         if let feedItem = FeedItem.from(data: data, scopeDetails: scopeDetails) {
             // find the feed to insert the feed item else create a new feed for it
@@ -405,7 +406,7 @@ public class Messaging: NSObject, Extension {
             }
         }
     }
-    
+
     func updateAndCachePropositions(_ propositions: [PropositionPayload], propInfo: [String: PropositionInfo], clearExisting: Bool, persistChanges: Bool = true) {
         if clearExisting {
             propositionInfo = propInfo
@@ -414,38 +415,38 @@ public class Messaging: NSObject, Extension {
             propositionInfo.merge(propInfo) { _, new in new }
             inMemoryPropositions.append(contentsOf: propositions)
         }
-        
+
         if persistChanges {
             cachePropositions()
         }
     }
-        
+
     #if DEBUG
     /// For testing purposes only
     internal func propositionInfoCount() -> Int {
-        return propositionInfo.count
+        propositionInfo.count
     }
-    
+
     /// For testing purposes only
     internal func inMemoryPropositionsCount() -> Int {
-        return inMemoryPropositions.count
+        inMemoryPropositions.count
     }
-    
+
     /// For testing purposes only
     internal func inMemoryFeedsCount() -> Int {
-        return inMemoryFeeds.count
+        inMemoryFeeds.count
     }
-    
+
     /// Used for testing only
     internal func setMessagesRequestEventId(_ newId: String) {
         messagesRequestEventId = newId
     }
-    
+
     /// Used for testing only
     internal func setLastProcessedRequestEventId(_ newId: String) {
         lastProcessedRequestEventId = newId
     }
-    
+
     /// Used for testing only
     internal func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [String]) {
         requestedSurfacesforEventId[eventId] = expectedSurfaces

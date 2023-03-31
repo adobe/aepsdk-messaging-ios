@@ -18,17 +18,17 @@ import Foundation
 public class Feed: NSObject, Codable {
     /// Identification for this feed, represented by the AJO Surface URI used to retrieve it
     public var surfaceUri: String
-    
+
     /// Friendly name for the feed, provided in the AJO UI
     public var name: String
-    
+
     /// Array of `FeedItem` that are members of this `Feed`
     public var items: [FeedItem]
-    
+
     public init(surfaceUri: String, items: [FeedItem]) {
         self.surfaceUri = surfaceUri
         self.items = items
-        self.name = self.items.first?.meta?["feedName"] as? String ?? ""
+        name = self.items.first?.meta?["feedName"] as? String ?? ""
     }
 }
 
@@ -37,7 +37,8 @@ extension Feed {
         guard
             data != nil,
             let feedData = data?[MessagingConstants.Event.Data.Key.FEEDS] as? [[String: Any]],
-            let jsonData = try? JSONSerialization.data(withJSONObject: feedData as Any) else {
+            let jsonData = try? JSONSerialization.data(withJSONObject: feedData as Any)
+        else {
             return nil
         }
 

@@ -238,7 +238,7 @@ extension Event {
     }
 
     var scope: String? {
-        return payload?.first?.propositionInfo.scope
+        payload?.first?.propositionInfo.scope
     }
 
     // MARK: Private
@@ -268,17 +268,17 @@ extension Event {
     private var refreshMessages: Bool {
         data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool ?? false
     }
-    
+
     // MARK: - Update Feed Messages Public API Event
-    
+
     var isUpdateFeedsEvent: Bool {
         isMessagingType && isRequestContentSource && updateFeeds
     }
-    
+
     var surfaces: [String]? {
         data?[MessagingConstants.Event.Data.Key.SURFACES] as? [String]
     }
-    
+
     private var updateFeeds: Bool {
         data?[MessagingConstants.Event.Data.Key.UPDATE_FEEDS] as? Bool ?? false
     }

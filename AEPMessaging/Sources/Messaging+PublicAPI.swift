@@ -16,8 +16,8 @@ import UserNotifications
 
 @objc public extension Messaging {
     private static var isFeedResponseListenerRegistered: Bool = false
-    private static var feedsResponseHandler: (([String: Feed]) -> Void)? = nil
-    
+    private static var feedsResponseHandler: (([String: Feed]) -> Void)?
+
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
@@ -67,15 +67,15 @@ import UserNotifications
 
         MobileCore.dispatch(event: event)
     }
-    
+
     // MARK: Message Feed
-    
+
     /// Dispatches an event to fetch message feeds for the provided surface paths from the Adobe Journey Optimizer via the Experience Edge network.
     /// - Parameter surfacePaths: An array of surface path strings
     static func updateFeedsForSurfacePaths(_ surfacePaths: [String]) {
         let validSurfacePaths = surfacePaths
             .filter { !$0.isEmpty }
-        
+
         guard !validSurfacePaths.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Cannot update feeds as the provided surface paths array has no valid items.")
@@ -94,7 +94,7 @@ import UserNotifications
 
         MobileCore.dispatch(event: event)
     }
-    
+
     /// Registers a permanent event listener with the Mobile Core for listening to personalization decisions events received upon a personalization query to the Experience Edge network.
     /// - Parameter completion: The completion handler to be invoked with a dictionary containing the surface paths and the corresponding Feed objects.
     static func setFeedsHandler(_ completion: (([String: Feed]) -> Void)? = nil) {
@@ -104,7 +104,7 @@ import UserNotifications
         }
         feedsResponseHandler = completion
     }
-    
+
     private static func feedsResponseListener(_ event: Event) {
         guard let feedsResponseHandler = feedsResponseHandler else {
             return
@@ -117,12 +117,12 @@ import UserNotifications
             Log.warning(label: MessagingConstants.LOG_TAG, "No valid feeds found in the notification event.")
             return
         }
-    
+
         var feedsResponse: [String: Feed] = [:]
         for feed in feeds {
             feedsResponse[feed.surfaceUri] = feed
         }
-    
+
         feedsResponseHandler(feedsResponse)
     }
 }

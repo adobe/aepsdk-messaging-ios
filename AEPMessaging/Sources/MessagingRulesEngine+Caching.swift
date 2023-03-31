@@ -16,7 +16,6 @@ import Foundation
 
 /// Helper methods for caching and loading previously retrieved in-app message definitions
 extension MessagingRulesEngine {
-
     // MARK: - remote asset caching
 
     /// Caches any remote assets for RuleConsequence(s) found in provided rules.
