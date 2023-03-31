@@ -26,6 +26,8 @@ class InAppMessagingEventTests: XCTestCase {
     var currentMessage: Message?
     let asyncTimeout: TimeInterval = 30
     let expectedScope = "mobileapp://com.adobe.ajo.e2eTestApp"
+    var mockCache: MockCache!
+    var mockRuntime: TestableExtensionRuntime!
 
     override class func setUp() {
         // before all
@@ -39,6 +41,8 @@ class InAppMessagingEventTests: XCTestCase {
         
     override func setUp() {
         // before each
+        mockCache = MockCache(name: "mockCache")
+        mockRuntime = TestableExtensionRuntime()
     }
     
     override func tearDown() {
@@ -145,8 +149,21 @@ class InAppMessagingEventTests: XCTestCase {
                 return
             }
             
-            let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
-            messagingRulesEngine.loadPropositions(propositions, clearExisting: true, expectedScope: self.expectedScope)
+            let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: self.mockRuntime, cache: self.mockCache)
+            var rulesArray: [LaunchRule] = []
+
+            // loop though the payload and parse the rule
+            for proposition in propositions {
+                if let ruleString = proposition.items.first?.data.content,
+                    !ruleString.isEmpty,
+                    let rule = messagingRulesEngine.parseRule(ruleString) {
+                    rulesArray.append(contentsOf: rule)
+                }
+            }
+            
+            // load the parsed rules into the rules engine
+            messagingRulesEngine.loadRules(rulesArray, clearExisting: true)
+            
             
             // rules load async - brief sleep to allow it to finish
             self.runAfter(seconds: 3) {
