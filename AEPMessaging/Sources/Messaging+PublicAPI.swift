@@ -15,6 +15,9 @@ import AEPServices
 import UserNotifications
 
 @objc public extension Messaging {
+    private static var isFeedResponseListenerRegistered: Bool = false
+    private static var feedsResponseHandler: (([String: Feed]) -> Void)? = nil
+    
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
@@ -90,5 +93,36 @@ import UserNotifications
                           data: eventData)
 
         MobileCore.dispatch(event: event)
+    }
+    
+    /// Registers a permanent event listener with the Mobile Core for listening to personalization decisions events received upon a personalization query to the Experience Edge network.
+    /// - Parameter completion: The completion handler to be invoked with a dictionary containing the surface paths and the corresponding Feed objects.
+    static func setFeedsHandler(_ completion: (([String: Feed]) -> Void)? = nil) {
+        if !isFeedResponseListenerRegistered {
+            isFeedResponseListenerRegistered = true
+            MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.notification, listener: feedsResponseListener(_:))
+        }
+        feedsResponseHandler = completion
+    }
+    
+    private static func feedsResponseListener(_ event: Event) {
+        guard let feedsResponseHandler = feedsResponseHandler else {
+            return
+        }
+
+        guard
+            let feeds: [Feed] = Feed.from(data: event.data),
+            !feeds.isEmpty
+        else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "No valid feeds found in the notification event.")
+            return
+        }
+    
+        var feedsResponse: [String: Feed] = [:]
+        for feed in feeds {
+            feedsResponse[feed.surfaceUri] = feed
+        }
+    
+        feedsResponseHandler(feedsResponse)
     }
 }

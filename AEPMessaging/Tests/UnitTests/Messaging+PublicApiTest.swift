@@ -11,6 +11,7 @@
 //
 
 @testable import AEPCore
+@testable import AEPServices
 @testable import AEPMessaging
 import UserNotifications
 import XCTest
@@ -344,6 +345,135 @@ class MessagingPublicApiTest: XCTestCase {
 
         // test
         Messaging.updateFeedsForSurfacePaths([])
+
+        // verify
+        wait(for: [expectation], timeout: 1)
+    }
+    
+    func testSetFeedsHandler() {
+        // setup
+        let expectation = XCTestExpectation(description: "setFeedsHandler should be called with response event upon personalization notification.")
+        expectation.assertForOverFulfill = true
+
+        let testEvent = Event(name: "Message feeds notification",
+                              type: "com.adobe.eventType.messaging",
+                              source: "com.adobe.eventSource.notification",
+                              data: [
+                                "feeds": [
+                                    [
+                                        "surfaceUri": "promos/feed1",
+                                        "name": "Promos feed",
+                                        "items": [
+                                            [
+                                                "title": "Flash sale!",
+                                                "body": "All winter gear is now up to 30% off at checkout.",
+                                                "imageUrl": "https://luma.com/wintersale.png",
+                                                "actionUrl": "https://luma.com/sale",
+                                                "actionTitle": "Shop the sale!",
+                                                "publishedDate": 1677190552,
+                                                "expiryDate": 1677243235,
+                                                "meta": [
+                                                    "feedName": "Winter Promo"
+                                                ],
+                                                "scopeDetails": [
+                                                    "someInnerKey": "someInnerValue"
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                              ])
+
+        // test
+        Messaging.setFeedsHandler { feedsDictionary in
+            XCTAssertEqual(1, feedsDictionary.count)
+            let feed = feedsDictionary["promos/feed1"]
+            XCTAssertNotNil(feed)
+            XCTAssertEqual("Promos feed", feed?.name)
+            XCTAssertEqual("promos/feed1", feed?.surfaceUri)
+            XCTAssertNotNil(feed?.items)
+            XCTAssertEqual(1, feed?.items.count)
+            let feedItem = feed?.items.first
+            XCTAssertEqual("Flash sale!", feedItem?.title)
+            XCTAssertEqual("All winter gear is now up to 30% off at checkout.", feedItem?.body)
+            XCTAssertEqual("https://luma.com/wintersale.png", feedItem?.imageUrl)
+            XCTAssertEqual("https://luma.com/sale", feedItem?.actionUrl)
+            XCTAssertEqual("Shop the sale!", feedItem?.actionTitle)
+            XCTAssertEqual(1677190552, feedItem?.publishedDate)
+            XCTAssertEqual(1677243235, feedItem?.expiryDate)
+            XCTAssertNotNil(feedItem?.meta)
+            XCTAssertEqual(1, feedItem?.meta?.count)
+            XCTAssertEqual("Winter Promo", feedItem?.meta?["feedName"] as? String)
+            XCTAssertNotNil(feedItem?.details)
+            XCTAssertEqual(1, feedItem?.details.count)
+            XCTAssertEqual("someInnerValue", feedItem?.details["someInnerKey"] as? String)
+            expectation.fulfill()
+        }
+
+        EventHub.shared.dispatch(event: testEvent)
+
+        // verify
+        wait(for: [expectation], timeout: 2)
+    }
+    
+    func testSetFeedsHandler_emptyFeeds() {
+        // setup
+        let expectation = XCTestExpectation(description: "setFeedsHandler should not be called for empty feeds in personalization notification response.")
+        expectation.isInverted = true
+
+        let testEvent = Event(name: "Message feeds notification",
+                              type: "com.adobe.eventType.messaging",
+                              source: "com.adobe.eventSource.notification",
+                              data: [
+                                "feeds": []
+                              ])
+
+        // test
+        Messaging.setFeedsHandler { _ in
+            expectation.fulfill()
+        }
+
+        EventHub.shared.dispatch(event: testEvent)
+
+        // verify
+        wait(for: [expectation], timeout: 1)
+    }
+
+    func testSetFeedsHandler_noFeeds() {
+        // setup
+        let expectation = XCTestExpectation(description: "setFeedsHandler should not be called for no feeds in personalization notification response.")
+        expectation.isInverted = true
+        let testEvent = Event(name: "Meesage feeds notification",
+                              type: "com.adobe.eventType.messaging",
+                              source: "com.adobe.eventSource.notification",
+                              data: [:])
+
+        // test
+        Messaging.setFeedsHandler { _ in
+            expectation.fulfill()
+        }
+
+        EventHub.shared.dispatch(event: testEvent)
+
+        // verify
+        wait(for: [expectation], timeout: 1)
+    }
+    
+    func testSetFeedsHandler_nilEventData() {
+        // setup
+        let expectation = XCTestExpectation(description: "setFeedsHandler should not be called for nil event data in personalization notification response.")
+        expectation.isInverted = true
+        let testEvent = Event(name: "Meesage feeds notification",
+                              type: "com.adobe.eventType.messaging",
+                              source: "com.adobe.eventSource.notification",
+                              data: nil)
+
+        // test
+        Messaging.setFeedsHandler { _ in
+            expectation.fulfill()
+        }
+
+        EventHub.shared.dispatch(event: testEvent)
 
         // verify
         wait(for: [expectation], timeout: 1)

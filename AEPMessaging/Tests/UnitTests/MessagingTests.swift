@@ -234,7 +234,7 @@ class MessagingTests: XCTestCase {
             messaging.setMessagesRequestEventId("mockRequestEventId")
             messaging.setLastProcessedRequestEventId("mockRequestEventId")
             messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: ["mobileapp://com.apple.dt.xctest.tool"])
-            let eventData = getOfferEventData(items: [:])
+            let eventData = getOfferEventData(items: [[:]])
             let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                               source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: eventData)
     
@@ -290,7 +290,7 @@ class MessagingTests: XCTestCase {
         messaging.setMessagesRequestEventId("mockRequestEventId")
         messaging.setRequestedSurfacesforEventId("someRequestEventId", expectedSurfaces: ["mobileapp://com.apple.dt.xctest.tool"])
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
-                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(scope: "someScope"))
+                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(surface: "someScope"))
 
         // test
         mockRuntime.simulateComingEvents(event)
@@ -301,6 +301,52 @@ class MessagingTests: XCTestCase {
         XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
         XCTAssertFalse(mockLaunchRulesEngine.addRulesCalled)
         XCTAssertFalse(mockCache.setCalled)
+    }
+    
+    func testHandleEdgePersonalizationFeedsNotificationHappy() throws {
+        // setup
+        messaging.setMessagesRequestEventId("mockRequestEventId")
+        messaging.setLastProcessedRequestEventId("mockRequestEventId")
+        messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: ["mobileapp://com.apple.dt.xctest.tool/promos/feed1"])
+        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
+                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(items:[["data": ["content": mockFeedContent]]], surface:"mobileapp://com.apple.dt.xctest.tool/promos/feed1"))
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertEqual(1, messaging.inMemoryFeedsCount())
+        XCTAssertEqual(0, messaging.propositionInfoCount())
+        XCTAssertFalse(mockLaunchRulesEngine.addRulesCalled)
+        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertFalse(mockCache.setCalled)
+        
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.dispatchedEvents.first
+        
+        XCTAssertEqual("com.adobe.eventType.messaging", dispatchedEvent?.type)
+        XCTAssertEqual("com.adobe.eventSource.notification", dispatchedEvent?.source)
+        
+        let feeds = dispatchedEvent?.data?["feeds"] as? [Feed]
+        XCTAssertNotNil(feeds)
+        XCTAssertEqual(1, feeds?.count)
+        let feed = feeds?.first
+        XCTAssertEqual("Winter Promo", feed?.name)
+        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", feed?.surfaceUri)
+        XCTAssertEqual(1, feed?.items.count)
+        XCTAssertEqual("Flash sale!", feed?.items.first?.title)
+        XCTAssertEqual("All winter gear is now up to 30% off at checkout.", feed?.items.first?.body)
+        XCTAssertEqual("https://luma.com/wintersale.png", feed?.items.first?.imageUrl)
+        XCTAssertEqual("https://luma.com/sale", feed?.items.first?.actionUrl)
+        XCTAssertEqual("Shop the sale!", feed?.items.first?.actionTitle)
+        XCTAssertEqual(1677190552, feed?.items.first?.publishedDate)
+        XCTAssertEqual(1677243235, feed?.items.first?.expiryDate)
+        XCTAssertNotNil(feed?.items.first?.meta)
+        XCTAssertEqual(1, feed?.items.first?.meta?.count)
+        XCTAssertEqual("Winter Promo", feed?.items.first?.meta?["feedName"] as? String)
+        XCTAssertNotNil(feed?.items.first?.details)
+        XCTAssertEqual(1, feed?.items.first?.details.count)
+        XCTAssertEqual("someInnerValue", feed?.items.first?.details["someInnerKey"] as? String)
     }
 
     func testHandleRulesResponseHappy() throws {
@@ -924,36 +970,53 @@ class MessagingTests: XCTestCase {
         }
         return nil
     }
+    
+    let mockFeedContent = "{\"version\":1,\"rules\":[{\"condition\":{\"type\":\"group\",\"definition\":{\"logic\":\"and\",\"conditions\":[{\"type\":\"matcher\",\"definition\":{\"key\":\"~timestampu\",\"matcher\":\"ge\",\"values\":[1677190552]}},{\"type\":\"matcher\",\"definition\":{\"key\":\"~timestampu\",\"matcher\":\"le\",\"values\":[1677243235]}}]}},\"consequences\":[{\"id\":\"88ac1647-d48b-4206-a302-c74353e63fc7\",\"type\":\"ajofeeditem\",\"detail\":{\"title\":\"Flash sale!\",\"body\":\"All winter gear is now up to 30% off at checkout.\",\"imageUrl\":\"https://luma.com/wintersale.png\", \"actionUrl\":\"https://luma.com/sale\",\"actionTitle\":\"Shop the sale!\",\"publishedDate\":1677190552,\"expiryDate\":1677243235,\"meta\":{\"feedName\":\"Winter Promo\"}}}]}]}"
 
     let mockContent1 = "{\"version\":1,\"rules\":[{\"condition\":{\"type\":\"group\",\"definition\":{\"logic\":\"and\",\"conditions\":[{\"type\":\"group\",\"definition\":{\"logic\":\"and\",\"conditions\":[{\"type\":\"matcher\",\"definition\":{\"key\":\"~source\",\"matcher\":\"eq\",\"values\":[\"com.adobe.eventSource.applicationLaunch\"]}},{\"type\":\"matcher\",\"definition\":{\"key\":\"~type\",\"matcher\":\"eq\",\"values\":[\"com.adobe.eventType.lifecycle\"]}},{\"type\":\"matcher\",\"definition\":{\"key\":\"~state.com.adobe.module.lifecycle/lifecyclecontextdata.launchevent\",\"matcher\":\"ex\",\"values\":[]}}]}}]}},\"consequences\":[{\"id\":\"89ac1647-d48b-4206-a302-c74353e63fc7\",\"type\":\"cjmiam\",\"detail\":{\"mobileParameters\":{\"verticalAlign\":\"center\",\"horizontalInset\":0,\"dismissAnimation\":\"bottom\",\"uiTakeover\":true,\"horizontalAlign\":\"center\",\"verticalInset\":0,\"displayAnimation\":\"bottom\",\"width\":100,\"height\":100,\"gestures\":{}},\"html\":\"<html><head></head><body>Hello from InApp campaign: [CIT]::inapp::LqhnZy7y1Vo4EEWciU5qK</body></html>\",\"remoteAssets\":[]}}]}]}"
     let mockContent2 = "{\"version\":1,\"rules\":[{\"condition\":{\"type\":\"group\",\"definition\":{\"logic\":\"and\",\"conditions\":[{\"type\":\"group\",\"definition\":{\"logic\":\"and\",\"conditions\":[{\"type\":\"matcher\",\"definition\":{\"key\":\"~source\",\"matcher\":\"eq\",\"values\":[\"com.adobe.eventSource.applicationLaunch\"]}},{\"type\":\"matcher\",\"definition\":{\"key\":\"~type\",\"matcher\":\"eq\",\"values\":[\"com.adobe.eventType.lifecycle\"]}},{\"type\":\"matcher\",\"definition\":{\"key\":\"~state.com.adobe.module.lifecycle/lifecyclecontextdata.launchevent\",\"matcher\":\"ex\",\"values\":[]}}]}}]}},\"consequences\":[{\"id\":\"dcfc8404-eea2-49df-a39a-85fc262d897e\",\"type\":\"cjmiam\",\"detail\":{\"mobileParameters\":{\"verticalAlign\":\"center\",\"horizontalInset\":0,\"dismissAnimation\":\"bottom\",\"uiTakeover\":true,\"horizontalAlign\":\"center\",\"verticalInset\":0,\"displayAnimation\":\"bottom\",\"width\":100,\"height\":100,\"gestures\":{}},\"html\":\"<html><head></head><body>Hello from another InApp campaign: [CIT]::inapp::LqhnZy7y1Vo4EEWciU5qK</body></html>\",\"remoteAssets\":[]}}]}]}"
     let mockPayloadId1 = "id1"
     let mockPayloadId2 = "id2"
     let mockAppSurface = "mobileapp://com.apple.dt.xctest.tool"
-    func getOfferEventData(items: [String: Any]? = nil, scope: String? = nil, requestEventId: String = "mockRequestEventId") -> [String: Any] {
-        let data1 = ["content": mockContent1]
-        let item1 = ["data": data1]
-        let payload1: [String: Any] = [
-            "id": mockPayloadId1,
-            "scope": scope ?? mockAppSurface,
-            "scopeDetails": [
-                "someInnerKey": "someInnerValue"
-            ],
-            "items": items ?? [item1]
-        ]
+    func getOfferEventData(items: [[String: Any]]? = nil, surface: String? = nil, requestEventId: String = "mockRequestEventId") -> [String: Any] {
         
-        let data2 = ["content": mockContent2]
-        let item2 = ["data": data2]
-        let payload2: [String: Any] = [
-            "id": mockPayloadId2,
-            "scope": scope ?? mockAppSurface,
-            "scopeDetails": [
-                "someInnerKey": "someInnerValue2"
-            ],
-            "items": items ?? [item2]
-        ]
-        
-        let eventData: [String: Any] = ["payload": [payload1, payload2], "requestEventId": requestEventId]
+        var eventData: [String: Any] = [:]
+        if let items = items, !items.isEmpty {
+            let payload: [String: Any] = [
+                "id": mockPayloadId1,
+                "scope": surface ?? mockAppSurface,
+                "scopeDetails": [
+                    "someInnerKey": "someInnerValue"
+                ],
+                "items": items
+            ]
+            
+            eventData = ["payload": [payload], "requestEventId": requestEventId]
+        } else {
+            let data1 = ["content": mockContent1]
+            let item1 = ["data": data1]
+            let payload1: [String: Any] = [
+                "id": mockPayloadId1,
+                "scope": surface ?? mockAppSurface,
+                "scopeDetails": [
+                    "someInnerKey": "someInnerValue"
+                ],
+                "items": [item1]
+            ]
+            
+            let data2 = ["content": mockContent2]
+            let item2 = ["data": data2]
+            let payload2: [String: Any] = [
+                "id": mockPayloadId2,
+                "scope": surface ?? mockAppSurface,
+                "scopeDetails": [
+                    "someInnerKey": "someInnerValue2"
+                ],
+                "items": [item2]
+            ]
+            
+            eventData = ["payload": [payload1, payload2], "requestEventId": requestEventId]
+        }
         return eventData
     }
 

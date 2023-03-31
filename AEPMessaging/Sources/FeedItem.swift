@@ -16,7 +16,7 @@ import Foundation
 @objc(AEPFeedItem)
 @objcMembers
 public class FeedItem: NSObject, Codable {
-    private var scopeDetailsInternal: [String: Any] = [:]
+    private var scopeDetails: [String: Any] = [:]
     
     /// Plain-text title for the feed item
     public var title: String
@@ -43,12 +43,12 @@ public class FeedItem: NSObject, Codable {
     public var meta: [String: Any]?
     
     /// Contains scope details for reporting
-    public internal(set) var scopeDetails: [String: Any] {
+    public internal(set) var details: [String: Any] {
         set(newScopeDetails) {
-            scopeDetailsInternal = newScopeDetails
+            scopeDetails = newScopeDetails
         }
         get {
-            return scopeDetailsInternal
+            return scopeDetails
         }
     }
     
@@ -72,6 +72,7 @@ public class FeedItem: NSObject, Codable {
         case publishedDate
         case expiryDate
         case meta
+        case scopeDetails
     }
     
     public required init(from decoder: Decoder) throws {
@@ -91,6 +92,8 @@ public class FeedItem: NSObject, Codable {
             }
             return value
         }
+        let anyCodableDetailsDict = try? values.decode([String: AnyCodable].self, forKey: .scopeDetails)
+        scopeDetails = AnyCodable.toAnyDictionary(dictionary: anyCodableDetailsDict) ?? [:]
     }
 }
 
@@ -106,13 +109,24 @@ extension FeedItem {
         try container.encode(publishedDate, forKey: .publishedDate)
         try container.encode(expiryDate, forKey: .expiryDate)        
         try? container.encode(AnyCodable.from(dictionary: meta) , forKey: .meta)
+        try? container.encode(AnyCodable.from(dictionary: scopeDetails), forKey: .scopeDetails)
     }
     
-    static func from(data: [String: Any]?) -> FeedItem? {
-        guard data != nil, let jsonData = try? JSONSerialization.data(withJSONObject: data as Any) else {
+    static func from(data: [String: Any]?, scopeDetails: [String: AnyCodable]? = nil) -> FeedItem? {
+        guard data != nil else {
             return nil
         }
-
+        
+        var feedData = data ?? [:]
+        if let scopeDetails = scopeDetails,
+           !scopeDetails.isEmpty,
+           let scopeDetailsAnyDict = AnyCodable.toAnyDictionary(dictionary: scopeDetails) {
+            feedData["scopeDetails"] = scopeDetailsAnyDict
+        }
+            
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: feedData as Any) else {
+            return nil
+        }
         return try? JSONDecoder().decode(FeedItem.self, from: jsonData)
     }
 }

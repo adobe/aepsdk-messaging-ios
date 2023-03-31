@@ -31,3 +31,16 @@ public class Feed: NSObject, Codable {
         self.name = self.items.first?.meta?["feedName"] as? String ?? ""
     }
 }
+
+extension Feed {
+    static func from(data: [String: Any]?) -> [Feed]? {
+        guard
+            data != nil,
+            let feedData = data?[MessagingConstants.Event.Data.Key.FEEDS] as? [[String: Any]],
+            let jsonData = try? JSONSerialization.data(withJSONObject: feedData as Any) else {
+            return nil
+        }
+
+        return try? JSONDecoder().decode([Feed].self, from: jsonData)
+    }
+}

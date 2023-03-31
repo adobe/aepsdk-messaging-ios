@@ -200,7 +200,7 @@ public class Messaging: NSObject, Extension {
         }
                  
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app or feed message definitions from personalization:decisions network response.")
-        var rules = parsePropositions(event.payload, expectedSurfaces: requestedSurfacesforEventId[messagesRequestEventId] ?? [], clearExisting: clearExistingRules)
+        let rules = parsePropositions(event.payload, expectedSurfaces: requestedSurfacesforEventId[messagesRequestEventId] ?? [], clearExisting: clearExistingRules)
         
         // parse and load in-app message rules
         let consequenceType = rules.first?.consequences.first?.type
@@ -395,11 +395,8 @@ public class Messaging: NSObject, Extension {
         return rules
     }
     
-    func updateFeeds(_ data: [String: Any]?, scope: String, scopeDetails: [String: Any]) {
-        if let feedItem = FeedItem.from(data: data) {
-            // set scope details for reporting purposes
-            feedItem.scopeDetails = scopeDetails
-            
+    func updateFeeds(_ data: [String: Any]?, scope: String, scopeDetails: [String: AnyCodable]) {
+        if let feedItem = FeedItem.from(data: data, scopeDetails: scopeDetails) {
             // find the feed to insert the feed item else create a new feed for it
             if let feed = inMemoryFeeds.first(where: { $0.surfaceUri == scope }) {
                 feed.items.append(feedItem)
@@ -432,6 +429,11 @@ public class Messaging: NSObject, Extension {
     /// For testing purposes only
     internal func inMemoryPropositionsCount() -> Int {
         return inMemoryPropositions.count
+    }
+    
+    /// For testing purposes only
+    internal func inMemoryFeedsCount() -> Int {
+        return inMemoryFeeds.count
     }
     
     /// Used for testing only
