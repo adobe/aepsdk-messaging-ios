@@ -405,9 +405,9 @@ class MessagingPublicApiTest: XCTestCase {
             XCTAssertNotNil(feedItem?.meta)
             XCTAssertEqual(1, feedItem?.meta?.count)
             XCTAssertEqual("Winter Promo", feedItem?.meta?["feedName"] as? String)
-            XCTAssertNotNil(feedItem?.details)
-            XCTAssertEqual(1, feedItem?.details.count)
-            XCTAssertEqual("someInnerValue", feedItem?.details["someInnerKey"] as? String)
+            XCTAssertNotNil(feedItem?.scopeDetails)
+            XCTAssertEqual(1, feedItem?.scopeDetails.count)
+            XCTAssertEqual("someInnerValue", feedItem?.scopeDetails["someInnerKey"] as? String)
             expectation.fulfill()
         }
 

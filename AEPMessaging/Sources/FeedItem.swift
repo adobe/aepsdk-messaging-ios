@@ -16,8 +16,6 @@ import Foundation
 @objc(AEPFeedItem)
 @objcMembers
 public class FeedItem: NSObject, Codable {
-    private var scopeDetails: [String: Any] = [:]
-
     /// String representing a unique ID for ths feed item
     public let id: String
 
@@ -49,14 +47,7 @@ public class FeedItem: NSObject, Codable {
     public var type: String?
 
     /// Contains scope details for reporting
-    public internal(set) var details: [String: Any] {
-        get {
-            scopeDetails
-        }
-        set(newScopeDetails) {
-            scopeDetails = newScopeDetails
-        }
-    }
+    public internal(set) var scopeDetails: [String: Any]
 
     enum CodingKeys: String, CodingKey {
         case id

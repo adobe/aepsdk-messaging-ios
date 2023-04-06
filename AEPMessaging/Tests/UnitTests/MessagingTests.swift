@@ -366,9 +366,9 @@ class MessagingTests: XCTestCase {
         XCTAssertNotNil(feed?.items.first?.meta)
         XCTAssertEqual(1, feed?.items.first?.meta?.count)
         XCTAssertEqual("Winter Promo", feed?.items.first?.meta?["feedName"] as? String)
-        XCTAssertNotNil(feed?.items.first?.details)
-        XCTAssertEqual(1, feed?.items.first?.details.count)
-        XCTAssertEqual("someInnerValue", feed?.items.first?.details["someInnerKey"] as? String)
+        XCTAssertNotNil(feed?.items.first?.scopeDetails)
+        XCTAssertEqual(1, feed?.items.first?.scopeDetails.count)
+        XCTAssertEqual("someInnerValue", feed?.items.first?.scopeDetails["someInnerKey"] as? String)
     }
 
     func testHandleRulesResponseHappy() throws {
