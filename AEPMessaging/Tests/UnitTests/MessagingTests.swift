@@ -21,6 +21,7 @@ class MessagingTests: XCTestCase {
     var mockRuntime: TestableExtensionRuntime!
     var mockNetworkService: MockNetworkService?
     var mockMessagingRulesEngine: MockMessagingRulesEngine!
+    var mockFeedRulesEngine: MockFeedRulesEngine!
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
     let mockIamSurface = "mobileapp://com.apple.dt.xctest.tool"
@@ -36,8 +37,10 @@ class MessagingTests: XCTestCase {
         mockRuntime = TestableExtensionRuntime()
         mockCache = MockCache(name: "mockCache")
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mockLaunchRulesEngine", extensionRuntime: mockRuntime)
-        mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockLaunchRulesEngine, cache: mockCache)
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, expectedSurface: mockIamSurface, cache: mockCache)
+        mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine)
+        mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine, cache: mockCache)
+        
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurface: mockIamSurface, cache: mockCache)
         messaging.onRegistered()
 
         mockNetworkService = MockNetworkService()
@@ -298,9 +301,9 @@ class MessagingTests: XCTestCase {
         // verify
         XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
         XCTAssertEqual(0, messaging.propositionInfoCount())
-        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertTrue(mockLaunchRulesEngine.replaceRulesCalled)
         XCTAssertFalse(mockLaunchRulesEngine.addRulesCalled)
-        XCTAssertFalse(mockCache.setCalled)
+        XCTAssertTrue(mockCache.setCalled)
     }
     
     func testHandleEdgePersonalizationFeedsNotificationHappy() throws {
@@ -308,6 +311,25 @@ class MessagingTests: XCTestCase {
         messaging.setMessagesRequestEventId("mockRequestEventId")
         messaging.setLastProcessedRequestEventId("mockRequestEventId")
         messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: ["mobileapp://com.apple.dt.xctest.tool/promos/feed1"])
+        mockLaunchRulesEngine.ruleConsequences.removeAll()
+        mockLaunchRulesEngine.ruleConsequences = [RuleConsequence(id: "someId", type: "cjmiam", details: [
+            "mobileParameters": [
+                "id": "5c2ec561-49dd-4c8d-80bb-1fd67f6fca5d",
+                "title": "Flash sale!",
+                "body": "All winter gear is now up to 30% off at checkout.",
+                "imageUrl": "https://luma.com/wintersale.png",
+                "actionUrl": "https://luma.com/sale",
+                "actionTitle": "Shop the sale!",
+                "publishedDate": 1680568056,
+                "expiryDate": 1712190456,
+                "meta": [
+                    "feedName":"WinterPromo",
+                    "surface":"mobileapp://com.apple.dt.xctest.tool/promos/feed1"
+                ],
+                "type": "messagefeed"
+            ]
+        ])]
+        
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(items:[["data": ["content": mockFeedContent]]], surface:"mobileapp://com.apple.dt.xctest.tool/promos/feed1"))
 
@@ -317,7 +339,7 @@ class MessagingTests: XCTestCase {
         // verify
         XCTAssertEqual(1, messaging.inMemoryFeedsCount())
         XCTAssertEqual(0, messaging.propositionInfoCount())
-        XCTAssertFalse(mockLaunchRulesEngine.addRulesCalled)
+        XCTAssertTrue(mockLaunchRulesEngine.addRulesCalled)
         XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
         XCTAssertFalse(mockCache.setCalled)
         
@@ -327,10 +349,10 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual("com.adobe.eventType.messaging", dispatchedEvent?.type)
         XCTAssertEqual("com.adobe.eventSource.notification", dispatchedEvent?.source)
         
-        let feeds = dispatchedEvent?.data?["feeds"] as? [Feed]
-        XCTAssertNotNil(feeds)
-        XCTAssertEqual(1, feeds?.count)
-        let feed = feeds?.first
+        let feedsDict = dispatchedEvent?.feeds
+        XCTAssertNotNil(feedsDict)
+        XCTAssertEqual(1, feedsDict?.count)
+        let feed = feedsDict?["mobileapp://com.apple.dt.xctest.tool/promos/feed1"]
         XCTAssertEqual("Winter Promo", feed?.name)
         XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", feed?.surfaceUri)
         XCTAssertEqual(1, feed?.items.count)
@@ -717,7 +739,7 @@ class MessagingTests: XCTestCase {
         // verify
         XCTAssertEqual(0, rules.count)
         XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
-        XCTAssertFalse(mockCache.setCalled)
+        XCTAssertTrue(mockCache.setCalled)
     }
 
     func testParsePropositionsEmptyStringContent() throws {
@@ -732,7 +754,7 @@ class MessagingTests: XCTestCase {
         // verify
         XCTAssertEqual(0, rules.count)
         XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
-        XCTAssertFalse(mockCache.setCalled)
+        XCTAssertTrue(mockCache.setCalled)
     }
 
     func testParsePropositionsMalformedContent() throws {
@@ -747,7 +769,7 @@ class MessagingTests: XCTestCase {
         // verify
         XCTAssertEqual(0, rules.count)
         XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
-        XCTAssertFalse(mockCache.setCalled)
+        XCTAssertTrue(mockCache.setCalled)
     }
 
     func testParsePropositionsNoItemsInPayload() throws {
@@ -761,7 +783,7 @@ class MessagingTests: XCTestCase {
         // verify
         XCTAssertEqual(0, rules.count)
         XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
-        XCTAssertFalse(mockCache.setCalled)
+        XCTAssertTrue(mockCache.setCalled)
     }
 
     func testParsePropositionsEmptyContentInPayload() throws {
@@ -777,7 +799,7 @@ class MessagingTests: XCTestCase {
         // verify
         XCTAssertEqual(0, rules.count)
         XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
-        XCTAssertFalse(mockCache.setCalled)
+        XCTAssertTrue(mockCache.setCalled)
     }
         
     func testParsePropositionsEventSequence() throws {
@@ -971,7 +993,7 @@ class MessagingTests: XCTestCase {
         return nil
     }
     
-    let mockFeedContent = "{\"version\":1,\"rules\":[{\"condition\":{\"type\":\"group\",\"definition\":{\"logic\":\"and\",\"conditions\":[{\"type\":\"matcher\",\"definition\":{\"key\":\"~timestampu\",\"matcher\":\"ge\",\"values\":[1677190552]}},{\"type\":\"matcher\",\"definition\":{\"key\":\"~timestampu\",\"matcher\":\"le\",\"values\":[1677243235]}}]}},\"consequences\":[{\"id\":\"88ac1647-d48b-4206-a302-c74353e63fc7\",\"type\":\"ajofeeditem\",\"detail\":{\"title\":\"Flash sale!\",\"body\":\"All winter gear is now up to 30% off at checkout.\",\"imageUrl\":\"https://luma.com/wintersale.png\", \"actionUrl\":\"https://luma.com/sale\",\"actionTitle\":\"Shop the sale!\",\"publishedDate\":1677190552,\"expiryDate\":1677243235,\"meta\":{\"feedName\":\"Winter Promo\"}}}]}]}"
+    let mockFeedContent = "{\"version\":1,\"rules\":[{\"condition\":{\"definition\":{\"conditions\":[{\"definition\":{\"key\":\"~timestampu\",\"matcher\":\"ge\",\"values\":[1680568056]},\"type\":\"matcher\"},{\"definition\":{\"key\":\"~timestampu\",\"matcher\":\"le\",\"values\":[1712190456]},\"type\":\"matcher\"}],\"logic\":\"and\"},\"type\":\"group\"},\"consequences\":[{\"id\":\"6513c398-303a-4a04-adbf-116b194bcaea\",\"type\":\"cjmiam\",\"detail\":{\"mobileParameters\":{\"expiryDate\":1712190456,\"actionTitle\":\"Shop the sale!\",\"meta\":{\"feedName\":\"Winter Promo\"},\"imageUrl\":\"https://luma.com/wintersale.png\",\"actionUrl\":\"https://luma.com/sale\",\"publishedDate\":1680568056,\"body\":\"All winter gear is now up to 30% off at checkout.\",\"title\":\"Flash sale!\",\"type\":\"messagefeed\"},\"html\":\"<html><head></head><body></body></html>\",\"remoteAssets\":[]}}]}]}"
 
     let mockContent1 = "{\"version\":1,\"rules\":[{\"condition\":{\"type\":\"group\",\"definition\":{\"logic\":\"and\",\"conditions\":[{\"type\":\"group\",\"definition\":{\"logic\":\"and\",\"conditions\":[{\"type\":\"matcher\",\"definition\":{\"key\":\"~source\",\"matcher\":\"eq\",\"values\":[\"com.adobe.eventSource.applicationLaunch\"]}},{\"type\":\"matcher\",\"definition\":{\"key\":\"~type\",\"matcher\":\"eq\",\"values\":[\"com.adobe.eventType.lifecycle\"]}},{\"type\":\"matcher\",\"definition\":{\"key\":\"~state.com.adobe.module.lifecycle/lifecyclecontextdata.launchevent\",\"matcher\":\"ex\",\"values\":[]}}]}}]}},\"consequences\":[{\"id\":\"89ac1647-d48b-4206-a302-c74353e63fc7\",\"type\":\"cjmiam\",\"detail\":{\"mobileParameters\":{\"verticalAlign\":\"center\",\"horizontalInset\":0,\"dismissAnimation\":\"bottom\",\"uiTakeover\":true,\"horizontalAlign\":\"center\",\"verticalInset\":0,\"displayAnimation\":\"bottom\",\"width\":100,\"height\":100,\"gestures\":{}},\"html\":\"<html><head></head><body>Hello from InApp campaign: [CIT]::inapp::LqhnZy7y1Vo4EEWciU5qK</body></html>\",\"remoteAssets\":[]}}]}]}"
     let mockContent2 = "{\"version\":1,\"rules\":[{\"condition\":{\"type\":\"group\",\"definition\":{\"logic\":\"and\",\"conditions\":[{\"type\":\"group\",\"definition\":{\"logic\":\"and\",\"conditions\":[{\"type\":\"matcher\",\"definition\":{\"key\":\"~source\",\"matcher\":\"eq\",\"values\":[\"com.adobe.eventSource.applicationLaunch\"]}},{\"type\":\"matcher\",\"definition\":{\"key\":\"~type\",\"matcher\":\"eq\",\"values\":[\"com.adobe.eventType.lifecycle\"]}},{\"type\":\"matcher\",\"definition\":{\"key\":\"~state.com.adobe.module.lifecycle/lifecyclecontextdata.launchevent\",\"matcher\":\"ex\",\"values\":[]}}]}}]}},\"consequences\":[{\"id\":\"dcfc8404-eea2-49df-a39a-85fc262d897e\",\"type\":\"cjmiam\",\"detail\":{\"mobileParameters\":{\"verticalAlign\":\"center\",\"horizontalInset\":0,\"dismissAnimation\":\"bottom\",\"uiTakeover\":true,\"horizontalAlign\":\"center\",\"verticalInset\":0,\"displayAnimation\":\"bottom\",\"width\":100,\"height\":100,\"gestures\":{}},\"html\":\"<html><head></head><body>Hello from another InApp campaign: [CIT]::inapp::LqhnZy7y1Vo4EEWciU5qK</body></html>\",\"remoteAssets\":[]}}]}]}"

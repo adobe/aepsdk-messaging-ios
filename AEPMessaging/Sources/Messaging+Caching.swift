@@ -29,7 +29,7 @@ extension Messaging {
 
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
         let rules = parsePropositions(propositions, expectedSurfaces: [expectedSurface], clearExisting: false, persistChanges: false)
-        rulesEngine.loadRules(rules, clearExisting: false)
+        rulesEngine.launchRulesEngine.loadRules(rules, clearExisting: false)
     }
 
     func cachePropositions(shouldReset: Bool = false) {

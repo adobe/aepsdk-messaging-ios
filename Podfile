@@ -16,7 +16,7 @@ pod 'SwiftLint', '0.44.0'
 # SHARED POD GROUPS
 # ==================
 def lib_main
-    pod 'AEPCore'
+    pod 'AEPCore', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.9.0'
     pod 'AEPServices'
     pod 'AEPRulesEngine'
 end
@@ -28,7 +28,7 @@ def lib_dev
 end
 
 def app_main
-    pod 'AEPCore'
+    pod 'AEPCore', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'dev-v3.9.0'
     pod 'AEPServices'
     pod 'AEPLifecycle'
     pod 'AEPRulesEngine'

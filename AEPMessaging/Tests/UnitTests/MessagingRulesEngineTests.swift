@@ -28,7 +28,7 @@ class MessagingRulesEngineTests: XCTestCase {
         mockRuntime = TestableExtensionRuntime()
         mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: mockRuntime)
         mockCache = MockCache(name: "mockCache")
-        messagingRulesEngine = MessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockRulesEngine, cache: mockCache)
+        messagingRulesEngine = MessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockRulesEngine, cache: mockCache)
     }
 
     func testInitializer() throws {
@@ -43,7 +43,7 @@ class MessagingRulesEngineTests: XCTestCase {
 
         // verify
         XCTAssertNotNil(mre.runtime)
-        XCTAssertNotNil(mre.rulesEngine)
+        XCTAssertNotNil(mre.launchRulesEngine)
         XCTAssertNotNil(mre.cache)
     }
 
@@ -57,84 +57,5 @@ class MessagingRulesEngineTests: XCTestCase {
         // verify
         XCTAssertTrue(mockRulesEngine.processCalled)
         XCTAssertEqual(event, mockRulesEngine.paramProcessedEvent)
-    }
-
-    func testLoadRulesHappy() throws {
-       // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        let ruleString = propositions.first?.items.first?.data.content
-        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
-
-       // test
-       messagingRulesEngine.loadRules(rulesArray, clearExisting: false)
-
-       // verify
-       XCTAssertTrue(mockRulesEngine.addRulesCalled)
-       XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
-   }
-        
-    func testLoadRulesClearExisting() throws {
-       // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        let ruleString = propositions.first?.items.first?.data.content
-        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
-
-       // test
-       messagingRulesEngine.loadRules(rulesArray, clearExisting: true)
-
-       // verify
-       XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-       XCTAssertEqual(1, mockRulesEngine.paramReplaceRulesRules?.count)
-   }
-
-    func testLoadRulesEmptyStringContent() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("emptyContentStringRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        let ruleString = propositions.first?.items.first?.data.content
-        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
-
-        // test
-        messagingRulesEngine.loadRules(rulesArray, clearExisting: false)
-
-        // verify
-        XCTAssertFalse(mockRulesEngine.addRulesCalled)
-    }
-
-    func testLoadRulesMalformedContent() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("malformedContentRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        let ruleString = propositions.first?.items.first?.data.content
-        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
-
-        // test
-        messagingRulesEngine.loadRules(rulesArray, clearExisting: false)
-
-        // verify
-        XCTAssertFalse(mockRulesEngine.addRulesCalled)
-    }
-
-    func testLoadRulesEventSequence() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("eventSequenceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        let ruleString = propositions.first?.items.first?.data.content
-        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
-
-
-        // test
-        messagingRulesEngine.loadRules(rulesArray, clearExisting: false)
-
-        // verify
-        XCTAssertTrue(mockRulesEngine.addRulesCalled)
-        XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
     }
 }

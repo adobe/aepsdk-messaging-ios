@@ -35,7 +35,7 @@ class MessagingRulesEngineCachingTests: XCTestCase {
         mockRuntime = TestableExtensionRuntime()
         mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: mockRuntime)
         mockCache = MockCache(name: "mockCache")
-        messagingRulesEngine = MessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockRulesEngine, cache: mockCache)
+        messagingRulesEngine = MessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockRulesEngine, cache: mockCache)
     }
 
     func testCacheRemoteAssetsHappy() throws {

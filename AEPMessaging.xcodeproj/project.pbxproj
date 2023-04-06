@@ -24,6 +24,11 @@
 		01B9DD6617C6AD6E99EE8472 /* Pods_E2EFunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB180620A608D2821FE98F37 /* Pods_E2EFunctionalTests.framework */; };
 		090290C229D39D4900388226 /* Messaging+Caching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C129D39D4900388226 /* Messaging+Caching.swift */; };
 		090290C329D4EA9F00388226 /* MockCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5E8274C107100E56457 /* MockCache.swift */; };
+		090290C529DCED0B00388226 /* FeedRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C429DCED0B00388226 /* FeedRulesEngine.swift */; };
+		090290C729DCEE1000388226 /* LaunchRulesEngine+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C629DCEE1000388226 /* LaunchRulesEngine+Messaging.swift */; };
+		090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */; };
+		090290CB29DE3F8200388226 /* MockFeedRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290CA29DE3F8200388226 /* MockFeedRulesEngine.swift */; };
+		090290CD29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290CC29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift */; };
 		240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */; };
 		2414ED832899BA080036D505 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED822899BA080036D505 /* AppDelegate.m */; };
 		2414ED862899BA080036D505 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED852899BA080036D505 /* SceneDelegate.m */; };
@@ -293,6 +298,11 @@
 
 /* Begin PBXFileReference section */
 		090290C129D39D4900388226 /* Messaging+Caching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+Caching.swift"; sourceTree = "<group>"; };
+		090290C429DCED0B00388226 /* FeedRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedRulesEngine.swift; sourceTree = "<group>"; };
+		090290C629DCEE1000388226 /* LaunchRulesEngine+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchRulesEngine+Messaging.swift"; sourceTree = "<group>"; };
+		090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuleConsequence+Messaging.swift"; sourceTree = "<group>"; };
+		090290CA29DE3F8200388226 /* MockFeedRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MockFeedRulesEngine.swift; path = AEPMessaging/Tests/TestHelpers/MockFeedRulesEngine.swift; sourceTree = SOURCE_ROOT; };
+		090290CC29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchRulesEngine+MessagingTests.swift"; sourceTree = "<group>"; };
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedStateResult+Messaging.swift"; sourceTree = "<group>"; };
 		2414ED7F2899BA080036D505 /* MessagingDemoAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -653,8 +663,10 @@
 				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
 				244FEA4729B8E2950058FA1C /* Feed.swift */,
 				244FEA4329B6A1060058FA1C /* FeedItem.swift */,
+				090290C429DCED0B00388226 /* FeedRulesEngine.swift */,
 				246FD07126B9F86F00FD130B /* FullscreenMessage+Message.swift */,
 				243B1B0128B411890074327E /* ItemData.swift */,
+				090290C629DCEE1000388226 /* LaunchRulesEngine+Messaging.swift */,
 				244E9583268262C7001DC957 /* Message.swift */,
 				244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
@@ -668,6 +680,7 @@
 				243B1AFF28B411630074327E /* PayloadItem.swift */,
 				243B1AFD28AEB1E60074327E /* PropositionInfo.swift */,
 				243B1AFB28AD7FCE0074327E /* PropositionPayload.swift */,
+				090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */,
 				240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */,
 				244E9554267BB018001DC957 /* String+JSON.swift */,
 				241B2DD32821C80C00E4FF67 /* URL+QueryParams.swift */,
@@ -696,6 +709,7 @@
 				244FEA4529B6A5D30058FA1C /* FeedItemTests.swift */,
 				243EA6CA273325A000195945 /* FullscreenMessage+MessageTests.swift */,
 				248BD9CD28BD56CF00C49B94 /* ItemDataTests.swift */,
+				090290CC29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift */,
 				243EA6CC273325B700195945 /* MessageTests.swift */,
 				243EA6CE273325CC00195945 /* Message+FullscreenMessageDelegateTests.swift */,
 				245059642673DBFD00CC7CA0 /* MessagingTests.swift */,
@@ -724,6 +738,7 @@
 				2469A5EA274D49B100E56457 /* JSONFileLoader.swift */,
 				2469A5E8274C107100E56457 /* MockCache.swift */,
 				9231543F261E3B36004AE7D3 /* MockExtension.swift */,
+				090290CA29DE3F8200388226 /* MockFeedRulesEngine.swift */,
 				243EA6DD2739D4A400195945 /* MockFullscreenMessage.swift */,
 				2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */,
 				243EA6DB2739D48900195945 /* MockMessage.swift */,
@@ -1547,15 +1562,18 @@
 				240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */,
 				2469A5E3274863F600E56457 /* MessagingRulesEngine+Caching.swift in Sources */,
 				090290C229D39D4900388226 /* Messaging+Caching.swift in Sources */,
+				090290C529DCED0B00388226 /* FeedRulesEngine.swift in Sources */,
 				244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */,
 				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
 				244FEA4829B8E2950058FA1C /* Feed.swift in Sources */,
 				245059522671283F00CC7CA0 /* MessagingRulesEngine.swift in Sources */,
 				244C2BD826B36480008F086A /* MessagingEdgeEventType.swift in Sources */,
 				2450599D2673FABF00CC7CA0 /* Messaging+PublicAPI.swift in Sources */,
+				090290C729DCEE1000388226 /* LaunchRulesEngine+Messaging.swift in Sources */,
 				245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */,
 				244E9584268262C8001DC957 /* Message.swift in Sources */,
 				244E955B267BB253001DC957 /* Dictionary+Merging.swift in Sources */,
+				090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */,
 				244C2BDE26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift in Sources */,
 				243B1B0028B411630074327E /* PayloadItem.swift in Sources */,
 				241B2DD42821C80C00E4FF67 /* URL+QueryParams.swift in Sources */,
@@ -1568,6 +1586,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				243EA6D82733265400195945 /* String+JSONTests.swift in Sources */,
+				090290CB29DE3F8200388226 /* MockFeedRulesEngine.swift in Sources */,
 				B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */,
 				92315465261E3B72004AE7D3 /* MockNetworkService.swift in Sources */,
 				2469A5E9274C107100E56457 /* MockCache.swift in Sources */,
@@ -1587,6 +1606,7 @@
 				245059712673DBFE00CC7CA0 /* MessagingTests.swift in Sources */,
 				2469A5EB274D49B100E56457 /* JSONFileLoader.swift in Sources */,
 				248BD9CE28BD56CF00C49B94 /* ItemDataTests.swift in Sources */,
+				090290CD29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift in Sources */,
 				245059762673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift in Sources */,
 				243EA6E02739D9D700195945 /* TestableMessagingMobileParameters.swift in Sources */,
 				243EA6D22733260000195945 /* Messaging+EdgeEventsTests.swift in Sources */,
@@ -2004,7 +2024,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.iamStagingTester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2028,7 +2048,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.iamStagingTester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

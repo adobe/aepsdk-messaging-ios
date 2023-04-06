@@ -19,6 +19,7 @@ enum MessagingConstants {
     static let EXTENSION_VERSION = "1.1.3"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
+    static let FEED_RULES_ENGINE_NAME = EXTENSION_NAME + "Feed" + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
 
@@ -45,6 +46,8 @@ enum MessagingConstants {
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
 
             static let UPDATE_MESSAGE_FEEDS = "Update message feeds"
+            static let GET_MESSAGE_FEEDS = "Get message feeds"
+            static let MESSAGE_FEEDS_RESPONSE = "Message feeds response"
             static let MESSAGE_FEEDS_NOTIFICATION = "Message feeds notification"
         }
 
@@ -68,14 +71,23 @@ enum MessagingConstants {
                 static let REQUEST_EVENT_ID = "requestEventId"
                 static let IAM_HISTORY = "iam"
                 static let UPDATE_FEEDS = "updatefeeds"
+                static let GET_FEEDS = "getfeeds"
                 static let SURFACES = "surfaces"
                 static let FEEDS = "feeds"
+                static let RESPONSE_ERROR = "responseerror"
 
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
                 static let DETAIL = "detail"
                 static let TYPE = "type"
                 static let SOURCE = "source"
+
+                enum FEED {
+                    static let MOBILE_PARAMETERS = "mobileParameters"
+                    static let TYPE = "type"
+                    static let SURFACE = "surface"
+                    static let FEED_NAME = "feedName"
+                }
 
                 // In-App Messages
                 enum IAM {
@@ -134,6 +146,10 @@ enum MessagingConstants {
                     static let SWIPE_LEFT = "swipeLeft"
                     static let SWIPE_RIGHT = "swipeRight"
                     static let TAP_BACKGROUND = "tapBackground"
+                }
+
+                enum FEED {
+                    static let MESSAGE_FEED = "messagefeed"
                 }
             }
         }

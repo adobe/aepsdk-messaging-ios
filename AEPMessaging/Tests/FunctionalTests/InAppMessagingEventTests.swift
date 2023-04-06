@@ -156,18 +156,18 @@ class InAppMessagingEventTests: XCTestCase {
             for proposition in propositions {
                 if let ruleString = proposition.items.first?.data.content,
                     !ruleString.isEmpty,
-                    let rule = messagingRulesEngine.parseRule(ruleString) {
+                   let rule = messagingRulesEngine.launchRulesEngine.parseRule(ruleString, runtime: self.mockRuntime) {
                     rulesArray.append(contentsOf: rule)
                 }
             }
             
             // load the parsed rules into the rules engine
-            messagingRulesEngine.loadRules(rulesArray, clearExisting: true)
+            messagingRulesEngine.launchRulesEngine.loadRules(rulesArray, clearExisting: true)
             
             
             // rules load async - brief sleep to allow it to finish
             self.runAfter(seconds: 3) {
-                XCTAssertEqual(3, messagingRulesEngine.rulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
+                XCTAssertEqual(3, messagingRulesEngine.launchRulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
                 edgePersonalizationDecisionsExpectation.fulfill()
             }
         }

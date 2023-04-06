@@ -16,47 +16,28 @@ import Foundation
 
 /// Wrapper class around `LaunchRulesEngine` that provides a different implementation for loading rules
 class MessagingRulesEngine {
-    let rulesEngine: LaunchRulesEngine
+    let launchRulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
     let cache: Cache
 
     /// Initialize this class, creating a new rules engine with the provided name and runtime
     init(name: String, extensionRuntime: ExtensionRuntime, cache: Cache) {
         runtime = extensionRuntime
-        rulesEngine = LaunchRulesEngine(name: name, extensionRuntime: extensionRuntime)
+        launchRulesEngine = LaunchRulesEngine(name: name, extensionRuntime: extensionRuntime)
         self.cache = cache
     }
 
     /// INTERNAL ONLY
     /// Initializer to provide a mock rules engine for testing
-    init(extensionRuntime: ExtensionRuntime, rulesEngine: LaunchRulesEngine, cache: Cache) {
+    init(extensionRuntime: ExtensionRuntime, launchRulesEngine: LaunchRulesEngine, cache: Cache) {
         runtime = extensionRuntime
-        self.rulesEngine = rulesEngine
+        self.launchRulesEngine = launchRulesEngine
         self.cache = cache
     }
 
     /// if we have rules loaded, then we simply process the event.
     /// if rules are not yet loaded, add the event to the waitingEvents array to
     func process(event: Event) {
-        _ = rulesEngine.process(event: event)
-    }
-
-    func parseRule(_ rule: String) -> [LaunchRule]? {
-        JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime)
-    }
-
-    func loadRules(_ rules: [LaunchRule], clearExisting: Bool) {
-        if clearExisting {
-            rulesEngine.replaceRules(with: rules)
-            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
-        } else {
-            if rules.isEmpty {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring request to load in-app messages, the provided rules array is empty.")
-                return
-            }
-
-            rulesEngine.addRules(rules)
-            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully added \(rules.count) message(s) into the rules engine.")
-        }
+        _ = launchRulesEngine.process(event: event)
     }
 }

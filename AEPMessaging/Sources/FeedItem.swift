@@ -18,29 +18,35 @@ import Foundation
 public class FeedItem: NSObject, Codable {
     private var scopeDetails: [String: Any] = [:]
 
+    /// String representing a unique ID for ths feed item
+    public let id: String
+
     /// Plain-text title for the feed item
-    public var title: String
+    public let title: String
 
     /// Plain-text body representing the content for the feed item
-    public var body: String
+    public let body: String
 
     /// String representing a URI that contains an image to be used for this feed item
-    public var imageUrl: String?
+    public let imageUrl: String?
 
     /// Contains a URL to be opened if the user interacts with the feed item
-    public var actionUrl: String?
+    public let actionUrl: String?
 
     /// Required if `actionUrl` is provided. Text to be used in title of button or link in feed item
-    public var actionTitle: String?
+    public let actionTitle: String?
 
     /// Represents when this feed item went live. Represented in seconds since January 1, 1970
-    public var publishedDate: Int
+    public let publishedDate: Int
 
     /// Represents when this feed item expires. Represented in seconds since January 1, 1970
-    public var expiryDate: Int
+    public let expiryDate: Int
 
     /// Contains additional key-value pairs associated with this feed item
-    public var meta: [String: Any]?
+    public let meta: [String: Any]?
+
+    /// String representing a feed item type
+    public var type: String?
 
     /// Contains scope details for reporting
     public internal(set) var details: [String: Any] {
@@ -52,18 +58,8 @@ public class FeedItem: NSObject, Codable {
         }
     }
 
-    public init(title: String, body: String, imageUrl: String? = nil, actionUrl: String? = nil, actionTitle: String? = nil, publishedDate: Int, expiryDate: Int, meta: [String: Any]? = nil) {
-        self.title = title
-        self.body = body
-        self.imageUrl = imageUrl
-        self.actionUrl = actionUrl
-        self.actionTitle = actionTitle
-        self.publishedDate = publishedDate
-        self.expiryDate = expiryDate
-        self.meta = meta
-    }
-
     enum CodingKeys: String, CodingKey {
+        case id
         case title
         case body
         case imageUrl
@@ -72,6 +68,7 @@ public class FeedItem: NSObject, Codable {
         case publishedDate
         case expiryDate
         case meta
+        case type
         case scopeDetails
     }
 
@@ -80,6 +77,7 @@ public class FeedItem: NSObject, Codable {
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
+        id = try values.decode(String.self, forKey: .id)
         title = try values.decode(String.self, forKey: .title)
         body = try values.decode(String.self, forKey: .body)
         imageUrl = try? values.decode(String.self, forKey: .imageUrl)
@@ -94,8 +92,24 @@ public class FeedItem: NSObject, Codable {
             }
             return value
         }
+        type = try? values.decode(String.self, forKey: .type)
         let anyCodableDetailsDict = try? values.decode([String: AnyCodable].self, forKey: .scopeDetails)
         scopeDetails = AnyCodable.toAnyDictionary(dictionary: anyCodableDetailsDict) ?? [:]
+    }
+
+    override public var debugDescription: String {
+        """
+         id: \(id)
+         title: \(title)
+         body: \(body)
+         imageUrl: \(imageUrl ?? "")
+         actionUrl: \(actionUrl ?? "")
+         actionTitle: \(actionTitle ?? "")
+         publishedDate: \(publishedDate)
+         expiryDate: \(expiryDate)
+         meta: \(String(describing: meta))
+         scopeDetails: \(String(describing: scopeDetails))
+        """
     }
 }
 
@@ -106,6 +120,8 @@ extension FeedItem {
     /// - Parameter encoder: The encoder to write feed item data to.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(id, forKey: .id)
         try container.encode(title, forKey: .title)
         try container.encode(body, forKey: .body)
         try? container.encode(imageUrl, forKey: .imageUrl)
@@ -114,24 +130,35 @@ extension FeedItem {
         try container.encode(publishedDate, forKey: .publishedDate)
         try container.encode(expiryDate, forKey: .expiryDate)
         try? container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
+        try container.encode(type, forKey: .type)
         try? container.encode(AnyCodable.from(dictionary: scopeDetails), forKey: .scopeDetails)
     }
 
-    static func from(data: [String: Any]?, scopeDetails: [String: AnyCodable]? = nil) -> FeedItem? {
+    static func from(data: [String: Any]?, id: String, scopeDetails: [String: AnyCodable]? = nil) -> FeedItem? {
         guard data != nil else {
             return nil
         }
 
-        var feedData = data ?? [:]
+        var feedItemData = data ?? [:]
+        feedItemData["id"] = id
+
         if let scopeDetails = scopeDetails,
            !scopeDetails.isEmpty,
            let scopeDetailsAnyDict = AnyCodable.toAnyDictionary(dictionary: scopeDetails) {
-            feedData["scopeDetails"] = scopeDetailsAnyDict
+            feedItemData["scopeDetails"] = scopeDetailsAnyDict
         }
 
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: feedData as Any) else {
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: feedItemData as Any) else {
             return nil
         }
         return try? JSONDecoder().decode(FeedItem.self, from: jsonData)
+    }
+
+    var surface: String? {
+        meta?[MessagingConstants.Event.Data.Key.FEED.SURFACE] as? String
+    }
+
+    var feedName: String? {
+        meta?[MessagingConstants.Event.Data.Key.FEED.FEED_NAME] as? String
     }
 }

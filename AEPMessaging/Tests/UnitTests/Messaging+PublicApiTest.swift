@@ -360,11 +360,12 @@ class MessagingPublicApiTest: XCTestCase {
                               source: "com.adobe.eventSource.notification",
                               data: [
                                 "feeds": [
-                                    [
+                                    "promos/feed1": [
                                         "surfaceUri": "promos/feed1",
                                         "name": "Promos feed",
                                         "items": [
                                             [
+                                                "id": "5c2ec561-49dd-4c8d-80bb-1fd67f6fca5d",
                                                 "title": "Flash sale!",
                                                 "body": "All winter gear is now up to 30% off at checkout.",
                                                 "imageUrl": "https://luma.com/wintersale.png",
