@@ -323,7 +323,7 @@ class MessagingTests: XCTestCase {
                 "publishedDate": 1680568056,
                 "expiryDate": 1712190456,
                 "meta": [
-                    "feedName":"WinterPromo",
+                    "feedName":"Winter Promo",
                     "surface":"mobileapp://com.apple.dt.xctest.tool/promos/feed1"
                 ],
                 "type": "messagefeed"
@@ -352,7 +352,7 @@ class MessagingTests: XCTestCase {
         let feedsDict = dispatchedEvent?.feeds
         XCTAssertNotNil(feedsDict)
         XCTAssertEqual(1, feedsDict?.count)
-        let feed = feedsDict?["mobileapp://com.apple.dt.xctest.tool/promos/feed1"]
+        let feed = feedsDict?["promos/feed1"]
         XCTAssertEqual("Winter Promo", feed?.name)
         XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", feed?.surfaceUri)
         XCTAssertEqual(1, feed?.items.count)
@@ -361,14 +361,14 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual("https://luma.com/wintersale.png", feed?.items.first?.imageUrl)
         XCTAssertEqual("https://luma.com/sale", feed?.items.first?.actionUrl)
         XCTAssertEqual("Shop the sale!", feed?.items.first?.actionTitle)
-        XCTAssertEqual(1677190552, feed?.items.first?.publishedDate)
-        XCTAssertEqual(1677243235, feed?.items.first?.expiryDate)
+        XCTAssertEqual(1680568056, feed?.items.first?.publishedDate)
+        XCTAssertEqual(1712190456, feed?.items.first?.expiryDate)
         XCTAssertNotNil(feed?.items.first?.meta)
-        XCTAssertEqual(1, feed?.items.first?.meta?.count)
+        XCTAssertEqual(2, feed?.items.first?.meta?.count)
         XCTAssertEqual("Winter Promo", feed?.items.first?.meta?["feedName"] as? String)
+        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", feed?.items.first?.meta?["surface"] as? String)
         XCTAssertNotNil(feed?.items.first?.scopeDetails)
-        XCTAssertEqual(1, feed?.items.first?.scopeDetails.count)
-        XCTAssertEqual("someInnerValue", feed?.items.first?.scopeDetails["someInnerKey"] as? String)
+        XCTAssertEqual(0, feed?.items.first?.scopeDetails.count)
     }
 
     func testHandleRulesResponseHappy() throws {

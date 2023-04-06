@@ -209,7 +209,7 @@ public class Messaging: NSObject, Extension {
                     return result
                 }
 
-            let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeeds as Any]
+            let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeeds].asDictionary()
 
             let responseEvent = event.createResponseEvent(
                 name: MessagingConstants.Event.Name.MESSAGE_FEEDS_RESPONSE,
@@ -265,7 +265,7 @@ public class Messaging: NSObject, Extension {
                         return result
                     }
                 // dispatch an event with the feeds received from the remote
-                let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeeds as Any]
+                let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeeds].asDictionary()
 
                 let event = Event(name: MessagingConstants.Event.Name.MESSAGE_FEEDS_NOTIFICATION,
                                   type: EventType.messaging,

@@ -44,7 +44,7 @@ public class FeedItem: NSObject, Codable {
     public let meta: [String: Any]?
 
     /// String representing a feed item type
-    public var type: String?
+    public let type: String?
 
     /// Contains scope details for reporting
     public internal(set) var scopeDetails: [String: Any]
@@ -99,6 +99,7 @@ public class FeedItem: NSObject, Codable {
          publishedDate: \(publishedDate)
          expiryDate: \(expiryDate)
          meta: \(String(describing: meta))
+         type: \(type ?? "")
          scopeDetails: \(String(describing: scopeDetails))
         """
     }
@@ -121,8 +122,8 @@ extension FeedItem {
         try container.encode(publishedDate, forKey: .publishedDate)
         try container.encode(expiryDate, forKey: .expiryDate)
         try? container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
-        try container.encode(type, forKey: .type)
-        try? container.encode(AnyCodable.from(dictionary: scopeDetails), forKey: .scopeDetails)
+        try? container.encode(type, forKey: .type)
+        try container.encode(AnyCodable.from(dictionary: scopeDetails), forKey: .scopeDetails)
     }
 
     static func from(data: [String: Any]?, id: String, scopeDetails: [String: AnyCodable]? = nil) -> FeedItem? {
