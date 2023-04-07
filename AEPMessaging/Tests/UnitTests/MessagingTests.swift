@@ -645,7 +645,7 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(EventType.edge, dispatchedEvent?.type)
         XCTAssertEqual(EventSource.requestContent, dispatchedEvent?.source)
         
-        let eventData = try XCTUnwrap(dispatchedEvent?.data as? [String: Any])
+        let eventData = try XCTUnwrap(dispatchedEvent?.data)
         let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
         XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
         let query =  try XCTUnwrap(eventData["query"] as? [String: Any])

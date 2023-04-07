@@ -184,7 +184,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        var surfaceUri = surfacePaths
+        let surfaceUri = surfacePaths
             .filter { !$0.isEmpty }
             .map { appSurface + MessagingConstants.PATH_SEPARATOR + $0 }
             .filter { isValidSurface($0) }
