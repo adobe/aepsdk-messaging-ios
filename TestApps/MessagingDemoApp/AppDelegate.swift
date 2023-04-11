@@ -55,6 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         
         registerForPushNotifications(application)
+        registerNotificationCategories()
         return true
     }
 
@@ -115,20 +116,103 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-        // Perform the task associated with the action.
-        switch response.actionIdentifier {
-        case "ACCEPT_ACTION":
-            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: "ACCEPT_ACTION")
-
-        case "DECLINE_ACTION":
-            Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: "DECLINE_ACTION")
-
-        // Handle other actions…
-        default:
+        
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            // UNNotificationDefaultActionIdentifier is an action which indicates the user has opened the app by tapping on the body of the notification.
+            // since application has been opened because of this action, set applicationOpened to true
+            // since there is no custom action performed on the notification, set customActionId to nil
             Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: nil)
+        } else if response.actionIdentifier == UNNotificationDismissActionIdentifier {
+            // UNNotificationDismissActionIdentifier is an action which indicates the user explicitly dismissed the notification interface.
+            // Note : The system delivers this action only if your app configured the notification’s category object with the customDismissAction option
+            // Note :  To trigger this action, the user must explicitly dismiss the notification interface. For example, the user must tap the Dismiss button
+            // Note : Ignoring a notification or flicking away a notification banner doesn’t trigger this action.
+            // Documentation : https://developer.apple.com/documentation/usernotifications/unnotificationdismissactionidentifier
+            // since notification has been dismissed because of this action, set applicationOpened to false
+            // since there is no custom action performed on the notification, set customActionId to nil
+            Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: nil)
+        } else {
+            handleCustomAction(response)
         }
 
         // Always call the completion handler when done.
         completionHandler()
+    }
+    
+    
+    private func registerNotificationCategories() {
+        // Registering a category that demonstrates using links on actionButton click
+        let webUrlAction = UNNotificationAction(identifier: "WEB_URL", title: "Web Url", options: [.foreground])
+        let deepLinkAction = UNNotificationAction(identifier: "DEEPLINK", title: "Deeplink", options: [.foreground])
+        let dismissAction = UNNotificationAction(identifier: "DISMISS", title: "Dismiss", options: [.destructive])
+        
+        // Define the category
+        let linkExampleCategory =
+              UNNotificationCategory(identifier: "link_example",
+              actions: [webUrlAction, deepLinkAction, dismissAction],
+              intentIdentifiers: [],
+              hiddenPreviewsBodyPlaceholder: "",
+                                     options: [.customDismissAction])
+
+        // Registering a category that demonstrates a common example without deeplinks
+        let snoozeAction = UNNotificationAction(identifier: "SNOOZE_ACTION", title: "Snooze", options: [.foreground])
+    
+        // Define the category
+        let reminderCategory =
+              UNNotificationCategory(identifier: "reminder",
+              actions: [snoozeAction, dismissAction],
+              intentIdentifiers: [],
+              hiddenPreviewsBodyPlaceholder: "",
+              options: .customDismissAction)
+        
+        // Define another category without any actions
+        let adobeCategory =
+              UNNotificationCategory(identifier: "adobe",
+              actions: [],
+              intentIdentifiers: [],
+              hiddenPreviewsBodyPlaceholder: "",
+              options: .customDismissAction)
+        
+        
+        // Register the notification type.
+        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter.setNotificationCategories([linkExampleCategory, reminderCategory, adobeCategory])
+    }
+    
+    private func handleCustomAction(_ response: UNNotificationResponse) {
+        
+        if response.notification.request.content.categoryIdentifier == "link_example" {
+            switch response.actionIdentifier {
+                
+            case "WEB_URL":
+                //  This action is configured to get the app to the foreground
+                Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: response.actionIdentifier)
+                UIApplication.shared.open(URL(string: "https://adobe.com")!)
+
+            case "DEEPLINK":
+                //  This action is configured to get the app to the foreground
+                Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: response.actionIdentifier)
+                UIApplication.shared.open(URL(string: "messagingdemo://home")!)
+                
+            case "DISMISS":
+                //  This action is configured dismiss the notification
+                Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: response.actionIdentifier)
+            default:
+                Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: nil)
+            }
+        }
+        
+        else if response.notification.request.content.categoryIdentifier == "reminder" {
+            switch response.actionIdentifier {
+            case "SNOOZE_ACTION":
+                //  This action is configured to get the app to the foreground
+                Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: response.actionIdentifier)
+            case "DISMISS":
+                //  This action is configured dismiss the notification
+                Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: response.actionIdentifier)
+            default:
+                Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: nil)
+            }
+        }
     }
 }

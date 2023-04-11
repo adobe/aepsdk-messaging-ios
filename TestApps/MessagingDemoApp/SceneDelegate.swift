@@ -26,5 +26,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
         guard let urlContexts = URLContexts.first else { return }
         Assurance.startSession(url: urlContexts.url)
+        
+        let alert = UIAlertController(title: "Deeplink Received", message: "\(urlContexts.url.description)", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Cool", style: UIAlertAction.Style.default, handler: nil))
+        self.window?.rootViewController?.present(alert, animated: true, completion: nil)
     }
 }
