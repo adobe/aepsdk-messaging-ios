@@ -58,6 +58,7 @@ enum MessagingConstants {
                 static let MESSAGE_ID = "id"
                 static let APPLICATION_OPENED = "applicationOpened"
                 static let ACTION_ID = "actionId"
+                static let PUSH_CLICK_THROUGH_LINK = "pushClickThroughLink"
                 static let REFRESH_MESSAGES = "refreshmessages"
                 static let ADOBE_XDM = "adobe_xdm"
                 static let REQUEST_EVENT_ID = "requestEventId"
@@ -286,5 +287,11 @@ enum MessagingConstants {
             static let ECID = "ECID"
             static let ID = "id"
         }
+    }
+    
+    enum PushNotification {
+        enum UserInfoKey {
+            static let ACTION_URL = "adb_uri"
+        }        
     }
 }

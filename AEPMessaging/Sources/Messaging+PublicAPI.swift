@@ -42,6 +42,17 @@ import UserNotifications
                                         MessagingConstants.XDM.Key.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
         if customActionId == nil {
             eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
+            
+            // Messaging extension can handle click through url's when the user taps on the notification
+            // Messaging extension CANNOT handle click through url's when the user taps on any of the action buttons by swiping the notifications. They must be handled in the application.
+            if (applicationOpened) {
+                // Add the click thorough url to the eventData if the application is opened and when the customActionId is nil                
+                // (TODO: Decide if we should also accept UNNotificationDefaultActionIdentifier as customActionId to process sending the clickthrough url through eventData)
+                if let actionUrl = notificationRequest.content.userInfo [MessagingConstants.PushNotification.UserInfoKey.ACTION_URL] as? String {
+                    eventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_LINK] = actionUrl
+                }
+            }
+            
         } else {
             eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
             eventData[MessagingConstants.Event.Data.Key.ACTION_ID] = customActionId

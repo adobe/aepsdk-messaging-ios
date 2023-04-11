@@ -296,6 +296,13 @@ extension Event {
     var actionId: String? {
         data?[MessagingConstants.Event.Data.Key.ACTION_ID] as? String
     }
+    
+    var pushClickThroughLink: URL? {
+        guard let link = data?[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_LINK] as? String else {
+            return nil
+        }
+        return URL(string: link)
+    }
 
     var applicationOpened: Bool {
         data?[MessagingConstants.Event.Data.Key.APPLICATION_OPENED] as? Bool ?? false

@@ -13,6 +13,7 @@
 import AEPCore
 import AEPServices
 import Foundation
+import UIKit
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
@@ -277,9 +278,19 @@ public class Messaging: NSObject, Extension {
 
         // Check if the event type is `MessagingConstants.Event.EventType.messaging` and
         // eventSource is `EventSource.requestContent` handle processing of the tracking information
-        if event.isMessagingRequestContentEvent, configSharedState.keys.contains(MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET) {
-            handleTrackingInfo(event: event)
-            return
+        if event.isMessagingRequestContentEvent {
+            
+            //  Handle push click through action if the event data contains the web/deeplink
+            if let actionLink = event.pushClickThroughLink {
+                DispatchQueue.main.async {
+                    UIApplication.shared.open(actionLink)
+                }                
+            }
+            
+            if(configSharedState.keys.contains(MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET)) {
+                handleTrackingInfo(event: event)
+                return
+            }
         }
     }
     
