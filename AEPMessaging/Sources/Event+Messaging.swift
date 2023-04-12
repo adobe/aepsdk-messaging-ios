@@ -297,8 +297,8 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.ACTION_ID] as? String
     }
     
-    var pushClickThroughLink: URL? {
-        guard let link = data?[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_LINK] as? String else {
+    var pushClickThroughUrl: URL? {
+        guard let link = data?[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] as? String else {
             return nil
         }
         return URL(string: link)

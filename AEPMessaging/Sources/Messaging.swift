@@ -281,7 +281,7 @@ public class Messaging: NSObject, Extension {
         if event.isMessagingRequestContentEvent {
             
             //  Handle push click through action if the event data contains the web/deeplink
-            if let actionLink = event.pushClickThroughLink {
+            if let actionLink = event.pushClickThroughUrl {
                 DispatchQueue.main.async {
                     UIApplication.shared.open(actionLink)
                 }                

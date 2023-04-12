@@ -58,7 +58,7 @@ enum MessagingConstants {
                 static let MESSAGE_ID = "id"
                 static let APPLICATION_OPENED = "applicationOpened"
                 static let ACTION_ID = "actionId"
-                static let PUSH_CLICK_THROUGH_LINK = "pushClickThroughLink"
+                static let PUSH_CLICK_THROUGH_URL = "pushClickThroughUrl"
                 static let REFRESH_MESSAGES = "refreshmessages"
                 static let ADOBE_XDM = "adobe_xdm"
                 static let REQUEST_EVENT_ID = "requestEventId"
