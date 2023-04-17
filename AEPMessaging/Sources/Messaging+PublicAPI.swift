@@ -96,7 +96,7 @@ import UserNotifications
     }
 
     /// Retrieves the previously fetched (and cached) feeds content from the SDK for the provided surface path strings.
-    /// If the feeds content for one or more surface paths isn't previously cached in the SDK, it will not be retrieved from the Adobe Journey Optimizer via the Experience Edge network.
+    /// If the feeds content for one or more surface paths isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
     /// - Parameters:
     ///   - surfacePaths: An array of surface path strings.
     ///   - completion: The completion handler to be invoked with a dictionary containing the surface paths and the corresponding Feed objects.
@@ -160,7 +160,7 @@ import UserNotifications
             let feeds = event.feeds,
             !feeds.isEmpty
         else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "No valid feeds found in the notification event.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "No valid feeds found in the notification event.")
             return
         }
 

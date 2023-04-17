@@ -30,13 +30,4 @@ public class Feed: NSObject, Codable {
         self.items = items
         name = self.items.first?.meta?[MessagingConstants.Event.Data.Key.FEED.FEED_NAME] as? String ?? ""
     }
-
-    override public var debugDescription: String {
-        """
-        \(self):
-            name: \(name)
-            surfaceUri: \(surfaceUri)
-            items: \(items)
-        """
-    }
 }

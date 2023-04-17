@@ -135,26 +135,26 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        var surfaceUri: [String] = []
+        var requestedSurfaces: [String] = []
         if let surfacePaths = surfacePaths {
-            surfaceUri = surfacePaths
+            requestedSurfaces = surfacePaths
                 .filter { !$0.isEmpty }
                 .map { appSurface + MessagingConstants.PATH_SEPARATOR + $0 }
                 .filter { isValidSurface($0) }
 
-            if surfaceUri.isEmpty {
+            if requestedSurfaces.isEmpty {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Unable to update feed messages, no valid surface paths found.")
                 return
             }
         } else {
-            surfaceUri = [appSurface]
+            requestedSurfaces = [appSurface]
         }
 
         var eventData: [String: Any] = [:]
 
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION: [
-                MessagingConstants.XDM.IAM.Key.SURFACES: surfaceUri
+                MessagingConstants.XDM.IAM.Key.SURFACES: requestedSurfaces
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
@@ -172,7 +172,7 @@ public class Messaging: NSObject, Extension {
         // equal to `requestEventId` in aep response handles
         // used for ensuring that the messaging extension is responding to the correct handle
         messagesRequestEventId = event.id.uuidString
-        requestedSurfacesforEventId[messagesRequestEventId] = surfaceUri
+        requestedSurfacesforEventId[messagesRequestEventId] = requestedSurfaces
 
         // send event
         runtime.dispatch(event: event)
@@ -184,21 +184,21 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        let surfaceUri = surfacePaths
+        let requestedSurfaces = surfacePaths
             .filter { !$0.isEmpty }
             .map { appSurface + MessagingConstants.PATH_SEPARATOR + $0 }
             .filter { isValidSurface($0) }
 
-        if surfaceUri.isEmpty {
+        if requestedSurfaces.isEmpty {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve feed messages, no valid surface paths found.")
             dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
             return
         }
 
         feedRulesEngine.process(event: event) { feeds in
-            self.mergeFeedsInMemory(feeds ?? [:], requestedSurfaces: surfaceUri)
+            self.mergeFeedsInMemory(feeds ?? [:], requestedSurfaces: requestedSurfaces)
             let requestedFeeds = self.inMemoryFeeds
-                .filter { surfaceUri.contains($0.key) }
+                .filter { requestedSurfaces.contains($0.key) }
                 .reduce([String: Feed]()) {
                     var result = $0
                     if $1.key.hasPrefix(self.appSurface) {
@@ -246,7 +246,7 @@ public class Messaging: NSObject, Extension {
         }
 
         // parse and load message rules
-        Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app or feed message definitions from personalization:decisions network response.")
+        Log.trace(label: MessagingConstants.LOG_TAG, "Loading message definitions from personalization:decisions network response.")
         let rules = parsePropositions(event.payload, expectedSurfaces: requestedSurfacesforEventId[messagesRequestEventId] ?? [], clearExisting: clearExistingRules)
         rulesEngine.launchRulesEngine.loadRules(rules, clearExisting: clearExistingRules)
 
@@ -492,8 +492,8 @@ public class Messaging: NSObject, Extension {
 
     private func mergeFeedsInMemory(_ feeds: [String: Feed], requestedSurfaces: [String]) {
         for surface in requestedSurfaces {
-            if feeds[surface] != nil {
-                inMemoryFeeds[surface] = feeds[surface]
+            if let feed = feeds[surface] {
+                inMemoryFeeds[surface] = feed
             } else {
                 inMemoryFeeds.removeValue(forKey: surface)
             }

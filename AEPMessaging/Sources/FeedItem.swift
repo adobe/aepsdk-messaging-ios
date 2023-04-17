@@ -43,9 +43,6 @@ public class FeedItem: NSObject, Codable {
     /// Contains additional key-value pairs associated with this feed item
     public let meta: [String: Any]?
 
-    /// String representing a feed item type
-    public let type: String?
-
     /// Contains scope details for reporting
     public internal(set) var scopeDetails: [String: Any]
 
@@ -59,7 +56,6 @@ public class FeedItem: NSObject, Codable {
         case publishedDate
         case expiryDate
         case meta
-        case type
         case scopeDetails
     }
 
@@ -83,25 +79,8 @@ public class FeedItem: NSObject, Codable {
             }
             return value
         }
-        type = try? values.decode(String.self, forKey: .type)
         let anyCodableDetailsDict = try? values.decode([String: AnyCodable].self, forKey: .scopeDetails)
         scopeDetails = AnyCodable.toAnyDictionary(dictionary: anyCodableDetailsDict) ?? [:]
-    }
-
-    override public var debugDescription: String {
-        """
-         id: \(id)
-         title: \(title)
-         body: \(body)
-         imageUrl: \(imageUrl ?? "")
-         actionUrl: \(actionUrl ?? "")
-         actionTitle: \(actionTitle ?? "")
-         publishedDate: \(publishedDate)
-         expiryDate: \(expiryDate)
-         meta: \(String(describing: meta))
-         type: \(type ?? "")
-         scopeDetails: \(String(describing: scopeDetails))
-        """
     }
 }
 
@@ -122,7 +101,6 @@ extension FeedItem {
         try container.encode(publishedDate, forKey: .publishedDate)
         try container.encode(expiryDate, forKey: .expiryDate)
         try? container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
-        try? container.encode(type, forKey: .type)
         try container.encode(AnyCodable.from(dictionary: scopeDetails), forKey: .scopeDetails)
     }
 
