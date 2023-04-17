@@ -15,7 +15,7 @@ PODS:
     - AEPCore (>= 3.7.0)
   - AEPLifecycle (3.8.2):
     - AEPCore (>= 3.8.2)
-  - AEPRulesEngine (1.2.2)
+  - AEPRulesEngine (1.2.3)
   - AEPServices (3.8.2)
   - AEPSignal (3.8.2):
     - AEPCore (>= 3.8.2)
@@ -23,7 +23,7 @@ PODS:
 
 DEPENDENCIES:
   - AEPAssurance
-  - AEPCore (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `dev-v3.9.0`)
+  - AEPCore (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v3.9.0`)
   - AEPEdge
   - AEPEdgeConsent
   - AEPEdgeIdentity
@@ -48,12 +48,12 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   AEPCore:
     :branch: dev-v3.9.0
-    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+    :git: https://github.com/adobe/aepsdk-core-ios.git
 
 CHECKOUT OPTIONS:
   AEPCore:
-    :commit: 967f5dd9bc8e0109ddd2f9e6178fa75b569247b6
-    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+    :commit: 7953630b22bbdfebc83f5fa046d40997ce8fedf6
+    :git: https://github.com/adobe/aepsdk-core-ios.git
 
 SPEC CHECKSUMS:
   AEPAssurance: 92645b36b3295ebefefaf0465ceae750a6307edd
@@ -62,11 +62,11 @@ SPEC CHECKSUMS:
   AEPEdgeConsent: d10d4232615b880d484050edf47b2e3fbfb787bb
   AEPEdgeIdentity: 6bb2c1e62d48cdc988b4d492e8e6d563f0ced73d
   AEPLifecycle: 7392d3df030bfbd81166334e88e0b1160d05a43f
-  AEPRulesEngine: 354b4374edefaf5bdfa3336ab9a41a07cbae4afe
+  AEPRulesEngine: f8d6eb0fa5a83d791f57867ed02f25fdf99894ec
   AEPServices: 46df834256a392e67f5a24c894eff770bb05d678
   AEPSignal: b3982205017270366d19765d68ca9e9eebb24f67
   SwiftLint: e96c0a8c770c7ebbc4d36c55baf9096bb65c4584
 
-PODFILE CHECKSUM: 9faec78e23e1c167e5a9f79ad52023f929542949
+PODFILE CHECKSUM: 3333d6fd7baf67ff55e8f2bde49f10f80951381a
 
 COCOAPODS: 1.11.3
