@@ -31,6 +31,10 @@
 		090290CD29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290CC29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift */; };
 		090290D429E89CBB00388226 /* FeedsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290D229E89B2400388226 /* FeedsViewController.swift */; };
 		090290D829EDF7B300388226 /* CustomTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290D729EDF7B300388226 /* CustomTabBarController.swift */; };
+		090290DA29EF26AA00388226 /* EdgeResponseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290D929EF26AA00388226 /* EdgeResponseManager.swift */; };
+		090290DC29EF27DF00388226 /* FeedHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290DB29EF27DF00388226 /* FeedHandler.swift */; };
+		090290DE29EF30E000388226 /* EdgeResponseHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290DD29EF30E000388226 /* EdgeResponseHandler.swift */; };
+		091881CE29F2123300615481 /* InAppHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881CD29F2123300615481 /* InAppHandler.swift */; };
 		240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */; };
 		2414ED832899BA080036D505 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED822899BA080036D505 /* AppDelegate.m */; };
 		2414ED862899BA080036D505 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED852899BA080036D505 /* SceneDelegate.m */; };
@@ -307,6 +311,10 @@
 		090290CC29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchRulesEngine+MessagingTests.swift"; sourceTree = "<group>"; };
 		090290D229E89B2400388226 /* FeedsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedsViewController.swift; sourceTree = "<group>"; };
 		090290D729EDF7B300388226 /* CustomTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarController.swift; sourceTree = "<group>"; };
+		090290D929EF26AA00388226 /* EdgeResponseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeResponseManager.swift; sourceTree = "<group>"; };
+		090290DB29EF27DF00388226 /* FeedHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedHandler.swift; sourceTree = "<group>"; };
+		090290DD29EF30E000388226 /* EdgeResponseHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeResponseHandler.swift; sourceTree = "<group>"; };
+		091881CD29F2123300615481 /* InAppHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppHandler.swift; sourceTree = "<group>"; };
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedStateResult+Messaging.swift"; sourceTree = "<group>"; };
 		2414ED7F2899BA080036D505 /* MessagingDemoAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -689,6 +697,10 @@
 				244E9554267BB018001DC957 /* String+JSON.swift */,
 				241B2DD32821C80C00E4FF67 /* URL+QueryParams.swift */,
 				92315438261E3B36004AE7D3 /* Info.plist */,
+				090290D929EF26AA00388226 /* EdgeResponseManager.swift */,
+				090290DD29EF30E000388226 /* EdgeResponseHandler.swift */,
+				090290DB29EF27DF00388226 /* FeedHandler.swift */,
+				091881CD29F2123300615481 /* InAppHandler.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -1570,6 +1582,8 @@
 				240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */,
 				2469A5E3274863F600E56457 /* MessagingRulesEngine+Caching.swift in Sources */,
 				090290C229D39D4900388226 /* Messaging+Caching.swift in Sources */,
+				090290DC29EF27DF00388226 /* FeedHandler.swift in Sources */,
+				090290DE29EF30E000388226 /* EdgeResponseHandler.swift in Sources */,
 				090290C529DCED0B00388226 /* FeedRulesEngine.swift in Sources */,
 				244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */,
 				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
@@ -1581,7 +1595,9 @@
 				245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */,
 				244E9584268262C8001DC957 /* Message.swift in Sources */,
 				244E955B267BB253001DC957 /* Dictionary+Merging.swift in Sources */,
+				090290DA29EF26AA00388226 /* EdgeResponseManager.swift in Sources */,
 				090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */,
+				091881CE29F2123300615481 /* InAppHandler.swift in Sources */,
 				244C2BDE26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift in Sources */,
 				243B1B0028B411630074327E /* PayloadItem.swift in Sources */,
 				241B2DD42821C80C00E4FF67 /* URL+QueryParams.swift in Sources */,

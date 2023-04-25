@@ -82,9 +82,9 @@ enum MessagingConstants {
                 static let TYPE = "type"
                 static let SOURCE = "source"
 
+                static let MOBILE_PARAMETERS = "mobileParameters"
+
                 enum FEED {
-                    static let MOBILE_PARAMETERS = "mobileParameters"
-                    static let TYPE = "type"
                     static let SURFACE = "surface"
                     static let FEED_NAME = "feedName"
                 }

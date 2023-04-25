@@ -28,8 +28,10 @@ extension Messaging {
         }
 
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
-        let rules = parsePropositions(propositions, expectedSurfaces: [expectedSurface], clearExisting: false, persistChanges: false)
-        rulesEngine.launchRulesEngine.loadRules(rules, clearExisting: false)
+        let edgeResponseManager = EdgeResponseManager(propositions, requestedSurfaces: [expectedSurface], parent: self)
+        if let handler = edgeResponseManager.generateResponseHandlers(for: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE).first {
+            handler.loadRules(clearExisting: false, persistChanges: false)
+        }
     }
 
     func cachePropositions(shouldReset: Bool = false) {

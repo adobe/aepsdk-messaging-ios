@@ -13,14 +13,11 @@
 import AEPCore
 import Foundation
 
-extension RuleConsequence {
-    var inboundSubtype: String {
-        guard let mobileParams = details[MessagingConstants.Event.Data.Key.MOBILE_PARAMETERS] as? [String: Any],
-              let type = mobileParams[MessagingConstants.Event.Data.Key.TYPE] as? String
-        else {
-            return "unknown"
-        }
+protocol EdgeResponseHandler {
+    associatedtype T
+    var shouldProcessRules: Bool { get }
 
-        return type
-    }
+    init(propositionsDict: [String: PropositionPayload], rulesDict: [String: [LaunchRule]], requestedSurfaces: [String], parent: Messaging)
+    func loadRules(clearExisting: Bool, persistChanges: Bool)
+    func processRules(event: Event, _ completion: ((T?) -> Void)?)
 }

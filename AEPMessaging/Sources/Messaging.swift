@@ -195,21 +195,19 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        feedRulesEngine.process(event: event) { feeds in
-            self.mergeFeedsInMemory(feeds ?? [:], requestedSurfaces: requestedSurfaces)
-            let requestedFeeds = self.inMemoryFeeds
+        feedRulesEngine.process(event: event) { feedsDict in
+            self.mergeFeedsInMemory(feedsDict ?? [:], requestedSurfaces: requestedSurfaces)
+            let requestedFeedsDict = self.inMemoryFeeds
                 .filter { requestedSurfaces.contains($0.key) }
-                .reduce([String: Feed]()) {
-                    var result = $0
+                .reduce(into: [String: Feed]()) {
                     if $1.key.hasPrefix(self.appSurface) {
-                        result[String($1.key.dropFirst(self.appSurface.count + 1))] = $1.value
+                        $0[String($1.key.dropFirst(self.appSurface.count + 1))] = $1.value
                     } else {
-                        result[$1.key] = $1.value
+                        $0[$1.key] = $1.value
                     }
-                    return result
                 }
 
-            let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeeds].asDictionary()
+            let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeedsDict].asDictionary()
 
             let responseEvent = event.createResponseEvent(
                 name: MessagingConstants.Event.Name.MESSAGE_FEEDS_RESPONSE,
@@ -221,7 +219,7 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    private var appSurface: String {
+    var appSurface: String {
         guard let bundleIdentifier = Bundle.main.bundleIdentifier, !bundleIdentifier.isEmpty else {
             return "unknown"
         }
@@ -247,34 +245,25 @@ public class Messaging: NSObject, Extension {
 
         // parse and load message rules
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading message definitions from personalization:decisions network response.")
-        let rules = parsePropositions(event.payload, expectedSurfaces: requestedSurfacesforEventId[messagesRequestEventId] ?? [], clearExisting: clearExistingRules)
+        let edgeResponseManager = EdgeResponseManager(event.payload, requestedSurfaces: requestedSurfacesforEventId[messagesRequestEventId] ?? [], parent: self)
 
-        if rules.first?.consequences.first?.isFeedItem == true {
-            feedRulesEngine.launchRulesEngine.loadRules(rules, clearExisting: clearExistingRules)
-            feedRulesEngine.process(event: event) { feeds in
-                let feeds = feeds ?? [:]
-                self.mergeFeedsInMemory(feeds, requestedSurfaces: self.requestedSurfacesforEventId[self.lastProcessedRequestEventId] ?? [])
-                let requestedFeeds = feeds
-                    .reduce([String: Feed]()) {
-                        var result = $0
-                        if $1.key.hasPrefix(self.appSurface) {
-                            result[String($1.key.dropFirst(self.appSurface.count + 1))] = $1.value
-                        } else {
-                            result[$1.key] = $1.value
-                        }
-                        return result
-                    }
-                // dispatch an event with the feeds received from the remote
-                let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeeds].asDictionary()
+        let responseHandlers = edgeResponseManager.generateResponseHandlers()
+        for handler in responseHandlers {
+            handler.loadRules(clearExisting: clearExistingRules, persistChanges: true)
 
-                let event = Event(name: MessagingConstants.Event.Name.MESSAGE_FEEDS_NOTIFICATION,
-                                  type: EventType.messaging,
-                                  source: EventSource.notification,
-                                  data: eventData)
-                self.dispatch(event: event)
+            if handler.shouldProcessRules,
+               let feedHandler = handler as? FeedHandler {
+                feedHandler.processRules(event: event) { (feedsDict: [String: Feed]?) in
+                    // dispatch an event with the feeds received from the remote
+                    let eventData = [MessagingConstants.Event.Data.Key.FEEDS: feedsDict].asDictionary()
+
+                    let event = Event(name: MessagingConstants.Event.Name.MESSAGE_FEEDS_NOTIFICATION,
+                                      type: EventType.messaging,
+                                      source: EventSource.notification,
+                                      data: eventData)
+                    self.dispatch(event: event)
+                }
             }
-        } else {
-            rulesEngine.launchRulesEngine.loadRules(rules, clearExisting: clearExistingRules)
         }
     }
 
@@ -401,89 +390,6 @@ public class Messaging: NSObject, Extension {
         propositionInfo[messageId]
     }
 
-    // swiftlint:disable function_body_length
-    func parsePropositions(_ propositions: [PropositionPayload]?, expectedSurfaces: [String], clearExisting: Bool, persistChanges: Bool = true) -> [LaunchRule] {
-        var rules: [LaunchRule] = []
-        var tempPropInfo: [String: PropositionInfo] = [:]
-        var tempPropositions: [PropositionPayload] = []
-        var tempFeedsInfo: [String: PropositionInfo] = [:]
-        var isFeedConsequence = false
-
-        guard let propositions = propositions, !propositions.isEmpty else {
-            if clearExisting {
-                if expectedSurfaces == [appSurface] {
-                    inMemoryPropositions.removeAll()
-                    propositionInfo.removeAll()
-                    cachePropositions(shouldReset: true)
-                } else {
-                    inMemoryFeeds.removeAll()
-                    feedsInfo.removeAll()
-                }
-            }
-            return rules
-        }
-
-        for proposition in propositions {
-            guard expectedSurfaces.contains(proposition.propositionInfo.scope) else {
-                Log.debug(label: MessagingConstants.LOG_TAG,
-                          "Ignoring proposition where scope (\(proposition.propositionInfo.scope)) does not match one of the expected surfaces (\(expectedSurfaces)).")
-                continue
-            }
-
-            guard let rulesString = proposition.items.first?.data.content, !rulesString.isEmpty else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
-                continue
-            }
-
-            guard let parsedRules = rulesEngine.launchRulesEngine.parseRule(rulesString, runtime: runtime) else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with malformed in-app message content.")
-                continue
-            }
-
-            var propInfo: [String: PropositionInfo] = [:]
-            if let messageId = parsedRules.first?.consequences.first?.id {
-                propInfo[messageId] = proposition.propositionInfo
-            }
-
-            isFeedConsequence = parsedRules.first?.consequences.first?.isFeedItem ?? false
-            if !isFeedConsequence {
-                // pre-fetch the assets for this message if there are any defined
-                rulesEngine.cacheRemoteAssetsFor(parsedRules)
-
-                // store reporting data for this payload
-                tempPropInfo.merge(propInfo) { _, new in new }
-            } else {
-                tempFeedsInfo.merge(propInfo) { _, new in new }
-            }
-
-            tempPropositions.append(proposition)
-            rules.append(contentsOf: parsedRules)
-        }
-
-        if !isFeedConsequence {
-            if clearExisting {
-                propositionInfo = tempPropInfo
-                inMemoryPropositions = tempPropositions
-            } else {
-                propositionInfo.merge(tempPropInfo) { _, new in new }
-                inMemoryPropositions.append(contentsOf: tempPropositions)
-            }
-
-            if persistChanges {
-                cachePropositions()
-            }
-        } else {
-            if clearExisting {
-                inMemoryFeeds.removeAll()
-                feedsInfo = tempFeedsInfo
-            } else {
-                feedsInfo.merge(tempFeedsInfo) { _, new in new }
-            }
-        }
-
-        return rules
-    }
-
     private func isValidSurface(_ surfaceUri: String) -> Bool {
         guard URL(string: surfaceUri) != nil else {
             return false
@@ -492,7 +398,7 @@ public class Messaging: NSObject, Extension {
         return true
     }
 
-    private func mergeFeedsInMemory(_ feeds: [String: Feed], requestedSurfaces: [String]) {
+    func mergeFeedsInMemory(_ feeds: [String: Feed], requestedSurfaces: [String]) {
         for surface in requestedSurfaces {
             if let feed = feeds[surface] {
                 inMemoryFeeds[surface] = feed

@@ -42,23 +42,23 @@ class FeedRulesEngine {
                 return
             }
 
-            var feeds: [String: Feed] = [:]
+            var feedsDict: [String: Feed] = [:]
             for consequence in consequences {
                 let details = consequence.details as [String: Any]
 
-                if let mobileParams = details[MessagingConstants.Event.Data.Key.FEED.MOBILE_PARAMETERS] as? [String: Any],
+                if let mobileParams = details[MessagingConstants.Event.Data.Key.MOBILE_PARAMETERS] as? [String: Any],
                    let feedItem = FeedItem.from(data: mobileParams, id: consequence.id) {
                     let surfacePath = feedItem.surface ?? ""
 
                     // find the feed to insert the feed item else create a new feed for it
-                    if let feed = feeds[surfacePath] {
+                    if let feed = feedsDict[surfacePath] {
                         feed.items.append(feedItem)
                     } else {
-                        feeds[surfacePath] = Feed(surfaceUri: surfacePath, items: [feedItem])
+                        feedsDict[surfacePath] = Feed(surfaceUri: surfacePath, items: [feedItem])
                     }
                 }
             }
-            completion?(feeds)
+            completion?(feedsDict)
         }
     }
 }

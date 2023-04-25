@@ -16,7 +16,7 @@ import Foundation
 @objc(AEPFeedItem)
 @objcMembers
 public class FeedItem: NSObject, Codable {
-    /// String representing a unique ID for ths feed item
+    /// String representing a unique ID for this feed item
     public let id: String
 
     /// Plain-text title for the feed item
