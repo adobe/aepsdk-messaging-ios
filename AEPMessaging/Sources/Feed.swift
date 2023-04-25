@@ -17,11 +17,17 @@ import Foundation
 @objcMembers
 public class Feed: NSObject, Codable {
     /// Identification for this feed, represented by the AJO Surface URI used to retrieve it
-    public var surfaceUri: String
-    
+    public let surfaceUri: String
+
     /// Friendly name for the feed, provided in the AJO UI
-    public var name: String
-    
+    public let name: String
+
     /// Array of `FeedItem` that are members of this `Feed`
-    public var items: [FeedItem]
+    public internal(set) var items: [FeedItem]
+
+    public init(surfaceUri: String, items: [FeedItem]) {
+        self.surfaceUri = surfaceUri
+        self.items = items
+        name = self.items.first?.meta?[MessagingConstants.Event.Data.Key.FEED.FEED_NAME] as? String ?? ""
+    }
 }

@@ -20,9 +20,31 @@ class MockMessaging: Messaging {
     required init?(runtime _: ExtensionRuntime) {
         super.init(runtime: testableRuntime)
     }
+    
+    var parsePropositionsCalled = false
+    var paramParsePropositionsPropositions: [PropositionPayload]?
+    var paramParsePropositionsExpectedSurfaces: [String]?
+    var paramParsePropositionsClearExisting: Bool?
+    var paramParsePropositionsPersistChanges: Bool?
+    var parsePropositionsReturnValue: [LaunchRule]?
+    override func parsePropositions(_ propositions: [PropositionPayload]?, expectedSurfaces: [String], clearExisting: Bool, persistChanges: Bool = true) -> [LaunchRule] {
+        parsePropositionsCalled = true
+        paramParsePropositionsPropositions = propositions
+        paramParsePropositionsExpectedSurfaces = expectedSurfaces
+        paramParsePropositionsClearExisting = clearExisting
+        paramParsePropositionsPersistChanges = persistChanges
+        return parsePropositionsReturnValue ?? []
+    }
 
     var paramEventType: MessagingEdgeEventType?
     var paramInteraction: String?
     var paramMessage: Message?    
     var sendPropositionInteractionCalled = false
+    
+    var propositionInfoForMessageIdCalled = false
+    var propositionInfoForMessageIdReturnValue: PropositionInfo?
+    override func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
+        propositionInfoForMessageIdCalled = true
+        return propositionInfoForMessageIdReturnValue
+    }
 }

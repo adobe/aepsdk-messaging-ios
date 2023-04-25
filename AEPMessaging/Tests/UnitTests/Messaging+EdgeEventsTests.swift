@@ -20,7 +20,8 @@ import AEPServices
 class MessagingEdgeEventsTests: XCTestCase {
     var mockRuntime: TestableExtensionRuntime!
     var messaging: Messaging!
-    var mockRulesEngine: MockMessagingRulesEngine!
+    var mockMessagingRulesEngine: MockMessagingRulesEngine!
+    var mockFeedRulesEngine: MockFeedRulesEngine!
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
     let mockIamSurface = "mobileapp://com.apple.dt.xctest.tool"
@@ -36,8 +37,9 @@ class MessagingEdgeEventsTests: XCTestCase {
         mockRuntime = TestableExtensionRuntime()
         mockCache = MockCache(name: "mockCache")
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mcokLaunchRulesEngine", extensionRuntime: mockRuntime)
-        mockRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockLaunchRulesEngine, cache: mockCache)
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockRulesEngine, expectedScope: mockIamSurface)
+        mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine, cache: mockCache)
+        mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurface: mockIamSurface, cache: mockCache)
     }
 
     // MARK: - helpers

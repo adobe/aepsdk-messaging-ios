@@ -80,7 +80,7 @@ public class Message: NSObject {
     public func show() {
         show(withMessagingDelegateControl: false)
     }
-    
+
     /// Signals to the UIServices that the message should be shown.
     /// Pass `false` to this method to bypass the `MessagingDelegate` control over showing the message.
     /// - Parameter withMessagingDelegateControl: if `true`, the `shouldShowMessage(:)` method of `MessagingDelegate` will be called before the message is shown.

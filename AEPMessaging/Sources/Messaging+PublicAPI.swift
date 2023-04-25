@@ -15,6 +15,9 @@ import AEPServices
 import UserNotifications
 
 @objc public extension Messaging {
+    private static var isFeedResponseListenerRegistered: Bool = false
+    private static var feedsResponseHandler: (([String: Feed]) -> Void)?
+
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
@@ -64,15 +67,15 @@ import UserNotifications
 
         MobileCore.dispatch(event: event)
     }
-    
+
     // MARK: Message Feed
-    
+
     /// Dispatches an event to fetch message feeds for the provided surface paths from the Adobe Journey Optimizer via the Experience Edge network.
-    /// - Parameter surfacePaths: An array of surface path strings
+    /// - Parameter surfacePaths: An array of surface path strings.
     static func updateFeedsForSurfacePaths(_ surfacePaths: [String]) {
         let validSurfacePaths = surfacePaths
             .filter { !$0.isEmpty }
-        
+
         guard !validSurfacePaths.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Cannot update feeds as the provided surface paths array has no valid items.")
@@ -90,5 +93,77 @@ import UserNotifications
                           data: eventData)
 
         MobileCore.dispatch(event: event)
+    }
+
+    /// Retrieves the previously fetched (and cached) feeds content from the SDK for the provided surface path strings.
+    /// If the feeds content for one or more surface paths isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
+    /// - Parameters:
+    ///   - surfacePaths: An array of surface path strings.
+    ///   - completion: The completion handler to be invoked with a dictionary containing the surface paths and the corresponding Feed objects.
+    static func getFeedsForSurfacePaths(_ surfacePaths: [String], _ completion: @escaping ([String: Feed]?, Error?) -> Void) {
+        let validSurfacePaths = surfacePaths
+            .filter { !$0.isEmpty }
+
+        guard !validSurfacePaths.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Cannot get feeds as the provided surface paths array has no valid items.")
+            completion(nil, AEPError.invalidRequest)
+            return
+        }
+
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.GET_FEEDS: true,
+            MessagingConstants.Event.Data.Key.SURFACES: validSurfacePaths
+        ]
+
+        let event = Event(name: MessagingConstants.Event.Name.GET_MESSAGE_FEEDS,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: eventData)
+
+        MobileCore.dispatch(event: event) { responseEvent in
+            guard let responseEvent = responseEvent else {
+                completion(nil, AEPError.callbackTimeout)
+                return
+            }
+
+            if let error = responseEvent.responseError {
+                completion(nil, error)
+                return
+            }
+
+            guard let feeds = responseEvent.feeds else {
+                completion(nil, AEPError.unexpected)
+                return
+            }
+
+            completion(feeds, .none)
+        }
+    }
+
+    /// Registers a permanent event listener with the Mobile Core for listening to personalization decisions events received upon a personalization query to the Experience Edge network.
+    /// - Parameter completion: The completion handler to be invoked with a dictionary containing the surface paths and the corresponding Feed objects.
+    static func setFeedsHandler(_ completion: (([String: Feed]) -> Void)? = nil) {
+        if !isFeedResponseListenerRegistered {
+            isFeedResponseListenerRegistered = true
+            MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.notification, listener: feedsResponseListener(_:))
+        }
+        feedsResponseHandler = completion
+    }
+
+    private static func feedsResponseListener(_ event: Event) {
+        guard let feedsResponseHandler = feedsResponseHandler else {
+            return
+        }
+
+        guard
+            let feeds = event.feeds,
+            !feeds.isEmpty
+        else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "No valid feeds found in the notification event.")
+            return
+        }
+
+        feedsResponseHandler(feeds)
     }
 }

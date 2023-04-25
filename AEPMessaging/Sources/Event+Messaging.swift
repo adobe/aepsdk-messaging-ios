@@ -238,7 +238,7 @@ extension Event {
     }
 
     var scope: String? {
-        return payload?.first?.propositionInfo.scope
+        payload?.first?.propositionInfo.scope
     }
 
     // MARK: Private
@@ -268,19 +268,44 @@ extension Event {
     private var refreshMessages: Bool {
         data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool ?? false
     }
-    
+
     // MARK: - Update Feed Messages Public API Event
-    
+
     var isUpdateFeedsEvent: Bool {
         isMessagingType && isRequestContentSource && updateFeeds
     }
-    
+
     var surfaces: [String]? {
         data?[MessagingConstants.Event.Data.Key.SURFACES] as? [String]
     }
-    
+
     private var updateFeeds: Bool {
         data?[MessagingConstants.Event.Data.Key.UPDATE_FEEDS] as? Bool ?? false
+    }
+
+    // MARK: - Get Feed Messages Public API Event
+
+    var isGetFeedsEvent: Bool {
+        isMessagingType && isRequestContentSource && getFeeds
+    }
+
+    private var getFeeds: Bool {
+        data?[MessagingConstants.Event.Data.Key.GET_FEEDS] as? Bool ?? false
+    }
+
+    var feeds: [String: Feed]? {
+        guard
+            let feedsData = data?[MessagingConstants.Event.Data.Key.FEEDS] as? [String: Any],
+            let jsonData = try? JSONSerialization.data(withJSONObject: feedsData)
+        else {
+            return nil
+        }
+
+        return try? JSONDecoder().decode([String: Feed].self, from: jsonData)
+    }
+
+    var responseError: AEPError? {
+        data?[MessagingConstants.Event.Data.Key.RESPONSE_ERROR] as? AEPError
     }
 
     // MARK: - SetPushIdentifier Event
@@ -325,5 +350,19 @@ extension Event {
 
     var adobeXdm: [String: Any]? {
         data?[MessagingConstants.XDM.Key.ADOBE_XDM] as? [String: Any]
+    }
+
+    // MARK: - Error response Event
+
+    /// Creates a response event with specified AEPError type added in the Event data.
+    /// - Parameter error: type of AEPError
+    /// - Returns: error response Event
+    func createErrorResponseEvent(_ error: AEPError) -> Event {
+        createResponseEvent(name: MessagingConstants.Event.Name.MESSAGE_FEEDS_RESPONSE,
+                            type: EventType.messaging,
+                            source: EventSource.responseContent,
+                            data: [
+                                MessagingConstants.Event.Data.Key.RESPONSE_ERROR: error.rawValue
+                            ])
     }
 }

@@ -1,5 +1,5 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
+ Copyright 2023 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -15,30 +15,20 @@
 @testable import AEPServices
 import Foundation
 
-class MockMessagingRulesEngine: MessagingRulesEngine {
-    let mockCache: MockCache
+class MockFeedRulesEngine: FeedRulesEngine {
     let mockRuntime: TestableExtensionRuntime
     let mockRulesEngine: MockLaunchRulesEngine
 
     init(name _: String, runtime: ExtensionRuntime) {
-        mockCache = MockCache(name: "mockCache")
         mockRuntime = TestableExtensionRuntime()
-        mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: runtime)
-        super.init(extensionRuntime: mockRuntime, launchRulesEngine: mockRulesEngine, cache: mockCache)
+        mockRulesEngine = MockLaunchRulesEngine(name: "mockFeedRulesEngine", extensionRuntime: runtime)
+        super.init(extensionRuntime: mockRuntime, launchRulesEngine: mockRulesEngine)
         //        super.init(name: name, extensionRuntime: runtime)
     }
 
-    override init(extensionRuntime: ExtensionRuntime, launchRulesEngine: LaunchRulesEngine, cache: Cache) {
-        mockCache = MockCache(name: "mockCache")
+    override init(extensionRuntime: ExtensionRuntime, launchRulesEngine: LaunchRulesEngine) {
         mockRuntime = TestableExtensionRuntime()
         mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: extensionRuntime)
-        super.init(extensionRuntime: extensionRuntime, launchRulesEngine: launchRulesEngine, cache: cache)
-    }
-
-    var processCalled = false
-    var paramProcessEvent: Event?
-    override func process(event: Event) {
-        processCalled = true
-        paramProcessEvent = event
+        super.init(extensionRuntime: extensionRuntime, launchRulesEngine: launchRulesEngine)
     }
 }
