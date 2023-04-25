@@ -19,7 +19,7 @@ import UserNotifications
 import WebKit
 import UserNotifications
 
-class ViewController: UIViewController {
+class MessagesViewController: UIViewController {
     @IBOutlet var switchShowMessages: UISwitch?
 
     private let messageHandler = MessageHandler()

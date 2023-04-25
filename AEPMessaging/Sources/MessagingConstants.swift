@@ -149,7 +149,7 @@ enum MessagingConstants {
                 }
 
                 enum FEED {
-                    static let MESSAGE_FEED = "messagefeed"
+                    static let MESSAGE_FEED = "ajofeeditem"
                 }
             }
         }

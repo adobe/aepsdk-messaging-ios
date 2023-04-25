@@ -29,6 +29,8 @@
 		090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */; };
 		090290CB29DE3F8200388226 /* MockFeedRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290CA29DE3F8200388226 /* MockFeedRulesEngine.swift */; };
 		090290CD29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290CC29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift */; };
+		090290D429E89CBB00388226 /* FeedsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290D229E89B2400388226 /* FeedsViewController.swift */; };
+		090290D829EDF7B300388226 /* CustomTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290D729EDF7B300388226 /* CustomTabBarController.swift */; };
 		240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */; };
 		2414ED832899BA080036D505 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED822899BA080036D505 /* AppDelegate.m */; };
 		2414ED862899BA080036D505 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED852899BA080036D505 /* SceneDelegate.m */; };
@@ -141,7 +143,7 @@
 		92315508261E444A004AE7D3 /* AEPMessaging.h in Headers */ = {isa = PBXBuildFile; fileRef = 92315435261E3B36004AE7D3 /* AEPMessaging.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9249A4E2252292AB009193AB /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		9249A4E3252292AB009193AB /* AEPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		92859411252287C600B2BE47 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4462522785700A5DE31 /* ViewController.swift */; };
+		92859411252287C600B2BE47 /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4462522785700A5DE31 /* MessagesViewController.swift */; };
 		92859412252287C600B2BE47 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF44C2522785700A5DE31 /* AppDelegate.swift */; };
 		92859413252287C600B2BE47 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925DF4502522785700A5DE31 /* SceneDelegate.swift */; };
 		928594152522880900B2BE47 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 925DF4472522785700A5DE31 /* Assets.xcassets */; };
@@ -303,6 +305,8 @@
 		090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuleConsequence+Messaging.swift"; sourceTree = "<group>"; };
 		090290CA29DE3F8200388226 /* MockFeedRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MockFeedRulesEngine.swift; path = AEPMessaging/Tests/TestHelpers/MockFeedRulesEngine.swift; sourceTree = SOURCE_ROOT; };
 		090290CC29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchRulesEngine+MessagingTests.swift"; sourceTree = "<group>"; };
+		090290D229E89B2400388226 /* FeedsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedsViewController.swift; sourceTree = "<group>"; };
+		090290D729EDF7B300388226 /* CustomTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarController.swift; sourceTree = "<group>"; };
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedStateResult+Messaging.swift"; sourceTree = "<group>"; };
 		2414ED7F2899BA080036D505 /* MessagingDemoAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -413,7 +417,7 @@
 		9249A4EC252294AD009193AB /* AEPLifecycle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPLifecycle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9249A4EE252294AD009193AB /* AEPRulesEngine.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPRulesEngine.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9249A4F0252294AD009193AB /* AEPServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPServices.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		925DF4462522785700A5DE31 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		925DF4462522785700A5DE31 /* MessagesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
 		925DF4472522785700A5DE31 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		925DF4492522785700A5DE31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		925DF44B2522785700A5DE31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -759,7 +763,9 @@
 				925DF44D2522785700A5DE31 /* Assets */,
 				925DF44C2522785700A5DE31 /* AppDelegate.swift */,
 				925DF4502522785700A5DE31 /* SceneDelegate.swift */,
-				925DF4462522785700A5DE31 /* ViewController.swift */,
+				925DF4462522785700A5DE31 /* MessagesViewController.swift */,
+				090290D229E89B2400388226 /* FeedsViewController.swift */,
+				090290D729EDF7B300388226 /* CustomTabBarController.swift */,
 				925DF4472522785700A5DE31 /* Assets.xcassets */,
 				925DF4482522785700A5DE31 /* LaunchScreen.storyboard */,
 				925DF44A2522785700A5DE31 /* Main.storyboard */,
@@ -1543,8 +1549,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				92859411252287C600B2BE47 /* ViewController.swift in Sources */,
+				92859411252287C600B2BE47 /* MessagesViewController.swift in Sources */,
+				090290D829EDF7B300388226 /* CustomTabBarController.swift in Sources */,
 				92859412252287C600B2BE47 /* AppDelegate.swift in Sources */,
+				090290D429E89CBB00388226 /* FeedsViewController.swift in Sources */,
 				92859413252287C600B2BE47 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1805,7 +1813,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.iamStagingTester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1836,7 +1844,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.iamStagingTester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2451,7 +2459,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoApp.NotificationService;
+				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.iamStagingTester.NotificationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -2478,7 +2486,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoApp.NotificationService;
+				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.iamStagingTester.NotificationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;

@@ -144,11 +144,13 @@ import UserNotifications
     /// Registers a permanent event listener with the Mobile Core for listening to personalization decisions events received upon a personalization query to the Experience Edge network.
     /// - Parameter completion: The completion handler to be invoked with a dictionary containing the surface paths and the corresponding Feed objects.
     static func setFeedsHandler(_ completion: (([String: Feed]) -> Void)? = nil) {
-        if !isFeedResponseListenerRegistered {
+        feedsResponseHandler = completion
+
+        if !isFeedResponseListenerRegistered,
+           feedsResponseHandler != nil {
             isFeedResponseListenerRegistered = true
             MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.notification, listener: feedsResponseListener(_:))
         }
-        feedsResponseHandler = completion
     }
 
     private static func feedsResponseListener(_ event: Event) {

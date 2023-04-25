@@ -248,9 +248,9 @@ public class Messaging: NSObject, Extension {
         // parse and load message rules
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading message definitions from personalization:decisions network response.")
         let rules = parsePropositions(event.payload, expectedSurfaces: requestedSurfacesforEventId[messagesRequestEventId] ?? [], clearExisting: clearExistingRules)
-        rulesEngine.launchRulesEngine.loadRules(rules, clearExisting: clearExistingRules)
 
         if rules.first?.consequences.first?.isFeedItem == true {
+            feedRulesEngine.launchRulesEngine.loadRules(rules, clearExisting: clearExistingRules)
             feedRulesEngine.process(event: event) { feeds in
                 let feeds = feeds ?? [:]
                 self.mergeFeedsInMemory(feeds, requestedSurfaces: self.requestedSurfacesforEventId[self.lastProcessedRequestEventId] ?? [])
@@ -273,6 +273,8 @@ public class Messaging: NSObject, Extension {
                                   data: eventData)
                 self.dispatch(event: event)
             }
+        } else {
+            rulesEngine.launchRulesEngine.loadRules(rules, clearExisting: clearExistingRules)
         }
     }
 
