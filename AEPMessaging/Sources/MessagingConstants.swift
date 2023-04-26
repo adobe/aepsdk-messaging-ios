@@ -87,6 +87,12 @@ enum MessagingConstants {
                 enum FEED {
                     static let SURFACE = "surface"
                     static let FEED_NAME = "feedName"
+                    static let TITLE = "title"
+                    static let BODY = "body"
+                    static let ACTION_TITLE = "actionTitle"
+                    static let ACTION_URL = "actionUrl"
+                    static let IMAGE_URL = "imageUrl"
+                    static let PUBLISHED_DATE = "publishedDate"
                 }
 
                 // In-App Messages

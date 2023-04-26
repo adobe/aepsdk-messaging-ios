@@ -35,6 +35,7 @@
 		090290DC29EF27DF00388226 /* FeedHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290DB29EF27DF00388226 /* FeedHandler.swift */; };
 		090290DE29EF30E000388226 /* EdgeResponseHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290DD29EF30E000388226 /* EdgeResponseHandler.swift */; };
 		091881CE29F2123300615481 /* InAppHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881CD29F2123300615481 /* InAppHandler.swift */; };
+		091881D229F86F7200615481 /* Renderable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881D129F86F7200615481 /* Renderable.swift */; };
 		240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */; };
 		2414ED832899BA080036D505 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED822899BA080036D505 /* AppDelegate.m */; };
 		2414ED862899BA080036D505 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED852899BA080036D505 /* SceneDelegate.m */; };
@@ -315,6 +316,7 @@
 		090290DB29EF27DF00388226 /* FeedHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedHandler.swift; sourceTree = "<group>"; };
 		090290DD29EF30E000388226 /* EdgeResponseHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeResponseHandler.swift; sourceTree = "<group>"; };
 		091881CD29F2123300615481 /* InAppHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppHandler.swift; sourceTree = "<group>"; };
+		091881D129F86F7200615481 /* Renderable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderable.swift; sourceTree = "<group>"; };
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedStateResult+Messaging.swift"; sourceTree = "<group>"; };
 		2414ED7F2899BA080036D505 /* MessagingDemoAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -672,6 +674,10 @@
 			children = (
 				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
 				244E955A267BB253001DC957 /* Dictionary+Merging.swift */,
+				090290DD29EF30E000388226 /* EdgeResponseHandler.swift */,
+				090290D929EF26AA00388226 /* EdgeResponseManager.swift */,
+				090290DB29EF27DF00388226 /* FeedHandler.swift */,
+				091881CD29F2123300615481 /* InAppHandler.swift */,
 				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
 				244FEA4729B8E2950058FA1C /* Feed.swift */,
 				244FEA4329B6A1060058FA1C /* FeedItem.swift */,
@@ -692,15 +698,12 @@
 				243B1AFF28B411630074327E /* PayloadItem.swift */,
 				243B1AFD28AEB1E60074327E /* PropositionInfo.swift */,
 				243B1AFB28AD7FCE0074327E /* PropositionPayload.swift */,
+				091881D129F86F7200615481 /* Renderable.swift */,
 				090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */,
 				240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */,
 				244E9554267BB018001DC957 /* String+JSON.swift */,
 				241B2DD32821C80C00E4FF67 /* URL+QueryParams.swift */,
 				92315438261E3B36004AE7D3 /* Info.plist */,
-				090290D929EF26AA00388226 /* EdgeResponseManager.swift */,
-				090290DD29EF30E000388226 /* EdgeResponseHandler.swift */,
-				090290DB29EF27DF00388226 /* FeedHandler.swift */,
-				091881CD29F2123300615481 /* InAppHandler.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -1576,6 +1579,7 @@
 				244E9555267BB018001DC957 /* String+JSON.swift in Sources */,
 				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
 				246FD07226B9F86F00FD130B /* FullscreenMessage+Message.swift in Sources */,
+				091881D229F86F7200615481 /* Renderable.swift in Sources */,
 				243B1B0228B411890074327E /* ItemData.swift in Sources */,
 				243B1AFC28AD7FCE0074327E /* PropositionPayload.swift in Sources */,
 				243B1AFE28AEB1E60074327E /* PropositionInfo.swift in Sources */,

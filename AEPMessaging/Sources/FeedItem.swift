@@ -19,23 +19,11 @@ public class FeedItem: NSObject, Codable {
     /// String representing a unique ID for this feed item
     public let id: String
 
-    /// Plain-text title for the feed item
-    public let title: String
+    /// Contains key-value pairs representing content for this feed item
+    public let content: [String: Any]
 
-    /// Plain-text body representing the content for the feed item
-    public let body: String
-
-    /// String representing a URI that contains an image to be used for this feed item
-    public let imageUrl: String?
-
-    /// Contains a URL to be opened if the user interacts with the feed item
-    public let actionUrl: String?
-
-    /// Required if `actionUrl` is provided. Text to be used in title of button or link in feed item
-    public let actionTitle: String?
-
-    /// Represents when this feed item went live. Represented in seconds since January 1, 1970
-    public let publishedDate: Int
+    /// Contains mime type for this feed item
+    public let contentType: String
 
     /// Represents when this feed item expires. Represented in seconds since January 1, 1970
     public let expiryDate: Int
@@ -43,65 +31,92 @@ public class FeedItem: NSObject, Codable {
     /// Contains additional key-value pairs associated with this feed item
     public let meta: [String: Any]?
 
-    /// Contains scope details for reporting
-    public internal(set) var scopeDetails: [String: Any]
-
     enum CodingKeys: String, CodingKey {
         case id
-        case title
-        case body
-        case imageUrl
-        case actionUrl
-        case actionTitle
-        case publishedDate
+        case content
+        case contentType
         case expiryDate
         case meta
-        case scopeDetails
     }
 
     /// Decode FeedItem instance from the given decoder.
     /// - Parameter decoder: The decoder to read feed item data from.
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-
         id = try values.decode(String.self, forKey: .id)
-        title = try values.decode(String.self, forKey: .title)
-        body = try values.decode(String.self, forKey: .body)
-        imageUrl = try? values.decode(String.self, forKey: .imageUrl)
-        actionUrl = try? values.decode(String.self, forKey: .actionUrl)
-        actionTitle = try? values.decode(String.self, forKey: .actionTitle)
-        publishedDate = try values.decode(Int.self, forKey: .publishedDate)
-        expiryDate = try values.decode(Int.self, forKey: .expiryDate)
-        let codableMeta = try? values.decode([String: AnyCodable].self, forKey: .meta)
-        meta = codableMeta?.mapValues {
-            guard let value = $0.value else {
-                return ""
-            }
-            return value
+
+        contentType = try values.decode(String.self, forKey: .contentType)
+        if contentType != "application/json" {
+            throw DecodingError.typeMismatch(FeedItem.self,
+                                             DecodingError.Context(codingPath: decoder.codingPath,
+                                                                   debugDescription: "FeedItem content is not of an expected type."))
         }
-        let anyCodableDetailsDict = try? values.decode([String: AnyCodable].self, forKey: .scopeDetails)
-        scopeDetails = AnyCodable.toAnyDictionary(dictionary: anyCodableDetailsDict) ?? [:]
+
+        let codableContentDict = try values.decodeIfPresent([String: AnyCodable].self, forKey: .content)
+        content = AnyCodable.toAnyDictionary(dictionary: codableContentDict) ?? [:]
+
+        expiryDate = try values.decode(Int.self, forKey: .expiryDate)
+
+        let codableMetaDict = try values.decodeIfPresent([String: AnyCodable].self, forKey: .meta)
+        meta = AnyCodable.toAnyDictionary(dictionary: codableMetaDict)
     }
-}
 
-// MARK: - Encodable support
-
-extension FeedItem {
     /// Encode FeedItem instance into the given encoder.
     /// - Parameter encoder: The encoder to write feed item data to.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(id, forKey: .id)
-        try container.encode(title, forKey: .title)
-        try container.encode(body, forKey: .body)
-        try? container.encode(imageUrl, forKey: .imageUrl)
-        try? container.encode(actionUrl, forKey: .actionUrl)
-        try? container.encode(actionTitle, forKey: .actionTitle)
-        try container.encode(publishedDate, forKey: .publishedDate)
+        try container.encode(AnyCodable.from(dictionary: content), forKey: .content)
+        try container.encode(contentType, forKey: .contentType)
         try container.encode(expiryDate, forKey: .expiryDate)
-        try? container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
-        try container.encode(AnyCodable.from(dictionary: scopeDetails), forKey: .scopeDetails)
+        try container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
+    }
+}
+
+// MARK: - Encodable support
+
+extension FeedItem: Renderable {
+    /// Plain-text title for the feed item
+    var title: String {
+        content[MessagingConstants.Event.Data.Key.FEED.TITLE] as? String ?? ""
+    }
+
+    /// Plain-text body representing the content for the feed item
+    var body: String {
+        content[MessagingConstants.Event.Data.Key.FEED.BODY] as? String ?? ""
+    }
+
+    /// String representing a URI that contains an image to be used for this feed item
+    var imageUrl: String? {
+        content[MessagingConstants.Event.Data.Key.FEED.IMAGE_URL] as? String
+    }
+
+    /// Contains a URL to be opened if the user interacts with the feed item
+    var actionUrl: String? {
+        content[MessagingConstants.Event.Data.Key.FEED.ACTION_URL] as? String
+    }
+
+    /// Required if `actionUrl` is provided. Text to be used in title of button or link in feed item
+    var actionTitle: String? {
+        content[MessagingConstants.Event.Data.Key.FEED.ACTION_TITLE] as? String
+    }
+
+    /// Represents when this feed item went live. Represented in seconds since January 1, 1970
+    var publishedDate: Int {
+        content[MessagingConstants.Event.Data.Key.FEED.PUBLISHED_DATE] as? Int ?? -1
+    }
+
+    var surface: String? {
+        meta?[MessagingConstants.Event.Data.Key.FEED.SURFACE] as? String
+    }
+
+    var feedName: String? {
+        meta?[MessagingConstants.Event.Data.Key.FEED.FEED_NAME] as? String
+    }
+
+    func shouldRender() -> Bool {
+        !title.isEmpty && !body.isEmpty && publishedDate != -1
     }
 
     static func from(data: [String: Any]?, id: String, scopeDetails: [String: AnyCodable]? = nil) -> FeedItem? {
@@ -122,13 +137,5 @@ extension FeedItem {
             return nil
         }
         return try? JSONDecoder().decode(FeedItem.self, from: jsonData)
-    }
-
-    var surface: String? {
-        meta?[MessagingConstants.Event.Data.Key.FEED.SURFACE] as? String
-    }
-
-    var feedName: String? {
-        meta?[MessagingConstants.Event.Data.Key.FEED.FEED_NAME] as? String
     }
 }
