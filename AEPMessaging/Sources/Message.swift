@@ -73,7 +73,7 @@ public class Message: NSObject {
 
     // MARK: - UI management
 
-    /// Requests that the UIServices show the this message.
+    /// Requests that UIServices show the this message.
     /// This method will bypass calling the `shouldShowMessage(:)` method of the `MessagingDelegate` if one exists.
     /// If `autoTrack` is true and the message is shown, calling this method will result
     /// in an "inapp.display" Edge Event being dispatched.
@@ -123,7 +123,7 @@ public class Message: NSObject {
 
     // MARK: - Internal methods
 
-    /// Requests that the UIServices show the this message.
+    /// Requests that UIServices show the this message.
     /// Pass `false` to this method to bypass the `MessagingDelegate` control over showing the message.
     /// - Parameters:
     ///   - withMessagingDelegateControl: if `true`, the `shouldShowMessage(:)` method of `MessagingDelegate` will be called before the message is shown.
