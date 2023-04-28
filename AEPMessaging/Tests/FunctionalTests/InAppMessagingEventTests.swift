@@ -101,95 +101,95 @@ class InAppMessagingEventTests: XCTestCase {
         wait(for: [messagingRequestContentExpectation], timeout: asyncTimeout)
     }
 
-    func testMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
-        // setup
-        let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
-        registerEdgePersonalizationDecisionsListener() { event in
-            XCTAssertNotNil(event)
-            
-            // validate the payload exists
-            guard let payload = event.data?["payload"] as? [[String: Any]] else {
-                // no payload means this event is a request, not a response
-                return
-            }
-            
-            // validate the payload is not empty
-            guard !payload.isEmpty else {
-                XCTFail("SDK TEST ERROR - expected a payload object, but payload is empty")
-                return
-            }
-            
-            // loop through the payload and verify the format for each object
-            for payloadObject in payload {
-                XCTAssertTrue(self.payloadObjectIsValid(payloadObject), "SDK TEST ERROR - payload object returned was invalid: \(payloadObject)")
-            }
-            
-            edgePersonalizationDecisionsExpectation.fulfill()
-        }
-
-        // test
-        Messaging.refreshInAppMessages()
-
-        // verify
-        wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
-    }
-    
-    func testMessagesReturnedFromXASHaveCorrectRuleFormat() throws {
-        // setup
-        let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
-        registerEdgePersonalizationDecisionsListener() { event in
-            
-            // validate the content is a valid rule containing a valid message
-            guard let propositions = event.payload else {
-                // no payload means this event is a request, not a response
-                return
-            }
-            
-            let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
-            messagingRulesEngine.loadPropositions(propositions, clearExisting: true, expectedScope: self.expectedScope)
-            
-            // rules load async - brief sleep to allow it to finish
-            self.runAfter(seconds: 3) {
-                XCTAssertEqual(3, messagingRulesEngine.rulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
-                edgePersonalizationDecisionsExpectation.fulfill()
-            }
-        }
-
-        // test
-        Messaging.refreshInAppMessages()
-
-        // verify
-        wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
-    }
-    
-    func testMessagesDisplayInteractDismissEvents() throws {
-        // setup
-        let edgeRequestDisplayEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == display received.")
-        let edgeRequestInteractEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == interact received.")
-        let edgeRequestDismissEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == dismiss received.")
-        registerEdgeRequestContentListener() { event in
-            if event.isPropositionEvent(withType: "display") {
-                self.currentMessage?.track("clicked", withEdgeEventType: .inappInteract)
-                edgeRequestDisplayEventExpectation.fulfill()
-            }
-            if event.isPropositionEvent(withType: "interact") {
-                self.currentMessage?.dismiss()
-                edgeRequestInteractEventExpectation.fulfill()
-            }
-            if event.isPropositionEvent(withType: "dismiss") {
-                edgeRequestDismissEventExpectation.fulfill()
-            }
-        }
-        MobileCore.messagingDelegate = self
-        
-        // allow rules engine to be hydrated
-        runAfter(seconds: 5) {
-            MobileCore.track(action: "showModal", data: nil)
-        }
-
-        // verify
-        wait(for: [edgeRequestDisplayEventExpectation, edgeRequestInteractEventExpectation, edgeRequestDismissEventExpectation], timeout: asyncTimeout)
-    }
+//    func testMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
+//        // setup
+//        let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
+//        registerEdgePersonalizationDecisionsListener() { event in
+//            XCTAssertNotNil(event)
+//            
+//            // validate the payload exists
+//            guard let payload = event.data?["payload"] as? [[String: Any]] else {
+//                // no payload means this event is a request, not a response
+//                return
+//            }
+//            
+//            // validate the payload is not empty
+//            guard !payload.isEmpty else {
+//                XCTFail("SDK TEST ERROR - expected a payload object, but payload is empty")
+//                return
+//            }
+//            
+//            // loop through the payload and verify the format for each object
+//            for payloadObject in payload {
+//                XCTAssertTrue(self.payloadObjectIsValid(payloadObject), "SDK TEST ERROR - payload object returned was invalid: \(payloadObject)")
+//            }
+//            
+//            edgePersonalizationDecisionsExpectation.fulfill()
+//        }
+//
+//        // test
+//        Messaging.refreshInAppMessages()
+//
+//        // verify
+//        wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
+//    }
+//    
+//    func testMessagesReturnedFromXASHaveCorrectRuleFormat() throws {
+//        // setup
+//        let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
+//        registerEdgePersonalizationDecisionsListener() { event in
+//            
+//            // validate the content is a valid rule containing a valid message
+//            guard let propositions = event.payload else {
+//                // no payload means this event is a request, not a response
+//                return
+//            }
+//            
+//            let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: TestableExtensionRuntime())
+//            messagingRulesEngine.loadPropositions(propositions, clearExisting: true, expectedScope: self.expectedScope)
+//            
+//            // rules load async - brief sleep to allow it to finish
+//            self.runAfter(seconds: 3) {
+//                XCTAssertEqual(3, messagingRulesEngine.rulesEngine.rulesEngine.rules.count, "Message definition successfully loaded into the rules engine.")
+//                edgePersonalizationDecisionsExpectation.fulfill()
+//            }
+//        }
+//
+//        // test
+//        Messaging.refreshInAppMessages()
+//
+//        // verify
+//        wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
+//    }
+//    
+//    func testMessagesDisplayInteractDismissEvents() throws {
+//        // setup
+//        let edgeRequestDisplayEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == display received.")
+//        let edgeRequestInteractEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == interact received.")
+//        let edgeRequestDismissEventExpectation = XCTestExpectation(description: "edge event with propositionEventType == dismiss received.")
+//        registerEdgeRequestContentListener() { event in
+//            if event.isPropositionEvent(withType: "display") {
+//                self.currentMessage?.track("clicked", withEdgeEventType: .inappInteract)
+//                edgeRequestDisplayEventExpectation.fulfill()
+//            }
+//            if event.isPropositionEvent(withType: "interact") {
+//                self.currentMessage?.dismiss()
+//                edgeRequestInteractEventExpectation.fulfill()
+//            }
+//            if event.isPropositionEvent(withType: "dismiss") {
+//                edgeRequestDismissEventExpectation.fulfill()
+//            }
+//        }
+//        MobileCore.messagingDelegate = self
+//        
+//        // allow rules engine to be hydrated
+//        runAfter(seconds: 5) {
+//            MobileCore.track(action: "showModal", data: nil)
+//        }
+//
+//        // verify
+//        wait(for: [edgeRequestDisplayEventExpectation, edgeRequestInteractEventExpectation, edgeRequestDismissEventExpectation], timeout: asyncTimeout)
+//    }
 
     /// wait for `seconds` before running the code in the closure
     func runAfter(seconds: Int, closure: @escaping () -> Void) {

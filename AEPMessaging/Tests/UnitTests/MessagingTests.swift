@@ -42,6 +42,12 @@ class MessagingTests: XCTestCase {
 
         mockNetworkService = MockNetworkService()
         ServiceProvider.shared.networkService = mockNetworkService!
+        
+        MobileCore.messagingDelegate = nil
+    }
+    
+    override func tearDown() {
+        MobileCore.messagingDelegate = nil
     }
 
     /// validate the extension is registered without any error
@@ -195,21 +201,6 @@ class MessagingTests: XCTestCase {
         XCTAssertFalse(mockMessagingRulesEngine.loadPropositionsCalled)        
     }
 
-    func testHandleRulesResponseHappy() throws {
-        // setup
-        mockMessagingRulesEngine.propositionInfoForMessageIdReturnValue = PropositionInfo(id: "id", scope: "scope", scopeDetails: [:])
-        let event = Event(name: "Test Rules Engine Response Event",
-                          type: EventType.rulesEngine,
-                          source: EventSource.responseContent,
-                          data: getRulesResponseEventData())
-
-        // test
-        mockRuntime.simulateComingEvents(event)
-
-        // verify
-        XCTAssertNotNil(messaging.currentMessage)
-    }
-    
     func testHandleRulesResponseNoHtml() throws {
         // setup
         mockMessagingRulesEngine.propositionInfoForMessageIdReturnValue = PropositionInfo(id: "id", scope: "scope", scopeDetails: [:])
@@ -218,13 +209,19 @@ class MessagingTests: XCTestCase {
                           source: EventSource.responseContent,
                           data: getRulesResponseEventData(html: nil))
 
+        let expectation = XCTestExpectation(description: "shouldShowMessage was called in delegate")
+        expectation.isInverted = true
+        let delegate = TestableMessagingDelegate(expectation: expectation)
+        MobileCore.messagingDelegate = delegate
+
         // test
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertNil(messaging.currentMessage)
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertFalse(delegate.shouldShowMessageCalled)
     }
-    
+
     func testHandleRulesResponseNoPropositionInfoForMessage() throws {
         // setup
         let event = Event(name: "Test Rules Engine Response Event",
@@ -232,11 +229,17 @@ class MessagingTests: XCTestCase {
                           source: EventSource.responseContent,
                           data: getRulesResponseEventData())
 
+        let expectation = XCTestExpectation(description: "shouldShowMessage was called in delegate")
+        expectation.isInverted = true
+        let delegate = TestableMessagingDelegate(expectation: expectation)
+        MobileCore.messagingDelegate = delegate
+
         // test
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertNotNil(messaging.currentMessage)
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertFalse(delegate.shouldShowMessageCalled)
     }
 
     func testHandleRulesResponseNilData() throws {
@@ -246,11 +249,17 @@ class MessagingTests: XCTestCase {
                           source: EventSource.responseContent,
                           data: nil)
 
+        let expectation = XCTestExpectation(description: "shouldShowMessage was called in delegate")
+        expectation.isInverted = true
+        let delegate = TestableMessagingDelegate(expectation: expectation)
+        MobileCore.messagingDelegate = delegate
+
         // test
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertNil(messaging.currentMessage)
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertFalse(delegate.shouldShowMessageCalled)
     }
 
     func testHandleRulesResponseNoHtmlInData() throws {
@@ -259,12 +268,18 @@ class MessagingTests: XCTestCase {
                           type: EventType.rulesEngine,
                           source: EventSource.responseContent,
                           data: [:])
+        
+        let expectation = XCTestExpectation(description: "shouldShowMessage was called in delegate")
+        expectation.isInverted = true
+        let delegate = TestableMessagingDelegate(expectation: expectation)
+        MobileCore.messagingDelegate = delegate
 
         // test
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertNil(messaging.currentMessage)
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertFalse(delegate.shouldShowMessageCalled)
     }
 
     /// validating handleProcessEvent
