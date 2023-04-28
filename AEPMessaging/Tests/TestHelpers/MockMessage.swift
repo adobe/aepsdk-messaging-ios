@@ -42,4 +42,11 @@ class MockMessage: Message {
     override func overrideUrlLoad(message _: FullscreenMessage, url _: String?) -> Bool {
         overrideUrlLoadReturnValue
     }
+    
+    var onShowCalled = false
+    var paramOnShow: FullscreenMessage?
+    override func onShow(message: FullscreenMessage) {
+        onShowCalled = true
+        paramOnShow = message
+    }
 }

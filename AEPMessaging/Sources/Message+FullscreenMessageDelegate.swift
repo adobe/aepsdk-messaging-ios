@@ -15,7 +15,16 @@ import Foundation
 import UIKit
 
 extension Message: FullscreenMessageDelegate {
-    public func onShow(message _: FullscreenMessage) {}
+    public func onShow(message: FullscreenMessage) {
+        guard let message = message.parent else {
+            return
+        }
+        
+        if message.autoTrack {
+            message.track(nil, withEdgeEventType: .inappDisplay)
+        }
+    }
+    
     public func onShowFailure() {}
 
     /// Informs the parent of the calling `message` that it has been dismissed.
