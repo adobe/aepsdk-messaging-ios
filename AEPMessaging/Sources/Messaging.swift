@@ -28,7 +28,6 @@ public class Messaging: NSObject, Extension {
     private var messagesRequestEventId: String?
     private var lastProcessedRequestEventId: String?
     private var initialLoadComplete = false
-    private(set) var currentMessage: Message?
     private let rulesEngine: MessagingRulesEngine
 
     // MARK: - Extension protocol methods
@@ -211,7 +210,6 @@ public class Messaging: NSObject, Extension {
 
         message.trigger()
         message.show(withMessagingDelegateControl: true)
-        currentMessage = message
     }
 
     // MARK: - Event Handers
