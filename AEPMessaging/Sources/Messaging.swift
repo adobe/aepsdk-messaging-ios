@@ -27,7 +27,6 @@ public class Messaging: NSObject, Extension {
     private var messagesRequestEventId: String = ""
     private var lastProcessedRequestEventId: String = ""
     private var initialLoadComplete = false
-    private(set) var currentMessage: Message?
     let rulesEngine: MessagingRulesEngine
     let feedRulesEngine: FeedRulesEngine
     private(set) var cache: Cache
@@ -300,7 +299,6 @@ public class Messaging: NSObject, Extension {
 
         message.trigger()
         message.show(withMessagingDelegateControl: true)
-        currentMessage = message
     }
 
     // MARK: - Event Handers

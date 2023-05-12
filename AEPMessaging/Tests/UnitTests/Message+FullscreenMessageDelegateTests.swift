@@ -132,8 +132,37 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
         XCTAssertTrue(mockMessage.dismissCalled)
     }
     
-    func testOnShowCallable() throws {
+    func testOnShowNoParent() throws {
+        // setup
+        let messageNoParent: FullscreenMessage = MockFullscreenMessage(parent: nil)
+        
+        // test
+        message.onShow(message: messageNoParent)
+        
+        // verify
+        XCTAssertFalse(mockMessage.trackCalled)
+    }
+    
+    func testOnShowCallableAutoTrackEnabled() throws {
+        // setup
+        mockMessage.autoTrack = true
+        
+        // test
         message.onShow(message: mockFullscreenMessage)
+        
+        // verify
+        XCTAssertTrue(mockMessage.trackCalled)
+    }
+    
+    func testOnShowCallableAutoTrackDisabled() throws {
+        // setup
+        mockMessage.autoTrack = false
+        
+        // test
+        message.onShow(message: mockFullscreenMessage)
+        
+        // verify
+        XCTAssertFalse(mockMessage.trackCalled)
     }
 
     func testOnShowFailureCallable() throws {

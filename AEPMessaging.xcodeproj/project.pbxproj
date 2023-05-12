@@ -36,6 +36,9 @@
 		090290DE29EF30E000388226 /* EdgeResponseHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290DD29EF30E000388226 /* EdgeResponseHandler.swift */; };
 		091881CE29F2123300615481 /* InAppHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881CD29F2123300615481 /* InAppHandler.swift */; };
 		091881D229F86F7200615481 /* Renderable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881D129F86F7200615481 /* Renderable.swift */; };
+		2402745C29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
+		2402745D29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
+		2402745E29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
 		240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */; };
 		2414ED832899BA080036D505 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED822899BA080036D505 /* AppDelegate.m */; };
 		2414ED862899BA080036D505 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED852899BA080036D505 /* SceneDelegate.m */; };
@@ -318,6 +321,7 @@
 		091881CD29F2123300615481 /* InAppHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppHandler.swift; sourceTree = "<group>"; };
 		091881D129F86F7200615481 /* Renderable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderable.swift; sourceTree = "<group>"; };
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
+		2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableMessagingDelegate.swift; sourceTree = "<group>"; };
 		240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedStateResult+Messaging.swift"; sourceTree = "<group>"; };
 		2414ED7F2899BA080036D505 /* MessagingDemoAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2414ED812899BA080036D505 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -766,6 +770,7 @@
 				9231543E261E3B36004AE7D3 /* MockNetworkService.swift */,
 				92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */,
 				9231543D261E3B36004AE7D3 /* TestableExtensionRuntime.swift */,
+				2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */,
 				243EA6DF2739D9D700195945 /* TestableMessagingMobileParameters.swift */,
 				928639D026374463000AFA53 /* TestableNetworkService.swift */,
 			);
@@ -1538,6 +1543,7 @@
 				246EFA202797441600C76A6B /* MockLaunchRulesEngine.swift in Sources */,
 				246EFA212797441600C76A6B /* MockMessage.swift in Sources */,
 				246EFA222797441600C76A6B /* MockMessaging.swift in Sources */,
+				2402745C29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */,
 				246EFA232797441600C76A6B /* MockMessagingRulesEngine.swift in Sources */,
 				246EFA242797441600C76A6B /* MockNetworkService.swift in Sources */,
 				246EFA252797441600C76A6B /* MockNotificationResponseCoder.swift in Sources */,
@@ -1630,6 +1636,7 @@
 				2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */,
 				243EA6DA2739D47500195945 /* MockMessaging.swift in Sources */,
 				243EA6D42733261E00195945 /* MessagingEdgeEventTypeTests.swift in Sources */,
+				2402745E29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */,
 				243EA6CF273325CC00195945 /* Message+FullscreenMessageDelegateTests.swift in Sources */,
 				245059712673DBFE00CC7CA0 /* MessagingTests.swift in Sources */,
 				2469A5EB274D49B100E56457 /* JSONFileLoader.swift in Sources */,
@@ -1660,6 +1667,7 @@
 				92FC58D326368900005BAE02 /* MockNetworkService.swift in Sources */,
 				92FC58CE263688FD005BAE02 /* TestableExtensionRuntime.swift in Sources */,
 				928639FC263757A7000AFA53 /* Dictionary+Flatten.swift in Sources */,
+				2402745D29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */,
 				24EE301E28FF61F0005E417C /* InAppMessagingEventTests.swift in Sources */,
 				92FC58C8263688F0005BAE02 /* EventHub+Testable.swift in Sources */,
 				928639D126374463000AFA53 /* TestableNetworkService.swift in Sources */,
@@ -2221,7 +2229,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2257,7 +2265,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
