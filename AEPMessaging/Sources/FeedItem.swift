@@ -25,6 +25,9 @@ public class FeedItem: NSObject, Codable {
     /// Contains mime type for this feed item
     public let contentType: String
 
+    /// Represents when this feed item went live. Represented in seconds since January 1, 1970
+    public let publishedDate: Int
+    
     /// Represents when this feed item expires. Represented in seconds since January 1, 1970
     public let expiryDate: Int
 
@@ -35,6 +38,7 @@ public class FeedItem: NSObject, Codable {
         case id
         case content
         case contentType
+        case publishedDate
         case expiryDate
         case meta
     }
@@ -55,6 +59,7 @@ public class FeedItem: NSObject, Codable {
         let codableContentDict = try values.decodeIfPresent([String: AnyCodable].self, forKey: .content)
         content = AnyCodable.toAnyDictionary(dictionary: codableContentDict) ?? [:]
 
+        publishedDate = try values.decode(Int.self, forKey: .publishedDate)
         expiryDate = try values.decode(Int.self, forKey: .expiryDate)
 
         let codableMetaDict = try values.decodeIfPresent([String: AnyCodable].self, forKey: .meta)
@@ -69,6 +74,7 @@ public class FeedItem: NSObject, Codable {
         try container.encode(id, forKey: .id)
         try container.encode(AnyCodable.from(dictionary: content), forKey: .content)
         try container.encode(contentType, forKey: .contentType)
+        try container.encode(publishedDate, forKey: .publishedDate)
         try container.encode(expiryDate, forKey: .expiryDate)
         try container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
     }
@@ -102,11 +108,6 @@ extension FeedItem: Renderable {
         content[MessagingConstants.Event.Data.Key.FEED.ACTION_TITLE] as? String
     }
 
-    /// Represents when this feed item went live. Represented in seconds since January 1, 1970
-    var publishedDate: Int {
-        content[MessagingConstants.Event.Data.Key.FEED.PUBLISHED_DATE] as? Int ?? -1
-    }
-
     var surface: String? {
         meta?[MessagingConstants.Event.Data.Key.FEED.SURFACE] as? String
     }
@@ -116,7 +117,7 @@ extension FeedItem: Renderable {
     }
 
     func shouldRender() -> Bool {
-        !title.isEmpty && !body.isEmpty && publishedDate != -1
+        !title.isEmpty && !body.isEmpty
     }
 
     static func from(data: [String: Any]?, id: String, scopeDetails: [String: AnyCodable]? = nil) -> FeedItem? {
