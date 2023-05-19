@@ -35,30 +35,28 @@ class FeedRulesEngine {
 
     /// if we have rules loaded, then we simply process the event.
     /// if rules are not yet loaded, add the event to the waitingEvents array to
-    func process(event: Event, _ completion: (([String: Feed]?) -> Void)? = nil) {
-        launchRulesEngine.process(event: event) { consequences in
-            guard let consequences = consequences else {
-                completion?(nil)
-                return
-            }
+    func evaluate(event: Event) -> [String: Feed]? {
+        let consequences = launchRulesEngine.evaluate(event: event)
+        guard let consequences = consequences else {
+            return nil
+        }
 
-            var feeds: [String: Feed] = [:]
-            for consequence in consequences {
-                let details = consequence.details as [String: Any]
+        var feeds: [String: Feed] = [:]
+        for consequence in consequences {
+            let details = consequence.details as [String: Any]
 
-                if let mobileParams = details[MessagingConstants.Event.Data.Key.FEED.MOBILE_PARAMETERS] as? [String: Any],
-                   let feedItem = FeedItem.from(data: mobileParams, id: consequence.id) {
-                    let surfacePath = feedItem.surface ?? ""
+            if let mobileParams = details[MessagingConstants.Event.Data.Key.FEED.MOBILE_PARAMETERS] as? [String: Any],
+               let feedItem = FeedItem.from(data: mobileParams, id: consequence.id) {
+                let surfacePath = feedItem.surface ?? ""
 
-                    // find the feed to insert the feed item else create a new feed for it
-                    if let feed = feeds[surfacePath] {
-                        feed.items.append(feedItem)
-                    } else {
-                        feeds[surfacePath] = Feed(surfaceUri: surfacePath, items: [feedItem])
-                    }
+                // find the feed to insert the feed item else create a new feed for it
+                if let feed = feeds[surfacePath] {
+                    feed.items.append(feedItem)
+                } else {
+                    feeds[surfacePath] = Feed(surfaceUri: surfacePath, items: [feedItem])
                 }
             }
-            completion?(feeds)
         }
+        return feeds
     }
 }
