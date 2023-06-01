@@ -39,7 +39,7 @@ Alternatively, if your project has a `Package.swift` file, you can add AEPMessag
 
 ```
 dependencies: [
-    .package(url: "https://github.com/adobe/aepsdk-messaging-ios.git", .upToNextMajor(from: "1.1.0"))
+    .package(url: "https://github.com/adobe/aepsdk-messaging-ios.git", .upToNextMajor(from: "4.0.0"))
 ],
 targets: [
     .target(name: "YourTarget",

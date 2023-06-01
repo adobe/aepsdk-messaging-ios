@@ -27,7 +27,7 @@ class MessagingRulesEngine {
         runtime = extensionRuntime
         rulesEngine = LaunchRulesEngine(name: name,
                                         extensionRuntime: extensionRuntime)
-        cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)        
+        cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
     }
 
     /// INTERNAL ONLY
@@ -45,35 +45,34 @@ class MessagingRulesEngine {
     }
 
     func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool, persistChanges: Bool = true, expectedScope: String) {
-                
         var rules: [LaunchRule] = []
         var tempPropInfo: [String: PropositionInfo] = [:]
-        
+
         if let propositions = propositions {
             for proposition in propositions {
                 guard expectedScope == proposition.propositionInfo.scope else {
                     Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring proposition where scope (\(proposition.propositionInfo.scope)) does not match expected scope (\(expectedScope)).")
                     continue
                 }
-                                
+
                 guard let ruleString = proposition.items.first?.data.content, !ruleString.isEmpty else {
                     Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with no in-app message content.")
                     continue
                 }
-                
+
                 guard let rule = processRule(ruleString) else {
                     Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition with malformed in-app message content.")
                     continue
                 }
-                
+
                 // pre-fetch the assets for this message if there are any defined
                 cacheRemoteAssetsFor(rule)
-                
+
                 // store reporting data for this payload for later use
                 if let messageId = rule.first?.consequences.first?.id {
                     tempPropInfo[messageId] = proposition.propositionInfo
                 }
-                
+
                 rules.append(contentsOf: rule)
             }
         }
@@ -91,7 +90,7 @@ class MessagingRulesEngine {
         } else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring request to load in-app messages for scope '\(expectedScope)'. The propositions parameter provided was empty.")
         }
-        
+
         if persistChanges {
             addPropositionsToCache(propositions)
         } else {
@@ -100,22 +99,22 @@ class MessagingRulesEngine {
     }
 
     func processRule(_ rule: String) -> [LaunchRule]? {
-        return JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime)
+        JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime)
     }
 
     func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
-        return propositionInfo[messageId]
+        propositionInfo[messageId]
     }
-        
+
     #if DEBUG
     /// For testing purposes only
     internal func propositionInfoCount() -> Int {
-        return propositionInfo.count
+        propositionInfo.count
     }
-    
+
     /// For testing purposes only
     internal func inMemoryPropositionsCount() -> Int {
-        return inMemoryPropositions.count
+        inMemoryPropositions.count
     }
     #endif
 }

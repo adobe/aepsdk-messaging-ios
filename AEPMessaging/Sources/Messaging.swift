@@ -16,7 +16,6 @@ import Foundation
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
-
     // MARK: - Class members
 
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
@@ -49,7 +48,7 @@ public class Messaging: NSObject, Extension {
 
         super.init()
     }
-    
+
     public func onRegistered() {
         // register listener for set push identifier event
         registerListener(type: EventType.genericIdentity,
@@ -126,13 +125,13 @@ public class Messaging: NSObject, Extension {
 
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION: [
-                MessagingConstants.XDM.IAM.Key.SURFACES: [ appSurface ]
-            ]
+                MessagingConstants.XDM.IAM.Key.SURFACES: [appSurface],
+            ],
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
 
         let xdmData: [String: Any] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.IAM.EventType.PERSONALIZATION_REQUEST
+            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.IAM.EventType.PERSONALIZATION_REQUEST,
         ]
         eventData[MessagingConstants.XDM.Key.XDM] = xdmData
 
@@ -165,14 +164,14 @@ public class Messaging: NSObject, Extension {
             // either this isn't the type of response we are waiting for, or it's not a response for our request
             return
         }
-        
+
         // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
         var clearExistingRules = false
         if lastProcessedRequestEventId != event.requestEventId {
             clearExistingRules = true
             lastProcessedRequestEventId = event.requestEventId
         }
-                 
+
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definitions from personalization:decisions network response.")
         rulesEngine.loadPropositions(event.payload, clearExisting: clearExistingRules, expectedScope: appSurface)
     }
@@ -280,13 +279,13 @@ public class Messaging: NSObject, Extension {
             return
         }
     }
-    
+
     #if DEBUG
     /// Used for testing only
     internal func setMessagesRequestEventId(_ newId: String?) {
         messagesRequestEventId = newId
     }
-    
+
     /// Used for testing only
     internal func setLastProcessedRequestEventId(_ newId: String?) {
         lastProcessedRequestEventId = newId

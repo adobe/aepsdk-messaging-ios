@@ -19,12 +19,12 @@ extension Message: FullscreenMessageDelegate {
         guard let message = message.parent else {
             return
         }
-        
+
         if message.autoTrack {
             message.track(nil, withEdgeEventType: .inappDisplay)
         }
     }
-    
+
     public func onShowFailure() {}
 
     /// Informs the parent of the calling `message` that it has been dismissed.

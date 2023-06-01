@@ -49,9 +49,9 @@ extension Messaging {
             MessagingConstants.XDM.Key.XDM: xdmMap,
             MessagingConstants.XDM.Key.META: [
                 MessagingConstants.XDM.Key.COLLECT: [
-                    MessagingConstants.XDM.Key.DATASET_ID: datasetId
-                ]
-            ]
+                    MessagingConstants.XDM.Key.DATASET_ID: datasetId,
+                ],
+            ],
         ]
 
         // Creating xdm edge event with request content source type
@@ -84,11 +84,11 @@ extension Messaging {
                  MessagingConstants.XDM.Push.DENYLISTED: false,
                  MessagingConstants.XDM.Push.IDENTITY: [
                     MessagingConstants.XDM.Push.NAMESPACE: [
-                        MessagingConstants.XDM.Push.CODE: MessagingConstants.XDM.Push.Value.ECID
+                        MessagingConstants.XDM.Push.CODE: MessagingConstants.XDM.Push.Value.ECID,
                     ],
-                    MessagingConstants.XDM.Push.ID: ecid
-                 ]]
-            ]
+                    MessagingConstants.XDM.Push.ID: ecid,
+                 ]],
+            ],
         ]
 
         // Creating xdm edge event data
@@ -173,8 +173,8 @@ extension Messaging {
         var xdmDataResult = xdmData
         xdmDataResult[MessagingConstants.XDM.AdobeKeys.APPLICATION] = [
             MessagingConstants.XDM.AdobeKeys.LAUNCHES: [
-                MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE: applicationOpened ? 1 : 0
-            ]
+                MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE: applicationOpened ? 1 : 0,
+            ],
         ]
         return xdmDataResult
     }
@@ -291,53 +291,53 @@ extension Messaging {
             [
                 MessagingConstants.XDM.IAM.Key.ID: propInfo.id,
                 MessagingConstants.XDM.IAM.Key.SCOPE: propInfo.scope,
-                MessagingConstants.XDM.IAM.Key.SCOPE_DETAILS: propInfo.scopeDetails.asDictionary() ?? [:]
-            ]
+                MessagingConstants.XDM.IAM.Key.SCOPE_DETAILS: propInfo.scopeDetails.asDictionary() ?? [:],
+            ],
         ]
 
         let propositionEventType: [String: Int] = [
-            eventType.propositionEventType: 1
+            eventType.propositionEventType: 1,
         ]
 
         var decisioning: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PROPOSITION_EVENT_TYPE: propositionEventType,
-            MessagingConstants.XDM.IAM.Key.PROPOSITIONS: propositions
+            MessagingConstants.XDM.IAM.Key.PROPOSITIONS: propositions,
         ]
 
         // only add `propositionAction` data if this is an interact event
         if eventType == .inappInteract {
             let propositionAction: [String: String] = [
                 MessagingConstants.XDM.IAM.Key.ID: interaction ?? "",
-                MessagingConstants.XDM.IAM.Key.LABEL: interaction ?? ""
+                MessagingConstants.XDM.IAM.Key.LABEL: interaction ?? "",
             ]
             decisioning[MessagingConstants.XDM.IAM.Key.PROPOSITION_ACTION] = propositionAction
         }
 
         let experience: [String: Any] = [
-            MessagingConstants.XDM.IAM.Key.DECISIONING: decisioning
+            MessagingConstants.XDM.IAM.Key.DECISIONING: decisioning,
         ]
 
         let xdm: [String: Any] = [
             MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
-            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: experience
+            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: experience,
         ]
 
         // iam dictionary used for event history
         let iamHistory: [String: String] = [
             MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
             MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.activityId,
-            MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? ""
+            MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? "",
         ]
 
         let mask = [
             MessagingConstants.Event.History.Mask.EVENT_TYPE,
             MessagingConstants.Event.History.Mask.MESSAGE_ID,
-            MessagingConstants.Event.History.Mask.TRACKING_ACTION
+            MessagingConstants.Event.History.Mask.TRACKING_ACTION,
         ]
 
         let xdmEventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: xdm,
-            MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory
+            MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory,
         ]
 
         // Creating xdm edge event with request content source type

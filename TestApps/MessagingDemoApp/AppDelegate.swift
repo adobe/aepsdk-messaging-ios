@@ -46,7 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
             
             // configure
-            MobileCore.configureWith(appId: "")
+            MobileCore.configureWith(appId: "3149c49c3910/9429fb07b17a/launch-f4a2b0b0d6d6-development")
             // set `messaging.useSandbox` to "true"  to test push notifications in debug environment (Apps signed with Development Certificate)
             #if DEBUG
                 let debugConfig = ["messaging.useSandbox": true]
