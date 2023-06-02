@@ -224,7 +224,8 @@ extension Event {
         let decoder = JSONDecoder()
         for thisPayloadAny in payloadMap {
             if let thisPayload = AnyCodable.from(dictionary: thisPayloadAny),
-               let payloadData = try? encoder.encode(thisPayload) {
+               let payloadData = try? encoder.encode(thisPayload)
+            {
                 do {
                     let payloadObject = try decoder.decode(PropositionPayload.self, from: payloadData)
                     returnablePayloads.append(payloadObject)

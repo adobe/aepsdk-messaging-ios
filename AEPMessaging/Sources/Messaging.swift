@@ -254,7 +254,7 @@ public class Messaging: NSObject, Extension {
             // get identityMap from the edge identity xdm shared state
             guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available" +
-                                "from edge identity xdm shared state - '\(event.id.uuidString)'.")
+                    "from edge identity xdm shared state - '\(event.id.uuidString)'.")
                 return
             }
 
@@ -279,14 +279,14 @@ public class Messaging: NSObject, Extension {
     }
 
     #if DEBUG
-    /// Used for testing only
-    internal func setMessagesRequestEventId(_ newId: String?) {
-        messagesRequestEventId = newId
-    }
+        /// Used for testing only
+        internal func setMessagesRequestEventId(_ newId: String?) {
+            messagesRequestEventId = newId
+        }
 
-    /// Used for testing only
-    internal func setLastProcessedRequestEventId(_ newId: String?) {
-        lastProcessedRequestEventId = newId
-    }
+        /// Used for testing only
+        internal func setLastProcessedRequestEventId(_ newId: String?) {
+            lastProcessedRequestEventId = newId
+        }
     #endif
 }
