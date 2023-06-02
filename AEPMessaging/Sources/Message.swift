@@ -73,47 +73,13 @@ public class Message: NSObject {
 
     // MARK: - UI management
 
-    /// Signals to the UIServices that the message should be shown.
+    /// Requests that UIServices show the this message.
     /// This method will bypass calling the `shouldShowMessage(:)` method of the `MessagingDelegate` if one exists.
-    /// If `autoTrack` is true, calling this method will result in an "inapp.display" Edge Event being dispatched.
+    /// If `autoTrack` is true and the message is shown, calling this method will result
+    /// in an "inapp.display" Edge Event being dispatched.
     @objc
     public func show() {
         show(withMessagingDelegateControl: false)
-    }
-    
-    /// Signals to the UIServices that the message should be shown.
-    /// Pass `false` to this method to bypass the `MessagingDelegate` control over showing the message.
-    /// - Parameter withMessagingDelegateControl: if `true`, the `shouldShowMessage(:)` method of `MessagingDelegate` will be called before the message is shown.
-    func show(withMessagingDelegateControl callDelegate: Bool) {
-        if autoTrack {
-            track(nil, withEdgeEventType: .inappDisplay)
-        }
-
-        fullscreenMessage?.show(withMessagingDelegateControl: callDelegate)
-    }
-
-    /// Generates a mapping of the message's assets to their representation in local cache.
-    ///
-    /// This method will iterate through the `remoteAssets` of the triggering event for the message.
-    /// In each iteration, it will check to see if there is a corresponding cache entry for the
-    /// asset string.  If a match is found, an entry will be made in the `Message`s `assets` dictionary.
-    ///
-    /// - Returns: `true` if an asset map was generated
-    private func generateAssetMap() -> Bool {
-        guard let remoteAssetsArray = triggeringEvent.remoteAssets, !remoteAssetsArray.isEmpty else {
-            return false
-        }
-
-        let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
-        assets = [:]
-        for asset in remoteAssetsArray {
-            // check for a matching file in cache and add an entry to the assets map if it exists
-            if let cachedAsset = cache.get(key: asset) {
-                assets?[asset] = cachedAsset.metadata?[MessagingConstants.Caches.PATH]
-            }
-        }
-
-        return true
     }
 
     /// Signals to the UIServices that the message should be dismissed.
@@ -157,10 +123,44 @@ public class Message: NSObject {
 
     // MARK: - Internal methods
 
+    /// Requests that UIServices show the this message.
+    /// Pass `false` to this method to bypass the `MessagingDelegate` control over showing the message.
+    /// - Parameters:
+    ///   - withMessagingDelegateControl: if `true`, the `shouldShowMessage(:)` method of `MessagingDelegate` will be called before the message is shown.
+    func show(withMessagingDelegateControl callDelegate: Bool) {
+        fullscreenMessage?.show(withMessagingDelegateControl: callDelegate)
+    }
+
     /// Called when a `Message` is triggered - i.e. it's conditional criteria have been met.
     func trigger() {
         if autoTrack {
             track(nil, withEdgeEventType: .inappTrigger)
         }
+    }
+
+    // MARK: - Private methods
+
+    /// Generates a mapping of the message's assets to their representation in local cache.
+    ///
+    /// This method will iterate through the `remoteAssets` of the triggering event for the message.
+    /// In each iteration, it will check to see if there is a corresponding cache entry for the
+    /// asset string.  If a match is found, an entry will be made in the `Message`s `assets` dictionary.
+    ///
+    /// - Returns: `true` if an asset map was generated
+    private func generateAssetMap() -> Bool {
+        guard let remoteAssetsArray = triggeringEvent.remoteAssets, !remoteAssetsArray.isEmpty else {
+            return false
+        }
+
+        let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
+        assets = [:]
+        for asset in remoteAssetsArray {
+            // check for a matching file in cache and add an entry to the assets map if it exists
+            if let cachedAsset = cache.get(key: asset) {
+                assets?[asset] = cachedAsset.metadata?[MessagingConstants.Caches.PATH]
+            }
+        }
+
+        return true
     }
 }

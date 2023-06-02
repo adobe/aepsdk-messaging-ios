@@ -16,7 +16,6 @@ import Foundation
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
-
     // MARK: - Class members
 
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
@@ -28,7 +27,6 @@ public class Messaging: NSObject, Extension {
     private var messagesRequestEventId: String?
     private var lastProcessedRequestEventId: String?
     private var initialLoadComplete = false
-    private(set) var currentMessage: Message?
     private let rulesEngine: MessagingRulesEngine
 
     // MARK: - Extension protocol methods
@@ -50,7 +48,7 @@ public class Messaging: NSObject, Extension {
 
         super.init()
     }
-    
+
     public func onRegistered() {
         // register listener for set push identifier event
         registerListener(type: EventType.genericIdentity,
@@ -127,7 +125,7 @@ public class Messaging: NSObject, Extension {
 
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION: [
-                MessagingConstants.XDM.IAM.Key.SURFACES: [ appSurface ]
+                MessagingConstants.XDM.IAM.Key.SURFACES: [appSurface]
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
@@ -166,14 +164,14 @@ public class Messaging: NSObject, Extension {
             // either this isn't the type of response we are waiting for, or it's not a response for our request
             return
         }
-        
+
         // if this is an event for a new request, purge cache and update lastProcessedRequestEventId
         var clearExistingRules = false
         if lastProcessedRequestEventId != event.requestEventId {
             clearExistingRules = true
             lastProcessedRequestEventId = event.requestEventId
         }
-                 
+
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definitions from personalization:decisions network response.")
         rulesEngine.loadPropositions(event.payload, clearExisting: clearExistingRules, expectedScope: appSurface)
     }
@@ -204,14 +202,11 @@ public class Messaging: NSObject, Extension {
         let message = Message(parent: self, event: event)
         message.propositionInfo = rulesEngine.propositionInfoForMessageId(message.id)
         if message.propositionInfo == nil {
-            // swiftlint:disable line_length
             Log.warning(label: MessagingConstants.LOG_TAG, "Preparing to show a message that does not contain information necessary for tracking with Adobe Journey Optimizer. If you are spoofing this message from the AJO authoring UI or from Assurance, ignore this message.")
-            // swiftlint:enable line_length
         }
 
         message.trigger()
         message.show(withMessagingDelegateControl: true)
-        currentMessage = message
     }
 
     // MARK: - Event Handers
@@ -259,7 +254,7 @@ public class Messaging: NSObject, Extension {
             // get identityMap from the edge identity xdm shared state
             guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available" +
-                                "from edge identity xdm shared state - '\(event.id.uuidString)'.")
+                    "from edge identity xdm shared state - '\(event.id.uuidString)'.")
                 return
             }
 
@@ -282,16 +277,16 @@ public class Messaging: NSObject, Extension {
             return
         }
     }
-    
+
     #if DEBUG
-    /// Used for testing only
-    internal func setMessagesRequestEventId(_ newId: String?) {
-        messagesRequestEventId = newId
-    }
-    
-    /// Used for testing only
-    internal func setLastProcessedRequestEventId(_ newId: String?) {
-        lastProcessedRequestEventId = newId
-    }
+        /// Used for testing only
+        internal func setMessagesRequestEventId(_ newId: String?) {
+            messagesRequestEventId = newId
+        }
+
+        /// Used for testing only
+        internal func setLastProcessedRequestEventId(_ newId: String?) {
+            lastProcessedRequestEventId = newId
+        }
     #endif
 }

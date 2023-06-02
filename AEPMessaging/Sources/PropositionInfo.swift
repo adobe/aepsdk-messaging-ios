@@ -21,7 +21,7 @@ struct PropositionInfo: Codable {
 
 extension PropositionInfo {
     var correlationId: String {
-        return scopeDetails[MessagingConstants.Event.Data.Key.Personalization.CORRELATION_ID]?.stringValue ?? ""
+        scopeDetails[MessagingConstants.Event.Data.Key.Personalization.CORRELATION_ID]?.stringValue ?? ""
     }
 
     var activityId: String {
