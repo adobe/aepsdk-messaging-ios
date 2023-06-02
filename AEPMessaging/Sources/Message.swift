@@ -130,16 +130,16 @@ public class Message: NSObject {
     func show(withMessagingDelegateControl callDelegate: Bool) {
         fullscreenMessage?.show(withMessagingDelegateControl: callDelegate)
     }
-    
+
     /// Called when a `Message` is triggered - i.e. it's conditional criteria have been met.
     func trigger() {
         if autoTrack {
             track(nil, withEdgeEventType: .inappTrigger)
         }
     }
-    
+
     // MARK: - Private methods
-    
+
     /// Generates a mapping of the message's assets to their representation in local cache.
     ///
     /// This method will iterate through the `remoteAssets` of the triggering event for the message.

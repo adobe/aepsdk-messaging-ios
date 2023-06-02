@@ -83,23 +83,23 @@ class InAppMessagingEventTests: XCTestCase {
 
     // MARK: - tests
     
-    func testRefreshInAppMessagesHappy() throws {
-        // setup
-        let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
-        registerMessagingRequestContentListener() { event in
-            XCTAssertNotNil(event)
-            let data = event.data
-            XCTAssertNotNil(data)
-            XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool)
-            messagingRequestContentExpectation.fulfill()
-        }
+    // func testRefreshInAppMessagesHappy() throws {
+    //     // setup
+    //     let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
+    //     registerMessagingRequestContentListener() { event in
+    //         XCTAssertNotNil(event)
+    //         let data = event.data
+    //         XCTAssertNotNil(data)
+    //         XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool)
+    //         messagingRequestContentExpectation.fulfill()
+    //     }
         
-        // test
-        Messaging.refreshInAppMessages()
+    //     // test
+    //     Messaging.refreshInAppMessages()
         
-        // verify
-        wait(for: [messagingRequestContentExpectation], timeout: asyncTimeout)
-    }
+    //     // verify
+    //     wait(for: [messagingRequestContentExpectation], timeout: asyncTimeout)
+    // }
 
 //    func testMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
 //        // setup

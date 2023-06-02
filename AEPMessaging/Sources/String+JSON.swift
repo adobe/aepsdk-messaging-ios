@@ -20,7 +20,7 @@ extension String {
     ///   - jsonString: json String that needs to be converted to a dictionary
     /// - Returns: A  dictionary representation of the string. Returns `nil` if the json serialization of the string fails.
     func toJsonDictionary() -> [String: Any]? {
-        if let data = self.data(using: .utf8) {
+        if let data = data(using: .utf8) {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String: Any]
                 return json

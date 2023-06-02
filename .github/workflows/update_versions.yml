@@ -9,7 +9,7 @@ on:
     # Inputs the workflow accepts.
     inputs:
       version:
-        description: 'New version to use for the Messaging extension.  Example: 3.0.2'
+        description: 'New version to use for the Messaging extension.  Example: 4.0.2'
         required: true
         
       branch:

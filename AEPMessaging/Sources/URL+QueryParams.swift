@@ -20,7 +20,7 @@ extension URL {
     ///
     /// - Returns: a map containing key-value pairs represented by the query string.
     func queryParamMap() -> [String: String] {
-        return self.query?.components(separatedBy: "&")
+        query?.components(separatedBy: "&")
             .map {
                 $0.components(separatedBy: "=")
             }

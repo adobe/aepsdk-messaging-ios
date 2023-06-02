@@ -5,10 +5,11 @@ PROJECT_NAME = $(EXTENSION_NAME)
 TARGET_NAME_XCFRAMEWORK = $(EXTENSION_NAME).xcframework
 SCHEME_NAME_XCFRAMEWORK = AEPMessagingXCF
 
-SIMULATOR_ARCHIVE_PATH = ./build/ios_simulator.xcarchive/Products/Library/Frameworks/
+SIMULATOR_ARCHIVE_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive/Products/Library/Frameworks/
 SIMULATOR_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive/dSYMs/
-IOS_ARCHIVE_PATH = ./build/ios.xcarchive/Products/Library/Frameworks/
+IOS_ARCHIVE_PATH = $(CURRENT_DIRECTORY)/build/ios.xcarchive/Products/Library/Frameworks/
 IOS_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios.xcarchive/dSYMs/
+IOS_DESTINATION = 'platform=iOS Simulator,name=iPhone 14'
 
 E2E_PROJECT_PLIST_FILE = $(CURRENT_DIRECTORY)/AEPMessaging/Tests/E2EFunctionalTests/E2EFunctionalTestApp/Info.plist
 
@@ -44,24 +45,33 @@ open-app:
 clean:
 	(rm -rf build)
 
-archive: pod-install
-	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(SCHEME_NAME_XCFRAMEWORK) -archivePath "./build/ios.xcarchive" -sdk iphoneos -destination="iOS" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
-	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(SCHEME_NAME_XCFRAMEWORK) -archivePath "./build/ios_simulator.xcarchive" -sdk iphonesimulator -destination="iOS Simulator" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+archive: clean pod-install build
 	xcodebuild -create-xcframework \
 		-framework $(SIMULATOR_ARCHIVE_PATH)$(EXTENSION_NAME).framework -debug-symbols $(SIMULATOR_ARCHIVE_DSYM_PATH)$(EXTENSION_NAME).framework.dSYM \
 		-framework $(IOS_ARCHIVE_PATH)$(EXTENSION_NAME).framework -debug-symbols $(IOS_ARCHIVE_DSYM_PATH)$(EXTENSION_NAME).framework.dSYM \
 		-output ./build/$(TARGET_NAME_XCFRAMEWORK)
 
-test:
+build:
+	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(SCHEME_NAME_XCFRAMEWORK) -archivePath "./build/ios.xcarchive" -sdk iphoneos -destination="iOS" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(SCHEME_NAME_XCFRAMEWORK) -archivePath "./build/ios_simulator.xcarchive" -sdk iphonesimulator -destination="iOS Simulator" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+
+zip:
+	cd build && zip -r -X $(PROJECT_NAME).xcframework.zip $(PROJECT_NAME).xcframework/
+	swift package compute-checksum build/$(PROJECT_NAME).xcframework.zip
+
+test: clean
 	@echo "######################################################################"
 	@echo "### Testing iOS"
 	@echo "######################################################################"
-	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -destination 'platform=iOS Simulator,name=iPhone 12' -derivedDataPath build/out -enableCodeCoverage YES
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
 
 install-githook:
 	./tools/git-hooks/setup.sh
 
-format: swift-format lint-autocorrect
+format: lint-autocorrect swift-format
+
+check-format:
+	(swiftformat --lint $(PROJECT_NAME)/Sources --swiftversion 5.1)
 
 install-swiftformat:
 	(brew install swiftformat)
@@ -70,7 +80,7 @@ swift-format:
 	(swiftformat $(PROJECT_NAME)/Sources --swiftversion 5.1)
 
 lint-autocorrect:
-	(./Pods/SwiftLint/swiftlint --fix $(PROJECT_NAME)/Sources --format)
+	($(CURRENT_DIRECTORY)/Pods/SwiftLint/swiftlint --fix)
 
 lint:
 	(./Pods/SwiftLint/swiftlint lint $(PROJECT_NAME)/Sources)
@@ -93,5 +103,6 @@ set-environment:
 	@echo "Setting E2E functional testing to run in environment '$(ENV)'"
 	plutil -replace ADOBE_ENVIRONMENT -string $(ENV) $(E2E_PROJECT_PLIST_FILE)
 
+# used to test update-versions.sh script locally
 test-versions:
-	(sh ./Script/update-versions.sh -n Messaging -v 1.1.0 -d "AEPCore 3.7.4, AEPServices 3.7.4, AEPEdge 1.5.0, AEPEdgeIdentity 1.1.0")
+	(sh ./Script/update-versions.sh -n Messaging -v 4.0.0 -d "AEPCore 4.0.0, AEPServices 4.0.0, AEPEdge 4.0.0, AEPEdgeIdentity 4.0.0")

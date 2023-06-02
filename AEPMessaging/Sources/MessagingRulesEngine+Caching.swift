@@ -16,7 +16,6 @@ import Foundation
 
 /// Helper methods for caching and loading previously retrieved in-app message definitions
 extension MessagingRulesEngine {
-
     // MARK: - remote asset caching
 
     /// Caches any remote assets for RuleConsequence(s) found in provided rules.
@@ -63,12 +62,12 @@ extension MessagingRulesEngine {
         Log.trace(label: MessagingConstants.LOG_TAG, "Loading in-app message definition from cache.")
         loadPropositions(propositions, clearExisting: false, persistChanges: false, expectedScope: expectedScope)
     }
-    
+
     func addPropositionsToCache(_ propositions: [PropositionPayload]?) {
         guard let propositions = propositions, !propositions.isEmpty else {
             return
         }
-        
+
         inMemoryPropositions.append(contentsOf: propositions)
         cachePropositions(inMemoryPropositions)
     }
