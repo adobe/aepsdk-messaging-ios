@@ -68,7 +68,7 @@ test: clean
 install-githook:
 	./tools/git-hooks/setup.sh
 
-format: swift-format lint-autocorrect
+format: lint-autocorrect swift-format
 
 install-swiftformat:
 	(brew install swiftformat)
@@ -77,7 +77,7 @@ swift-format:
 	(swiftformat $(PROJECT_NAME)/Sources --swiftversion 5.1)
 
 lint-autocorrect:
-	($(CURRENT_DIRECTORY)/Pods/SwiftLint/swiftlint --fix $(PROJECT_NAME)/Sources --format)
+	($(CURRENT_DIRECTORY)/Pods/SwiftLint/swiftlint --fix)
 
 lint:
 	(./Pods/SwiftLint/swiftlint lint $(PROJECT_NAME)/Sources)
