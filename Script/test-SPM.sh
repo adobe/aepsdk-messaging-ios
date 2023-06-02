@@ -39,9 +39,9 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(name: \"AEPCore\", url: \"https://github.com/adobe/aepsdk-core-ios.git\", .branch(\"main\")),
-        .package(name: \"AEPEdge\", url: \"https://github.com/adobe/aepsdk-edge-ios.git\", .branch(\"main\")),
-        .package(name: \"AEPEdgeIdentity\", url: \"https://github.com/adobe/aepsdk-edgeidentity-ios.git\", .branch(\"main\")),
+        .package(name: \"AEPCore\", url: \"https://github.com/adobe/aepsdk-core-ios.git\", .upToNextMajor(from:\"4.0.0\")),
+        .package(name: \"AEPEdge\", url: \"https://github.com/adobe/aepsdk-edge-ios.git\", .upToNextMajor(from:\"4.0.0\")),
+        .package(name: \"AEPEdgeIdentity\", url: \"https://github.com/adobe/aepsdk-edgeidentity-ios.git\", .upToNextMajor(from:\"4.0.0\")),
         .package(name: \"AEPMessaging\", path: \"../\")
     ],
     targets: [
