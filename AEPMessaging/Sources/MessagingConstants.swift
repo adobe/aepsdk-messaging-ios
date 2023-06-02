@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "1.1.4"
+    static let EXTENSION_VERSION = "4.0.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
@@ -138,6 +138,7 @@ enum MessagingConstants {
                 static let MESSAGE_ID = "id"
                 static let TRACKING_ACTION = "action"
             }
+
             enum Mask {
                 static let EVENT_TYPE = "iam.eventType"
                 static let MESSAGE_ID = "iam.id"
