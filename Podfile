@@ -35,8 +35,8 @@ def app_main
     pod 'AEPSignal'
     pod 'AEPEdge'    
     pod 'AEPEdgeIdentity'
-    # pod 'AEPEdgeConsent'
-    # pod 'AEPAssurance'
+    pod 'AEPEdgeConsent'
+    pod 'AEPAssurance'
 end
 
 def app_dev
@@ -47,9 +47,9 @@ def app_dev
     pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-v4.0.0'
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'dev-v4.0.0'
     pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'dev-v4.0.0'
-    # pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'dev-v4.0.0'
-    # pod 'AEPAnalytics', :git => 'https://github.com/adobe/aepsdk-analytics-ios.git', :branch => 'dev-v4.0.0'
-    # pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'dev-v4.0.0'
+    pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'dev-v4.0.0'
+    pod 'AEPAnalytics', :git => 'https://github.com/adobe/aepsdk-analytics-ios.git', :branch => 'dev-v4.0.0'
+    pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'dev-v4.0.0'
 end
 
 # ==================

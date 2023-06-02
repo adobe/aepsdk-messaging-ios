@@ -28,9 +28,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         MobileCore.setLogLevel(.trace)
 
         let extensions = [
-            Consent.self,
+//            Consent.self,
             Lifecycle.self,
             Identity.self,
+            AEPEdgeIdentity.Identity.self,
             Messaging.self,
             Edge.self,
             Signal.self,
