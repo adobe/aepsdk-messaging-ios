@@ -3,30 +3,30 @@
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
-
+​
  Unless required by applicable law or agreed to in writing, software distributed under
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
  */
-
+​
 import AEPServices
 import Foundation
 import UIKit
-
+​
 extension Message: FullscreenMessageDelegate {
     public func onShow(message: FullscreenMessage) {
         guard let message = message.parent else {
             return
         }
-
+​
         if message.autoTrack {
             message.track(nil, withEdgeEventType: .inappDisplay)
         }
     }
-
+​
     public func onShowFailure() {}
-
+​
     /// Informs the parent of the calling `message` that it has been dismissed.
     ///
     /// - Parameter message: the `FullscreenMessage` being dismissed
@@ -34,10 +34,10 @@ extension Message: FullscreenMessageDelegate {
         guard let message = message.parent else {
             return
         }
-
+​
         message.dismiss()
     }
-
+​
     /// Handles URL loading for links triggered from within the webview of the message.
     ///
     /// This method checks the `url` parameter to determine if it should be handled locally or by the webview in `message`.
@@ -59,37 +59,38 @@ extension Message: FullscreenMessageDelegate {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to load nil URL.")
             return true
         }
-
+​
         if url.scheme == MessagingConstants.IAM.HTML.SCHEME {
             // handle request parameters
             let queryParams = url.queryParamMap()
             let message = fullscreenMessage.parent
-
+​
             // handle optional tracking
             if let interaction = queryParams[MessagingConstants.IAM.HTML.INTERACTION], !interaction.isEmpty {
                 message?.track(interaction, withEdgeEventType: .inappInteract)
             }
-
+​
             // dismiss if requested
             if url.host == MessagingConstants.IAM.HTML.DISMISS {
                 // check for an animation override
                 if let animationOverride = queryParams[MessagingConstants.IAM.HTML.ANIMATE] {
                     message?.fullscreenMessage?.settings?.setDismissAnimation(MessageAnimation.fromString(animationOverride))
                 }
-
+​
                 message?.dismiss(suppressAutoTrack: true)
             }
-
+​
             // handle optional deep link
-            if let link = queryParams[MessagingConstants.IAM.HTML.LINK], !link.isEmpty,
-               let deeplinkUrl = URL(string: link.removingPercentEncoding ?? "")
+            if
+                let link = queryParams[MessagingConstants.IAM.HTML.LINK], !link.isEmpty,
+                let deeplinkUrl = URL(string: link.removingPercentEncoding ?? "")
             {
                 UIApplication.shared.open(deeplinkUrl)
             }
-
+​
             return false
         }
-
+​
         return true
     }
 }
