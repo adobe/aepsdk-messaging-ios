@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     /// Set this value to false if using the functional test app to run automated functional tests
     /// Set this value to true if running the functional test app as a stand-alone app
-    let RUNNING_AS_APP = true
+    let RUNNING_AS_APP = false
     
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
