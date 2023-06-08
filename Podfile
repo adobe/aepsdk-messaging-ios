@@ -67,6 +67,11 @@ target 'MessagingDemoAppObjC' do
   app_main
 end
 
+target 'MessagingDemoAppSwiftUI' do
+  app_main
+end
+
+
 target 'UnitTests' do
   lib_main
 end

@@ -193,31 +193,30 @@ public class Messaging: NSObject, Extension {
             dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
             return
         }
-
-        feedRulesEngine.process(event: event) { feeds in
-            self.mergeFeedsInMemory(feeds ?? [:], requestedSurfaces: requestedSurfaces)
-            let requestedFeeds = self.inMemoryFeeds
-                .filter { requestedSurfaces.contains($0.key) }
-                .reduce([String: Feed]()) {
-                    var result = $0
-                    if $1.key.hasPrefix(self.appSurface) {
-                        result[String($1.key.dropFirst(self.appSurface.count + 1))] = $1.value
-                    } else {
-                        result[$1.key] = $1.value
-                    }
-                    return result
+        
+        let feeds = feedRulesEngine.evaluate(event: event)
+        self.mergeFeedsInMemory(feeds ?? [:], requestedSurfaces: requestedSurfaces)
+        let requestedFeeds = self.inMemoryFeeds
+            .filter { requestedSurfaces.contains($0.key) }
+            .reduce([String: Feed]()) {
+                var result = $0
+                if $1.key.hasPrefix(self.appSurface) {
+                    result[String($1.key.dropFirst(self.appSurface.count + 1))] = $1.value
+                } else {
+                    result[$1.key] = $1.value
                 }
+                return result
+            }
 
-            let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeeds].asDictionary()
+        let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeeds].asDictionary()
 
-            let responseEvent = event.createResponseEvent(
-                name: MessagingConstants.Event.Name.MESSAGE_FEEDS_RESPONSE,
-                type: EventType.messaging,
-                source: EventSource.responseContent,
-                data: eventData
-            )
-            self.dispatch(event: responseEvent)
-        }
+        let responseEvent = event.createResponseEvent(
+            name: MessagingConstants.Event.Name.MESSAGE_FEEDS_RESPONSE,
+            type: EventType.messaging,
+            source: EventSource.responseContent,
+            data: eventData
+        )
+        self.dispatch(event: responseEvent)
     }
 
     private var appSurface: String {
@@ -250,28 +249,26 @@ public class Messaging: NSObject, Extension {
         rulesEngine.launchRulesEngine.loadRules(rules, clearExisting: clearExistingRules)
 
         if rules.first?.consequences.first?.isFeedItem == true {
-            feedRulesEngine.process(event: event) { feeds in
-                let feeds = feeds ?? [:]
-                self.mergeFeedsInMemory(feeds, requestedSurfaces: self.requestedSurfacesforEventId[self.lastProcessedRequestEventId] ?? [])
-                let requestedFeeds = feeds
-                    .reduce([String: Feed]()) {
-                        var result = $0
-                        if $1.key.hasPrefix(self.appSurface) {
-                            result[String($1.key.dropFirst(self.appSurface.count + 1))] = $1.value
-                        } else {
-                            result[$1.key] = $1.value
-                        }
-                        return result
+            let feeds = feedRulesEngine.evaluate(event: event) ?? [:]
+            self.mergeFeedsInMemory(feeds, requestedSurfaces: self.requestedSurfacesforEventId[self.lastProcessedRequestEventId] ?? [])
+            let requestedFeeds = feeds
+                .reduce([String: Feed]()) {
+                    var result = $0
+                    if $1.key.hasPrefix(self.appSurface) {
+                        result[String($1.key.dropFirst(self.appSurface.count + 1))] = $1.value
+                    } else {
+                        result[$1.key] = $1.value
                     }
-                // dispatch an event with the feeds received from the remote
-                let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeeds].asDictionary()
+                    return result
+                }
+            // dispatch an event with the feeds received from the remote
+            let eventData = [MessagingConstants.Event.Data.Key.FEEDS: requestedFeeds].asDictionary()
 
-                let event = Event(name: MessagingConstants.Event.Name.MESSAGE_FEEDS_NOTIFICATION,
-                                  type: EventType.messaging,
-                                  source: EventSource.notification,
-                                  data: eventData)
-                self.dispatch(event: event)
-            }
+            let event = Event(name: MessagingConstants.Event.Name.MESSAGE_FEEDS_NOTIFICATION,
+                              type: EventType.messaging,
+                              source: EventSource.notification,
+                              data: eventData)
+            self.dispatch(event: event)
         }
     }
 
