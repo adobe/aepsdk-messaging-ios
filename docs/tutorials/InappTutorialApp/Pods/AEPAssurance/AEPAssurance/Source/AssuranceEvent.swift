@@ -86,6 +86,11 @@ struct AssuranceEvent: Codable {
         if  let responseID = event.responseID {
             payload[AssuranceConstants.ACPExtensionEventKey.RESPONSE_IDENTIFIER] = AnyCodable.init(responseID.uuidString)
         }
+        
+        // if available, add parentID
+        if let parentID = event.parentID {
+            payload[AssuranceConstants.ACPExtensionEventKey.PARENT_IDENTIFIER] = AnyCodable.init(parentID.uuidString)
+        }
 
         return AssuranceEvent(type: AssuranceConstants.EventType.GENERIC, payload: payload)
     }

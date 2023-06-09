@@ -83,10 +83,10 @@ extension Messaging {
                  MessagingConstants.XDM.Push.PLATFORM: platform,
                  MessagingConstants.XDM.Push.DENYLISTED: false,
                  MessagingConstants.XDM.Push.IDENTITY: [
-                    MessagingConstants.XDM.Push.NAMESPACE: [
-                        MessagingConstants.XDM.Push.CODE: MessagingConstants.XDM.Push.Value.ECID
-                    ],
-                    MessagingConstants.XDM.Push.ID: ecid
+                     MessagingConstants.XDM.Push.NAMESPACE: [
+                         MessagingConstants.XDM.Push.CODE: MessagingConstants.XDM.Push.Value.ECID
+                     ],
+                     MessagingConstants.XDM.Push.ID: ecid
                  ]]
             ]
         ]

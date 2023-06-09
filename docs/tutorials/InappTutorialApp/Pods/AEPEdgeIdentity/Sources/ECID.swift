@@ -21,7 +21,7 @@ struct ECID: Equatable, Codable, Hashable, CustomStringConvertible {
     /// Representation of the ECID as a `String`
     let ecidString: String
 
-    /// Generates a new ECID
+    // Generates a new ECID
     // swiftlint:disable force_unwrapping
     init() {
         let uuidBytes = Mirror(reflecting: UUID().uuid).children.map { $0.value }
@@ -37,4 +37,5 @@ struct ECID: Equatable, Codable, Hashable, CustomStringConvertible {
 
         ecidString = "\(String(repeating: "0", count: 19 - correctedMsb.count))\(correctedMsb)\(String(repeating: "0", count: 19 - correctedLsb.count))\(correctedLsb)"
     }
+    // swiftlint:enable force_unwrapping
 }

@@ -12,7 +12,7 @@
 A simple, generic, extensible Rules Engine in Swift.
 
 ## Requirements
-- Xcode 14.0 (or newer)
+- Xcode 14.1 (or newer)
 - Swift 5.1 (or newer)
 
 ## Installation
@@ -47,7 +47,7 @@ Alternatively, if your project has a `Package.swift` file, you can add AEPRulesE
 
 ```
 dependencies: [
-    .package(url: "https://github.com/adobe/aepsdk-rulesengine-ios.git", .upToNextMajor(from: "1.2.0"))
+    .package(url: "https://github.com/adobe/aepsdk-rulesengine-ios.git", .upToNextMajor(from: "4.0.0"))
 ]
 ```
 

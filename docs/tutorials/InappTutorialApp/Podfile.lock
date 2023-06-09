@@ -1,22 +1,22 @@
 PODS:
-  - AEPAssurance (3.1.0):
-    - AEPCore (>= 3.1.0)
-    - AEPServices (>= 3.1.0)
-  - AEPCore (3.8.1):
-    - AEPRulesEngine (>= 1.2.2)
-    - AEPServices (>= 3.8.1)
-  - AEPEdge (1.6.0):
-    - AEPCore (>= 3.7.0)
-    - AEPEdgeIdentity (>= 1.2.0)
-  - AEPEdgeIdentity (1.2.0):
-    - AEPCore (>= 3.7.0)
-  - AEPMessaging (1.1.3):
-    - AEPCore (>= 3.8.1)
-    - AEPEdge (>= 1.5.0)
-    - AEPEdgeIdentity (>= 1.1.0)
-    - AEPServices (>= 3.8.1)
-  - AEPRulesEngine (1.2.2)
-  - AEPServices (3.8.1)
+  - AEPAssurance (4.0.0):
+    - AEPCore (>= 4.0.0)
+    - AEPServices (>= 4.0.0)
+  - AEPCore (4.0.0):
+    - AEPRulesEngine (>= 4.0.0)
+    - AEPServices (>= 4.0.0)
+  - AEPEdge (4.0.0):
+    - AEPCore (>= 4.0.0)
+    - AEPEdgeIdentity (>= 4.0.0)
+  - AEPEdgeIdentity (4.0.0):
+    - AEPCore (>= 4.0.0)
+  - AEPMessaging (4.0.0):
+    - AEPCore (>= 4.0.0)
+    - AEPEdge (>= 4.0.0)
+    - AEPEdgeIdentity (>= 4.0.0)
+    - AEPServices (>= 4.0.0)
+  - AEPRulesEngine (4.0.0)
+  - AEPServices (4.0.0)
 
 DEPENDENCIES:
   - AEPAssurance
@@ -36,14 +36,14 @@ SPEC REPOS:
     - AEPServices
 
 SPEC CHECKSUMS:
-  AEPAssurance: cea6c6b08a1ff6e5025f3ae79a68a1619c49cb4e
-  AEPCore: 460eb0a7cc85180a4b77ac204cf8a7711d1341b8
-  AEPEdge: e4364a56d358c517f7d4cef87570ac4e7652d3a2
-  AEPEdgeIdentity: 6bb2c1e62d48cdc988b4d492e8e6d563f0ced73d
-  AEPMessaging: 988ad59fa642c491aef4ebf2dc48283abe9fc722
-  AEPRulesEngine: 354b4374edefaf5bdfa3336ab9a41a07cbae4afe
-  AEPServices: 79b5e33655bfaff53e360a0f59e4b59077b75dd0
+  AEPAssurance: 4fa3138ddd7308c1f9923570f4d2b0b8526a916f
+  AEPCore: dd7cd69696c768c610e6adc0307032985a381c7e
+  AEPEdge: ffea1ada1e81c9cb239aac694efa5c8635b50c1f
+  AEPEdgeIdentity: c2396b9119abd6eb530ea11efc58ec019b163bd4
+  AEPMessaging: b5693ae07e7bfb27f375a2d86640b60989b8338f
+  AEPRulesEngine: 458450a34922823286ead045a0c2bd8c27e224c6
+  AEPServices: ca493988df250d84fda050124ff7549bcc43c65f
 
 PODFILE CHECKSUM: fec72743d065a283de7eb1314214547913a4cb6e
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1
