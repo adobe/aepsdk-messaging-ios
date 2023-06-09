@@ -15,7 +15,7 @@ import Foundation
 enum AssuranceConstants {
     static let EXTENSION_NAME = "com.adobe.assurance"
     static let FRIENDLY_NAME = "Assurance"
-    static let EXTENSION_VERSION = "3.1.0"
+    static let EXTENSION_VERSION = "4.0.0"
     static let LOG_TAG = FRIENDLY_NAME
     static let DEFAULT_ENVIRONMENT = AssuranceEnvironment.prod
 
@@ -70,7 +70,8 @@ enum AssuranceConstants {
         static let TIMESTAMP = "ACPExtensionEventTimestamp"
         static let NUMBER = "ACPExtensionEventNumber"
         static let UNIQUE_IDENTIFIER = "ACPExtensionEventUniqueIdentifier"
-        static let RESPONSE_IDENTIFIER = "ACPExtensionEventResponseIdentifier" // todo new key introduced : convey to UI team
+        static let RESPONSE_IDENTIFIER = "ACPExtensionEventResponseIdentifier" 
+        static let PARENT_IDENTIFIER = "ACPExtensionEventParentIdentifier"
     }
 
     enum EventDataKey {

@@ -601,7 +601,7 @@ limitations under the License.
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2021 Adobe
+   Copyright 2023 Adobe
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -806,7 +806,7 @@ limitations under the License.
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2021 Adobe
+   Copyright 2023 Adobe
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

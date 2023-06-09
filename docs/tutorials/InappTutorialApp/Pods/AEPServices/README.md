@@ -25,7 +25,7 @@ The `AEPCore`, `AEPServices`, and `AEPIdentity` extensions represent the foundat
 `AEPLifecycle` represents the Adobe Experience Platform SDK's `Lifecycle` extension that helps collect application Lifecycle metrics such as, application install or upgrade information, application launch and session information, device information, and any additional context data provided by the application developer. 
 
 ## Requirements
-- Xcode 11.0 (or newer)
+- Xcode 14.1 (or newer)
 - Swift 5.1 (or newer)
 
 ## Installation
@@ -70,7 +70,7 @@ Alternatively, if your project has a `Package.swift` file, you can add AEPCore d
 
 ```
 dependencies: [
-    .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "3.0.0"))
+    .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "4.0.0"))
 ]
 ```
 
@@ -80,7 +80,7 @@ Include `AEPCore.xcodeproj` in the targeted Xcode project and link all necessary
 
 ### Binaries
 
-Run `make archive` from the root directory to generate `.xcframeworks` for each module under the `build` folder. Drag and drop all `.xcframeworks` to your app target in Xcode.
+Run `make archive` or `make archive-ios` from the root directory to generate `.xcframeworks` for each module. The `make archive` command will generate XCFrameworks which support iOS and tvOS, while `make archive-ios` will generate XCFrameworks for iOS alone. Once complete, the XCFrameworks can be found in the `build` folder. Drag and drop all `.xcframeworks` to your app target in Xcode.
 
 ## Documentation
 
