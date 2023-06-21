@@ -37,19 +37,15 @@ extension Messaging {
             return
         }
 
-        // Add application specific tracking data
-        let applicationOpened = event.applicationOpened
-        xdmMap = addApplicationData(applicationOpened: applicationOpened, xdmData: xdmMap)
-
         // Add Adobe specific tracking data
         xdmMap = addAdobeData(event: event, xdmDict: xdmMap)
 
         // Creating xdm edge event data
         let xdmEventData: [String: Any] = [
-            MessagingConstants.XDM.Key.XDM: xdmMap,
-            MessagingConstants.XDM.Key.META: [
-                MessagingConstants.XDM.Key.COLLECT: [
-                    MessagingConstants.XDM.Key.DATASET_ID: datasetId
+            MessagingConstants.XDM.KEY: xdmMap,
+            MessagingConstants.XDM.Meta.KEY: [
+                MessagingConstants.XDM.Meta.COLLECT: [
+                    MessagingConstants.XDM.Meta.DATASET_ID: datasetId
                 ]
             ]
         ]
@@ -92,7 +88,7 @@ extension Messaging {
         ]
 
         // Creating xdm edge event data
-        let xdmEventData: [String: Any] = [MessagingConstants.XDM.Key.DATA: profileEventData]
+        let xdmEventData: [String: Any] = [MessagingConstants.Event.Data.Key.DATA: profileEventData]
         // Creating xdm edge event with request content source type
         let event = Event(name: MessagingConstants.Event.Name.PUSH_PROFILE_EDGE,
                           type: EventType.edge,
@@ -164,20 +160,6 @@ extension Messaging {
         return xdmDictResult
     }
 
-    /// Adding application data based on the application opened or not
-    /// - Parameters:
-    ///   - applicationOpened: `Bool` stating whether the application is opened or not
-    ///   - xdmData: `[AnyHashable: Any]` xdm data in which application data needs to be added
-    /// - Returns: `[String: Any]` which contains the application data
-    private func addApplicationData(applicationOpened: Bool, xdmData: [String: Any]) -> [String: Any] {
-        var xdmDataResult = xdmData
-        xdmDataResult[MessagingConstants.XDM.AdobeKeys.APPLICATION] = [
-            MessagingConstants.XDM.AdobeKeys.LAUNCHES: [
-                MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE: applicationOpened ? 1 : 0
-            ]
-        ]
-        return xdmDataResult
-    }
 
     /// Creates the xdm schema from event data
     /// - Parameters:
@@ -196,16 +178,19 @@ extension Messaging {
             return nil
         }
 
-        var xdmDict: [String: Any] = [MessagingConstants.XDM.Key.EVENT_TYPE: xdmEventType]
+        var xdmDict: [String: Any] = [MessagingConstants.XDM.EVENT_TYPE: xdmEventType]
         var pushNotificationTrackingDict: [String: Any] = [:]
-        var customActionDict: [String: Any] = [:]
+    
         if actionId != nil {
-            customActionDict[MessagingConstants.XDM.Key.ACTION_ID] = actionId
-            pushNotificationTrackingDict[MessagingConstants.XDM.Key.CUSTOM_ACTION] = customActionDict
+            var customActionDict: [String: Any] = [:]
+            customActionDict[MessagingConstants.XDM.PushTracking.CustomAction.ACTION_ID] = actionId
+            pushNotificationTrackingDict[MessagingConstants.XDM.PushTracking.CustomAction.KEY] = customActionDict
         }
-        pushNotificationTrackingDict[MessagingConstants.XDM.Key.PUSH_PROVIDER_MESSAGE_ID] = messageId
-        pushNotificationTrackingDict[MessagingConstants.XDM.Key.PUSH_PROVIDER] = getPushPlatform(forEvent: event)
-        xdmDict[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING] = pushNotificationTrackingDict
+        
+        pushNotificationTrackingDict[MessagingConstants.XDM.PushTracking.IS_LAUNCH] = event.applicationOpened
+        pushNotificationTrackingDict[MessagingConstants.XDM.PushTracking.PUSH_PROVIDER_MESSAGE_ID] = messageId
+        pushNotificationTrackingDict[MessagingConstants.XDM.PushTracking.PUSH_PROVIDER] = getPushPlatform(forEvent: event)
+        xdmDict[MessagingConstants.XDM.PushTracking.KEY] = pushNotificationTrackingDict
 
         return xdmDict
     }
@@ -318,7 +303,7 @@ extension Messaging {
         ]
 
         let xdm: [String: Any] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
+            MessagingConstants.XDM.EVENT_TYPE: eventType.toString(),
             MessagingConstants.XDM.AdobeKeys.EXPERIENCE: experience
         ]
 
@@ -336,7 +321,7 @@ extension Messaging {
         ]
 
         let xdmEventData: [String: Any] = [
-            MessagingConstants.XDM.Key.XDM: xdm,
+            MessagingConstants.XDM.KEY: xdm,
             MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory
         ]
 

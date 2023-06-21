@@ -131,9 +131,9 @@ public class Messaging: NSObject, Extension {
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
 
         let xdmData: [String: Any] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.IAM.EventType.PERSONALIZATION_REQUEST
+            MessagingConstants.XDM.EVENT_TYPE: MessagingConstants.XDM.IAM.EventType.PERSONALIZATION_REQUEST
         ]
-        eventData[MessagingConstants.XDM.Key.XDM] = xdmData
+        eventData[MessagingConstants.XDM.KEY] = xdmData
 
         let event = Event(name: MessagingConstants.Event.Name.RETRIEVE_MESSAGE_DEFINITIONS,
                           type: EventType.edge,

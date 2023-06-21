@@ -193,7 +193,7 @@ class EventPlusMessagingTests: XCTestCase {
             MessagingConstants.Event.Data.Key.MESSAGE_ID: mockMessagingId,
             MessagingConstants.Event.Data.Key.ACTION_ID: mockActionId,
             MessagingConstants.Event.Data.Key.APPLICATION_OPENED: mockApplicationOpened,
-            MessagingConstants.XDM.Key.ADOBE_XDM: [
+            MessagingConstants.Event.Data.Key.ADOBE_XDM: [
                 MessagingConstants.XDM.AdobeKeys.MIXINS: mockMixins,
                 MessagingConstants.XDM.AdobeKeys.CJM: mockCjm
             ]

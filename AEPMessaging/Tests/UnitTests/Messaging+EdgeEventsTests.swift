@@ -65,6 +65,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         var data: [String: Any] = [:]
         data[MessagingConstants.Event.Data.Key.EVENT_TYPE] = "testEventType"
         data[MessagingConstants.Event.Data.Key.MESSAGE_ID] = "testMessageId"
+        data[MessagingConstants.Event.Data.Key.APPLICATION_OPENED] = true
 
         if addAdobeXdm! {
             var adobeXdmData: [String: Any] = [:]
@@ -82,7 +83,7 @@ class MessagingEdgeEventsTests: XCTestCase {
                     "mixin": "present"
                 ]
             }
-            data[MessagingConstants.XDM.Key.ADOBE_XDM] = adobeXdmData
+            data[MessagingConstants.Event.Data.Key.ADOBE_XDM] = adobeXdmData
         }
 
         return data
@@ -123,13 +124,11 @@ class MessagingEdgeEventsTests: XCTestCase {
         let xdm = dispatchedEventData?["xdm"] as? [String: Any]
         let collect = meta?["collect"] as? [String: Any]
         XCTAssertEqual(MOCK_EVENT_DATASET, collect?["datasetId"] as? String)
-        let pushTracking = xdm?["pushNotificationTracking"] as? [String: Any]
-        let pushProvider = pushTracking?["pushProvider"] as? String
+        let pushTrackingData = xdm?[MessagingConstants.XDM.PushTracking.KEY] as? [String: Any]
+        let pushProvider = pushTrackingData?[MessagingConstants.XDM.PushTracking.PUSH_PROVIDER] as? String
         XCTAssertEqual("apns", pushProvider)
-        let pushProviderMessageId = pushTracking?["pushProviderMessageID"] as? String
+        let pushProviderMessageId = pushTrackingData?[MessagingConstants.XDM.PushTracking.PUSH_PROVIDER_MESSAGE_ID] as? String
         XCTAssertEqual("testMessageId", pushProviderMessageId)
-        let application = xdm?["application"] as? [String: Any]
-        XCTAssertEqual(0, (application?["launches"] as? [String: Any])?["value"] as? Int)
         let eventType = xdm?["eventType"] as? String
         XCTAssertEqual("testEventType", eventType)
     }
@@ -191,9 +190,9 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertNotNil(dispatchedEventData)
         XCTAssertEqual(2, dispatchedEventData?.count)
         let xdm = dispatchedEventData?["xdm"] as? [String: Any]
-        let pushTracking = xdm?["pushNotificationTracking"] as? [String: Any]
-        let customAction = pushTracking?[MessagingConstants.XDM.Key.CUSTOM_ACTION] as? [String: Any]
-        XCTAssertEqual("superActionId", customAction?[MessagingConstants.XDM.Key.ACTION_ID] as? String)
+        let pushTracking = xdm?[MessagingConstants.XDM.PushTracking.KEY] as? [String: Any]
+        let customAction = pushTracking?[MessagingConstants.XDM.PushTracking.CustomAction.KEY] as? [String: Any]
+        XCTAssertEqual("superActionId", customAction?[MessagingConstants.XDM.PushTracking.CustomAction.ACTION_ID] as? String)
     }
 
     func testHandleTrackingInfoNoDataset() throws {
@@ -271,7 +270,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
         XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
         let data = pushTokenEvent?.data
-        let xdm = data?[MessagingConstants.XDM.Key.DATA] as? [String: Any]
+        let xdm = data?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
         let pushDetailsArray = xdm?[MessagingConstants.XDM.Push.PUSH_NOTIFICATION_DETAILS] as? [[String: Any]]
         let pushDetails = pushDetailsArray?[0]
         XCTAssertEqual(5, pushDetails?.count)
@@ -306,11 +305,10 @@ class MessagingEdgeEventsTests: XCTestCase {
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
-        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
-        XCTAssertEqual(4, dispatchedXdmMap?.count)
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING])
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.EVENT_TYPE])
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION])
+        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.KEY] as? [String: Any]
+        XCTAssertEqual(3, dispatchedXdmMap?.count)
+        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.PushTracking.KEY])
+        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.EVENT_TYPE])
         let experienceDict = dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
         XCTAssertNotNil(experienceDict)
         let cjmDict = experienceDict?[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any]
@@ -339,11 +337,10 @@ class MessagingEdgeEventsTests: XCTestCase {
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
-        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
-        XCTAssertEqual(3, dispatchedXdmMap?.count)
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING])
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.EVENT_TYPE])
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION])
+        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.KEY] as? [String: Any]
+        XCTAssertEqual(2, dispatchedXdmMap?.count)
+        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.PushTracking.KEY])
+        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.EVENT_TYPE])
     }
 
     func testAddAdobeDataMixins() throws {
@@ -359,11 +356,10 @@ class MessagingEdgeEventsTests: XCTestCase {
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
-        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
-        XCTAssertEqual(4, dispatchedXdmMap?.count)
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING])
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.EVENT_TYPE])
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION])
+        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.KEY] as? [String: Any]
+        XCTAssertEqual(3, dispatchedXdmMap?.count)
+        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.PushTracking.KEY])
+        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.EVENT_TYPE])
         XCTAssertEqual("present", dispatchedXdmMap?["mixin"] as? String)
     }
 
@@ -380,11 +376,10 @@ class MessagingEdgeEventsTests: XCTestCase {
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
-        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
-        XCTAssertEqual(3, dispatchedXdmMap?.count)
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING])
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.EVENT_TYPE])
-        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION])
+        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.KEY] as? [String: Any]
+        XCTAssertEqual(2, dispatchedXdmMap?.count)
+        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.PushTracking.KEY])
+        XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.EVENT_TYPE])
     }
 
     func testAddApplicationDataAppOpened() throws {
@@ -400,12 +395,12 @@ class MessagingEdgeEventsTests: XCTestCase {
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
-        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
-        let applicationData = dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION] as? [String: Any]
-        XCTAssertNotNil(applicationData)
-        let launchesData = applicationData?[MessagingConstants.XDM.AdobeKeys.LAUNCHES] as? [String: Any]
-        XCTAssertNotNil(launchesData)
-        XCTAssertEqual(1, launchesData?[MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE] as? Int)
+        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.KEY] as? [String: Any]
+        let pushTrackingData = dispatchedXdmMap?[MessagingConstants.XDM.PushTracking.KEY] as? [String: Any]
+        XCTAssertNotNil(pushTrackingData)
+        let isLaunched = pushTrackingData?[MessagingConstants.XDM.PushTracking.IS_LAUNCH] as? Bool
+        XCTAssertNotNil(isLaunched)
+        XCTAssertTrue(isLaunched!)
     }
 
     func testAddApplicationDataAppNotOpened() throws {
@@ -421,12 +416,12 @@ class MessagingEdgeEventsTests: XCTestCase {
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let dispatchedEvent = mockRuntime.firstEvent
-        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
-        let applicationData = dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION] as? [String: Any]
-        XCTAssertNotNil(applicationData)
-        let launchesData = applicationData?[MessagingConstants.XDM.AdobeKeys.LAUNCHES] as? [String: Any]
-        XCTAssertNotNil(launchesData)
-        XCTAssertEqual(0, launchesData?[MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE] as? Int)
+        let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.KEY] as? [String: Any]
+        let pushTrackingData = dispatchedXdmMap?[MessagingConstants.XDM.PushTracking.KEY] as? [String: Any]
+        XCTAssertNotNil(pushTrackingData)
+        let isLaunched = pushTrackingData?[MessagingConstants.XDM.PushTracking.IS_LAUNCH] as? Bool
+        XCTAssertNotNil(isLaunched)
+        XCTAssertFalse(isLaunched!)
     }
     
     func testSendPropositionInteractionInteract() throws {

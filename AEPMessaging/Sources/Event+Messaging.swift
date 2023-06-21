@@ -300,6 +300,6 @@ extension Event {
     }
 
     var adobeXdm: [String: Any]? {
-        data?[MessagingConstants.XDM.Key.ADOBE_XDM] as? [String: Any]
+        data?[MessagingConstants.Event.Data.Key.ADOBE_XDM] as? [String: Any]
     }
 }

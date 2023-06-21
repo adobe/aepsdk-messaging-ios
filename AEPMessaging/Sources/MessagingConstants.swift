@@ -62,6 +62,7 @@ enum MessagingConstants {
                 static let ADOBE_XDM = "adobe_xdm"
                 static let REQUEST_EVENT_ID = "requestEventId"
                 static let IAM_HISTORY = "iam"
+                static let DATA = "data"
 
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
@@ -163,35 +164,36 @@ enum MessagingConstants {
     }
 
     enum XDM {
+        static let KEY = "xdm"
+        static let EVENT_TYPE = "eventType"
+        
+        enum Meta {
+            static let KEY = "meta"
+            static let COLLECT = "collect"
+            static let DATASET_ID = "datasetId"
+        }
+                
         enum AdobeKeys {
             static let _XDM = "_xdm"
             static let CJM = "cjm"
             static let MIXINS = "mixins"
             static let EXPERIENCE = "_experience"
             static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement"
-            static let MESSAGE_EXECUTION = "messageExecution"
-            static let MESSAGE_EXECUTION_ID = "messageExecutionID"
-            static let APPLICATION = "application"
-            static let LAUNCHES = "launches"
-            static let LAUNCHES_VALUE = "value"
             static let MESSAGE_PROFILE_JSON = "{\n   \"messageProfile\":" +
                 "{\n      \"channel\": {\n         \"_id\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
                 ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
         }
-
-        enum Key {
-            static let ADOBE_XDM = "adobe_xdm"
-            static let XDM = "xdm"
-            static let META = "meta"
-            static let COLLECT = "collect"
-            static let DATASET_ID = "datasetId"
-            static let ACTION_ID = "actionID"
-            static let CUSTOM_ACTION = "customAction"
+        
+        enum PushTracking {
+            static let KEY = "pushNotificationTracking"
+            static let IS_LAUNCH = "isLaunch"
             static let PUSH_PROVIDER_MESSAGE_ID = "pushProviderMessageID"
             static let PUSH_PROVIDER = "pushProvider"
-            static let EVENT_TYPE = "eventType"
-            static let PUSH_NOTIFICATION_TRACKING = "pushNotificationTracking"
-            static let DATA = "data"
+            
+            enum CustomAction {
+                static let KEY = "customAction"
+                static let ACTION_ID = "actionID"
+            }
         }
 
         enum IAM {

@@ -39,7 +39,7 @@ import UserNotifications
         // Creating event data with tracking informations
         var eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: messageId,
                                         MessagingConstants.Event.Data.Key.APPLICATION_OPENED: applicationOpened,
-                                        MessagingConstants.XDM.Key.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
+                                        MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
         if customActionId == nil {
             eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
         } else {
