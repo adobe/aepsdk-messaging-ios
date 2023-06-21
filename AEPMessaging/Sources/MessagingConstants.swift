@@ -166,13 +166,13 @@ enum MessagingConstants {
     enum XDM {
         static let KEY = "xdm"
         static let EVENT_TYPE = "eventType"
-        
+
         enum Meta {
             static let KEY = "meta"
             static let COLLECT = "collect"
             static let DATASET_ID = "datasetId"
         }
-                
+
         enum AdobeKeys {
             static let _XDM = "_xdm"
             static let CJM = "cjm"
@@ -183,13 +183,13 @@ enum MessagingConstants {
                 "{\n      \"channel\": {\n         \"_id\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
                 ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
         }
-        
+
         enum PushTracking {
             static let KEY = "pushNotificationTracking"
             static let IS_LAUNCH = "isLaunch"
             static let PUSH_PROVIDER_MESSAGE_ID = "pushProviderMessageID"
             static let PUSH_PROVIDER = "pushProvider"
-            
+
             enum CustomAction {
                 static let KEY = "customAction"
                 static let ACTION_ID = "actionID"

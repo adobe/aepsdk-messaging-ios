@@ -160,7 +160,6 @@ extension Messaging {
         return xdmDictResult
     }
 
-
     /// Creates the xdm schema from event data
     /// - Parameters:
     ///   - event: `Event` with push notification tracking information
@@ -180,13 +179,13 @@ extension Messaging {
 
         var xdmDict: [String: Any] = [MessagingConstants.XDM.EVENT_TYPE: xdmEventType]
         var pushNotificationTrackingDict: [String: Any] = [:]
-    
+
         if actionId != nil {
             var customActionDict: [String: Any] = [:]
             customActionDict[MessagingConstants.XDM.PushTracking.CustomAction.ACTION_ID] = actionId
             pushNotificationTrackingDict[MessagingConstants.XDM.PushTracking.CustomAction.KEY] = customActionDict
         }
-        
+
         pushNotificationTrackingDict[MessagingConstants.XDM.PushTracking.IS_LAUNCH] = event.applicationOpened
         pushNotificationTrackingDict[MessagingConstants.XDM.PushTracking.PUSH_PROVIDER_MESSAGE_ID] = messageId
         pushNotificationTrackingDict[MessagingConstants.XDM.PushTracking.PUSH_PROVIDER] = getPushPlatform(forEvent: event)
