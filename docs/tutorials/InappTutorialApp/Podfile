@@ -11,6 +11,6 @@ target 'InappTutorialApp' do
   pod 'AEPEdge'
   pod 'AEPEdgeIdentity'
   pod 'AEPMessaging'
-  pod 'AEPAssurance'
+  pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'quickConnect-qa'
 
 end

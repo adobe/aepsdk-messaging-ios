@@ -19,7 +19,7 @@ PODS:
   - AEPServices (4.0.0)
 
 DEPENDENCIES:
-  - AEPAssurance
+  - AEPAssurance (from `https://github.com/adobe/aepsdk-assurance-ios.git`, branch `quickConnect-qa`)
   - AEPCore
   - AEPEdge
   - AEPEdgeIdentity
@@ -27,13 +27,22 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - AEPAssurance
     - AEPCore
     - AEPEdge
     - AEPEdgeIdentity
     - AEPMessaging
     - AEPRulesEngine
     - AEPServices
+
+EXTERNAL SOURCES:
+  AEPAssurance:
+    :branch: quickConnect-qa
+    :git: https://github.com/adobe/aepsdk-assurance-ios.git
+
+CHECKOUT OPTIONS:
+  AEPAssurance:
+    :commit: 9b57d5fbc9d7eee6fdf00abe687fb24880ec6b57
+    :git: https://github.com/adobe/aepsdk-assurance-ios.git
 
 SPEC CHECKSUMS:
   AEPAssurance: 4fa3138ddd7308c1f9923570f4d2b0b8526a916f
@@ -44,6 +53,6 @@ SPEC CHECKSUMS:
   AEPRulesEngine: 458450a34922823286ead045a0c2bd8c27e224c6
   AEPServices: ca493988df250d84fda050124ff7549bcc43c65f
 
-PODFILE CHECKSUM: fec72743d065a283de7eb1314214547913a4cb6e
+PODFILE CHECKSUM: fdd19471424de600934393e3b5d7c821e05f6eab
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.12.0

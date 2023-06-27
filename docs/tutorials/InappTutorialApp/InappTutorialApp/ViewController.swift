@@ -9,6 +9,7 @@
 
 import UIKit
 import AEPCore
+import AEPAssurance
 
 class ViewController: UIViewController {
 
@@ -19,6 +20,10 @@ class ViewController: UIViewController {
 
     @IBAction func triggerInappMessage(_ : Any) {
         MobileCore.track(action: "50off", data: nil)
+    }
+    
+    @IBAction func startQuickConnectSession() {
+        Assurance.startSession()
     }
 }
 
