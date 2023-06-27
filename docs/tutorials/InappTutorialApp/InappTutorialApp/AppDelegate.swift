@@ -25,12 +25,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             AEPEdgeIdentity.Identity.self,
             Messaging.self
         ]
-        
         MobileCore.setLogLevel(.trace)
+        MobileCore.registerExtensions(extensions, {
+            MobileCore.configureWith(appId: "staging/1b50a869c4a2/be179250b601/launch-f4cf45c6399f-development")
+            
+        })
         
-        MobileCore.registerExtensions(extensions)
         
-        MobileCore.configureWith(appId: "3149c49c3910/ade9986818bd/launch-10fefb329b07-development")
         
         return true
     }
