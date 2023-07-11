@@ -43,13 +43,34 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cQr-r0-8ec">
-                                <rect key="frame" x="98" y="468" width="179" height="35"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cQr-r0-8ec">
+                                <rect key="frame" x="102" y="449" width="171" height="35"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="Start Quick Connect"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Start Quick Connect">
+                                    <fontDescription key="titleFontDescription" name="Futura-Medium" family="Futura" pointSize="16"/>
+                                </buttonConfiguration>
                                 <connections>
                                     <action selector="startQuickConnectSession" destination="BYZ-38-t0r" eventType="touchUpInside" id="97E-Ya-3KQ"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iCo-EZ-1B4">
+                                <rect key="frame" x="102" y="449" width="171" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Start Quick Connect">
+                                    <fontDescription key="titleFontDescription" name="Futura-Medium" family="Futura" pointSize="16"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="startQuickConnectSession" destination="BYZ-38-t0r" eventType="touchUpInside" id="Usi-1Z-7Qs"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f3K-2D-fX1">
+                                <rect key="frame" x="102" y="449" width="171" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Start Quick Connect">
+                                    <fontDescription key="titleFontDescription" name="Futura-Medium" family="Futura" pointSize="16"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="startQuickConnectSession" destination="BYZ-38-t0r" eventType="touchUpInside" id="9mq-hf-0PJ"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -57,14 +78,22 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="Do4-Ug-M7r" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="1kR-Ar-Riw"/>
+                            <constraint firstItem="f3K-2D-fX1" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="2rM-2S-Shz"/>
                             <constraint firstItem="kMl-aA-fl3" firstAttribute="centerX" secondItem="Do4-Ug-M7r" secondAttribute="centerX" id="4hu-h0-066"/>
+                            <constraint firstItem="iCo-EZ-1B4" firstAttribute="baseline" secondItem="cQr-r0-8ec" secondAttribute="baseline" id="9ML-U2-XwJ"/>
                             <constraint firstItem="kMl-aA-fl3" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="51" id="AdI-BZ-7eN"/>
+                            <constraint firstItem="iCo-EZ-1B4" firstAttribute="top" secondItem="Do4-Ug-M7r" secondAttribute="bottom" constant="22" id="FtD-PD-aXh"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="f3K-2D-fX1" secondAttribute="trailing" constant="102" id="JsS-Xa-GXn"/>
                             <constraint firstItem="ieH-FO-xyw" firstAttribute="top" secondItem="kMl-aA-fl3" secondAttribute="bottom" constant="8" id="MKy-L2-6SY"/>
                             <constraint firstItem="kMl-aA-fl3" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="68" id="PcC-Wm-jvl"/>
+                            <constraint firstItem="iCo-EZ-1B4" firstAttribute="leading" secondItem="f3K-2D-fX1" secondAttribute="leading" id="Pz8-R0-QEo"/>
                             <constraint firstItem="kMl-aA-fl3" firstAttribute="centerX" secondItem="ieH-FO-xyw" secondAttribute="centerX" id="QA4-UG-DUC"/>
                             <constraint firstItem="Do4-Ug-M7r" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="342" id="TeX-EU-q6M"/>
+                            <constraint firstItem="iCo-EZ-1B4" firstAttribute="leading" secondItem="cQr-r0-8ec" secondAttribute="leading" id="UUv-Y4-ckz"/>
+                            <constraint firstItem="f3K-2D-fX1" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="102" id="ddy-m8-h1J"/>
                             <constraint firstItem="kMl-aA-fl3" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="nTY-cr-B0P"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Do4-Ug-M7r" secondAttribute="trailing" constant="127" id="yBv-bM-0g6"/>
+                            <constraint firstItem="f3K-2D-fX1" firstAttribute="top" secondItem="Do4-Ug-M7r" secondAttribute="bottom" constant="22" id="zba-52-Om3"/>
                         </constraints>
                     </view>
                 </viewController>
