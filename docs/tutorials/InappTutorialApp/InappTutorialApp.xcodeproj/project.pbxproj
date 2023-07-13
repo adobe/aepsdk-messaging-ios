@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 55;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		24448E972A5E12C70077DEDD /* InappTutorialApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = InappTutorialApp.entitlements; sourceTree = "<group>"; };
 		24552E51291D9B23000744AD /* InappTutorialApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InappTutorialApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		24552E54291D9B23000744AD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		24552E56291D9B23000744AD /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -63,6 +64,7 @@
 		24552E53291D9B23000744AD /* InappTutorialApp */ = {
 			isa = PBXGroup;
 			children = (
+				24448E972A5E12C70077DEDD /* InappTutorialApp.entitlements */,
 				24552E54291D9B23000744AD /* AppDelegate.swift */,
 				24552E56291D9B23000744AD /* SceneDelegate.swift */,
 				24552E58291D9B23000744AD /* ViewController.swift */,
@@ -354,8 +356,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = InappTutorialApp/InappTutorialApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FKGEE875K4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = InappTutorialApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -382,8 +386,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = InappTutorialApp/InappTutorialApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FKGEE875K4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = InappTutorialApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

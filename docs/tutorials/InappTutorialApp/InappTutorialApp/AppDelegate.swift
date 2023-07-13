@@ -17,6 +17,8 @@ import AEPMessaging
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    let notificationCenter = UNUserNotificationCenter.current()
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         let extensions = [
@@ -31,7 +33,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
         })
         
-        
+        /* START NOTIFICATION CENTER CODE */
+        notificationCenter.delegate = self
+        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+        notificationCenter.requestAuthorization(options: options) {
+            didAllow, _ in
+            if !didAllow {
+                print("User has declined notifications")
+            }
+            
+            DispatchQueue.main.async {
+                application.registerForRemoteNotifications()
+            }
+        }        
+        /* END NOTIFICATION CENTER CODE */
         
         return true
     }
@@ -50,5 +65,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
 
+}
+
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        print("Token is - ")
+        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
+        let token = tokenParts.joined()
+        print(token)
+        MobileCore.setPushIdentifier(deviceToken)
+    }
+
+    func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError _: Error) {
+        MobileCore.setPushIdentifier(nil)
+    }
+    
+    func userNotificationCenter(_: UNUserNotificationCenter,
+                                willPresent _: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.alert, .sound])
+    }
+
+    func userNotificationCenter(_: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        // Perform the task associated with the action.
+        switch response.actionIdentifier {
+        case "ACCEPT_ACTION":
+            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: "ACCEPT_ACTION")
+
+        case "DECLINE_ACTION":
+            Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: "DECLINE_ACTION")
+
+        // Handle other actions…
+        default:
+            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: nil)
+        }
+
+        // Always call the completion handler when done.
+        completionHandler()
+    }
 }
 
