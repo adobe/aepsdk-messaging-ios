@@ -60,7 +60,6 @@ import UserNotifications
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     static func handleNotificationResponse(_ response: UNNotificationResponse) {
-
         hasApplicationOpenedForResponse(response, completion: { isAppOpened in
 
             let notificationRequest = response.notification.request
@@ -83,7 +82,6 @@ import UserNotifications
                               data: modifiedEventData)
             MobileCore.dispatch(event: event)
         })
-
     }
 
     /// Initiates a network call to retrieve remote In-App Message definitions.
@@ -105,7 +103,7 @@ import UserNotifications
             completion(false)
         default:
             // If customAction has been performed by the user,
-            // then examine the custom action option to check if the action has brought the app to foreground.
+            // then examine the registered custom action option to check if the action has brought the app to foreground.
             UNUserNotificationCenter.current().getNotificationCategories { categories in
                 for category in categories where category.identifier == response.notification.request.content.categoryIdentifier {
                     for action in category.actions where action.identifier == response.actionIdentifier {
@@ -133,8 +131,8 @@ import UserNotifications
             // This results in opening of the application.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
 
-            // Coming in next PR,
-            // TODO: add any notificaiton action url to the event data to be processed.
+        // Coming in next PR,
+        // TODO: add any notificaiton action url to the event data to be processed.
         case UNNotificationDismissActionIdentifier:
             // customActionId `UNNotificationDefaultActionIdentifier` indicates user has dismissed the notification by tapping "Clear" action button
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
@@ -148,5 +146,4 @@ import UserNotifications
 
         return modifiedEventData
     }
-
 }
