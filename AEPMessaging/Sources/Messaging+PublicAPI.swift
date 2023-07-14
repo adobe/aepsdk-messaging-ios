@@ -95,6 +95,18 @@ import UserNotifications
         MobileCore.dispatch(event: event)
     }
 
+    // MARK: - Private Helper Methods
+    
+    /// Determines whether the user's response to a notification has caused the application to open
+    ///
+    /// This method analyzes the registered categories and notification action buttons of the application
+    /// and determines if the application was opened based on the action performed by the user. The result is provided through the `completion` closure.
+    ///
+    /// - Parameters:
+    ///   - response: The user's response to a notification, represented by a `UNNotificationResponse` object.
+    ///   - completion: A closure that takes a `Bool` parameter indicating whether the application was opened or not. This closure is invoked asynchronously once the determination is made.
+    ///
+    /// - Note: The completion handler is invoked asynchronously, so any code relying on the result should be placed within the completion handler or called from there.
     private static func hasApplicationOpenedForResponse(_ response: UNNotificationResponse, completion: @escaping (Bool) -> Void) {
         switch response.actionIdentifier {
         case UNNotificationDefaultActionIdentifier:
@@ -116,13 +128,19 @@ import UserNotifications
                         }
                     }
                 }
-                // unlikely case
-                // if the custom actionID is not found in the registered categories return false
+                // Unlikely Case: If the custom actionID is not found in the registered categories, then return false
                 completion(false)
             }
         }
     }
 
+
+    /// Modifies the provided event data based on the user's response to a notification.
+    ///
+    /// - Parameters:
+    ///   - eventData: The original event data dictionary.
+    ///   - response: The user's response to a notification, represented by a `UNNotificationResponse` object.
+    /// - Returns: The modified event data dictionary.
     private static func addNotificationActionToEventData(_ eventData: [String: Any], _ response: UNNotificationResponse) -> [String: Any] {
         var modifiedEventData = eventData
         switch response.actionIdentifier {
