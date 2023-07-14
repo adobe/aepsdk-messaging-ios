@@ -96,7 +96,7 @@ import UserNotifications
     }
 
     // MARK: - Private Helper Methods
-    
+
     /// Determines whether the user's response to a notification has caused the application to open
     ///
     /// This method analyzes the registered categories and notification action buttons of the application
@@ -133,7 +133,6 @@ import UserNotifications
             }
         }
     }
-
 
     /// Modifies the provided event data based on the user's response to a notification.
     ///
