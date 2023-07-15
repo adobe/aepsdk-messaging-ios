@@ -183,6 +183,50 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         XCTAssertEqual("notForegroundActionId",flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
     }
     
+    func test_notificationOpen_willLaunchUrl() {
+        // This test simulates clicking on a notification action button for which notification options buttons are empty
+        // setup
+        setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
+        let response = prepareNotificationResponse(withUserInfo: ["adb_uri":"https://google.com"])!
+        var appSwitchExpectation = expectation(forNotification: NSNotification.Name.A, object: nil, handler: nil)
+        
+        // test
+        Messaging.handleNotificationResponse(response)
+        
+        // verify
+        waitForExpectations(timeout: 5, handler: nil)
+        
+        // verify
+        let events = getDispatchedEventsWith(type: EventType.messaging, source: EventSource.requestContent)
+        XCTAssertEqual(1, events.count)
+        let messagingEvent = events.first!
+        let flattenedEvent = messagingEvent.data?.flattening()
+        
+        // verify push tracking information
+        XCTAssertTrue(((flattenedEvent?["applicationOpened"] as? Bool) != nil))
+        XCTAssertEqual("https://google.com", flattenedEvent?["pushClickThroughUrl"] as? String)
+        XCTAssertEqual("pushTracking.applicationOpened", flattenedEvent?["eventType"] as? String)
+    }
+    
+    func test_notificationCustomAction_willNotLaunchUrl() {
+        // This test simulates clicking on a notification action button for which notification options buttons are empty
+        // setup
+        setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
+        let response = prepareNotificationResponse(withUserInfo: ["adb_uri":"https://google.com"], actionIdentifier: "ForegroundActionId", categoryIdentifier: "CategoryId")!
+        
+        // test
+        Messaging.handleNotificationResponse(response)
+        
+        // verify
+        let events = getDispatchedEventsWith(type: EventType.messaging, source: EventSource.requestContent)
+        XCTAssertEqual(1, events.count)
+        let messagingEvent = events.first!
+        let flattenedEvent = messagingEvent.data?.flattening()
+        
+        // verify push tracking information
+        XCTAssertNil(flattenedEvent?["pushClickThroughUrl"] as? String)
+    }
+    
     
     // MARK: - Private Helpers functions
     
