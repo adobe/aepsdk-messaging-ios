@@ -188,13 +188,9 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         // setup
         setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
         let response = prepareNotificationResponse(withUserInfo: ["adb_uri":"https://google.com"])!
-        var appSwitchExpectation = expectation(forNotification: NSNotification.Name.A, object: nil, handler: nil)
         
         // test
         Messaging.handleNotificationResponse(response)
-        
-        // verify
-        waitForExpectations(timeout: 5, handler: nil)
         
         // verify
         let events = getDispatchedEventsWith(type: EventType.messaging, source: EventSource.requestContent)
