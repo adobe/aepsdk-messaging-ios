@@ -96,7 +96,7 @@ import UserNotifications
     }
 
     // MARK: - Private Helper Methods
-    
+
     /// Determines whether the user's response to a notification has caused the application to open
     ///
     /// This method analyzes the registered categories and notification action buttons of the application
@@ -134,7 +134,6 @@ import UserNotifications
         }
     }
 
-
     /// Modifies the provided event data based on the user's response to a notification.
     ///
     /// - Parameters:
@@ -149,8 +148,10 @@ import UserNotifications
             // This results in opening of the application.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
 
-        // Coming in next PR,
-        // TODO: add any notificaiton action url to the event data to be processed.
+            // Add actionable URL to eventData if available
+            if let clickThroughURL = response.notification.request.content.userInfo[MessagingConstants.PushNotification.UserInfoKey.ACTION_URL] {
+                modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURL
+            }
         case UNNotificationDismissActionIdentifier:
             // customActionId `UNNotificationDefaultActionIdentifier` indicates user has dismissed the notification by tapping "Clear" action button
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
