@@ -10,20 +10,22 @@
  governing permissions and limitations under the License.
  */
 
-import AEPServices
 import Foundation
 
-@objc(AEPFeed)
+@objc(AEPSurface)
 @objcMembers
-public class Feed: NSObject, Codable {
-    /// Identification for this feed, represented by the AJO Surface URI used to retrieve it
-    public let surfaceUri: String
-
-    /// Array of `FeedItem` that are members of this `Feed`
-    public internal(set) var items: [FeedItem]
-
-    public init(surfaceUri: String, items: [FeedItem]) {
-        self.surfaceUri = surfaceUri
-        self.items = items
+public class Surface: NSObject {
+    /// Unique surface URI string
+    public let uri: String
+ 
+    var isValid: Bool {
+        guard URL(string: uri) != nil else {
+            return false
+        }
+        return true
+    }
+    
+    public init(path: String) {
+        self.uri = Bundle.main.mobileappSurface + MessagingConstants.PATH_SEPARATOR + path
     }
 }
