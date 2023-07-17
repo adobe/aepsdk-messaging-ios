@@ -16,27 +16,27 @@ import Foundation
 @objc(AEPInbound)
 @objcMembers
 public class Inbound: NSObject, Codable {
-     /// String representing a unique ID for this inbound item
+    /// String representing a unique ID for this inbound item
     public let uniqueId: String
- 
+
     /// Enum representing the inbound item type
     public let inboundType: InboundType
- 
+
     /// Content for this inbound item e.g. inapp html string, or feed item JSON
     public let content: String
- 
+
     /// Contains mime type for this inbound item
     public let contentType: String
- 
+
     /// Represents when this inbound item went live. Represented in seconds since January 1, 1970
     public let publishedDate: Int
-     
+
     /// Represents when this inbound item expires. Represented in seconds since January 1, 1970
     public let expiryDate: Int
- 
+
     /// Contains additional key-value pairs associated with this inbound item
     public let meta: [String: Any]?
- 
+
     enum CodingKeys: String, CodingKey {
         case id
         case inboundType
@@ -46,7 +46,7 @@ public class Inbound: NSObject, Codable {
         case expiryDate
         case meta
     }
-    
+
     /// Decode Inbound instance from the given decoder.
     /// - Parameter decoder: The decoder to read feed item data from.
     public required init(from decoder: Decoder) throws {
@@ -56,7 +56,7 @@ public class Inbound: NSObject, Codable {
         if let format = try? values.decode(String.self, forKey: .inboundType) {
             inboundType = InboundType(from: format)
         } else {
-            // TODO - use regex to deduce inbound content format from the content string
+            // TODO: - use regex to deduce inbound content format from the content string
             inboundType = .unknown
         }
         contentType = try values.decode(String.self, forKey: .contentType)
@@ -69,16 +69,17 @@ public class Inbound: NSObject, Codable {
             }
             return value
         }
-        
+
         let codableContent = try values.decode(AnyCodable.self, forKey: .content)
         if contentType == "application/json" {
             if
                 let jsonData = codableContent.dictionaryValue,
                 let encodedData = try? JSONSerialization.data(withJSONObject: jsonData),
-                let inboundContent = String(data: encodedData, encoding: .utf8) {
-                    content = inboundContent
-                    return
-                }
+                let inboundContent = String(data: encodedData, encoding: .utf8)
+            {
+                content = inboundContent
+                return
+            }
         } else {
             if let inboundContent = codableContent.stringValue {
                 content = inboundContent
@@ -89,7 +90,7 @@ public class Inbound: NSObject, Codable {
                                          DecodingError.Context(codingPath: decoder.codingPath,
                                                                debugDescription: "Inbound content is not of an expected type."))
     }
-    
+
     /// Encode Inbound instance into the given encoder.
     /// - Parameter encoder: The encoder to write feed item data to.
     public func encode(to encoder: Encoder) throws {
@@ -104,7 +105,7 @@ public class Inbound: NSObject, Codable {
         try? container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
     }
 }
- 
+
 public extension Inbound {
     // Decode content to a specific inbound type
     func decodeContent<T: Decodable>() -> T? {

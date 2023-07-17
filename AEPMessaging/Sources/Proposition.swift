@@ -18,30 +18,30 @@ import Foundation
 public class Proposition: NSObject, Codable {
     /// Unique proposition identifier
     public let uniqueId: String
- 
-     /// Scope string
+
+    /// Scope string
     public let scope: String
- 
+
     /// Scope details dictionary
     private var scopeDetails: [String: Any]
- 
+
     /// Array containing proposition decision items
     private let propositionItems: [PropositionItem]
-  
+
     public lazy var items: [PropositionItem] = {
         propositionItems.forEach {
             $0.proposition = self
         }
         return propositionItems
     }()
- 
+
     enum CodingKeys: String, CodingKey {
         case id
         case scope
         case scopeDetails
         case items
     }
-    
+
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 

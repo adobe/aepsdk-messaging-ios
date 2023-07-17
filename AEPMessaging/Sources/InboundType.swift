@@ -17,10 +17,10 @@ import Foundation
 public enum InboundType: Int, Codable {
     /// Unknown inbound type
     case unknown = 0
- 
+
     /// Feed Item
     case feed = 1
- 
+
     /// InApp
     case inapp = 2
 

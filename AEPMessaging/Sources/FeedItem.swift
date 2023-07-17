@@ -54,10 +54,10 @@ public class FeedItem: NSObject, Codable {
 
 // MARK: - Encodable support
 
-extension FeedItem {
+public extension FeedItem {
     /// Encode FeedItem instance into the given encoder.
     /// - Parameter encoder: The encoder to write feed item data to.
-    public func encode(to encoder: Encoder) throws {
+    func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(title, forKey: .title)
