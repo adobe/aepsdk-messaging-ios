@@ -16,9 +16,6 @@ import Foundation
 @objc(AEPFeedItem)
 @objcMembers
 public class FeedItem: NSObject, Codable {
-    /// String representing a unique ID for ths feed item
-    public let id: String
-
     /// Plain-text title for the feed item
     public let title: String
 
@@ -34,29 +31,12 @@ public class FeedItem: NSObject, Codable {
     /// Required if `actionUrl` is provided. Text to be used in title of button or link in feed item
     public let actionTitle: String?
 
-    /// Represents when this feed item went live. Represented in seconds since January 1, 1970
-    public let publishedDate: Int
-
-    /// Represents when this feed item expires. Represented in seconds since January 1, 1970
-    public let expiryDate: Int
-
-    /// Contains additional key-value pairs associated with this feed item
-    public let meta: [String: Any]?
-
-    /// Contains scope details for reporting
-    public internal(set) var scopeDetails: [String: Any]
-
     enum CodingKeys: String, CodingKey {
-        case id
         case title
         case body
         case imageUrl
         case actionUrl
         case actionTitle
-        case publishedDate
-        case expiryDate
-        case meta
-        case scopeDetails
     }
 
     /// Decode FeedItem instance from the given decoder.
@@ -64,71 +44,26 @@ public class FeedItem: NSObject, Codable {
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
-        id = try values.decode(String.self, forKey: .id)
         title = try values.decode(String.self, forKey: .title)
         body = try values.decode(String.self, forKey: .body)
         imageUrl = try? values.decode(String.self, forKey: .imageUrl)
         actionUrl = try? values.decode(String.self, forKey: .actionUrl)
         actionTitle = try? values.decode(String.self, forKey: .actionTitle)
-        publishedDate = try values.decode(Int.self, forKey: .publishedDate)
-        expiryDate = try values.decode(Int.self, forKey: .expiryDate)
-        let codableMeta = try? values.decode([String: AnyCodable].self, forKey: .meta)
-        meta = codableMeta?.mapValues {
-            guard let value = $0.value else {
-                return ""
-            }
-            return value
-        }
-        let anyCodableDetailsDict = try? values.decode([String: AnyCodable].self, forKey: .scopeDetails)
-        scopeDetails = AnyCodable.toAnyDictionary(dictionary: anyCodableDetailsDict) ?? [:]
     }
 }
 
 // MARK: - Encodable support
 
-extension FeedItem {
+public extension FeedItem {
     /// Encode FeedItem instance into the given encoder.
     /// - Parameter encoder: The encoder to write feed item data to.
-    public func encode(to encoder: Encoder) throws {
+    func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
-        try container.encode(id, forKey: .id)
         try container.encode(title, forKey: .title)
         try container.encode(body, forKey: .body)
         try? container.encode(imageUrl, forKey: .imageUrl)
         try? container.encode(actionUrl, forKey: .actionUrl)
         try? container.encode(actionTitle, forKey: .actionTitle)
-        try container.encode(publishedDate, forKey: .publishedDate)
-        try container.encode(expiryDate, forKey: .expiryDate)
-        try? container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
-        try container.encode(AnyCodable.from(dictionary: scopeDetails), forKey: .scopeDetails)
-    }
-
-    static func from(data: [String: Any]?, id: String, scopeDetails: [String: AnyCodable]? = nil) -> FeedItem? {
-        guard data != nil else {
-            return nil
-        }
-
-        var feedItemData = data ?? [:]
-        feedItemData["id"] = id
-
-        if let scopeDetails = scopeDetails,
-           !scopeDetails.isEmpty,
-           let scopeDetailsAnyDict = AnyCodable.toAnyDictionary(dictionary: scopeDetails) {
-            feedItemData["scopeDetails"] = scopeDetailsAnyDict
-        }
-
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: feedItemData as Any) else {
-            return nil
-        }
-        return try? JSONDecoder().decode(FeedItem.self, from: jsonData)
-    }
-
-    var surface: String? {
-        meta?[MessagingConstants.Event.Data.Key.FEED.SURFACE] as? String
-    }
-
-    var feedName: String? {
-        meta?[MessagingConstants.Event.Data.Key.FEED.FEED_NAME] as? String
     }
 }

@@ -10,16 +10,22 @@
  governing permissions and limitations under the License.
  */
 
-import AEPCore
 import Foundation
 
-extension RuleConsequence {
-    var isFeedItem: Bool {
-        guard let mobileParams = details[MessagingConstants.Event.Data.Key.FEED.MOBILE_PARAMETERS] as? [String: Any] else {
+@objc(AEPSurface)
+@objcMembers
+public class Surface: NSObject {
+    /// Unique surface URI string
+    public let uri: String
+
+    var isValid: Bool {
+        guard URL(string: uri) != nil else {
             return false
         }
+        return true
+    }
 
-        let type = mobileParams[MessagingConstants.Event.Data.Key.FEED.TYPE] as? String
-        return type == MessagingConstants.Event.Data.Values.FEED.MESSAGE_FEED
+    public init(path: String) {
+        uri = Bundle.main.mobileappSurface + MessagingConstants.PATH_SEPARATOR + path
     }
 }

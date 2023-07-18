@@ -10,16 +10,15 @@
  governing permissions and limitations under the License.
  */
 
-import AEPCore
 import Foundation
 
-extension RuleConsequence {
-    var isFeedItem: Bool {
-        guard let mobileParams = details[MessagingConstants.Event.Data.Key.FEED.MOBILE_PARAMETERS] as? [String: Any] else {
-            return false
-        }
+// MARK: Bundle extension
 
-        let type = mobileParams[MessagingConstants.Event.Data.Key.FEED.TYPE] as? String
-        return type == MessagingConstants.Event.Data.Values.FEED.MESSAGE_FEED
+extension Bundle {
+    var mobileappSurface: String {
+        guard let bundleIdentifier = Self.main.bundleIdentifier, !bundleIdentifier.isEmpty else {
+            return "unknown"
+        }
+        return MessagingConstants.XDM.IAM.SURFACE_BASE + bundleIdentifier
     }
 }

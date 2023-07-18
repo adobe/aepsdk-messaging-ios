@@ -45,8 +45,10 @@ class FeedRulesEngine {
         for consequence in consequences {
             let details = consequence.details as [String: Any]
 
-            if let mobileParams = details[MessagingConstants.Event.Data.Key.FEED.MOBILE_PARAMETERS] as? [String: Any],
-               let feedItem = FeedItem.from(data: mobileParams, id: consequence.id) {
+            if
+                let mobileParams = details[MessagingConstants.Event.Data.Key.FEED.MOBILE_PARAMETERS] as? [String: Any],
+                let feedItem = FeedItem.from(data: mobileParams, id: consequence.id)
+            {
                 let surfacePath = feedItem.surface ?? ""
 
                 // find the feed to insert the feed item else create a new feed for it
