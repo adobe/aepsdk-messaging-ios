@@ -200,7 +200,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         
         // verify push tracking information
         XCTAssertTrue(((flattenedEvent?["applicationOpened"] as? Bool) != nil))
-        XCTAssertEqual("https://google.com", flattenedEvent?["pushClickThroughUrl"] as? String)
+        XCTAssertEqual("https://google.com", flattenedEvent?["clickThroughUrl"] as? String)
         XCTAssertEqual("pushTracking.applicationOpened", flattenedEvent?["eventType"] as? String)
     }
     
