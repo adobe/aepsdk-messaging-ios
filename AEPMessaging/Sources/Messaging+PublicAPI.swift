@@ -70,7 +70,7 @@ import UserNotifications
 
     // MARK: Message Feed
 
-    /// Dispatches an event to fetch proposwitions for the provided surfaces from remote.
+    /// Dispatches an event to fetch propositions for the provided surfaces from remote.
     /// - Parameter surfaces: An array of surface objects.
     static func updatePropositionsForSurfaces(_ surfaces: [Surface]) {
         let validSurfaces = surfaces
