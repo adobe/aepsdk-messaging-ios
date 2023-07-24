@@ -18,7 +18,7 @@ extension RuleConsequence {
         guard let mobileParams = details[MessagingConstants.Event.Data.Key.FEED.MOBILE_PARAMETERS] as? [String: Any] else {
             return false
         }
-        
+
         let type = mobileParams[MessagingConstants.Event.Data.Key.FEED.TYPE] as? String
         return type == MessagingConstants.Event.Data.Values.FEED.MESSAGE_FEED
     }

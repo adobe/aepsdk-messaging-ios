@@ -193,10 +193,10 @@ public class Messaging: NSObject, Extension {
             dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
             return
         }
-        
+
         let feeds = feedRulesEngine.evaluate(event: event)
-        self.mergeFeedsInMemory(feeds ?? [:], requestedSurfaces: requestedSurfaces)
-        let requestedFeeds = self.inMemoryFeeds
+        mergeFeedsInMemory(feeds ?? [:], requestedSurfaces: requestedSurfaces)
+        let requestedFeeds = inMemoryFeeds
             .filter { requestedSurfaces.contains($0.key) }
             .reduce([String: Feed]()) {
                 var result = $0
@@ -216,7 +216,7 @@ public class Messaging: NSObject, Extension {
             source: EventSource.responseContent,
             data: eventData
         )
-        self.dispatch(event: responseEvent)
+        dispatch(event: responseEvent)
     }
 
     private var appSurface: String {
@@ -250,7 +250,7 @@ public class Messaging: NSObject, Extension {
 
         if rules.first?.consequences.first?.isFeedItem == true {
             let feeds = feedRulesEngine.evaluate(event: event) ?? [:]
-            self.mergeFeedsInMemory(feeds, requestedSurfaces: self.requestedSurfacesforEventId[self.lastProcessedRequestEventId] ?? [])
+            mergeFeedsInMemory(feeds, requestedSurfaces: requestedSurfacesforEventId[lastProcessedRequestEventId] ?? [])
             let requestedFeeds = feeds
                 .reduce([String: Feed]()) {
                     var result = $0
@@ -268,7 +268,7 @@ public class Messaging: NSObject, Extension {
                               type: EventType.messaging,
                               source: EventSource.notification,
                               data: eventData)
-            self.dispatch(event: event)
+            dispatch(event: event)
         }
     }
 
@@ -298,9 +298,7 @@ public class Messaging: NSObject, Extension {
         let message = Message(parent: self, event: event)
         message.propositionInfo = propositionInfoForMessageId(message.id)
         if message.propositionInfo == nil {
-            // swiftlint:disable line_length
             Log.warning(label: MessagingConstants.LOG_TAG, "Preparing to show a message that does not contain information necessary for tracking with Adobe Journey Optimizer. If you are spoofing this message from the AJO authoring UI or from Assurance, ignore this message.")
-            // swiftlint:enable line_length
         }
 
         message.trigger()
@@ -366,7 +364,7 @@ public class Messaging: NSObject, Extension {
             // get identityMap from the edge identity xdm shared state
             guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available" +
-                                "from edge identity xdm shared state - '\(event.id.uuidString)'.")
+                    "from edge identity xdm shared state - '\(event.id.uuidString)'.")
                 return
             }
 
@@ -477,6 +475,8 @@ public class Messaging: NSObject, Extension {
         return rules
     }
 
+    // swiftlint:enable function_body_length
+
     private func isValidSurface(_ surfaceUri: String) -> Bool {
         guard URL(string: surfaceUri) != nil else {
             return false
@@ -496,34 +496,34 @@ public class Messaging: NSObject, Extension {
     }
 
     #if DEBUG
-    /// For testing purposes only
-    internal func propositionInfoCount() -> Int {
-        propositionInfo.count
-    }
+        /// For testing purposes only
+        internal func propositionInfoCount() -> Int {
+            propositionInfo.count
+        }
 
-    /// For testing purposes only
-    internal func inMemoryPropositionsCount() -> Int {
-        inMemoryPropositions.count
-    }
+        /// For testing purposes only
+        internal func inMemoryPropositionsCount() -> Int {
+            inMemoryPropositions.count
+        }
 
-    /// For testing purposes only
-    internal func inMemoryFeedsCount() -> Int {
-        inMemoryFeeds.count
-    }
+        /// For testing purposes only
+        internal func inMemoryFeedsCount() -> Int {
+            inMemoryFeeds.count
+        }
 
-    /// Used for testing only
-    internal func setMessagesRequestEventId(_ newId: String) {
-        messagesRequestEventId = newId
-    }
+        /// Used for testing only
+        internal func setMessagesRequestEventId(_ newId: String) {
+            messagesRequestEventId = newId
+        }
 
-    /// Used for testing only
-    internal func setLastProcessedRequestEventId(_ newId: String) {
-        lastProcessedRequestEventId = newId
-    }
+        /// Used for testing only
+        internal func setLastProcessedRequestEventId(_ newId: String) {
+            lastProcessedRequestEventId = newId
+        }
 
-    /// Used for testing only
-    internal func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [String]) {
-        requestedSurfacesforEventId[eventId] = expectedSurfaces
-    }
+        /// Used for testing only
+        internal func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [String]) {
+            requestedSurfacesforEventId[eventId] = expectedSurfaces
+        }
     #endif
 }

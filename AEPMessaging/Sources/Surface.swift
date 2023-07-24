@@ -17,15 +17,15 @@ import Foundation
 public class Surface: NSObject {
     /// Unique surface URI string
     public let uri: String
- 
+
     var isValid: Bool {
         guard URL(string: uri) != nil else {
             return false
         }
         return true
     }
-    
+
     public init(path: String) {
-        self.uri = Bundle.main.mobileappSurface + MessagingConstants.PATH_SEPARATOR + path
+        uri = Bundle.main.mobileappSurface + MessagingConstants.PATH_SEPARATOR + path
     }
 }

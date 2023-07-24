@@ -18,26 +18,26 @@ import Foundation
 public class PropositionItem: NSObject, Codable {
     /// Unique PropositionItem identifier
     public let uniqueId: String
- 
+
     /// PropositionItem schema string
     public let schema: String
- 
+
     /// PropositionItem data content e.g. html or plain-text string or string containing image URL, JSON string
     public let content: String
- 
+
     /// Weak reference to Proposition instance
     weak var proposition: Proposition?
- 
+
     enum CodingKeys: String, CodingKey {
         case id
         case schema
         case data
     }
-    
+
     enum DataKeys: String, CodingKey {
         case content
     }
-    
+
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         uniqueId = try container.decode(String.self, forKey: .id)
@@ -62,7 +62,7 @@ public class PropositionItem: NSObject, Codable {
                                          DecodingError.Context(codingPath: decoder.codingPath,
                                                                debugDescription: "PropositionItem content is not of an expected type."))
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
@@ -73,11 +73,11 @@ public class PropositionItem: NSObject, Codable {
         try data.encode(content, forKey: .content)
     }
 }
- 
+
 public extension PropositionItem {
-    // TODO - Track offer interaction
+    // TODO: - Track offer interaction
 //    func track(interaction: PropositionEventType) {}
- 
+
     // Decode data content to generic inbound
     func decodeContent() -> Inbound? {
         guard
