@@ -45,7 +45,7 @@ enum MessagingConstants {
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
 
-            static let UPDATE_MESSAGE_FEEDS = "Update message feeds"
+            static let UPDATE_PROPOSITIONS = "Update propositions"
             static let GET_MESSAGE_FEEDS = "Get message feeds"
             static let MESSAGE_FEEDS_RESPONSE = "Message feeds response"
             static let MESSAGE_FEEDS_NOTIFICATION = "Message feeds notification"
@@ -70,7 +70,7 @@ enum MessagingConstants {
                 static let ADOBE_XDM = "adobe_xdm"
                 static let REQUEST_EVENT_ID = "requestEventId"
                 static let IAM_HISTORY = "iam"
-                static let UPDATE_FEEDS = "updatefeeds"
+                static let UPDATE_PROPOSITIONS = "updatepropositions"
                 static let GET_FEEDS = "getfeeds"
                 static let SURFACES = "surfaces"
                 static let FEEDS = "feeds"
