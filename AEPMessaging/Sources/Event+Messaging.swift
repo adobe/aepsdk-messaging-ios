@@ -259,18 +259,25 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool ?? false
     }
 
-    // MARK: - Update Feed Messages Public API Event
+    // MARK: - Update Propositions Public API Event
 
-    var isUpdateFeedsEvent: Bool {
-        isMessagingType && isRequestContentSource && updateFeeds
+    var isUpdatePropositionsEvent: Bool {
+        isMessagingType && isRequestContentSource && updatePropositions
     }
 
-    var surfaces: [String]? {
-        data?[MessagingConstants.Event.Data.Key.SURFACES] as? [String]
+    var surfaces: [Surface]? {
+        guard
+            let surfacesData = data?[MessagingConstants.Event.Data.Key.SURFACES] as? [String: Any],
+            let jsonData = try? JSONSerialization.data(withJSONObject: surfacesData)
+        else {
+            return nil
+        }
+
+        return try? JSONDecoder().decode([Surface].self, from: jsonData)
     }
 
-    private var updateFeeds: Bool {
-        data?[MessagingConstants.Event.Data.Key.UPDATE_FEEDS] as? Bool ?? false
+    private var updatePropositions: Bool {
+        data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool ?? false
     }
 
     // MARK: - Get Feed Messages Public API Event

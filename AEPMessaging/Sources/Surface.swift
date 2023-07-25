@@ -10,16 +10,19 @@
  governing permissions and limitations under the License.
  */
 
+import AEPServices
 import Foundation
 
 @objc(AEPSurface)
 @objcMembers
-public class Surface: NSObject {
+public class Surface: NSObject, Codable {
     /// Unique surface URI string
     public let uri: String
 
     var isValid: Bool {
         guard URL(string: uri) != nil else {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Invalid surface URI found \(uri).")
             return false
         }
         return true

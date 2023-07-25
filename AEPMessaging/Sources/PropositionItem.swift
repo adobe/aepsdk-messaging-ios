@@ -47,20 +47,20 @@ public class PropositionItem: NSObject, Codable {
         let codableContent = try nestedContainer.decode(AnyCodable.self, forKey: .content)
         if let contentString = codableContent.stringValue {
             content = contentString
-            return
-        }
-
-        if
-            let jsonData = codableContent.dictionaryValue,
-            let encodedData = try? JSONSerialization.data(withJSONObject: jsonData),
-            let contentString = String(data: encodedData, encoding: .utf8)
-        {
+        } else if let jsonData = codableContent.dictionaryValue {
+            guard
+                let encodedData = try? JSONSerialization.data(withJSONObject: jsonData),
+                let contentString = String(data: encodedData, encoding: .utf8)
+            else {
+                throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath,
+                                                                        debugDescription: "PropositionItem content dictionary is invalid."))
+            }
             content = contentString
-            return
+        } else {
+            throw DecodingError.typeMismatch(PropositionItem.self,
+                                             DecodingError.Context(codingPath: decoder.codingPath,
+                                                                   debugDescription: "PropositionItem content is not of an expected type."))
         }
-        throw DecodingError.typeMismatch(PropositionItem.self,
-                                         DecodingError.Context(codingPath: decoder.codingPath,
-                                                               debugDescription: "PropositionItem content is not of an expected type."))
     }
 
     public func encode(to encoder: Encoder) throws {

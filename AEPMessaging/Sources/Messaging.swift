@@ -122,38 +122,36 @@ public class Messaging: NSObject, Extension {
         rulesEngine.process(event: event)
     }
 
-    /// Generates and dispatches an event prompting the Edge extension to fetch in-app or feed messages.
+    /// Generates and dispatches an event prompting the Edge extension to fetch in-app or feed messages or code-based experiences.
     ///
     /// The surface URIs used in the request are generated using the `bundleIdentifier` for the app.
     /// If the `bundleIdentifier` is unavailable, calling this method will do nothing.
     ///
     /// - Parameter surfacePaths: an array of surface path strings for fetching feed messages, if available.
-    private func fetchMessages(for surfacePaths: [String]? = nil) {
-        guard appSurface != "unknown" else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to update in-app or feed messages, cannot read the bundle identifier.")
-            return
-        }
+    private func fetchMessages(for surfaces: [Surface]? = nil) {
+        var requestedSurfaceUris: [String] = []
+        if let surfaces = surfaces {
+            requestedSurfaceUris = surfaces
+                .filter { $0.isValid }
+                .compactMap { $0.uri }
 
-        var requestedSurfaces: [String] = []
-        if let surfacePaths = surfacePaths {
-            requestedSurfaces = surfacePaths
-                .filter { !$0.isEmpty }
-                .map { appSurface + MessagingConstants.PATH_SEPARATOR + $0 }
-                .filter { isValidSurface($0) }
-
-            if requestedSurfaces.isEmpty {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Unable to update feed messages, no valid surface paths found.")
+            guard !requestedSurfaceUris.isEmpty else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Unable to update messages, no valid surfaces found.")
                 return
             }
         } else {
-            requestedSurfaces = [appSurface]
+            guard appSurface != "unknown" else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to update messages, cannot read the bundle identifier.")
+                return
+            }
+            requestedSurfaceUris = [appSurface]
         }
 
         var eventData: [String: Any] = [:]
 
         let messageRequestData: [String: Any] = [
             MessagingConstants.XDM.IAM.Key.PERSONALIZATION: [
-                MessagingConstants.XDM.IAM.Key.SURFACES: requestedSurfaces
+                MessagingConstants.XDM.IAM.Key.SURFACES: requestedSurfaceUris
             ]
         ]
         eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
@@ -171,33 +169,32 @@ public class Messaging: NSObject, Extension {
         // equal to `requestEventId` in aep response handles
         // used for ensuring that the messaging extension is responding to the correct handle
         messagesRequestEventId = event.id.uuidString
-        requestedSurfacesforEventId[messagesRequestEventId] = requestedSurfaces
+        requestedSurfacesforEventId[messagesRequestEventId] = requestedSurfaceUris
 
         // send event
         runtime.dispatch(event: event)
     }
 
-    private func retrieveMessages(for surfacePaths: [String], event: Event) {
+    private func retrieveMessages(for surfaces: [Surface], event: Event) {
         guard appSurface != "unknown" else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve feed messages, cannot read the bundle identifier.")
             return
         }
 
-        let requestedSurfaces = surfacePaths
-            .filter { !$0.isEmpty }
-            .map { appSurface + MessagingConstants.PATH_SEPARATOR + $0 }
-            .filter { isValidSurface($0) }
+        let requestedSurfaceUris = surfaces
+            .filter { $0.isValid }
+            .compactMap { $0.uri }
 
-        if requestedSurfaces.isEmpty {
+        guard !requestedSurfaceUris.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve feed messages, no valid surface paths found.")
             dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
             return
         }
 
         let feeds = feedRulesEngine.evaluate(event: event)
-        mergeFeedsInMemory(feeds ?? [:], requestedSurfaces: requestedSurfaces)
+        mergeFeedsInMemory(feeds ?? [:], requestedSurfaces: requestedSurfaceUris)
         let requestedFeeds = inMemoryFeeds
-            .filter { requestedSurfaces.contains($0.key) }
+            .filter { requestedSurfaceUris.contains($0.key) }
             .reduce([String: Feed]()) {
                 var result = $0
                 if $1.key.hasPrefix(self.appSurface) {
@@ -220,11 +217,7 @@ public class Messaging: NSObject, Extension {
     }
 
     private var appSurface: String {
-        guard let bundleIdentifier = Bundle.main.bundleIdentifier, !bundleIdentifier.isEmpty else {
-            return "unknown"
-        }
-
-        return MessagingConstants.XDM.IAM.SURFACE_BASE + bundleIdentifier
+        Bundle.main.mobileappSurface
     }
 
     /// Validates that the received event contains in-app message definitions and loads them in the `MessagingRulesEngine`.
@@ -325,9 +318,9 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // handle an event to request message feeds from the remote
-        if event.isUpdateFeedsEvent {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update message feed definitions from the remote.")
+        // handle an event to request propositions from the remote
+        if event.isUpdatePropositionsEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update propositions from the remote.")
             fetchMessages(for: event.surfaces ?? [])
             return
         }
@@ -476,14 +469,6 @@ public class Messaging: NSObject, Extension {
     }
 
     // swiftlint:enable function_body_length
-
-    private func isValidSurface(_ surfaceUri: String) -> Bool {
-        guard URL(string: surfaceUri) != nil else {
-            return false
-        }
-
-        return true
-    }
 
     private func mergeFeedsInMemory(_ feeds: [String: Feed], requestedSurfaces: [String]) {
         for surface in requestedSurfaces {
