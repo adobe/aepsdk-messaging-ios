@@ -259,7 +259,7 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool ?? false
     }
 
-    // MARK: - Update Feed Messages Public API Event
+    // MARK: - Update Propositions Public API Event
 
     var isUpdatePropositionsEvent: Bool {
         isMessagingType && isRequestContentSource && updatePropositions

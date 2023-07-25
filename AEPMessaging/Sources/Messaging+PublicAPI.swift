@@ -74,7 +74,7 @@ import UserNotifications
     /// - Parameter surfaces: An array of surface objects.
     static func updatePropositionsForSurfaces(_ surfaces: [Surface]) {
         let validSurfaces = surfaces
-            .filter { !$0.isValid }
+            .filter { $0.isValid }
 
         guard !validSurfaces.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG,

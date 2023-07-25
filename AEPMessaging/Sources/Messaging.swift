@@ -135,7 +135,7 @@ public class Messaging: NSObject, Extension {
                 .filter { $0.isValid }
                 .compactMap { $0.uri }
 
-            if requestedSurfaceUris.isEmpty {
+            guard !requestedSurfaceUris.isEmpty else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Unable to update messages, no valid surfaces found.")
                 return
             }
@@ -185,7 +185,7 @@ public class Messaging: NSObject, Extension {
             .filter { $0.isValid }
             .compactMap { $0.uri }
 
-        if requestedSurfaceUris.isEmpty {
+        guard !requestedSurfaceUris.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve feed messages, no valid surface paths found.")
             dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
             return
