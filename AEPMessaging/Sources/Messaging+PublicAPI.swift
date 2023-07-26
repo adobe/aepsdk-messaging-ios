@@ -21,7 +21,7 @@ import UserNotifications
     ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
     ///
-    @available(*, deprecated, message: "This method is deprecated. Use Messaging.handleNotificationResponse(response) instead to automatically track application open and handle notification actions.")
+    @available(*, deprecated, message: "This method is deprecated. Use Messaging.handleNotificationResponse(:) instead to automatically track application open and handle notification actions.")
     @objc(handleNotificationResponse:applicationOpened:withCustomActionId:)
     static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
         let notificationRequest = response.notification.request
@@ -29,7 +29,7 @@ import UserNotifications
         // Checking if the message has the optional xdm key
         let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any]
         if xdm == nil {
-            Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Optional XDM specific fields are missing from push notification response.")
         }
 
         let messageId = notificationRequest.identifier
@@ -57,8 +57,7 @@ import UserNotifications
     }
 
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
-    /// - Parameters:
-    ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
+    /// - Parameter response: UNNotificationResponse object which contains the payload and xdm informations.
     static func handleNotificationResponse(_ response: UNNotificationResponse) {
         hasApplicationOpenedForResponse(response, completion: { isAppOpened in
 
@@ -67,7 +66,7 @@ import UserNotifications
             // Checking if the message has the optional xdm key
             let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any]
             if xdm == nil {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Optional XDM specific fields are missing from push notification interaction.")
+                Log.debug(label: MessagingConstants.LOG_TAG, "Optional XDM specific fields are missing from push notification response.")
             }
 
             let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
@@ -151,12 +150,13 @@ import UserNotifications
         // Coming in next PR,
         // TODO: add any notificaiton action url to the event data to be processed.
         case UNNotificationDismissActionIdentifier:
-            // customActionId `UNNotificationDefaultActionIdentifier` indicates user has dismissed the notification by tapping "Clear" action button
+            // customActionId `UNNotificationDefaultActionIdentifier` indicates user has dismissed the
+            // notification by tapping "Clear" action button.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
             modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] = "Dismiss"
         default:
-            // If customActionId is none of the default values. This means
-            // This results in opening of the application.
+            // If customActionId is none of the default values.
+            // This indicates that a custom action on a notification is taken by the user.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
             modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] = response.actionIdentifier
         }
