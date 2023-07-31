@@ -147,8 +147,10 @@ import UserNotifications
             // This results in opening of the application.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
 
-        // Coming in next PR,
-        // TODO: add any notificaiton action url to the event data to be processed.
+            // Add actionable URL to eventData if available
+            if let clickThroughURL = response.notification.request.content.userInfo[MessagingConstants.PushNotification.UserInfoKey.ACTION_URL] {
+                modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURL
+            }
         case UNNotificationDismissActionIdentifier:
             // customActionId `UNNotificationDefaultActionIdentifier` indicates user has dismissed the
             // notification by tapping "Clear" action button.
