@@ -275,7 +275,7 @@ public class Messaging: NSObject, Extension {
         if event.isMessagingRequestContentEvent {
             if let clickThroughUrl = event.pushClickThroughUrl {
                 DispatchQueue.main.async {
-                    UIApplication.shared.open(clickThroughUrl)
+                    ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
                 }
             }
             handleTrackingInfo(event: event)
