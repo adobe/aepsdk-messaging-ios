@@ -22,7 +22,7 @@ extension RuleConsequence {
         type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE || detailType == MessagingConstants.Event.Data.Key.Inbound.IAM
     }
     
-    var detailType: String {
+    private var detailType: String {
         details[MessagingConstants.Event.Data.Key.TYPE] as? String ?? ""
     }
 }

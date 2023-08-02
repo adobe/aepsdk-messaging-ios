@@ -100,14 +100,13 @@ public class Inbound: NSObject, Codable {
 
 public extension Inbound {
     static func from(consequenceDetail: [String: Any]?, id: String) -> Inbound? {
-        guard let consequenceDetail = consequenceDetail else {
+        guard var consequenceDetail = consequenceDetail else {
             return nil
         }
 
-        var consequenceDetailData = consequenceDetail
-        consequenceDetailData["id"] = id
+        consequenceDetail["id"] = id
 
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: consequenceDetailData as Any) else {
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: consequenceDetail as Any) else {
             return nil
         }
         return try? JSONDecoder().decode(Inbound.self, from: jsonData)
