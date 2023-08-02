@@ -25,13 +25,13 @@ public enum MessagingEdgeEventType: Int {
     public func toString() -> String {
         switch self {
         case .inappDismiss:
-            return MessagingConstants.XDM.IAM.EventType.DISMISS
+            return MessagingConstants.XDM.Inbound.EventType.DISMISS
         case .inappTrigger:
-            return MessagingConstants.XDM.IAM.EventType.TRIGGER
+            return MessagingConstants.XDM.Inbound.EventType.TRIGGER
         case .inappInteract:
-            return MessagingConstants.XDM.IAM.EventType.INTERACT
+            return MessagingConstants.XDM.Inbound.EventType.INTERACT
         case .inappDisplay:
-            return MessagingConstants.XDM.IAM.EventType.DISPLAY
+            return MessagingConstants.XDM.Inbound.EventType.DISPLAY
         case .pushCustomAction:
             return MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
         case .pushApplicationOpened:
@@ -45,13 +45,13 @@ extension MessagingEdgeEventType {
     var propositionEventType: String {
         switch self {
         case .inappDismiss:
-            return MessagingConstants.XDM.IAM.PropositionEventType.DISMISS
+            return MessagingConstants.XDM.Inbound.PropositionEventType.DISMISS
         case .inappInteract:
-            return MessagingConstants.XDM.IAM.PropositionEventType.INTERACT
+            return MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT
         case .inappTrigger:
-            return MessagingConstants.XDM.IAM.PropositionEventType.TRIGGER
+            return MessagingConstants.XDM.Inbound.PropositionEventType.TRIGGER
         case .inappDisplay:
-            return MessagingConstants.XDM.IAM.PropositionEventType.DISPLAY
+            return MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY
         case .pushApplicationOpened, .pushCustomAction:
             return ""
         default:

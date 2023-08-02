@@ -11,27 +11,18 @@ governing permissions and limitations under the License.
 */
 import SwiftUI
 
-struct HomeView: View {
+struct CustomTextView: View {
+    @State var text: String
     var body: some View {
-        TabView {
-            InAppView()
-                .tabItem {
-                    Label("InApp", systemImage: "doc.richtext.fill")
-                }
-            PushView()
-                .tabItem {
-                    Label("push", systemImage: "paperplane.fill")
-                }
-            FeedsView()
-                .tabItem {
-                    Label("Feeds", systemImage: "tray.and.arrow.down.fill")
-                }
-        }
+        Text(text)
+            .multilineTextAlignment(.center)
+            .frame(height: 150)
+            .frame(maxWidth: .infinity)
     }
 }
 
-struct HomeView_Previews: PreviewProvider {
+struct CustomTextView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView()
+        CustomTextView(text: "Sample text.")
     }
 }

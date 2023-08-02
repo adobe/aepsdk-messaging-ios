@@ -15,11 +15,14 @@ import Foundation
 
 extension RuleConsequence {
     var isFeedItem: Bool {
-        guard let mobileParams = details[MessagingConstants.Event.Data.Key.FEED.MOBILE_PARAMETERS] as? [String: Any] else {
-            return false
-        }
+        detailType == MessagingConstants.Event.Data.Key.Inbound.FEED_ITEM
+    }
 
-        let type = mobileParams[MessagingConstants.Event.Data.Key.FEED.TYPE] as? String
-        return type == MessagingConstants.Event.Data.Values.FEED.MESSAGE_FEED
+    var isInApp: Bool {
+        type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE || detailType == MessagingConstants.Event.Data.Key.Inbound.IAM
+    }
+    
+    private var detailType: String {
+        details[MessagingConstants.Event.Data.Key.TYPE] as? String ?? ""
     }
 }

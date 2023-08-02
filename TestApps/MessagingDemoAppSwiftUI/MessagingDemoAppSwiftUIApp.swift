@@ -28,7 +28,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 
         MobileCore.registerExtensions([AEPEdgeIdentity.Identity.self, Lifecycle.self, Signal.self, Edge.self, Consent.self, Messaging.self, Assurance.self]) {
             MobileCore.configureWith(appId: self.ENVIRONMENT_FILE_ID)
-            
+
             // set `messaging.useSandbox` to "true"  to test push notifications in debug environment (Apps signed with Development Certificate)
         #if DEBUG
             let debugConfig = ["messaging.useSandbox": true]

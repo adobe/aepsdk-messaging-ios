@@ -38,6 +38,12 @@ public class PropositionItem: NSObject, Codable {
         case content
     }
 
+    init(uniqueId: String, schema: String, content: String) {
+        self.uniqueId = uniqueId
+        self.schema = schema
+        self.content = content
+    }
+
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         uniqueId = try container.decode(String.self, forKey: .id)
@@ -80,10 +86,7 @@ public extension PropositionItem {
 
     // Decode data content to generic inbound
     func decodeContent() -> Inbound? {
-        guard
-            let jsonObject = content.data(using: .utf8),
-            let jsonData = try? JSONSerialization.data(withJSONObject: jsonObject)
-        else {
+        guard let jsonData = content.data(using: .utf8) else {
             return nil
         }
         return try? JSONDecoder().decode(Inbound.self, from: jsonData)

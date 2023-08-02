@@ -29,6 +29,31 @@ public class Surface: NSObject, Codable {
     }
 
     public init(path: String) {
+        guard !path.isEmpty else {
+            uri = ""
+            return
+        }
         uri = Bundle.main.mobileappSurface + MessagingConstants.PATH_SEPARATOR + path
+    }
+
+    init(uri: String) {
+        self.uri = uri
+    }
+
+    override convenience init() {
+        self.init(uri: Bundle.main.mobileappSurface)
+    }
+
+    override public func isEqual(_ object: Any?) -> Bool {
+        guard let rhs = object as? Surface else {
+            return false
+        }
+        return uri == rhs.uri
+    }
+
+    override public var hash: Int {
+        var hasher = Hasher()
+        hasher.combine(uri)
+        return hasher.finalize()
     }
 }

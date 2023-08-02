@@ -31,7 +31,7 @@ public enum InboundType: Int, Codable {
         case "ajoFeedItem":
             self = .feed
 
-        case "cjmiam":
+        case "ajoIam":
             self = .inapp
 
         default:
@@ -46,7 +46,7 @@ public enum InboundType: Int, Codable {
         case .feed:
             return "ajoFeedItem"
         case .inapp:
-            return "cjmiam"
+            return "ajoIam"
         default:
             return ""
         }

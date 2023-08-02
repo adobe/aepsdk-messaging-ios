@@ -289,9 +289,9 @@ extension Messaging {
 
         let propositions: [[String: Any]] = [
             [
-                MessagingConstants.XDM.IAM.Key.ID: propInfo.id,
-                MessagingConstants.XDM.IAM.Key.SCOPE: propInfo.scope,
-                MessagingConstants.XDM.IAM.Key.SCOPE_DETAILS: propInfo.scopeDetails.asDictionary() ?? [:]
+                MessagingConstants.XDM.Inbound.Key.ID: propInfo.id,
+                MessagingConstants.XDM.Inbound.Key.SCOPE: propInfo.scope,
+                MessagingConstants.XDM.Inbound.Key.SCOPE_DETAILS: propInfo.scopeDetails.asDictionary() ?? [:]
             ]
         ]
 
@@ -300,21 +300,21 @@ extension Messaging {
         ]
 
         var decisioning: [String: Any] = [
-            MessagingConstants.XDM.IAM.Key.PROPOSITION_EVENT_TYPE: propositionEventType,
-            MessagingConstants.XDM.IAM.Key.PROPOSITIONS: propositions
+            MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE: propositionEventType,
+            MessagingConstants.XDM.Inbound.Key.PROPOSITIONS: propositions
         ]
 
         // only add `propositionAction` data if this is an interact event
         if eventType == .inappInteract {
             let propositionAction: [String: String] = [
-                MessagingConstants.XDM.IAM.Key.ID: interaction ?? "",
-                MessagingConstants.XDM.IAM.Key.LABEL: interaction ?? ""
+                MessagingConstants.XDM.Inbound.Key.ID: interaction ?? "",
+                MessagingConstants.XDM.Inbound.Key.LABEL: interaction ?? ""
             ]
-            decisioning[MessagingConstants.XDM.IAM.Key.PROPOSITION_ACTION] = propositionAction
+            decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_ACTION] = propositionAction
         }
 
         let experience: [String: Any] = [
-            MessagingConstants.XDM.IAM.Key.DECISIONING: decisioning
+            MessagingConstants.XDM.Inbound.Key.DECISIONING: decisioning
         ]
 
         let xdm: [String: Any] = [

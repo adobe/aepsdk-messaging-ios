@@ -39,6 +39,14 @@ public class FeedItem: NSObject, Codable {
         case actionTitle
     }
 
+    public init(title: String, body: String, imageUrl: String? = "", actionUrl: String? = "", actionTitle: String? = "") {
+        self.title = title
+        self.body = body
+        self.imageUrl = imageUrl
+        self.actionUrl = actionUrl
+        self.actionTitle = actionTitle
+    }
+
     /// Decode FeedItem instance from the given decoder.
     /// - Parameter decoder: The decoder to read feed item data from.
     public required init(from decoder: Decoder) throws {
@@ -50,14 +58,10 @@ public class FeedItem: NSObject, Codable {
         actionUrl = try? values.decode(String.self, forKey: .actionUrl)
         actionTitle = try? values.decode(String.self, forKey: .actionTitle)
     }
-}
 
-// MARK: - Encodable support
-
-public extension FeedItem {
     /// Encode FeedItem instance into the given encoder.
     /// - Parameter encoder: The encoder to write feed item data to.
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(title, forKey: .title)

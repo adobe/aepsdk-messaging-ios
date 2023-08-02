@@ -19,6 +19,6 @@ extension Bundle {
         guard let bundleIdentifier = Self.main.bundleIdentifier, !bundleIdentifier.isEmpty else {
             return "unknown"
         }
-        return MessagingConstants.XDM.IAM.SURFACE_BASE + bundleIdentifier
+        return MessagingConstants.XDM.Inbound.SURFACE_BASE + bundleIdentifier
     }
 }

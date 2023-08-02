@@ -39,7 +39,7 @@ public class Inbound: NSObject, Codable {
 
     enum CodingKeys: String, CodingKey {
         case id
-        case inboundType
+        case type
         case content
         case contentType
         case publishedDate
@@ -50,19 +50,14 @@ public class Inbound: NSObject, Codable {
     /// Decode Inbound instance from the given decoder.
     /// - Parameter decoder: The decoder to read feed item data from.
     public required init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        uniqueId = try values.decode(String.self, forKey: .id)
-        if let format = try? values.decode(String.self, forKey: .inboundType) {
-            inboundType = InboundType(from: format)
-        } else {
-            // TODO: - use regex to deduce inbound content format from the content string
-            inboundType = .unknown
-        }
-        contentType = try values.decode(String.self, forKey: .contentType)
-        publishedDate = try values.decode(Int.self, forKey: .publishedDate)
-        expiryDate = try values.decode(Int.self, forKey: .expiryDate)
-        let codableMeta = try? values.decode([String: AnyCodable].self, forKey: .meta)
+        uniqueId = try container.decode(String.self, forKey: .id)
+        inboundType = try InboundType(from: container.decode(String.self, forKey: .type))
+        contentType = try container.decode(String.self, forKey: .contentType)
+        publishedDate = try container.decode(Int.self, forKey: .publishedDate)
+        expiryDate = try container.decode(Int.self, forKey: .expiryDate)
+        let codableMeta = try? container.decode([String: AnyCodable].self, forKey: .meta)
         meta = codableMeta?.mapValues {
             guard let value = $0.value else {
                 return ""
@@ -70,34 +65,31 @@ public class Inbound: NSObject, Codable {
             return value
         }
 
-        let codableContent = try values.decode(AnyCodable.self, forKey: .content)
-        if contentType == "application/json" {
-            if
-                let jsonData = codableContent.dictionaryValue,
+        let codableContent = try container.decode(AnyCodable.self, forKey: .content)
+        if let inboundContent = codableContent.stringValue {
+            content = inboundContent
+        } else if let jsonData = codableContent.dictionaryValue {
+            guard
                 let encodedData = try? JSONSerialization.data(withJSONObject: jsonData),
                 let inboundContent = String(data: encodedData, encoding: .utf8)
-            {
-                content = inboundContent
-                return
+            else {
+                throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath,
+                                                                        debugDescription: "Inbound content dictionary is invalid."))
             }
+            content = inboundContent
         } else {
-            if let inboundContent = codableContent.stringValue {
-                content = inboundContent
-                return
-            }
+            throw DecodingError.typeMismatch(Inbound.self,
+                                             DecodingError.Context(codingPath: decoder.codingPath,
+                                                                   debugDescription: "Inbound content is not of an expected type."))
         }
-        throw DecodingError.typeMismatch(Inbound.self,
-                                         DecodingError.Context(codingPath: decoder.codingPath,
-                                                               debugDescription: "Inbound content is not of an expected type."))
     }
 
     /// Encode Inbound instance into the given encoder.
     /// - Parameter encoder: The encoder to write feed item data to.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-
         try container.encode(uniqueId, forKey: .id)
-        try container.encode(inboundType.toString(), forKey: .inboundType)
+        try container.encode(inboundType.toString(), forKey: .type)
         try container.encode(content, forKey: .content)
         try container.encode(contentType, forKey: .contentType)
         try container.encode(publishedDate, forKey: .publishedDate)
@@ -107,14 +99,24 @@ public class Inbound: NSObject, Codable {
 }
 
 public extension Inbound {
-    // Decode content to a specific inbound type
-    func decodeContent<T: Decodable>() -> T? {
-        guard
-            let jsonObject = content.data(using: .utf8),
-            let jsonData = try? JSONSerialization.data(withJSONObject: jsonObject)
-        else {
+    static func from(consequenceDetail: [String: Any]?, id: String) -> Inbound? {
+        guard var consequenceDetail = consequenceDetail else {
             return nil
         }
-        return try? JSONDecoder().decode(T.self, from: jsonData)
+
+        consequenceDetail["id"] = id
+
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: consequenceDetail as Any) else {
+            return nil
+        }
+        return try? JSONDecoder().decode(Inbound.self, from: jsonData)
+    }
+
+    // Decode content to a specific inbound type
+    func decodeContent<T>(_ type: T.Type) -> T? where T: Decodable {
+        guard let jsonData = content.data(using: .utf8) else {
+            return nil
+        }
+        return try? JSONDecoder().decode(type, from: jsonData)
     }
 }

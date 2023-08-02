@@ -150,14 +150,14 @@ public class Messaging: NSObject, Extension {
         var eventData: [String: Any] = [:]
 
         let messageRequestData: [String: Any] = [
-            MessagingConstants.XDM.IAM.Key.PERSONALIZATION: [
-                MessagingConstants.XDM.IAM.Key.SURFACES: requestedSurfaceUris
+            MessagingConstants.XDM.Inbound.Key.PERSONALIZATION: [
+                MessagingConstants.XDM.Inbound.Key.SURFACES: requestedSurfaceUris
             ]
         ]
-        eventData[MessagingConstants.XDM.IAM.Key.QUERY] = messageRequestData
+        eventData[MessagingConstants.XDM.Inbound.Key.QUERY] = messageRequestData
 
         let xdmData: [String: Any] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.IAM.EventType.PERSONALIZATION_REQUEST
+            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Inbound.EventType.PERSONALIZATION_REQUEST
         ]
         eventData[MessagingConstants.XDM.Key.XDM] = xdmData
 

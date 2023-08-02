@@ -23,7 +23,7 @@ public class Proposition: NSObject, Codable {
     public let scope: String
 
     /// Scope details dictionary
-    private var scopeDetails: [String: Any]
+    var scopeDetails: [String: Any]
 
     /// Array containing proposition decision items
     private let propositionItems: [PropositionItem]
@@ -42,6 +42,13 @@ public class Proposition: NSObject, Codable {
         case items
     }
 
+    init(uniqueId: String, scope: String, scopeDetails: [String: Any], items: [PropositionItem]) {
+        self.uniqueId = uniqueId
+        self.scope = scope
+        self.scopeDetails = scopeDetails
+        propositionItems = items
+    }
+
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -49,7 +56,7 @@ public class Proposition: NSObject, Codable {
         scope = try container.decode(String.self, forKey: .scope)
         let anyCodableDict = try? container.decode([String: AnyCodable].self, forKey: .scopeDetails)
         scopeDetails = AnyCodable.toAnyDictionary(dictionary: anyCodableDict) ?? [:]
-        propositionItems = (try? container.decode([PropositionItem].self, forKey: .items)) ?? []
+        propositionItems = (try? container.decode([PropositionItem].self, forKey: .items, ignoreInvalid: true)) ?? []
     }
 
     public func encode(to encoder: Encoder) throws {
