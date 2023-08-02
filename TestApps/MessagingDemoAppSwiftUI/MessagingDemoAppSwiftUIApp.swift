@@ -21,19 +21,24 @@ import AEPMessaging
 import SwiftUI
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
-    private let ENVIRONMENT_FILE_ID = ""
+    private let ENVIRONMENT_FILE_ID = "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development"
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         MobileCore.setLogLevel(.trace)
 
-        MobileCore.registerExtensions([AEPEdgeIdentity.Identity.self, Lifecycle.self, Signal.self, Edge.self, Consent.self, Messaging.self, Assurance.self]) {
+        MobileCore.registerExtensions([AEPEdgeIdentity.Identity.self, Lifecycle.self, Signal.self, Edge.self, Messaging.self, Assurance.self]) {
             MobileCore.configureWith(appId: self.ENVIRONMENT_FILE_ID)
             
+            let stagingConfig = [
+                "edge.environment": "int"
+            ]
+            MobileCore.updateConfigurationWith(configDict: stagingConfig)
+
             // set `messaging.useSandbox` to "true"  to test push notifications in debug environment (Apps signed with Development Certificate)
-        #if DEBUG
-            let debugConfig = ["messaging.useSandbox": true]
-            MobileCore.updateConfigurationWith(configDict: debugConfig)
-        #endif
+//        #if DEBUG
+//            let debugConfig = ["messaging.useSandbox": true]
+//            MobileCore.updateConfigurationWith(configDict: debugConfig)
+//        #endif
         }
         
         self.registerForPushNotifications(application)

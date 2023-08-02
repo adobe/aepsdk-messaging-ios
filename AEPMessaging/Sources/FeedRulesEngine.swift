@@ -35,30 +35,29 @@ class FeedRulesEngine {
 
     /// if we have rules loaded, then we simply process the event.
     /// if rules are not yet loaded, add the event to the waitingEvents array to
-    func evaluate(event: Event) -> [String: Feed]? {
+    func evaluate(event: Event) -> [Surface: [Inbound]]? {
         let consequences = launchRulesEngine.evaluate(event: event)
         guard let consequences = consequences else {
             return nil
         }
 
-        var feeds: [String: Feed] = [:]
+        var inboundMessages: [Surface: [Inbound]] = [:]
         for consequence in consequences {
-            let details = consequence.details as [String: Any]
+            let detail = consequence.details as [String: Any]
 
-            if
-                let mobileParams = details[MessagingConstants.Event.Data.Key.FEED.MOBILE_PARAMETERS] as? [String: Any],
-                let feedItem = FeedItem.from(data: mobileParams, id: consequence.id)
-            {
-                let surfacePath = feedItem.surface ?? ""
+            guard let inboundMessage = Inbound.from(consequenceDetail: detail, id: consequence.id) else {
+                continue
+            }
 
-                // find the feed to insert the feed item else create a new feed for it
-                if let feed = feeds[surfacePath] {
-                    feed.items.append(feedItem)
-                } else {
-                    feeds[surfacePath] = Feed(surfaceUri: surfacePath, items: [feedItem])
-                }
+            let surfaceUri = inboundMessage.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
+            let surface = Surface(uri: surfaceUri)
+
+            if inboundMessages[surface] != nil {
+                inboundMessages[surface]?.append(inboundMessage)
+            } else {
+                inboundMessages[surface] = [inboundMessage]
             }
         }
-        return feeds
+        return inboundMessages
     }
 }

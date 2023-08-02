@@ -33,7 +33,7 @@ enum MessagingConstants {
 
     enum ConsequenceTypes {
         static let IN_APP_MESSAGE = "cjmiam"
-        static let FEED_ITEM = "ajofeeditem"
+        static let AJO_INBOUND = "ajoInbound"
     }
 
     enum Event {
@@ -82,9 +82,12 @@ enum MessagingConstants {
                 static let TYPE = "type"
                 static let SOURCE = "source"
 
-                enum FEED {
-                    static let MOBILE_PARAMETERS = "mobileParameters"
-                    static let TYPE = "type"
+                enum Inbound {
+                    static let FEED_ITEM = "ajoFeedItem"
+                    static let IAM = "ajoIam"
+                }
+
+                enum Feed {
                     static let SURFACE = "surface"
                     static let FEED_NAME = "feedName"
                 }
@@ -146,10 +149,6 @@ enum MessagingConstants {
                     static let SWIPE_LEFT = "swipeLeft"
                     static let SWIPE_RIGHT = "swipeRight"
                     static let TAP_BACKGROUND = "tapBackground"
-                }
-
-                enum FEED {
-                    static let MESSAGE_FEED = "messagefeed"
                 }
             }
         }
@@ -218,7 +217,7 @@ enum MessagingConstants {
             static let DATA = "data"
         }
 
-        enum IAM {
+        enum Inbound {
             static let SURFACE_BASE = "mobileapp://"
 
             enum EventType {
@@ -240,6 +239,7 @@ enum MessagingConstants {
                 static let PERSONALIZATION = "personalization"
                 static let QUERY = "query"
                 static let SURFACES = "surfaces"
+                static let SCHEMAS = "schemas"
                 static let DECISIONING = "decisioning"
                 static let PROPOSITION_ACTION = "propositionAction"
                 static let LABEL = "label"
@@ -260,6 +260,10 @@ enum MessagingConstants {
                 static let CLICKED = "clicked"
                 static let DISMISSED = "dismissed"
                 static let EMPTY_CONTENT = "{}"
+
+                // Supported schemas
+                static let SCHEMA_AJO_HTML = "https://ns.adobe.com/personalization/html-content-item"
+                static let SCHEMA_AJO_JSON = "https://ns.adobe.com/personalization/json-content-item"
             }
         }
 
