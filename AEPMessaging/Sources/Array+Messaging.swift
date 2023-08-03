@@ -1,5 +1,5 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
+ Copyright 2023 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -12,10 +12,20 @@
 
 import Foundation
 
-extension Dictionary where Key == String, Value == Any {
-    /// Merges the values of `rhs` into `self`, preferring values in `rhs` when there is conflict.
-    /// - Parameter rhs: a `[String: Any]` that will have its values merged into `self`.
-    mutating func mergeXdm(rhs: [String: Any]) {
-        merge(rhs) { _, new in new }
+// MARK: Array extension
+
+extension Array {
+    func toDictionary<Key: Hashable>(_ transform: (Element) throws -> Key) rethrows -> [Key: [Element]] {
+        var dictionary = [Key: [Element]]()
+
+        for element in self {
+            let transformedElement = try transform(element)
+            if dictionary[transformedElement] != nil {
+                dictionary[transformedElement]?.append(element)
+            } else {
+                dictionary[transformedElement] = [element]
+            }
+        }
+        return dictionary
     }
 }

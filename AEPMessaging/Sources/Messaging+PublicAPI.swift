@@ -15,8 +15,8 @@ import AEPServices
 import UserNotifications
 
 @objc public extension Messaging {
-    private static var isFeedResponseListenerRegistered: Bool = false
-    private static var feedsResponseHandler: (([String: Feed]) -> Void)?
+    private static var isPropositionsResponseListenerRegistered: Bool = false
+    private static var propositionsResponseHandler: (([Surface: [Proposition]]) -> Void)?
 
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
@@ -95,28 +95,28 @@ import UserNotifications
         MobileCore.dispatch(event: event)
     }
 
-    /// Retrieves the previously fetched (and cached) feeds content from the SDK for the provided surface path strings.
-    /// If the feeds content for one or more surface paths isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
+    /// Retrieves the previously fetched (and cached) feeds content from the SDK for the provided surfaces.
+    /// If the feeds content for one or more surfaces isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
     /// - Parameters:
-    ///   - surfacePaths: An array of surface path strings.
-    ///   - completion: The completion handler to be invoked with a dictionary containing the surface paths and the corresponding Feed objects.
-    static func getFeedsForSurfacePaths(_ surfacePaths: [String], _ completion: @escaping ([String: Feed]?, Error?) -> Void) {
-        let validSurfacePaths = surfacePaths
-            .filter { !$0.isEmpty }
+    ///   - surfacePaths: An array of surface objects.
+    ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Feed objects.
+    static func getPropositionsForSurfaces(_ surfacePaths: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
+        let validSurfaces = surfacePaths
+            .filter { $0.isValid }
 
-        guard !validSurfacePaths.isEmpty else {
+        guard !validSurfaces.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG,
-                        "Cannot get feeds as the provided surface paths array has no valid items.")
+                        "Cannot get propositions as the provided surfaces array has no valid items.")
             completion(nil, AEPError.invalidRequest)
             return
         }
 
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.GET_FEEDS: true,
-            MessagingConstants.Event.Data.Key.SURFACES: validSurfacePaths
+            MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
+            MessagingConstants.Event.Data.Key.SURFACES: validSurfaces.compactMap { $0.asDictionary() }
         ]
 
-        let event = Event(name: MessagingConstants.Event.Name.GET_MESSAGE_FEEDS,
+        let event = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -132,38 +132,38 @@ import UserNotifications
                 return
             }
 
-            guard let feeds = responseEvent.feeds else {
+            guard let propositions = responseEvent.propositions else {
                 completion(nil, AEPError.unexpected)
                 return
             }
 
-            completion(feeds, .none)
+            completion(propositions.toDictionary { Surface(uri: $0.scope) }, .none)
         }
     }
 
     /// Registers a permanent event listener with the Mobile Core for listening to personalization decisions events received upon a personalization query to the Experience Edge network.
-    /// - Parameter completion: The completion handler to be invoked with a dictionary containing the surface paths and the corresponding Feed objects.
-    static func setFeedsHandler(_ completion: (([String: Feed]) -> Void)? = nil) {
-        if !isFeedResponseListenerRegistered {
-            isFeedResponseListenerRegistered = true
-            MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.notification, listener: feedsResponseListener(_:))
+    /// - Parameter completion: The completion handler to be invoked with a dictionary containing the surfaces and the corresponding array of Proposition objects.
+    static func setPropositionsHandler(_ completion: (([Surface: [Proposition]]) -> Void)? = nil) {
+        if !isPropositionsResponseListenerRegistered {
+            isPropositionsResponseListenerRegistered = true
+            MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.notification, listener: propositionsResponseListener(_:))
         }
-        feedsResponseHandler = completion
+        propositionsResponseHandler = completion
     }
 
-    private static func feedsResponseListener(_ event: Event) {
-        guard let feedsResponseHandler = feedsResponseHandler else {
+    private static func propositionsResponseListener(_ event: Event) {
+        guard let propositionsResponseHandler = propositionsResponseHandler else {
             return
         }
 
         guard
-            let feeds = event.feeds,
-            !feeds.isEmpty
+            let propositions = event.propositions,
+            !propositions.isEmpty
         else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "No valid feeds found in the notification event.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "No valid propositions found in the notification event.")
             return
         }
 
-        feedsResponseHandler(feeds)
+        propositionsResponseHandler(propositions.toDictionary { Surface(uri: $0.scope) })
     }
 }

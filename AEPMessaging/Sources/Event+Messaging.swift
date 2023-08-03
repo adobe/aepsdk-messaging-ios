@@ -203,12 +203,13 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
     }
 
-    /// payload is an array of `PropositionPayload` objects, each containing an in-app message and related tracking information
-    var payload: [PropositionPayload]? {
+    /// payload is an array of `Proposition` objects, each containing inbound content and related tracking information
+    var payload: [Proposition]? {
         guard let payloadMap = data?[MessagingConstants.Event.Data.Key.Personalization.PAYLOAD] as? [[String: Any]] else {
             return nil
         }
-        var returnablePayloads: [PropositionPayload] = []
+
+        var returnablePayloads: [Proposition] = []
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()
         for thisPayloadAny in payloadMap {
@@ -217,7 +218,7 @@ extension Event {
                 let payloadData = try? encoder.encode(thisPayload)
             {
                 do {
-                    let payloadObject = try decoder.decode(PropositionPayload.self, from: payloadData)
+                    let payloadObject = try decoder.decode(Proposition.self, from: payloadData)
                     returnablePayloads.append(payloadObject)
                 } catch {
                     Log.warning(label: MessagingConstants.LOG_TAG, "Failed to decode an invalid personalization response: \(error)")
@@ -228,7 +229,7 @@ extension Event {
     }
 
     var scope: String? {
-        payload?.first?.propositionInfo.scope
+        payload?.first?.scope
     }
 
     // MARK: Private
@@ -267,7 +268,7 @@ extension Event {
 
     var surfaces: [Surface]? {
         guard
-            let surfacesData = data?[MessagingConstants.Event.Data.Key.SURFACES] as? [String: Any],
+            let surfacesData = data?[MessagingConstants.Event.Data.Key.SURFACES] as? [[String: Any]],
             let jsonData = try? JSONSerialization.data(withJSONObject: surfacesData)
         else {
             return nil
@@ -282,23 +283,23 @@ extension Event {
 
     // MARK: - Get Feed Messages Public API Event
 
-    var isGetFeedsEvent: Bool {
-        isMessagingType && isRequestContentSource && getFeeds
+    var isGetPropositionsEvent: Bool {
+        isMessagingType && isRequestContentSource && getPropositions
     }
 
-    private var getFeeds: Bool {
-        data?[MessagingConstants.Event.Data.Key.GET_FEEDS] as? Bool ?? false
+    private var getPropositions: Bool {
+        data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false
     }
 
-    var feeds: [String: Feed]? {
+    var propositions: [Proposition]? {
         guard
-            let feedsData = data?[MessagingConstants.Event.Data.Key.FEEDS] as? [String: Any],
-            let jsonData = try? JSONSerialization.data(withJSONObject: feedsData)
+            let propositionsData = data?[MessagingConstants.Event.Data.Key.PROPOSITIONS] as? [[String: Any]],
+            let jsonData = try? JSONSerialization.data(withJSONObject: propositionsData)
         else {
             return nil
         }
 
-        return try? JSONDecoder().decode([String: Feed].self, from: jsonData)
+        return try? JSONDecoder().decode([Proposition].self, from: jsonData)
     }
 
     var responseError: AEPError? {
@@ -355,7 +356,7 @@ extension Event {
     /// - Parameter error: type of AEPError
     /// - Returns: error response Event
     func createErrorResponseEvent(_ error: AEPError) -> Event {
-        createResponseEvent(name: MessagingConstants.Event.Name.MESSAGE_FEEDS_RESPONSE,
+        createResponseEvent(name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_RESPONSE,
                             type: EventType.messaging,
                             source: EventSource.responseContent,
                             data: [

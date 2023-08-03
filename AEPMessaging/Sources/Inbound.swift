@@ -105,7 +105,6 @@ public extension Inbound {
         }
 
         consequenceDetail["id"] = id
-
         guard let jsonData = try? JSONSerialization.data(withJSONObject: consequenceDetail as Any) else {
             return nil
         }

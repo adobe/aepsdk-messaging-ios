@@ -31,6 +31,9 @@ public class FeedItem: NSObject, Codable {
     /// Required if `actionUrl` is provided. Text to be used in title of button or link in feed item
     public let actionTitle: String?
 
+    /// Weak reference to Inbound instance
+    weak var inbound: Inbound?
+
     enum CodingKeys: String, CodingKey {
         case title
         case body

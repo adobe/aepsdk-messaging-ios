@@ -21,6 +21,11 @@ extension LaunchRulesEngine {
         JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime)
     }
 
+    func clearRules() {
+        replaceRules(with: [])
+        Log.debug(label: MessagingConstants.LOG_TAG, "Successfully cleared messages from the rules engine.")
+    }
+
     func loadRules(_ rules: [LaunchRule], clearExisting: Bool) {
         if clearExisting {
             replaceRules(with: rules)
