@@ -191,7 +191,7 @@ public class Messaging: NSObject, Extension {
         let inboundMessages = feedRulesEngine.evaluate(event: event) ?? [:]
         messagingState.updateInboundMessages(inboundMessages, requestedSurfaces: requestedSurfaces)
 
-        var transformedPropositions = transformInboundMessages(inboundMessages, requestedSurfaces: requestedSurfaces)
+        var transformedPropositions = transformInboundMessages(requestedSurfaces: requestedSurfaces)
         for surface in requestedSurfaces {
             if let propositionsArray = messagingState.propositions[surface] {
                 transformedPropositions.addArray(propositionsArray, forKey: surface)
@@ -254,7 +254,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        var transformedPropositions = transformInboundMessages(inboundMessages, requestedSurfaces: requestedSurfaces)
+        var transformedPropositions = transformInboundMessages(requestedSurfaces: requestedSurfaces)
         for surface in requestedSurfaces {
             if let propositionsArray = messagingState.propositions[surface] {
                 transformedPropositions.addArray(propositionsArray, forKey: surface)
@@ -273,10 +273,10 @@ public class Messaging: NSObject, Extension {
         dispatch(event: event)
     }
 
-    private func transformInboundMessages(_ inboundMessages: [Surface: [Inbound]], requestedSurfaces: [Surface]) -> [Surface: [Proposition]] {
+    private func transformInboundMessages(requestedSurfaces: [Surface]) -> [Surface: [Proposition]] {
         var propositionsDict: [Surface: [Proposition]] = [:]
         for surface in requestedSurfaces {
-            guard let inboundArray = inboundMessages[surface] else {
+            guard let inboundArray = messagingState.inboundMessages[surface] else {
                 continue
             }
 
