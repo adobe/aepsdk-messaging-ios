@@ -192,7 +192,11 @@ public class Messaging: NSObject, Extension {
         messagingState.updateInboundMessages(inboundMessages, requestedSurfaces: requestedSurfaces)
 
         var transformedPropositions = transformInboundMessages(inboundMessages, requestedSurfaces: requestedSurfaces)
-        transformedPropositions.merge(messagingState.propositions) { old, _ in old }
+        for surface in requestedSurfaces {
+            if let propositionsArray = messagingState.propositions[surface] {
+                transformedPropositions.addArray(propositionsArray, forKey: surface)
+            }
+        }
 
         let requestedPropositions = transformedPropositions.filter { requestedSurfaces.contains($0.key) }
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
@@ -251,7 +255,11 @@ public class Messaging: NSObject, Extension {
         }
 
         var transformedPropositions = transformInboundMessages(inboundMessages, requestedSurfaces: requestedSurfaces)
-        transformedPropositions.merge(messagingState.propositions) { old, _ in old }
+        for surface in requestedSurfaces {
+            if let propositionsArray = messagingState.propositions[surface] {
+                transformedPropositions.addArray(propositionsArray, forKey: surface)
+            }
+        }
 
         let requestedPropositions = transformedPropositions.filter { requestedSurfaces.contains($0.key) }
 
@@ -268,17 +276,13 @@ public class Messaging: NSObject, Extension {
     private func transformInboundMessages(_ inboundMessages: [Surface: [Inbound]], requestedSurfaces: [Surface]) -> [Surface: [Proposition]] {
         var propositionsDict: [Surface: [Proposition]] = [:]
         for surface in requestedSurfaces {
-            guard
-                let inboundArray = inboundMessages[surface],
-                let propositions = messagingState.propositions[surface]
-            else {
+            guard let inboundArray = inboundMessages[surface] else {
                 continue
             }
 
             var transformedPropositions: [Proposition] = []
             for message in inboundArray {
-                let propositionInfo = messagingState.propositionInfo[message.uniqueId]
-                guard let proposition = propositions.first(where: { $0.uniqueId == propositionInfo?.id }) else {
+                guard let propositionInfo = messagingState.propositionInfo[message.uniqueId] else {
                     continue
                 }
 
@@ -286,15 +290,15 @@ public class Messaging: NSObject, Extension {
                 let itemContent = String(data: jsonData, encoding: .utf8)
 
                 let propositionItem = PropositionItem(
-                    uniqueId: proposition.items.first?.uniqueId ?? "",
-                    schema: proposition.items.first?.schema ?? "",
+                    uniqueId: UUID().uuidString, // revisit this if item.id is used for reporting in future
+                    schema: "https://ns.adobe.com/personalization/json-content-item",
                     content: itemContent ?? ""
                 )
 
                 let prop = Proposition(
-                    uniqueId: proposition.uniqueId,
-                    scope: proposition.scope,
-                    scopeDetails: proposition.scopeDetails,
+                    uniqueId: propositionInfo.id,
+                    scope: propositionInfo.scope,
+                    scopeDetails: propositionInfo.scopeDetails,
                     items: [propositionItem]
                 )
 
@@ -469,7 +473,10 @@ public class Messaging: NSObject, Extension {
                     // pre-fetch the assets for this message if there are any defined
                     rulesEngine.cacheRemoteAssetsFor(parsedRules)
                 } else {
-                    tempPropositions.add(proposition, forKey: surface)
+                    let isFeedConsequence = consequence?.isFeedItem ?? false
+                    if !isFeedConsequence {
+                        tempPropositions.add(proposition, forKey: surface)
+                    }
                 }
 
                 let inboundType = isInAppConsequence ? InboundType.inapp : InboundType(from: consequence?.detailType ?? "")

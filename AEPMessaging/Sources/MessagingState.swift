@@ -55,9 +55,6 @@ class MessagingState {
             } else {
                 if inboundMessages.contains(where: { $0.key == surface }) {
                     inboundMessages.removeValue(forKey: surface)
-
-                    // remove proposition for the surface as well.
-                    propositions.removeValue(forKey: surface)
                 }
             }
         }
