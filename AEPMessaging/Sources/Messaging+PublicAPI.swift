@@ -99,7 +99,7 @@ import UserNotifications
     /// If the feeds content for one or more surfaces isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
     /// - Parameters:
     ///   - surfacePaths: An array of surface objects.
-    ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Feed objects.
+    ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Proposition objects.
     static func getPropositionsForSurfaces(_ surfacePaths: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
         let validSurfaces = surfacePaths
             .filter { $0.isValid }
@@ -142,7 +142,8 @@ import UserNotifications
     }
 
     /// Registers a permanent event listener with the Mobile Core for listening to personalization decisions events received upon a personalization query to the Experience Edge network.
-    /// - Parameter completion: The completion handler to be invoked with a dictionary containing the surfaces and the corresponding array of Proposition objects.
+    /// If a new completion handler is provided, it will replace the existing one and it will be invoked when propositions are received from the Edge network.
+    /// - Parameter completion: The latest completion handler to be invoked with a dictionary containing the surfaces and the corresponding array of Proposition objects.
     static func setPropositionsHandler(_ completion: (([Surface: [Proposition]]) -> Void)? = nil) {
         if !isPropositionsResponseListenerRegistered {
             isPropositionsResponseListenerRegistered = true

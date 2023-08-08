@@ -146,7 +146,7 @@ public class Messaging: NSObject, Extension {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to update messages, cannot read the bundle identifier.")
                 return
             }
-            requestedSurfaces = [Surface()]
+            requestedSurfaces = [Surface(uri: appSurface)]
         }
 
         var eventData: [String: Any] = [:]
