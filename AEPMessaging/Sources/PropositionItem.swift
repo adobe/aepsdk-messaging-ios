@@ -81,9 +81,6 @@ public class PropositionItem: NSObject, Codable {
 }
 
 public extension PropositionItem {
-    // TODO: - Track offer interaction
-//    func track(interaction: PropositionEventType) {}
-
     // Decode data content to generic inbound
     func decodeContent() -> Inbound? {
         guard let jsonData = content.data(using: .utf8) else {

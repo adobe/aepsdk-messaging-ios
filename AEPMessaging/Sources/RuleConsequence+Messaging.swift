@@ -21,8 +21,8 @@ extension RuleConsequence {
     var isInApp: Bool {
         type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE || detailType == MessagingConstants.Event.Data.Key.Inbound.IAM
     }
-    
-    private var detailType: String {
+
+    var detailType: String {
         details[MessagingConstants.Event.Data.Key.TYPE] as? String ?? ""
     }
 }

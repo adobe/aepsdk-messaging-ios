@@ -30,4 +30,10 @@ extension PropositionInfo {
         }
         return activity[MessagingConstants.Event.Data.Key.Personalization.ID] as? String ?? ""
     }
+
+    static func fromProposition(_ proposition: Proposition) -> PropositionInfo {
+        PropositionInfo(id: proposition.uniqueId,
+                        scope: proposition.scope,
+                        scopeDetails: AnyCodable.from(dictionary: proposition.scopeDetails) ?? [:])
+    }
 }

@@ -46,9 +46,9 @@ enum MessagingConstants {
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
 
             static let UPDATE_PROPOSITIONS = "Update propositions"
-            static let GET_MESSAGE_FEEDS = "Get message feeds"
-            static let MESSAGE_FEEDS_RESPONSE = "Message feeds response"
-            static let MESSAGE_FEEDS_NOTIFICATION = "Message feeds notification"
+            static let GET_PROPOSITIONS = "Get propositions"
+            static let MESSAGE_PROPOSITIONS_RESPONSE = "Message propositions response"
+            static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
         }
 
         enum Source {
@@ -71,9 +71,9 @@ enum MessagingConstants {
                 static let REQUEST_EVENT_ID = "requestEventId"
                 static let IAM_HISTORY = "iam"
                 static let UPDATE_PROPOSITIONS = "updatepropositions"
-                static let GET_FEEDS = "getfeeds"
+                static let GET_PROPOSITIONS = "getpropositions"
                 static let SURFACES = "surfaces"
-                static let FEEDS = "feeds"
+                static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
 
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
