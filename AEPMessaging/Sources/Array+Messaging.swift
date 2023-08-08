@@ -20,8 +20,9 @@ extension Array {
 
         for element in self {
             let transformedElement = try transform(element)
-            if dictionary[transformedElement] != nil {
-                dictionary[transformedElement]?.append(element)
+            if var existingEntry = dictionary[transformedElement] {
+                existingEntry.append(element)
+                dictionary[transformedElement] = existingEntry
             } else {
                 dictionary[transformedElement] = [element]
             }
