@@ -48,8 +48,8 @@ class MessagingState {
         }
     }
 
-    func updateInboundMessages(_ newInboundMessages: [Surface: [Inbound]], requestedSurfaces: [Surface]) {
-        for surface in requestedSurfaces {
+    func updateInboundMessages(_ newInboundMessages: [Surface: [Inbound]], surfaces: [Surface]) {
+        for surface in surfaces {
             if let inboundMessagesArray = newInboundMessages[surface] {
                 inboundMessages[surface] = inboundMessagesArray
             } else {

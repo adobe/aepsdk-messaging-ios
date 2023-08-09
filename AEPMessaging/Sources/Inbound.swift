@@ -39,7 +39,11 @@ public class Inbound: NSObject, Codable {
 
     enum CodingKeys: String, CodingKey {
         case id
-        case type
+        case schema
+        case data
+    }
+
+    enum DataKeys: String, CodingKey {
         case content
         case contentType
         case publishedDate
@@ -53,11 +57,13 @@ public class Inbound: NSObject, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         uniqueId = try container.decode(String.self, forKey: .id)
-        inboundType = try InboundType(from: container.decode(String.self, forKey: .type))
-        contentType = try container.decode(String.self, forKey: .contentType)
-        publishedDate = try container.decode(Int.self, forKey: .publishedDate)
-        expiryDate = try container.decode(Int.self, forKey: .expiryDate)
-        let codableMeta = try? container.decode([String: AnyCodable].self, forKey: .meta)
+        inboundType = try InboundType(from: container.decode(String.self, forKey: .schema))
+
+        let nestedContainer = try container.nestedContainer(keyedBy: DataKeys.self, forKey: .data)
+        contentType = try nestedContainer.decode(String.self, forKey: .contentType)
+        publishedDate = try nestedContainer.decode(Int.self, forKey: .publishedDate)
+        expiryDate = try nestedContainer.decode(Int.self, forKey: .expiryDate)
+        let codableMeta = try? nestedContainer.decode([String: AnyCodable].self, forKey: .meta)
         meta = codableMeta?.mapValues {
             guard let value = $0.value else {
                 return ""
@@ -65,7 +71,7 @@ public class Inbound: NSObject, Codable {
             return value
         }
 
-        let codableContent = try container.decode(AnyCodable.self, forKey: .content)
+        let codableContent = try nestedContainer.decode(AnyCodable.self, forKey: .content)
         if let inboundContent = codableContent.stringValue {
             content = inboundContent
         } else if let jsonData = codableContent.dictionaryValue {
@@ -89,12 +95,14 @@ public class Inbound: NSObject, Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(uniqueId, forKey: .id)
-        try container.encode(inboundType.toString(), forKey: .type)
-        try container.encode(content, forKey: .content)
-        try container.encode(contentType, forKey: .contentType)
-        try container.encode(publishedDate, forKey: .publishedDate)
-        try container.encode(expiryDate, forKey: .expiryDate)
-        try? container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
+        try container.encode(inboundType.toString(), forKey: .schema)
+
+        var nestedContainer = container.nestedContainer(keyedBy: DataKeys.self, forKey: .data)
+        try nestedContainer.encode(content, forKey: .content)
+        try nestedContainer.encode(contentType, forKey: .contentType)
+        try nestedContainer.encode(publishedDate, forKey: .publishedDate)
+        try nestedContainer.encode(expiryDate, forKey: .expiryDate)
+        try? nestedContainer.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
     }
 }
 

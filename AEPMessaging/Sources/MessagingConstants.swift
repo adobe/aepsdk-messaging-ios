@@ -80,12 +80,8 @@ enum MessagingConstants {
                 static let ID = "id"
                 static let DETAIL = "detail"
                 static let TYPE = "type"
+                static let SCHEMA = "schema"
                 static let SOURCE = "source"
-
-                enum Inbound {
-                    static let FEED_ITEM = "ajoFeedItem"
-                    static let IAM = "ajoIam"
-                }
 
                 enum Feed {
                     static let SURFACE = "surface"
@@ -149,6 +145,12 @@ enum MessagingConstants {
                     static let SWIPE_LEFT = "swipeLeft"
                     static let SWIPE_RIGHT = "swipeRight"
                     static let TAP_BACKGROUND = "tapBackground"
+                }
+
+                enum Inbound {
+                    // schema values
+                    static let SCHEMA_FEED_ITEM = "https://ns.adobe.com/personalization/inbound/feed-item"
+                    static let SCHEMA_IAM = "https://ns.adobe.com/personalization/inbound/in-app-message"
                 }
             }
         }
