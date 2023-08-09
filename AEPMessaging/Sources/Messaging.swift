@@ -192,7 +192,7 @@ public class Messaging: NSObject, Extension {
             messagingState.updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
         }
 
-        let requestedPropositions = retrieveCachedPropositions(surfaces: requestedSurfaces)
+        let requestedPropositions = retrievePropositions(surfaces: requestedSurfaces)
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
 
         let responseEvent = event.createResponseEvent(
@@ -243,7 +243,7 @@ public class Messaging: NSObject, Extension {
             }
         }
 
-        let requestedPropositions = retrieveCachedPropositions(surfaces: requestedSurfaces)
+        let requestedPropositions = retrievePropositions(surfaces: requestedSurfaces)
         guard !requestedPropositions.isEmpty else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Not dispatching a notification event, personalization:decisions response does not contain propositions.")
             return
@@ -259,7 +259,7 @@ public class Messaging: NSObject, Extension {
         dispatch(event: event)
     }
 
-    private func retrieveCachedPropositions(surfaces: [Surface]) -> [Surface: [Proposition]] {
+    private func retrievePropositions(surfaces: [Surface]) -> [Surface: [Proposition]] {
         var propositionsDict: [Surface: [Proposition]] = [:]
         for surface in surfaces {
             // add code-based propositions
