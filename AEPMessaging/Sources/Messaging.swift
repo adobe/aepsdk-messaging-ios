@@ -188,17 +188,11 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        let inboundMessages = feedRulesEngine.evaluate(event: event) ?? [:]
-        messagingState.updateInboundMessages(inboundMessages, requestedSurfaces: requestedSurfaces)
-
-        var transformedPropositions = transformInboundMessages(requestedSurfaces: requestedSurfaces)
-        for surface in requestedSurfaces {
-            if let propositionsArray = messagingState.propositions[surface] {
-                transformedPropositions.addArray(propositionsArray, forKey: surface)
-            }
+        if let inboundMessages = feedRulesEngine.evaluate(event: event) {
+            messagingState.updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
         }
 
-        let requestedPropositions = transformedPropositions.filter { requestedSurfaces.contains($0.key) }
+        let requestedPropositions = retrievePropositions(surfaces: requestedSurfaces)
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
 
         let responseEvent = event.createResponseEvent(
@@ -241,27 +235,19 @@ public class Messaging: NSObject, Extension {
             rulesEngine.launchRulesEngine.loadRules(inAppRules, clearExisting: clearExistingRules)
         }
 
-        var inboundMessages: [Surface: [Inbound]] = [:]
         if let feedItemRules = rules[InboundType.feed] {
             Log.trace(label: MessagingConstants.LOG_TAG, "The personalization:decisions response contains feed message definitions.")
             feedRulesEngine.launchRulesEngine.loadRules(feedItemRules, clearExisting: clearExistingRules)
-            inboundMessages = feedRulesEngine.evaluate(event: event) ?? [:]
-            messagingState.updateInboundMessages(inboundMessages, requestedSurfaces: requestedSurfaces)
-        }
-
-        guard let propositions = propositions, !propositions.isEmpty else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Not dispatching a notification event, personalization:decisions response does not contain propositions.")
-            return
-        }
-
-        var transformedPropositions = transformInboundMessages(requestedSurfaces: requestedSurfaces)
-        for surface in requestedSurfaces {
-            if let propositionsArray = messagingState.propositions[surface] {
-                transformedPropositions.addArray(propositionsArray, forKey: surface)
+            if let inboundMessages = feedRulesEngine.evaluate(event: event) {
+                messagingState.updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
             }
         }
 
-        let requestedPropositions = transformedPropositions.filter { requestedSurfaces.contains($0.key) }
+        let requestedPropositions = retrievePropositions(surfaces: requestedSurfaces)
+        guard !requestedPropositions.isEmpty else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Not dispatching a notification event, personalization:decisions response does not contain propositions.")
+            return
+        }
 
         // dispatch an event with the propositions received from the remote
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
@@ -273,14 +259,19 @@ public class Messaging: NSObject, Extension {
         dispatch(event: event)
     }
 
-    private func transformInboundMessages(requestedSurfaces: [Surface]) -> [Surface: [Proposition]] {
+    private func retrievePropositions(surfaces: [Surface]) -> [Surface: [Proposition]] {
         var propositionsDict: [Surface: [Proposition]] = [:]
-        for surface in requestedSurfaces {
+        for surface in surfaces {
+            // add code-based propositions
+            if let propositionsArray = messagingState.propositions[surface] {
+                propositionsDict[surface] = propositionsArray
+            }
+
             guard let inboundArray = messagingState.inboundMessages[surface] else {
                 continue
             }
 
-            var transformedPropositions: [Proposition] = []
+            var inboundPropositions: [Proposition] = []
             for message in inboundArray {
                 guard let propositionInfo = messagingState.propositionInfo[message.uniqueId] else {
                     continue
@@ -295,16 +286,16 @@ public class Messaging: NSObject, Extension {
                     content: itemContent ?? ""
                 )
 
-                let prop = Proposition(
+                let proposition = Proposition(
                     uniqueId: propositionInfo.id,
                     scope: propositionInfo.scope,
                     scopeDetails: propositionInfo.scopeDetails,
                     items: [propositionItem]
                 )
 
-                transformedPropositions.append(prop)
+                inboundPropositions.append(proposition)
             }
-            propositionsDict[surface] = transformedPropositions
+            propositionsDict.addArray(inboundPropositions, forKey: surface)
         }
         return propositionsDict
     }
@@ -479,7 +470,7 @@ public class Messaging: NSObject, Extension {
                     }
                 }
 
-                let inboundType = isInAppConsequence ? InboundType.inapp : InboundType(from: consequence?.detailType ?? "")
+                let inboundType = isInAppConsequence ? InboundType.inapp : InboundType(from: consequence?.detailSchema ?? "")
                 rules.addArray(parsedRules, forKey: inboundType)
             }
         }
