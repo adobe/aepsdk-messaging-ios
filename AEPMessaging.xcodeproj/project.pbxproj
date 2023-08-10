@@ -40,9 +40,8 @@
 		094C4E9E2A74FC4200D99C70 /* FeedItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094C4E9D2A74FC4200D99C70 /* FeedItemView.swift */; };
 		0969D6342A75D55E00A00BF7 /* CustomImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D6332A75D55E00A00BF7 /* CustomImageView.swift */; };
 		0969D6362A760AF900A00BF7 /* CustomHtmlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D6352A760AF900A00BF7 /* CustomHtmlView.swift */; };
-		0969D6382A79BB3C00A00BF7 /* MessagingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D6372A79BB3C00A00BF7 /* MessagingState.swift */; };
+		0969D6382A79BB3C00A00BF7 /* Messaging+State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D6372A79BB3C00A00BF7 /* Messaging+State.swift */; };
 		0969D63C2A7A0EF600A00BF7 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D63B2A7A0EF600A00BF7 /* CustomTextView.swift */; };
-		0969D63E2A7A91F600A00BF7 /* MessagingState+Caching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D63D2A7A91F600A00BF7 /* MessagingState+Caching.swift */; };
 		0969D6402A7A9DC600A00BF7 /* MessagingMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D63F2A7A9DC600A00BF7 /* MessagingMigrator.swift */; };
 		0969D6D12A7AFB3800A00BF7 /* Preview Content in Resources */ = {isa = PBXBuildFile; fileRef = 0969D6D02A7AFB3800A00BF7 /* Preview Content */; };
 		096E19922A758D1600D4EBCF /* FeedItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096E19912A758D1600D4EBCF /* FeedItemDetailView.swift */; };
@@ -57,6 +56,7 @@
 		2402745C29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
 		2402745D29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
 		2402745E29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
+		240316B82A83DDD80016B0D9 /* Cache+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */; };
 		240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */; };
 		2414ED832899BA080036D505 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED822899BA080036D505 /* AppDelegate.m */; };
 		2414ED862899BA080036D505 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED852899BA080036D505 /* SceneDelegate.m */; };
@@ -361,9 +361,8 @@
 		094C4E9D2A74FC4200D99C70 /* FeedItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemView.swift; sourceTree = "<group>"; };
 		0969D6332A75D55E00A00BF7 /* CustomImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomImageView.swift; sourceTree = "<group>"; };
 		0969D6352A760AF900A00BF7 /* CustomHtmlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomHtmlView.swift; sourceTree = "<group>"; };
-		0969D6372A79BB3C00A00BF7 /* MessagingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingState.swift; sourceTree = "<group>"; };
+		0969D6372A79BB3C00A00BF7 /* Messaging+State.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+State.swift"; sourceTree = "<group>"; };
 		0969D63B2A7A0EF600A00BF7 /* CustomTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
-		0969D63D2A7A91F600A00BF7 /* MessagingState+Caching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessagingState+Caching.swift"; sourceTree = "<group>"; };
 		0969D63F2A7A9DC600A00BF7 /* MessagingMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingMigrator.swift; sourceTree = "<group>"; };
 		0969D6D02A7AFB3800A00BF7 /* Preview Content */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Preview Content"; sourceTree = "<group>"; };
 		096E19912A758D1600D4EBCF /* FeedItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemDetailView.swift; sourceTree = "<group>"; };
@@ -376,6 +375,7 @@
 		09B071F12A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KeyedDecodingContainer+Messaging.swift"; sourceTree = "<group>"; };
 		09B071F52A7318CB00F259C1 /* Array+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Messaging.swift"; sourceTree = "<group>"; };
 		2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableMessagingDelegate.swift; sourceTree = "<group>"; };
+		240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Cache+Messaging.swift"; sourceTree = "<group>"; };
 		240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedStateResult+Messaging.swift"; sourceTree = "<group>"; };
 		2414ED7F2899BA080036D505 /* MessagingDemoAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2414ED812899BA080036D505 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -770,6 +770,7 @@
 				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
 				09B071F52A7318CB00F259C1 /* Array+Messaging.swift */,
 				09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */,
+				240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */,
 				244E955A267BB253001DC957 /* Dictionary+Messaging.swift */,
 				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
 				244FEA4729B8E2950058FA1C /* Feed.swift */,
@@ -785,8 +786,7 @@
 				244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
 				0969D63F2A7A9DC600A00BF7 /* MessagingMigrator.swift */,
-				0969D6372A79BB3C00A00BF7 /* MessagingState.swift */,
-				0969D63D2A7A91F600A00BF7 /* MessagingState+Caching.swift */,
+				0969D6372A79BB3C00A00BF7 /* Messaging+State.swift */,
 				244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */,
 				92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */,
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
@@ -1783,6 +1783,7 @@
 				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
 				09B071F62A7318CB00F259C1 /* Array+Messaging.swift in Sources */,
 				244FEA4829B8E2950058FA1C /* Feed.swift in Sources */,
+				240316B82A83DDD80016B0D9 /* Cache+Messaging.swift in Sources */,
 				245059522671283F00CC7CA0 /* MessagingRulesEngine.swift in Sources */,
 				244C2BD826B36480008F086A /* MessagingEdgeEventType.swift in Sources */,
 				2450599D2673FABF00CC7CA0 /* Messaging+PublicAPI.swift in Sources */,
@@ -1790,14 +1791,13 @@
 				090290C729DCEE1000388226 /* LaunchRulesEngine+Messaging.swift in Sources */,
 				245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */,
 				244E9584268262C8001DC957 /* Message.swift in Sources */,
-				0969D63E2A7A91F600A00BF7 /* MessagingState+Caching.swift in Sources */,
 				09B071F02A658D4800F259C1 /* InboundType.swift in Sources */,
 				244E955B267BB253001DC957 /* Dictionary+Messaging.swift in Sources */,
 				0969D6402A7A9DC600A00BF7 /* MessagingMigrator.swift in Sources */,
 				090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */,
 				244C2BDE26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift in Sources */,
 				09B071F22A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift in Sources */,
-				0969D6382A79BB3C00A00BF7 /* MessagingState.swift in Sources */,
+				0969D6382A79BB3C00A00BF7 /* Messaging+State.swift in Sources */,
 				243B1B0028B411630074327E /* PayloadItem.swift in Sources */,
 				241B2DD42821C80C00E4FF67 /* URL+QueryParams.swift in Sources */,
 				245059A22673FAC200CC7CA0 /* Messaging.swift in Sources */,
