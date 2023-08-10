@@ -24,14 +24,14 @@ public enum InboundType: Int, Codable {
     /// InApp
     case inapp = 2
 
-    /// Initializes InboundType with the provided content format string.
-    /// - Parameter format: Inbound content format string
-    init(from format: String) {
-        switch format {
-        case "ajoFeedItem":
+    /// Initializes InboundType with the provided content schema string.
+    /// - Parameter format: Inbound content schema string
+    init(from schema: String) {
+        switch schema {
+        case MessagingConstants.Event.Data.Values.Inbound.SCHEMA_FEED_ITEM:
             self = .feed
 
-        case "ajoIam":
+        case MessagingConstants.Event.Data.Values.Inbound.SCHEMA_IAM:
             self = .inapp
 
         default:
@@ -39,14 +39,14 @@ public enum InboundType: Int, Codable {
         }
     }
 
-    /// Returns the content format String of `InboundType`.
-    /// - Returns: A string representing the Inbound content format.
+    /// Returns the content schema string of `InboundType`.
+    /// - Returns: A string representing the Inbound content schema.
     public func toString() -> String {
         switch self {
         case .feed:
-            return "ajoFeedItem"
+            return MessagingConstants.Event.Data.Values.Inbound.SCHEMA_FEED_ITEM
         case .inapp:
-            return "ajoIam"
+            return MessagingConstants.Event.Data.Values.Inbound.SCHEMA_IAM
         default:
             return ""
         }

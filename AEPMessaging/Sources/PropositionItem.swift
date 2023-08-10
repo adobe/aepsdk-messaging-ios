@@ -75,8 +75,8 @@ public class PropositionItem: NSObject, Codable {
         try container.encode(uniqueId, forKey: .id)
         try container.encode(schema, forKey: .schema)
 
-        var data = container.nestedContainer(keyedBy: DataKeys.self, forKey: .data)
-        try data.encode(content, forKey: .content)
+        var nestedContainer = container.nestedContainer(keyedBy: DataKeys.self, forKey: .data)
+        try nestedContainer.encode(content, forKey: .content)
     }
 }
 
