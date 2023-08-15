@@ -193,7 +193,7 @@ public class Messaging: NSObject, Extension {
         }
 
         if let inboundMessages = feedRulesEngine.evaluate(event: event) {
-            messagingState.updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
+            updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
         }
 
         let requestedPropositions = retrievePropositions(surfaces: requestedSurfaces)
@@ -243,7 +243,7 @@ public class Messaging: NSObject, Extension {
             Log.trace(label: MessagingConstants.LOG_TAG, "The personalization:decisions response contains feed message definitions.")
             feedRulesEngine.launchRulesEngine.loadRules(feedItemRules, clearExisting: clearExistingRules)
             if let inboundMessages = feedRulesEngine.evaluate(event: event) {
-                messagingState.updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
+                updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
             }
         }
 
@@ -267,11 +267,11 @@ public class Messaging: NSObject, Extension {
         var propositionsDict: [Surface: [Proposition]] = [:]
         for surface in surfaces {
             // add code-based propositions
-            if let propositionsArray = messagingState.propositions[surface] {
+            if let propositionsArray = propositions[surface] {
                 propositionsDict[surface] = propositionsArray
             }
 
-            guard let inboundArray = messagingState.inboundMessages[surface] else {
+            guard let inboundArray = inboundMessages[surface] else {
                 continue
             }
 
@@ -421,7 +421,7 @@ public class Messaging: NSObject, Extension {
     }
 
     func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
-        messagingState.propositionInfo[messageId]
+        propositionInfo[messageId]
     }
 
     // swiftlint:disable function_body_length
@@ -483,7 +483,8 @@ public class Messaging: NSObject, Extension {
         updatePropositionInfo(tempPropInfo)
 
         if persistChanges {
-            cachePropositions(inAppPropositions)
+            // TODO: do we need to make sure we're only updating cache for `expectedSurfaces`?
+            cache.setPropositions(inAppPropositions)
         }
         return rules
     }

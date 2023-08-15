@@ -16,68 +16,11 @@ extension Messaging {
     
     /// Loads propositions from persistence into memory then hydrates the messaging rules engine
     func loadCachedPropositions() {
-        guard let cachedPropositions = retrieveCachedPropositions() else {
+        guard let cachedPropositions = cache.propositions else {
             return
         }
-        let rules = parsePropositions(cachedPropositions.values.flatMap { $0 }, expectedSurfaces: cachedPropositions.map { $0.key }, clearExisting: false, persistChanges: false)
-
-        rulesEngine.launchRulesEngine.loadRules(rules[InboundType.inapp] ?? [], clearExisting: false)
-    }
-    
-    func retrieveCachedPropositions() -> [Surface: [Proposition]]? {
-        guard let cachedPropositions = cache.get(key: MessagingConstants.Caches.PROPOSITIONS) else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages, cache file not found.")
-            return nil
-        }
-
-        let decoder = JSONDecoder()
-        guard let propositionsDict: [String: [Proposition]] = try? decoder.decode([String: [Proposition]].self, from: cachedPropositions.data) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "No message definitions found in cache.")
-            return nil
-        }
-
-        var retrievedPropositions: [Surface: [Proposition]] = [:]
-        for (key, value) in propositionsDict {
-            retrievedPropositions[Surface(uri: key)] = value
-        }
-        return retrievedPropositions
-    }
-
-    func removeCachedPropositions(surfaces: [Surface]) {
-        guard var propositionsDict = retrieveCachedPropositions(), !propositionsDict.isEmpty else {
-            return
-        }
-
-        for surface in surfaces {
-            propositionsDict.removeValue(forKey: surface)
-        }
-
-        cachePropositions(propositionsDict)
-    }
-
-    func cachePropositions(_ propositionsDict: [Surface: [Proposition]]) {
-        var propositionsToCache: [String: [Proposition]] = [:]
-        for (key, value) in propositionsDict {
-            propositionsToCache[key.uri] = value
-        }
-
-        if propositionsToCache.isEmpty {
-            Log.trace(label: MessagingConstants.LOG_TAG, "No new messages are available to update in-app messaging cache.")
-            return
-        }
-
-        let encoder = JSONEncoder()
-        guard let cacheData = try? encoder.encode(propositionsToCache) else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Error creating in-app messaging cache, unable to encode proposition.")
-            return
-        }
-        let cacheEntry = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
-        do {
-            try cache.set(key: MessagingConstants.Caches.PROPOSITIONS, entry: cacheEntry)
-            Log.trace(label: MessagingConstants.LOG_TAG, "In-app messaging cache has been created.")
-        } catch {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Error creating in-app messaging cache: \(error).")
-        }
+        propositions = cachedPropositions
+        hydratePropositionsRulesEngine()
     }
     
     func clear(surfaces: [Surface]) {
@@ -135,5 +78,24 @@ extension Messaging {
             }
         }
         return feedMessages
+    }
+    
+    // MARK: - private methods
+    
+    private func hydratePropositionsRulesEngine() {
+        let rules = parsePropositions(propositions.values.flatMap { $0 }, expectedSurfaces: propositions.map { $0.key }, clearExisting: false, persistChanges: false)
+        rulesEngine.launchRulesEngine.loadRules(rules[InboundType.inapp] ?? [], clearExisting: false)
+    }
+    
+    private func removeCachedPropositions(surfaces: [Surface]) {
+        guard var propositionsDict = cache.propositions, !propositionsDict.isEmpty else {
+            return
+        }
+
+        for surface in surfaces {
+            propositionsDict.removeValue(forKey: surface)
+        }
+
+        cache.setPropositions(propositionsDict)
     }
 }
