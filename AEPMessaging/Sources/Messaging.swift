@@ -493,27 +493,27 @@ public class Messaging: NSObject, Extension {
 
     #if DEBUG
         /// For testing purposes only
-        internal func propositionInfoCount() -> Int {
+        func propositionInfoCount() -> Int {
             propositionInfo.count
         }
 
         /// For testing purposes only
-        internal func inMemoryPropositionsCount() -> Int {
+        func inMemoryPropositionsCount() -> Int {
             propositions.count
         }
 
         /// Used for testing only
-        internal func setMessagesRequestEventId(_ newId: String) {
+        func setMessagesRequestEventId(_ newId: String) {
             messagesRequestEventId = newId
         }
 
         /// Used for testing only
-        internal func setLastProcessedRequestEventId(_ newId: String) {
+        func setLastProcessedRequestEventId(_ newId: String) {
             lastProcessedRequestEventId = newId
         }
 
         /// Used for testing only
-        internal func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
+        func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
             requestedSurfacesforEventId[eventId] = expectedSurfaces
         }
     #endif
