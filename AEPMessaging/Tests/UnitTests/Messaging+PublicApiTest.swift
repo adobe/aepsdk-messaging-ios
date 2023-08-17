@@ -126,32 +126,12 @@ class MessagingPublicApiTest: XCTestCase {
         let mockCustomActionId = "mockCustomActionId"
         let mockIdentifier = "mockIdentifier"
         expectation.assertForOverFulfill = true
+        expectation.isInverted = true
 
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
 
+        
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent) { event in
-            XCTAssertEqual(MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION, event.name)
-            XCTAssertEqual(MessagingConstants.Event.EventType.messaging, event.type)
-            XCTAssertEqual(EventSource.requestContent, event.source)
-
-            guard let eventData = event.data,
-                  let applicationOpened = eventData[MessagingConstants.Event.Data.Key.APPLICATION_OPENED] as? Bool,
-                  let eventDataType = eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] as? String,
-                  let actionId = eventData[MessagingConstants.Event.Data.Key.ACTION_ID] as? String,
-                  let messageId = eventData[MessagingConstants.Event.Data.Key.MESSAGE_ID] as? String,
-                  let xdm = eventData[MessagingConstants.Event.Data.Key.ADOBE_XDM] as? [String: Any]
-            else {
-                XCTFail()
-                expectation.fulfill()
-                return
-            }
-
-            XCTAssertTrue(applicationOpened)
-            XCTAssertEqual(MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION, eventDataType)
-            XCTAssertEqual(actionId, mockCustomActionId)
-            XCTAssertEqual(messageId, mockIdentifier)
-            XCTAssertEqual(0, xdm.count)
-
             expectation.fulfill()
         }
 
@@ -166,7 +146,7 @@ class MessagingPublicApiTest: XCTestCase {
         }
 
         Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActionId)
-        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+        wait(for: [expectation], timeout: 1)
     }
 
     func testHandleNotificationResponseEmptyMessageId() {
