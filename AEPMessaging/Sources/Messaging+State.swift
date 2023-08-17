@@ -13,7 +13,6 @@ import AEPServices
 import Foundation
 
 extension Messaging {
-    
     /// Loads propositions from persistence into memory then hydrates the messaging rules engine
     func loadCachedPropositions() {
         guard let cachedPropositions = cache.propositions else {
@@ -22,7 +21,7 @@ extension Messaging {
         propositions = cachedPropositions
         hydratePropositionsRulesEngine()
     }
-    
+
     func clear(surfaces: [Surface]) {
         for surface in surfaces {
             propositions.removeValue(forKey: surface)
@@ -79,14 +78,14 @@ extension Messaging {
         }
         return feedMessages
     }
-    
+
     // MARK: - private methods
-    
+
     private func hydratePropositionsRulesEngine() {
         let rules = parsePropositions(propositions.values.flatMap { $0 }, expectedSurfaces: propositions.map { $0.key }, clearExisting: false, persistChanges: false)
         rulesEngine.launchRulesEngine.loadRules(rules[InboundType.inapp] ?? [], clearExisting: false)
     }
-    
+
     private func removeCachedPropositions(surfaces: [Surface]) {
         guard var propositionsDict = cache.propositions, !propositionsDict.isEmpty else {
             return

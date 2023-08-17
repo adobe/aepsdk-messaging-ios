@@ -16,7 +16,6 @@ import Foundation
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
-        
     // MARK: - Class members
 
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
@@ -24,19 +23,20 @@ public class Messaging: NSObject, Extension {
     public var friendlyName = MessagingConstants.FRIENDLY_NAME
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
+
     // MARK: - Messaging State
-    
+
     var propositions: [Surface: [Proposition]] = [:]
     var propositionInfo: [String: PropositionInfo] = [:]
     var inboundMessages: [Surface: [Inbound]] = [:]
-    var cache: Cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
-    
+    var cache: Cache = .init(name: MessagingConstants.Caches.CACHE_NAME)
+
     private var messagesRequestEventId: String = ""
     private var lastProcessedRequestEventId: String = ""
     private var initialLoadComplete = false
     let rulesEngine: MessagingRulesEngine
     let feedRulesEngine: FeedRulesEngine
-    
+
     private var requestedSurfacesforEventId: [String: [Surface]] = [:]
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.

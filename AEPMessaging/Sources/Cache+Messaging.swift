@@ -15,7 +15,7 @@ import Foundation
 
 extension Cache {
     // MARK: - getters
-    
+
     var propositions: [Surface: [Proposition]]? {
         guard let cachedPropositions = get(key: MessagingConstants.Caches.PROPOSITIONS) else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages, cache file not found.")
@@ -34,15 +34,15 @@ extension Cache {
         }
         return retrievedPropositions
     }
-        
+
     // MARK: setters
-    
+
     func setPropositions(_ propositions: [Surface: [Proposition]]?) {
         guard let propositions = propositions, !propositions.isEmpty else {
             try? remove(key: MessagingConstants.Caches.PROPOSITIONS)
             return
         }
-                
+
         var propositionsToCache: [String: [Proposition]] = [:]
         for (key, value) in propositions {
             propositionsToCache[key.uri] = value
