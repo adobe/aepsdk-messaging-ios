@@ -25,7 +25,6 @@ import UserNotifications
     @objc(handleNotificationResponse:applicationOpened:withCustomActionId:)
     @discardableResult
     static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) -> Bool {
-        
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
@@ -34,7 +33,7 @@ import UserNotifications
             Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
             return false
         }
-        
+
         // Creating event data with tracking informations
         var eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
                                         MessagingConstants.Event.Data.Key.APPLICATION_OPENED: applicationOpened,
@@ -67,7 +66,7 @@ import UserNotifications
             Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
             return false
         }
-        
+
         DispatchQueue.global().async {
             hasApplicationOpenedForResponse(response, completion: { isAppOpened in
 
@@ -84,7 +83,7 @@ import UserNotifications
                 MobileCore.dispatch(event: event)
             })
         }
-        
+
         return true
     }
 
