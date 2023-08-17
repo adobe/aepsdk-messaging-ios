@@ -12,17 +12,14 @@
 import AEPServices
 import Foundation
 
-class MessagingState {
-    private(set) var propositions: [Surface: [Proposition]]
-    private(set) var propositionInfo: [String: PropositionInfo]
-    private(set) var inboundMessages: [Surface: [Inbound]]
-    private(set) var cache: Cache
-
-    init(cache: Cache) {
-        self.cache = cache
-        propositions = [:]
-        propositionInfo = [:]
-        inboundMessages = [:]
+extension Messaging {
+    /// Loads propositions from persistence into memory then hydrates the messaging rules engine
+    func loadCachedPropositions() {
+        guard let cachedPropositions = cache.propositions else {
+            return
+        }
+        propositions = cachedPropositions
+        hydratePropositionsRulesEngine()
     }
 
     func clear(surfaces: [Surface]) {
@@ -80,5 +77,24 @@ class MessagingState {
             }
         }
         return feedMessages
+    }
+
+    // MARK: - private methods
+
+    private func hydratePropositionsRulesEngine() {
+        let rules = parsePropositions(propositions.values.flatMap { $0 }, expectedSurfaces: propositions.map { $0.key }, clearExisting: false, persistChanges: false)
+        rulesEngine.launchRulesEngine.loadRules(rules[InboundType.inapp] ?? [], clearExisting: false)
+    }
+
+    private func removeCachedPropositions(surfaces: [Surface]) {
+        guard var propositionsDict = cache.propositions, !propositionsDict.isEmpty else {
+            return
+        }
+
+        for surface in surfaces {
+            propositionsDict.removeValue(forKey: surface)
+        }
+
+        cache.setPropositions(propositionsDict)
     }
 }

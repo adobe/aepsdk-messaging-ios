@@ -10,13 +10,14 @@
  governing permissions and limitations under the License.
  */
 
-import AEPCore
 import AEPServices
 import Foundation
 
-extension MessagingState {
-    func retrieveCachedPropositions() -> [Surface: [Proposition]]? {
-        guard let cachedPropositions = cache.get(key: MessagingConstants.Caches.PROPOSITIONS) else {
+extension Cache {
+    // MARK: - getters
+
+    var propositions: [Surface: [Proposition]]? {
+        guard let cachedPropositions = get(key: MessagingConstants.Caches.PROPOSITIONS) else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages, cache file not found.")
             return nil
         }
@@ -34,21 +35,16 @@ extension MessagingState {
         return retrievedPropositions
     }
 
-    func removeCachedPropositions(surfaces: [Surface]) {
-        guard var propositionsDict = retrieveCachedPropositions(), !propositionsDict.isEmpty else {
+    // MARK: setters
+
+    func setPropositions(_ propositions: [Surface: [Proposition]]?) {
+        guard let propositions = propositions, !propositions.isEmpty else {
+            try? remove(key: MessagingConstants.Caches.PROPOSITIONS)
             return
         }
 
-        for surface in surfaces {
-            propositionsDict.removeValue(forKey: surface)
-        }
-
-        cachePropositions(propositionsDict)
-    }
-
-    func cachePropositions(_ propositionsDict: [Surface: [Proposition]]) {
         var propositionsToCache: [String: [Proposition]] = [:]
-        for (key, value) in propositionsDict {
+        for (key, value) in propositions {
             propositionsToCache[key.uri] = value
         }
 
@@ -64,7 +60,7 @@ extension MessagingState {
         }
         let cacheEntry = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
         do {
-            try cache.set(key: MessagingConstants.Caches.PROPOSITIONS, entry: cacheEntry)
+            try set(key: MessagingConstants.Caches.PROPOSITIONS, entry: cacheEntry)
             Log.trace(label: MessagingConstants.LOG_TAG, "In-app messaging cache has been created.")
         } catch {
             Log.warning(label: MessagingConstants.LOG_TAG, "Error creating in-app messaging cache: \(error).")
