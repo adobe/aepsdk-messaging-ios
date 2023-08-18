@@ -141,6 +141,20 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         XCTAssertEqual("ForegroundActionId",flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
     }
     
+    func test_notificationOpen_whenNotAJONotification() {
+        // This test simulates the reaction of handleNotificationResponse API when the notifcation is not generated from AJO
+        // "_xdm" key in userInfo contains all the tracking information from AJO. Absense of this key mean this notification is not generated from AJO
+        setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
+        let response = prepareNotificationResponse(withUserInfo: ["nospecificAJOKey":"noAJOKey"])!
+        
+        // test
+        XCTAssertFalse(Messaging.handleNotificationResponse(response))
+        
+        // verify no tracking event is dispatched
+        let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
+        XCTAssertEqual(0, events.count)
+    }
+    
     
     func test_notificationTracking_whenUser_tapsNotificationActionThatDoNotOpenTheApp() {
         // setup
@@ -187,7 +201,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         // This test simulates clicking on a notification action button for which notification options buttons are empty
         // setup
         setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
-        let response = prepareNotificationResponse(withUserInfo: ["adb_uri":"https://google.com"])!
+        let response = prepareNotificationResponse(withUserInfo: ["adb_uri":"https://google.com", "_xdm": ["trackingKey": "trackingValue"]])!
         
         // test
         Messaging.handleNotificationResponse(response)
@@ -208,7 +222,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         // This test simulates clicking on a notification action button for which notification options buttons are empty
         // setup
         setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
-        let response = prepareNotificationResponse(withUserInfo: ["adb_uri":"https://google.com"], actionIdentifier: "ForegroundActionId", categoryIdentifier: "CategoryId")!
+        let response = prepareNotificationResponse(withUserInfo: ["adb_uri":"https://google.com","_xdm": ["trackingKey": "trackingValue"]], actionIdentifier: "ForegroundActionId", categoryIdentifier: "CategoryId")!
         
         // test
         Messaging.handleNotificationResponse(response)
