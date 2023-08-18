@@ -285,12 +285,12 @@ public class Messaging: NSObject, Extension {
 
     #if DEBUG
         /// Used for testing only
-        internal func setMessagesRequestEventId(_ newId: String?) {
+        func setMessagesRequestEventId(_ newId: String?) {
             messagesRequestEventId = newId
         }
 
         /// Used for testing only
-        internal func setLastProcessedRequestEventId(_ newId: String?) {
+        func setLastProcessedRequestEventId(_ newId: String?) {
             lastProcessedRequestEventId = newId
         }
     #endif
