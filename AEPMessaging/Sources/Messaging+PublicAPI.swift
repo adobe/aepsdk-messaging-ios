@@ -28,8 +28,7 @@ import UserNotifications
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
-        let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any]
-        if xdm == nil {
+        guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
             return false
         }
@@ -37,7 +36,7 @@ import UserNotifications
         // Creating event data with tracking informations
         var eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
                                         MessagingConstants.Event.Data.Key.APPLICATION_OPENED: applicationOpened,
-                                        MessagingConstants.XDM.Key.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
+                                        MessagingConstants.XDM.Key.ADOBE_XDM: xdm]
         if customActionId == nil {
             eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
         } else {
@@ -61,8 +60,7 @@ import UserNotifications
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
-        let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any]
-        if xdm == nil {
+        guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
             return false
         }
@@ -72,7 +70,7 @@ import UserNotifications
 
                 let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
                                                 MessagingConstants.Event.Data.Key.APPLICATION_OPENED: isAppOpened,
-                                                MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use
+                                                MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm]
 
                 let modifiedEventData = addNotificationActionToEventData(eventData, response)
 
@@ -107,7 +105,7 @@ import UserNotifications
     ///
     /// - Parameters:
     ///   - response: The user's response to a notification, represented by a `UNNotificationResponse` object.
-    ///   - completion: A closure that takes a `Bool` parameter indicating whether the application was opened or not. This closure is invoked asynchronously once the determination is made.
+    ///   - completion: The completion block to be executed with a boolean value determining if application was opened because of users interaction with the notification.
     ///
     /// - Note: The completion handler is invoked asynchronously, so any code relying on the result should be placed within the completion handler or called from there.
     private static func hasApplicationOpenedForResponse(_ response: UNNotificationResponse, completion: @escaping (Bool) -> Void) {

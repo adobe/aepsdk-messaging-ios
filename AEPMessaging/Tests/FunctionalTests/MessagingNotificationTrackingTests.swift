@@ -155,6 +155,19 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         XCTAssertEqual(0, events.count)
     }
     
+    func test_notificationOpen_whenAJONotification_withEmptyTrackingInformation() {
+        // This test simulates the reaction of handleNotificationResponse API when the notifcation from AJO contains no information in the tracking field "_xdm"
+        setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
+        let response = prepareNotificationResponse(withUserInfo: ["_xdm": [:] as [String:Any]])!
+        
+        // test
+        XCTAssertFalse(Messaging.handleNotificationResponse(response))
+        
+        // verify no tracking event is dispatched
+        let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
+        XCTAssertEqual(0, events.count)
+    }
+
     
     func test_notificationTracking_whenUser_tapsNotificationActionThatDoNotOpenTheApp() {
         // setup
