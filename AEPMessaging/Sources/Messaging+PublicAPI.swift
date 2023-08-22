@@ -20,26 +20,23 @@ import UserNotifications
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
+    /// - Returns: boolean value that signifies whether the notification originated from AJO and whether the API has proceeded with notification tracking.
+    @available(*, deprecated, message: "This method is deprecated. Use Messaging.handleNotificationResponse(:) instead to automatically track application open and handle notification actions.")
     @objc(handleNotificationResponse:applicationOpened:withCustomActionId:)
-    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
+    @discardableResult
+    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) -> Bool {
         let notificationRequest = response.notification.request
 
-        // Checking if the message has the optional xdm key
-        let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any]
-        if xdm == nil {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Optional XDM specific fields are missing from push notification interaction.")
-        }
-
-        let messageId = notificationRequest.identifier
-        if messageId.isEmpty {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track push notification interaction, MessageId is empty in the response.")
-            return
+        // Checking if the message has the _xdm key that contains tracking information
+        guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
+            return false
         }
 
         // Creating event data with tracking informations
-        var eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: messageId,
+        var eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
                                         MessagingConstants.Event.Data.Key.APPLICATION_OPENED: applicationOpened,
-                                        MessagingConstants.XDM.Key.ADOBE_XDM: xdm ?? [:]] // If xdm data is nil we use empty dictionary
+                                        MessagingConstants.XDM.Key.ADOBE_XDM: xdm]
         if customActionId == nil {
             eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
         } else {
@@ -52,6 +49,40 @@ import UserNotifications
                           source: EventSource.requestContent,
                           data: eventData)
         MobileCore.dispatch(event: event)
+        return true
+    }
+
+    /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
+    /// - Parameter response: UNNotificationResponse object which contains the payload and xdm informations.
+    /// - Returns: boolean value that signifies whether the notification originated from AJO and whether the API has proceeded with notification tracking.
+    @discardableResult
+    static func handleNotificationResponse(_ response: UNNotificationResponse) -> Bool {
+        let notificationRequest = response.notification.request
+
+        // Checking if the message has the _xdm key that contains tracking information
+        guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
+            return false
+        }
+
+        DispatchQueue.global().async {
+            hasApplicationOpenedForResponse(response, completion: { isAppOpened in
+
+                let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
+                                                MessagingConstants.Event.Data.Key.APPLICATION_OPENED: isAppOpened,
+                                                MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm]
+
+                let modifiedEventData = addNotificationActionToEventData(eventData, response)
+
+                let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
+                                  type: MessagingConstants.Event.EventType.messaging,
+                                  source: EventSource.requestContent,
+                                  data: modifiedEventData)
+                MobileCore.dispatch(event: event)
+            })
+        }
+
+        return true
     }
 
     /// Initiates a network call to retrieve remote In-App Message definitions.
@@ -63,5 +94,77 @@ import UserNotifications
                           data: eventData)
 
         MobileCore.dispatch(event: event)
+    }
+
+    // MARK: - Private Helper Methods
+
+    /// Determines whether the user's response to a notification has caused the application to open
+    ///
+    /// This method analyzes the registered categories and notification action buttons of the application
+    /// and determines if the application was opened based on the action performed by the user. The result is provided through the `completion` closure.
+    ///
+    /// - Parameters:
+    ///   - response: The user's response to a notification, represented by a `UNNotificationResponse` object.
+    ///   - completion: The completion block to be executed with a boolean value determining if application was opened because of user's interaction with the notification.
+    ///
+    /// - Note: The completion handler is invoked asynchronously, so any code relying on the result should be placed within the completion handler or called from there.
+    private static func hasApplicationOpenedForResponse(_ response: UNNotificationResponse, completion: @escaping (Bool) -> Void) {
+        switch response.actionIdentifier {
+        case UNNotificationDefaultActionIdentifier:
+            completion(true)
+        case UNNotificationDismissActionIdentifier:
+            completion(false)
+        default:
+            // If customAction has been performed by the user,
+            // then examine the registered custom action option to check if the action has brought the app to foreground.
+            UNUserNotificationCenter.current().getNotificationCategories { categories in
+                for category in categories where category.identifier == response.notification.request.content.categoryIdentifier {
+                    for action in category.actions where action.identifier == response.actionIdentifier {
+                        if action.options.contains(.foreground) {
+                            completion(true)
+                            return
+                        } else {
+                            completion(false)
+                            return
+                        }
+                    }
+                }
+                // Unlikely Case: If the custom actionID is not found in the registered categories, then return false
+                completion(false)
+            }
+        }
+    }
+
+    /// Modifies the provided event data based on the user's response to a notification.
+    ///
+    /// - Parameters:
+    ///   - eventData: The original event data dictionary.
+    ///   - response: The user's response to a notification, represented by a `UNNotificationResponse` object.
+    /// - Returns: The modified event data dictionary.
+    private static func addNotificationActionToEventData(_ eventData: [String: Any], _ response: UNNotificationResponse) -> [String: Any] {
+        var modifiedEventData = eventData
+        switch response.actionIdentifier {
+        case UNNotificationDefaultActionIdentifier:
+            // actionIdentifier `UNNotificationDefaultActionIdentifier` indicates user tapped the notification body.
+            // This results in opening of the application.
+            modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
+
+            // Add actionable URL to eventData if available
+            if let clickThroughURL = response.notification.request.content.userInfo[MessagingConstants.PushNotification.UserInfoKey.ACTION_URL] {
+                modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURL
+            }
+        case UNNotificationDismissActionIdentifier:
+            // actionIdentifier `UNNotificationDismissActionIdentifier` indicates user has dismissed the
+            // notification by tapping "Clear" action button.
+            modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
+            modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] = "Dismiss"
+        default:
+            // If actionIdentifier is none of the default values.
+            // This indicates that a custom action on a notification is taken by the user. (i.e. The user has clicked on one of the notification action buttons.)
+            modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
+            modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] = response.actionIdentifier
+        }
+
+        return modifiedEventData
     }
 }

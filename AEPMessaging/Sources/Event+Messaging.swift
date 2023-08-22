@@ -302,4 +302,11 @@ extension Event {
     var adobeXdm: [String: Any]? {
         data?[MessagingConstants.XDM.Key.ADOBE_XDM] as? [String: Any]
     }
+
+    var pushClickThroughUrl: URL? {
+        guard let link = data?[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] as? String else {
+            return nil
+        }
+        return URL(string: link)
+    }
 }

@@ -108,12 +108,12 @@ class MessagingRulesEngine {
 
     #if DEBUG
         /// For testing purposes only
-        internal func propositionInfoCount() -> Int {
+        func propositionInfoCount() -> Int {
             propositionInfo.count
         }
 
         /// For testing purposes only
-        internal func inMemoryPropositionsCount() -> Int {
+        func inMemoryPropositionsCount() -> Int {
             inMemoryPropositions.count
         }
     #endif
