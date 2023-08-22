@@ -154,7 +154,7 @@ import UserNotifications
                 modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURL
             }
         case UNNotificationDismissActionIdentifier:
-            // actionIdentifier `UNNotificationDefaultActionIdentifier` indicates user has dismissed the
+            // actionIdentifier `UNNotificationDismissActionIdentifier` indicates user has dismissed the
             // notification by tapping "Clear" action button.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
             modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] = "Dismiss"
