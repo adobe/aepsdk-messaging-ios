@@ -145,7 +145,7 @@ import UserNotifications
         var modifiedEventData = eventData
         switch response.actionIdentifier {
         case UNNotificationDefaultActionIdentifier:
-            // customActionId `UNNotificationDefaultActionIdentifier` indicates user tapped the notification body.
+            // actionIdentifier `UNNotificationDefaultActionIdentifier` indicates user tapped the notification body.
             // This results in opening of the application.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
 
@@ -154,13 +154,13 @@ import UserNotifications
                 modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURL
             }
         case UNNotificationDismissActionIdentifier:
-            // customActionId `UNNotificationDefaultActionIdentifier` indicates user has dismissed the
+            // actionIdentifier `UNNotificationDismissActionIdentifier` indicates user has dismissed the
             // notification by tapping "Clear" action button.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
             modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] = "Dismiss"
         default:
-            // If customActionId is none of the default values.
-            // This indicates that a custom action on a notification is taken by the user.
+            // If actionIdentifier is none of the default values.
+            // This indicates that a custom action on a notification is taken by the user. (i.e. The user has clicked on one of the notification action buttons.)
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
             modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] = response.actionIdentifier
         }
