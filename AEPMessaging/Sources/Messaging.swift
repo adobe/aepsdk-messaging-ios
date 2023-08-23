@@ -58,10 +58,11 @@ public class Messaging: NSObject, Extension {
 
     /// INTERNAL ONLY
     /// used for testing
-    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, feedRulesEngine: FeedRulesEngine, expectedSurfaceUri _: String) {
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, feedRulesEngine: FeedRulesEngine, expectedSurfaceUri _: String, cache: Cache) {
         self.runtime = runtime
         self.rulesEngine = rulesEngine
         self.feedRulesEngine = feedRulesEngine
+        self.cache = cache
         super.init()
         loadCachedPropositions()
     }

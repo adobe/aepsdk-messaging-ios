@@ -17,18 +17,11 @@ import XCTest
 import AEPServices
 
 class FeedItemTests: XCTestCase {
-    let mockId = "mockId"
     let mockTitle = "mockTitle"
     let mockBody = "mockBody"
     let mockImageUrl = "mockImageUrl"
     let mockActionUrl = "mockActionUrl"
     let mockActionTitle = "mockActionTitle"
-    let mockPublishedDate = 123456789
-    let mockExpiryDate = 23456789
-    let mockMeta: [String: Any] = [
-        "stringKey": "value",
-        "intKey": 552
-    ]
             
     override func setUp() {
         
@@ -49,18 +42,11 @@ class FeedItemTests: XCTestCase {
         let decoder = JSONDecoder()
         let feedItemData = """
 {
-    "id": "\(mockId)",
     "title": "\(mockTitle)",
     "body": "\(mockBody)",
     "imageUrl": "\(mockImageUrl)",
     "actionUrl": "\(mockActionUrl)",
-    "actionTitle": "\(mockActionTitle)",
-    "publishedDate": \(mockPublishedDate),
-    "expiryDate": \(mockExpiryDate),
-    "meta": {
-        "stringKey": "value",
-        "intKey": 552
-    }
+    "actionTitle": "\(mockActionTitle)"
 }
 """.data(using: .utf8)!
         
@@ -77,9 +63,6 @@ class FeedItemTests: XCTestCase {
         XCTAssertEqual(mockImageUrl, feedItem.imageUrl)
         XCTAssertEqual(mockActionUrl, feedItem.actionUrl)
         XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
-        XCTAssertEqual(mockPublishedDate, feedItem.publishedDate)
-        XCTAssertEqual(mockExpiryDate, feedItem.expiryDate)
-        XCTAssertTrue(dictionariesAreEqual(mockMeta, feedItem.meta))
     }
     
     func testIsEncodable() throws {
@@ -87,18 +70,11 @@ class FeedItemTests: XCTestCase {
         let decoder = JSONDecoder()
         let feedItemData = """
 {
-    "id": "\(mockId)",
     "title": "\(mockTitle)",
     "body": "\(mockBody)",
     "imageUrl": "\(mockImageUrl)",
     "actionUrl": "\(mockActionUrl)",
-    "actionTitle": "\(mockActionTitle)",
-    "publishedDate": \(mockPublishedDate),
-    "expiryDate": \(mockExpiryDate),
-    "meta": {
-        "stringKey": "value",
-        "intKey": 552
-    }
+    "actionTitle": "\(mockActionTitle)"
 }
 """.data(using: .utf8)!
         
@@ -126,11 +102,6 @@ class FeedItemTests: XCTestCase {
         XCTAssertTrue(encodedFeedItemString.contains("\"imageUrl\":\"\(mockImageUrl)\""))
         XCTAssertTrue(encodedFeedItemString.contains("\"actionUrl\":\"\(mockActionUrl)\""))
         XCTAssertTrue(encodedFeedItemString.contains("\"actionTitle\":\"\(mockActionTitle)\""))
-        XCTAssertTrue(encodedFeedItemString.contains("\"publishedDate\":\(mockPublishedDate)"))
-        XCTAssertTrue(encodedFeedItemString.contains("\"expiryDate\":\(mockExpiryDate)"))
-        let metaV1 = encodedFeedItemString.contains("\"meta\":{\"intKey\":552,\"stringKey\":\"value\"}")
-        let metaV2 = encodedFeedItemString.contains("\"meta\":{\"stringKey\":\"value\",\"intKey\":552}")
-        XCTAssertTrue(metaV1 || metaV2)
     }
     
 
@@ -141,17 +112,10 @@ class FeedItemTests: XCTestCase {
         let decoder = JSONDecoder()
         let feedItemData = """
 {
-    "id": "\(mockId)",
     "body": "\(mockBody)",
     "imageUrl": "\(mockImageUrl)",
     "actionUrl": "\(mockActionUrl)",
-    "actionTitle": "\(mockActionTitle)",
-    "publishedDate": \(mockPublishedDate),
-    "expiryDate": \(mockExpiryDate),
-    "meta": {
-        "stringKey": "value",
-        "intKey": 552
-    }
+    "actionTitle": "\(mockActionTitle)"
 }
 """.data(using: .utf8)!
         
@@ -167,69 +131,10 @@ class FeedItemTests: XCTestCase {
         let decoder = JSONDecoder()
         let feedItemData = """
 {
-    "id": "\(mockId)",
     "title": "\(mockTitle)",
     "imageUrl": "\(mockImageUrl)",
     "actionUrl": "\(mockActionUrl)",
-    "actionTitle": "\(mockActionTitle)",
-    "publishedDate": \(mockPublishedDate),
-    "expiryDate": \(mockExpiryDate),
-    "meta": {
-        "stringKey": "value",
-        "intKey": 552
-    }
-}
-""".data(using: .utf8)!
-        
-        // test
-        let feedItem = try? decoder.decode(FeedItem.self, from: feedItemData)
-        
-        // verify
-        XCTAssertNil(feedItem)
-    }
-    
-    func testPublishedDateIsRequired() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let feedItemData = """
-{
-    "id": "\(mockId)",
-    "title": "\(mockTitle)",
-    "body": "\(mockBody)",
-    "imageUrl": "\(mockImageUrl)",
-    "actionUrl": "\(mockActionUrl)",
-    "actionTitle": "\(mockActionTitle)",
-    "expiryDate": \(mockExpiryDate),
-    "meta": {
-        "stringKey": "value",
-        "intKey": 552
-    }
-}
-""".data(using: .utf8)!
-        
-        // test
-        let feedItem = try? decoder.decode(FeedItem.self, from: feedItemData)
-        
-        // verify
-        XCTAssertNil(feedItem)
-    }
-    
-    func testExpiryDateIsRequired() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let feedItemData = """
-{
-    "id": "\(mockId)",
-    "title": "\(mockTitle)",
-    "body": "\(mockBody)",
-    "imageUrl": "\(mockImageUrl)",
-    "actionUrl": "\(mockActionUrl)",
-    "actionTitle": "\(mockActionTitle)",
-    "publishedDate": \(mockPublishedDate),
-    "meta": {
-        "stringKey": "value",
-        "intKey": 552
-    }
+    "actionTitle": "\(mockActionTitle)"
 }
 """.data(using: .utf8)!
         
@@ -247,17 +152,10 @@ class FeedItemTests: XCTestCase {
         let decoder = JSONDecoder()
         let feedItemData = """
 {
-    "id": "\(mockId)",
     "title": "\(mockTitle)",
     "body": "\(mockBody)",
     "actionUrl": "\(mockActionUrl)",
-    "actionTitle": "\(mockActionTitle)",
-    "publishedDate": \(mockPublishedDate),
-    "expiryDate": \(mockExpiryDate),
-    "meta": {
-        "stringKey": "value",
-        "intKey": 552
-    }
+    "actionTitle": "\(mockActionTitle)"
 }
 """.data(using: .utf8)!
         
@@ -274,9 +172,6 @@ class FeedItemTests: XCTestCase {
         XCTAssertNil(feedItem.imageUrl)
         XCTAssertEqual(mockActionUrl, feedItem.actionUrl)
         XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
-        XCTAssertEqual(mockPublishedDate, feedItem.publishedDate)
-        XCTAssertEqual(mockExpiryDate, feedItem.expiryDate)
-        XCTAssertTrue(dictionariesAreEqual(mockMeta, feedItem.meta))
     }
     
     func testActionUrlIsNotRequired() throws {
@@ -284,17 +179,10 @@ class FeedItemTests: XCTestCase {
         let decoder = JSONDecoder()
         let feedItemData = """
 {
-    "id": "\(mockId)",
     "title": "\(mockTitle)",
     "body": "\(mockBody)",
     "imageUrl": "\(mockImageUrl)",
-    "actionTitle": "\(mockActionTitle)",
-    "publishedDate": \(mockPublishedDate),
-    "expiryDate": \(mockExpiryDate),
-    "meta": {
-        "stringKey": "value",
-        "intKey": 552
-    }
+    "actionTitle": "\(mockActionTitle)"
 }
 """.data(using: .utf8)!
         
@@ -311,9 +199,6 @@ class FeedItemTests: XCTestCase {
         XCTAssertEqual(mockImageUrl, feedItem.imageUrl)
         XCTAssertNil(feedItem.actionUrl)
         XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
-        XCTAssertEqual(mockPublishedDate, feedItem.publishedDate)
-        XCTAssertEqual(mockExpiryDate, feedItem.expiryDate)
-        XCTAssertTrue(dictionariesAreEqual(mockMeta, feedItem.meta))
     }
     
     func testActionTitleIsNotRequired() throws {
@@ -321,17 +206,10 @@ class FeedItemTests: XCTestCase {
         let decoder = JSONDecoder()
         let feedItemData = """
 {
-    "id": "\(mockId)",
     "title": "\(mockTitle)",
     "body": "\(mockBody)",
     "imageUrl": "\(mockImageUrl)",
-    "actionUrl": "\(mockActionUrl)",
-    "publishedDate": \(mockPublishedDate),
-    "expiryDate": \(mockExpiryDate),
-    "meta": {
-        "stringKey": "value",
-        "intKey": 552
-    }
+    "actionUrl": "\(mockActionUrl)"
 }
 """.data(using: .utf8)!
         
@@ -348,42 +226,5 @@ class FeedItemTests: XCTestCase {
         XCTAssertEqual(mockImageUrl, feedItem.imageUrl)
         XCTAssertEqual(mockActionUrl, feedItem.actionUrl)
         XCTAssertNil(feedItem.actionTitle)
-        XCTAssertEqual(mockPublishedDate, feedItem.publishedDate)
-        XCTAssertEqual(mockExpiryDate, feedItem.expiryDate)
-        XCTAssertTrue(dictionariesAreEqual(mockMeta, feedItem.meta))
-    }
-    
-    func testMetaIsNotRequired() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let feedItemData = """
-{
-    "id": "\(mockId)",
-    "title": "\(mockTitle)",
-    "body": "\(mockBody)",
-    "imageUrl": "\(mockImageUrl)",
-    "actionUrl": "\(mockActionUrl)",
-    "actionTitle": "\(mockActionTitle)",
-    "publishedDate": \(mockPublishedDate),
-    "expiryDate": \(mockExpiryDate)
-}
-""".data(using: .utf8)!
-        
-        // test
-        guard let feedItem = try? decoder.decode(FeedItem.self, from: feedItemData) else {
-            XCTFail("unable to decode FeedItem JSON")
-            return
-        }
-        
-        // verify
-        XCTAssertNotNil(feedItem)
-        XCTAssertEqual(mockTitle, feedItem.title)
-        XCTAssertEqual(mockBody, feedItem.body)
-        XCTAssertEqual(mockImageUrl, feedItem.imageUrl)
-        XCTAssertEqual(mockActionUrl, feedItem.actionUrl)
-        XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
-        XCTAssertEqual(mockPublishedDate, feedItem.publishedDate)
-        XCTAssertEqual(mockExpiryDate, feedItem.expiryDate)
-        XCTAssertNil(feedItem.meta)
     }
 }

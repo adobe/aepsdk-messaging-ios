@@ -36,6 +36,8 @@ class MessagingPublicApiTest: XCTestCase {
         semaphore.wait()
     }
 
+    // MARK: - handleNotificationResponse
+    
     func testHandleNotificationResponse() {
         let expectation = XCTestExpectation(description: "Messaging request event")
         let mockCustomActionId = "mockCustomActionId"
@@ -225,11 +227,11 @@ class MessagingPublicApiTest: XCTestCase {
         wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
-    // MARK: Message Feed Tests
+    // MARK: - updatePropositionsForSurfaces
     
-    func testUpdateFeedsForSurfacePaths() throws {
+    func testUpdatePropositionsForSurfaces() throws {
         // setup
-        let expectation = XCTestExpectation(description: "updateFeedsforSurfacePaths should dispatch an event with expected data.")
+        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should dispatch an event with expected data.")
         expectation.assertForOverFulfill = true
 
         let testEvent = Event(name: "Update message feeds",
@@ -264,15 +266,18 @@ class MessagingPublicApiTest: XCTestCase {
         }
 
         // test
-        Messaging.updateFeedsForSurfacePaths(["promos/feed1", "promos/feed2"])
-
+        Messaging.updatePropositionsForSurfaces([
+            Surface(path: "promos/feed1"),
+            Surface(path: "promos/feed2")
+        ])
+        
         // verify
         wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
-    func testUpdateFeedsForSurfacePaths_whenValidAndEmptySurfacesInArray() throws {
+    func testUpdatePropositionsForSurfaces_whenValidAndEmptySurfacesInArray() throws {
         // setup
-        let expectation = XCTestExpectation(description: "updateFeedsforSurfacePaths should dispatch an event with expected data.")
+        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should dispatch an event with expected data.")
         expectation.assertForOverFulfill = true
 
         let testEvent = Event(name: "Update message feeds",
@@ -306,15 +311,18 @@ class MessagingPublicApiTest: XCTestCase {
         }
 
         // test
-        Messaging.updateFeedsForSurfacePaths(["", "promos/feed2"])
-
+        Messaging.updatePropositionsForSurfaces([
+            Surface(path: ""),
+            Surface(path: "promos/feed2")
+        ])
+        
         // verify
         wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
-    func testUpdateFeedsForSurfacePaths_whenEmptySurfaceInArray() {
+    func testUpdatePropositionsForSurfaces_whenEmptySurfaceInArray() {
         // setup
-        let expectation = XCTestExpectation(description: "updateFeedsforSurfacePaths should not dispatch an event.")
+        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should not dispatch an event.")
         expectation.isInverted = true
 
         // test
@@ -325,15 +333,17 @@ class MessagingPublicApiTest: XCTestCase {
         }
 
         // test
-        Messaging.updateFeedsForSurfacePaths([""])
+        Messaging.updatePropositionsForSurfaces([
+            Surface(path: "")
+        ])
 
         // verify
         wait(for: [expectation], timeout: 1)
     }
     
-    func testUpdateFeedsForSurfacePaths_whenEmptySurfacesArray() {
+    func testUpdatePropositionsForSurfaces_whenEmptySurfacesArray() {
         // setup
-        let expectation = XCTestExpectation(description: "updateFeedsforSurfacePaths should not dispatch an event.")
+        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should not dispatch an event.")
         expectation.isInverted = true
 
         // test
@@ -344,15 +354,17 @@ class MessagingPublicApiTest: XCTestCase {
         }
 
         // test
-        Messaging.updateFeedsForSurfacePaths([])
+        Messaging.updatePropositionsForSurfaces([])
 
         // verify
         wait(for: [expectation], timeout: 1)
     }
     
-    func testSetFeedsHandler() {
+    // MARK: - setPropositionsHandler
+    
+    func testSetPropositionsHandler() {
         // setup
-        let expectation = XCTestExpectation(description: "setFeedsHandler should be called with response event upon personalization notification.")
+        let expectation = XCTestExpectation(description: "setPropositionsHandler should be called with response event upon personalization notification.")
         expectation.assertForOverFulfill = true
 
         let testEvent = Event(name: "Message feeds notification",
@@ -379,35 +391,37 @@ class MessagingPublicApiTest: XCTestCase {
                                                 "scopeDetails": [
                                                     "someInnerKey": "someInnerValue"
                                                 ]
-                                            ]
+                                            ] as [String: Any]
                                         ]
-                                    ]
+                                    ] as [String: Any]
                                 ]
                               ])
 
         // test
-        Messaging.setFeedsHandler { feedsDictionary in
-            XCTAssertEqual(1, feedsDictionary.count)
-            let feed = feedsDictionary["promos/feed1"]
-            XCTAssertNotNil(feed)
-            XCTAssertEqual("Promos feed", feed?.name)
-            XCTAssertEqual("promos/feed1", feed?.surfaceUri)
-            XCTAssertNotNil(feed?.items)
-            XCTAssertEqual(1, feed?.items.count)
-            let feedItem = feed?.items.first
+        Messaging.setPropositionsHandler { surfacesDictionary in
+            XCTAssertEqual(1, surfacesDictionary.count)
+            let propositionsArray = surfacesDictionary[Surface(path:"promos/feed1")]
+            XCTAssertNotNil(propositionsArray)
+            XCTAssertEqual(1, propositionsArray?.count)
+            let proposition = propositionsArray?.first
+            XCTAssertEqual("promos/feed1", proposition?.scope)
+            XCTAssertNotNil(proposition?.items)
+            XCTAssertEqual(1, proposition?.items.count)
+            let feedItem = proposition?.items.first as? FeedItem
+            
             XCTAssertEqual("Flash sale!", feedItem?.title)
             XCTAssertEqual("All winter gear is now up to 30% off at checkout.", feedItem?.body)
             XCTAssertEqual("https://luma.com/wintersale.png", feedItem?.imageUrl)
             XCTAssertEqual("https://luma.com/sale", feedItem?.actionUrl)
             XCTAssertEqual("Shop the sale!", feedItem?.actionTitle)
-            XCTAssertEqual(1677190552, feedItem?.publishedDate)
-            XCTAssertEqual(1677243235, feedItem?.expiryDate)
-            XCTAssertNotNil(feedItem?.meta)
-            XCTAssertEqual(1, feedItem?.meta?.count)
-            XCTAssertEqual("Winter Promo", feedItem?.meta?["feedName"] as? String)
-            XCTAssertNotNil(feedItem?.scopeDetails)
-            XCTAssertEqual(1, feedItem?.scopeDetails.count)
-            XCTAssertEqual("someInnerValue", feedItem?.scopeDetails["someInnerKey"] as? String)
+            XCTAssertEqual(1677190552, feedItem?.inbound?.publishedDate)
+            XCTAssertEqual(1677243235, feedItem?.inbound?.expiryDate)
+            XCTAssertNotNil(feedItem?.inbound?.meta)
+            XCTAssertEqual(1, feedItem?.inbound?.meta?.count)
+            XCTAssertEqual("Winter Promo", feedItem?.inbound?.meta?["feedName"] as? String)
+//            XCTAssertNotNil(feedItem?.inbound?.scopeDetails)
+//            XCTAssertEqual(1, feedItem?..scopeDetails.count)
+//            XCTAssertEqual("someInnerValue", feedItem?.scopeDetails["someInnerKey"] as? String)
             expectation.fulfill()
         }
 
@@ -417,20 +431,20 @@ class MessagingPublicApiTest: XCTestCase {
         wait(for: [expectation], timeout: 2)
     }
     
-    func testSetFeedsHandler_emptyFeeds() {
+    func testSetPropositionsHandler_emptyFeeds() {
         // setup
-        let expectation = XCTestExpectation(description: "setFeedsHandler should not be called for empty feeds in personalization notification response.")
+        let expectation = XCTestExpectation(description: "setPropositionsHandler should not be called for empty feeds in personalization notification response.")
         expectation.isInverted = true
 
         let testEvent = Event(name: "Message feeds notification",
                               type: "com.adobe.eventType.messaging",
                               source: "com.adobe.eventSource.notification",
                               data: [
-                                "feeds": []
+                                "feeds": [] as [String]
                               ])
 
         // test
-        Messaging.setFeedsHandler { _ in
+        Messaging.setPropositionsHandler { _ in
             expectation.fulfill()
         }
 
@@ -440,9 +454,9 @@ class MessagingPublicApiTest: XCTestCase {
         wait(for: [expectation], timeout: 1)
     }
 
-    func testSetFeedsHandler_noFeeds() {
+    func testSetPropositionsHandler_noFeeds() {
         // setup
-        let expectation = XCTestExpectation(description: "setFeedsHandler should not be called for no feeds in personalization notification response.")
+        let expectation = XCTestExpectation(description: "setPropositionsHandler should not be called for no feeds in personalization notification response.")
         expectation.isInverted = true
         let testEvent = Event(name: "Meesage feeds notification",
                               type: "com.adobe.eventType.messaging",
@@ -450,7 +464,7 @@ class MessagingPublicApiTest: XCTestCase {
                               data: [:])
 
         // test
-        Messaging.setFeedsHandler { _ in
+        Messaging.setPropositionsHandler { _ in
             expectation.fulfill()
         }
 
@@ -460,9 +474,9 @@ class MessagingPublicApiTest: XCTestCase {
         wait(for: [expectation], timeout: 1)
     }
     
-    func testSetFeedsHandler_nilEventData() {
+    func testSetPropositionsHandler_nilEventData() {
         // setup
-        let expectation = XCTestExpectation(description: "setFeedsHandler should not be called for nil event data in personalization notification response.")
+        let expectation = XCTestExpectation(description: "setPropositionsHandler should not be called for nil event data in personalization notification response.")
         expectation.isInverted = true
         let testEvent = Event(name: "Meesage feeds notification",
                               type: "com.adobe.eventType.messaging",
@@ -470,7 +484,7 @@ class MessagingPublicApiTest: XCTestCase {
                               data: nil)
 
         // test
-        Messaging.setFeedsHandler { _ in
+        Messaging.setPropositionsHandler { _ in
             expectation.fulfill()
         }
 

@@ -24,7 +24,7 @@ class MessagingTests: XCTestCase {
     var mockFeedRulesEngine: MockFeedRulesEngine!
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
-    let mockIamSurface = "mobileapp://com.apple.dt.xctest.tool"
+    let mockIamSurface = Surface(uri: "mobileapp://com.apple.dt.xctest.tool")
 
     // Mock constants
     let MOCK_ECID = "mock_ecid"
@@ -40,7 +40,7 @@ class MessagingTests: XCTestCase {
         mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine, cache: mockCache)
         
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurface: mockIamSurface, cache: mockCache)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface.uri, cache: mockCache)
         messaging.onRegistered()
 
         mockNetworkService = MockNetworkService()
@@ -133,11 +133,11 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, fetchEvent?.source)
         let fetchEventData = fetchEvent?.data
         XCTAssertNotNil(fetchEventData)
-        let fetchEventQuery = fetchEventData?[MessagingConstants.XDM.IAM.Key.QUERY] as? [String: Any]
+        let fetchEventQuery = fetchEventData?[MessagingConstants.XDM.Inbound.Key.QUERY] as? [String: Any]
         XCTAssertNotNil(fetchEventQuery)
-        let fetchEventPersonalization = fetchEventQuery?[MessagingConstants.XDM.IAM.Key.PERSONALIZATION] as? [String: Any]
+        let fetchEventPersonalization = fetchEventQuery?[MessagingConstants.XDM.Inbound.Key.PERSONALIZATION] as? [String: Any]
         XCTAssertNotNil(fetchEventPersonalization)
-        let fetchEventSurfaces = fetchEventPersonalization?[MessagingConstants.XDM.IAM.Key.SURFACES] as? [String]
+        let fetchEventSurfaces = fetchEventPersonalization?[MessagingConstants.XDM.Inbound.Key.SURFACES] as? [String]
         XCTAssertNotNil(fetchEventSurfaces)
         XCTAssertEqual(1, fetchEventSurfaces?.count)
         XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool", fetchEventSurfaces?.first)
@@ -168,11 +168,11 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, fetchEvent?.source)
         let fetchEventData = fetchEvent?.data
         XCTAssertNotNil(fetchEventData)
-        let fetchEventQuery = fetchEventData?[MessagingConstants.XDM.IAM.Key.QUERY] as? [String: Any]
+        let fetchEventQuery = fetchEventData?[MessagingConstants.XDM.Inbound.Key.QUERY] as? [String: Any]
         XCTAssertNotNil(fetchEventQuery)
-        let fetchEventPersonalization = fetchEventQuery?[MessagingConstants.XDM.IAM.Key.PERSONALIZATION] as? [String: Any]
+        let fetchEventPersonalization = fetchEventQuery?[MessagingConstants.XDM.Inbound.Key.PERSONALIZATION] as? [String: Any]
         XCTAssertNotNil(fetchEventPersonalization)
-        let fetchEventSurfaces = fetchEventPersonalization?[MessagingConstants.XDM.IAM.Key.SURFACES] as? [String]
+        let fetchEventSurfaces = fetchEventPersonalization?[MessagingConstants.XDM.Inbound.Key.SURFACES] as? [String]
         XCTAssertNotNil(fetchEventSurfaces)
         XCTAssertEqual(1, fetchEventSurfaces?.count)
         XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", fetchEventSurfaces?.first)
@@ -207,7 +207,7 @@ class MessagingTests: XCTestCase {
                           source: "com.adobe.eventSource.requestContent",
                           data: [
                             "updatefeeds": true,
-                            "surfaces": []
+                            "surfaces": [] as [String]
                           ])
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
@@ -223,7 +223,7 @@ class MessagingTests: XCTestCase {
         // setup
         messaging.setMessagesRequestEventId("mockRequestEventId")
         messaging.setLastProcessedRequestEventId("mockRequestEventId")
-        messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: ["mobileapp://com.apple.dt.xctest.tool"])
+        messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: [Surface(uri: "mobileapp://com.apple.dt.xctest.tool")])
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
 
@@ -242,7 +242,7 @@ class MessagingTests: XCTestCase {
             // setup
             messaging.setMessagesRequestEventId("mockRequestEventId")
             messaging.setLastProcessedRequestEventId("mockRequestEventId")
-            messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: ["mobileapp://com.apple.dt.xctest.tool"])
+            messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: [Surface(uri: "mobileapp://com.apple.dt.xctest.tool")])
             let eventData = getOfferEventData(items: [[:]])
             let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                               source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: eventData)
@@ -262,7 +262,7 @@ class MessagingTests: XCTestCase {
         // setup
         messaging.setLastProcessedRequestEventId("oldEventId")
         messaging.setMessagesRequestEventId("mockRequestEventId")
-        messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: ["mobileapp://com.apple.dt.xctest.tool"])
+        messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: [Surface(uri: "mobileapp://com.apple.dt.xctest.tool")])
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData())
 
@@ -297,7 +297,7 @@ class MessagingTests: XCTestCase {
     func testHandleEdgePersonalizationNotificationRequestEventScopeDoesNotMatch() throws {
         // setup
         messaging.setMessagesRequestEventId("mockRequestEventId")
-        messaging.setRequestedSurfacesforEventId("someRequestEventId", expectedSurfaces: ["mobileapp://com.apple.dt.xctest.tool"])
+        messaging.setRequestedSurfacesforEventId("someRequestEventId", expectedSurfaces: [Surface(uri: "mobileapp://com.apple.dt.xctest.tool")])
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
                           source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(surface: "someScope"))
 
@@ -316,7 +316,7 @@ class MessagingTests: XCTestCase {
         // setup
         messaging.setMessagesRequestEventId("mockRequestEventId")
         messaging.setLastProcessedRequestEventId("mockRequestEventId")
-        messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: ["mobileapp://com.apple.dt.xctest.tool/promos/feed1"])
+        messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: [Surface(uri: "mobileapp://com.apple.dt.xctest.tool/promos/feed1")])
         mockLaunchRulesEngine.ruleConsequences.removeAll()
         mockLaunchRulesEngine.ruleConsequences = [RuleConsequence(id: "someId", type: "cjmiam", details: [
             "mobileParameters": [
@@ -333,7 +333,7 @@ class MessagingTests: XCTestCase {
                     "surface":"mobileapp://com.apple.dt.xctest.tool/promos/feed1"
                 ],
                 "type": "messagefeed"
-            ]
+            ] as [String: Any]
         ])]
         
         let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
@@ -343,7 +343,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertEqual(1, messaging.inMemoryFeedsCount())
+        XCTAssertEqual(1, messaging.inMemoryPropositionsCount())
         XCTAssertEqual(0, messaging.propositionInfoCount())
         XCTAssertTrue(mockLaunchRulesEngine.addRulesCalled)
         XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
@@ -355,26 +355,26 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual("com.adobe.eventType.messaging", dispatchedEvent?.type)
         XCTAssertEqual("com.adobe.eventSource.notification", dispatchedEvent?.source)
         
-        let feedsDict = dispatchedEvent?.feeds
-        XCTAssertNotNil(feedsDict)
-        XCTAssertEqual(1, feedsDict?.count)
-        let feed = feedsDict?["promos/feed1"]
+        let propositionsArray = dispatchedEvent?.propositions
+        XCTAssertNotNil(propositionsArray)
+        XCTAssertEqual(1, propositionsArray?.count)
+        let feed = propositionsArray?.first as? Feed
         XCTAssertEqual("Winter Promo", feed?.name)
-        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", feed?.surfaceUri)
+        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", feed?.surface.uri)
         XCTAssertEqual(1, feed?.items.count)
         XCTAssertEqual("Flash sale!", feed?.items.first?.title)
         XCTAssertEqual("All winter gear is now up to 30% off at checkout.", feed?.items.first?.body)
         XCTAssertEqual("https://luma.com/wintersale.png", feed?.items.first?.imageUrl)
         XCTAssertEqual("https://luma.com/sale", feed?.items.first?.actionUrl)
         XCTAssertEqual("Shop the sale!", feed?.items.first?.actionTitle)
-        XCTAssertEqual(1680568056, feed?.items.first?.publishedDate)
-        XCTAssertEqual(1712190456, feed?.items.first?.expiryDate)
-        XCTAssertNotNil(feed?.items.first?.meta)
-        XCTAssertEqual(2, feed?.items.first?.meta?.count)
-        XCTAssertEqual("Winter Promo", feed?.items.first?.meta?["feedName"] as? String)
-        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", feed?.items.first?.meta?["surface"] as? String)
-        XCTAssertNotNil(feed?.items.first?.scopeDetails)
-        XCTAssertEqual(0, feed?.items.first?.scopeDetails.count)
+        XCTAssertEqual(1680568056, feed?.items.first?.inbound?.publishedDate)
+        XCTAssertEqual(1712190456, feed?.items.first?.inbound?.expiryDate)
+        XCTAssertNotNil(feed?.items.first?.inbound?.meta)
+        XCTAssertEqual(2, feed?.items.first?.inbound?.meta?.count)
+        XCTAssertEqual("Winter Promo", feed?.items.first?.inbound?.meta?["feedName"] as? String)
+        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", feed?.items.first?.inbound?.meta?["surface"] as? String)
+        XCTAssertNotNil(propositionsArray?.first?.scopeDetails)
+        XCTAssertEqual(0, propositionsArray?.first?.scopeDetails.count)
     }
 
     func testHandleRulesResponseNoHtml() throws {
@@ -647,7 +647,7 @@ class MessagingTests: XCTestCase {
                           type: MessagingConstants.Event.EventType.messaging,
                           source: EventSource.requestContent,
                           data: [
-                            MessagingConstants.Event.Data.Key.UPDATE_FEEDS: true,
+                            MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS: true,
                             MessagingConstants.Event.Data.Key.SURFACES: ["promos/feed1"]
                           ])
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [:], status: SharedStateStatus.set))
@@ -689,7 +689,7 @@ class MessagingTests: XCTestCase {
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: [
-            MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [:]
+            MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [:] as [String: Any]
         ], status: SharedStateStatus.set))
 
         // test
@@ -701,7 +701,7 @@ class MessagingTests: XCTestCase {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let propositions = try decoder.decode([Proposition].self, from: propString.data(using: .utf8)!)
 
         // test
         let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false, persistChanges: true)
@@ -716,7 +716,7 @@ class MessagingTests: XCTestCase {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let propositions = try decoder.decode([Proposition].self, from: propString.data(using: .utf8)!)
 
         // test
         let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
@@ -731,7 +731,7 @@ class MessagingTests: XCTestCase {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let propositions = try decoder.decode([Proposition].self, from: propString.data(using: .utf8)!)
 
         // test
         let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: true)
@@ -746,7 +746,7 @@ class MessagingTests: XCTestCase {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("wrongScopeRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let propositions = try decoder.decode([Proposition].self, from: propString.data(using: .utf8)!)
 
         // test
         let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false, persistChanges: true)
@@ -761,7 +761,7 @@ class MessagingTests: XCTestCase {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("emptyContentStringRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let propositions = try decoder.decode([Proposition].self, from: propString.data(using: .utf8)!)
 
         // test
         let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false, persistChanges: true)
@@ -776,7 +776,7 @@ class MessagingTests: XCTestCase {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("malformedContentRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let propositions = try decoder.decode([Proposition].self, from: propString.data(using: .utf8)!)
 
         // test
         let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false, persistChanges: true)
@@ -789,11 +789,10 @@ class MessagingTests: XCTestCase {
 
     func testParsePropositionsNoItemsInPayload() throws {
         // setup
-        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
-        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [])
+        let proposition = Proposition(uniqueId: "a", scope: "a", scopeDetails: [:], items: [])
 
         // test
-        let rules = messaging.parsePropositions([propPayload], expectedSurfaces: [mockIamSurface], clearExisting: false)
+        let rules = messaging.parsePropositions([proposition], expectedSurfaces: [mockIamSurface], clearExisting: false)
 
         // verify
         XCTAssertEqual(0, rules.count)
@@ -805,11 +804,12 @@ class MessagingTests: XCTestCase {
         // setup
         let itemData = ItemData(content: "")
         let payloadItem = PayloadItem(data: itemData)
+        let propositionItem = PropositionItem(uniqueId: "a", schema: "a", content: "a")
         let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
-        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
+        let proposition = Proposition(uniqueId: "a", scope: "a", scopeDetails: [:], items: [propositionItem])
 
         // test
-        let rules = messaging.parsePropositions([propPayload], expectedSurfaces: [mockIamSurface], clearExisting: false)
+        let rules = messaging.parsePropositions([proposition], expectedSurfaces: [mockIamSurface], clearExisting: false)
 
         // verify
         XCTAssertEqual(0, rules.count)
@@ -821,7 +821,7 @@ class MessagingTests: XCTestCase {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("eventSequenceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let propositions = try decoder.decode([Proposition].self, from: propString.data(using: .utf8)!)
 
         // test
         let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
@@ -834,7 +834,7 @@ class MessagingTests: XCTestCase {
 
     func testParsePropositionsEmptyPropositions() throws {
         // setup
-        let propositions: [PropositionPayload] = []
+        let propositions: [Proposition] = []
 
         // test
         let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
@@ -849,7 +849,7 @@ class MessagingTests: XCTestCase {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let propositions = try decoder.decode([Proposition].self, from: propString.data(using: .utf8)!)
 
         // test
         var rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
@@ -874,7 +874,7 @@ class MessagingTests: XCTestCase {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let propositions = try decoder.decode([Proposition].self, from: propString.data(using: .utf8)!)
 
         // test
         var rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
@@ -899,7 +899,7 @@ class MessagingTests: XCTestCase {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let propositions = try decoder.decode([Proposition].self, from: propString.data(using: .utf8)!)
 
         // test
         let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false, persistChanges: false)
@@ -939,7 +939,7 @@ class MessagingTests: XCTestCase {
         mockCache.getReturnValue = cacheEntry
 
         // test
-        messaging.loadCachedPropositions(for: mockIamSurface)
+        messaging.loadCachedPropositions()
 
         // verify
         XCTAssertTrue(mockCache.getCalled)
@@ -955,7 +955,7 @@ class MessagingTests: XCTestCase {
         mockCache.getReturnValue = cacheEntry
 
         // test
-        messaging.loadCachedPropositions(for: mockIamSurface)
+        messaging.loadCachedPropositions()
 
         // verify
         XCTAssertTrue(mockCache.getCalled)
@@ -968,7 +968,7 @@ class MessagingTests: XCTestCase {
         mockCache.getReturnValue = nil
 
         // test
-        messaging.loadCachedPropositions(for: mockIamSurface)
+        messaging.loadCachedPropositions()
 
         // verify
         XCTAssertTrue(mockCache.getCalled)
@@ -1067,7 +1067,7 @@ class MessagingTests: XCTestCase {
                 MessagingConstants.Event.Data.Key.ID: id,
                 MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
                 MessagingConstants.Event.Data.Key.DETAIL: detailDictionary
-            ]
+            ] as [String: Any]
         ]
     }
 

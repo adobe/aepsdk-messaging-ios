@@ -56,7 +56,7 @@ class EventPlusMessagingTests: XCTestCase {
                                removeDetails: [String]? = nil) -> Event {
 
         // details are the same for postback and pii, different for open url
-        var details = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
+        var details: [String: Any] = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
             MessagingConstants.Event.Data.Key.IAM.TEMPLATE: MessagingConstants.Event.Data.Values.IAM.FULLSCREEN,
             MessagingConstants.Event.Data.Key.IAM.HTML: testHtml,
             MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: testAssets
@@ -339,7 +339,7 @@ class EventPlusMessagingTests: XCTestCase {
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
                 MessagingConstants.Event.Data.Key.DETAIL: [
                     MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: [
-                        MessagingConstants.Event.Data.Key.IAM.GESTURES: [:]
+                        MessagingConstants.Event.Data.Key.IAM.GESTURES: [:] as [String: Any]
                     ]
                 ]
             ]
@@ -379,7 +379,7 @@ class EventPlusMessagingTests: XCTestCase {
         let triggeredConsequence: [String: Any] = [
             MessagingConstants.Event.Data.Key.TYPE: "Invalid",
             MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
-            MessagingConstants.Event.Data.Key.DETAIL: [:]
+            MessagingConstants.Event.Data.Key.DETAIL: [:] as [String: Any]
         ]
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
@@ -394,7 +394,7 @@ class EventPlusMessagingTests: XCTestCase {
         // setup
         let triggeredConsequence: [String: Any] = [
             MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
-            MessagingConstants.Event.Data.Key.DETAIL: [:]
+            MessagingConstants.Event.Data.Key.DETAIL: [:] as [String: Any]
         ]
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
@@ -517,29 +517,25 @@ class EventPlusMessagingTests: XCTestCase {
         
         let p1 = event.payload?[0]
         XCTAssertNotNil(p1)
-        XCTAssertEqual(mockPayloadId1, p1?.propositionInfo.id)
-        XCTAssertEqual(mockAppSurface, p1?.propositionInfo.scope)
-        let scopeDetails1 = p1?.propositionInfo.scopeDetails
+        XCTAssertEqual(mockPayloadId1, p1?.uniqueId)
+        XCTAssertEqual(mockAppSurface, p1?.scope)
+        let scopeDetails1 = p1?.scopeDetails
         XCTAssertNotNil(scopeDetails1)
         XCTAssertEqual(1, scopeDetails1?.count)
         let item1 = p1?.items.first
         XCTAssertNotNil(item1)
-        let item1data = item1!.data
-        XCTAssertNotNil(item1data)
-        XCTAssertEqual(mockContent1, item1data.content)
+        XCTAssertEqual(mockContent1, item1?.content)
         
         let p2 = event.payload?[1]
         XCTAssertNotNil(p2)
-        XCTAssertEqual(mockPayloadId2, p2?.propositionInfo.id)
-        XCTAssertEqual(mockAppSurface, p2?.propositionInfo.scope)
-        let scopeDetails2 = p2?.propositionInfo.scopeDetails
+        XCTAssertEqual(mockPayloadId2, p2?.uniqueId)
+        XCTAssertEqual(mockAppSurface, p2?.scope)
+        let scopeDetails2 = p2?.scopeDetails
         XCTAssertNotNil(scopeDetails2)
         XCTAssertEqual(1, scopeDetails2?.count)
         let item2 = p2?.items.first
         XCTAssertNotNil(item2)
-        let item2data = item2!.data
-        XCTAssertNotNil(item2data)
-        XCTAssertEqual(mockContent2, item2data.content)
+        XCTAssertEqual(mockContent2, item2?.content)
     }
     
     func testPayloadIsNil() throws {
