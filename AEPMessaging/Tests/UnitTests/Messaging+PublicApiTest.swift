@@ -228,8 +228,9 @@ class MessagingPublicApiTest: XCTestCase {
             return
         }
 
-        Messaging.handleNotificationResponse(response)
+        let hasTracked = Messaging.handleNotificationResponse(response)
         wait(for: [expectation], timeout: 1)
+        XCTAssertFalse(hasTracked)
     }
     
 

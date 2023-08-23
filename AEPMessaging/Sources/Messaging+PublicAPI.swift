@@ -23,14 +23,13 @@ import UserNotifications
     /// - Returns: boolean value that signifies whether the notification originated from AJO and whether the API has proceeded with notification tracking.
     @available(*, deprecated, message: "This method is deprecated. Use Messaging.handleNotificationResponse(:) instead to automatically track application open and handle notification actions.")
     @objc(handleNotificationResponse:applicationOpened:withCustomActionId:)
-    @discardableResult
-    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) -> Bool {
+    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
         guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
-            return false
+            return
         }
 
         // Creating event data with tracking informations
@@ -49,7 +48,6 @@ import UserNotifications
                           source: EventSource.requestContent,
                           data: eventData)
         MobileCore.dispatch(event: event)
-        return true
     }
 
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
