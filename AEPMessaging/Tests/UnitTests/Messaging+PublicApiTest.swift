@@ -20,6 +20,8 @@ class MessagingPublicApiTest: XCTestCase {
     let ASYNC_TIMEOUT = 2.0
     var mockXdmData: [String: Any] = ["somekey": "somedata"]
     var notificationContent: [AnyHashable: Any] = [:]
+    let MOCK_BUNDLE_IDENTIFIER = "mobileapp://com.apple.dt.xctest.tool/"
+    
     override func setUp() {
         notificationContent = [MessagingConstants.XDM.AdobeKeys._XDM: mockXdmData]
         MockExtension.reset()
@@ -234,33 +236,30 @@ class MessagingPublicApiTest: XCTestCase {
         let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should dispatch an event with expected data.")
         expectation.assertForOverFulfill = true
 
-        let testEvent = Event(name: "Update message feeds",
+        let testEvent = Event(name: "Update propositions",
                               type: "com.adobe.eventType.messaging",
                               source: "com.adobe.eventSource.requestContent",
                               data: [
-                                "updatefeeds": true,
+                                "updatepropositions": true,
                                 "surfaces": [
-                                    "promos/feed1",
-                                    "promos/feed2"
+                                    [ "uri": "promos/feed1" ],
+                                    [ "uri": "promos/feed2" ]
                                 ]
                               ])
 
         
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
-            type: testEvent.type,
-            source: testEvent.source) { event in
-            
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: testEvent.type, source: testEvent.source) { event in
             XCTAssertEqual(testEvent.name, event.name)
             XCTAssertNotNil(event.data)
-            XCTAssertEqual(true, event.data?["updatefeeds"] as? Bool)
-            guard let surfaces = event.data?["surfaces"] as? [String], !surfaces.isEmpty else {
+            XCTAssertEqual(true, event.data?["updatepropositions"] as? Bool)
+            guard let surfaces = event.data?["surfaces"] as? [[String: Any]], !surfaces.isEmpty else {
                 XCTFail("Surface path strings array should be valid.")
                 return
             }
             XCTAssertEqual(2, surfaces.count)
-            XCTAssertEqual("promos/feed1", surfaces[0])
-            XCTAssertEqual("promos/feed2", surfaces[1])
+            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)promos/feed1", surfaces[0]["uri"] as? String)
+            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)promos/feed2", surfaces[1]["uri"] as? String)
 
             expectation.fulfill()
         }
@@ -280,32 +279,28 @@ class MessagingPublicApiTest: XCTestCase {
         let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should dispatch an event with expected data.")
         expectation.assertForOverFulfill = true
 
-        let testEvent = Event(name: "Update message feeds",
+        let testEvent = Event(name: "Update propositions",
                               type: "com.adobe.eventType.messaging",
                               source: "com.adobe.eventSource.requestContent",
                               data: [
-                                "updatefeeds": true,
+                                "updatepropositions": true,
                                 "surfaces": [
-                                    "",
-                                    "promos/feed2"
+                                    [ : ],
+                                    [ "uri": "promos/feed2" ]
                                 ]
                               ])
-
-        
+                
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
-            type: testEvent.type,
-            source: testEvent.source) { event in
-            
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: testEvent.type, source: testEvent.source) { event in
             XCTAssertEqual(testEvent.name, event.name)
             XCTAssertNotNil(event.data)
-            XCTAssertEqual(true, event.data?["updatefeeds"] as? Bool)
-            guard let surfaces = event.data?["surfaces"] as? [String], !surfaces.isEmpty else {
+            XCTAssertEqual(true, event.data?["updatepropositions"] as? Bool)
+            guard let surfaces = event.data?["surfaces"] as? [[String: Any]], !surfaces.isEmpty else {
                 XCTFail("Surface path strings array should be valid.")
                 return
             }
             XCTAssertEqual(1, surfaces.count)
-            XCTAssertEqual("promos/feed2", surfaces[0])
+            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)promos/feed2", surfaces[0]["uri"] as? String)
 
             expectation.fulfill()
         }
@@ -366,69 +361,82 @@ class MessagingPublicApiTest: XCTestCase {
         // setup
         let expectation = XCTestExpectation(description: "setPropositionsHandler should be called with response event upon personalization notification.")
         expectation.assertForOverFulfill = true
-
+        
+        let contentString = """
+{\"id\":\"183639c4-cb37-458e-a8ef-4e130d767ebf\",\"schema\":\"https://ns.adobe.com/personalization/inbound/feed-item\",\"data\":{\"expiryDate\":1723163897,\"meta\":{\"surface\":\"\(MOCK_BUNDLE_IDENTIFIER)promos/feed1\",\"feedName\":\"Winter Promo\"},\"content\":\"{\\\"body\\\":\\\"All winter gear is now up to 30% off at checkout.\\\",\\\"imageUrl\\\":\\\"https://luma.com/wintersale.png\\\",\\\"actionTitle\\\":\\\"Shop the sale!\\\",\\\"actionUrl\\\":\\\"https://luma.com/sale\\\",\\\"title\\\":\\\"Flash sale!\\\"}\",\"contentType\":\"application/json\",\"publishedDate\":1691541497}}
+"""
+        
         let testEvent = Event(name: "Message feeds notification",
                               type: "com.adobe.eventType.messaging",
                               source: "com.adobe.eventSource.notification",
                               data: [
-                                "feeds": [
-                                    "promos/feed1": [
-                                        "surfaceUri": "promos/feed1",
-                                        "name": "Promos feed",
+                                "propositions": [
+                                    [
+                                        "id": "5c2ec561-49dd-4c8d-80bb-ffffffffffff",
+                                        "scope": "\(MOCK_BUNDLE_IDENTIFIER)promos/feed1",
+                                        "scopeDetails": [
+                                            "sdKey": "sdValue"
+                                        ],
                                         "items": [
                                             [
-                                                "id": "5c2ec561-49dd-4c8d-80bb-1fd67f6fca5d",
-                                                "title": "Flash sale!",
-                                                "body": "All winter gear is now up to 30% off at checkout.",
-                                                "imageUrl": "https://luma.com/wintersale.png",
-                                                "actionUrl": "https://luma.com/sale",
-                                                "actionTitle": "Shop the sale!",
-                                                "publishedDate": 1677190552,
-                                                "expiryDate": 1677243235,
-                                                "meta": [
-                                                    "feedName": "Winter Promo"
-                                                ],
-                                                "scopeDetails": [
-                                                    "someInnerKey": "someInnerValue"
+                                                "id": "5c2ec561-49dd-4c8d-80bb-eeeeeeeeeeee",
+                                                "schema": "https://ns.adobe.com/personalization/json-content-item",
+                                                "data": [
+                                                    "content": "\(contentString)"
                                                 ]
                                             ] as [String: Any]
                                         ]
                                     ] as [String: Any]
                                 ]
-                              ])
+                            ])
 
         // test
         Messaging.setPropositionsHandler { surfacesDictionary in
             XCTAssertEqual(1, surfacesDictionary.count)
-            let propositionsArray = surfacesDictionary[Surface(path:"promos/feed1")]
-            XCTAssertNotNil(propositionsArray)
-            XCTAssertEqual(1, propositionsArray?.count)
-            let proposition = propositionsArray?.first
-            XCTAssertEqual("promos/feed1", proposition?.scope)
-            XCTAssertNotNil(proposition?.items)
-            XCTAssertEqual(1, proposition?.items.count)
-            let feedItem = proposition?.items.first as? FeedItem
+            guard let surface = surfacesDictionary.first?.key, let propositions = surfacesDictionary.first?.value else {
+                XCTFail("Response does not contain the expected surface and propositions.")
+                return
+            }
             
-            XCTAssertEqual("Flash sale!", feedItem?.title)
-            XCTAssertEqual("All winter gear is now up to 30% off at checkout.", feedItem?.body)
-            XCTAssertEqual("https://luma.com/wintersale.png", feedItem?.imageUrl)
-            XCTAssertEqual("https://luma.com/sale", feedItem?.actionUrl)
-            XCTAssertEqual("Shop the sale!", feedItem?.actionTitle)
-            XCTAssertEqual(1677190552, feedItem?.inbound?.publishedDate)
-            XCTAssertEqual(1677243235, feedItem?.inbound?.expiryDate)
-            XCTAssertNotNil(feedItem?.inbound?.meta)
-            XCTAssertEqual(1, feedItem?.inbound?.meta?.count)
-            XCTAssertEqual("Winter Promo", feedItem?.inbound?.meta?["feedName"] as? String)
-//            XCTAssertNotNil(feedItem?.inbound?.scopeDetails)
-//            XCTAssertEqual(1, feedItem?..scopeDetails.count)
-//            XCTAssertEqual("someInnerValue", feedItem?.scopeDetails["someInnerKey"] as? String)
+            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)promos/feed1", surface.uri)
+            XCTAssertEqual(1, propositions.count)
+            guard let proposition = propositions.first else {
+                XCTFail("Response does not contain the expected propositions.")
+                return
+            }
+            
+            XCTAssertNotNil(proposition.items)
+            XCTAssertEqual(1, proposition.items.count)
+            guard let inboundItem = proposition.items.first?.decodeContent() else {
+                XCTFail("Response does not contain valid inbound.")
+                return
+            }
+            guard let feedItem = inboundItem.decodeContent(FeedItem.self) else {
+                XCTFail("Response does not contain valid feed item.")
+                return
+            }
+            
+            XCTAssertEqual("Flash sale!", feedItem.title)
+            XCTAssertEqual("All winter gear is now up to 30% off at checkout.", feedItem.body)
+            XCTAssertEqual("https://luma.com/wintersale.png", feedItem.imageUrl)
+            XCTAssertEqual("https://luma.com/sale", feedItem.actionUrl)
+            XCTAssertEqual("Shop the sale!", feedItem.actionTitle)
+            XCTAssertEqual(1691541497, inboundItem.publishedDate)
+            XCTAssertEqual(1723163897, inboundItem.expiryDate)
+            XCTAssertNotNil(inboundItem.meta)
+            XCTAssertEqual(2, inboundItem.meta?.count)
+            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)promos/feed1", inboundItem.meta?["surface"] as? String)
+            XCTAssertEqual("Winter Promo", inboundItem.meta?["feedName"] as? String)
+            XCTAssertNotNil(proposition.scopeDetails)
+            XCTAssertEqual(1, proposition.scopeDetails.count)
+            XCTAssertEqual("sdValue", proposition.scopeDetails["sdKey"] as? String)
             expectation.fulfill()
         }
 
         EventHub.shared.dispatch(event: testEvent)
 
         // verify
-        wait(for: [expectation], timeout: 2)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
     func testSetPropositionsHandler_emptyFeeds() {
