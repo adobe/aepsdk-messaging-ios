@@ -50,22 +50,40 @@ public class PropositionItem: NSObject, Codable {
         schema = try container.decode(String.self, forKey: .schema)
 
         let nestedContainer = try container.nestedContainer(keyedBy: DataKeys.self, forKey: .data)
-        let codableContent = try nestedContainer.decode(AnyCodable.self, forKey: .content)
-        if let contentString = codableContent.stringValue {
-            content = contentString
-        } else if let jsonData = codableContent.dictionaryValue {
+        if let codableContent = try? nestedContainer.decode(AnyCodable.self, forKey: .content) {
+            if let contentString = codableContent.stringValue {
+                content = contentString
+            } else if let jsonData = codableContent.dictionaryValue {
+                guard
+                    let encodedData = try? JSONSerialization.data(withJSONObject: jsonData),
+                    let contentString = String(data: encodedData, encoding: .utf8)
+                else {
+                    throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath,
+                                                                            debugDescription: "PropositionItem content dictionary is invalid."))
+                }
+                content = contentString
+            } else {
+                throw DecodingError.typeMismatch(PropositionItem.self,
+                                                 DecodingError.Context(codingPath: decoder.codingPath,
+                                                                       debugDescription: "PropositionItem content is not of an expected type."))
+            }
+        } else {
+            // No top-level content implies it is a json ruleset-item
+            guard schema == MessagingConstants.XDM.Inbound.Value.SCHEMA_AJO_RULESET else {
+                throw DecodingError.typeMismatch(PropositionItem.self,
+                                                 DecodingError.Context(codingPath: decoder.codingPath,
+                                                                       debugDescription: "PropositionItem data is not of an expected type."))
+            }
+            let rulesetCodableContent = try container.decode(AnyCodable.self, forKey: .data)
             guard
+                let jsonData = rulesetCodableContent.dictionaryValue,
                 let encodedData = try? JSONSerialization.data(withJSONObject: jsonData),
                 let contentString = String(data: encodedData, encoding: .utf8)
             else {
                 throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath,
-                                                                        debugDescription: "PropositionItem content dictionary is invalid."))
+                                                                        debugDescription: "PropositionItem data dictionary is invalid."))
             }
             content = contentString
-        } else {
-            throw DecodingError.typeMismatch(PropositionItem.self,
-                                             DecodingError.Context(codingPath: decoder.codingPath,
-                                                                   debugDescription: "PropositionItem content is not of an expected type."))
         }
     }
 

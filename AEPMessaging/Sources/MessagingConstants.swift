@@ -278,6 +278,7 @@ enum MessagingConstants {
                 // Supported schemas
                 static let SCHEMA_AJO_HTML = "https://ns.adobe.com/personalization/html-content-item"
                 static let SCHEMA_AJO_JSON = "https://ns.adobe.com/personalization/json-content-item"
+                static let SCHEMA_AJO_RULESET = "https://ns.adobe.com/personalization/ruleset-item"
             }
         }
 
