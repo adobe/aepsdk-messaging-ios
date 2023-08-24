@@ -24,12 +24,19 @@ public class Messaging: NSObject, Extension {
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
 
+    // MARK: - Messaging State
+
+    var propositions: [Surface: [Proposition]] = [:]
+    var propositionInfo: [String: PropositionInfo] = [:]
+    var inboundMessages: [Surface: [Inbound]] = [:]
+    var cache: Cache = .init(name: MessagingConstants.Caches.CACHE_NAME)
+
     private var messagesRequestEventId: String = ""
     private var lastProcessedRequestEventId: String = ""
     private var initialLoadComplete = false
     let rulesEngine: MessagingRulesEngine
     let feedRulesEngine: FeedRulesEngine
-    private(set) var messagingState: MessagingState
+
     private var requestedSurfacesforEventId: [String: [Surface]] = [:]
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
@@ -42,9 +49,7 @@ public class Messaging: NSObject, Extension {
 
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
-        let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
         MessagingMigrator.migrate(cache: cache)
-        messagingState = MessagingState(cache: cache)
         rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
         feedRulesEngine = FeedRulesEngine(name: MessagingConstants.FEED_RULES_ENGINE_NAME, extensionRuntime: runtime)
         super.init()
@@ -53,11 +58,10 @@ public class Messaging: NSObject, Extension {
 
     /// INTERNAL ONLY
     /// used for testing
-    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, feedRulesEngine: FeedRulesEngine, messagingState: MessagingState, expectedSurfaceUri _: String) {
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, feedRulesEngine: FeedRulesEngine, expectedSurfaceUri _: String) {
         self.runtime = runtime
         self.rulesEngine = rulesEngine
         self.feedRulesEngine = feedRulesEngine
-        self.messagingState = messagingState
         super.init()
         loadCachedPropositions()
     }
@@ -164,6 +168,15 @@ public class Messaging: NSObject, Extension {
         ]
         eventData[MessagingConstants.XDM.Key.XDM] = xdmData
 
+        let data: [String: Any] = [
+            MessagingConstants.DATA.AdobeKeys.NAMESPACE: [
+                MessagingConstants.DATA.AdobeKeys.AJO: [
+                    MessagingConstants.DATA.AdobeKeys.INAPP_RESPONSE_FORMAT: 2 // Int representing latest in-app format. Absence implies old in-app format.
+                ]
+            ]
+        ]
+        eventData[MessagingConstants.DATA.Key.DATA] = data
+
         let event = Event(name: MessagingConstants.Event.Name.RETRIEVE_MESSAGE_DEFINITIONS,
                           type: EventType.edge,
                           source: EventSource.requestContent,
@@ -189,7 +202,7 @@ public class Messaging: NSObject, Extension {
         }
 
         if let inboundMessages = feedRulesEngine.evaluate(event: event) {
-            messagingState.updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
+            updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
         }
 
         let requestedPropositions = retrievePropositions(surfaces: requestedSurfaces)
@@ -239,7 +252,7 @@ public class Messaging: NSObject, Extension {
             Log.trace(label: MessagingConstants.LOG_TAG, "The personalization:decisions response contains feed message definitions.")
             feedRulesEngine.launchRulesEngine.loadRules(feedItemRules, clearExisting: clearExistingRules)
             if let inboundMessages = feedRulesEngine.evaluate(event: event) {
-                messagingState.updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
+                updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
             }
         }
 
@@ -263,17 +276,17 @@ public class Messaging: NSObject, Extension {
         var propositionsDict: [Surface: [Proposition]] = [:]
         for surface in surfaces {
             // add code-based propositions
-            if let propositionsArray = messagingState.propositions[surface] {
+            if let propositionsArray = propositions[surface] {
                 propositionsDict[surface] = propositionsArray
             }
 
-            guard let inboundArray = messagingState.inboundMessages[surface] else {
+            guard let inboundArray = inboundMessages[surface] else {
                 continue
             }
 
             var inboundPropositions: [Proposition] = []
             for message in inboundArray {
-                guard let propositionInfo = messagingState.propositionInfo[message.uniqueId] else {
+                guard let propositionInfo = propositionInfo[message.uniqueId] else {
                     continue
                 }
 
@@ -417,7 +430,7 @@ public class Messaging: NSObject, Extension {
     }
 
     func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
-        messagingState.propositionInfo[messageId]
+        propositionInfo[messageId]
     }
 
     // swiftlint:disable function_body_length
@@ -428,7 +441,7 @@ public class Messaging: NSObject, Extension {
         var inAppPropositions: [Surface: [Proposition]] = [:]
 
         if clearExisting {
-            messagingState.clear(surfaces: expectedSurfaces)
+            clear(surfaces: expectedSurfaces)
         }
 
         if let propositions = propositions {
@@ -475,50 +488,41 @@ public class Messaging: NSObject, Extension {
             }
         }
 
-        messagingState.updatePropositions(tempPropositions)
-        messagingState.updatePropositionInfo(tempPropInfo)
+        updatePropositions(tempPropositions)
+        updatePropositionInfo(tempPropInfo)
 
         if persistChanges {
-            messagingState.cachePropositions(inAppPropositions)
+            // TODO: do we need to make sure we're only updating cache for `expectedSurfaces`?
+            cache.setPropositions(inAppPropositions)
         }
         return rules
     }
 
     // swiftlint:enable function_body_length
 
-    /// Loads propositions from persistence into memory then hydrates the messaging rules engine
-    func loadCachedPropositions() {
-        guard let cachedPropositions = messagingState.retrieveCachedPropositions() else {
-            return
-        }
-        let rules = parsePropositions(cachedPropositions.values.flatMap { $0 }, expectedSurfaces: cachedPropositions.map { $0.key }, clearExisting: false, persistChanges: false)
-
-        rulesEngine.launchRulesEngine.loadRules(rules[InboundType.inapp] ?? [], clearExisting: false)
-    }
-
     #if DEBUG
         /// For testing purposes only
-        internal func propositionInfoCount() -> Int {
-            messagingState.propositionInfo.count
+        func propositionInfoCount() -> Int {
+            propositionInfo.count
         }
 
         /// For testing purposes only
-        internal func inMemoryPropositionsCount() -> Int {
-            messagingState.propositions.count
+        func inMemoryPropositionsCount() -> Int {
+            propositions.count
         }
 
         /// Used for testing only
-        internal func setMessagesRequestEventId(_ newId: String) {
+        func setMessagesRequestEventId(_ newId: String) {
             messagesRequestEventId = newId
         }
 
         /// Used for testing only
-        internal func setLastProcessedRequestEventId(_ newId: String) {
+        func setLastProcessedRequestEventId(_ newId: String) {
             lastProcessedRequestEventId = newId
         }
 
         /// Used for testing only
-        internal func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
+        func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
             requestedSurfacesforEventId[eventId] = expectedSurfaces
         }
     #endif
