@@ -187,6 +187,18 @@ enum MessagingConstants {
         }
     }
 
+    enum DATA {
+        enum AdobeKeys {
+            static let NAMESPACE = "__adobe"
+            static let AJO = "ajo"
+            static let INAPP_RESPONSE_FORMAT = "in-app-response-format"
+        }
+
+        enum Key {
+            static let DATA = "data"
+        }
+    }
+
     enum XDM {
         enum AdobeKeys {
             static let _XDM = "_xdm"

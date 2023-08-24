@@ -169,6 +169,15 @@ public class Messaging: NSObject, Extension {
         ]
         eventData[MessagingConstants.XDM.Key.XDM] = xdmData
 
+        let data: [String: Any] = [
+            MessagingConstants.DATA.AdobeKeys.NAMESPACE: [
+                MessagingConstants.DATA.AdobeKeys.AJO: [
+                    MessagingConstants.DATA.AdobeKeys.INAPP_RESPONSE_FORMAT: 2 // Int representing latest in-app format. Absence implies old in-app format.
+                ]
+            ]
+        ]
+        eventData[MessagingConstants.DATA.Key.DATA] = data
+
         let event = Event(name: MessagingConstants.Event.Name.RETRIEVE_MESSAGE_DEFINITIONS,
                           type: EventType.edge,
                           source: EventSource.requestContent,
