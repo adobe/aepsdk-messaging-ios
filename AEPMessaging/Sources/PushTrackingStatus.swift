@@ -29,7 +29,7 @@ public enum PushTrackingStatus: Int {
         self = PushTrackingStatus(rawValue: fromRawValue) ?? .unknownError
     }
 
-    /// Returns the string description of the error    
+    /// Returns the string description of the error
     public func toString() -> String {
         switch self {
         case .trackingInitiated:
