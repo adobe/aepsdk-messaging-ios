@@ -20,7 +20,6 @@ import UserNotifications
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
-    /// - Returns: boolean value that signifies whether the notification originated from AJO and whether the API has proceeded with notification tracking.
     @available(*, deprecated, message: "This method is deprecated. Use Messaging.handleNotificationResponse(:) instead to automatically track application open and handle notification actions.")
     @objc(handleNotificationResponse:applicationOpened:withCustomActionId:)
     static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
@@ -51,8 +50,11 @@ import UserNotifications
     }
 
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
-    /// - Parameter response: UNNotificationResponse object which contains the payload and xdm informations.
-    static func handleNotificationResponse(_ response: UNNotificationResponse, closure: ((MessagingPushTrackingStatus) -> Void)? = nil) {
+    /// - Parameters:
+    ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
+    ///   - closure : A callback with `PushTrackingStatus` representing the tracking status of the interacted notification
+    @objc(handleNotificationResponse:closure:)
+    static func handleNotificationResponse(_ response: UNNotificationResponse, closure: ((PushTrackingStatus) -> Void)? = nil) {
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
@@ -75,13 +77,13 @@ import UserNotifications
                               source: EventSource.requestContent,
                               data: modifiedEventData)
 
-            MobileCore.dispatch(event: event, responseCallback: { responseEvent in
+            MobileCore.dispatch(event: event) { responseEvent in
                 guard let status = responseEvent?.pushTrackingStatus else {
                     closure?(.unknownError)
                     return
                 }
                 closure?(status)
-            })
+            }
         })
     }
 

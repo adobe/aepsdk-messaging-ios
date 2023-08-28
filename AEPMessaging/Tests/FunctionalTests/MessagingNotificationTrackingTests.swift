@@ -70,7 +70,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
     
     func test_notificationTracking_whenUser_tapsNotificationBody() {
         // setup
-        var acutalStatus : MessagingPushTrackingStatus?
+        var acutalStatus : PushTrackingStatus?
         let expectation = XCTestExpectation(description: "Messaging Push Tracking Response")
         setExpectationEvent(type: EventType.edge, source: EventSource.requestContent, expectedCount: 1)
         let response = prepareNotificationResponse()!
@@ -154,7 +154,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         // This test simulates the reaction of handleNotificationResponse API when the notifcation is not generated from AJO
         // "_xdm" key in userInfo contains all the tracking information from AJO. Absense of this key mean this notification is not generated from AJO
         setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
-        var acutalStatus : MessagingPushTrackingStatus?
+        var acutalStatus : PushTrackingStatus?
         let expectation = XCTestExpectation(description: "Messaging Push Tracking Response")
         let response = prepareNotificationResponse(withUserInfo: ["nospecificAJOKey":"noAJOKey"])!
         
@@ -166,7 +166,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         
         // verify the tracking status
         wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(acutalStatus, MessagingPushTrackingStatus.noTrackingData)
+        XCTAssertEqual(acutalStatus, PushTrackingStatus.noTrackingData)
                                              
         // verify no tracking event is dispatched
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
@@ -175,7 +175,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
     
     func test_notificationOpen_whenAJONotification_withEmptyTrackingInformation() {
         // This test simulates the reaction of handleNotificationResponse API when the notifcation from AJO contains no information in the tracking field "_xdm"
-        var acutalStatus : MessagingPushTrackingStatus?
+        var acutalStatus : PushTrackingStatus?
         let expectation = XCTestExpectation(description: "Messaging Push Tracking Response")
         setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
         let response = prepareNotificationResponse(withUserInfo: ["_xdm": [:] as [String:Any]])!
@@ -188,7 +188,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         
         // verify the tracking status
         wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(acutalStatus, MessagingPushTrackingStatus.noTrackingData)
+        XCTAssertEqual(acutalStatus, PushTrackingStatus.noTrackingData)
         
         // verify no tracking event is dispatched
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
@@ -279,7 +279,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
     
     func test_notificationTracking_whenNoDatasetConfigured() {
         MobileCore.clearUpdatedConfiguration()
-        var acutalStatus : MessagingPushTrackingStatus?
+        var acutalStatus : PushTrackingStatus?
         let expectation = XCTestExpectation(description: "Messaging Push Tracking Response")
         setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
         let response = prepareNotificationResponse()!

@@ -13,8 +13,8 @@
 import Foundation
 
 /// Represents a specific outcome resulting from tracking push notification interaction
-@objc(AEPMessagingPushTrackingStatus)
-public enum MessagingPushTrackingStatus: Int {
+@objc(AEPPushTrackingStatus)
+public enum PushTrackingStatus: Int {
     case trackingInitiated
     case noDatasetConfigured
     case noTrackingData
@@ -26,10 +26,10 @@ public enum MessagingPushTrackingStatus: Int {
     /// - Parameter fromRawValue: an `Int` representation of a `MessagingPushTrackingStatus`
     /// - Returns: a `MessagingPushTrackingStatus` representing the passed-in `Int`
     init(fromRawValue: Int) {
-        self = MessagingPushTrackingStatus(rawValue: fromRawValue) ?? .unknownError
+        self = PushTrackingStatus(rawValue: fromRawValue) ?? .unknownError
     }
 
-    /// Returns the string description of the error
+    /// Returns the string description of the error    
     public func toString() -> String {
         switch self {
         case .trackingInitiated:
