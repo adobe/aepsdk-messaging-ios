@@ -24,7 +24,7 @@ class MessagingTests: XCTestCase {
     var mockFeedRulesEngine: MockFeedRulesEngine!
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
-    let mockIamSurface = Surface(uri: "mobileapp://com.apple.dt.xctest.tool")
+    let mockFeedSurface = Surface(path: "promos/feed1")
 
     // Mock constants
     let MOCK_ECID = "mock_ecid"
@@ -40,7 +40,7 @@ class MessagingTests: XCTestCase {
         mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine, cache: mockCache)
         
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface.uri, cache: mockCache)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockFeedSurface.uri, cache: mockCache)
         messaging.onRegistered()
 
         mockNetworkService = MockNetworkService()
@@ -143,40 +143,40 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool", fetchEventSurfaces?.first)
     }
     
-//    func testFetchMessages_whenUpdateFeedsRequest() throws {
-//        // setup
-//        let event = Event(name: "Update message feeds event",
-//                          type: "com.adobe.eventType.messaging",
-//                          source: "com.adobe.eventSource.requestContent",
-//                          data: [
-//                            "updatefeeds": true,
-//                            "surfaces": [
-//                                "promos/feed1"
-//                            ]
-//                          ])
-//        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
-//        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-//
-//        // test
-//        mockRuntime.simulateComingEvents(event)
-//
-//        // verify
-//        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-//        let fetchEvent = mockRuntime.firstEvent
-//        XCTAssertNotNil(fetchEvent)
-//        XCTAssertEqual(EventType.edge, fetchEvent?.type)
-//        XCTAssertEqual(EventSource.requestContent, fetchEvent?.source)
-//        let fetchEventData = fetchEvent?.data
-//        XCTAssertNotNil(fetchEventData)
-//        let fetchEventQuery = fetchEventData?[MessagingConstants.XDM.Inbound.Key.QUERY] as? [String: Any]
-//        XCTAssertNotNil(fetchEventQuery)
-//        let fetchEventPersonalization = fetchEventQuery?[MessagingConstants.XDM.Inbound.Key.PERSONALIZATION] as? [String: Any]
-//        XCTAssertNotNil(fetchEventPersonalization)
-//        let fetchEventSurfaces = fetchEventPersonalization?[MessagingConstants.XDM.Inbound.Key.SURFACES] as? [String]
-//        XCTAssertNotNil(fetchEventSurfaces)
-//        XCTAssertEqual(1, fetchEventSurfaces?.count)
-//        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", fetchEventSurfaces?.first)
-//    }
+    func testFetchMessages_whenUpdateFeedsRequest() throws {
+        // setup
+        let event = Event(name: "Update propositions",
+                          type: "com.adobe.eventType.messaging",
+                          source: "com.adobe.eventSource.requestContent",
+                          data: [
+                            "updatepropositions": true,
+                            "surfaces": [
+                                [ "uri": mockFeedSurface.uri ]
+                            ]
+                          ])
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let fetchEvent = mockRuntime.firstEvent
+        XCTAssertNotNil(fetchEvent)
+        XCTAssertEqual(EventType.edge, fetchEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, fetchEvent?.source)
+        let fetchEventData = fetchEvent?.data
+        XCTAssertNotNil(fetchEventData)
+        let fetchEventQuery = fetchEventData?[MessagingConstants.XDM.Inbound.Key.QUERY] as? [String: Any]
+        XCTAssertNotNil(fetchEventQuery)
+        let fetchEventPersonalization = fetchEventQuery?[MessagingConstants.XDM.Inbound.Key.PERSONALIZATION] as? [String: Any]
+        XCTAssertNotNil(fetchEventPersonalization)
+        let fetchEventSurfaces = fetchEventPersonalization?[MessagingConstants.XDM.Inbound.Key.SURFACES] as? [String]
+        XCTAssertNotNil(fetchEventSurfaces)
+        XCTAssertEqual(1, fetchEventSurfaces?.count)
+        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", fetchEventSurfaces?.first)
+    }
     
     func testFetchMessages_whenUpdateFeedsRequest_emptySurfacesInArray() throws {
         // setup
@@ -837,7 +837,7 @@ class MessagingTests: XCTestCase {
         let propositions: [Proposition] = []
 
         // test
-        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockIamSurface], clearExisting: false)
+        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockFeedSurface], clearExisting: false)
 
         // verify
         XCTAssertEqual(0, rules.count)

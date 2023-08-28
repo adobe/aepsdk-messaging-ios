@@ -439,16 +439,16 @@ class MessagingPublicApiTest: XCTestCase {
         wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
-    func testSetPropositionsHandler_emptyFeeds() {
+    func testSetPropositionsHandler_emptyPropositions() {
         // setup
-        let expectation = XCTestExpectation(description: "setPropositionsHandler should not be called for empty feeds in personalization notification response.")
+        let expectation = XCTestExpectation(description: "setPropositionsHandler should not be called for empty propositions in personalization notification response.")
         expectation.isInverted = true
 
         let testEvent = Event(name: "Message feeds notification",
                               type: "com.adobe.eventType.messaging",
                               source: "com.adobe.eventSource.notification",
                               data: [
-                                "feeds": [] as [String]
+                                "propositions": [] as [String]
                               ])
 
         // test
@@ -462,9 +462,9 @@ class MessagingPublicApiTest: XCTestCase {
         wait(for: [expectation], timeout: 1)
     }
 
-    func testSetPropositionsHandler_noFeeds() {
+    func testSetPropositionsHandler_noPropositions() {
         // setup
-        let expectation = XCTestExpectation(description: "setPropositionsHandler should not be called for no feeds in personalization notification response.")
+        let expectation = XCTestExpectation(description: "setPropositionsHandler should not be called for no propositions in personalization notification response.")
         expectation.isInverted = true
         let testEvent = Event(name: "Meesage feeds notification",
                               type: "com.adobe.eventType.messaging",
