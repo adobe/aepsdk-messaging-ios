@@ -111,12 +111,19 @@ class MessagingEdgeEventsTests: XCTestCase {
         // test
         messaging.handleTrackingInfo(event: event)
 
-        // verify
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let dispatchedInfoEvent = mockRuntime.firstEvent
-        XCTAssertEqual(EventType.edge, dispatchedInfoEvent?.type)
-        XCTAssertEqual(EventSource.requestContent, dispatchedInfoEvent?.source)
-        let dispatchedEventData = dispatchedInfoEvent?.data
+        // verify tracking status event
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        let dispatchedStatusEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.messaging, dispatchedStatusEvent?.type)
+        XCTAssertEqual(EventSource.responseContent, dispatchedStatusEvent?.source)
+        XCTAssertEqual(dispatchedStatusEvent?.pushTrackingStatus, .trackingInitiated)
+        
+        
+        // verify edge request event
+        let dispatchedEdgeRequestEvent = mockRuntime.secondEvent
+        XCTAssertEqual(EventType.edge, dispatchedEdgeRequestEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, dispatchedEdgeRequestEvent?.source)
+        let dispatchedEventData = dispatchedEdgeRequestEvent?.data
         XCTAssertNotNil(dispatchedEventData)
         XCTAssertEqual(2, dispatchedEventData?.count)
         let meta = dispatchedEventData?["meta"] as? [String: Any]
@@ -183,8 +190,8 @@ class MessagingEdgeEventsTests: XCTestCase {
         messaging.handleTrackingInfo(event: event)
 
         // verify
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let dispatchedInfoEvent = mockRuntime.firstEvent
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        let dispatchedInfoEvent = mockRuntime.secondEvent
         XCTAssertEqual(EventType.edge, dispatchedInfoEvent?.type)
         XCTAssertEqual(EventSource.requestContent, dispatchedInfoEvent?.source)
         let dispatchedEventData = dispatchedInfoEvent?.data
@@ -205,8 +212,12 @@ class MessagingEdgeEventsTests: XCTestCase {
         // test
         messaging.handleTrackingInfo(event: event)
 
-        // verify
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        // verify tracking status event
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedStatusEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.messaging, dispatchedStatusEvent?.type)
+        XCTAssertEqual(EventSource.responseContent, dispatchedStatusEvent?.source)
+        XCTAssertEqual(dispatchedStatusEvent?.pushTrackingStatus, .noDatasetConfigured)
     }
 
     func testHandleTrackingInfoEmptyDataset() throws {
@@ -218,8 +229,12 @@ class MessagingEdgeEventsTests: XCTestCase {
         // test
         messaging.handleTrackingInfo(event: event)
 
-        // verify
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        // verify tracking status event
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedStatusEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.messaging, dispatchedStatusEvent?.type)
+        XCTAssertEqual(EventSource.responseContent, dispatchedStatusEvent?.source)
+        XCTAssertEqual(dispatchedStatusEvent?.pushTrackingStatus, .noDatasetConfigured)
     }
 
     func testHandleTrackingInfoNoXdmMap() throws {
@@ -231,8 +246,12 @@ class MessagingEdgeEventsTests: XCTestCase {
         // test
         messaging.handleTrackingInfo(event: event)
 
-        // verify
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        // verify tracking status event
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedStatusEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.messaging, dispatchedStatusEvent?.type)
+        XCTAssertEqual(EventSource.responseContent, dispatchedStatusEvent?.source)
+        XCTAssertEqual(dispatchedStatusEvent?.pushTrackingStatus, .unknownError)
     }
 
     func testHandleTrackingInfoXdmMapMessageIdNil() throws {
@@ -244,8 +263,12 @@ class MessagingEdgeEventsTests: XCTestCase {
         // test
         messaging.handleTrackingInfo(event: event)
 
-        // verify
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        // verify tracking status event
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedStatusEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.messaging, dispatchedStatusEvent?.type)
+        XCTAssertEqual(EventSource.responseContent, dispatchedStatusEvent?.source)
+        XCTAssertEqual(dispatchedStatusEvent?.pushTrackingStatus, .invalidMessageId)
     }
 
     func testHandleTrackingInfoXdmMapMessageIdEmpty() throws {
@@ -257,8 +280,12 @@ class MessagingEdgeEventsTests: XCTestCase {
         // test
         messaging.handleTrackingInfo(event: event)
 
-        // verify
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        // verify tracking status event
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedStatusEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.messaging, dispatchedStatusEvent?.type)
+        XCTAssertEqual(EventSource.responseContent, dispatchedStatusEvent?.source)
+        XCTAssertEqual(dispatchedStatusEvent?.pushTrackingStatus, .invalidMessageId)
     }
 
     func testSendPushTokenHappy() throws {
@@ -304,8 +331,8 @@ class MessagingEdgeEventsTests: XCTestCase {
         messaging.handleTrackingInfo(event: event)
 
         // verify
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let dispatchedEvent = mockRuntime.firstEvent
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.secondEvent
         let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
         XCTAssertEqual(4, dispatchedXdmMap?.count)
         XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING])
@@ -337,8 +364,8 @@ class MessagingEdgeEventsTests: XCTestCase {
         messaging.handleTrackingInfo(event: event)
 
         // verify
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let dispatchedEvent = mockRuntime.firstEvent
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.secondEvent
         let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
         XCTAssertEqual(3, dispatchedXdmMap?.count)
         XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING])
@@ -357,8 +384,8 @@ class MessagingEdgeEventsTests: XCTestCase {
         messaging.handleTrackingInfo(event: event)
 
         // verify
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let dispatchedEvent = mockRuntime.firstEvent
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.secondEvent
         let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
         XCTAssertEqual(4, dispatchedXdmMap?.count)
         XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING])
@@ -378,8 +405,8 @@ class MessagingEdgeEventsTests: XCTestCase {
         messaging.handleTrackingInfo(event: event)
 
         // verify
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let dispatchedEvent = mockRuntime.firstEvent
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.secondEvent
         let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
         XCTAssertEqual(3, dispatchedXdmMap?.count)
         XCTAssertNotNil(dispatchedXdmMap?[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING])
@@ -398,8 +425,8 @@ class MessagingEdgeEventsTests: XCTestCase {
         messaging.handleTrackingInfo(event: event)
 
         // verify
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let dispatchedEvent = mockRuntime.firstEvent
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.secondEvent
         let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
         let applicationData = dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION] as? [String: Any]
         XCTAssertNotNil(applicationData)
@@ -419,8 +446,8 @@ class MessagingEdgeEventsTests: XCTestCase {
         messaging.handleTrackingInfo(event: event)
 
         // verify
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let dispatchedEvent = mockRuntime.firstEvent
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.secondEvent
         let dispatchedXdmMap = dispatchedEvent?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
         let applicationData = dispatchedXdmMap?[MessagingConstants.XDM.AdobeKeys.APPLICATION] as? [String: Any]
         XCTAssertNotNil(applicationData)

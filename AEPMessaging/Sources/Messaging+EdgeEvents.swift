@@ -353,7 +353,7 @@ extension Messaging {
     }
 
     private func dispatchTrackingResponseEvent(_ status: MessagingPushTrackingStatus, forEvent event: Event) {
-        let responseEvent = event.createResponseEvent(name: "Push tracking status event",
+        let responseEvent = event.createResponseEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_STATUS,
                                                       type: EventType.messaging,
                                                       source: EventSource.responseContent,
                                                       data: [MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS: status.rawValue,

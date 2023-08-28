@@ -47,7 +47,6 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         // hub shared state update for 1 extension versions (InstrumentedExtension (registered in FunctionalTestBase), IdentityEdge, Edge Identity, Config
         setExpectationEvent(type: EventType.hub, source: EventSource.sharedState, expectedCount: 3)
         
-
         // expectations for update config request&response events
         setExpectationEvent(type: EventType.configuration, source: EventSource.requestContent, expectedCount: 1)
         setExpectationEvent(type: EventType.configuration, source: EventSource.responseContent, expectedCount: 1)
@@ -71,17 +70,27 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
     
     func test_notificationTracking_whenUser_tapsNotificationBody() {
         // setup
+        var acutalStatus : MessagingPushTrackingStatus?
+        let expectation = XCTestExpectation(description: "Messaging Push Tracking Response")
         setExpectationEvent(type: EventType.edge, source: EventSource.requestContent, expectedCount: 1)
         let response = prepareNotificationResponse()!
         
         // test
-        Messaging.handleNotificationResponse(response)
+        Messaging.handleNotificationResponse(response,closure: { status in
+            acutalStatus = status
+            expectation.fulfill()
+        })
+        
+        // verify tracking status value
+        wait(for: [expectation], timeout: 2)
+        XCTAssertEqual(acutalStatus, .trackingInitiated)
         
         // verify
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
         XCTAssertEqual(1, events.count)
         let edgeEvent = events.first!
         let flattenEdgeEvent = edgeEvent.data?.flattening()
+        
         
         // verify push tracking information
         XCTAssertEqual(1, flattenEdgeEvent?["xdm.application.launches.value"] as? Int)
@@ -145,11 +154,20 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         // This test simulates the reaction of handleNotificationResponse API when the notifcation is not generated from AJO
         // "_xdm" key in userInfo contains all the tracking information from AJO. Absense of this key mean this notification is not generated from AJO
         setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
+        var acutalStatus : MessagingPushTrackingStatus?
+        let expectation = XCTestExpectation(description: "Messaging Push Tracking Response")
         let response = prepareNotificationResponse(withUserInfo: ["nospecificAJOKey":"noAJOKey"])!
         
         // test
-        XCTAssertFalse(Messaging.handleNotificationResponse(response))
+        Messaging.handleNotificationResponse(response,closure: { status in
+            acutalStatus = status
+            expectation.fulfill()
+        })
         
+        // verify the tracking status
+        wait(for: [expectation], timeout: 1)
+        XCTAssertEqual(acutalStatus, MessagingPushTrackingStatus.noTrackingData)
+                                             
         // verify no tracking event is dispatched
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
         XCTAssertEqual(0, events.count)
@@ -157,11 +175,20 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
     
     func test_notificationOpen_whenAJONotification_withEmptyTrackingInformation() {
         // This test simulates the reaction of handleNotificationResponse API when the notifcation from AJO contains no information in the tracking field "_xdm"
+        var acutalStatus : MessagingPushTrackingStatus?
+        let expectation = XCTestExpectation(description: "Messaging Push Tracking Response")
         setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
         let response = prepareNotificationResponse(withUserInfo: ["_xdm": [:] as [String:Any]])!
         
         // test
-        XCTAssertFalse(Messaging.handleNotificationResponse(response))
+        Messaging.handleNotificationResponse(response,closure: { status in
+            acutalStatus = status
+            expectation.fulfill()
+        })
+        
+        // verify the tracking status
+        wait(for: [expectation], timeout: 1)
+        XCTAssertEqual(acutalStatus, MessagingPushTrackingStatus.noTrackingData)
         
         // verify no tracking event is dispatched
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
@@ -249,6 +276,34 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         // verify push tracking information
         XCTAssertNil(flattenedEvent?["pushClickThroughUrl"] as? String)
     }
+    
+    func test_notificationTracking_whenNoDatasetConfigured() {
+        MobileCore.clearUpdatedConfiguration()
+        var acutalStatus : MessagingPushTrackingStatus?
+        let expectation = XCTestExpectation(description: "Messaging Push Tracking Response")
+        setExpectationEvent(type: EventType.messaging, source: EventSource.requestContent, expectedCount: 1)
+        let response = prepareNotificationResponse()!
+        
+        // test
+        Messaging.handleNotificationResponse(response, closure: { status in
+            acutalStatus = status
+            expectation.fulfill()
+        })
+        
+        // verify tracking status
+        wait(for: [expectation], timeout: 2)
+        XCTAssertEqual(acutalStatus, .noDatasetConfigured)
+        
+        // verify
+        let events = getDispatchedEventsWith(type: EventType.messaging, source: EventSource.requestContent)
+        XCTAssertEqual(1, events.count)
+        let messagingEvent = events.first!
+        let flattenedEvent = messagingEvent.data?.flattening()
+        
+        // verify push tracking information
+        XCTAssertNil(flattenedEvent?["pushClickThroughUrl"] as? String)
+    }
+
     
     
     // MARK: - Private Helpers functions
