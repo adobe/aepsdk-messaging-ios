@@ -26,6 +26,7 @@ extension Messaging {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to handle tracking information for push notification: " +
                             "Experience event dataset ID from the config is invalid or not available. '\(event.id.uuidString)'")
+            dispatchTrackingResponseEvent(.noDatasetConfigured, forEvent: event)
             return
         }
 
@@ -53,6 +54,8 @@ extension Messaging {
                 ]
             ]
         ]
+
+        dispatchTrackingResponseEvent(.trackingInitiated, forEvent: event)
 
         // Creating xdm edge event with request content source type
         let event = Event(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
@@ -184,29 +187,29 @@ extension Messaging {
     ///   - event: `Event` with push notification tracking information
     /// - Returns: `[String: Any]?` which contains the xdm data
     private func getXdmData(event: Event) -> [String: Any]? {
-        guard let xdmEventType = event.xdmEventType else {
+        guard let xdmEventType = event.xdmEventType, !xdmEventType.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Updating xdm data for tracking failed, eventType is invalid or nil in the event '\(event.id.uuidString)'.")
+            dispatchTrackingResponseEvent(.unknownError, forEvent: event)
             return nil
         }
-        let messageId = event.messagingId
-        let actionId = event.actionId
 
-        if xdmEventType.isEmpty == true || messageId == nil || messageId?.isEmpty == true {
+        guard let messageId = event.messagingId, !messageId.isEmpty else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Updating xdm data for tracking failed, EventType or MessageId received in the event '\(event.id.uuidString)' is nil.")
+            dispatchTrackingResponseEvent(.invalidMessageId, forEvent: event)
             return nil
         }
 
         var xdmDict: [String: Any] = [MessagingConstants.XDM.Key.EVENT_TYPE: xdmEventType]
         var pushNotificationTrackingDict: [String: Any] = [:]
         var customActionDict: [String: Any] = [:]
-        if actionId != nil {
+
+        if let actionId = event.actionId {
             customActionDict[MessagingConstants.XDM.Key.ACTION_ID] = actionId
             pushNotificationTrackingDict[MessagingConstants.XDM.Key.CUSTOM_ACTION] = customActionDict
         }
         pushNotificationTrackingDict[MessagingConstants.XDM.Key.PUSH_PROVIDER_MESSAGE_ID] = messageId
         pushNotificationTrackingDict[MessagingConstants.XDM.Key.PUSH_PROVIDER] = getPushPlatform(forEvent: event)
         xdmDict[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING] = pushNotificationTrackingDict
-
         return xdmDict
     }
 
@@ -214,7 +217,7 @@ extension Messaging {
     ///
     /// - Parameter event: the `Event` needed for retrieving the correct shared state
     /// - Returns: a `String` containing the event datasetId for Messaging
-    private func getDatasetId(forEvent event: Event? = nil) -> String? {
+    private func getDatasetId(forEvent event: Event) -> String? {
         guard let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event),
               let datasetId = configuration.experienceEventDataset
         else {
@@ -232,7 +235,7 @@ extension Messaging {
     /// - Parameters:
     ///     - event: `Event` from which Configuration shared state should be derived
     /// - Returns: a `String` indicating the APNS platform in use
-    func getPushPlatform(forEvent event: Event? = nil) -> String {
+    func getPushPlatform(forEvent event: Event) -> String {
         guard let configuration = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event) else {
             return MessagingConstants.XDM.Push.Value.APNS
         }
@@ -347,5 +350,14 @@ extension Messaging {
                           data: xdmEventData,
                           mask: mask)
         dispatch(event: event)
+    }
+
+    private func dispatchTrackingResponseEvent(_ status: MessagingPushTrackingStatus, forEvent event: Event) {
+        let responseEvent = event.createResponseEvent(name: "Push tracking status event",
+                                                      type: EventType.messaging,
+                                                      source: EventSource.responseContent,
+                                                      data: [MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS: status.rawValue,
+                                                             MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_MESSAGE: status.toString()])
+        dispatch(event: responseEvent)
     }
 }

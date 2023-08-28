@@ -52,35 +52,37 @@ import UserNotifications
 
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameter response: UNNotificationResponse object which contains the payload and xdm informations.
-    /// - Returns: boolean value that signifies whether the notification originated from AJO and whether the API has proceeded with notification tracking.
-    @discardableResult
-    static func handleNotificationResponse(_ response: UNNotificationResponse) -> Bool {
+    static func handleNotificationResponse(_ response: UNNotificationResponse, closure: ((MessagingPushTrackingStatus) -> Void)? = nil) {
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
         guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
-            return false
+            closure?(.noTrackingData)
+            return
         }
 
-        DispatchQueue.global().async {
-            hasApplicationOpenedForResponse(response, completion: { isAppOpened in
+        hasApplicationOpenedForResponse(response, completion: { isAppOpened in
 
-                let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
-                                                MessagingConstants.Event.Data.Key.APPLICATION_OPENED: isAppOpened,
-                                                MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm]
+            let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
+                                            MessagingConstants.Event.Data.Key.APPLICATION_OPENED: isAppOpened,
+                                            MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm]
 
-                let modifiedEventData = addNotificationActionToEventData(eventData, response)
+            let modifiedEventData = addNotificationActionToEventData(eventData, response)
 
-                let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
-                                  type: MessagingConstants.Event.EventType.messaging,
-                                  source: EventSource.requestContent,
-                                  data: modifiedEventData)
-                MobileCore.dispatch(event: event)
+            let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
+                              type: MessagingConstants.Event.EventType.messaging,
+                              source: EventSource.requestContent,
+                              data: modifiedEventData)
+
+            MobileCore.dispatch(event: event, responseCallback: { responseEvent in
+                guard let status = responseEvent?.pushTrackingStatus else {
+                    closure?(.unknownError)
+                    return
+                }
+                closure?(status)
             })
-        }
-
-        return true
+        })
     }
 
     /// Initiates a network call to retrieve remote In-App Message definitions.
