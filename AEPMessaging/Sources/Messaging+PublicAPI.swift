@@ -63,7 +63,7 @@ import UserNotifications
             closure?(.noTrackingData)
             return
         }
-        
+
         // Get off the main thread to process notification response
         DispatchQueue.global().async {
             hasApplicationOpenedForResponse(response, completion: { isAppOpened in
