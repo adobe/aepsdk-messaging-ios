@@ -303,6 +303,13 @@ extension Event {
         data?[MessagingConstants.XDM.Key.ADOBE_XDM] as? [String: Any]
     }
 
+    var pushTrackingStatus: PushTrackingStatus {
+        guard let statusInt = data?[MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS] as? Int else {
+            return .unknownError
+        }
+        return PushTrackingStatus(fromRawValue: statusInt)
+    }
+
     var pushClickThroughUrl: URL? {
         guard let link = data?[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] as? String else {
             return nil

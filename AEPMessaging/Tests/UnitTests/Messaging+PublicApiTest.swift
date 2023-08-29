@@ -205,10 +205,10 @@ class MessagingPublicApiTest: XCTestCase {
     }
     
     func testHandleNotificationResponse_when_emptyXdmInNotification() {
+        var acutalStatus : PushTrackingStatus?
         let expectation = XCTestExpectation(description: "Messaging request event")
         let mockIdentifier = "mockIdentifier"
         expectation.assertForOverFulfill = true
-        expectation.isInverted = true
 
         EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
 
@@ -228,7 +228,12 @@ class MessagingPublicApiTest: XCTestCase {
             return
         }
 
-        Messaging.handleNotificationResponse(response)
+        Messaging.handleNotificationResponse(response, closure: { status in
+            acutalStatus = status
+            expectation.fulfill()
+        })
+        
+        XCTAssertEqual(.noTrackingData , acutalStatus)
         wait(for: [expectation], timeout: 1)
     }
     
