@@ -63,28 +63,31 @@ import UserNotifications
             closure?(.noTrackingData)
             return
         }
+        
+        // Get off the main thread to process notification response
+        DispatchQueue.global().async {
+            hasApplicationOpenedForResponse(response, completion: { isAppOpened in
 
-        hasApplicationOpenedForResponse(response, completion: { isAppOpened in
+                let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
+                                                MessagingConstants.Event.Data.Key.APPLICATION_OPENED: isAppOpened,
+                                                MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm]
 
-            let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
-                                            MessagingConstants.Event.Data.Key.APPLICATION_OPENED: isAppOpened,
-                                            MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm]
+                let modifiedEventData = addNotificationActionToEventData(eventData, response)
 
-            let modifiedEventData = addNotificationActionToEventData(eventData, response)
+                let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
+                                  type: MessagingConstants.Event.EventType.messaging,
+                                  source: EventSource.requestContent,
+                                  data: modifiedEventData)
 
-            let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
-                              type: MessagingConstants.Event.EventType.messaging,
-                              source: EventSource.requestContent,
-                              data: modifiedEventData)
-
-            MobileCore.dispatch(event: event) { responseEvent in
-                guard let status = responseEvent?.pushTrackingStatus else {
-                    closure?(.unknownError)
-                    return
+                MobileCore.dispatch(event: event) { responseEvent in
+                    guard let status = responseEvent?.pushTrackingStatus else {
+                        closure?(.unknownError)
+                        return
+                    }
+                    closure?(status)
                 }
-                closure?(status)
-            }
-        })
+            })
+        }
     }
 
     /// Initiates a network call to retrieve remote In-App Message definitions.
