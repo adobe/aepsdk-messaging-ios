@@ -22,18 +22,18 @@ class MockMessaging: Messaging {
     }
     
     var parsePropositionsCalled = false
-    var paramParsePropositionsPropositions: [PropositionPayload]?
-    var paramParsePropositionsExpectedSurfaces: [String]?
+    var paramParsePropositionsPropositions: [Proposition]?
+    var paramParsePropositionsExpectedSurfaces: [Surface]?
     var paramParsePropositionsClearExisting: Bool?
     var paramParsePropositionsPersistChanges: Bool?
-    var parsePropositionsReturnValue: [LaunchRule]?
-    override func parsePropositions(_ propositions: [PropositionPayload]?, expectedSurfaces: [String], clearExisting: Bool, persistChanges: Bool = true) -> [LaunchRule] {
+    var parsePropositionsReturnValue: [InboundType: [LaunchRule]]?
+    override func parsePropositions(_ propositions: [Proposition]?, expectedSurfaces: [Surface], clearExisting: Bool, persistChanges: Bool = true) -> [InboundType: [LaunchRule]] {
         parsePropositionsCalled = true
         paramParsePropositionsPropositions = propositions
         paramParsePropositionsExpectedSurfaces = expectedSurfaces
         paramParsePropositionsClearExisting = clearExisting
         paramParsePropositionsPersistChanges = persistChanges
-        return parsePropositionsReturnValue ?? []
+        return parsePropositionsReturnValue ?? [:]
     }
 
     var paramEventType: MessagingEdgeEventType?
