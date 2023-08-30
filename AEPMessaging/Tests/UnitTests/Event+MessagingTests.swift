@@ -51,7 +51,7 @@ class EventPlusMessagingTests: XCTestCase {
     // MARK: - Helpers
 
     /// Gets an event to use for simulating a rules consequence
-    func getRulesResponseEvent(type: String? = MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
+    private func getRulesResponseEvent(type: String? = MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
                                triggeredConsequence: [String: Any]? = nil,
                                removeDetails: [String]? = nil) -> Event {
 
@@ -116,7 +116,7 @@ class EventPlusMessagingTests: XCTestCase {
      */
     
     /// Gets an AEP Response Event for testing
-    func getAEPResponseEvent(type: String = EventType.edge,
+    private func getAEPResponseEvent(type: String = EventType.edge,
                              source: String = MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
                              data: [String: Any]? = nil) -> Event {
         var eventData = data
@@ -171,7 +171,7 @@ class EventPlusMessagingTests: XCTestCase {
         return rulesEvent
     }
 
-    func getRefreshMessagesEvent(type: String = MessagingConstants.Event.EventType.messaging,
+    private func getRefreshMessagesEvent(type: String = MessagingConstants.Event.EventType.messaging,
                                  source: String = EventSource.requestContent,
                                  data: [String: Any]? = nil) -> Event {
         var eventData = data
@@ -187,7 +187,7 @@ class EventPlusMessagingTests: XCTestCase {
         return event
     }
 
-    func getClickthroughEvent(_ data: [String: Any]? = nil) -> Event {
+    private func getClickthroughEvent(_ data: [String: Any]? = nil) -> Event {
         let data = data ?? [
             MessagingConstants.Event.Data.Key.EVENT_TYPE: mockXdmEventType,
             MessagingConstants.Event.Data.Key.MESSAGE_ID: mockMessagingId,
@@ -203,12 +203,21 @@ class EventPlusMessagingTests: XCTestCase {
                      source: EventSource.requestContent, data: data)
     }
     
-    func getSetPushIdentifierEvent(overriddingData: [String: Any]? = nil) -> Event {
-        let data = overriddingData ?? [
+    private func getSetPushIdentifierEvent(overridingData: [String: Any]? = nil) -> Event {
+        let data = overridingData ?? [
             MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: mockPushToken
         ]
         
         return Event(name: "Test Set Push Identifier Event", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
+    }
+    
+    private func getPushTrackingStatusEvent(status: PushTrackingStatus = .trackingInitiated, overridingData: [String: Any]? = nil) -> Event {
+        let data = overridingData ?? [
+            MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS: status.rawValue,
+            MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_MESSAGE: status.toString()
+        ]
+        
+        return Event(name: "Push tracking status event", type: EventType.messaging, source: EventSource.responseContent, data: data)
     }
 
     // MARK: - Testing Happy Path
@@ -410,7 +419,7 @@ class EventPlusMessagingTests: XCTestCase {
         let triggeredConsequence: [String: Any] = [
             MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
             MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
-            MessagingConstants.Event.Data.Key.DETAIL: ["unintersting": "data"]
+            MessagingConstants.Event.Data.Key.DETAIL: ["uninteresting": "data"]
         ]
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
@@ -723,9 +732,34 @@ class EventPlusMessagingTests: XCTestCase {
     
     func testPushTokenNoToken() throws {
         // setup
-        let event = getSetPushIdentifierEvent(overriddingData: [:])
+        let event = getSetPushIdentifierEvent(overridingData: [:])
         
         // verify
         XCTAssertNil(event.token)
+    }
+    
+    func testGetPushTrackingStatus() throws {
+        // verify
+        XCTAssertEqual(PushTrackingStatus.trackingInitiated, getPushTrackingStatusEvent(status: .trackingInitiated).pushTrackingStatus)
+        XCTAssertEqual(PushTrackingStatus.noDatasetConfigured, getPushTrackingStatusEvent(status: .noDatasetConfigured).pushTrackingStatus)
+        XCTAssertEqual(PushTrackingStatus.noTrackingData, getPushTrackingStatusEvent(status: .noTrackingData).pushTrackingStatus)
+        XCTAssertEqual(PushTrackingStatus.noTrackingData, getPushTrackingStatusEvent(status: .noTrackingData).pushTrackingStatus)
+        XCTAssertEqual(PushTrackingStatus.unknownError, getPushTrackingStatusEvent(status: .unknownError).pushTrackingStatus)
+    }
+    
+    func testGetPushTrackingStatus_whenNoKey() throws {
+        // setup
+        let event = getPushTrackingStatusEvent(overridingData: [:])
+       
+        // verify
+        XCTAssertNil(event.pushTrackingStatus)
+    }
+    
+    func testGetPushTrackingStatus_whenStatus_withInvalid() throws {
+        // setup
+        let event = getPushTrackingStatusEvent(overridingData: [MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS: 10])
+       
+        // verify
+        XCTAssertEqual(.unknownError ,event.pushTrackingStatus)
     }
 }

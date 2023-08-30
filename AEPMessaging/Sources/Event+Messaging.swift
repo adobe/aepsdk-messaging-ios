@@ -303,9 +303,9 @@ extension Event {
         data?[MessagingConstants.XDM.Key.ADOBE_XDM] as? [String: Any]
     }
 
-    var pushTrackingStatus: PushTrackingStatus {
+    var pushTrackingStatus: PushTrackingStatus? {
         guard let statusInt = data?[MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS] as? Int else {
-            return .unknownError
+            return nil
         }
         return PushTrackingStatus(fromRawValue: statusInt)
     }
