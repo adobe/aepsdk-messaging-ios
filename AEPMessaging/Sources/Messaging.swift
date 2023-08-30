@@ -266,11 +266,11 @@ public class Messaging: NSObject, Extension {
         // dispatch an event with the propositions received from the remote
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
 
-        let event = Event(name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_NOTIFICATION,
+        let notificationEvent = Event(name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_NOTIFICATION,
                           type: EventType.messaging,
                           source: EventSource.notification,
                           data: eventData)
-        dispatch(event: event)
+        dispatch(event: notificationEvent)
     }
 
     private func retrievePropositions(surfaces: [Surface]) -> [Surface: [Proposition]] {
@@ -454,8 +454,7 @@ public class Messaging: NSObject, Extension {
                 }
 
                 guard let contentString = proposition.items.first?.content, !contentString.isEmpty else {
-                    Log.debug(label: MessagingConstants.LOG_TAG, "Not parsing rules in proposition with empty content.")
-                    tempPropositions.add(proposition, forKey: surface)
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring Proposition with empty content.")
                     continue
                 }
 
