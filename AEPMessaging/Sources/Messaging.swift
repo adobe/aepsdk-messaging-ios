@@ -305,12 +305,7 @@ public class Messaging: NSObject, Extension {
             feedRulesEngine.launchRulesEngine.loadRules(feedItemRules)
         }
     }
-        
-    // remove surfaces from cache and persistence
-    private func purgeSurfaces(_ surfaces: [Surface]) {
-        // TODO: implement me
-    }
-
+     
     private func retrieveMessages(for surfaces: [Surface], event: Event) {
         let requestedSurfaces = surfaces
             .filter { $0.isValid }
