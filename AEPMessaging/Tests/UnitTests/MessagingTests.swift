@@ -25,7 +25,7 @@ class MessagingTests: XCTestCase {
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
     let mockFeedSurface = Surface(path: "promos/feed1")
-    
+
     // Mock constants
     let MOCK_ECID = "mock_ecid"
     let MOCK_EVENT_DATASET = "mock_event_dataset"
@@ -294,33 +294,34 @@ class MessagingTests: XCTestCase {
         XCTAssertFalse(mockCache.setCalled)
     }
     
-        func testHandleEdgePersonalizationNotification_SurfacesInPersonlizationNotificationDoNotExistInRequestedSurfacesForEvent() throws {
-            // setup
-            let aJsonRule = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-            let jsonEntry = "{\"mobileapp://com.apple.dt.xctest.tool\":\(aJsonRule)}"
-            let cacheEntry = CacheEntry(data: jsonEntry.data(using: .utf8)!, expiry: .never, metadata: nil)
-            mockCache.getReturnValue = cacheEntry
-            let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
-                              source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(surface: "someScope"))
-            messaging.setLastProcessedRequestEventId("mockRequestEventId")
-            messaging.setMessagesRequestEventId("mockRequestEventId")
-            messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: [Surface(uri: "mobileapp://com.apple.dt.xctest.tool")])
-    
-            // test
-            XCTAssertEqual(true, mockCache.propositions?.contains { $0.key.uri == "mobileapp://com.apple.dt.xctest.tool" })
-            mockRuntime.simulateComingEvents(event)
-    
-            // verify
-            XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
-            XCTAssertEqual(0, messaging.propositionInfoCount())
-            // previous cache should be removed
-            XCTAssertTrue(mockCache.removeCalled)
-            XCTAssertEqual(MessagingConstants.Caches.PROPOSITIONS, mockCache.removeParamKey)
-            
-            XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
-            XCTAssertFalse(mockLaunchRulesEngine.addRulesCalled)
-            
-        }
+
+    func testHandleEdgePersonalizationNotification_SurfacesInPersonlizationNotificationDoNotExistInRequestedSurfacesForEvent() throws {
+        // setup
+        let aJsonRule = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let jsonEntry = "{\"mobileapp://com.apple.dt.xctest.tool\":\(aJsonRule)}"
+        let cacheEntry = CacheEntry(data: jsonEntry.data(using: .utf8)!, expiry: .never, metadata: nil)
+        mockCache.getReturnValue = cacheEntry
+        let event = Event(name: "Test Offer Notification Event", type: EventType.edge,
+                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: getOfferEventData(surface: "someScope"))
+        messaging.setLastProcessedRequestEventId("mockRequestEventId")
+        messaging.setMessagesRequestEventId("mockRequestEventId")
+        messaging.setRequestedSurfacesforEventId("mockRequestEventId", expectedSurfaces: [Surface(uri: "mobileapp://com.apple.dt.xctest.tool")])
+
+        // test
+        XCTAssertEqual(true, mockCache.propositions?.contains { $0.key.uri == "mobileapp://com.apple.dt.xctest.tool" })
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
+        XCTAssertEqual(0, messaging.propositionInfoCount())
+        // previous cache should be removed
+        XCTAssertTrue(mockCache.removeCalled)
+        XCTAssertEqual(MessagingConstants.Caches.PROPOSITIONS, mockCache.removeParamKey)
+        
+        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertFalse(mockLaunchRulesEngine.addRulesCalled)
+        
+    }
     
     //    func testHandleEdgePersonalizationFeedsNotificationHappy() throws {
     //        // setup
@@ -427,7 +428,7 @@ class MessagingTests: XCTestCase {
     //        wait(for: [expectation], timeout: 1.0)
     //        XCTAssertFalse(delegate.shouldShowMessageCalled)
     //    }
-    
+
     func testHandleRulesResponseNilData() throws {
         // setup
         let event = Event(name: "Test Rules Engine Response Event",
@@ -679,7 +680,7 @@ class MessagingTests: XCTestCase {
     //        XCTAssertEqual(1, surfaces.count)
     //        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", surfaces[0])
     //    }
-    
+
     func testHandleProcessEventNoIdentityMap() throws {
         // setup
         let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
@@ -848,7 +849,7 @@ class MessagingTests: XCTestCase {
         
         // test
         let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockFeedSurface], clearExisting: false)
-        
+
         // verify
         XCTAssertEqual(0, rules.count)
         XCTAssertEqual(0, messaging.inMemoryPropositionsCount())
@@ -919,7 +920,7 @@ class MessagingTests: XCTestCase {
     //        XCTAssertEqual(1, messaging.inMemoryPropositionsCount())
     //        XCTAssertFalse(mockCache.setCalled)
     //    }
-    
+
     func testPropositionInfoForMessageIdHappy() throws {
         // setup
         messaging.propositionInfo["id"] = PropositionInfo(id: "pid", scope: "scope", scopeDetails: [:])
@@ -957,7 +958,7 @@ class MessagingTests: XCTestCase {
     //        XCTAssertTrue(mockLaunchRulesEngine.addRulesCalled)
     //        XCTAssertEqual(1, mockLaunchRulesEngine.paramAddRulesRules?.count)
     //    }
-    
+
     func testLoadCachedPropositionsWrongScope() throws {
         // setup
         let aJsonString = JSONFileLoader.getRulesStringFromFile("wrongScopeRule")
@@ -966,7 +967,7 @@ class MessagingTests: XCTestCase {
         
         // test
         messaging.loadCachedPropositions()
-        
+
         // verify
         XCTAssertTrue(mockCache.getCalled)
         XCTAssertEqual("propositions", mockCache.getParamKey)
@@ -979,7 +980,7 @@ class MessagingTests: XCTestCase {
         
         // test
         messaging.loadCachedPropositions()
-        
+
         // verify
         XCTAssertTrue(mockCache.getCalled)
         XCTAssertEqual("propositions", mockCache.getParamKey)
