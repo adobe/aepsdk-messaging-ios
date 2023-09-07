@@ -23,6 +23,9 @@ public enum InboundType: Int, Codable {
 
     /// InApp
     case inapp = 2
+    
+    /// Code-based experiences
+    case codeBased = 3
 
     /// Initializes InboundType with the provided content schema string.
     /// - Parameter format: Inbound content schema string

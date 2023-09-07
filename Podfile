@@ -33,7 +33,7 @@ def app_main
     pod 'AEPLifecycle'
     pod 'AEPRulesEngine'
     pod 'AEPSignal'
-    pod 'AEPEdge'    
+    pod 'AEPEdge'
     pod 'AEPEdgeIdentity'
     pod 'AEPEdgeConsent'
     pod 'AEPAssurance'

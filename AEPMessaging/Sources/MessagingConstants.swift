@@ -229,6 +229,8 @@ enum MessagingConstants {
             static let EVENT_TYPE = "eventType"
             static let PUSH_NOTIFICATION_TRACKING = "pushNotificationTracking"
             static let DATA = "data"
+            static let REQUEST = "request"
+            static let SEND_COMPLETION = "sendCompletion"
         }
 
         enum Inbound {
@@ -274,6 +276,8 @@ enum MessagingConstants {
                 static let CLICKED = "clicked"
                 static let DISMISSED = "dismissed"
                 static let EMPTY_CONTENT = "{}"
+                /// enum (int) representing desired format returned by XAS for in-app message propositions
+                static let IAM_RESPONSE_FORMAT = 2
 
                 // Supported schemas
                 static let SCHEMA_AJO_HTML = "https://ns.adobe.com/personalization/html-content-item"

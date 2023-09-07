@@ -21,18 +21,20 @@ extension LaunchRulesEngine {
         JSONRulesParser.parse(rule.data(using: .utf8) ?? Data(), runtime: runtime)
     }
 
-    func loadRules(_ rules: [LaunchRule], clearExisting: Bool) {
-        if clearExisting {
-            replaceRules(with: rules)
-            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
-        } else {
-            if rules.isEmpty {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring request to load message rules, the provided rules array is empty.")
-                return
-            }
-
-            addRules(rules)
-            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully added \(rules.count) message(s) into the rules engine.")
-        }
+    func loadRules(_ rules: [LaunchRule]) {
+        replaceRules(with: rules)
+        
+//        if clearExisting {
+//            replaceRules(with: rules)
+//            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully loaded \(rules.count) message(s) into the rules engine.")
+//        } else {
+//            if rules.isEmpty {
+//                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring request to load message rules, the provided rules array is empty.")
+//                return
+//            }
+//
+//            addRules(rules)
+//            Log.debug(label: MessagingConstants.LOG_TAG, "Successfully added \(rules.count) message(s) into the rules engine.")
+//        }
     }
 }

@@ -200,7 +200,7 @@ extension Event {
     }
 
     var requestEventId: String? {
-        data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
+        parentID?.uuidString as? String ?? data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
     }
 
     /// payload is an array of `Proposition` objects, each containing inbound content and related tracking information

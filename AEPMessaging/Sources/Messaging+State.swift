@@ -35,17 +35,37 @@ extension Messaging {
         removeCachedPropositions(surfaces: surfaces)
     }
 
-    func updatePropositionInfo(_ newPropositionInfo: [String: PropositionInfo]) {
+    
+    func updatePropositionInfo(_ newPropositionInfo: [String: PropositionInfo], removing surfaces: [Surface]? = nil) {
         propositionInfo.merge(newPropositionInfo) { _, new in new }
+        
+        // currently, we can't remove entries that pre-exist by message id since they are not linked to surfaces
+        // need to get surface uri from propositionInfo.scope and remove entry based on incoming `surfaces`
+        // TODO: - TEST ME
+        if let surfaces = surfaces {
+            propositionInfo = propositionInfo.filter { surface in
+                !surfaces.contains { $0.uri == surface.value.scope }
+            }
+        }
     }
 
-    func updatePropositions(_ newPropositions: [Surface: [Proposition]]) {
+    func updatePropositions(_ newPropositions: [Surface: [Proposition]], removing surfaces: [Surface]? = nil) {
+        // add new surfaces or update replace existing surfaces
         for (surface, propositionsArray) in newPropositions {
             propositions.addArray(propositionsArray, forKey: surface)
+        }
+        
+        // remove any surfaces if necessary
+        if let surfaces = surfaces {
+            for surface in surfaces {
+                propositions.removeValue(forKey: surface)
+            }
         }
     }
 
     func updateInboundMessages(_ newInboundMessages: [Surface: [Inbound]], surfaces: [Surface]) {
+        // UPDATE inbound messages similar to how props get handled
+        
         for surface in surfaces {
             if let inboundMessagesArray = newInboundMessages[surface] {
                 inboundMessages[surface] = inboundMessagesArray
@@ -82,19 +102,24 @@ extension Messaging {
     // MARK: - private methods
 
     private func hydratePropositionsRulesEngine() {
-        let rules = parsePropositions(propositions.values.flatMap { $0 }, expectedSurfaces: propositions.map { $0.key }, clearExisting: false, persistChanges: false)
-        rulesEngine.launchRulesEngine.loadRules(rules[InboundType.inapp] ?? [], clearExisting: false)
+        let parsedPropositions = ParsedPropositions(with: propositions, requestedSurfaces: propositions.map { $0.key })
+        let inAppRules = parsedPropositions.rulesByInboundType[.inapp] ?? []
+        rulesEngine.launchRulesEngine.loadRules(inAppRules)
+        
+//        let rules = parsePropositions(propositions.values.flatMap { $0 }, expectedSurfaces: propositions.map { $0.key }, clearExisting: false, persistChanges: false)
+//        rulesEngine.launchRulesEngine.loadRules(rules[InboundType.inapp] ?? [], clearExisting: false)
     }
 
     private func removeCachedPropositions(surfaces: [Surface]) {
-        guard var propositionsDict = cache.propositions, !propositionsDict.isEmpty else {
-            return
-        }
-
-        for surface in surfaces {
-            propositionsDict.removeValue(forKey: surface)
-        }
-
-        cache.setPropositions(propositionsDict)
+        cache.updatePropositions(nil, removing: surfaces)
+//        guard var propositionsDict = cache.propositions, !propositionsDict.isEmpty else {
+//            return
+//        }
+//
+//        for surface in surfaces {
+//            propositionsDict.removeValue(forKey: surface)
+//        }
+//
+//        cache.updatePropositions(propositionsDict)
     }
 }
