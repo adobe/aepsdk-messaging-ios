@@ -49,6 +49,7 @@ enum MessagingConstants {
             static let GET_PROPOSITIONS = "Get propositions"
             static let MESSAGE_PROPOSITIONS_RESPONSE = "Message propositions response"
             static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
+            static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
         }
 
         enum Source {
@@ -75,6 +76,7 @@ enum MessagingConstants {
                 static let SURFACES = "surfaces"
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
+                static let ENDING_EVENT_ID = "endingEventId"
 
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"

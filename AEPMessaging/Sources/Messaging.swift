@@ -39,7 +39,7 @@ public class Messaging: NSObject, Extension {
     let feedRulesEngine: FeedRulesEngine
 
     /// keeps event ids for pending personalization requests and whether they have completed processing
-    private var personalizationRequestQueue: [String: Bool] = [:]
+    private var personalizationRequestQueue: [[String: Bool]] = []
     /// keeps a list of all surfaces requested per personalization request event by event id
     private var requestedSurfacesForEventId: [String: [Surface]] = [:]
     /// used while processing streaming payloads for a single request
@@ -146,7 +146,9 @@ public class Messaging: NSObject, Extension {
     /// The surface URIs used in the request are generated using the `bundleIdentifier` for the app.
     /// If the `bundleIdentifier` is unavailable, calling this method will do nothing.
     ///
-    /// - Parameter surfaces: an array of surface path strings for fetching feed messages, if available.
+    /// - Parameters:
+    /// - event - do this
+    ///   - surfaces: an array of surface path strings for fetching feed messages, if available.
     private func fetchMessages(_ event: Event, for surfaces: [Surface]? = nil) {
         var requestedSurfaces: [Surface] = []
         
@@ -217,17 +219,18 @@ public class Messaging: NSObject, Extension {
                 return
             }
             
-            // WE NEED TO DISPATCH AN EVENT TO PROCESS A COMPLETED REQUEST HERE TO AVOID A RACE CONDITION
-            let processCompletedEvent = responseEvent.createChainedEvent(name: "done",
+            // dispatch an event signaling messaging extension needs to finalize this event
+            // it must be dispatched to the event queue to avoid a race with the events containing propositions
+            let processCompletedEvent = responseEvent.createChainedEvent(name: MessagingConstants.Event.Name.FINALIZE_PROPOSITIONS_RESPONSE,
                                                                          type: EventType.messaging,
                                                                          source: EventSource.contentComplete,
-                                                                         data: ["eventId": endingEventId])
+                                                                         data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: endingEventId])
             self.dispatch(event: processCompletedEvent)
         }
     }
     
     func handleProcessCompletedEvent(_ event: Event) {
-        guard let endingEventId = event.data?["eventId"] as? String,
+        guard let endingEventId = event.data?[MessagingConstants.Event.Data.Key.ENDING_EVENT_ID] as? String,
               let requestedSurfaces = requestedSurfacesForEventId[endingEventId] else {
             // oops
             return
@@ -264,13 +267,13 @@ public class Messaging: NSObject, Extension {
     }
     
     private func beginRequestFor(_ event: Event, with surfaces: [Surface]) {
-        personalizationRequestQueue[event.id.uuidString] = false
+        personalizationRequestQueue.append([ event.id.uuidString: false])
         requestedSurfacesForEventId[event.id.uuidString] = surfaces
     }
     
     private func endRequestFor(eventId: String) {
         // if this event is first in queue, apply its changes
-        if let topEvent = personalizationRequestQueue.first, topEvent.key == eventId {
+        if let topEvent = personalizationRequestQueue.first?.first, topEvent.key == eventId {
             // update in memory propositions
             applyPropositionChangeFor(eventId: eventId)
             
@@ -280,12 +283,15 @@ public class Messaging: NSObject, Extension {
             // TODO: is it ok to process this recursively, or should we process the next event after
             // TODO: the entirity of handling the streaming completion event?
             // recursively check for more events that have finished processing and are awaiting application
-            if let nextEvent = personalizationRequestQueue.first, nextEvent.value == true {
+            if let nextEvent = personalizationRequestQueue.first?.first, nextEvent.value == true {
                 endRequestFor(eventId: nextEvent.key)
             }
         } else {
             // update event status in queue indicating this event is done with processing
-            personalizationRequestQueue[eventId] = true
+            if let indexOfExistingEvent = personalizationRequestQueue.firstIndex(where: { $0.first?.key == eventId }) {
+                personalizationRequestQueue.remove(at: indexOfExistingEvent)
+                personalizationRequestQueue.insert([eventId: true], at: indexOfExistingEvent)
+            }
         }
     }
     
@@ -314,6 +320,7 @@ public class Messaging: NSObject, Extension {
         cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
         
         // apply rules
+        // TODO: make sure we're preserving rules for unrequested surfaces
         updateRulesEngines(with: parsedPropositions.rulesByInboundType)
     }
     
@@ -333,7 +340,9 @@ public class Messaging: NSObject, Extension {
     }
     
     private func removeEventFromQueue(_ eventId: String) {
-        personalizationRequestQueue.removeValue(forKey: eventId)
+        if let indexOfExistingEvent = personalizationRequestQueue.firstIndex(where: { $0.first?.key == eventId }) {
+            personalizationRequestQueue.remove(at: indexOfExistingEvent)
+        }
         requestedSurfacesForEventId.removeValue(forKey: eventId)
         inProgressPropositionsForEventId.removeValue(forKey: eventId)
     }
@@ -427,7 +436,7 @@ public class Messaging: NSObject, Extension {
 
                 let propositionItem = PropositionItem(
                     uniqueId: UUID().uuidString, // revisit this if item.id is used for reporting in future
-                    schema: "https://ns.adobe.com/personalization/json-content-item",
+                    schema: MessagingConstants.XDM.Inbound.Value.SCHEMA_AJO_JSON,
                     content: itemContent ?? ""
                 )
 
@@ -564,72 +573,6 @@ public class Messaging: NSObject, Extension {
     func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
         propositionInfo[messageId]
     }
-
-    // swiftlint:disable function_body_length
-//    func parsePropositions(_ propositions: [Proposition]?, expectedSurfaces: [Surface], clearExisting: Bool, persistChanges: Bool = true) -> [InboundType: [LaunchRule]] {
-//        var rules: [InboundType: [LaunchRule]] = [:]
-//        var tempPropInfo: [String: PropositionInfo] = [:]
-//        var tempPropositions: [Surface: [Proposition]] = [:]
-//        var inAppPropositions: [Surface: [Proposition]] = [:]
-//
-//        if clearExisting {
-//            clear(surfaces: expectedSurfaces)
-//        }
-//
-//        if let propositions = propositions {
-//            for proposition in propositions {
-//                guard let surface = expectedSurfaces.first(where: { $0.uri == proposition.scope }) else {
-//                    Log.debug(label: MessagingConstants.LOG_TAG,
-//                              "Ignoring proposition where scope (\(proposition.scope)) does not match one of the expected surfaces.")
-//                    continue
-//                }
-//
-//                guard let contentString = proposition.items.first?.content, !contentString.isEmpty else {
-//                    Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring Proposition with empty content.")
-//                    continue
-//                }
-//
-//                guard let parsedRules = rulesEngine.launchRulesEngine.parseRule(contentString, runtime: runtime) else {
-//                    Log.debug(label: MessagingConstants.LOG_TAG, "Parsing rules did not succeed for the proposition.")
-//                    tempPropositions.add(proposition, forKey: surface)
-//                    continue
-//                }
-//
-//                let consequence = parsedRules.first?.consequences.first
-//                if let messageId = consequence?.id {
-//                    // store reporting data for this payload
-//                    tempPropInfo[messageId] = PropositionInfo.fromProposition(proposition)
-//                }
-//
-//                let isInAppConsequence = consequence?.isInApp ?? false
-//                if isInAppConsequence {
-//                    inAppPropositions.add(proposition, forKey: surface)
-//
-//                    // pre-fetch the assets for this message if there are any defined
-//                    rulesEngine.cacheRemoteAssetsFor(parsedRules)
-//                } else {
-//                    let isFeedConsequence = consequence?.isFeedItem ?? false
-//                    if !isFeedConsequence {
-//                        tempPropositions.add(proposition, forKey: surface)
-//                    }
-//                }
-//
-//                let inboundType = isInAppConsequence ? InboundType.inapp : InboundType(from: consequence?.detailSchema ?? "")
-//                rules.addArray(parsedRules, forKey: inboundType)
-//            }
-//        }
-//
-//        updatePropositions(tempPropositions)
-//        updatePropositionInfo(tempPropInfo)
-//
-//        if persistChanges {
-//            // TODO: do we need to make sure we're only updating cache for `expectedSurfaces`?
-//            cache.setPropositions(inAppPropositions)
-//        }
-//        return rules
-//    }
-
-    // swiftlint:enable function_body_length
 
     #if DEBUG
         /// For testing purposes only
