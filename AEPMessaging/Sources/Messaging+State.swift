@@ -64,7 +64,7 @@ extension Messaging {
     }
 
     func updateInboundMessages(_ newInboundMessages: [Surface: [Inbound]], surfaces: [Surface]) {
-        // UPDATE inbound messages similar to how props get handled
+        // TODO: UPDATE inbound messages similar to how props get handled
         
         for surface in surfaces {
             if let inboundMessagesArray = newInboundMessages[surface] {

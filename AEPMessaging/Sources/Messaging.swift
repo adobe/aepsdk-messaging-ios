@@ -30,6 +30,9 @@ public class Messaging: NSObject, Extension {
     var propositionInfo: [String: PropositionInfo] = [:]
     var inboundMessages: [Surface: [Inbound]] = [:]
     var cache: Cache = .init(name: MessagingConstants.Caches.CACHE_NAME)
+    var appSurface: String {
+        Bundle.main.mobileappSurface
+    }
     
     private var initialLoadComplete = false
     let rulesEngine: MessagingRulesEngine
@@ -95,6 +98,11 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.edge,
                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
                          listener: handleEdgePersonalizationNotification)
+        
+        // register listener for handling personalization request complete events
+        registerListener(type: EventType.messaging,
+                         source: EventSource.contentComplete,
+                         listener: handleProcessCompletedEvent(_:))
     }
 
     public func onUnregistered() {
@@ -199,25 +207,43 @@ public class Messaging: NSObject, Extension {
         beginRequestFor(newEvent, with: requestedSurfaces)
 
         // dispatch the event and implement handler for the completion event
-        MobileCore.dispatch(event: newEvent, timeout: 5.0) { responseEvent in
+        MobileCore.dispatch(event: newEvent, timeout: 10.0) { responseEvent in
             // responseEvent is the event dispatched by Edge extension when a request's stream has been closed
-            guard let endingEventId = responseEvent?.requestEventId else {
+            guard let responseEvent = responseEvent,
+                let endingEventId = responseEvent.requestEventId else {
+                // response event failed or timed out, need to remove this event from the queue
+                self.removeEventFromQueue(newEvent.id.uuidString)
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to run completion logic for a personalization request event - unable to obtain parent event ID")
                 return
             }
             
-            Log.trace(label: MessagingConstants.LOG_TAG, "End of streaming response events for requesting event '\(endingEventId)'")
-            self.endRequestFor(eventId: endingEventId)
-            
-            // TODO: is this the correct place for this code?
-            // check for new inbound messages from recently updated rules engine
-            if let inboundMessages = self.feedRulesEngine.evaluate(event: event) {
-                self.updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
-            }
-            
-            // dispatch notification event for request
-            self.dispatchNotificationEventFor(requestedSurfaces)
+            // WE NEED TO DISPATCH AN EVENT TO PROCESS A COMPLETED REQUEST HERE TO AVOID A RACE CONDITION
+            let processCompletedEvent = responseEvent.createChainedEvent(name: "done",
+                                                                         type: EventType.messaging,
+                                                                         source: EventSource.contentComplete,
+                                                                         data: ["eventId": endingEventId])
+            self.dispatch(event: processCompletedEvent)
         }
+    }
+    
+    func handleProcessCompletedEvent(_ event: Event) {
+        guard let endingEventId = event.data?["eventId"] as? String,
+              let requestedSurfaces = requestedSurfacesForEventId[endingEventId] else {
+            // oops
+            return
+        }
+        
+        Log.trace(label: MessagingConstants.LOG_TAG, "End of streaming response events for requesting event '\(endingEventId)'")
+        endRequestFor(eventId: endingEventId)
+        
+        // TODO: is this the correct place for this code?
+        // check for new inbound messages from recently updated rules engine
+        if let inboundMessages = feedRulesEngine.evaluate(event: event) {
+            updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
+        }
+        
+        // dispatch notification event for request
+        dispatchNotificationEventFor(requestedSurfaces)
     }
     
     private func dispatchNotificationEventFor(_ requestedSurfaces: [Surface]) {
@@ -249,7 +275,7 @@ public class Messaging: NSObject, Extension {
             applyPropositionChangeFor(eventId: eventId)
             
             // remove event from queue
-            personalizationRequestQueue.removeValue(forKey: eventId)
+            removeEventFromQueue(eventId)
                         
             // TODO: is it ok to process this recursively, or should we process the next event after
             // TODO: the entirity of handling the streaming completion event?
@@ -283,7 +309,7 @@ public class Messaging: NSObject, Extension {
         // order matters here because the rules engine must be a full replace, and when we update
         // persistence we will be removing empty surfaces and making sure unrequested surfaces
         // continue to have their rules active
-        updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
+        updatePropositions(parsedPropositions.propositionsToCache, removing: surfacesToRemove)
         updatePropositionInfo(parsedPropositions.propositionInfoToCache, removing: surfacesToRemove)
         cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
         
@@ -304,6 +330,12 @@ public class Messaging: NSObject, Extension {
             Log.trace(label: MessagingConstants.LOG_TAG, "The personalization:decisions response contains feed message definitions.")
             feedRulesEngine.launchRulesEngine.loadRules(feedItemRules)
         }
+    }
+    
+    private func removeEventFromQueue(_ eventId: String) {
+        personalizationRequestQueue.removeValue(forKey: eventId)
+        requestedSurfacesForEventId.removeValue(forKey: eventId)
+        inProgressPropositionsForEventId.removeValue(forKey: eventId)
     }
      
     private func retrieveMessages(for surfaces: [Surface], event: Event) {
@@ -332,63 +364,19 @@ public class Messaging: NSObject, Extension {
         dispatch(event: responseEvent)
     }
 
-    var appSurface: String {
-        Bundle.main.mobileappSurface
-    }
-
     /// Validates that the received event contains in-app message definitions and loads them in the `MessagingRulesEngine`.
     /// - Parameter event: an `Event` containing an in-app message definition in its data
     private func handleEdgePersonalizationNotification(_ event: Event) {
         // validate this is one of our events
         guard event.isPersonalizationDecisionResponse,
-                requestedSurfacesForEventId.contains(where: { $0.key == event.requestEventId }) else {
+              let requestEventId = event.requestEventId,
+              requestedSurfacesForEventId.contains(where: { $0.key == requestEventId }) else {
             // either this isn't the type of response we are waiting for, or it's not a response to one of our requests
             return
         }
         
-        Log.trace(label: MessagingConstants.LOG_TAG, "Processing propositions from personalization:decisions network response.")
+        Log.trace(label: MessagingConstants.LOG_TAG, "Processing propositions from personalization:decisions network response for event '\(requestEventId)'.")
         updateInProgressPropositionsWith(event)
-        
-        
-        
-        
-        
-        
-
-        // parse and load message rules
-//        Log.trace(label: MessagingConstants.LOG_TAG, "Loading message definitions from personalization:decisions network response.")
-//        let requestedSurfaces = requestedSurfacesForEventId[messagesRequestEventId] ?? []
-//        let propositions = event.payload
-//
-//        let rules = parsePropositions(propositions, expectedSurfaces: requestedSurfaces, clearExisting: clearExistingRules)
-//
-//        if let inAppRules = rules[InboundType.inapp] {
-//            Log.trace(label: MessagingConstants.LOG_TAG, "The personalization:decisions response contains InApp message definitions.")
-//            rulesEngine.launchRulesEngine.loadRules(inAppRules, clearExisting: clearExistingRules)
-//        }
-//
-//        if let feedItemRules = rules[InboundType.feed] {
-//            Log.trace(label: MessagingConstants.LOG_TAG, "The personalization:decisions response contains feed message definitions.")
-//            feedRulesEngine.launchRulesEngine.loadRules(feedItemRules, clearExisting: clearExistingRules)
-//            if let inboundMessages = feedRulesEngine.evaluate(event: event) {
-//                updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
-//            }
-//        }
-//
-//        let requestedPropositions = retrievePropositions(surfaces: requestedSurfaces)
-//        guard !requestedPropositions.isEmpty else {
-//            Log.trace(label: MessagingConstants.LOG_TAG, "Not dispatching a notification event, personalization:decisions response does not contain propositions.")
-//            return
-//        }
-//
-//        // dispatch an event with the propositions received from the remote
-//        let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
-//
-//        let notificationEvent = Event(name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_NOTIFICATION,
-//                          type: EventType.messaging,
-//                          source: EventSource.notification,
-//                          data: eventData)
-//        dispatch(event: notificationEvent)
     }
     
     private func updateInProgressPropositionsWith(_ event: Event) {
@@ -396,7 +384,7 @@ public class Messaging: NSObject, Extension {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no requesting Event ID.")
             return
         }
-        guard let eventPropositions = event.propositions else {
+        guard let eventPropositions = event.payload else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no propositions.")
             return
         }
@@ -407,10 +395,12 @@ public class Messaging: NSObject, Extension {
         for proposition in eventPropositions {
             let surface = Surface(uri: proposition.scope)
             var newPropositions = propositionsBySurface[surface] ?? []
+            Log.trace(label: MessagingConstants.LOG_TAG, "Adding proposition for surface '\(surface.uri)' for event '\(requestingEventId)'.")
             newPropositions.append(proposition)
+            Log.trace(label: MessagingConstants.LOG_TAG, "There are now \(newPropositions.count) proposition(s) for this surface.")
             propositionsBySurface[surface] = newPropositions
         }
-        
+                
         inProgressPropositionsForEventId[requestingEventId] = propositionsBySurface
     }
 
