@@ -35,11 +35,11 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
        // test
-       launchRulesEngine.loadRules(rulesArray, clearExisting: false)
+       launchRulesEngine.loadRules(rulesArray)
 
        // verify
-       XCTAssertTrue(launchRulesEngine.addRulesCalled)
-       XCTAssertEqual(1, launchRulesEngine.paramAddRulesRules?.count)
+       XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+       XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
    }
 
     func testLoadRulesClearExisting() throws {
@@ -51,7 +51,7 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
        // test
-        launchRulesEngine.loadRules(rulesArray, clearExisting: true)
+        launchRulesEngine.loadRules(rulesArray)
 
        // verify
        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
@@ -67,7 +67,7 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
         // test
-        launchRulesEngine.loadRules(rulesArray, clearExisting: false)
+        launchRulesEngine.loadRules(rulesArray)
 
         // verify
         XCTAssertFalse(launchRulesEngine.addRulesCalled)
@@ -82,7 +82,7 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
         // test
-        launchRulesEngine.loadRules(rulesArray, clearExisting: false)
+        launchRulesEngine.loadRules(rulesArray)
 
         // verify
         XCTAssertFalse(launchRulesEngine.addRulesCalled)
@@ -98,10 +98,10 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
 
 
         // test
-        launchRulesEngine.loadRules(rulesArray, clearExisting: false)
+        launchRulesEngine.loadRules(rulesArray)
 
         // verify
-        XCTAssertTrue(launchRulesEngine.addRulesCalled)
-        XCTAssertEqual(1, launchRulesEngine.paramAddRulesRules?.count)
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
     }
 }
