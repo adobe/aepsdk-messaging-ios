@@ -25,7 +25,7 @@ struct ParsedPropositions {
     var propositionsToPersist: [Surface: [Proposition]] = [:]
     
     // in-app and feed rules that need to be applied to their respective rules engines
-    var rulesByInboundType: [InboundType: [LaunchRule]] = [:]
+    var surfaceRulesByInboundType: [InboundType: [Surface: [LaunchRule]]] = [:]
     
     init(with propositions:[Surface: [Proposition]], requestedSurfaces: [Surface]) {
         for propositionsArray in propositions.values {
@@ -66,12 +66,29 @@ struct ParsedPropositions {
                     }
                 }
                 
-                rulesByInboundType.addArray(parsedRules, forKey: inboundType)
+                mergeRules(parsedRules, for: surface, with: inboundType)
             }
         }
     }
     
     private func parseRule(_ rule: String) -> [LaunchRule]? {
         JSONRulesParser.parse(rule.data(using: .utf8) ?? Data())
+    }
+    
+    private mutating func mergeRules(_ rules: [LaunchRule], for surface: Surface, with inboundType: InboundType) {
+        // get rules we may already have for this inboundType
+        var tempRulesByInboundType = surfaceRulesByInboundType[inboundType] ?? [:]
+        
+        // get rules by surface for this inbound type
+        var tempRulesBySurface = tempRulesByInboundType[surface] ?? []
+        
+        // add the new rule(s)
+        tempRulesBySurface.append(contentsOf: rules)
+        
+        // apply rules up to temp rules
+        tempRulesByInboundType[surface] = tempRulesBySurface
+        
+        // apply up to surfaceRulesByInboundType
+        surfaceRulesByInboundType[inboundType] = tempRulesByInboundType
     }
 }
