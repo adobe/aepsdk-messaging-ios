@@ -21,7 +21,7 @@ import AEPMessaging
 import SwiftUI
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
-    private let ENVIRONMENT_FILE_ID = "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development"
+    private let ENVIRONMENT_FILE_ID = ""
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         MobileCore.setLogLevel(.trace)

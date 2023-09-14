@@ -44,8 +44,8 @@ extension Messaging {
         // currently, we can't remove entries that pre-exist by message id since they are not linked to surfaces
         // need to get surface uri from propositionInfo.scope and remove entry based on incoming `surfaces`
         if let surfaces = surfaces {
-            propositionInfo = propositionInfo.filter { surface in
-                !surfaces.contains { $0.uri == surface.value.scope }
+            propositionInfo = propositionInfo.filter { propInfo in                
+                !surfaces.contains { $0.uri == propInfo.value.scope }
             }
         }
     }
@@ -103,7 +103,7 @@ extension Messaging {
     private func hydratePropositionsRulesEngine() {
         let parsedPropositions = ParsedPropositions(with: propositions, requestedSurfaces: propositions.map { $0.key })
         if let inAppRules = parsedPropositions.surfaceRulesByInboundType[.inapp] {
-            rulesEngine.launchRulesEngine.loadRules(inAppRules.combinedRules())
+            rulesEngine.launchRulesEngine.replaceRules(with: inAppRules.flatMap { $0.value })
         }
     }
 

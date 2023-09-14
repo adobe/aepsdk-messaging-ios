@@ -307,57 +307,48 @@ public class Messaging: NSObject, Extension {
     }
     
     private func updateRulesEngines(with rules: [InboundType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
-        if let newInAppRules = rules[.inapp] {
-            Log.trace(label: MessagingConstants.LOG_TAG, "The personalization:decisions response contains InApp message definitions.")
-            
-            // keep track of in-app surfaces with content returned
-            var inappSurfaces: [Surface] = []
-            
-            // replace rules for each in-app surface we got back
-            for (surface, newRules) in newInAppRules {
-                inAppRulesBySurface[surface] = newRules
-                inappSurfaces.append(surface)
+        for (inboundType, newRules) in rules {
+            let surfacesToRemove = requestedSurfaces.minus(Array(newRules.keys))
+            switch inboundType {
+            case .inapp:
+                Log.trace(label: MessagingConstants.LOG_TAG, "Updating in-app message definitions for surfaces \(newRules.keys).")
+                
+                // replace rules for each in-app surface we got back
+                inAppRulesBySurface.merge(newRules) { _, new in new }
+                
+                // remove any surfaces that were requested but had no in-app content returned
+                for surface in surfacesToRemove {
+                    // calls for a dictionary extension?
+                    inAppRulesBySurface.removeValue(forKey: surface)
+                }
+                
+                // combine all our rules
+                let allInAppRules = inAppRulesBySurface.flatMap { $0.value }
+                
+                // pre-fetch the assets for this message if there are any defined
+                rulesEngine.cacheRemoteAssetsFor(allInAppRules)
+                
+                // update rules in in-app engine
+                rulesEngine.launchRulesEngine.replaceRules(with: allInAppRules)
+                
+            case .feed:
+                Log.trace(label: MessagingConstants.LOG_TAG, "Updating feed definitions for surfaces \(newRules.keys).")
+                
+                // replace rules for each feed surface we got back
+                feedRulesBySurface.merge(newRules) { _, new in new }
+                
+                // remove any surfaces that were requested but had no in-app content returned
+                for surface in surfacesToRemove {
+                    feedRulesBySurface.removeValue(forKey: surface)
+                }
+                                
+                // update rules in feed rules engine
+                feedRulesEngine.launchRulesEngine.replaceRules(with: feedRulesBySurface.flatMap { $0.value })
+                
+            default:
+                // no-op
+                Log.trace(label: MessagingConstants.LOG_TAG, "No action will be taken updating messaging rules - the InboundType provided is not supported.")
             }
-            
-            // remove any surfaces that were requested but had no in-app content returned
-            let surfacesToRemove = requestedSurfaces.minus(inappSurfaces)
-            for surface in surfacesToRemove {
-                inAppRulesBySurface.removeValue(forKey: surface)
-            }
-            
-            // combine all our rules
-            let allInAppRules = inAppRulesBySurface.combinedRules()
-            
-            // pre-fetch the assets for this message if there are any defined
-            rulesEngine.cacheRemoteAssetsFor(allInAppRules)
-                        
-            // update rules in in-app engine
-            rulesEngine.launchRulesEngine.loadRules(allInAppRules)
-        }
-
-        if let newFeedItemRules = rules[InboundType.feed] {
-            Log.trace(label: MessagingConstants.LOG_TAG, "The personalization:decisions response contains feed message definitions.")
-            
-            // keep track of feed surfaces returned
-            var feedSurfaces: [Surface] = []
-            
-            // replace rules for each feed surface we got back
-            for (surface, newRules) in newFeedItemRules {
-                feedRulesBySurface[surface] = newRules
-                feedSurfaces.append(surface)
-            }
-            
-            // remove any surfaces that were requested but had no feed content returned
-            let surfacesToRemove = requestedSurfaces.minus(feedSurfaces)
-            for surface in surfacesToRemove {
-                feedRulesBySurface.removeValue(forKey: surface)
-            }
-            
-            // combine all our rules
-            let allFeedRules = feedRulesBySurface.combinedRules()
-            
-            // update rules in feed rules engine
-            feedRulesEngine.launchRulesEngine.loadRules(allFeedRules)
         }
     }
          
@@ -415,11 +406,7 @@ public class Messaging: NSObject, Extension {
         // loop through propositions for this event and add them to existing props by surface
         for proposition in eventPropositions {
             let surface = Surface(uri: proposition.scope)
-            var newPropositions = inProgressPropositions[surface] ?? []
-            Log.trace(label: MessagingConstants.LOG_TAG, "Adding proposition for surface '\(surface.uri)' for event '\(requestingEventId)'.")
-            newPropositions.append(proposition)
-            Log.trace(label: MessagingConstants.LOG_TAG, "There are now \(newPropositions.count) proposition(s) for this surface.")
-            inProgressPropositions[surface] = newPropositions
+            inProgressPropositions.add(proposition, forKey: surface)
         }
     }
 

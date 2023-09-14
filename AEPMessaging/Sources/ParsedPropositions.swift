@@ -54,9 +54,10 @@ struct ParsedPropositions {
                     propositionInfoToCache[messageId] = PropositionInfo.fromProposition(proposition)
                 }
                 
-                var inboundType: InboundType = .inapp
+                var inboundType = InboundType.unknown
                 let isInAppConsequence = consequence?.isInApp ?? false
                 if isInAppConsequence {
+                    inboundType = .inapp
                     propositionsToPersist.add(proposition, forKey: surface)
                 } else {
                     inboundType = InboundType(from: consequence?.detailSchema ?? "")
@@ -79,15 +80,9 @@ struct ParsedPropositions {
         // get rules we may already have for this inboundType
         var tempRulesByInboundType = surfaceRulesByInboundType[inboundType] ?? [:]
         
-        // get rules by surface for this inbound type
-        var tempRulesBySurface = tempRulesByInboundType[surface] ?? []
-        
-        // add the new rule(s)
-        tempRulesBySurface.append(contentsOf: rules)
-        
-        // apply rules up to temp rules
-        tempRulesByInboundType[surface] = tempRulesBySurface
-        
+        // combine rules with existing
+        tempRulesByInboundType.addArray(rules, forKey: surface)
+                
         // apply up to surfaceRulesByInboundType
         surfaceRulesByInboundType[inboundType] = tempRulesByInboundType
     }

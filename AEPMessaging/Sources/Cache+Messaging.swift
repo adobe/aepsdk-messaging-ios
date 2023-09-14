@@ -40,8 +40,7 @@ extension Cache {
     // update entries for surfaces already existing
     // remove surfaces listed by `surfaces`
     // write or remove cache file based on result
-    func updatePropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) {
-        let existingPropositions = propositions
+    func updatePropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) {        
         var updatedPropositions = propositions?.merging(newPropositions ?? [:]) { _, new in new }
         if let surfaces = surfaces {
             updatedPropositions = updatedPropositions?.filter {

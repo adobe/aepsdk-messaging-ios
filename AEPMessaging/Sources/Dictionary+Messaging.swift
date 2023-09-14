@@ -33,11 +33,3 @@ extension Dictionary {
         self[key] == nil ? self[key] = [element] : self[key]?.append(element)
     }
 }
-
-extension Dictionary where Key == Surface, Value == [LaunchRule] {
-    func combinedRules() -> [LaunchRule] {
-        var rules: [LaunchRule] = []
-        _ = self.compactMapValues { rules.append(contentsOf: $0) }
-        return rules
-    }
-}

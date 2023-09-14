@@ -24,7 +24,6 @@
 		01B9DD6617C6AD6E99EE8472 /* Pods_E2EFunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB180620A608D2821FE98F37 /* Pods_E2EFunctionalTests.framework */; };
 		090290C329D4EA9F00388226 /* MockCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5E8274C107100E56457 /* MockCache.swift */; };
 		090290C529DCED0B00388226 /* FeedRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C429DCED0B00388226 /* FeedRulesEngine.swift */; };
-		090290C729DCEE1000388226 /* LaunchRulesEngine+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C629DCEE1000388226 /* LaunchRulesEngine+Messaging.swift */; };
 		090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */; };
 		090290CB29DE3F8200388226 /* MockFeedRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290CA29DE3F8200388226 /* MockFeedRulesEngine.swift */; };
 		090290CD29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290CC29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift */; };
@@ -346,7 +345,6 @@
 
 /* Begin PBXFileReference section */
 		090290C429DCED0B00388226 /* FeedRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedRulesEngine.swift; sourceTree = "<group>"; };
-		090290C629DCEE1000388226 /* LaunchRulesEngine+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchRulesEngine+Messaging.swift"; sourceTree = "<group>"; };
 		090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuleConsequence+Messaging.swift"; sourceTree = "<group>"; };
 		090290CA29DE3F8200388226 /* MockFeedRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MockFeedRulesEngine.swift; path = AEPMessaging/Tests/TestHelpers/MockFeedRulesEngine.swift; sourceTree = SOURCE_ROOT; };
 		090290CC29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchRulesEngine+MessagingTests.swift"; sourceTree = "<group>"; };
@@ -783,7 +781,6 @@
 				09B071EF2A658D4800F259C1 /* InboundType.swift */,
 				243B1B0128B411890074327E /* ItemData.swift */,
 				09B071F12A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift */,
-				090290C629DCEE1000388226 /* LaunchRulesEngine+Messaging.swift */,
 				244E9583268262C7001DC957 /* Message.swift */,
 				244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
@@ -1792,7 +1789,6 @@
 				244C2BD826B36480008F086A /* MessagingEdgeEventType.swift in Sources */,
 				2450599D2673FABF00CC7CA0 /* Messaging+PublicAPI.swift in Sources */,
 				09B071E82A64D80E00F259C1 /* Bundle+Messaging.swift in Sources */,
-				090290C729DCEE1000388226 /* LaunchRulesEngine+Messaging.swift in Sources */,
 				245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */,
 				244E9584268262C8001DC957 /* Message.swift in Sources */,
 				09B071F02A658D4800F259C1 /* InboundType.swift in Sources */,
