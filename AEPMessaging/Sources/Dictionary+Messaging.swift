@@ -10,6 +10,7 @@
  governing permissions and limitations under the License.
  */
 
+import AEPCore
 import Foundation
 
 extension Dictionary where Key == String, Value == Any {
