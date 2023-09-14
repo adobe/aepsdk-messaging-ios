@@ -23,7 +23,7 @@ public enum InboundType: Int, Codable {
 
     /// InApp
     case inapp = 2
-
+    
     /// Initializes InboundType with the provided content schema string.
     /// - Parameter format: Inbound content schema string
     init(from schema: String) {

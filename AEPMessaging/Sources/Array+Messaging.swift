@@ -30,3 +30,11 @@ extension Array {
         return dictionary
     }
 }
+
+extension Array where Element: Hashable {
+    func minus(_ other: [Element]) -> [Element] {
+        let completeSet = Set(self)
+        let subset = Set(other)
+        return Array(completeSet.subtracting(subset)) as [Element]
+    }
+}

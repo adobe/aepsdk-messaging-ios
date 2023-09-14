@@ -49,6 +49,7 @@ enum MessagingConstants {
             static let GET_PROPOSITIONS = "Get propositions"
             static let MESSAGE_PROPOSITIONS_RESPONSE = "Message propositions response"
             static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
+            static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
         }
 
         enum Source {
@@ -75,6 +76,7 @@ enum MessagingConstants {
                 static let SURFACES = "surfaces"
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
+                static let ENDING_EVENT_ID = "endingEventId"
 
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
@@ -150,7 +152,7 @@ enum MessagingConstants {
                 enum Inbound {
                     // schema values
                     static let SCHEMA_FEED_ITEM = "https://ns.adobe.com/personalization/inbound/feed-item"
-                    static let SCHEMA_IAM = "https://ns.adobe.com/personalization/inbound/in-app-message"
+                    static let SCHEMA_IAM = "https://ns.adobe.com/personalization/message/in-app"                                             
                 }
             }
         }
@@ -229,6 +231,8 @@ enum MessagingConstants {
             static let EVENT_TYPE = "eventType"
             static let PUSH_NOTIFICATION_TRACKING = "pushNotificationTracking"
             static let DATA = "data"
+            static let REQUEST = "request"
+            static let SEND_COMPLETION = "sendCompletion"
         }
 
         enum Inbound {
@@ -274,6 +278,8 @@ enum MessagingConstants {
                 static let CLICKED = "clicked"
                 static let DISMISSED = "dismissed"
                 static let EMPTY_CONTENT = "{}"
+                /// enum (int) representing desired format returned by XAS for in-app message propositions
+                static let IAM_RESPONSE_FORMAT = 2
 
                 // Supported schemas
                 static let SCHEMA_AJO_HTML = "https://ns.adobe.com/personalization/html-content-item"
