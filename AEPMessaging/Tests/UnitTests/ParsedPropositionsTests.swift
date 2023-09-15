@@ -60,7 +60,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
-        XCTAssertEqual(0, result.rulesByInboundType.count)
+        XCTAssertEqual(0, result.surfaceRulesByInboundType.count)
     }
     
     func testInitWithPropositionScopeNotMatchingRequestedSurfaces() throws {
@@ -79,7 +79,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
-        XCTAssertEqual(0, result.rulesByInboundType.count)
+        XCTAssertEqual(0, result.surfaceRulesByInboundType.count)
     }
     
     func testInitWithInAppProposition() throws {
@@ -96,7 +96,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
-        XCTAssertEqual(0, result.rulesByInboundType.count)
+        XCTAssertEqual(0, result.surfaceRulesByInboundType.count)
         
     }
     
@@ -117,8 +117,8 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual("feed", feedPropositionInfo?.id)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
-        XCTAssertEqual(1, result.rulesByInboundType.count, "should have one rule to insert in the feeds rules engine")
-        let feedRules = result.rulesByInboundType[.feed]
+        XCTAssertEqual(1, result.surfaceRulesByInboundType.count, "should have one rule to insert in the feeds rules engine")
+        let feedRules = result.surfaceRulesByInboundType[.feed]
         XCTAssertNotNil(feedRules)
         XCTAssertEqual(1, feedRules?.count)
     }

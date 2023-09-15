@@ -70,7 +70,7 @@ extension Event {
         let cornerRadius = CGFloat(messageCornerRadius ?? 0)
         let settings = MessageSettings(parent: parent)
             .setWidth(messageWidth)
-            .setHeight(messageHeight)
+            .setHeight(messageHeight)            
             .setVerticalAlign(messageVAlign)
             .setVerticalInset(messageVInset)
             .setHorizontalAlign(messageHAlign)

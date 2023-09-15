@@ -42,7 +42,9 @@ public class Messaging: NSObject, Extension {
     private var requestedSurfacesForEventId: [String: [Surface]] = [:]
     /// used while processing streaming payloads for a single request
     private var inProgressPropositions: [Surface: [Proposition]] = [:]
+    /// used to manage in-app rules between multiple surfaces and multiple requests
     private var inAppRulesBySurface: [Surface: [LaunchRule]] = [:]
+    /// used to manage feed rules between multiple surfaces and multiple requests
     private var feedRulesBySurface: [Surface: [LaunchRule]] = [:]
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
@@ -154,8 +156,7 @@ public class Messaging: NSObject, Extension {
         
         // if surfaces are provided, use them - otherwise assume the request is for base surface (mobileapp://{bundle identifier})
         if let surfaces = surfaces {
-            requestedSurfaces = surfaces
-                .filter { $0.isValid }
+            requestedSurfaces = surfaces.filter { $0.isValid }
 
             guard !requestedSurfaces.isEmpty else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Unable to update messages, no valid surfaces found.")
