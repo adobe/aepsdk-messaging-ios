@@ -232,6 +232,7 @@ public class Messaging: NSObject, Extension {
                 let endingEventId = responseEvent.requestEventId else {
                 // response event failed or timed out, need to remove this event from the queue
                 self.requestedSurfacesForEventId.removeValue(forKey: newEvent.id.uuidString)
+                self.eventsQueue.start()
                 
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to run completion logic for a personalization request event - unable to obtain parent event ID")
                 return
