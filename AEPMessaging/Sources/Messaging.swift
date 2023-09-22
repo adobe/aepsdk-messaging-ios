@@ -24,6 +24,11 @@ public class Messaging: NSObject, Extension {
     public var metadata: [String: String]?
     public var runtime: ExtensionRuntime
 
+    // Operation orderer used to maintain the order of update and get propositions events.
+    // It ensures any update propositions requests issued before a get propositions call are completed
+    // and the get propositions request is fulfilled from the latest cached content.
+    private let eventsQueue = OperationOrderer<Event>("MessagingEvents")
+    
     // MARK: - Messaging State
 
     var propositions: [Surface: [Proposition]] = [:]
@@ -103,6 +108,18 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.messaging,
                          source: EventSource.contentComplete,
                          listener: handleProcessCompletedEvent(_:))
+        
+        // Handler function called for each queued event. If the queued event is a get propositions event, process it
+        // otherwise if it is an Edge event to update propositions, process it only if it is completed.
+        eventsQueue.setHandler { event -> Bool in
+            if event.isGetPropositionsEvent {
+                self.retrieveMessages(for: event.surfaces ?? [], event: event)
+            } else if event.type == EventType.edge {
+                return !self.requestedSurfacesForEventId.keys.contains(event.id.uuidString)
+            }
+            return true
+        }
+        eventsQueue.start()
     }
 
     public func onUnregistered() {
@@ -231,6 +248,11 @@ public class Messaging: NSObject, Extension {
     }
     
     func handleProcessCompletedEvent(_ event: Event) {
+        defer {
+            // kick off processing the internal events queue after processing is completed for an update propositions request
+            eventsQueue.start()
+        }
+
         guard let endingEventId = event.data?[MessagingConstants.Event.Data.Key.ENDING_EVENT_ID] as? String,
               let requestedSurfaces = requestedSurfacesForEventId[endingEventId] else {
             // shouldn't ever get here, but if we do, we don't have anything to process so we should bail
@@ -268,6 +290,9 @@ public class Messaging: NSObject, Extension {
     
     private func beginRequestFor(_ event: Event, with surfaces: [Surface]) {
         requestedSurfacesForEventId[event.id.uuidString] = surfaces
+        
+        // add the Edge request event to update propositions in the events queue.
+        eventsQueue.add(event)
     }
     
     private func endRequestFor(eventId: String) {
@@ -394,7 +419,7 @@ public class Messaging: NSObject, Extension {
     }
     
     private func updateInProgressPropositionsWith(_ event: Event) {
-        guard let requestingEventId = event.requestEventId else {
+        guard event.requestEventId != nil else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no requesting Event ID.")
             return
         }
@@ -514,7 +539,9 @@ public class Messaging: NSObject, Extension {
         // handle an event to get cached message feeds in the SDK
         if event.isGetPropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
-            retrieveMessages(for: event.surfaces ?? [], event: event)
+            // Queue the get propositions event in internal events queue to ensure any prior update requests are completed
+            // before it is processed.
+            eventsQueue.add(event)
             return
         }
 
