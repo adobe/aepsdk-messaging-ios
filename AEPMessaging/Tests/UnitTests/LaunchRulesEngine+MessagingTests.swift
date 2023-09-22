@@ -27,35 +27,36 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
     }
     
     func testLoadRulesHappy() throws {
-       // setup
+        
+        // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
         let ruleString = propositions.first?.items.first?.data.content
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
-       // test
-       launchRulesEngine.loadRules(rulesArray)
+        // test
+        launchRulesEngine.replaceRules(with: rulesArray)
 
-       // verify
-       XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
-       XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
+        // verify
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
    }
 
     func testLoadRulesClearExisting() throws {
-       // setup
+        // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
         let ruleString = propositions.first?.items.first?.data.content
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
-       // test
-        launchRulesEngine.loadRules(rulesArray)
+        // test
+        launchRulesEngine.replaceRules(with: rulesArray)
 
-       // verify
-       XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
-       XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
+        // verify
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
    }
 
     func testLoadRulesEmptyStringContent() throws {
@@ -67,7 +68,7 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
         // test
-        launchRulesEngine.loadRules(rulesArray)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
         XCTAssertFalse(launchRulesEngine.addRulesCalled)
@@ -82,7 +83,7 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
         // test
-        launchRulesEngine.loadRules(rulesArray)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
         XCTAssertFalse(launchRulesEngine.addRulesCalled)
@@ -98,7 +99,7 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
 
 
         // test
-        launchRulesEngine.loadRules(rulesArray)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
         XCTAssertTrue(launchRulesEngine.replaceRulesCalled)

@@ -31,6 +31,7 @@ class ItemDataTests: XCTestCase {
         // setup
         let encoder = JSONEncoder()
         let itemData = ItemData(id: "abcd", content: "efgh")
+        let expected = getAnyCodable("{\"id\":\"abcd\",\"content\":\"efgh\"}") ?? "fail"
         
         // test
         guard let encodedItemData = try? encoder.encode(itemData) else {
@@ -39,7 +40,8 @@ class ItemDataTests: XCTestCase {
         }
         
         // verify
-        XCTAssertEqual("{\"id\":\"abcd\",\"content\":\"efgh\"}", String(data: encodedItemData, encoding: .utf8))
+        let actual = getAnyCodable(String(data: encodedItemData, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expected, actual: actual)
     }
     
     func testIsDecodable() throws {

@@ -48,21 +48,21 @@ struct ParsedPropositions {
                     continue
                 }
                 
-                let consequence = parsedRules.first?.consequences.first
-                if let messageId = consequence?.id {
-                    // store reporting data for this payload
-                    propositionInfoToCache[messageId] = PropositionInfo.fromProposition(proposition)
+                guard let consequence = parsedRules.first?.consequences.first else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Proposition rule did not contain a consequence, no action to take for this Proposition.")
+                    return
                 }
                 
+                // store reporting data for this payload
+                propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+
                 var inboundType = InboundType.unknown
-                let isInAppConsequence = consequence?.isInApp ?? false
-                if isInAppConsequence {
+                if consequence.isInApp {
                     inboundType = .inapp
                     propositionsToPersist.add(proposition, forKey: surface)
                 } else {
-                    inboundType = InboundType(from: consequence?.detailSchema ?? "")
-                    let isFeedConsequence = consequence?.isFeedItem ?? false
-                    if !isFeedConsequence {
+                    inboundType = InboundType(from: consequence.detailSchema)
+                    if !consequence.isFeedItem {
                         propositionsToCache.add(proposition, forKey: surface)
                     }
                 }

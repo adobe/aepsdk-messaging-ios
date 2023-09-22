@@ -724,4 +724,46 @@ class EventPlusMessagingTests: XCTestCase {
         // verify
         XCTAssertNil(event.token)
     }
+    
+    // MARK: - update propositions api events
+    
+    func testIsUpdatePropositionsEvent() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["updatepropositions": true])
+        let event2 = Event(name: "s", type: EventType.rulesEngine, source: EventSource.requestContent, data: ["updatepropositions": true])
+        let event3 = Event(name: "s", type: EventType.messaging, source: EventSource.requestIdentity, data: ["updatepropositions": true])
+        let event4 = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["nope": true])
+        let event5 = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["updatepropositions": false])
+        
+        // verify
+        XCTAssertTrue(event.isUpdatePropositionsEvent)
+        XCTAssertFalse(event2.isUpdatePropositionsEvent)
+        XCTAssertFalse(event3.isUpdatePropositionsEvent)
+        XCTAssertFalse(event4.isUpdatePropositionsEvent)
+        XCTAssertFalse(event5.isUpdatePropositionsEvent)
+    }
+    
+    func testSurfaces() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["surfaces": [
+            [ "uri": "https://blah" ],
+            [ "uri": "https://otherBlah/somepath/yay" ]
+        ]])
+        
+        // verify
+        let result = event.surfaces
+        XCTAssertEqual(2, result?.count)
+        let first = result?.first
+        XCTAssertEqual("https://blah", first?.uri)
+        let second = result?[1]
+        XCTAssertEqual("https://otherBlah/somepath/yay", second?.uri)
+    }
+    
+    func testSurfacesNoSurfaces() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: [:])
+        
+        // verify
+        XCTAssertNil(event.surfaces)        
+    }
 }

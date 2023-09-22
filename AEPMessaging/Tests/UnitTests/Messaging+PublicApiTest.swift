@@ -21,6 +21,7 @@ class MessagingPublicApiTest: XCTestCase {
     var mockXdmData: [String: Any] = ["somekey": "somedata"]
     var notificationContent: [AnyHashable: Any] = [:]
     let MOCK_BUNDLE_IDENTIFIER = "mobileapp://com.apple.dt.xctest.tool/"
+    let MOCK_FEEDS_SURFACE = "mobileapp://com.apple.dt.xctest.tool/promos/feed1"
     
     override func setUp() {
         notificationContent = [MessagingConstants.XDM.AdobeKeys._XDM: mockXdmData]
@@ -353,6 +354,151 @@ class MessagingPublicApiTest: XCTestCase {
 
         // verify
         wait(for: [expectation], timeout: 1)
+    }
+    
+    // MARK: - getPropositionsForSurfaces
+    
+    func testGetPropositionsForSurfacesNoValidSurfaces() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "completion should be called with invalidRequest")
+        let eventExpectation = XCTestExpectation(description: "event should be dispatched")
+        eventExpectation.isInverted = true
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent) { _ in
+            eventExpectation.fulfill()
+        }
+        
+        let surfacePaths = [Surface(uri: "")]
+        
+        // test
+        Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
+            XCTAssertNil(surfacePropositions)
+            XCTAssertNotNil(error)
+            XCTAssertEqual(AEPError.invalidRequest, error as? AEPError)
+            expectation.fulfill()
+        }
+        
+        // verify
+        wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
+    }
+    
+    func testGetPropositionsForSurfacesTimeoutCallback() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "completion should be called with responseEvent")
+        let eventExpectation = XCTestExpectation(description: "event should be dispatched")
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent) { event in
+            eventExpectation.fulfill()
+            // don't send a response event
+        }
+        
+        let surfacePaths = [Surface(uri: MOCK_FEEDS_SURFACE)]
+        
+        // test
+        Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
+            XCTAssertNil(surfacePropositions)
+            XCTAssertEqual(AEPError.callbackTimeout, error as? AEPError)
+            expectation.fulfill()
+        }
+        
+        // verify
+        wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
+    }
+    
+    func testGetPropositionsForSurfacesErrorPopulated() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "completion should be called with responseEvent")
+        let eventExpectation = XCTestExpectation(description: "event should be dispatched")
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent) { event in
+            eventExpectation.fulfill()
+            
+            // dispatch the response
+            let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1")
+            let responseEvent = event.createResponseEvent(name: "name", type: "type", source: "source", data: [
+                "propositions": [ propositionJson ],
+                "responseerror": AEPError.serverError
+            ])
+            MobileCore.dispatch(event: responseEvent)
+        }
+        
+        let surfacePaths = [Surface(uri: MOCK_FEEDS_SURFACE)]
+        
+        // test
+        Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
+            XCTAssertNil(surfacePropositions)
+            if let aepError = error as? AEPError {
+                XCTAssertEqual(aepError, .serverError)
+            }
+            expectation.fulfill()
+        }
+        
+        // verify
+        wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
+    }
+    
+    func testGetPropositionsForSurfacesNoSurfaces() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "completion should be called with responseEvent")
+        let eventExpectation = XCTestExpectation(description: "event should be dispatched")
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent) { event in
+            eventExpectation.fulfill()
+            
+            // dispatch the response
+            let responseEvent = event.createResponseEvent(name: "name", type: "type", source: "source", data: [:])
+            MobileCore.dispatch(event: responseEvent)
+        }
+        
+        let surfacePaths = [Surface(uri: MOCK_FEEDS_SURFACE)]
+        
+        // test
+        Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
+            XCTAssertNil(surfacePropositions)
+            XCTAssertEqual(AEPError.unexpected, error as? AEPError)
+            expectation.fulfill()
+        }
+        
+        // verify
+        wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
+    }
+        
+    func testGetPropositionsForSurfacesHappy() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "completion should be called with responseEvent")
+        let eventExpectation = XCTestExpectation(description: "event should be dispatched")
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent) { event in
+            // verify incoming request
+            XCTAssertNotNil(event)
+            let eventData = event.data
+            XCTAssertEqual(true, eventData?["getpropositions"] as? Bool)
+            let surfacesMap = eventData?["surfaces"] as? [[String: Any]]
+            let dispatchedSurface = surfacesMap?.first
+            let surfaceUri = dispatchedSurface?["uri"] as? String
+            XCTAssertNotNil(surfaceUri)
+            XCTAssertEqual(self.MOCK_FEEDS_SURFACE, surfaceUri)
+            eventExpectation.fulfill()
+            
+            // dispatch the response
+            let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1")
+            let responseEvent = event.createResponseEvent(name: "name", type: "type", source: "source", data: ["propositions": [ propositionJson ]])
+            MobileCore.dispatch(event: responseEvent)
+        }
+        
+        let surfacePaths = [Surface(uri: MOCK_FEEDS_SURFACE)]
+        
+        // test
+        Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
+            XCTAssertEqual(1, surfacePropositions?.count)
+            if let aepError = error as? AEPError {
+                XCTAssertEqual(aepError, .none)
+            }
+            expectation.fulfill()
+        }
+        
+        // verify
+        wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
     }
     
     // MARK: - setPropositionsHandler
