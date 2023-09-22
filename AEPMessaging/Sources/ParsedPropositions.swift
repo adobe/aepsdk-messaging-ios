@@ -16,18 +16,18 @@ import AEPServices
 struct ParsedPropositions {
     // store tracking information for propositions loaded into rules engines
     var propositionInfoToCache: [String: PropositionInfo] = [:]
-    
+
     // non-in-app propositions should be cached and not persisted
     var propositionsToCache: [Surface: [Proposition]] = [:]
-    
+
     // in-app propositions don't need to stay in cache, but must be persisted
     // also need to store tracking info for in-app propositions as `PropositionInfo`
     var propositionsToPersist: [Surface: [Proposition]] = [:]
-    
+
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesByInboundType: [InboundType: [Surface: [LaunchRule]]] = [:]
-    
-    init(with propositions:[Surface: [Proposition]], requestedSurfaces: [Surface]) {
+
+    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
         for propositionsArray in propositions.values {
             for proposition in propositionsArray {
                 guard let surface = requestedSurfaces.first(where: { $0.uri == proposition.scope }) else {
@@ -35,24 +35,24 @@ struct ParsedPropositions {
                               "Ignoring proposition where scope (\(proposition.scope)) does not match one of the expected surfaces.")
                     continue
                 }
-                
+
                 guard let contentString = proposition.items.first?.content, !contentString.isEmpty else {
                     Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring Proposition with empty content.")
                     continue
                 }
-                
+
                 // iam and feed items will be wrapped in a valid rules engine rule - code-based experiences are not
                 guard let parsedRules = parseRule(contentString) else {
                     Log.debug(label: MessagingConstants.LOG_TAG, "Proposition did not contain a rule, adding as a code-based experience.")
                     propositionsToCache.add(proposition, forKey: surface)
                     continue
                 }
-                
+
                 guard let consequence = parsedRules.first?.consequences.first else {
                     Log.debug(label: MessagingConstants.LOG_TAG, "Proposition rule did not contain a consequence, no action to take for this Proposition.")
                     return
                 }
-                
+
                 // store reporting data for this payload
                 propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
 
@@ -66,23 +66,23 @@ struct ParsedPropositions {
                         propositionsToCache.add(proposition, forKey: surface)
                     }
                 }
-                
+
                 mergeRules(parsedRules, for: surface, with: inboundType)
             }
         }
     }
-    
+
     private func parseRule(_ rule: String) -> [LaunchRule]? {
         JSONRulesParser.parse(rule.data(using: .utf8) ?? Data())
     }
-    
+
     private mutating func mergeRules(_ rules: [LaunchRule], for surface: Surface, with inboundType: InboundType) {
         // get rules we may already have for this inboundType
         var tempRulesByInboundType = surfaceRulesByInboundType[inboundType] ?? [:]
-        
+
         // combine rules with existing
         tempRulesByInboundType.addArray(rules, forKey: surface)
-                
+
         // apply up to surfaceRulesByInboundType
         surfaceRulesByInboundType[inboundType] = tempRulesByInboundType
     }

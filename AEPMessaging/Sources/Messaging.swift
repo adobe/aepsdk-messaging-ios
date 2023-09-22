@@ -28,7 +28,7 @@ public class Messaging: NSObject, Extension {
     // It ensures any update propositions requests issued before a get propositions call are completed
     // and the get propositions request is fulfilled from the latest cached content.
     private let eventsQueue = OperationOrderer<Event>("MessagingEvents")
-    
+
     // MARK: - Messaging State
 
     var propositions: [Surface: [Proposition]] = [:]
@@ -38,11 +38,11 @@ public class Messaging: NSObject, Extension {
     var appSurface: String {
         Bundle.main.mobileappSurface
     }
-    
+
     private var initialLoadComplete = false
     let rulesEngine: MessagingRulesEngine
     let feedRulesEngine: FeedRulesEngine
-    
+
     /// keeps a list of all surfaces requested per personalization request event by event id
     private var requestedSurfacesForEventId: [String: [Surface]] = [:]
     /// used while processing streaming payloads for a single request
@@ -105,12 +105,12 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.edge,
                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
                          listener: handleEdgePersonalizationNotification)
-        
+
         // register listener for handling personalization request complete events
         registerListener(type: EventType.messaging,
                          source: EventSource.contentComplete,
                          listener: handleProcessCompletedEvent(_:))
-        
+
         // Handler function called for each queued event. If the queued event is a get propositions event, process it
         // otherwise if it is an Edge event to update propositions, process it only if it is completed.
         eventsQueue.setHandler { event -> Bool in
@@ -170,7 +170,7 @@ public class Messaging: NSObject, Extension {
     ///   - surfaces: an array of surface path strings for fetching feed messages, if available.
     private func fetchMessages(_ event: Event, for surfaces: [Surface]? = nil) {
         var requestedSurfaces: [Surface] = []
-        
+
         // if surfaces are provided, use them - otherwise assume the request is for base surface (mobileapp://{bundle identifier})
         if let surfaces = surfaces {
             requestedSurfaces = surfaces.filter { $0.isValid }
@@ -211,7 +211,7 @@ public class Messaging: NSObject, Extension {
                 ]
             ]
         ]
-        
+
         // add a `request` object so we get a response event from edge when the propositions stream is closed for this event
         eventData[MessagingConstants.XDM.Key.REQUEST] = [
             MessagingConstants.XDM.Key.SEND_COMPLETION: true
@@ -230,15 +230,16 @@ public class Messaging: NSObject, Extension {
         MobileCore.dispatch(event: newEvent, timeout: 10.0) { responseEvent in
             // responseEvent is the event dispatched by Edge extension when a request's stream has been closed
             guard let responseEvent = responseEvent,
-                let endingEventId = responseEvent.requestEventId else {
+                  let endingEventId = responseEvent.requestEventId
+            else {
                 // response event failed or timed out, need to remove this event from the queue
                 self.requestedSurfacesForEventId.removeValue(forKey: newEvent.id.uuidString)
                 self.eventsQueue.start()
-                
+
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to run completion logic for a personalization request event - unable to obtain parent event ID")
                 return
             }
-            
+
             // dispatch an event signaling messaging extension needs to finalize this event
             // it must be dispatched to the event queue to avoid a race with the events containing propositions
             let processCompletedEvent = responseEvent.createChainedEvent(name: MessagingConstants.Event.Name.FINALIZE_PROPOSITIONS_RESPONSE,
@@ -248,7 +249,7 @@ public class Messaging: NSObject, Extension {
             self.dispatch(event: processCompletedEvent)
         }
     }
-    
+
     func handleProcessCompletedEvent(_ event: Event) {
         defer {
             // kick off processing the internal events queue after processing is completed for an update propositions request
@@ -256,23 +257,24 @@ public class Messaging: NSObject, Extension {
         }
 
         guard let endingEventId = event.data?[MessagingConstants.Event.Data.Key.ENDING_EVENT_ID] as? String,
-              let requestedSurfaces = requestedSurfacesForEventId[endingEventId] else {
+              let requestedSurfaces = requestedSurfacesForEventId[endingEventId]
+        else {
             // shouldn't ever get here, but if we do, we don't have anything to process so we should bail
             return
         }
-        
+
         Log.trace(label: MessagingConstants.LOG_TAG, "End of streaming response events for requesting event '\(endingEventId)'")
         endRequestFor(eventId: endingEventId)
-                
+
         // check for new inbound messages from recently updated rules engine
         if let inboundMessages = feedRulesEngine.evaluate(event: event) {
             updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
         }
-        
+
         // dispatch notification event for request
         dispatchNotificationEventFor(requestedSurfaces)
     }
-    
+
     private func dispatchNotificationEventFor(_ requestedSurfaces: [Surface]) {
         let requestedPropositions = retrievePropositions(surfaces: requestedSurfaces)
         guard !requestedPropositions.isEmpty else {
@@ -284,43 +286,43 @@ public class Messaging: NSObject, Extension {
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
 
         let notificationEvent = Event(name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_NOTIFICATION,
-                          type: EventType.messaging,
-                          source: EventSource.notification,
-                          data: eventData)
+                                      type: EventType.messaging,
+                                      source: EventSource.notification,
+                                      data: eventData)
         dispatch(event: notificationEvent)
     }
-    
+
     private func beginRequestFor(_ event: Event, with surfaces: [Surface]) {
         requestedSurfacesForEventId[event.id.uuidString] = surfaces
-        
+
         // add the Edge request event to update propositions in the events queue.
         eventsQueue.add(event)
     }
-    
+
     private func endRequestFor(eventId: String) {
         // update in memory propositions
         applyPropositionChangeFor(eventId: eventId)
-        
+
         // remove event from surfaces dictionary
         requestedSurfacesForEventId.removeValue(forKey: eventId)
-        
+
         // clear pending propositions
         inProgressPropositions.removeAll()
     }
-    
+
     private func applyPropositionChangeFor(eventId: String) {
         // get the list of requested surfaces for this event
         guard let requestedSurfaces = requestedSurfacesForEventId[eventId] else {
             return
         }
-        
+
         let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces)
-        
+
         // we need to preserve cache for any surfaces that were not a part of this request
         // any requested surface that is absent from the response needs to be removed from cache and persistence
         let returnedSurfaces = Array(inProgressPropositions.keys) as [Surface]
         let surfacesToRemove = requestedSurfaces.minus(returnedSurfaces)
-                
+
         // update persistence, reporting data cache, and finally rules engine for in-app messages
         // order matters here because the rules engine must be a full replace, and when we update
         // persistence we will be removing empty surfaces and making sure unrequested surfaces
@@ -328,57 +330,57 @@ public class Messaging: NSObject, Extension {
         updatePropositions(parsedPropositions.propositionsToCache, removing: surfacesToRemove)
         updatePropositionInfo(parsedPropositions.propositionInfoToCache, removing: surfacesToRemove)
         cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
-        
+
         // apply rules
         updateRulesEngines(with: parsedPropositions.surfaceRulesByInboundType, requestedSurfaces: requestedSurfaces)
     }
-    
+
     private func updateRulesEngines(with rules: [InboundType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
         for (inboundType, newRules) in rules {
             let surfacesToRemove = requestedSurfaces.minus(Array(newRules.keys))
             switch inboundType {
             case .inapp:
                 Log.trace(label: MessagingConstants.LOG_TAG, "Updating in-app message definitions for surfaces \(newRules.keys).")
-                
+
                 // replace rules for each in-app surface we got back
                 inAppRulesBySurface.merge(newRules) { _, new in new }
-                
+
                 // remove any surfaces that were requested but had no in-app content returned
                 for surface in surfacesToRemove {
                     // calls for a dictionary extension?
                     inAppRulesBySurface.removeValue(forKey: surface)
                 }
-                
+
                 // combine all our rules
                 let allInAppRules = inAppRulesBySurface.flatMap { $0.value }
-                
+
                 // pre-fetch the assets for this message if there are any defined
                 rulesEngine.cacheRemoteAssetsFor(allInAppRules)
-                
+
                 // update rules in in-app engine
                 rulesEngine.launchRulesEngine.replaceRules(with: allInAppRules)
-                
+
             case .feed:
                 Log.trace(label: MessagingConstants.LOG_TAG, "Updating feed definitions for surfaces \(newRules.keys).")
-                
+
                 // replace rules for each feed surface we got back
                 feedRulesBySurface.merge(newRules) { _, new in new }
-                
+
                 // remove any surfaces that were requested but had no in-app content returned
                 for surface in surfacesToRemove {
                     feedRulesBySurface.removeValue(forKey: surface)
                 }
-                                
+
                 // update rules in feed rules engine
                 feedRulesEngine.launchRulesEngine.replaceRules(with: feedRulesBySurface.flatMap { $0.value })
-                
+
             default:
                 // no-op
                 Log.trace(label: MessagingConstants.LOG_TAG, "No action will be taken updating messaging rules - the InboundType provided is not supported.")
             }
         }
     }
-         
+
     private func retrieveMessages(for surfaces: [Surface], event: Event) {
         let requestedSurfaces = surfaces
             .filter { $0.isValid }
@@ -411,15 +413,16 @@ public class Messaging: NSObject, Extension {
         // validate this is one of our events
         guard event.isPersonalizationDecisionResponse,
               let requestEventId = event.requestEventId,
-              requestedSurfacesForEventId.contains(where: { $0.key == requestEventId }) else {
+              requestedSurfacesForEventId.contains(where: { $0.key == requestEventId })
+        else {
             // either this isn't the type of response we are waiting for, or it's not a response to one of our requests
             return
         }
-        
+
         Log.trace(label: MessagingConstants.LOG_TAG, "Processing propositions from personalization:decisions network response for event '\(requestEventId)'.")
         updateInProgressPropositionsWith(event)
     }
-    
+
     private func updateInProgressPropositionsWith(_ event: Event) {
         guard event.requestEventId != nil else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no requesting Event ID.")
@@ -429,7 +432,7 @@ public class Messaging: NSObject, Extension {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no propositions.")
             return
         }
-        
+
         // loop through propositions for this event and add them to existing props by surface
         for proposition in eventPropositions {
             let surface = Surface(uri: proposition.scope)
