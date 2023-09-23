@@ -14,7 +14,7 @@ import AEPMessaging
 import SwiftUI
 
 struct FeedsView: View {
-    @ObservedObject var propositionsResult: PropositionsResult
+    @State var propositionsDict: [Surface: [Proposition]]? = nil
     @State private var viewDidLoad = false
     @State private var feedName: String = "API feed"
     var body: some View {
@@ -24,7 +24,7 @@ struct FeedsView: View {
                     .font(.title)
                     .padding(.top, 30)
                 List {
-                    ForEach(propositionsResult.propositionsDict?[Surface(path: "feeds/apifeed")]?
+                    ForEach(propositionsDict?[Surface(path: "feeds/apifeed")]?
                         .compactMap { $0.items.first?.decodeContent() } ?? [], id: \.uniqueId) { inboundMessage in
                         if let feedItem = inboundMessage.decodeContent(FeedItem.self) {
                             NavigationLink(destination: FeedItemDetailView(feedItem: feedItem)) {
@@ -39,14 +39,13 @@ struct FeedsView: View {
                     if viewDidLoad == false {
                         viewDidLoad = true
                         Messaging.updatePropositionsForSurfaces([Surface(path: "feeds/apifeed")])
-                    } else {
-                        Messaging.getPropositionsForSurfaces([Surface(path: "feeds/apifeed")]) { propositionsDict, error in
-                            guard error == nil else {
-                                return
-                            }
-                            DispatchQueue.main.async {
-                                self.propositionsResult.propositionsDict = propositionsDict
-                            }
+                    }
+                    Messaging.getPropositionsForSurfaces([Surface(path: "feeds/apifeed")]) { propositionsDict, error in
+                        guard error == nil else {
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            self.propositionsDict = propositionsDict
                         }
                     }
                 }
@@ -58,6 +57,6 @@ struct FeedsView: View {
 
 struct FeedsView_Previews: PreviewProvider {
     static var previews: some View {
-        FeedsView(propositionsResult: PropositionsResult())
+        FeedsView()
     }
 }
