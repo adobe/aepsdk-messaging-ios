@@ -1,0 +1,63 @@
+PODS:
+  - AEPAssurance (4.0.0):
+    - AEPCore (>= 4.0.0)
+    - AEPServices (>= 4.0.0)
+  - AEPCore (4.1.0):
+    - AEPRulesEngine (>= 4.0.0)
+    - AEPServices (>= 4.1.0)
+  - AEPEdge (4.2.0):
+    - AEPCore (>= 4.1.0)
+    - AEPEdgeIdentity (>= 4.0.0)
+  - AEPEdgeConsent (4.0.0):
+    - AEPCore (>= 4.0.0)
+    - AEPEdge (>= 4.0.0)
+  - AEPEdgeIdentity (4.0.0):
+    - AEPCore (>= 4.0.0)
+  - AEPLifecycle (4.1.0):
+    - AEPCore (>= 4.1.0)
+  - AEPRulesEngine (4.0.0)
+  - AEPServices (4.1.0)
+  - AEPSignal (4.1.0):
+    - AEPCore (>= 4.1.0)
+  - SwiftLint (0.52.0)
+
+DEPENDENCIES:
+  - AEPAssurance
+  - AEPCore
+  - AEPEdge
+  - AEPEdgeConsent
+  - AEPEdgeIdentity
+  - AEPLifecycle
+  - AEPRulesEngine
+  - AEPServices
+  - AEPSignal
+  - SwiftLint (= 0.52.0)
+
+SPEC REPOS:
+  trunk:
+    - AEPAssurance
+    - AEPCore
+    - AEPEdge
+    - AEPEdgeConsent
+    - AEPEdgeIdentity
+    - AEPLifecycle
+    - AEPRulesEngine
+    - AEPServices
+    - AEPSignal
+    - SwiftLint
+
+SPEC CHECKSUMS:
+  AEPAssurance: 4fa3138ddd7308c1f9923570f4d2b0b8526a916f
+  AEPCore: 20fb832a7467b25ca4aca186c0a5a1e3c0c6abc3
+  AEPEdge: c31a1c31d8466f964efeb9a4f94eebc52a0b55a5
+  AEPEdgeConsent: 54c1b6a30a3d646e3d4bc4bae1713755422b471e
+  AEPEdgeIdentity: c2396b9119abd6eb530ea11efc58ec019b163bd4
+  AEPLifecycle: 97693ea99ef9deb818b726a4e429ef96abb1353e
+  AEPRulesEngine: 458450a34922823286ead045a0c2bd8c27e224c6
+  AEPServices: d94555679870311d2f1391c5d7a5de590fd1f3c0
+  AEPSignal: 9152e68bae462276f57ac63666e879cc7ff7c302
+  SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
+
+PODFILE CHECKSUM: 9ee4606dfd45b9c658e3493e0a8cfbbc0a1003c8
+
+COCOAPODS: 1.12.1
