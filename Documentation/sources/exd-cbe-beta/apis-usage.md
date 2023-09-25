@@ -1,6 +1,6 @@
 # APIs Usage
 
-This document details how to use the APIs provided by the AEPMessaging framework.
+This document details the Messaging SDK APIs that can be used to implement code-based experiences in mobile apps.
 
 ## Code-based experiences APIs
 
@@ -9,9 +9,11 @@ This document details how to use the APIs provided by the AEPMessaging framework
 
 ---
 
-### updatePropositionsForSurfaces
+### updatePropositionsForSurfaces(_:)
 
-This API dispatches an event for the Edge network extension to fetch personalization decisions, for the provided surfaces array, from the AJO campaigns via the Experience Edge. The returned decision propositions are cached in-memory in the SDK and can be retrieved using `getPropositionsForSurfaces(_:_:)` API.
+Dispatches an event for the Edge network extension to fetch personalization decisions from the AJO campaigns for the provided surfaces array. The returned decision propositions are cached in-memory by the Messaging extension.
+
+To retrieve previously cached decision propositions, use `getPropositionsForSurfaces(_:_:)` API.
 
 #### Swift
 
@@ -45,9 +47,11 @@ AEPSurface* surface2 = [[AEPSurface alloc] initWithPath: @"myView#button"];
 
 ---
 
-### getPropositionsForSurfaces
+### getPropositionsForSurfaces(_:_:)
 
-This API retrieves the previously fetched propositions, for the provided surfaces, from the SDK in-memory propositions cache. The completion handler is invoked with the decision propositions corresponding to the given surfaces or AEPError, if it occurs. If a certain surface has not already been fetched prior to this API call using `updatePropositionsForSurfaces(_:)` API, it will not be contained in the returned propositions.
+Retrieves the previously fetched propositions from the SDK's in-memory propositions cache for the provided surfaces. The completion handler is invoked with the decision propositions corresponding to the given surfaces or AEPError, if it occurs. 
+
+If a requested surface was not previously cached prior to calling `getPropositionsForSurfaces(_:_:)` (using the `updatePropositionsForSurfaces(_:)` API), no propositions will be returned for that surface.
 
 #### Swift
 
@@ -64,22 +68,23 @@ let surface1 = Surface(path: "myView#button")
 let surface2 = Surface(path: "myViewAttributes")
 
 Messaging.getPropositionsForSurfaces([surface1, surface2]) { propositionsDict, error in
-  guard error == nil else {
-    // handle error
-    return
-  }
+    guard error == nil else {
+        // handle error
+        return
+    }
 
-  guard let propositionsDict = propositionsDict else {
-    // bail early if no propositions
-    return
-  }
+    guard let propositionsDict = propositionsDict else {
+        // bail early if no propositions
+        return
+    }
+    
     // get the propositions for the given surfaces
     if let propositions1 = propositionsDict[surface1] {
-      // read surface1 propositions
+        // read surface1 propositions
     }
 
     if let propositions2 = propositionsDict[surface2] {
-      // read surface2 propositions
+        // read surface2 propositions
     }
 }
 ```
@@ -124,9 +129,13 @@ AEPSurface* surface2 = [[AEPSurface alloc] initWithPath: @"myView#button"];
 | class | `Proposition` | `AEPProposition` |
 | class | `PropositionItem` | `AEPPropositionItem` |
 
-### Surface
+### class Surface
 
-This class represents the decision scope which is used to fetch the decision propositions from the Edge decisioning services. The encapsulated scope name can also represent the Base64 encoded JSON string created using the provided activityId, placementId and itemCount.
+Represents the decision scope which is used to fetch the decision propositions from the Edge decisioning services. The encapsulated scope name can also represent the Base64 encoded JSON string created using the provided activityId, placementId and itemCount.
+
+#### Swift
+
+##### Syntax
 
 ```swift
 /// `Surface` class is used to create surfaces for requesting propositions in personalization query requests.
@@ -146,35 +155,20 @@ public class Surface: NSObject, Codable {
         }
         uri = Bundle.main.mobileappSurface + MessagingConstants.PATH_SEPARATOR + path
     }
-
-    /// Creates a new surface by providing the full mobile app surface URI.
-    ///
-    /// - Parameter uri: string representation for the surface URI.
-    init(uri: String) {
-        self.uri = uri
-    }
-
-    /// Creates a new base surface URI (containing mobileapp:// prefixed to app bundle identifier), without any path suffix.
-    override convenience init() {
-        self.init(uri: Bundle.main.mobileappSurface)
-    }
-
-    /// Verifies that the surface URI string is a valid URL.
-    var isValid: Bool {
-        guard URL(string: uri) != nil else {
-            Log.warning(label: MessagingConstants.LOG_TAG,
-                        "Invalid surface URI found \(uri).")
-            return false
-        }
-        return true
-    }
     ...
 }
 ```
 
-### Proposition
+##### Example
 
-This class represents the decision propositions received from the remote, upon a personalization query request to the Experience Edge network.
+```swift
+// Creates a surface instance representing a banner within homeView view in my mobile application.
+let surface = Surface(path: "homeView#banner")
+```
+
+### class Proposition
+
+Represents the decision propositions received from the remote, upon a personalization query request to the Experience Edge network.
 
 ```swift
 @objc(AEPProposition)
@@ -190,23 +184,15 @@ public class Proposition: NSObject, Codable {
     var scopeDetails: [String: Any]
 
     /// Array containing proposition decision items
-    private let propositionItems: [PropositionItem]
-
     public lazy var items: [PropositionItem] = {...}()
 
-    init(uniqueId: String, scope: String, scopeDetails: [String: Any], items: [PropositionItem]) {
-        self.uniqueId = uniqueId
-        self.scope = scope
-        self.scopeDetails = scopeDetails
-        propositionItems = items
-    }
     ...
 }
 ```
 
-### PropositionItem
+### class PropositionItem
 
-This class represents the decision proposition item received from the remote, upon a personalization query to the Experience Edge network.
+Represents the decision proposition item received from the remote, upon a personalization query to the Experience Edge network.
 
 ```swift
 @objc(AEPPropositionItem)
@@ -221,14 +207,6 @@ public class PropositionItem: NSObject, Codable {
     /// PropositionItem content string
     public let content: String
 
-    /// Weak reference to Proposition instance
-    weak var proposition: Proposition?
-
-    init(uniqueId: String, schema: String, content: String) {
-        self.uniqueId = uniqueId
-        self.schema = schema
-        self.content = content
-    }
     ...
 }
 ```
