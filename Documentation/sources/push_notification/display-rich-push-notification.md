@@ -1,4 +1,4 @@
-#Display rich push notifications
+# Display rich push notifications
 
 You must use Notification Service app extension to download images or other media attachments for the notification before displaying it on user's iOS device.
 
