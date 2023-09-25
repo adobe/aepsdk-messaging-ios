@@ -15,7 +15,6 @@ import SwiftUI
 
 struct HomeView: View {
     @State private var viewDidLoad = false
-    @StateObject var propositionsResult = PropositionsResult()
 
     var body: some View {
         TabView {
@@ -27,31 +26,16 @@ struct HomeView: View {
                 .tabItem {
                     Label("Push", systemImage: "paperplane.fill")
                 }
-            CodeBasedOffersView(propositionsResult: propositionsResult)
+            CodeBasedOffersView()
                 .tabItem {
                     Label("Code Experiences", systemImage: "newspaper.fill")
                 }
-            FeedsView(propositionsResult: propositionsResult)
+            FeedsView()
                 .tabItem {
                     Label("Feeds", systemImage: "tray.and.arrow.down.fill")
                 }
         }
-        .onAppear {
-            if viewDidLoad == false {
-                viewDidLoad = true
-                
-                Messaging.setPropositionsHandler { propositionsDict in
-                    DispatchQueue.main.async {
-                        self.propositionsResult.propositionsDict = propositionsDict
-                    }
-                }
-            }
-        }
     }
-}
-
-class PropositionsResult: ObservableObject {
-    @Published var propositionsDict: [Surface: [Proposition]]? = nil
 }
 
 struct HomeView_Previews: PreviewProvider {

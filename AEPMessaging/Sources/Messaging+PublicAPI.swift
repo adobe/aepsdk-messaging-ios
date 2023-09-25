@@ -15,9 +15,6 @@ import AEPServices
 import UserNotifications
 
 @objc public extension Messaging {
-    private static var isPropositionsResponseListenerRegistered: Bool = false
-    private static var propositionsResponseHandler: (([Surface: [Proposition]]) -> Void)?
-
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
@@ -139,32 +136,5 @@ import UserNotifications
 
             completion(propositions.toDictionary { Surface(uri: $0.scope) }, .none)
         }
-    }
-
-    /// Registers a permanent event listener with the Mobile Core for listening to personalization decisions events received upon a personalization query to the Experience Edge network.
-    /// If a new completion handler is provided, it will replace the existing one and it will be invoked when propositions are received from the Edge network.
-    /// - Parameter completion: The latest completion handler to be invoked with a dictionary containing the surfaces and the corresponding array of Proposition objects.
-    static func setPropositionsHandler(_ completion: (([Surface: [Proposition]]) -> Void)? = nil) {
-        if !isPropositionsResponseListenerRegistered {
-            isPropositionsResponseListenerRegistered = true
-            MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.notification, listener: propositionsResponseListener(_:))
-        }
-        propositionsResponseHandler = completion
-    }
-
-    private static func propositionsResponseListener(_ event: Event) {
-        guard let propositionsResponseHandler = propositionsResponseHandler else {
-            return
-        }
-
-        guard
-            let propositions = event.propositions,
-            !propositions.isEmpty
-        else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "No valid propositions found in the notification event.")
-            return
-        }
-
-        propositionsResponseHandler(propositions.toDictionary { Surface(uri: $0.scope) })
     }
 }
