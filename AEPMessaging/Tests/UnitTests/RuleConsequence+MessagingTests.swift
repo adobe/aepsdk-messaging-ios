@@ -78,7 +78,7 @@ class RuleConsequenceMessagingTests: XCTestCase {
         XCTAssertEqual("", consequence.detailSchema)
     }
     
-    func testDetailSchemaWhenItIsDoesNotExist() throws {
+    func testDetailSchemaWhenItDoesNotExist() throws {
         // setup
         let consequence = RuleConsequence(id: "id", type: "type", details: [ "schememama": "hello" ])
         

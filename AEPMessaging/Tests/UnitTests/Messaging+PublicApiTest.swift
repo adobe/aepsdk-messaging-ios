@@ -417,7 +417,7 @@ class MessagingPublicApiTest: XCTestCase {
             let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1")
             let responseEvent = event.createResponseEvent(name: "name", type: "type", source: "source", data: [
                 "propositions": [ propositionJson ],
-                "responseerror": AEPError.serverError
+                "responseerror": AEPError.serverError.rawValue
             ])
             MobileCore.dispatch(event: responseEvent)
         }
@@ -427,9 +427,7 @@ class MessagingPublicApiTest: XCTestCase {
         // test
         Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
             XCTAssertNil(surfacePropositions)
-            if let aepError = error as? AEPError {
-                XCTAssertEqual(aepError, .serverError)
-            }
+            XCTAssertEqual(AEPError.serverError, error as? AEPError)            
             expectation.fulfill()
         }
         

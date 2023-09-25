@@ -50,7 +50,7 @@ struct ParsedPropositions {
 
                 guard let consequence = parsedRules.first?.consequences.first else {
                     Log.debug(label: MessagingConstants.LOG_TAG, "Proposition rule did not contain a consequence, no action to take for this Proposition.")
-                    return
+                    continue
                 }
 
                 // store reporting data for this payload
