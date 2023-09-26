@@ -82,6 +82,7 @@ class PropositionPayloadTests: XCTestCase {
             return
         }
         let encoder = JSONEncoder()
+        let expected = getAnyCodable("{\"id\":\"mockId\",\"scope\":\"mockScope\",\"scopeDetails\":{\"correlationID\":\"mockCorrelationId\"},\"items\":[{\"id\":\"mockItemId\",\"schema\":\"mockItemSchema\",\"data\":{\"id\":\"mockDataId\",\"content\":\"mockDataContent\"}}]}") ?? "fail"
 
         // test
         guard let encodedPropositionPayload = try? encoder.encode(propositionPayload) else {
@@ -90,7 +91,8 @@ class PropositionPayloadTests: XCTestCase {
         }
 
         // verify
-        XCTAssertEqual("{\"id\":\"mockId\",\"scope\":\"mockScope\",\"scopeDetails\":{\"correlationID\":\"mockCorrelationId\"},\"items\":[{\"id\":\"mockItemId\",\"schema\":\"mockItemSchema\",\"data\":{\"id\":\"mockDataId\",\"content\":\"mockDataContent\"}}]}", String(data: encodedPropositionPayload, encoding: .utf8))
+        let actual = getAnyCodable(String(data: encodedPropositionPayload, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expected, actual: actual)
     }
     
     // MARK: - Exception path

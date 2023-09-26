@@ -51,6 +51,7 @@ class PropositionInfoTests: XCTestCase {
         // setup
         let encoder = JSONEncoder()
         let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: mockScopeDetails)
+        let expected = getAnyCodable("{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"activity\":{\"id\":\"\(mockActivityId)\"},\"correlationID\":\"\(mockCorrelationId)\"}}") ?? "fail"
         
         // test
         guard let encodedPropositionInfo = try? encoder.encode(propositionInfo) else {
@@ -59,7 +60,8 @@ class PropositionInfoTests: XCTestCase {
         }
         
         // verify
-        XCTAssertEqual("{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"activity\":{\"id\":\"\(mockActivityId)\"},\"correlationID\":\"\(mockCorrelationId)\"}}", String(data: encodedPropositionInfo, encoding: .utf8))
+        let actual = getAnyCodable(String(data: encodedPropositionInfo, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expected, actual: actual)
     }
     
     func testIsDecodable() throws {

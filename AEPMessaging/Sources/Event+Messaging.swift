@@ -281,7 +281,7 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool ?? false
     }
 
-    // MARK: - Get Feed Messages Public API Event
+    // MARK: - Get propositions public API event
 
     var isGetPropositionsEvent: Bool {
         isMessagingType && isRequestContentSource && getPropositions
@@ -303,7 +303,10 @@ extension Event {
     }
 
     var responseError: AEPError? {
-        data?[MessagingConstants.Event.Data.Key.RESPONSE_ERROR] as? AEPError
+        guard let errorInt = data?[MessagingConstants.Event.Data.Key.RESPONSE_ERROR] as? Int else {
+            return nil
+        }
+        return AEPError(rawValue: errorInt)
     }
 
     // MARK: - SetPushIdentifier Event
