@@ -1,0 +1,21 @@
+{
+    "id": "183639c4-cb37-458e-a8ef-4e130d767ebf",
+    "schema": "https://ns.adobe.com/personalization/inbound/feed-item",
+    "data": {
+        "expiryDate": 1723163897,
+        "meta": {
+            "feedName": "testFeed",
+            "campaignName": "testCampaign",
+            "surface": "mobileapp://com.feeds.testing/feeds/apifeed"
+        },
+        "content": {
+            "title": "contentTitle",
+            "body": "contentBody",
+            "imageUrl": "contentImageUrl",
+            "actionUrl": "contentActionUrl",
+            "actionTitle": "contentActionTitle"
+        },
+        "contentType": "application/json",
+        "publishedDate": 1691541497
+    }
+}

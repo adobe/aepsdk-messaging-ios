@@ -153,4 +153,43 @@ class PropositionInfoTests: XCTestCase {
         // verify
         XCTAssertEqual("", propositionInfo.activityId)
     }
+    
+    // MARK: - extension vars
+    func testActivityId() throws {
+        // setup
+        let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: mockScopeDetails)
+        
+        // verify
+        XCTAssertEqual(mockActivityId, propositionInfo.activityId)
+    }
+    
+    func testActivityIdNoActivityObject() throws {
+        // setup
+        let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: [ "noActivityObject": "foundHere" ])
+        
+        // verify
+        XCTAssertEqual("", propositionInfo.activityId)
+    }
+    
+    func testActivityIdNoIdInActivityObject() throws {
+        // setup
+        let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: [ "activity": [ "noId": "foundHere" ]])
+        
+        // verify
+        XCTAssertEqual("", propositionInfo.activityId)
+    }
+    
+    func testFromProposition() throws {
+        // setup
+        let propItem = PropositionItem(uniqueId: "itemId", schema: "itemSchema", content: "itemContent")
+        let proposition = Proposition(uniqueId: mockId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propItem])
+        
+        // test
+        let propositionInfo = PropositionInfo.fromProposition(proposition)
+        
+        // verify
+        XCTAssertEqual(mockId, propositionInfo.id)
+        XCTAssertEqual(mockScope, propositionInfo.scope)
+        XCTAssertEqual(2, propositionInfo.scopeDetails.count)
+    }
 }
