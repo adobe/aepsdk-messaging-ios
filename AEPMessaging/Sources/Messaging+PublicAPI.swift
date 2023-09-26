@@ -50,6 +50,7 @@ import UserNotifications
     }
 
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
+    /// This API method will also automatically handle click behavior defined for the push notification.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     ///   - closure : A callback with `PushTrackingStatus` representing the tracking status of the interacted notification

@@ -1,4 +1,4 @@
-# Validate In-App Messaging using Assurance
+# Validate in-app messaging using Assurance
 
 This guide will walk you through steps necessary to ensure your app is properly configured for in-app messaging with Adobe Journey Optimizer (AJO).
 

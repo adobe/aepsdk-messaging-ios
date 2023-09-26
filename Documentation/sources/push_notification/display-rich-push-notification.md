@@ -1,6 +1,6 @@
 # Display rich push notifications
 
-You must use Notification Service app extension to download images or other media attachments for the notification before displaying it on user's iOS device.
+You must use a Notification Service app extension to download images or other media attachments for the notification before displaying it on user's iOS device.
 
 Follow Apple's documentation to [Add a Notification Service app extension to your project](https://developer.apple.com/documentation/usernotifications/modifying_content_in_newly_delivered_notifications#2942063).
 
@@ -50,7 +50,7 @@ extension UNNotificationRequest {
             return nil
         }
         
-        // do not attach anything if its not a valid URL
+        // do not attach anything if it is not a valid URL
         guard let attachmentURL = URL(string: attachmentString) else {
             return nil
         }
