@@ -3,28 +3,33 @@
 ### Prerequisites
 
 - Push Messaging
-  - [Enable push notifications in your app](./sources/enable-push-notifications.md)  
+  - [Enable push notifications in your app](./sources/prerequisite/enable-push-notifications.md)  
 - Push and In-app Messaging
-  - [Configure Adobe Data Collection and Adobe Experience Platform](./sources/edge-and-launch-configuration.md)
+  - [Configure Adobe Data Collection and Adobe Experience Platform](./sources/prerequisite/edge-and-launch-configuration.md)
 
 
-### Getting started with AEPMessaging Extension
+### Getting started
 
-- [Getting started](./sources/getting-started.md)
-- [Usage](./sources/usage.md)
+- [Installing AEPMesssaging extension](./sources/getting-started.md)
 
-### Guides and How-tos
+### Push Notification
+- [API Usage](./sources/push_notification/api-usage.md)
+- [Displaying Rich Push Notification](./sources/push_notification/display-rich-push-notification.md)
 
-- [Programmatically control the display of in-app messages](./sources/how-to-messaging-delegate.md)
-- [Call native code from the Javascript of an in-app message](./sources/how-to-call-native-from-javascript.md)
-- [Execute Javascript code in an in-app message from native code](./sources/how-to-call-javascript-from-native.md)
-- [Handle URL clicks from an in-app message](./sources/how-to-handle-url-clicks.md)
+### In-App Messaging
+- [API Usage](./sources/in_app_messaging/api-usage.md)
+- [Programmatically control the display of in-app messages](./sources/in_app_messaging/how-to-messaging-delegate.md)
+- [Call native code from the Javascript of an in-app message](./sources/in_app_messaging/how-to-call-native-from-javascript.md)
+- [Execute Javascript code in an in-app message from native code](./sources/in_app_messaging/how-to-call-javascript-from-native.md)
+- [Handle URL clicks from an in-app message](./sources/in_app_messaging/how-to-handle-url-clicks.md)
+
 
 ### Other public classes, methods, and enums
 
 - [Message](./sources/class-message.md)
 - [MessagingEdgeEventType](./sources/enum-messaging-edge-event-type.md)
+- [PushTrackingStatus](./sources/enum-push-tracking-status.md)
 
 ### Troubleshooting
 
-- [Validate in-app messaging using AEPAssurance SDK extension and the Assurance UI](./sources/troubleshooting/validate-messages-in-griffon.md)
+- [Validate In-App Messaging using Assurance](./sources/troubleshooting/validate-messages-in-griffon.md)
