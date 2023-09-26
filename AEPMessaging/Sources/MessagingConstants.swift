@@ -152,7 +152,7 @@ enum MessagingConstants {
                 enum Inbound {
                     // schema values
                     static let SCHEMA_FEED_ITEM = "https://ns.adobe.com/personalization/inbound/feed-item"
-                    static let SCHEMA_IAM = "https://ns.adobe.com/personalization/message/in-app"                                             
+                    static let SCHEMA_IAM = "https://ns.adobe.com/personalization/message/in-app"
                 }
             }
         }

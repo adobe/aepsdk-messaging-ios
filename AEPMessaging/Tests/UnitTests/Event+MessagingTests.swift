@@ -724,4 +724,112 @@ class EventPlusMessagingTests: XCTestCase {
         // verify
         XCTAssertNil(event.token)
     }
+    
+    // MARK: - update propositions api events
+    
+    func testIsUpdatePropositionsEvent() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["updatepropositions": true])
+        let event2 = Event(name: "s", type: EventType.rulesEngine, source: EventSource.requestContent, data: ["updatepropositions": true])
+        let event3 = Event(name: "s", type: EventType.messaging, source: EventSource.requestIdentity, data: ["updatepropositions": true])
+        let event4 = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["nope": true])
+        let event5 = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["updatepropositions": false])
+        
+        // verify
+        XCTAssertTrue(event.isUpdatePropositionsEvent)
+        XCTAssertFalse(event2.isUpdatePropositionsEvent)
+        XCTAssertFalse(event3.isUpdatePropositionsEvent)
+        XCTAssertFalse(event4.isUpdatePropositionsEvent)
+        XCTAssertFalse(event5.isUpdatePropositionsEvent)
+    }
+    
+    func testSurfaces() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["surfaces": [
+            [ "uri": "https://blah" ],
+            [ "uri": "https://otherBlah/somepath/yay" ]
+        ]])
+        
+        // verify
+        let result = event.surfaces
+        XCTAssertEqual(2, result?.count)
+        let first = result?.first
+        XCTAssertEqual("https://blah", first?.uri)
+        let second = result?[1]
+        XCTAssertEqual("https://otherBlah/somepath/yay", second?.uri)
+    }
+    
+    func testSurfacesNoSurfaces() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: [:])
+        
+        // verify
+        XCTAssertNil(event.surfaces)        
+    }
+    
+    // MARK: - get propositions api events
+    
+    func testIsGetPropositionsEvent() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["getpropositions": true])
+        let event2 = Event(name: "s", type: EventType.rulesEngine, source: EventSource.requestContent, data: ["getpropositions": true])
+        let event3 = Event(name: "s", type: EventType.messaging, source: EventSource.requestIdentity, data: ["getpropositions": true])
+        let event4 = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["nope": true])
+        let event5 = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["getpropositions": false])
+        
+        // verify
+        XCTAssertTrue(event.isGetPropositionsEvent)
+        XCTAssertFalse(event2.isGetPropositionsEvent)
+        XCTAssertFalse(event3.isGetPropositionsEvent)
+        XCTAssertFalse(event4.isGetPropositionsEvent)
+        XCTAssertFalse(event5.isGetPropositionsEvent)
+    }
+    
+    func testPropositions() throws {
+        // setup
+        let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1")
+        let event = Event(name: "name", type: "type", source: "source", data: ["propositions": [ propositionJson ]])
+        
+        // verify
+        XCTAssertNotNil(event.propositions)
+        XCTAssertEqual(1, event.propositions?.count)
+    }
+    
+    func testPropositionsBUTTHEREARENONE() throws {
+        // setup
+        let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1")
+        let event = Event(name: "name", type: "type", source: "source", data: ["THESEARENOTpropositions": [ propositionJson ]])
+        
+        // verify
+        XCTAssertNil(event.propositions)
+    }
+    
+    func testResponseError() throws {
+        // setup
+        let event = Event(name: "name", type: "type", source: "source", data: ["responseerror": 1 ])
+        let event2 = Event(name: "name", type: "type", source: "source", data: ["nothing": 1 ])
+        
+        // verify
+        XCTAssertNotNil(event.responseError)
+        XCTAssertEqual(event.responseError, .callbackTimeout)
+        XCTAssertNil(event2.responseError)        
+    }
+    
+    // MARK: - error response event
+    
+    func testCreateErrorResponseEvent() throws {
+        // setup
+        let event = getClickthroughEvent()
+        
+        // test
+        let responseEvent = event.createErrorResponseEvent(.invalidResponse)
+        
+        // verify
+        XCTAssertEqual("Message propositions response", responseEvent.name)
+        XCTAssertEqual(EventType.messaging, responseEvent.type)
+        XCTAssertEqual(EventSource.responseContent, responseEvent.source)
+        XCTAssertEqual(1, responseEvent.data?.count)
+        let error = AEPError(rawValue: responseEvent.data?["responseerror"] as? Int ?? 0)
+        XCTAssertEqual(error, .invalidResponse)
+    }
 }

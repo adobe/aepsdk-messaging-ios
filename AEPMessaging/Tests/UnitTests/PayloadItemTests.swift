@@ -41,6 +41,7 @@ class PayloadItemTests: XCTestCase {
         // setup
         let encoder = JSONEncoder()
         let payloadItem = PayloadItem(id: "id", schema: "schema", data: mockItemData)
+        let expectedJsonAsAnyCodable = getAnyCodable("{\"id\":\"id\",\"schema\":\"schema\",\"data\":{\"id\":\"\(mockDataId)\",\"content\":\"\(mockDataContent)\"}}") ?? "failed"
         
         // test
         guard let encodedPayloadItem = try? encoder.encode(payloadItem) else {
@@ -49,7 +50,8 @@ class PayloadItemTests: XCTestCase {
         }
         
         // verify
-        XCTAssertEqual("{\"id\":\"id\",\"schema\":\"schema\",\"data\":{\"id\":\"\(mockDataId)\",\"content\":\"\(mockDataContent)\"}}", String(data: encodedPayloadItem, encoding: .utf8))
+        let actualJsonAsAnyCodable = getAnyCodable(String(data: encodedPayloadItem, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expectedJsonAsAnyCodable, actual: actualJsonAsAnyCodable)
     }
     
     func testIsDecodable() throws {
