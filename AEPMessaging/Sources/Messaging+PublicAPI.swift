@@ -53,7 +53,7 @@ import UserNotifications
     /// This API method will also automatically handle click behavior defined for the push notification.
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
-    ///   - closure : A callback with `PushTrackingStatus` representing the tracking status of the interacted notification
+    ///   - closure : An optional callback with `PushTrackingStatus` representing the tracking status of the interacted notification
     @objc(handleNotificationResponse:closure:)
     static func handleNotificationResponse(_ response: UNNotificationResponse, closure: ((PushTrackingStatus) -> Void)? = nil) {
         let notificationRequest = response.notification.request

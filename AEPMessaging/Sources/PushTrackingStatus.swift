@@ -21,10 +21,10 @@ public enum PushTrackingStatus: Int {
     case invalidMessageId
     case unknownError
 
-    /// Converts an `Int` to its respective `MessagingPushTrackingStatus`
-    /// If `fromRawValue` is not a valid `MessagingPushTrackingStatus`, calling this method will return `PlacesQueryResponseCode.unknownError`
-    /// - Parameter fromRawValue: an `Int` representation of a `MessagingPushTrackingStatus`
-    /// - Returns: a `MessagingPushTrackingStatus` representing the passed-in `Int`
+    /// Converts an `Int` to its respective `PushTrackingStatus`
+    /// If `fromRawValue` is not a valid `PushTrackingStatus`, calling this method will return `PushTrackingStatus.unknownError`
+    /// - Parameter fromRawValue: an `Int` representation of a `PushTrackingStatus`
+    /// - Returns: a `PushTrackingStatus` representing the passed-in `Int`
     init(fromRawValue: Int) {
         self = PushTrackingStatus(rawValue: fromRawValue) ?? .unknownError
     }

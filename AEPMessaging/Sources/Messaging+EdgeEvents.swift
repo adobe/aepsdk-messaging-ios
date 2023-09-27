@@ -188,13 +188,13 @@ extension Messaging {
     /// - Returns: `[String: Any]?` which contains the xdm data
     private func getXdmData(event: Event) -> [String: Any]? {
         guard let xdmEventType = event.xdmEventType, !xdmEventType.isEmpty else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Ignoring to track push notification, eventType is empty or nil in the event '\(event.id.uuidString)'.")
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to track push notification, eventType is empty or nil in the event '\(event.id.uuidString)'.")
             dispatchTrackingResponseEvent(.unknownError, forEvent: event)
             return nil
         }
 
         guard let messageId = event.messagingId, !messageId.isEmpty else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring to track push notification, messageId is empty or nil in the event '\(event.id.uuidString)'.")
+            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to track push notification, messageId is empty or nil in the event '\(event.id.uuidString)'.")
             dispatchTrackingResponseEvent(.invalidMessageId, forEvent: event)
             return nil
         }
