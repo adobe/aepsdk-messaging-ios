@@ -20,17 +20,15 @@ import UserNotifications
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
     ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
     ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
-    /// - Returns: boolean value that signifies whether the notification originated from AJO and whether the API has proceeded with notification tracking.
     @available(*, deprecated, message: "This method is deprecated. Use Messaging.handleNotificationResponse(:) instead to automatically track application open and handle notification actions.")
     @objc(handleNotificationResponse:applicationOpened:withCustomActionId:)
-    @discardableResult
-    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) -> Bool {
+    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
         guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
-            return false
+            return
         }
 
         // Creating event data with tracking informations
@@ -49,22 +47,25 @@ import UserNotifications
                           source: EventSource.requestContent,
                           data: eventData)
         MobileCore.dispatch(event: event)
-        return true
     }
 
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
-    /// - Parameter response: UNNotificationResponse object which contains the payload and xdm informations.
-    /// - Returns: boolean value that signifies whether the notification originated from AJO and whether the API has proceeded with notification tracking.
-    @discardableResult
-    static func handleNotificationResponse(_ response: UNNotificationResponse) -> Bool {
+    /// This API method will also automatically handle click behavior defined for the push notification.
+    /// - Parameters:
+    ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
+    ///   - closure : An optional callback with `PushTrackingStatus` representing the tracking status of the interacted notification
+    @objc(handleNotificationResponse:closure:)
+    static func handleNotificationResponse(_ response: UNNotificationResponse, closure: ((PushTrackingStatus) -> Void)? = nil) {
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
         guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
-            return false
+            closure?(.noTrackingData)
+            return
         }
 
+        // Get off the main thread to process notification response
         DispatchQueue.global().async {
             hasApplicationOpenedForResponse(response, completion: { isAppOpened in
 
@@ -78,11 +79,16 @@ import UserNotifications
                                   type: MessagingConstants.Event.EventType.messaging,
                                   source: EventSource.requestContent,
                                   data: modifiedEventData)
-                MobileCore.dispatch(event: event)
+
+                MobileCore.dispatch(event: event) { responseEvent in
+                    guard let status = responseEvent?.pushTrackingStatus else {
+                        closure?(.unknownError)
+                        return
+                    }
+                    closure?(status)
+                }
             })
         }
-
-        return true
     }
 
     /// Initiates a network call to retrieve remote In-App Message definitions.

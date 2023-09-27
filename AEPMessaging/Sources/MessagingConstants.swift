@@ -41,6 +41,7 @@ enum MessagingConstants {
             static let PUSH_TRACKING_EDGE = "Push tracking edge event"
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
+            static let PUSH_TRACKING_STATUS = "Push tracking status event"
         }
 
         enum Source {
@@ -63,6 +64,8 @@ enum MessagingConstants {
                 static let ADOBE_XDM = "adobe_xdm"
                 static let REQUEST_EVENT_ID = "requestEventId"
                 static let IAM_HISTORY = "iam"
+                static let PUSH_NOTIFICATION_TRACKING_STATUS = "pushTrackingStatus"
+                static let PUSH_NOTIFICATION_TRACKING_MESSAGE = "pushTrackingStatusMessage"
 
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
