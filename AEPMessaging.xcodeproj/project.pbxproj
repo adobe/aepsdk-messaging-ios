@@ -84,6 +84,9 @@
 		242920D62ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json in Resources */ = {isa = PBXBuildFile; fileRef = 242920D52ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json */; };
 		242920D82ABCEEC8000DB2CD /* XCTestCase+AnyCodableAsserts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920D72ABCEEC8000DB2CD /* XCTestCase+AnyCodableAsserts.swift */; };
 		242920DA2ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920D92ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift */; };
+		242920E42AC4D060000DB2CD /* FeedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920E22AC4D060000DB2CD /* FeedTests.swift */; };
+		242920E52AC4D060000DB2CD /* InboundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920E32AC4D060000DB2CD /* InboundTests.swift */; };
+		242920E72AC4D1F4000DB2CD /* inboundConsequenceDetail.json in Resources */ = {isa = PBXBuildFile; fileRef = 242920E62AC4D1F4000DB2CD /* inboundConsequenceDetail.json */; };
 		2438B92C29C10B2D001D6F3A /* wrongScopeRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2438B92B29C10B2D001D6F3A /* wrongScopeRule.json */; };
 		2438B92F29C12179001D6F3A /* emptyContentStringRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2438B92D29C12179001D6F3A /* emptyContentStringRule.json */; };
 		2438B93029C12179001D6F3A /* malformedContentRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2438B92E29C12179001D6F3A /* malformedContentRule.json */; };
@@ -420,6 +423,9 @@
 		242920D52ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ruleWithUnknownConsequenceSchema.json; sourceTree = "<group>"; };
 		242920D72ABCEEC8000DB2CD /* XCTestCase+AnyCodableAsserts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+AnyCodableAsserts.swift"; sourceTree = "<group>"; };
 		242920D92ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuleConsequence+MessagingTests.swift"; sourceTree = "<group>"; };
+		242920E22AC4D060000DB2CD /* FeedTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedTests.swift; sourceTree = "<group>"; };
+		242920E32AC4D060000DB2CD /* InboundTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InboundTests.swift; sourceTree = "<group>"; };
+		242920E62AC4D1F4000DB2CD /* inboundConsequenceDetail.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = inboundConsequenceDetail.json; sourceTree = "<group>"; };
 		2438B92B29C10B2D001D6F3A /* wrongScopeRule.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = wrongScopeRule.json; sourceTree = "<group>"; };
 		2438B92D29C12179001D6F3A /* emptyContentStringRule.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = emptyContentStringRule.json; sourceTree = "<group>"; };
 		2438B92E29C12179001D6F3A /* malformedContentRule.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = malformedContentRule.json; sourceTree = "<group>"; };
@@ -699,6 +705,7 @@
 				240FC43D2AB0B8A200AFEEEB /* inappPropositionV1Content.json */,
 				240FC4372AAFCE3400AFEEEB /* inappPropositionV2.json */,
 				240FC43E2AB0B8A300AFEEEB /* inappPropositionV2Content.json */,
+				242920E62AC4D1F4000DB2CD /* inboundConsequenceDetail.json */,
 				2438B92E29C12179001D6F3A /* malformedContentRule.json */,
 				242920D32ABCA559000DB2CD /* ruleWithNoConsequence.json */,
 				242920D52ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json */,
@@ -864,7 +871,9 @@
 				243EA6C82733258600195945 /* Dictionary+MergingTests.swift */,
 				245059622673DBFD00CC7CA0 /* Event+MessagingTests.swift */,
 				244FEA4529B6A5D30058FA1C /* FeedItemTests.swift */,
+				242920E22AC4D060000DB2CD /* FeedTests.swift */,
 				243EA6CA273325A000195945 /* FullscreenMessage+MessageTests.swift */,
+				242920E32AC4D060000DB2CD /* InboundTests.swift */,
 				248BD9CD28BD56CF00C49B94 /* ItemDataTests.swift */,
 				090290CC29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift */,
 				243EA6CC273325B700195945 /* MessageTests.swift */,
@@ -1356,6 +1365,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				242920E72AC4D1F4000DB2CD /* inboundConsequenceDetail.json in Resources */,
 				2469A5DF274465C900E56457 /* showOnceRule.json in Resources */,
 				240FC4362AAFCBE500AFEEEB /* feedProposition.json in Resources */,
 				242920D42ABCA559000DB2CD /* ruleWithNoConsequence.json in Resources */,
@@ -1870,6 +1880,7 @@
 				241B2DD62821C99500E4FF67 /* URL+QueryParamsTests.swift in Sources */,
 				9231545E261E3B6F004AE7D3 /* TestableExtensionRuntime.swift in Sources */,
 				243EA6E2273B436400195945 /* MockMessagingRulesEngine.swift in Sources */,
+				242920E52AC4D060000DB2CD /* InboundTests.swift in Sources */,
 				245059702673DBFE00CC7CA0 /* Messaging+PublicApiTest.swift in Sources */,
 				243EA6D0273325DC00195945 /* MessageTests.swift in Sources */,
 				244FEA4629B6A5D30058FA1C /* FeedItemTests.swift in Sources */,
@@ -1887,6 +1898,7 @@
 				245059762673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift in Sources */,
 				243EA6E02739D9D700195945 /* TestableMessagingMobileParameters.swift in Sources */,
 				240FC4322AAFB5A700AFEEEB /* MockProposition.swift in Sources */,
+				242920E42AC4D060000DB2CD /* FeedTests.swift in Sources */,
 				243EA6D22733260000195945 /* Messaging+EdgeEventsTests.swift in Sources */,
 				243EA6D62733263D00195945 /* SharedStateResult+MessagingTests.swift in Sources */,
 				243EA6DE2739D4A400195945 /* MockFullscreenMessage.swift in Sources */,

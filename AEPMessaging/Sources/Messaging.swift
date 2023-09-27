@@ -340,7 +340,7 @@ public class Messaging: NSObject, Extension {
             let surfacesToRemove = requestedSurfaces.minus(Array(newRules.keys))
             switch inboundType {
             case .inapp:
-                Log.trace(label: MessagingConstants.LOG_TAG, "Updating in-app message definitions for surfaces \(newRules.keys).")
+                Log.trace(label: MessagingConstants.LOG_TAG, "Updating in-app message definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
 
                 // replace rules for each in-app surface we got back
                 inAppRulesBySurface.merge(newRules) { _, new in new }
@@ -361,7 +361,7 @@ public class Messaging: NSObject, Extension {
                 rulesEngine.launchRulesEngine.replaceRules(with: allInAppRules)
 
             case .feed:
-                Log.trace(label: MessagingConstants.LOG_TAG, "Updating feed definitions for surfaces \(newRules.keys).")
+                Log.trace(label: MessagingConstants.LOG_TAG, "Updating feed definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
 
                 // replace rules for each feed surface we got back
                 feedRulesBySurface.merge(newRules) { _, new in new }

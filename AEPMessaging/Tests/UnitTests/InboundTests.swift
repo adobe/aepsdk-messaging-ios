@@ -17,16 +17,13 @@ import XCTest
 
 class InboundTests: XCTestCase {
     
+    let inboundJson = JSONFileLoader.getRulesJsonFromFile("inboundConsequenceDetail")
     var mockInbound: Inbound!
     let mockInboundId = "552"
-    
-    override func setUp() {
-        let inboundJson = JSONFileLoader.getRulesJsonFromFile("inboundConsequenceDetail")
-        mockInbound = Inbound.from(consequenceDetail: inboundJson, id: mockInboundId)
-    }
-    
+        
     func testIsEncodable() throws {
         // setup
+        mockInbound = Inbound.from(consequenceDetail: inboundJson, id: mockInboundId)
         let encoder = JSONEncoder()
         let expectedContentAsAnyCodable = getAnyCodable("{\"title\":\"contentTitle\",\"body\":\"contentBody\",\"imageUrl\":\"contentImageUrl\",\"actionUrl\":\"contentActionUrl\",\"actionTitle\":\"contentActionTitle\"                   }")!
         
@@ -54,7 +51,7 @@ class InboundTests: XCTestCase {
         XCTAssertEqual("testFeed", inboundMeta?["feedName"] as? String)
     }
     
-    func testIsDecoable() throws {
+    func testIsDecodableContentIsDictionary() throws {
         // setup
         let decoder = JSONDecoder()
         let inboundJsonString = #"""
@@ -91,4 +88,227 @@ class InboundTests: XCTestCase {
         // verify
         XCTAssertNotNil(decodedInbound)
     }
+    
+    func testIsDecodableWithNoMetaData() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let inboundJsonString = #"""
+{
+    "id": "183639c4-cb37-458e-a8ef-4e130d767ebf",
+    "schema": "https://ns.adobe.com/personalization/inbound/feed-item",
+    "data": {
+        "expiryDate": 1723163897,
+        "content": {
+            "title": "contentTitle",
+            "body": "contentBody",
+            "imageUrl": "contentImageUrl",
+            "actionUrl": "contentActionUrl",
+            "actionTitle": "contentActionTitle"
+        },
+        "contentType": "application/json",
+        "publishedDate": 1691541497
+    }
+}
+"""#
+        let inbound = inboundJsonString.data(using: .utf8)!
+        
+        // test
+        guard let decodedInbound = try? decoder.decode(Inbound.self, from: inbound) else {
+            XCTFail("unable to decode inbound json")
+            return
+        }
+        
+        // verify
+        XCTAssertNotNil(decodedInbound)
+    }
+    
+    func testIsDecodableWithNullMetaDataValue() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let inboundJsonString = #"""
+{
+    "id": "183639c4-cb37-458e-a8ef-4e130d767ebf",
+    "schema": "https://ns.adobe.com/personalization/inbound/feed-item",
+    "data": {
+        "expiryDate": 1723163897,
+        "meta": {
+            "nullValue": null
+        },
+        "content": {
+            "title": "contentTitle",
+            "body": "contentBody",
+            "imageUrl": "contentImageUrl",
+            "actionUrl": "contentActionUrl",
+            "actionTitle": "contentActionTitle"
+        },
+        "contentType": "application/json",
+        "publishedDate": 1691541497
+    }
+}
+"""#
+        let inbound = inboundJsonString.data(using: .utf8)!
+        
+        // test
+        guard let decodedInbound = try? decoder.decode(Inbound.self, from: inbound) else {
+            XCTFail("unable to decode inbound json")
+            return
+        }
+        
+        // verify
+        XCTAssertNotNil(decodedInbound)
+    }
+    
+    func testIsDecodableNoContent() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let inboundJsonString = #"""
+{
+    "id": "183639c4-cb37-458e-a8ef-4e130d767ebf",
+    "schema": "https://ns.adobe.com/personalization/inbound/feed-item",
+    "data": {
+        "expiryDate": 1723163897,
+        "meta": {
+            "feedName": "testFeed",
+            "campaignName": "testCampaign",
+            "surface": "mobileapp://com.feeds.testing/feeds/apifeed"
+        },
+        "contentType": "application/json",
+        "publishedDate": 1691541497
+    }
+}
+"""#
+        let inbound = inboundJsonString.data(using: .utf8)!
+        
+        // test
+        XCTAssertThrowsError(try decoder.decode(Inbound.self, from: inbound))
+    }
+    
+    func testIsDecodableContentIsString() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let inboundJsonString = #"""
+{
+    "id": "183639c4-cb37-458e-a8ef-4e130d767ebf",
+    "schema": "https://ns.adobe.com/personalization/inbound/feed-item",
+    "data": {
+        "expiryDate": 1723163897,
+        "meta": {
+            "feedName": "testFeed",
+            "campaignName": "testCampaign",
+            "surface": "mobileapp://com.feeds.testing/feeds/apifeed"
+        },
+        "content": "this is some content",
+        "contentType": "application/json",
+        "publishedDate": 1691541497
+    }
+}
+"""#
+        let inbound = inboundJsonString.data(using: .utf8)!
+        
+        // test
+        guard let decodedInbound = try? decoder.decode(Inbound.self, from: inbound) else {
+            XCTFail("unable to decode inbound json")
+            return
+        }
+        
+        // verify
+        XCTAssertNotNil(decodedInbound)
+    }
+    
+    func testIsDecodableContentIsInt() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let inboundJsonString = #"""
+{
+    "id": "183639c4-cb37-458e-a8ef-4e130d767ebf",
+    "schema": "https://ns.adobe.com/personalization/inbound/feed-item",
+    "data": {
+        "expiryDate": 1723163897,
+        "meta": {
+            "feedName": "testFeed",
+            "campaignName": "testCampaign",
+            "surface": "mobileapp://com.feeds.testing/feeds/apifeed"
+        },
+        "content": 552,
+        "contentType": "application/json",
+        "publishedDate": 1691541497
+    }
+}
+"""#
+        let inbound = inboundJsonString.data(using: .utf8)!
+        
+        // test
+        XCTAssertThrowsError(try decoder.decode(Inbound.self, from: inbound))
+    }
+    
+    func testFromConsequenceDetail() throws {
+        // setup
+        let consequenceDetail: [String: Any] = [
+            "id": "183639c4-cb37-458e-a8ef-4e130d767ebf",
+            "schema": "https://ns.adobe.com/personalization/inbound/feed-item",
+            "data": [
+                "expiryDate": 1723163897,
+                "content": [
+                    "title": "contentTitle",
+                    "body": "contentBody",
+                    "imageUrl": "contentImageUrl",
+                    "actionUrl": "contentActionUrl",
+                    "actionTitle": "contentActionTitle"
+                ],
+                "contentType": "application/json",
+                "publishedDate": 1691541497
+            ]
+        ]
+        
+        // test
+        let inbound = Inbound.from(consequenceDetail: consequenceDetail, id: "552")
+        
+        // verify
+        XCTAssertNotNil(inbound)
+        XCTAssertEqual("552", inbound?.uniqueId)
+    }
+    
+    func testFromConsequenceDetailNilParam() throws {
+        // test
+        let inbound = Inbound.from(consequenceDetail: nil, id: "552")
+        
+        // verify
+        XCTAssertNil(inbound)
+    }
+    
+    func testFromConsequenceDetailParamNotJson() throws {
+        // setup
+        let consequenceDetail: [String: Any] = [
+            "id": "183639c4-cb37-458e-a8ef-4e130d767ebf",
+            "schema": "https://ns.adobe.com/personalization/inbound/feed-item",
+            "data": [
+                "expiryDate": 1723163897,
+                "content": [
+                    "title": "contentTitle",
+                    "body": "contentBody",
+                    "imageUrl": "contentImageUrl",
+                    "actionUrl": "contentActionUrl",
+                    "actionTitle": "contentActionTitle"
+                ],
+                "contentType": "application/json",
+                "publishedDate": 1691541497
+            ]
+        ]
+        
+        // test
+        let inbound = Inbound.from(consequenceDetail: consequenceDetail, id: "552")
+        
+        // verify
+        XCTAssertNotNil(inbound)
+        XCTAssertEqual("552", inbound?.uniqueId)
+    }
+    
+    func testDecodeContentFeedItem() throws {
+        mockInbound = Inbound.from(consequenceDetail: inboundJson, id: mockInboundId)
+        
+        let feedItem = mockInbound.decodeContent(FeedItem.self)
+        
+        XCTAssertNotNil(feedItem)
+        XCTAssertTrue(feedItem!.isKind(of: FeedItem.self))
+    }    
 }
