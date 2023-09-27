@@ -83,7 +83,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         
         // verify tracking status value
         wait(for: [expectation], timeout: 2)
-        XCTAssertEqual(actualStatus, .trackingInitiated)
+        XCTAssertEqual(.trackingInitiated, actualStatus)
         
         // verify
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
@@ -166,7 +166,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         
         // verify the tracking status
         wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(actualStatus, PushTrackingStatus.noTrackingData)
+        XCTAssertEqual(PushTrackingStatus.noTrackingData, actualStatus)
                                              
         // verify no tracking event is dispatched
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
@@ -188,7 +188,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         
         // verify the tracking status
         wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(actualStatus, PushTrackingStatus.noTrackingData)
+        XCTAssertEqual(PushTrackingStatus.noTrackingData, actualStatus)
         
         // verify no tracking event is dispatched
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
@@ -292,7 +292,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
         
         // verify tracking status
         wait(for: [expectation], timeout: 2)
-        XCTAssertEqual(actualStatus, .noDatasetConfigured)
+        XCTAssertEqual(.noDatasetConfigured, actualStatus)
         
         // verify
         let events = getDispatchedEventsWith(type: EventType.messaging, source: EventSource.requestContent)

@@ -63,8 +63,13 @@ extension UNNotificationRequest {
     }
 }
 
+
 extension UNNotificationAttachment {
-    //  Convenience constructor to create UNNotificationAttachment object from the given media data and url
+    /// convenience initializer to create a UNNotificationAttachment from a URL
+    /// - Parameters:
+    ///  - data: the data to be displayed in the notification
+    ///  - options : options for the attachment
+    ///  - attachmentURL : the URL of the rich media to be displayed in the notification
     convenience init(data: Data, options: [NSObject: AnyObject]?, attachmentURL: URL) throws {
         let fileManager = FileManager.default
         let temporaryFolderURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(ProcessInfo.processInfo.globallyUniqueString,

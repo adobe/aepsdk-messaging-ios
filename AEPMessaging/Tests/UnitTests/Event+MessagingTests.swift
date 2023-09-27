@@ -743,7 +743,7 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(PushTrackingStatus.trackingInitiated, getPushTrackingStatusEvent(status: .trackingInitiated).pushTrackingStatus)
         XCTAssertEqual(PushTrackingStatus.noDatasetConfigured, getPushTrackingStatusEvent(status: .noDatasetConfigured).pushTrackingStatus)
         XCTAssertEqual(PushTrackingStatus.noTrackingData, getPushTrackingStatusEvent(status: .noTrackingData).pushTrackingStatus)
-        XCTAssertEqual(PushTrackingStatus.noTrackingData, getPushTrackingStatusEvent(status: .noTrackingData).pushTrackingStatus)
+        XCTAssertEqual(PushTrackingStatus.invalidMessageId, getPushTrackingStatusEvent(status: .invalidMessageId).pushTrackingStatus)
         XCTAssertEqual(PushTrackingStatus.unknownError, getPushTrackingStatusEvent(status: .unknownError).pushTrackingStatus)
     }
     
