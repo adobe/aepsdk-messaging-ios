@@ -13,9 +13,9 @@
 import AEPServices
 import Foundation
 
-@objc(AEPProposition)
+@objc(AEPMessagingProposition)
 @objcMembers
-public class Proposition: NSObject, Codable {
+public class MessagingProposition: NSObject, Codable {
     /// Unique proposition identifier
     public let uniqueId: String
 
@@ -26,9 +26,9 @@ public class Proposition: NSObject, Codable {
     var scopeDetails: [String: Any]
 
     /// Array containing proposition decision items
-    private let propositionItems: [PropositionItem]
+    private let propositionItems: [MessagingPropositionItem]
 
-    public lazy var items: [PropositionItem] = {
+    public lazy var items: [MessagingPropositionItem] = {
         propositionItems.forEach {
             $0.proposition = self
         }
@@ -42,7 +42,7 @@ public class Proposition: NSObject, Codable {
         case items
     }
 
-    init(uniqueId: String, scope: String, scopeDetails: [String: Any], items: [PropositionItem]) {
+    init(uniqueId: String, scope: String, scopeDetails: [String: Any], items: [MessagingPropositionItem]) {
         self.uniqueId = uniqueId
         self.scope = scope
         self.scopeDetails = scopeDetails
@@ -56,7 +56,7 @@ public class Proposition: NSObject, Codable {
         scope = try container.decode(String.self, forKey: .scope)
         let anyCodableDict = try? container.decode([String: AnyCodable].self, forKey: .scopeDetails)
         scopeDetails = AnyCodable.toAnyDictionary(dictionary: anyCodableDict) ?? [:]
-        propositionItems = (try? container.decode([PropositionItem].self, forKey: .items, ignoreInvalid: true)) ?? []
+        propositionItems = (try? container.decode([MessagingPropositionItem].self, forKey: .items, ignoreInvalid: true)) ?? []
     }
 
     public func encode(to encoder: Encoder) throws {

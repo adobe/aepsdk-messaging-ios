@@ -14,7 +14,7 @@ import AEPMessaging
 import SwiftUI
 
 struct CodeBasedOffersView: View {
-    @State var propositionsDict: [Surface: [Proposition]]? = nil
+    @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
     @State private var viewDidLoad = false
     var body: some View {
         VStack {
@@ -22,7 +22,7 @@ struct CodeBasedOffersView: View {
                 .font(Font.title)
                 .padding(.top, 30)
             List {
-                if let codePropositions: [Proposition] = propositionsDict?[Surface(path: "<your-surface-path>")], !codePropositions.isEmpty {
+                if let codePropositions: [MessagingProposition] = propositionsDict?[Surface(path: "<your-surface-path>")], !codePropositions.isEmpty {
                     ForEach(codePropositions.first?.items ?? [], id:\.uniqueId) { item in
                         if item.schema.contains("html-content-item") {
                             CustomHtmlView(htmlString: item.content)
