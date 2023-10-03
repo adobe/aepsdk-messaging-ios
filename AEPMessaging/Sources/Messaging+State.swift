@@ -37,25 +37,24 @@ extension Messaging {
         removeCachedPropositions(surfaces: surfaces)
     }
 
-    
     func updatePropositionInfo(_ newPropositionInfo: [String: PropositionInfo], removing surfaces: [Surface]? = nil) {
         propositionInfo.merge(newPropositionInfo) { _, new in new }
-        
+
         // currently, we can't remove entries that pre-exist by message id since they are not linked to surfaces
         // need to get surface uri from propositionInfo.scope and remove entry based on incoming `surfaces`
         if let surfaces = surfaces {
-            propositionInfo = propositionInfo.filter { propInfo in                
+            propositionInfo = propositionInfo.filter { propInfo in
                 !surfaces.contains { $0.uri == propInfo.value.scope }
             }
         }
     }
 
-    func updatePropositions(_ newPropositions: [Surface: [Proposition]], removing surfaces: [Surface]? = nil) {
+    func updatePropositions(_ newPropositions: [Surface: [MessagingProposition]], removing surfaces: [Surface]? = nil) {
         // add new surfaces or update replace existing surfaces
         for (surface, propositionsArray) in newPropositions {
             propositions.addArray(propositionsArray, forKey: surface)
         }
-        
+
         // remove any surfaces if necessary
         if let surfaces = surfaces {
             for surface in surfaces {
