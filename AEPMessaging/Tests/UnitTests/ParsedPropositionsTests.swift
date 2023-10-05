@@ -143,6 +143,13 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(1, result.surfaceRulesByInboundType.count, "should have one rule to insert in the IAM rules engine")
         let iamRules = result.surfaceRulesByInboundType[.inapp]
         XCTAssertEqual(1, iamRules?.count)
+        let firstConsequence = iamRules?.first?.value.first?.consequences.first
+        XCTAssertNotNil(firstConsequence)
+        XCTAssertTrue(firstConsequence!.isInApp)
+        let data = firstConsequence?.details["data"] as? [String: Any]
+        let content = data?["content"] as? [String: Any]
+        let html = content?["html"] as? String
+        XCTAssertEqual("<html><body>Is this thing even on?</body></html>", html)
     }
     
     func testInitWithMultipleInAppPropositionTypes() throws {

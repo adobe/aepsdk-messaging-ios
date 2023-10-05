@@ -57,7 +57,7 @@ extension Messaging {
 
         // remove any surfaces if necessary
         if let surfaces = surfaces {
-            for surface in surfaces {
+            for surface in surfaces {                
                 propositions.removeValue(forKey: surface)
             }
         }
