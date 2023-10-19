@@ -35,43 +35,101 @@ struct ParsedPropositions {
                               "Ignoring proposition where scope (\(proposition.scope)) does not match one of the expected surfaces.")
                     continue
                 }
-
-                guard let contentString = proposition.items.first?.content, !contentString.isEmpty else {
-                    Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring Proposition with empty content.")
-                    continue
-                }
-
-                // iam and feed items will be wrapped in a valid rules engine rule - code-based experiences are not
-                guard let parsedRules = parseRule(contentString) else {
-                    Log.debug(label: MessagingConstants.LOG_TAG, "Proposition did not contain a rule, adding as a code-based experience.")
-                    propositionsToCache.add(proposition, forKey: surface)
-                    continue
-                }
-
-                guard let consequence = parsedRules.first?.consequences.first else {
-                    Log.debug(label: MessagingConstants.LOG_TAG, "Proposition rule did not contain a consequence, no action to take for this Proposition.")
-                    continue
-                }
-
-                // store reporting data for this payload
-                propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
-
-                var inboundType = InboundType.unknown
-                if consequence.isInApp {
-                    inboundType = .inapp
-                    propositionsToPersist.add(proposition, forKey: surface)
-                } else {
-                    inboundType = InboundType(from: consequence.detailSchema)
-                    if !consequence.isFeedItem {
-                        propositionsToCache.add(proposition, forKey: surface)
+                
+                // handle format for old versions of IAM
+                if let oldRules = parseRule(proposition.items.first?.content.stringValue ?? "") {
+                    guard let consequence = oldRules.first?.consequences.first else {
+                        Log.debug(label: MessagingConstants.LOG_TAG, "Proposition rule did not contain a consequence, no action to take for this Proposition.")
+                        continue
                     }
+                    if consequence.isOldInApp {
+                        propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+                        propositionsToPersist.add(proposition, forKey: surface)
+                        mergeRules(oldRules, for: surface, with: .inapp)
+                    }
+                    continue
                 }
-
-                mergeRules(parsedRules, for: surface, with: inboundType)
+                
+                
+                // if not an old format of IAM, handle schema consequences which are representable as PropositionItems
+                guard let firstPropositionItem = proposition.items.first else {
+                    continue
+                }
+                
+                switch firstPropositionItem.schema {
+                // - handle ruleset-item schemas
+                case .ruleset:
+                    guard let dataValue = firstPropositionItem.content.dataValue,
+                        let parsedRules = JSONRulesParser.parse(dataValue) else {
+                        continue
+                    }
+                    guard let consequence = parsedRules.first?.consequences.first,
+                          let schemaConsequence = PropositionItem.fromRuleConsequence(consequence) else {
+                        continue
+                    }
+                    
+                    // handle these schemas when they're embedded in ruleset-item schemas
+                    // a. in-app schema consequences get persisted to disk, cached for reporting, and added to rules that need to be updated
+                    //    i. default-content schema consequences are treated like in-app at a proposition level
+                    // b. feed schema consequences get cached for reporting added to rules that need to be updated
+                    switch schemaConsequence.schema {
+                    case .inapp, .defaultContent:
+                        propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+                        propositionsToPersist.add(proposition, forKey: surface)
+                        mergeRules(parsedRules, for: surface, with: .inapp)
+                    case .feed:
+                        propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+                        mergeRules(parsedRules, for: surface, with: .feed)
+                    default:
+                        continue
+                    }
+                    
+                // - handle json-content, html-content, and default-content schemas for code based experiences
+                //   a. code based schemas are cached for reporting
+                case .jsonContent, .htmlContent, .defaultContent:
+                    propositionsToCache.add(proposition, forKey: surface)
+                case .unknown:
+                    continue
+                default:
+                    continue
+                }
+                
+//                guard let contentString = proposition.items.first?.content, !contentString.isEmpty else {
+//                    Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring Proposition with empty content.")
+//                    continue
+//                }
+//
+//                // iam and feed items will be wrapped in a valid rules engine rule - code-based experiences are not
+//                guard let parsedRules = parseRule(contentString) else {
+//                    Log.debug(label: MessagingConstants.LOG_TAG, "Proposition did not contain a rule, adding as a code-based experience.")
+//                    propositionsToCache.add(proposition, forKey: surface)
+//                    continue
+//                }
+//
+//                guard let consequence = parsedRules.first?.consequences.first else {
+//                    Log.debug(label: MessagingConstants.LOG_TAG, "Proposition rule did not contain a consequence, no action to take for this Proposition.")
+//                    continue
+//                }
+//
+//                // store reporting data for this payload
+//                propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+//
+//                var inboundType = InboundType.unknown
+//                if consequence.isInApp {
+//                    inboundType = .inapp
+//                    propositionsToPersist.add(proposition, forKey: surface)
+//                } else {
+//                    inboundType = InboundType(from: consequence.detailSchema)
+//                    if !consequence.isFeedItem {
+//                        propositionsToCache.add(proposition, forKey: surface)
+//                    }
+//                }
+//
+//                mergeRules(parsedRules, for: surface, with: inboundType)
             }
         }
     }
-
+    
     private func parseRule(_ rule: String) -> [LaunchRule]? {
         JSONRulesParser.parse(rule.data(using: .utf8) ?? Data())
     }

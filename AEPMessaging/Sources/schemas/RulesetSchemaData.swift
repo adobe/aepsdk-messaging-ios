@@ -11,22 +11,11 @@
  */
 
 import AEPCore
+import AEPServices
 import Foundation
 
-extension RuleConsequence {
-    var isFeedItem: Bool {
-        detailSchema == MessagingConstants.Event.Data.Values.Inbound.SCHEMA_FEED_ITEM
-    }
-
-    var isInApp: Bool {
-        detailSchema == MessagingConstants.Event.Data.Values.Inbound.SCHEMA_IAM
-    }
-    
-    var isOldInApp: Bool {
-        type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE
-    }
-
-    var detailSchema: String {
-        details[MessagingConstants.Event.Data.Key.SCHEMA] as? String ?? ""
-    }
+// represents the schema data object for a json content schema
+struct RulesetSchemaData: Codable {
+    let version: Int
+    let rules: [[String: AnyCodable]]
 }

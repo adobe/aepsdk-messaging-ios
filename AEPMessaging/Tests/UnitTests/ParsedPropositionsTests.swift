@@ -14,6 +14,7 @@ import Foundation
 import XCTest
 
 @testable import AEPMessaging
+@testable import AEPServices
 
 class ParsedPropositionTests: XCTestCase {
     var mockSurface: Surface!
@@ -32,32 +33,32 @@ class ParsedPropositionTests: XCTestCase {
     var mockFeedProposition: Proposition!
     var mockFeedSurface: Surface!
     let mockFeedMessageId = "183639c4-cb37-458e-a8ef-4e130d767ebf"
-    var mockFeedContent: String!
+    var mockFeedContent: AnyCodable!
     
     var mockCodeBasedPropositionItem: PropositionItem!
     var mockCodeBasedProposition: Proposition!
     var mockCodeBasedSurface: Surface!
-    var mockCodeBasedContent: String!
+    var mockCodeBasedContent: AnyCodable!
         
     override func setUp() {
         mockSurface = Surface(uri: "mobileapp://some.not.matching.surface/path")
         
-        let inappPropositionV1Content = JSONFileLoader.getRulesStringFromFile("inappPropositionV1Content")
+        let inappPropositionV1Content = AnyCodable(stringLiteral: JSONFileLoader.getRulesStringFromFile("inappPropositionV1Content"))
         mockInAppPropositionItem = PropositionItem(uniqueId: "inapp", schema: "inapp", content: inappPropositionV1Content)
         mockInAppProposition = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [mockInAppPropositionItem])
         mockInAppSurface = Surface(uri: "inapp")
         
-        let inappPropositionV2Content = JSONFileLoader.getRulesStringFromFile("inappPropositionV2Content")
+        let inappPropositionV2Content = AnyCodable(stringLiteral: JSONFileLoader.getRulesStringFromFile("inappPropositionV2Content"))
         mockInAppPropositionItemv2 = PropositionItem(uniqueId: "inapp2", schema: "inapp2", content: inappPropositionV2Content)
         mockInAppPropositionv2 = Proposition(uniqueId: "inapp2", scope: "inapp2", scopeDetails: ["key": "value"], items: [mockInAppPropositionItemv2])
         mockInAppSurfacev2 = Surface(uri: "inapp2")
         
-        mockFeedContent = JSONFileLoader.getRulesStringFromFile("feedPropositionContent")
+        mockFeedContent = AnyCodable(stringLiteral: JSONFileLoader.getRulesStringFromFile("feedPropositionContent"))
         mockFeedPropositionItem = PropositionItem(uniqueId: "feed", schema: "feed", content: mockFeedContent)
         mockFeedProposition = Proposition(uniqueId: "feed", scope: "feed", scopeDetails: ["key":"value"], items: [mockFeedPropositionItem])
         mockFeedSurface = Surface(uri: "feed")
         
-        mockCodeBasedContent = JSONFileLoader.getRulesStringFromFile("codeBasedPropositionContent")
+        mockCodeBasedContent = AnyCodable(stringLiteral: JSONFileLoader.getRulesStringFromFile("codeBasedPropositionContent"))
         mockCodeBasedPropositionItem = PropositionItem(uniqueId: "codebased", schema: "codebased", content: mockCodeBasedContent)
         mockCodeBasedProposition = Proposition(uniqueId: "codebased", scope: "codebased", scopeDetails: ["key":"value"], items: [mockCodeBasedPropositionItem])
         mockCodeBasedSurface = Surface(uri: "codebased")
@@ -235,7 +236,7 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitPropositionRuleHasNoConsequence() throws {
         // setup
-        let noConsequenceRule = JSONFileLoader.getRulesStringFromFile("ruleWithNoConsequence")
+        let noConsequenceRule = AnyCodable(stringLiteral: JSONFileLoader.getRulesStringFromFile("ruleWithNoConsequence"))
         let pi = PropositionItem(uniqueId: "inapp", schema: "inapp", content: noConsequenceRule)
         let prop = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
         let propositions: [Surface: [Proposition]] = [
@@ -255,7 +256,7 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitPropositionConsequenceHasUnknownSchema() throws {
         // setup
-        let content = JSONFileLoader.getRulesStringFromFile("ruleWithUnknownConsequenceSchema")
+        let content = AnyCodable(stringLiteral: JSONFileLoader.getRulesStringFromFile("ruleWithUnknownConsequenceSchema"))
         let pi = PropositionItem(uniqueId: "inapp", schema: "inapp", content: content)
         let prop = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
         let propositions: [Surface: [Proposition]] = [

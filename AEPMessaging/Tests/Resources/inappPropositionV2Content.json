@@ -63,6 +63,9 @@
                         "id": "6ac78390-84e3-4d35-b798-8e7080e69a67",
                         "schema": "https://ns.adobe.com/personalization/message/in-app",
                         "data": {
+                            "publishedDate": 1691541497,
+                            "expiryDate": 1723163897,
+                            "meta": {},
                             "mobileParameters": {
                                 "verticalAlign": "center",
                                 "dismissAnimation": "bottom",
@@ -78,8 +81,10 @@
                                 "backdropColor": "#000000",
                                 "height": 100
                             },
-                            "html": "<html><body>Is this thing even on?</body></html>",
-                            "remoteAssets": []
+                            "webParameters": {},
+                            "remoteAssets": [ "urlToAnImage" ],
+                            "contentType": "text/html",
+                            "content": "<html><body>Is this thing even on?</body></html>"
                         }
                     }
                 }

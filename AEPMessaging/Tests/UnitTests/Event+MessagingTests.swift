@@ -524,7 +524,7 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(1, scopeDetails1?.count)
         let item1 = p1?.items.first
         XCTAssertNotNil(item1)
-        XCTAssertEqual(mockContent1, item1?.content)
+        XCTAssertEqual(mockContent1, item1?.content.stringValue)
         
         let p2 = event.payload?[1]
         XCTAssertNotNil(p2)
@@ -535,7 +535,7 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(1, scopeDetails2?.count)
         let item2 = p2?.items.first
         XCTAssertNotNil(item2)
-        XCTAssertEqual(mockContent2, item2?.content)
+        XCTAssertEqual(mockContent2, item2?.content.stringValue)
     }
     
     func testPayloadIsNil() throws {

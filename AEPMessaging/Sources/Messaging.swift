@@ -391,6 +391,8 @@ public class Messaging: NSObject, Extension {
             return
         }
 
+        // TODO: - change feedRulesEngine.evaluate to return [Surface: [PropositionItem]] instead???
+        
         if let inboundMessages = feedRulesEngine.evaluate(event: event) {
             updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
         }
@@ -453,10 +455,17 @@ public class Messaging: NSObject, Extension {
             }
 
             var inboundPropositions: [Proposition] = []
+            
+            
+            // TODO: - convert this from returning `Inbound` objects to just returning `PropositionItem`s
+            
+            
             for message in inboundArray {
                 guard let propositionInfo = propositionInfo[message.uniqueId] else {
                     continue
                 }
+                
+                
 
                 let jsonData = (try? JSONEncoder().encode(message)) ?? Data()
                 let itemContent = String(data: jsonData, encoding: .utf8)
@@ -464,7 +473,7 @@ public class Messaging: NSObject, Extension {
                 let propositionItem = PropositionItem(
                     uniqueId: UUID().uuidString, // revisit this if item.id is used for reporting in future
                     schema: MessagingConstants.XDM.Inbound.Value.SCHEMA_AJO_JSON,
-                    content: itemContent ?? ""
+                    content: AnyCodable(stringLiteral: itemContent ?? "")
                 )
 
                 let proposition = Proposition(

@@ -10,23 +10,11 @@
  governing permissions and limitations under the License.
  */
 
-import AEPCore
+import AEPServices
 import Foundation
 
-extension RuleConsequence {
-    var isFeedItem: Bool {
-        detailSchema == MessagingConstants.Event.Data.Values.Inbound.SCHEMA_FEED_ITEM
-    }
-
-    var isInApp: Bool {
-        detailSchema == MessagingConstants.Event.Data.Values.Inbound.SCHEMA_IAM
-    }
-    
-    var isOldInApp: Bool {
-        type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE
-    }
-
-    var detailSchema: String {
-        details[MessagingConstants.Event.Data.Key.SCHEMA] as? String ?? ""
-    }
+// represents the schema data object for an html content schema
+public struct HtmlContentSchemaData: Codable {
+    public let content: String
+    public let format: String
 }

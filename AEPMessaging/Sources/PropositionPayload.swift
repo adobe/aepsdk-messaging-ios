@@ -54,7 +54,7 @@ struct PropositionPayload: Codable {
             guard let uniqueId = item.id, let schema = item.schema else {
                 continue
             }
-            propItems.append(PropositionItem(uniqueId: uniqueId, schema: schema, content: item.data.content))
+            propItems.append(PropositionItem(uniqueId: uniqueId, schema: schema, content: AnyCodable(stringLiteral: item.data.content)))
         }
         return Proposition(uniqueId: propositionInfo.id,
                            scope: propositionInfo.scope,

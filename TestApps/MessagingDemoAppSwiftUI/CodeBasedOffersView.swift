@@ -23,11 +23,11 @@ struct CodeBasedOffersView: View {
                 .padding(.top, 30)
             List {
                 if let codePropositions: [Proposition] = propositionsResult.propositionsDict?[Surface(path: "cbeoffers3")], !codePropositions.isEmpty {
-                    ForEach(codePropositions.first?.items ?? [], id:\.uniqueId) { item in
-                        if item.schema.contains("html-content-item") {
-                            CustomHtmlView(htmlString: item.content)
-                        } else if item.schema.contains("json-content-item") {
-                            CustomTextView(text: item.content)
+                    ForEach(codePropositions.first?.items as? [PropositionItem] ?? [], id:\.uniqueId) { item in
+                        if item.schema == .htmlContent {
+                            CustomHtmlView(htmlString: item.htmlContent ?? "")
+                        } else if item.schema == .jsonContent {
+                            CustomTextView(text: item.jsonContent?.description ?? "")
                         }
                     }
                 }

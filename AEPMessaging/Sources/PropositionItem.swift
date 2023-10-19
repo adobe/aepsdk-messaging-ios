@@ -10,6 +10,7 @@
  governing permissions and limitations under the License.
  */
 
+import AEPCore
 import AEPServices
 import Foundation
 
@@ -20,11 +21,16 @@ public class PropositionItem: NSObject, Codable {
     public let uniqueId: String
 
     /// PropositionItem schema string
-    public let schema: String
+    public let schema: SchemaType
 
-    /// PropositionItem data content e.g. html or plain-text string or string containing image URL, JSON string
-    public let content: String
+    /// PropositionItem data content in its raw format - either String or [String: Any]
+    public let content: AnyCodable
 
+    /// Represents the data of the proposition in its strongly typed format, based on schema value
+    public var typedData: Codable? {
+        getTypedData()
+    }
+    
     /// Weak reference to Proposition instance
     weak var proposition: Proposition?
 
@@ -34,39 +40,19 @@ public class PropositionItem: NSObject, Codable {
         case data
     }
 
-    enum DataKeys: String, CodingKey {
-        case content
-    }
-
-    init(uniqueId: String, schema: String, content: String) {
+    init(uniqueId: String, schema: String, content: AnyCodable) {
         self.uniqueId = uniqueId
-        self.schema = schema
+        self.schema = SchemaType(from: schema)
         self.content = content
     }
 
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         uniqueId = try container.decode(String.self, forKey: .id)
-        schema = try container.decode(String.self, forKey: .schema)
-
-        let nestedContainer = try container.nestedContainer(keyedBy: DataKeys.self, forKey: .data)
-        let codableContent = try nestedContainer.decode(AnyCodable.self, forKey: .content)
-        if let contentString = codableContent.stringValue {
-            content = contentString
-        } else if let jsonData = codableContent.dictionaryValue {
-            guard
-                let encodedData = try? JSONSerialization.data(withJSONObject: jsonData),
-                let contentString = String(data: encodedData, encoding: .utf8)
-            else {
-                throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath,
-                                                                        debugDescription: "PropositionItem content dictionary is invalid."))
-            }
-            content = contentString
-        } else {
-            throw DecodingError.typeMismatch(PropositionItem.self,
-                                             DecodingError.Context(codingPath: decoder.codingPath,
-                                                                   debugDescription: "PropositionItem content is not of an expected type."))
-        }
+        schema = SchemaType(from: try container.decode(String.self, forKey: .schema))
+        content = try container.decode(AnyCodable.self, forKey: .data)
+        
+        
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -74,18 +60,63 @@ public class PropositionItem: NSObject, Codable {
 
         try container.encode(uniqueId, forKey: .id)
         try container.encode(schema, forKey: .schema)
-
-        var nestedContainer = container.nestedContainer(keyedBy: DataKeys.self, forKey: .data)
-        try nestedContainer.encode(content, forKey: .content)
+        try container.encode(content, forKey: .data)
     }
 }
 
 public extension PropositionItem {
     // Decode data content to generic inbound
     func decodeContent() -> Inbound? {
-        guard let jsonData = content.data(using: .utf8) else {
+        guard let jsonData = content.dataValue else {
             return nil
         }
         return try? JSONDecoder().decode(Inbound.self, from: jsonData)
+    }
+    
+    static func fromRuleConsequence(_ consequence: RuleConsequence) -> PropositionItem? {
+        guard let detailsData = try? JSONSerialization.data(withJSONObject: consequence.details, options: .prettyPrinted) else {
+            return nil
+        }
+        return try? JSONDecoder().decode(PropositionItem.self, from: detailsData)
+    }
+    
+    func getTypedData() -> Codable? {
+        guard let contentAsData = content.dataValue else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to get typed data for proposition item - could not convert 'data' field to type 'Data'.")
+            return nil
+        }
+        switch schema {
+        case .htmlContent:
+            return try? JSONDecoder().decode(HtmlContentSchemaData.self, from: contentAsData)
+        case .jsonContent:
+            return try? JSONDecoder().decode(JsonContentSchemaData.self, from: contentAsData)
+        case .defaultContent:
+            // default content schema expects an empty object for `data`, so typed data should be nil
+            return nil
+        case .ruleset:
+            return try? JSONDecoder().decode(RulesetSchemaData.self, from: contentAsData)
+        case .feed:
+            return try? JSONDecoder().decode(FeedItemSchemaData.self, from: contentAsData)
+        case .inapp:
+            return try? JSONDecoder().decode(InAppSchemaData.self, from: contentAsData)        
+        default:
+            return nil
+        }
+    }
+    
+    var jsonContent: [String: Any]? {
+        guard let jsonItem = getTypedData() as? JsonContentSchemaData else {
+            return nil
+        }
+        
+        return jsonItem.content.asDictionary()
+    }
+    
+    var htmlContent: String? {
+        guard let htmlItem = getTypedData() as? HtmlContentSchemaData else {
+            return nil
+        }
+        
+        return htmlItem.content
     }
 }
