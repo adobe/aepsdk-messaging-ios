@@ -23,6 +23,13 @@ enum MessagingConstants {
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
 
+    enum ContentTypes {
+        static let APPLICATION_JSON = "application/json"
+        static let TEXT_HTML = "text/html"
+        static let TEXT_XML = "text/xml"
+        static let TEXT_PLAIN = "text/plain"
+    }
+    
     enum Caches {
         static let CACHE_NAME = "com.adobe.messaging.cache"
         static let MESSAGES = "messages"

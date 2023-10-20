@@ -24,8 +24,8 @@ public enum SchemaType: Int, Codable {
     case nativeAlert = 6
     case defaultContent = 7
 
-    /// Initializes InboundType with the provided content schema string.
-    /// - Parameter format: Inbound content schema string
+    /// Initializes SchemaType with the provided content schema string
+    /// - Parameter schema: SchemaType content schema string
     init(from schema: String) {
         switch schema {
         case MessagingConstants.Event.Data.Values.Inbound.SCHEMA_HTML_CONTENT:
@@ -54,8 +54,8 @@ public enum SchemaType: Int, Codable {
         }
     }
 
-    /// Returns the content schema string of `InboundType`.
-    /// - Returns: A string representing the Inbound content schema.
+    /// Returns the schema type string.
+    /// - Returns: A string representing the schema type.
     public func toString() -> String {
         switch self {
         case .htmlContent:

@@ -82,7 +82,9 @@
                                     "data": {
                                         "publishedDate": 1691541497,
                                         "expiryDate": 1723163897,
-                                        "meta": {},
+                                        "meta": {
+                                            "metaKey": "metaValue"
+                                        },
                                         "mobileParameters": {
                                             "verticalAlign": "center",
                                             "dismissAnimation": "bottom",
@@ -98,8 +100,12 @@
                                             "backdropColor": "#000000",
                                             "height": 100
                                         },
-                                        "webParameters": {},
-                                        "remoteAssets": [],
+                                        "webParameters": {
+                                            "webParamKey": "webParamValue"
+                                        },
+                                        "remoteAssets": [
+                                            "urlToAnImage"
+                                        ],
                                         "contentType": "text/html",
                                         "content": "<html><body>Is this thing even on?</body></html>"
                                     }

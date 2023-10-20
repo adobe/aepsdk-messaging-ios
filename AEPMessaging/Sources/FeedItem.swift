@@ -32,7 +32,7 @@ public class FeedItem: NSObject, Codable {
     public let actionTitle: String?
 
     /// Weak reference to Inbound instance
-    weak var inbound: Inbound?
+    weak var propositionItem: PropositionItem?
 
     enum CodingKeys: String, CodingKey {
         case title

@@ -13,8 +13,29 @@
 import AEPServices
 import Foundation
 
-// represents the schema data object for an html content schema
-public struct HtmlContentSchemaData: Codable {
+/// represents the schema data object for an html content schema
+@objc(AEPHtmlContentSchemaData)
+@objcMembers
+public class HtmlContentSchemaData: NSObject, Codable {
     public let content: String
-    public let format: String
+    public let format: ContentType
+    
+    enum CodingKeys: String, CodingKey {
+        case content
+        case format
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        format = ContentType(from: try values.decode(String.self, forKey: .format))
+        content = try values.decode(String.self, forKey: .content)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(format.toString(), forKey: .format)
+        try container.encode(content, forKey: .content)
+    }
 }

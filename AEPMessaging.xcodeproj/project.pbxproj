@@ -115,7 +115,6 @@
 		243EA6DE2739D4A400195945 /* MockFullscreenMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243EA6DD2739D4A400195945 /* MockFullscreenMessage.swift */; };
 		243EA6E02739D9D700195945 /* TestableMessagingMobileParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243EA6DF2739D9D700195945 /* TestableMessagingMobileParameters.swift */; };
 		243EA6E2273B436400195945 /* MockMessagingRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243EA6E1273B436400195945 /* MockMessagingRulesEngine.swift */; };
-		24496AF42AE17B53007F65C2 /* MockPropositionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24496AF32AE17B53007F65C2 /* MockPropositionItem.swift */; };
 		244C2BD826B36480008F086A /* MessagingEdgeEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244C2BD726B36480008F086A /* MessagingEdgeEventType.swift */; };
 		244C2BDE26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */; };
 		244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */; };
@@ -135,6 +134,7 @@
 		245059A22673FAC200CC7CA0 /* Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92315436261E3B36004AE7D3 /* Messaging.swift */; };
 		245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923155762620FC53004AE7D3 /* Event+Messaging.swift */; };
 		24552E69291F08CF000744AD /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24552E68291F08CF000744AD /* Environment.swift */; };
+		24569A8F2AE2CD6E00FC356F /* ContentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24569A8E2AE2CD6E00FC356F /* ContentType.swift */; };
 		2469A5DC27445CAF00E56457 /* MockLaunchRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */; };
 		2469A5DF274465C900E56457 /* showOnceRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2469A5DE274465C900E56457 /* showOnceRule.json */; };
 		2469A5E12744696400E56457 /* eventSequenceRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 2469A5E02744696400E56457 /* eventSequenceRule.json */; };
@@ -463,7 +463,6 @@
 		243EA6DD2739D4A400195945 /* MockFullscreenMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFullscreenMessage.swift; sourceTree = "<group>"; };
 		243EA6DF2739D9D700195945 /* TestableMessagingMobileParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableMessagingMobileParameters.swift; sourceTree = "<group>"; };
 		243EA6E1273B436400195945 /* MockMessagingRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMessagingRulesEngine.swift; sourceTree = "<group>"; };
-		24496AF32AE17B53007F65C2 /* MockPropositionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPropositionItem.swift; sourceTree = "<group>"; };
 		244C2BD726B36480008F086A /* MessagingEdgeEventType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingEdgeEventType.swift; sourceTree = "<group>"; };
 		244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Message+FullscreenMessageDelegate.swift"; sourceTree = "<group>"; };
 		244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+EdgeEvents.swift"; sourceTree = "<group>"; };
@@ -480,6 +479,7 @@
 		245059642673DBFD00CC7CA0 /* MessagingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingTests.swift; sourceTree = "<group>"; };
 		2450596B2673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingRulesEngineTests.swift; sourceTree = "<group>"; };
 		24552E68291F08CF000744AD /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
+		24569A8E2AE2CD6E00FC356F /* ContentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentType.swift; sourceTree = "<group>"; };
 		2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockLaunchRulesEngine.swift; sourceTree = "<group>"; };
 		2469A5DE274465C900E56457 /* showOnceRule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = showOnceRule.json; sourceTree = "<group>"; };
 		2469A5E02744696400E56457 /* eventSequenceRule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = eventSequenceRule.json; sourceTree = "<group>"; };
@@ -712,6 +712,7 @@
 		242920F62AD0628B000DB2CD /* schemas */ = {
 			isa = PBXGroup;
 			children = (
+				24569A8E2AE2CD6E00FC356F /* ContentType.swift */,
 				242920F02AD061F3000DB2CD /* FeedItemSchemaData.swift */,
 				242920F42AD06215000DB2CD /* HtmlContentSchemaData.swift */,
 				242920EE2AD05AFA000DB2CD /* InAppSchemaData.swift */,
@@ -954,7 +955,6 @@
 				243EA6DF2739D9D700195945 /* TestableMessagingMobileParameters.swift */,
 				928639D026374463000AFA53 /* TestableNetworkService.swift */,
 				242920D72ABCEEC8000DB2CD /* XCTestCase+AnyCodableAsserts.swift */,
-				24496AF32AE17B53007F65C2 /* MockPropositionItem.swift */,
 			);
 			path = TestHelpers;
 			sourceTree = "<group>";
@@ -1875,6 +1875,7 @@
 				243B1B0228B411890074327E /* ItemData.swift in Sources */,
 				09B071EC2A651C7800F259C1 /* Proposition.swift in Sources */,
 				243B1AFC28AD7FCE0074327E /* PropositionPayload.swift in Sources */,
+				24569A8F2AE2CD6E00FC356F /* ContentType.swift in Sources */,
 				243B1AFE28AEB1E60074327E /* PropositionInfo.swift in Sources */,
 				240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */,
 				2469A5E3274863F600E56457 /* MessagingRulesEngine+Caching.swift in Sources */,
@@ -1936,7 +1937,6 @@
 				243EA6CF273325CC00195945 /* Message+FullscreenMessageDelegateTests.swift in Sources */,
 				245059712673DBFE00CC7CA0 /* MessagingTests.swift in Sources */,
 				2469A5EB274D49B100E56457 /* JSONFileLoader.swift in Sources */,
-				24496AF42AE17B53007F65C2 /* MockPropositionItem.swift in Sources */,
 				248BD9CE28BD56CF00C49B94 /* ItemDataTests.swift in Sources */,
 				090290CD29DF650400388226 /* LaunchRulesEngine+MessagingTests.swift in Sources */,
 				245059762673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift in Sources */,

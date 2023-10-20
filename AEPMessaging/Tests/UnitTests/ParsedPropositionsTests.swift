@@ -19,6 +19,10 @@ import XCTest
 class ParsedPropositionTests: XCTestCase {
     var mockSurface: Surface!
     
+    let rulesetSchema = MessagingConstants.Event.Data.Values.Inbound.SCHEMA_RULESET_ITEM
+    let jsonSchema = MessagingConstants.Event.Data.Values.Inbound.SCHEMA_JSON_CONTENT
+    let htmlSchema = MessagingConstants.Event.Data.Values.Inbound.SCHEMA_HTML_CONTENT
+    
     var mockInAppPropositionItem: PropositionItem!
     var mockInAppProposition: Proposition!
     var mockInAppSurface: Surface!
@@ -44,22 +48,22 @@ class ParsedPropositionTests: XCTestCase {
         mockSurface = Surface(uri: "mobileapp://some.not.matching.surface/path")
         
         let inappPropositionV1Content = AnyCodable(stringLiteral: JSONFileLoader.getRulesStringFromFile("inappPropositionV1Content"))
-        mockInAppPropositionItem = PropositionItem(uniqueId: "inapp", schema: "inapp", content: inappPropositionV1Content)
+        mockInAppPropositionItem = PropositionItem(uniqueId: "inapp", schema: jsonSchema, content: inappPropositionV1Content)
         mockInAppProposition = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [mockInAppPropositionItem])
         mockInAppSurface = Surface(uri: "inapp")
         
         let inappPropositionV2Content = AnyCodable(stringLiteral: JSONFileLoader.getRulesStringFromFile("inappPropositionV2Content"))
-        mockInAppPropositionItemv2 = PropositionItem(uniqueId: "inapp2", schema: "inapp2", content: inappPropositionV2Content)
+        mockInAppPropositionItemv2 = PropositionItem(uniqueId: "inapp2", schema: rulesetSchema, content: inappPropositionV2Content)
         mockInAppPropositionv2 = Proposition(uniqueId: "inapp2", scope: "inapp2", scopeDetails: ["key": "value"], items: [mockInAppPropositionItemv2])
         mockInAppSurfacev2 = Surface(uri: "inapp2")
         
         mockFeedContent = AnyCodable(stringLiteral: JSONFileLoader.getRulesStringFromFile("feedPropositionContent"))
-        mockFeedPropositionItem = PropositionItem(uniqueId: "feed", schema: "feed", content: mockFeedContent)
+        mockFeedPropositionItem = PropositionItem(uniqueId: "feed", schema: rulesetSchema, content: mockFeedContent)
         mockFeedProposition = Proposition(uniqueId: "feed", scope: "feed", scopeDetails: ["key":"value"], items: [mockFeedPropositionItem])
         mockFeedSurface = Surface(uri: "feed")
         
         mockCodeBasedContent = AnyCodable(stringLiteral: JSONFileLoader.getRulesStringFromFile("codeBasedPropositionContent"))
-        mockCodeBasedPropositionItem = PropositionItem(uniqueId: "codebased", schema: "codebased", content: mockCodeBasedContent)
+        mockCodeBasedPropositionItem = PropositionItem(uniqueId: "codebased", schema: htmlSchema, content: mockCodeBasedContent)
         mockCodeBasedProposition = Proposition(uniqueId: "codebased", scope: "codebased", scopeDetails: ["key":"value"], items: [mockCodeBasedPropositionItem])
         mockCodeBasedSurface = Surface(uri: "codebased")
     }
@@ -146,11 +150,19 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(1, iamRules?.count)
         let firstConsequence = iamRules?.first?.value.first?.consequences.first
         XCTAssertNotNil(firstConsequence)
-        XCTAssertTrue(firstConsequence!.isInApp)
-        let data = firstConsequence?.details["data"] as? [String: Any]
-        let content = data?["content"] as? [String: Any]
-        let html = content?["html"] as? String
-        XCTAssertEqual("<html><body>Is this thing even on?</body></html>", html)
+        let consequenceAsPropositionItem = PropositionItem.fromRuleConsequence(firstConsequence!)
+        let inappSchemaData = consequenceAsPropositionItem?.inappSchemaData
+        XCTAssertEqual("text/html", inappSchemaData?.contentType)
+        XCTAssertEqual("<html><body>Is this thing even on?</body></html>", inappSchemaData?.content as? String)
+        XCTAssertEqual(1691541497, inappSchemaData?.publishedDate)
+        XCTAssertEqual(1723163897, inappSchemaData?.expiryDate)
+        XCTAssertEqual(1, inappSchemaData?.meta?.count)
+        XCTAssertEqual("metaValue", inappSchemaData?.meta?["metaKey"] as? String)
+        XCTAssertEqual(13, inappSchemaData?.mobileParameters?.count)
+        XCTAssertEqual(1, inappSchemaData?.webParameters?.count)
+        XCTAssertEqual("webParamValue", inappSchemaData?.webParameters?["webParamKey"] as? String)
+        XCTAssertEqual(1, inappSchemaData?.remoteAssets?.count)
+        XCTAssertEqual("urlToAnImage", inappSchemaData?.remoteAssets?.first)
     }
     
     func testInitWithMultipleInAppPropositionTypes() throws {

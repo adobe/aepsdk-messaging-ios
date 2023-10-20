@@ -14,8 +14,30 @@ import AEPCore
 import AEPServices
 import Foundation
 
-// represents the schema data object for a json content schema
-struct RulesetSchemaData: Codable {
-    let version: Int
-    let rules: [[String: AnyCodable]]
+// represents the schema data object for a ruleset schema
+@objc(AEPRulesetSchemaData)
+@objcMembers
+public class RulesetSchemaData: NSObject, Codable {
+    public let version: Int
+    public let rules: [[String: Any]]
+    
+    enum CodingKeys: String, CodingKey {
+        case version
+        case rules
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        version = try values.decode(Int.self, forKey: .version)
+        let codableRulesArray = try values.decode([[String: AnyCodable]].self, forKey: .rules)
+        rules = codableRulesArray.compactMap { $0.asDictionary() }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(version, forKey: .version)
+        try container.encode(rules.compactMap { AnyCodable.from(dictionary: $0) }, forKey: .rules)
+    }
 }

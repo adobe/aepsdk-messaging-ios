@@ -24,13 +24,8 @@ public class PropositionItem: NSObject, Codable {
     public let schema: SchemaType
 
     /// PropositionItem data content in its raw format - either String or [String: Any]
-    public let content: AnyCodable
+    public let content: [String: Any]?
 
-    /// Represents the data of the proposition in its strongly typed format, based on schema value
-    public var typedData: Codable? {
-        getTypedData()
-    }
-    
     /// Weak reference to Proposition instance
     weak var proposition: Proposition?
 
@@ -40,7 +35,7 @@ public class PropositionItem: NSObject, Codable {
         case data
     }
 
-    init(uniqueId: String, schema: String, content: AnyCodable) {
+    init(uniqueId: String, schema: String, content: [String: Any]?) {
         self.uniqueId = uniqueId
         self.schema = SchemaType(from: schema)
         self.content = content
@@ -50,9 +45,8 @@ public class PropositionItem: NSObject, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         uniqueId = try container.decode(String.self, forKey: .id)
         schema = SchemaType(from: try container.decode(String.self, forKey: .schema))
-        content = try container.decode(AnyCodable.self, forKey: .data)
-        
-        
+        let codableContent = try? container.decode([String: AnyCodable].self, forKey: .data)
+        content = codableContent?.asDictionary()
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -60,52 +54,34 @@ public class PropositionItem: NSObject, Codable {
 
         try container.encode(uniqueId, forKey: .id)
         try container.encode(schema, forKey: .schema)
-        try container.encode(content, forKey: .data)
+        try container.encode(AnyCodable.from(dictionary: content), forKey: .data)
     }
 }
 
 public extension PropositionItem {
-    // Decode data content to generic inbound
-    func decodeContent() -> Inbound? {
-        guard let jsonData = content.dataValue else {
-            return nil
-        }
-        return try? JSONDecoder().decode(Inbound.self, from: jsonData)
-    }
-    
     static func fromRuleConsequence(_ consequence: RuleConsequence) -> PropositionItem? {
         guard let detailsData = try? JSONSerialization.data(withJSONObject: consequence.details, options: .prettyPrinted) else {
             return nil
         }
         return try? JSONDecoder().decode(PropositionItem.self, from: detailsData)
     }
-    
-    func getTypedData() -> Codable? {
-        guard let contentAsData = content.dataValue else {
+        
+    func getTypedData<T>(_ type: T.Type) -> T? where T : Decodable {
+        guard let content = content,
+              let contentAsData = try? JSONSerialization.data(withJSONObject: content) else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to get typed data for proposition item - could not convert 'data' field to type 'Data'.")
             return nil
         }
-        switch schema {
-        case .htmlContent:
-            return try? JSONDecoder().decode(HtmlContentSchemaData.self, from: contentAsData)
-        case .jsonContent:
-            return try? JSONDecoder().decode(JsonContentSchemaData.self, from: contentAsData)
-        case .defaultContent:
-            // default content schema expects an empty object for `data`, so typed data should be nil
-            return nil
-        case .ruleset:
-            return try? JSONDecoder().decode(RulesetSchemaData.self, from: contentAsData)
-        case .feed:
-            return try? JSONDecoder().decode(FeedItemSchemaData.self, from: contentAsData)
-        case .inapp:
-            return try? JSONDecoder().decode(InAppSchemaData.self, from: contentAsData)        
-        default:
+        do {
+            return try JSONDecoder().decode(type, from: contentAsData)
+        } catch {
+            print("error \(error.localizedDescription)")
             return nil
         }
     }
     
     var jsonContent: [String: Any]? {
-        guard let jsonItem = getTypedData() as? JsonContentSchemaData else {
+        guard let jsonItem = getTypedData(JsonContentSchemaData.self) else {
             return nil
         }
         
@@ -113,10 +89,25 @@ public extension PropositionItem {
     }
     
     var htmlContent: String? {
-        guard let htmlItem = getTypedData() as? HtmlContentSchemaData else {
+        guard let htmlItem = getTypedData(HtmlContentSchemaData.self) else {
             return nil
         }
         
         return htmlItem.content
     }
+    
+    internal var inappSchemaData: InAppSchemaData? {
+        guard schema == .inapp else {
+            return nil
+        }
+        return getTypedData(InAppSchemaData.self)
+    }
+    
+    internal var feedItemSchemaData: FeedItemSchemaData? {
+        guard schema == .feed else {
+            return nil
+        }
+        return getTypedData(FeedItemSchemaData.self)
+    }
+    
 }

@@ -13,8 +13,30 @@
 import AEPServices
 import Foundation
 
-// represents the schema data object for a json content schema
-struct JsonContentSchemaData: Codable {
-    let content: [String: AnyCodable]
-    let format: String
+/// represents the schema data object for a json content schema
+@objc(AEPJsonContentSchemaData)
+@objcMembers
+public class JsonContentSchemaData: NSObject, Codable {
+    public let content: [String: Any]
+    public let format: ContentType
+    
+    enum CodingKeys: String, CodingKey {
+        case content
+        case format
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        format = ContentType(from: try values.decode(String.self, forKey: .format))
+        let codableContent = try values.decode([String: AnyCodable].self, forKey: .content)
+        content = codableContent.asDictionary() ?? [:]
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(format.toString(), forKey: .format)
+        try container.encode(AnyCodable.from(dictionary: content), forKey: .content)
+    }
 }

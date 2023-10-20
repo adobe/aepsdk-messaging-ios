@@ -42,12 +42,13 @@ struct ParsedPropositions {
                         Log.debug(label: MessagingConstants.LOG_TAG, "Proposition rule did not contain a consequence, no action to take for this Proposition.")
                         continue
                     }
+                    
                     if consequence.isOldInApp {
                         propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
                         propositionsToPersist.add(proposition, forKey: surface)
                         mergeRules(oldRules, for: surface, with: .inapp)
+                        continue
                     }
-                    continue
                 }
                 
                 
@@ -59,7 +60,7 @@ struct ParsedPropositions {
                 switch firstPropositionItem.schema {
                 // - handle ruleset-item schemas
                 case .ruleset:
-                    guard let dataValue = firstPropositionItem.content.dataValue,
+                    guard let dataValue = firstPropositionItem.content.getValueAsData(),
                         let parsedRules = JSONRulesParser.parse(dataValue) else {
                         continue
                     }
@@ -143,5 +144,23 @@ struct ParsedPropositions {
 
         // apply up to surfaceRulesByInboundType
         surfaceRulesByInboundType[inboundType] = tempRulesByInboundType
+    }
+}
+
+extension AnyCodable {
+    func getValueAsData() -> Data? {
+        guard let unwrappedValue = self.value else {
+            return nil
+        }
+        
+        if unwrappedValue is String {
+            return (unwrappedValue as? String)?.data(using: .utf8)
+        }
+        
+        if unwrappedValue is [String: Any?] {
+            return try? JSONSerialization.data(withJSONObject: unwrappedValue)
+        }
+        
+        return nil
     }
 }

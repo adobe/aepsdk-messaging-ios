@@ -13,11 +13,51 @@
 import AEPServices
 import Foundation
 
-// represents the schema data object for a feed item schema
-struct FeedItemSchemaData: Codable {
-    let content: AnyCodable
-    let contentType: String
-    let publishedDate: Int?
-    let expiryDate: Int?
-    let meta: [String: AnyCodable]?
+/// represents the schema data object for a feed item schema
+@objc(AEPFeedItemSchemaData)
+@objcMembers
+public class FeedItemSchemaData: NSObject, Codable {
+    public let content: Any
+    public let contentType: ContentType
+    public let publishedDate: Int?
+    public let expiryDate: Int?
+    public let meta: [String: Any]?
+    
+    enum CodingKeys: String, CodingKey {
+        case content
+        case contentType
+        case publishedDate
+        case expiryDate
+        case meta
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        contentType = ContentType(from: try values.decode(String.self, forKey: .contentType))
+        if contentType == .applicationJson {
+            let codableContent = try values.decode([String: AnyCodable].self, forKey: .content)
+            content = codableContent.asDictionary() ?? [:]
+        } else {
+            content = try values.decode(String.self, forKey: .content)
+        }
+        publishedDate = try? values.decode(Int.self, forKey: .publishedDate)
+        expiryDate = try? values.decode(Int.self, forKey: .expiryDate)
+        let codableMeta = try? values.decode([String: AnyCodable].self, forKey: .meta)
+        meta = codableMeta?.asDictionary()
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(contentType.toString(), forKey: .contentType)
+        if contentType == .applicationJson {
+            try container.encode(AnyCodable.from(dictionary: content as? [String: Any]), forKey: .content)
+        } else {
+            try container.encode(content as? String, forKey: .content)
+        }
+        try container.encode(publishedDate, forKey: .publishedDate)
+        try container.encode(expiryDate, forKey: .expiryDate)
+        try container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
+    }
 }
