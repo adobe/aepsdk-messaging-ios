@@ -10,7 +10,6 @@
  governing permissions and limitations under the License.
  */
 
-import AEPServices
 import Foundation
 
 /// represents the schema data object for an html content schema

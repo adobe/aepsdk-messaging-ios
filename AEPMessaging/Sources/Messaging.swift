@@ -31,9 +31,9 @@ public class Messaging: NSObject, Extension {
 
     // MARK: - Messaging State
 
+    // stores CBE (json-content, html-content, default-content), and feed-item schemas
     var propositions: [Surface: [Proposition]] = [:]
     var propositionInfo: [String: PropositionInfo] = [:]
-    var inboundMessages: [Surface: [Inbound]] = [:]
     var cache: Cache = .init(name: MessagingConstants.Caches.CACHE_NAME)
     var appSurface: String {
         Bundle.main.mobileappSurface
@@ -450,7 +450,7 @@ public class Messaging: NSObject, Extension {
                 propositionsDict[surface] = propositionsArray
             }
 
-            guard let inboundArray = inboundMessages[surface] else {
+            guard let inboundArray = propositionItemsBySurface[surface] else {
                 continue
             }
 

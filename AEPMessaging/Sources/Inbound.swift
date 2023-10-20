@@ -17,7 +17,7 @@
 //@objcMembers
 //public class Inbound: NSObject, Codable {
 //    /// String representing a unique ID for this inbound item
-//    public let uniqueId: String
+//    public let propositionId: String
 //
 //    /// Enum representing the inbound item type
 //    public let inboundType: InboundType

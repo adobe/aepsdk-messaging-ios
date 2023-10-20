@@ -10,11 +10,10 @@
  governing permissions and limitations under the License.
  */
 
-import AEPCore
 import AEPServices
 import Foundation
 
-// represents the schema data object for a ruleset schema
+/// represents the schema data object for a ruleset schema
 @objc(AEPRulesetSchemaData)
 @objcMembers
 public class RulesetSchemaData: NSObject, Codable {

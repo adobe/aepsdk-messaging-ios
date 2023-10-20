@@ -14,16 +14,26 @@ import AEPCore
 import AEPServices
 import Foundation
 
+/// A `PropositionItem` object represents a personalization JSON object returned by Konductor
+/// In its JSON form, it has the following properties:
+/// - `id`
+/// - `schema`
+/// - `data`
+/// This contents of `data` will be determined by the provided `schema`.
+/// This class provides helper access to get strongly typed content - e.g. `getTypedData`
 @objc(AEPPropositionItem)
 @objcMembers
 public class PropositionItem: NSObject, Codable {
     /// Unique PropositionItem identifier
-    public let uniqueId: String
+    /// contains value for `id` in JSON
+    public let propositionId: String
 
     /// PropositionItem schema string
+    /// contains value for `schema` in JSON
     public let schema: SchemaType
 
-    /// PropositionItem data content in its raw format - either String or [String: Any]
+    /// PropositionItem data as dictionary
+    /// contains value for `data` in JSON
     public let content: [String: Any]?
 
     /// Weak reference to Proposition instance
@@ -35,15 +45,15 @@ public class PropositionItem: NSObject, Codable {
         case data
     }
 
-    init(uniqueId: String, schema: String, content: [String: Any]?) {
-        self.uniqueId = uniqueId
-        self.schema = SchemaType(from: schema)
+    init(uniqueId: String, schema: SchemaType, content: [String: Any]?) {
+        self.propositionId = uniqueId
+        self.schema = schema
         self.content = content
     }
 
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        uniqueId = try container.decode(String.self, forKey: .id)
+        propositionId = try container.decode(String.self, forKey: .id)
         schema = SchemaType(from: try container.decode(String.self, forKey: .schema))
         let codableContent = try? container.decode([String: AnyCodable].self, forKey: .data)
         content = codableContent?.asDictionary()
@@ -52,7 +62,7 @@ public class PropositionItem: NSObject, Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
-        try container.encode(uniqueId, forKey: .id)
+        try container.encode(propositionId, forKey: .id)
         try container.encode(schema, forKey: .schema)
         try container.encode(AnyCodable.from(dictionary: content), forKey: .data)
     }
@@ -65,7 +75,23 @@ public extension PropositionItem {
         }
         return try? JSONDecoder().decode(PropositionItem.self, from: detailsData)
     }
-        
+    
+//    func getTypedDataEasy<T>() -> T? where T : Decodable {
+//        guard let content = content,
+//              let contentAsData = try? JSONSerialization.data(withJSONObject: content),
+//              let schemaType = schema.getType() else {
+//            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to get typed data for proposition item - could not convert 'data' field to type 'Data'.")
+//            return nil
+//        }
+//        do {
+//            return try JSONDecoder().decode(schemaType, from: contentAsData)
+//        } catch {
+//            print("error \(error.localizedDescription)")
+//            return nil
+//        }
+//    }
+    
+    
     func getTypedData<T>(_ type: T.Type) -> T? where T : Decodable {
         guard let content = content,
               let contentAsData = try? JSONSerialization.data(withJSONObject: content) else {
@@ -81,15 +107,15 @@ public extension PropositionItem {
     }
     
     var jsonContent: [String: Any]? {
-        guard let jsonItem = getTypedData(JsonContentSchemaData.self) else {
+        guard schema == .jsonContent, let jsonItem = getTypedData(JsonContentSchemaData.self) else {
             return nil
         }
         
-        return jsonItem.content.asDictionary()
+        return jsonItem.content
     }
     
     var htmlContent: String? {
-        guard let htmlItem = getTypedData(HtmlContentSchemaData.self) else {
+        guard schema == .htmlContent, let htmlItem = getTypedData(HtmlContentSchemaData.self) else {
             return nil
         }
         
