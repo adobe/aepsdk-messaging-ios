@@ -14,9 +14,10 @@ import Foundation
 @testable import AEPCore
 @testable import AEPMessaging
 import AEPEdgeIdentity
+import AEPTestUtils
 import XCTest
 
-class MessagingNotificationTrackingTests: FunctionalTestBase {
+class MessagingNotificationTrackingTests: TestBase {
     
     static let mockUserInfo = ["_xdm" :
                                 ["cjm":
@@ -36,7 +37,7 @@ class MessagingNotificationTrackingTests: FunctionalTestBase {
     
     public class override func setUp() {
         super.setUp()
-        FunctionalTestBase.debugEnabled = true
+        TestBase.debugEnabled = true
     }
 
     override func setUp() {
