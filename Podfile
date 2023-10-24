@@ -21,12 +21,14 @@ def lib_main
     pod 'AEPCore'
     pod 'AEPServices'
     pod 'AEPRulesEngine'
+#    pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'main'
 end
 
 def lib_dev
     pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v4.0.0'
     pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'dev-v4.0.0'
     pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'dev-4.0.0'
+#    pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'main'
 end
 
 def app_main
@@ -52,6 +54,7 @@ def app_dev
     pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'dev-v4.0.0'
     pod 'AEPAnalytics', :git => 'https://github.com/adobe/aepsdk-analytics-ios.git', :branch => 'dev-v4.0.0'
     pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'dev-v4.0.0'
+#    pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'main'
 end
 
 # ==================
@@ -80,10 +83,12 @@ end
 
 target 'FunctionalTests' do
   app_main
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'beta-testing'
 end
 
 target 'E2EFunctionalTests' do
   app_main
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'beta-testing'
 end
 
 target 'FunctionalTestApp' do
