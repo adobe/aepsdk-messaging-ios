@@ -173,7 +173,7 @@ public class Message: NSObject {
 }
 
 extension Message {
-    static func fromPropositionItem(_ propositionItem: PropositionItem, with parent: Messaging, triggeringEvent event: Event) -> Message? {
+    static func fromPropositionItem(_ propositionItem: MessagingPropositionItem, with parent: Messaging, triggeringEvent event: Event) -> Message? {
         let message = Message(parent: parent, triggeringEvent: event)
         message.id = propositionItem.propositionId
         let messageSettings = propositionItem.getMessageSettings(withParent: message)
@@ -182,7 +182,7 @@ extension Message {
     }
 }
 
-extension PropositionItem {
+extension MessagingPropositionItem {
     func getMessageSettings(withParent parent: Any?) -> MessageSettings {
         return MessageSettings()
 //        let cornerRadius = CGFloat(messageCornerRadius ?? 0)

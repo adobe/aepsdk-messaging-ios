@@ -14,16 +14,16 @@ import AEPCore
 import AEPServices
 import Foundation
 
-/// A `PropositionItem` object represents a personalization JSON object returned by Konductor
+/// A `MessagingPropositionItem` object represents a personalization JSON object returned by Konductor
 /// In its JSON form, it has the following properties:
 /// - `id`
 /// - `schema`
 /// - `data`
 /// This contents of `data` will be determined by the provided `schema`.
 /// This class provides helper access to get strongly typed content - e.g. `getTypedData`
-@objc(AEPPropositionItem)
+@objc(AEPMessagingPropositionItem)
 @objcMembers
-public class PropositionItem: NSObject, Codable {
+public class MessagingPropositionItem: NSObject, Codable {
     /// Unique PropositionItem identifier
     /// contains value for `id` in JSON
     public let propositionId: String
@@ -37,7 +37,7 @@ public class PropositionItem: NSObject, Codable {
     public let propositionData: [String: Any]?
 
     /// Weak reference to Proposition instance
-    weak var proposition: Proposition?
+    weak var proposition: MessagingProposition?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -53,6 +53,7 @@ public class PropositionItem: NSObject, Codable {
 
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+
         propositionId = try container.decode(String.self, forKey: .id)
         schema = SchemaType(from: try container.decode(String.self, forKey: .schema))
         let codableContent = try? container.decode([String: AnyCodable].self, forKey: .data)
@@ -68,15 +69,15 @@ public class PropositionItem: NSObject, Codable {
     }
 }
 
-public extension PropositionItem {
-    static func fromRuleConsequence(_ consequence: RuleConsequence) -> PropositionItem? {
+public extension MessagingPropositionItem {
+    static func fromRuleConsequence(_ consequence: RuleConsequence) -> MessagingPropositionItem? {
         guard let detailsData = try? JSONSerialization.data(withJSONObject: consequence.details, options: .prettyPrinted) else {
             return nil
         }
-        return try? JSONDecoder().decode(PropositionItem.self, from: detailsData)
+        return try? JSONDecoder().decode(MessagingPropositionItem.self, from: detailsData)
     }
     
-    static func fromRuleConsequenceEvent(_ event: Event) -> PropositionItem? {
+    static func fromRuleConsequenceEvent(_ event: Event) -> MessagingPropositionItem? {
         guard let eventData = event.data else {
             return nil
         }
@@ -86,7 +87,7 @@ public extension PropositionItem {
             return nil
         }
         
-        return PropositionItem(propositionId: id, schema: schema, propositionData: event.schemaData)
+        return MessagingPropositionItem(propositionId: id, schema: schema, propositionData: event.schemaData)
     }
     
     var jsonContent: [String: Any]? {

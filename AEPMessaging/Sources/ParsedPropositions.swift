@@ -18,16 +18,16 @@ struct ParsedPropositions {
     var propositionInfoToCache: [String: PropositionInfo] = [:]
 
     // non-in-app propositions should be cached and not persisted
-    var propositionsToCache: [Surface: [Proposition]] = [:]
+    var propositionsToCache: [Surface: [MessagingProposition]] = [:]
 
     // in-app propositions don't need to stay in cache, but must be persisted
     // also need to store tracking info for in-app propositions as `PropositionInfo`
-    var propositionsToPersist: [Surface: [Proposition]] = [:]
+    var propositionsToPersist: [Surface: [MessagingProposition]] = [:]
 
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
 
-    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
+    init(with propositions: [Surface: [MessagingProposition]], requestedSurfaces: [Surface]) {
         for propositionsArray in propositions.values {
             for proposition in propositionsArray {
                 guard let surface = requestedSurfaces.first(where: { $0.uri == proposition.scope }) else {
@@ -60,7 +60,7 @@ struct ParsedPropositions {
                         continue
                     }
                     guard let consequence = parsedRules.first?.consequences.first,
-                          let schemaConsequence = PropositionItem.fromRuleConsequence(consequence) else {
+                          let schemaConsequence = MessagingPropositionItem.fromRuleConsequence(consequence) else {
                         continue
                     }
                     

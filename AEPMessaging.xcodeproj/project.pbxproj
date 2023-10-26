@@ -46,8 +46,8 @@
 		096E19922A758D1600D4EBCF /* FeedItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096E19912A758D1600D4EBCF /* FeedItemDetailView.swift */; };
 		09B071E62A64D3D900F259C1 /* Surface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071E52A64D3D900F259C1 /* Surface.swift */; };
 		09B071E82A64D80E00F259C1 /* Bundle+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */; };
-		09B071EC2A651C7800F259C1 /* Proposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071EB2A651C7800F259C1 /* Proposition.swift */; };
-		09B071EE2A651CB200F259C1 /* PropositionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071ED2A651CB200F259C1 /* PropositionItem.swift */; };
+		09B071EC2A651C7800F259C1 /* MessagingProposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071EB2A651C7800F259C1 /* MessagingProposition.swift */; };
+		09B071EE2A651CB200F259C1 /* MessagingPropositionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071ED2A651CB200F259C1 /* MessagingPropositionItem.swift */; };
 		09B071F22A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071F12A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift */; };
 		09B071F62A7318CB00F259C1 /* Array+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071F52A7318CB00F259C1 /* Array+Messaging.swift */; };
 		2402745C29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
@@ -376,6 +376,7 @@
 		091881F52A16C2D600615481 /* FeedsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedsView.swift; sourceTree = "<group>"; };
 		091881FE2A16D7A200615481 /* PushView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushView.swift; sourceTree = "<group>"; };
 		092A77F12A757CB40026D325 /* CodeBasedOffersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeBasedOffersView.swift; sourceTree = "<group>"; };
+		09305F0B2AC2EAFF00406607 /* MessagingDemoAppSwiftUI-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "MessagingDemoAppSwiftUI-Info.plist"; sourceTree = SOURCE_ROOT; };
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		094C4E9D2A74FC4200D99C70 /* FeedItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemView.swift; sourceTree = "<group>"; };
 		0969D6332A75D55E00A00BF7 /* CustomImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomImageView.swift; sourceTree = "<group>"; };
@@ -387,8 +388,8 @@
 		096E19912A758D1600D4EBCF /* FeedItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemDetailView.swift; sourceTree = "<group>"; };
 		09B071E52A64D3D900F259C1 /* Surface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Surface.swift; sourceTree = "<group>"; };
 		09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Messaging.swift"; sourceTree = "<group>"; };
-		09B071EB2A651C7800F259C1 /* Proposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Proposition.swift; sourceTree = "<group>"; };
-		09B071ED2A651CB200F259C1 /* PropositionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionItem.swift; sourceTree = "<group>"; };
+		09B071EB2A651C7800F259C1 /* MessagingProposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingProposition.swift; sourceTree = "<group>"; };
+		09B071ED2A651CB200F259C1 /* MessagingPropositionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingPropositionItem.swift; sourceTree = "<group>"; };
 		09B071F12A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KeyedDecodingContainer+Messaging.swift"; sourceTree = "<group>"; };
 		09B071F52A7318CB00F259C1 /* Array+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Messaging.swift"; sourceTree = "<group>"; };
 		2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableMessagingDelegate.swift; sourceTree = "<group>"; };
@@ -660,6 +661,7 @@
 		091881E52A16BAE300615481 /* MessagingDemoAppSwiftUI */ = {
 			isa = PBXGroup;
 			children = (
+				09305F0B2AC2EAFF00406607 /* MessagingDemoAppSwiftUI-Info.plist */,
 				091881E62A16BAE300615481 /* MessagingDemoAppSwiftUIApp.swift */,
 				092A77F12A757CB40026D325 /* CodeBasedOffersView.swift */,
 				0969D6352A760AF900A00BF7 /* CustomHtmlView.swift */,
@@ -854,12 +856,12 @@
 				92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */,
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
 				244C2BD726B36480008F086A /* MessagingEdgeEventType.swift */,
+				09B071EB2A651C7800F259C1 /* MessagingProposition.swift */,
+				09B071ED2A651CB200F259C1 /* MessagingPropositionItem.swift */,
 				2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */,
 				2469A5E2274863F600E56457 /* MessagingRulesEngine+Caching.swift */,
 				240FC42D2AA920D400AFEEEB /* ParsedPropositions.swift */,
-				09B071EB2A651C7800F259C1 /* Proposition.swift */,
 				243B1AFD28AEB1E60074327E /* PropositionInfo.swift */,
-				09B071ED2A651CB200F259C1 /* PropositionItem.swift */,
 				243B1AFB28AD7FCE0074327E /* PropositionPayload.swift */,
 				090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */,
 				240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */,
@@ -1851,10 +1853,10 @@
 				09B071E62A64D3D900F259C1 /* Surface.swift in Sources */,
 				240FC42E2AA920D400AFEEEB /* ParsedPropositions.swift in Sources */,
 				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
-				09B071EE2A651CB200F259C1 /* PropositionItem.swift in Sources */,
+				09B071EE2A651CB200F259C1 /* MessagingPropositionItem.swift in Sources */,
 				246FD07226B9F86F00FD130B /* FullscreenMessage+Message.swift in Sources */,
 				242920ED2ACF7760000DB2CD /* SchemaType.swift in Sources */,
-				09B071EC2A651C7800F259C1 /* Proposition.swift in Sources */,
+				09B071EC2A651C7800F259C1 /* MessagingProposition.swift in Sources */,
 				243B1AFC28AD7FCE0074327E /* PropositionPayload.swift in Sources */,
 				24569A8F2AE2CD6E00FC356F /* ContentType.swift in Sources */,
 				243B1AFE28AEB1E60074327E /* PropositionInfo.swift in Sources */,
@@ -2112,6 +2114,7 @@
 				DEVELOPMENT_TEAM = FKGEE875K4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "MessagingDemoAppSwiftUI-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -2123,7 +2126,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.iamStagingTester;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoAppSwiftUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -2144,6 +2147,7 @@
 				DEVELOPMENT_TEAM = FKGEE875K4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "MessagingDemoAppSwiftUI-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -2155,7 +2159,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.iamStagingTester;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoAppSwiftUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

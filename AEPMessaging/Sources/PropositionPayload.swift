@@ -15,7 +15,7 @@ import Foundation
 
 struct PropositionPayload: Codable {
     var propositionInfo: PropositionInfo
-    var items: [PropositionItem]
+    var items: [MessagingPropositionItem]
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -31,7 +31,7 @@ struct PropositionPayload: Codable {
         let scopeDetails = try values.decode([String: AnyCodable].self, forKey: .scopeDetails)
 
         propositionInfo = PropositionInfo(id: id, scope: scope, scopeDetails: scopeDetails)
-        items = try values.decode([PropositionItem].self, forKey: .items)
+        items = try values.decode([MessagingPropositionItem].self, forKey: .items)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -43,19 +43,19 @@ struct PropositionPayload: Codable {
     }
 
     /// internal use only for testing
-    init(propositionInfo: PropositionInfo, items: [PropositionItem]) {
+    init(propositionInfo: PropositionInfo, items: [MessagingPropositionItem]) {
         self.propositionInfo = propositionInfo
         self.items = items
     }
 
-    func convertToProposition() -> Proposition {
-        var propItems: [PropositionItem] = []
+    func convertToProposition() -> MessagingProposition {
+        var propItems: [MessagingPropositionItem] = []
         for item in items {
-            propItems.append(PropositionItem(propositionId: item.propositionId, schema: item.schema, propositionData: item.propositionData))
+            propItems.append(MessagingPropositionItem(propositionId: item.propositionId, schema: item.schema, propositionData: item.propositionData))
         }
-        return Proposition(uniqueId: propositionInfo.id,
-                           scope: propositionInfo.scope,
-                           scopeDetails: AnyCodable.toAnyDictionary(dictionary: propositionInfo.scopeDetails) ?? [:],
-                           items: propItems)
+        return MessagingProposition(uniqueId: propositionInfo.id,
+                                    scope: propositionInfo.scope,
+                                    scopeDetails: AnyCodable.toAnyDictionary(dictionary: propositionInfo.scopeDetails) ?? [:],
+                                    items: propItems)
     }
 }
