@@ -24,14 +24,14 @@ struct FeedsView: View {
                     .font(.title)
                     .padding(.top, 30)
                 List {
-                    ForEach(propositionsResult.propositionsDict?[Surface(path: "feeds/apifeed")]?
-                        .compactMap { $0.items.first?.decodeContent() } ?? [], id: \.uniqueId) { inboundMessage in
-                        if let feedItem = inboundMessage.decodeContent(FeedItem.self) {
-                            NavigationLink(destination: FeedItemDetailView(feedItem: feedItem)) {
-                                FeedItemView(feedItem: feedItem)
+                    ForEach(propositionsResult.propositionsDict?[Surface(path: "feeds/apifeed")]?.compactMap {
+                        $0.items.first } ?? [], id: \.propositionId ) { propositionItem in
+                            if let feedItemSchema = propositionItem.feedItemSchemaData, let feedItem = feedItemSchema.getFeedItem() {
+                                NavigationLink(destination: FeedItemDetailView(feedItem: feedItem)) {
+                                    FeedItemView(feedItem: feedItem)
+                                }
                             }
                         }
-                    }
                 }
                 .listStyle(.plain)
                 .navigationBarTitle(Text("Back"), displayMode: .inline)

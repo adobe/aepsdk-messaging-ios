@@ -18,8 +18,12 @@ import Foundation
 extension Event {
     // MARK: - In-app Message Consequence Event Handling
 
-    var isInAppMessage: Bool {
+    var isCjmIamConsequence: Bool {
         consequenceType == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE
+    }
+    
+    var isSchemaConsequence: Bool {
+        consequenceType == MessagingConstants.ConsequenceTypes.SCHEMA
     }
 
     // MARK: - In-app Message Properties
@@ -365,5 +369,22 @@ extension Event {
                             data: [
                                 MessagingConstants.Event.Data.Key.RESPONSE_ERROR: error.rawValue
                             ])
+    }
+    
+    // MARK: - Schema consequence event
+    var schemaId: String? {
+        details?[MessagingConstants.Event.Data.Key.ID] as? String
+    }
+    
+    var schemaType: SchemaType? {
+        guard let schemaString = details?[MessagingConstants.Event.Data.Key.SCHEMA] as? String else {
+            return nil
+        }
+        
+        return SchemaType(from: schemaString)
+    }
+    
+    var schemaData: [String: Any]? {
+        details?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
     }
 }

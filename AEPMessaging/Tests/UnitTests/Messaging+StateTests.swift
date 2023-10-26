@@ -26,7 +26,6 @@ class MessagingPlusStateTests: XCTestCase {
     let mockIamSurface = Surface(uri: "mobileapp://com.apple.dt.xctest.tool")
     var mockProposition: Proposition!
     var mockPropositionItem: PropositionItem!
-    var mockInbound: Inbound!
     var mockPropositionInfo: PropositionInfo!
 
     // Mock constants
@@ -45,10 +44,10 @@ class MessagingPlusStateTests: XCTestCase {
         mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngineForFeeds)
         messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface.uri, cache: mockCache)
         
-        mockPropositionItem = PropositionItem(uniqueId: "propItemId", schema: mockIamSurface.uri, content: "content")
+        mockPropositionItem = PropositionItem(propositionId: "propItemId", schema: .defaultContent, propositionData: nil)
         mockProposition = MockProposition(uniqueId: "propId", scope: mockIamSurface.uri, scopeDetails: [:], items: [mockPropositionItem])
-        let inboundConsequenceDetail = JSONFileLoader.getRulesJsonFromFile("inboundConsequenceDetail")
-        mockInbound = Inbound.from(consequenceDetail: inboundConsequenceDetail, id: "consequenceId")
+//        let inboundConsequenceDetail = JSONFileLoader.getRulesJsonFromFile("inboundConsequenceDetail")
+//        mockInbound = Inbound.from(consequenceDetail: inboundConsequenceDetail, id: "consequenceId")
         mockPropositionInfo = PropositionInfo(id: "propInfoId", scope: mockIamSurface.uri, scopeDetails: [:])
     }
 
@@ -78,7 +77,6 @@ class MessagingPlusStateTests: XCTestCase {
     func testClear() throws {
         // setup
         messaging.propositions = [ mockIamSurface: [mockProposition] ]
-        messaging.inboundMessages = [ mockIamSurface: [mockInbound] ]
         messaging.propositionInfo = [ "consequenceId": mockPropositionInfo ]
         
         // test
@@ -86,7 +84,6 @@ class MessagingPlusStateTests: XCTestCase {
         
         // verify
         XCTAssertNil(messaging.propositions[mockIamSurface])
-        XCTAssertNil(messaging.inboundMessages[mockIamSurface])
         XCTAssertNil(messaging.propositionInfo["consequenceId"])
         XCTAssertTrue(mockCache.removeCalled)
     }

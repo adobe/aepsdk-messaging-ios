@@ -76,25 +76,4 @@ public enum SchemaType: Int, Codable {
             return ""
         }
     }
-    
-    public func getType() -> AnyClass? {
-        switch self {
-        case .htmlContent:
-            return HtmlContentSchemaData.self
-        case .jsonContent:
-            return JsonContentSchemaData.self
-        case .ruleset:
-            return RulesetSchemaData.self
-        case .inapp:
-            return InAppSchemaData.self
-        case .feed:
-            return FeedItemSchemaData.self
-        case .nativeAlert:
-            return nil
-        case .defaultContent:
-            return nil
-        default:
-            return nil
-        }
-    }
 }

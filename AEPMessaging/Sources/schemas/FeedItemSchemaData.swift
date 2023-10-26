@@ -31,6 +31,15 @@ public class FeedItemSchemaData: NSObject, Codable {
         case meta
     }
     
+    /// ONLY USED FOR TESTING
+    private override init() {
+        self.content = "plain-text content"
+        self.contentType = .textPlain
+        self.publishedDate = nil
+        self.expiryDate = nil
+        self.meta = nil
+    }
+    
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
@@ -59,5 +68,20 @@ public class FeedItemSchemaData: NSObject, Codable {
         try container.encode(publishedDate, forKey: .publishedDate)
         try container.encode(expiryDate, forKey: .expiryDate)
         try container.encode(AnyCodable.from(dictionary: meta), forKey: .meta)
+    }
+}
+
+extension FeedItemSchemaData {
+    static func getEmpty() -> FeedItemSchemaData {
+        return FeedItemSchemaData()
+    }
+    
+    public func getFeedItem() -> FeedItem? {
+        guard contentType == .applicationJson,
+              let contentAsJsonData = try? JSONSerialization.data(withJSONObject: content, options: .prettyPrinted) else {
+            return nil
+        }
+        
+        return try? JSONDecoder().decode(FeedItem.self, from: contentAsJsonData)
     }
 }

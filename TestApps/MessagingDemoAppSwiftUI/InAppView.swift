@@ -32,7 +32,7 @@ struct InAppView: View {
             Grid(alignment: .leading, horizontalSpacing: 70, verticalSpacing: 30) {
                 GridRow {
                     Button("fullscreen") {
-                        MobileCore.track(action: "fullscreen", data: ["testFullscreen": "true"])
+                        MobileCore.track(action: "fullscreen_ss", data: ["testFullscreen": "true"])
                     }
                     
                     Button("modal") {

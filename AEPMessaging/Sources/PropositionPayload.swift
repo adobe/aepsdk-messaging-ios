@@ -51,10 +51,7 @@ struct PropositionPayload: Codable {
     func convertToProposition() -> Proposition {
         var propItems: [PropositionItem] = []
         for item in items {
-            guard let uniqueId = item.id, let schema = item.schema else {
-                continue
-            }
-            propItems.append(PropositionItem(uniqueId: uniqueId, schema: schema, content: AnyCodable(stringLiteral: item.data.content)))
+            propItems.append(PropositionItem(propositionId: item.propositionId, schema: item.schema, propositionData: item.propositionData))
         }
         return Proposition(uniqueId: propositionInfo.id,
                            scope: propositionInfo.scope,

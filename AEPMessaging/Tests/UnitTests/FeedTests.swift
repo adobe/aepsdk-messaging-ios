@@ -21,7 +21,7 @@ class FeedTests: XCTestCase {
         // setup
         let mockName = "aName"
         let mockSurface = Surface(uri: "mySurface")
-        let mockFeedItem = FeedItem(title: "title", body: "body")
+        let mockFeedItem = FeedItemSchemaData.getEmpty()
         
         // test
         let feed = Feed(name: mockName, surface: mockSurface, items: [mockFeedItem])

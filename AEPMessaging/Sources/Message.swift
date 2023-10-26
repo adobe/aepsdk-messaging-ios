@@ -70,7 +70,14 @@ public class Message: NSObject {
             fullscreenMessage?.setAssetMap(assets)
         }
     }
-
+    
+    private init(parent: Messaging, triggeringEvent: Event) {
+        self.id = ""
+        self.parent = parent
+        self.triggeringEvent = triggeringEvent
+        super.init()
+    }
+    
     // MARK: - UI management
 
     /// Requests that UIServices show the this message.
@@ -162,5 +169,38 @@ public class Message: NSObject {
         }
 
         return true
+    }
+}
+
+extension Message {
+    static func fromPropositionItem(_ propositionItem: PropositionItem, with parent: Messaging, triggeringEvent event: Event) -> Message? {
+        let message = Message(parent: parent, triggeringEvent: event)
+        message.id = propositionItem.propositionId
+        let messageSettings = propositionItem.getMessageSettings(withParent: message)
+        
+        return message
+    }
+}
+
+extension PropositionItem {
+    func getMessageSettings(withParent parent: Any?) -> MessageSettings {
+        return MessageSettings()
+//        let cornerRadius = CGFloat(messageCornerRadius ?? 0)
+//        let settings = MessageSettings(parent: parent)
+//            .setWidth(messageWidth)
+//            .setHeight(messageHeight)
+//            .setVerticalAlign(messageVAlign)
+//            .setVerticalInset(messageVInset)
+//            .setHorizontalAlign(messageHAlign)
+//            .setHorizontalInset(messageHInset)
+//            .setUiTakeover(messageUiTakeover)
+//            .setBackdropColor(messageBackdropColor)
+//            .setBackdropOpacity(messageBackdropOpacity)
+//            .setCornerRadius(messageCornerRadius != nil ? cornerRadius : nil)
+//            .setDisplayAnimation(messageDisplayAnimation)
+//            .setDismissAnimation(messageDismissAnimation)
+//            .setGestures(messageGestures)
+//        return settings
+        
     }
 }

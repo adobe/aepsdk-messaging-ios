@@ -40,7 +40,7 @@ enum MessagingConstants {
 
     enum ConsequenceTypes {
         static let IN_APP_MESSAGE = "cjmiam"
-        static let AJO_INBOUND = "ajoInbound"
+        static let SCHEMA = "schema"
     }
 
     enum Event {
@@ -90,6 +90,7 @@ enum MessagingConstants {
                 static let DETAIL = "detail"
                 static let TYPE = "type"
                 static let SCHEMA = "schema"
+                static let DATA = "data"
                 static let SOURCE = "source"
 
                 enum Feed {

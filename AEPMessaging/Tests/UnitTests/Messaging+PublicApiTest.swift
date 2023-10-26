@@ -551,11 +551,11 @@ class MessagingPublicApiTest: XCTestCase {
             
             XCTAssertNotNil(proposition.items)
             XCTAssertEqual(1, proposition.items.count)
-            guard let inboundItem = proposition.items.first?.decodeContent() else {
-                XCTFail("Response does not contain valid inbound.")
+            guard let feedItemSchemaData = proposition.items.first?.feedItemSchemaData else {
+                XCTFail("Response does not contain valid proposition item.")
                 return
             }
-            guard let feedItem = inboundItem.decodeContent(FeedItem.self) else {
+            guard let feedItem = feedItemSchemaData.getFeedItem() else {
                 XCTFail("Response does not contain valid feed item.")
                 return
             }
@@ -565,12 +565,12 @@ class MessagingPublicApiTest: XCTestCase {
             XCTAssertEqual("https://luma.com/wintersale.png", feedItem.imageUrl)
             XCTAssertEqual("https://luma.com/sale", feedItem.actionUrl)
             XCTAssertEqual("Shop the sale!", feedItem.actionTitle)
-            XCTAssertEqual(1691541497, inboundItem.publishedDate)
-            XCTAssertEqual(1723163897, inboundItem.expiryDate)
-            XCTAssertNotNil(inboundItem.meta)
-            XCTAssertEqual(2, inboundItem.meta?.count)
-            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)promos/feed1", inboundItem.meta?["surface"] as? String)
-            XCTAssertEqual("Winter Promo", inboundItem.meta?["feedName"] as? String)
+            XCTAssertEqual(1691541497, feedItemSchemaData.publishedDate)
+            XCTAssertEqual(1723163897, feedItemSchemaData.expiryDate)
+            XCTAssertNotNil(feedItemSchemaData.meta)
+            XCTAssertEqual(2, feedItemSchemaData.meta?.count)
+            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)promos/feed1", feedItemSchemaData.meta?["surface"] as? String)
+            XCTAssertEqual("Winter Promo", feedItemSchemaData.meta?["feedName"] as? String)
             XCTAssertNotNil(proposition.scopeDetails)
             XCTAssertEqual(1, proposition.scopeDetails.count)
             XCTAssertEqual("sdValue", proposition.scopeDetails["sdKey"] as? String)

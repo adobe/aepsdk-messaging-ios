@@ -34,7 +34,7 @@ public class PropositionItem: NSObject, Codable {
 
     /// PropositionItem data as dictionary
     /// contains value for `data` in JSON
-    public let content: [String: Any]?
+    public let propositionData: [String: Any]?
 
     /// Weak reference to Proposition instance
     weak var proposition: Proposition?
@@ -45,10 +45,10 @@ public class PropositionItem: NSObject, Codable {
         case data
     }
 
-    init(uniqueId: String, schema: SchemaType, content: [String: Any]?) {
-        self.propositionId = uniqueId
+    init(propositionId: String, schema: SchemaType, propositionData: [String: Any]?) {
+        self.propositionId = propositionId
         self.schema = schema
-        self.content = content
+        self.propositionData = propositionData
     }
 
     public required init(from decoder: Decoder) throws {
@@ -56,7 +56,7 @@ public class PropositionItem: NSObject, Codable {
         propositionId = try container.decode(String.self, forKey: .id)
         schema = SchemaType(from: try container.decode(String.self, forKey: .schema))
         let codableContent = try? container.decode([String: AnyCodable].self, forKey: .data)
-        content = codableContent?.asDictionary()
+        propositionData = codableContent?.asDictionary()
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -64,7 +64,7 @@ public class PropositionItem: NSObject, Codable {
 
         try container.encode(propositionId, forKey: .id)
         try container.encode(schema, forKey: .schema)
-        try container.encode(AnyCodable.from(dictionary: content), forKey: .data)
+        try container.encode(AnyCodable.from(dictionary: propositionData), forKey: .data)
     }
 }
 
@@ -76,34 +76,17 @@ public extension PropositionItem {
         return try? JSONDecoder().decode(PropositionItem.self, from: detailsData)
     }
     
-//    func getTypedDataEasy<T>() -> T? where T : Decodable {
-//        guard let content = content,
-//              let contentAsData = try? JSONSerialization.data(withJSONObject: content),
-//              let schemaType = schema.getType() else {
-//            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to get typed data for proposition item - could not convert 'data' field to type 'Data'.")
-//            return nil
-//        }
-//        do {
-//            return try JSONDecoder().decode(schemaType, from: contentAsData)
-//        } catch {
-//            print("error \(error.localizedDescription)")
-//            return nil
-//        }
-//    }
-    
-    
-    func getTypedData<T>(_ type: T.Type) -> T? where T : Decodable {
-        guard let content = content,
-              let contentAsData = try? JSONSerialization.data(withJSONObject: content) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to get typed data for proposition item - could not convert 'data' field to type 'Data'.")
+    static func fromRuleConsequenceEvent(_ event: Event) -> PropositionItem? {
+        guard let eventData = event.data else {
             return nil
         }
-        do {
-            return try JSONDecoder().decode(type, from: contentAsData)
-        } catch {
-            print("error \(error.localizedDescription)")
+        
+        // propositionData is optional, thus left out of this guard intentionally
+        guard let id = event.schemaId, let schema = event.schemaType else {
             return nil
         }
+        
+        return PropositionItem(propositionId: id, schema: schema, propositionData: event.schemaData)
     }
     
     var jsonContent: [String: Any]? {
@@ -122,18 +105,31 @@ public extension PropositionItem {
         return htmlItem.content
     }
     
-    internal var inappSchemaData: InAppSchemaData? {
+    var inappSchemaData: InAppSchemaData? {
         guard schema == .inapp else {
             return nil
         }
         return getTypedData(InAppSchemaData.self)
     }
     
-    internal var feedItemSchemaData: FeedItemSchemaData? {
+    var feedItemSchemaData: FeedItemSchemaData? {
         guard schema == .feed else {
             return nil
         }
         return getTypedData(FeedItemSchemaData.self)
     }
     
+    private func getTypedData<T>(_ type: T.Type) -> T? where T : Decodable {
+        guard let content = propositionData,
+              let contentAsData = try? JSONSerialization.data(withJSONObject: content) else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to get typed data for proposition item - could not convert 'data' field to type 'Data'.")
+            return nil
+        }
+        do {
+            return try JSONDecoder().decode(type, from: contentAsData)
+        } catch {
+            print("error \(error.localizedDescription)")
+            return nil
+        }
+    }
 }

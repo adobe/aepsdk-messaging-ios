@@ -30,10 +30,6 @@ public class Messaging: NSObject, Extension {
     private let eventsQueue = OperationOrderer<Event>("MessagingEvents")
 
     // MARK: - Messaging State
-
-    // stores CBE (json-content, html-content, default-content), and feed-item schemas
-    var propositions: [Surface: [Proposition]] = [:]
-    var propositionInfo: [String: PropositionInfo] = [:]
     var cache: Cache = .init(name: MessagingConstants.Caches.CACHE_NAME)
     var appSurface: String {
         Bundle.main.mobileappSurface
@@ -43,6 +39,10 @@ public class Messaging: NSObject, Extension {
     let rulesEngine: MessagingRulesEngine
     let feedRulesEngine: FeedRulesEngine
 
+    /// stores CBE propositions (json-content, html-content, default-content)
+    var propositions: [Surface: [Proposition]] = [:]
+    /// propositionInfo stored by RuleConsequence.id
+    var propositionInfo: [String: PropositionInfo] = [:]
     /// keeps a list of all surfaces requested per personalization request event by event id
     private var requestedSurfacesForEventId: [String: [Surface]] = [:]
     /// used while processing streaming payloads for a single request
@@ -266,17 +266,58 @@ public class Messaging: NSObject, Extension {
         Log.trace(label: MessagingConstants.LOG_TAG, "End of streaming response events for requesting event '\(endingEventId)'")
         endRequestFor(eventId: endingEventId)
 
-        // check for new inbound messages from recently updated rules engine
-        if let inboundMessages = feedRulesEngine.evaluate(event: event) {
-            updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
-        }
+        // TODO: why do we need to cache these?
+        // check for new feed items from recently updated rules engine
+//        if let propositionItemsBySurface = feedRulesEngine.evaluate(event: event) {
+//            cachePropositionsFor(propositionItemsBySurface)
+//            
+//        }
 
         // dispatch notification event for request
-        dispatchNotificationEventFor(requestedSurfaces)
+        dispatchNotificationEventFor(event, requestedSurfaces: requestedSurfaces)
+    }
+    
+    private func getPropositionsFromFeedRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
+        var surfacePropositions: [Surface: [Proposition]] = [:]
+        
+        if let propositionItemsBySurface = feedRulesEngine.evaluate(event: event) {
+            for (surface, propositionItemsArray) in propositionItemsBySurface {
+                var tempPropositions: [Proposition] = []
+                for propositionItem in propositionItemsArray {
+                    guard let propositionInfo = propositionInfo[propositionItem.propositionId] else {
+                        continue
+                    }
+                    
+                    // get proposition that this item belongs to
+                    let proposition = Proposition(
+                        uniqueId: propositionInfo.id,
+                        scope: propositionInfo.scope,
+                        scopeDetails: propositionInfo.scopeDetails,
+                        items: [propositionItem]
+                    )
+                    
+                    // check to see if that proposition is already in the array (based on ID)
+                    // if yes, append the propositionItem.  if not, create a new entry for the
+                    // proposition with the new item.
+                    
+                    if let existingProposition = tempPropositions.first(where: { $0.uniqueId == proposition.uniqueId }) {
+                        propositionItem.proposition = existingProposition
+                        existingProposition.items.append(propositionItem)
+                    } else {
+                        propositionItem.proposition = proposition
+                        tempPropositions.append(proposition)
+                    }
+                }
+                
+                surfacePropositions.addArray(tempPropositions, forKey: surface)
+            }
+        }
+        
+        return surfacePropositions
     }
 
-    private func dispatchNotificationEventFor(_ requestedSurfaces: [Surface]) {
-        let requestedPropositions = retrievePropositions(surfaces: requestedSurfaces)
+    private func dispatchNotificationEventFor(_ event: Event, requestedSurfaces: [Surface]) {
+        let requestedPropositions = retrieveCachedPropositions(for: requestedSurfaces)
         guard !requestedPropositions.isEmpty else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Not dispatching a notification event, personalization:decisions response does not contain propositions.")
             return
@@ -285,10 +326,10 @@ public class Messaging: NSObject, Extension {
         // dispatch an event with the propositions received from the remote
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
 
-        let notificationEvent = Event(name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_NOTIFICATION,
-                                      type: EventType.messaging,
-                                      source: EventSource.notification,
-                                      data: eventData)
+        let notificationEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_NOTIFICATION,
+                                                         type: EventType.messaging,
+                                                         source: EventSource.notification,
+                                                         data: eventData)
         dispatch(event: notificationEvent)
     }
 
@@ -332,10 +373,10 @@ public class Messaging: NSObject, Extension {
         cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
 
         // apply rules
-        updateRulesEngines(with: parsedPropositions.surfaceRulesByInboundType, requestedSurfaces: requestedSurfaces)
+        updateRulesEngines(with: parsedPropositions.surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces)
     }
 
-    private func updateRulesEngines(with rules: [InboundType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
+    private func updateRulesEngines(with rules: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
         for (inboundType, newRules) in rules {
             let surfacesToRemove = requestedSurfaces.minus(Array(newRules.keys))
             switch inboundType {
@@ -381,23 +422,25 @@ public class Messaging: NSObject, Extension {
         }
     }
 
+    /// Dispatch an event containing all propositions for the given surface
     private func retrieveMessages(for surfaces: [Surface], event: Event) {
-        let requestedSurfaces = surfaces
-            .filter { $0.isValid }
+        let requestedSurfaces = surfaces.filter { $0.isValid }
 
         guard !requestedSurfaces.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve feed messages, no valid surface paths found.")
             dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
             return
         }
-
-        // TODO: - change feedRulesEngine.evaluate to return [Surface: [PropositionItem]] instead???
         
-        if let inboundMessages = feedRulesEngine.evaluate(event: event) {
-            updateInboundMessages(inboundMessages, surfaces: requestedSurfaces)
+        // get propositions from rules engine where conditions are met by this event
+        let ruleConsequencePropositions = getPropositionsFromFeedRulesEngine(event)
+        // get cached propositions
+        var requestedPropositions = retrieveCachedPropositions(for: requestedSurfaces)
+        
+        for (surface, propositions) in ruleConsequencePropositions {
+            requestedPropositions.addArray(propositions, forKey: surface)
         }
-
-        let requestedPropositions = retrievePropositions(surfaces: requestedSurfaces)
+        
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
 
         let responseEvent = event.createResponseEvent(
@@ -442,52 +485,11 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    private func retrievePropositions(surfaces: [Surface]) -> [Surface: [Proposition]] {
-        var propositionsDict: [Surface: [Proposition]] = [:]
-        for surface in surfaces {
-            // add code-based propositions
-            if let propositionsArray = propositions[surface] {
-                propositionsDict[surface] = propositionsArray
-            }
-
-            guard let inboundArray = propositionItemsBySurface[surface] else {
-                continue
-            }
-
-            var inboundPropositions: [Proposition] = []
-            
-            
-            // TODO: - convert this from returning `Inbound` objects to just returning `PropositionItem`s
-            
-            
-            for message in inboundArray {
-                guard let propositionInfo = propositionInfo[message.uniqueId] else {
-                    continue
-                }
-                
-                
-
-                let jsonData = (try? JSONEncoder().encode(message)) ?? Data()
-                let itemContent = String(data: jsonData, encoding: .utf8)
-
-                let propositionItem = PropositionItem(
-                    uniqueId: UUID().uuidString, // revisit this if item.id is used for reporting in future
-                    schema: MessagingConstants.XDM.Inbound.Value.SCHEMA_AJO_JSON,
-                    content: AnyCodable(stringLiteral: itemContent ?? "")
-                )
-
-                let proposition = Proposition(
-                    uniqueId: propositionInfo.id,
-                    scope: propositionInfo.scope,
-                    scopeDetails: propositionInfo.scopeDetails,
-                    items: [propositionItem]
-                )
-
-                inboundPropositions.append(proposition)
-            }
-            propositionsDict.addArray(inboundPropositions, forKey: surface)
+    /// Returns propositions by surface from `propositions` matching the provided `surfaces`
+    private func retrieveCachedPropositions(for surfaces: [Surface]) -> [Surface: [Proposition]] {
+        return propositions.filter { surface, _ in
+            surfaces.contains(where: { $0.uri == surface.uri })
         }
-        return propositionsDict
     }
 
     /// Handles Rules Consequence events containing message definitions.
@@ -497,10 +499,12 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        if event.isInAppMessage, event.containsValidInAppMessage {
+        if event.isCjmIamConsequence {
             showMessageForEvent(event)
+        } else if event.isSchemaConsequence {
+            handleSchemaConsequence(event)
         } else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process In-App Message - html property is required.")
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event which is not of type 'cjmiam' nor 'schema'.")
             return
         }
     }
@@ -521,6 +525,16 @@ public class Messaging: NSObject, Extension {
 
         message.trigger()
         message.show(withMessagingDelegateControl: true)
+    }
+    
+    private func handleSchemaConsequence(_ event: Event) {
+        guard let propositionItem = PropositionItem.fromRuleConsequenceEvent(event) else {
+            return
+        }
+        
+        if propositionItem.schema == .inapp {
+            
+        }
     }
 
     // MARK: - Event Handers

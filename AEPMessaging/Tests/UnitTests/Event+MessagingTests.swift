@@ -218,7 +218,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
 
         // verify
-        XCTAssertTrue(event.isInAppMessage)
+        XCTAssertTrue(event.isCjmIamConsequence)
     }
 
     func testInAppMessageMessageId() throws {
@@ -384,7 +384,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
         // verify
-        XCTAssertFalse(event.isInAppMessage)
+        XCTAssertFalse(event.isCjmIamConsequence)
         XCTAssertNil(event.template)
         XCTAssertNil(event.html)
         XCTAssertNil(event.remoteAssets)
@@ -399,7 +399,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
         // verify
-        XCTAssertFalse(event.isInAppMessage)
+        XCTAssertFalse(event.isCjmIamConsequence)
         XCTAssertNil(event.template)
         XCTAssertNil(event.html)
         XCTAssertNil(event.remoteAssets)
@@ -415,7 +415,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
         // verify
-        XCTAssertTrue(event.isInAppMessage)
+        XCTAssertTrue(event.isCjmIamConsequence)
         XCTAssertNil(event.template)
         XCTAssertNil(event.html)
         XCTAssertNil(event.remoteAssets)
@@ -430,7 +430,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
         // verify
-        XCTAssertTrue(event.isInAppMessage)
+        XCTAssertTrue(event.isCjmIamConsequence)
         XCTAssertNil(event.template)
         XCTAssertNil(event.html)
         XCTAssertNil(event.remoteAssets)
@@ -524,7 +524,7 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(1, scopeDetails1?.count)
         let item1 = p1?.items.first
         XCTAssertNotNil(item1)
-        XCTAssertEqual(mockContent1, item1?.content.stringValue)
+        XCTAssertEqual(mockContent1, item1?.propositionData?["content"] as? String)
         
         let p2 = event.payload?[1]
         XCTAssertNotNil(p2)
@@ -535,7 +535,7 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(1, scopeDetails2?.count)
         let item2 = p2?.items.first
         XCTAssertNotNil(item2)
-        XCTAssertEqual(mockContent2, item2?.content.stringValue)
+        XCTAssertEqual(mockContent2, item2?.propositionData?["content"] as? String)
     }
     
     func testPayloadIsNil() throws {
