@@ -58,7 +58,7 @@ If a requested surface was not previously cached prior to calling `getPropositio
 ##### Syntax
 
 ```swift
-static func getPropositionsForSurfaces(_ surfacePaths: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void)
+static func getPropositionsForSurfaces(_ surfacePaths: [Surface], _ completion: @escaping ([Surface: [MessagingProposition]]?, Error?) -> Void)
 ```
 
 ##### Example
@@ -95,7 +95,7 @@ Messaging.getPropositionsForSurfaces([surface1, surface2]) { propositionsDict, e
 
 ```objc
 + (void) getPropositionsForSurfaces: (NSArray<AEPSurface*>* _Nonnull) surfaces 
-              completion: (void (^ _Nonnull)(NSDictionary<AEPSurface*, NSArray<AEPProposition*>*>* _Nullable propositionsDict, NSError* _Nullable error)) completion;
+              completion: (void (^ _Nonnull)(NSDictionary<AEPSurface*, NSArray<AEPMessagingProposition*>*>* _Nullable propositionsDict, NSError* _Nullable error)) completion;
 ```
 
 ##### Example
@@ -105,16 +105,16 @@ AEPSurface* surface1 = [[AEPSurface alloc] initWithPath: @"myView#button"];
 AEPSurface* surface2 = [[AEPSurface alloc] initWithPath: @"myView#button"];
 
 [AEPMobileMessaging getPropositionsForSurfaces: @[surface1, surface2] 
-                        completion: ^(NSDictionary<AEPDecisionScope*, NSArray<AEPProposition*>*>* propositionsDict, NSError* error) {
+                        completion: ^(NSDictionary<AEPDecisionScope*, NSArray<AEPMessagingProposition*>*>* propositionsDict, NSError* error) {
   if (error != nil) {
     // handle error   
     return;
   }
 
-  NSArray<AEPProposition*>* proposition1 = propositionsDict[surface1];
+  NSArray<AEPMessagingProposition*>* proposition1 = propositionsDict[surface1];
   // read surface1 propositions
 
-  NSArray<AEPProposition*>* proposition2 = propositionsDict[surface2];
+  NSArray<AEPMessagingProposition*>* proposition2 = propositionsDict[surface2];
   // read surface2 propositions
 }];
 ```
@@ -126,12 +126,12 @@ AEPSurface* surface2 = [[AEPSurface alloc] initWithPath: @"myView#button"];
 | Type | Swift | Objective-C |
 | ---- | ----- | ----------- |
 | class | `Surface` | `AEPSurface` |
-| class | `Proposition` | `AEPProposition` |
-| class | `PropositionItem` | `AEPPropositionItem` |
+| class | `MessagingProposition` | `AEPMessagingProposition` |
+| class | `MessagingPropositionItem` | `AEPMessagingPropositionItem` |
 
 ### class Surface
 
-Represents the decision scope which is used to fetch the decision propositions from the Edge decisioning services. The encapsulated scope name can also represent the Base64 encoded JSON string created using the provided activityId, placementId and itemCount.
+Represents an entity for user or system interaction. It is identified by a self-describing URI and is used to fetch the decision propositions from the AJO campaigns. For example, all mobile application surface URIs start with `mobileapp://`, followed by app bundle identifier and an optional path. 
 
 #### Swift
 
@@ -166,14 +166,14 @@ public class Surface: NSObject, Codable {
 let surface = Surface(path: "homeView#banner")
 ```
 
-### class Proposition
+### class MessagingProposition
 
 Represents the decision propositions received from the remote, upon a personalization query request to the Experience Edge network.
 
 ```swift
-@objc(AEPProposition)
+@objc(AEPMessagingProposition)
 @objcMembers
-public class Proposition: NSObject, Codable {
+public class MessagingProposition: NSObject, Codable {
     /// Unique proposition identifier
     public let uniqueId: String
 
@@ -184,27 +184,27 @@ public class Proposition: NSObject, Codable {
     var scopeDetails: [String: Any]
 
     /// Array containing proposition decision items
-    public lazy var items: [PropositionItem] = {...}()
+    public lazy var items: [MessagingPropositionItem] = {...}()
 
     ...
 }
 ```
 
-### class PropositionItem
+### class MessagingPropositionItem
 
 Represents the decision proposition item received from the remote, upon a personalization query to the Experience Edge network.
 
 ```swift
-@objc(AEPPropositionItem)
+@objc(AEPMessagingPropositionItem)
 @objcMembers
-public class PropositionItem: NSObject, Codable {
-    /// Unique PropositionItem identifier
+public class MessagingPropositionItem: NSObject, Codable {
+    /// Unique proposition item identifier
     public let uniqueId: String
 
-    /// PropositionItem schema string
+    /// Proposition item schema string
     public let schema: String
 
-    /// PropositionItem content string
+    /// Proposition item content string
     public let content: String
 
     ...

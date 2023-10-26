@@ -48,17 +48,17 @@ struct PropositionPayload: Codable {
         self.items = items
     }
 
-    func convertToProposition() -> Proposition {
-        var propItems: [PropositionItem] = []
+    func convertToProposition() -> MessagingProposition {
+        var propItems: [MessagingPropositionItem] = []
         for item in items {
             guard let uniqueId = item.id, let schema = item.schema else {
                 continue
             }
-            propItems.append(PropositionItem(uniqueId: uniqueId, schema: schema, content: item.data.content))
+            propItems.append(MessagingPropositionItem(uniqueId: uniqueId, schema: schema, content: item.data.content))
         }
-        return Proposition(uniqueId: propositionInfo.id,
-                           scope: propositionInfo.scope,
-                           scopeDetails: AnyCodable.toAnyDictionary(dictionary: propositionInfo.scopeDetails) ?? [:],
-                           items: propItems)
+        return MessagingProposition(uniqueId: propositionInfo.id,
+                                    scope: propositionInfo.scope,
+                                    scopeDetails: AnyCodable.toAnyDictionary(dictionary: propositionInfo.scopeDetails) ?? [:],
+                                    items: propItems)
     }
 }

@@ -13,9 +13,9 @@
 import AEPServices
 import Foundation
 
-@objc(AEPPropositionItem)
+@objc(AEPMessagingPropositionItem)
 @objcMembers
-public class PropositionItem: NSObject, Codable {
+public class MessagingPropositionItem: NSObject, Codable {
     /// Unique PropositionItem identifier
     public let uniqueId: String
 
@@ -26,7 +26,7 @@ public class PropositionItem: NSObject, Codable {
     public let content: String
 
     /// Weak reference to Proposition instance
-    weak var proposition: Proposition?
+    weak var proposition: MessagingProposition?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -63,7 +63,7 @@ public class PropositionItem: NSObject, Codable {
             }
             content = contentString
         } else {
-            throw DecodingError.typeMismatch(PropositionItem.self,
+            throw DecodingError.typeMismatch(MessagingPropositionItem.self,
                                              DecodingError.Context(codingPath: decoder.codingPath,
                                                                    debugDescription: "PropositionItem content is not of an expected type."))
         }
@@ -80,7 +80,7 @@ public class PropositionItem: NSObject, Codable {
     }
 }
 
-public extension PropositionItem {
+public extension MessagingPropositionItem {
     // Decode data content to generic inbound
     func decodeContent() -> Inbound? {
         guard let jsonData = content.data(using: .utf8) else {
