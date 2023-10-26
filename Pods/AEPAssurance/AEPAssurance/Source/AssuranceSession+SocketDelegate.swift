@@ -131,9 +131,17 @@ extension AssuranceSession: SocketDelegate {
     ///     - event - the `AssuranceEvent` received from socket
     func webSocket(_ socket: SocketConnectable, didReceiveEvent event: AssuranceEvent) {
         Log.trace(label: AssuranceConstants.LOG_TAG, "Received event from assurance session - \(event.description)")
-
+        var eventToQueue = event
+        // Handle Chunked event before queuing
+        if event.isChunkedEvent {
+            guard let stitchedEvent = stitchEvent(event: event) else {
+                // Exit early if stitching fails
+                return
+            }
+            eventToQueue = stitchedEvent
+        }
         // add the incoming event to inboundQueue and process them
-        inboundQueue.enqueue(newElement: event)
+        inboundQueue.enqueue(newElement: eventToQueue)
         inboundSource.add(data: 1)
     }
 
@@ -147,5 +155,57 @@ extension AssuranceSession: SocketDelegate {
             stateManager.connectedWebSocketURL = socket.socketURL?.absoluteString
         }
     }
+    
+    ///
+    /// Organizes the events into the `chunkedEvents` dictionary by `chunkedID`, and stitches the
+    /// given event once we have received all of the chunks
+    ///
+    /// - Parameter event: The chunked event to be stitched
+    /// - Returns: An `AssuranceEvent` which has the stitched data as the payload
+    private func stitchEvent(event: AssuranceEvent) -> AssuranceEvent? {
+        if let chunkedID = event.chunkedID {
+            // New chunked event received
+            if self.chunkedEvents[chunkedID] == nil {
+                self.chunkedEvents[chunkedID] = [event]
+            } else {
+                // Chunked event exists, add chunk
+                self.chunkedEvents[chunkedID]?.append(event)
+                // Check if this is the last chunk
+                if chunkedEvents[chunkedID]?.count == event.chunkedTotal {
+                    // Sort and Stitch
+                    if let sortedChunks = self.chunkedEvents[chunkedID]?.sorted(by: { $0.chunkedSequenceNumber! < $1.chunkedSequenceNumber! }) {
+                        defer { self.chunkedEvents.removeValue(forKey: chunkedID) }
+                        return socket.eventChunker.stitch(sortedChunks)
+                    }
+                }
+            }
+        }
+        return nil
+    }
 
+}
+
+///
+/// Extension on AssuranceEvent used for chunked event properties
+///
+fileprivate extension AssuranceEvent {
+    var isChunkedEvent: Bool {
+        if self.metadata?[AssuranceConstants.AssuranceEvent.MetadataKey.CHUNK_ID] != nil {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    var chunkedID: String? {
+        return self.metadata?[AssuranceConstants.AssuranceEvent.MetadataKey.CHUNK_ID]?.stringValue
+    }
+    
+    var chunkedSequenceNumber: Int? {
+        return self.metadata?[AssuranceConstants.AssuranceEvent.MetadataKey.CHUNK_SEQUENCE]?.intValue
+    }
+    
+    var chunkedTotal: Int? {
+        return self.metadata?[AssuranceConstants.AssuranceEvent.MetadataKey.CHUNK_TOTAL]?.intValue
+    }
 }

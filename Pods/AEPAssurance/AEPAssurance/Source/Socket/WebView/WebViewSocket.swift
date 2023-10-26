@@ -18,7 +18,8 @@ class WebViewSocket: NSObject, SocketConnectable, WKNavigationDelegate, WKScript
 
     var delegate: SocketDelegate
     var socketURL: URL?
-    let eventChunker = AssuranceEventChunker()
+    
+    var eventChunker: EventChunker = AssuranceEventChunker()
 
     /// variable tracking the current socket status
     var socketState: SocketState = .unknown {

@@ -1,5 +1,5 @@
 PODS:
-  - AEPAssurance (4.0.0):
+  - AEPAssurance (4.1.0):
     - AEPCore (>= 4.0.0)
     - AEPServices (>= 4.0.0)
   - AEPCore (4.1.0):
@@ -47,7 +47,7 @@ SPEC REPOS:
     - SwiftLint
 
 SPEC CHECKSUMS:
-  AEPAssurance: 4fa3138ddd7308c1f9923570f4d2b0b8526a916f
+  AEPAssurance: ee78c45752b29696f280854cfc4d4f8d11babad8
   AEPCore: 20fb832a7467b25ca4aca186c0a5a1e3c0c6abc3
   AEPEdge: c31a1c31d8466f964efeb9a4f94eebc52a0b55a5
   AEPEdgeConsent: 54c1b6a30a3d646e3d4bc4bae1713755422b471e
