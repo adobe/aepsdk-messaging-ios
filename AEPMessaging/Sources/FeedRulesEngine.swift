@@ -34,15 +34,15 @@ class FeedRulesEngine {
     }
 
     /// if we have rules loaded, then we simply process the event.
-    func evaluate(event: Event) -> [Surface: [PropositionItem]]? {
+    func evaluate(event: Event) -> [Surface: [MessagingPropositionItem]]? {
         let consequences = launchRulesEngine.evaluate(event: event)
         guard let consequences = consequences else {
             return nil
         }
 
-        var propositionItemsBySurface: [Surface: [PropositionItem]] = [:]
+        var propositionItemsBySurface: [Surface: [MessagingPropositionItem]] = [:]
         for consequence in consequences {
-            guard let propositionItem = PropositionItem.fromRuleConsequence(consequence),
+            guard let propositionItem = MessagingPropositionItem.fromRuleConsequence(consequence),
                   let propositionAsFeedItem = propositionItem.feedItemSchemaData else {
                 continue
             }
