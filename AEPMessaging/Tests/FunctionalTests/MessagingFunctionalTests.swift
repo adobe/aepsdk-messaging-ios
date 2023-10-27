@@ -13,6 +13,7 @@
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+import AEPTestUtils
 import XCTest
 
 class MessagingFunctionalTests: XCTestCase {
@@ -42,19 +43,39 @@ class MessagingFunctionalTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let edgeEvent = mockRuntime.firstEvent
+        guard let edgeEvent = mockRuntime.firstEvent else {
+            XCTFail("Unable to find Edge event")
+            return
+        }
 
-        XCTAssertEqual(edgeEvent?.type, EventType.edge)
-        let flattenEdgeEvent = edgeEvent?.data?.flattening()
-        let pushNotification = flattenEdgeEvent?["data.pushNotificationDetails"] as? [[String: Any]]
-        XCTAssertEqual(1, pushNotification?.count)
-        let flattenedPushNotification = pushNotification?.first?.flattening()
-        XCTAssertEqual("MOCK_ECID", flattenedPushNotification?["identity.id"] as? String)
-        XCTAssertEqual("mockPushToken", flattenedPushNotification?["token"] as? String)
-        XCTAssertEqual("com.adobe.ajo.e2eTestApp", flattenedPushNotification?["appID"] as? String)
-        XCTAssertEqual(false, flattenedPushNotification?["denylisted"] as? Bool)
-        XCTAssertEqual("ECID", flattenedPushNotification?["identity.namespace.code"] as? String)
-        XCTAssertEqual("apns", flattenedPushNotification?["platform"] as? String)
+        XCTAssertEqual(edgeEvent.type, EventType.edge)
+        
+        let expectedJSON = #"""
+        {
+          "data": {
+            "pushNotificationDetails": [
+              {
+                "identity": {
+                  "id": "MOCK_ECID",
+                  "namespace": {
+                    "code": "ECID"
+                  }
+                },
+                "token": "mockPushToken",
+                "appID": "com.adobe.ajo.e2eTestApp",
+                "denylisted": false,
+                "platform": "apns"
+              }
+            ]
+          }
+        }
+        """#
+        
+        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        if let dataDict = edgeEvent.data?["data"] as? [String: Any],
+           let pushNotificationDetails = dataDict["pushNotificationDetails"] as? [[String: Any]] {
+            XCTAssertEqual(1, pushNotificationDetails.count)
+        }
 
         // verify that push token is shared in sharedState
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
@@ -131,18 +152,35 @@ class MessagingFunctionalTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
-
+        
         XCTAssertEqual(edgeEvent.type, EventType.edge)
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
-        let pushNotification = flattenEdgeEvent?["data.pushNotificationDetails"] as? [[String: Any]]
-        XCTAssertEqual(1, pushNotification?.count)
-        let flattenedPushNotification = pushNotification?.first?.flattening()
-        XCTAssertEqual("MOCK_ECID", flattenedPushNotification?["identity.id"] as? String)
-        XCTAssertEqual("mockPushToken", flattenedPushNotification?["token"] as? String)
-        XCTAssertEqual("com.adobe.ajo.e2eTestApp", flattenedPushNotification?["appID"] as? String)
-        XCTAssertEqual(false, flattenedPushNotification?["denylisted"] as? Bool)
-        XCTAssertEqual("ECID", flattenedPushNotification?["identity.namespace.code"] as? String)
-        XCTAssertEqual("apnsSandbox", flattenedPushNotification?["platform"] as? String)
+
+        let expectedJSON = #"""
+        {
+          "data": {
+            "pushNotificationDetails": [
+              {
+                "identity": {
+                  "id": "MOCK_ECID",
+                  "namespace": {
+                    "code": "ECID"
+                  }
+                },
+                "token": "mockPushToken",
+                "appID": "com.adobe.ajo.e2eTestApp",
+                "denylisted": false,
+                "platform": "apnsSandbox"
+              }
+            ]
+          }
+        }
+        """#
+        
+        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        if let dataDict = edgeEvent.data?["data"] as? [String: Any],
+           let pushNotificationDetails = dataDict["pushNotificationDetails"] as? [[String: Any]] {
+            XCTAssertEqual(1, pushNotificationDetails.count)
+        }
 
         // verify that push token is shared in sharedState
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
