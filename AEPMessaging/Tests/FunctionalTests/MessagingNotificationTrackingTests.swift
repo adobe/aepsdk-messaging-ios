@@ -90,25 +90,59 @@ class MessagingNotificationTrackingTests: TestBase {
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
         XCTAssertEqual(1, events.count)
         let edgeEvent = events.first!
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
         
+        // Note: JSON comparison tool cannot currently validate that a key does not exist
+        // it also cannot strictly validate the count of collections when using assertExact/TypeMatch modes
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
+           let pushNotificationTracking = xdm["pushNotificationTracking"] as? [String: Any],
+           let customAction = pushNotificationTracking["customAction"] as? [String: Any],
+           let actionID = customAction["actionID"] as? String {
+            // use actionID here
+            XCTAssertNil(actionID)
+        }
         
         // verify push tracking information
-        XCTAssertEqual(1, flattenEdgeEvent?["xdm.application.launches.value"] as? Int)
-        XCTAssertEqual("pushTracking.applicationOpened", flattenEdgeEvent?["xdm.eventType"] as? String)
-        XCTAssertNil(flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
-        
         // verify cjm/mixins and other xdm related data
-        XCTAssertEqual("mockJourneyVersionID", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.journeyVersionID"] as? String)
-        XCTAssertEqual("mockJourneyVersionInstanceId", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.journeyVersionInstanceId"] as? String)
-        XCTAssertEqual("mockMessageId", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.messageID"] as? String)
-        XCTAssertEqual("apns", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.pushChannelContext.platform"] as? String)
-        XCTAssertEqual("https://ns.adobe.com/xdm/channels/push", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageProfile.channel._id"] as? String)
-        XCTAssertEqual("mockExecutionID", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.messageExecutionID"] as? String)
-        
-        XCTAssertEqual("apns", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProvider"] as? String)
-        XCTAssertEqual("messageId", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProviderMessageID"] as? String)
-        XCTAssertEqual("mockDataset", flattenEdgeEvent?["meta.collect.datasetId"] as? String)
+        let expectedJSON = #"""
+        {
+          "meta": {
+            "collect": {
+              "datasetId": "mockDataset"
+            }
+          },
+          "xdm": {
+            "_experience": {
+              "customerJourneyManagement": {
+                "messageExecution": {
+                  "journeyVersionID": "mockJourneyVersionID",
+                  "journeyVersionInstanceId": "mockJourneyVersionInstanceId",
+                  "messageExecutionID": "mockExecutionID",
+                  "messageID": "mockMessageId"
+                },
+                "messageProfile": {
+                  "channel": {
+                    "_id": "https://ns.adobe.com/xdm/channels/push"
+                  }
+                },
+                "pushChannelContext": {
+                  "platform": "apns"
+                }
+              }
+            },
+            "application": {
+              "launches": {
+                "value": 1
+              }
+            },
+            "eventType": "pushTracking.applicationOpened",
+            "pushNotificationTracking": {
+              "pushProvider": "apns",
+              "pushProviderMessageID": "messageId"
+            }
+          }
+        }
+        """#
+        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
     }
     
     func test_notificationTracking_whenUser_DismissesNotification() {
@@ -123,12 +157,26 @@ class MessagingNotificationTrackingTests: TestBase {
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
         XCTAssertEqual(1, events.count)
         let edgeEvent = events.first!
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
         
         // verify push tracking information
-        XCTAssertEqual(0, flattenEdgeEvent?["xdm.application.launches.value"] as? Int)
-        XCTAssertEqual("pushTracking.customAction", flattenEdgeEvent?["xdm.eventType"] as? String)
-        XCTAssertEqual("Dismiss",flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
+        let expectedJSON = #"""
+        {
+          "xdm" : {
+            "pushNotificationTracking" : {
+              "customAction" : {
+                "actionID" : "Dismiss"
+              }
+            },
+            "eventType" : "pushTracking.customAction",
+            "application" : {
+              "launches" : {
+                "value" : 0
+              }
+            }
+          }
+        }
+        """#
+        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
     }
     
     func test_notificationTracking_whenUser_tapsNotificationActionThatOpensTheApp() {
@@ -143,12 +191,27 @@ class MessagingNotificationTrackingTests: TestBase {
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
         XCTAssertEqual(1, events.count)
         let edgeEvent = events.first!
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
         
         // verify push tracking information
-        XCTAssertEqual(1, flattenEdgeEvent?["xdm.application.launches.value"] as? Int)
-        XCTAssertEqual("pushTracking.customAction", flattenEdgeEvent?["xdm.eventType"] as? String)
-        XCTAssertEqual("ForegroundActionId",flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
+        let expectedJSON = #"""
+        {
+          "xdm": {
+            "application": {
+              "launches": {
+                "value": 1
+              }
+            },
+            "eventType": "pushTracking.customAction",
+            "pushNotificationTracking": {
+              "customAction": {
+                "actionID": "ForegroundActionId"
+              }
+            }
+          }
+        }
+        """#
+        
+        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
     }
     
     func test_notificationOpen_whenNotAJONotification() {
@@ -209,12 +272,27 @@ class MessagingNotificationTrackingTests: TestBase {
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
         XCTAssertEqual(1, events.count)
         let edgeEvent = events.first!
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
         
         // verify push tracking information
-        XCTAssertEqual(0, flattenEdgeEvent?["xdm.application.launches.value"] as? Int)
-        XCTAssertEqual("pushTracking.customAction", flattenEdgeEvent?["xdm.eventType"] as? String)
-        XCTAssertEqual("DeclineActionId",flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
+        let expectedJSON = #"""
+        {
+          "xdm": {
+            "application": {
+              "launches": {
+                "value": 0
+              }
+            },
+            "eventType": "pushTracking.customAction",
+            "pushNotificationTracking": {
+              "customAction": {
+                "actionID": "DeclineActionId"
+              }
+            }
+          }
+        }
+        """#
+        
+        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
     }
     
     func test_notificationTracking_whenUser_tapsNotificationActionThatDoNotOpenTheApp_Case2() {
@@ -230,12 +308,27 @@ class MessagingNotificationTrackingTests: TestBase {
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
         XCTAssertEqual(1, events.count)
         let edgeEvent = events.first!
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
         
         // verify push tracking information
-        XCTAssertEqual(0, flattenEdgeEvent?["xdm.application.launches.value"] as? Int)
-        XCTAssertEqual("pushTracking.customAction", flattenEdgeEvent?["xdm.eventType"] as? String)
-        XCTAssertEqual("notForegroundActionId",flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
+        let expectedJSON = #"""
+        {
+          "xdm": {
+            "application": {
+              "launches": {
+                "value": 0
+              }
+            },
+            "eventType": "pushTracking.customAction",
+            "pushNotificationTracking": {
+              "customAction": {
+                "actionID": "notForegroundActionId"
+              }
+            }
+          }
+        }
+        """#
+        
+        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
     }
     
     func test_notificationOpen_willLaunchUrl() {
@@ -251,12 +344,17 @@ class MessagingNotificationTrackingTests: TestBase {
         let events = getDispatchedEventsWith(type: EventType.messaging, source: EventSource.requestContent)
         XCTAssertEqual(1, events.count)
         let messagingEvent = events.first!
-        let flattenedEvent = messagingEvent.data?.flattening()
         
         // verify push tracking information
-        XCTAssertTrue(((flattenedEvent?["applicationOpened"] as? Bool) != nil))
-        XCTAssertEqual("https://google.com", flattenedEvent?["clickThroughUrl"] as? String)
-        XCTAssertEqual("pushTracking.applicationOpened", flattenedEvent?["eventType"] as? String)
+        let expectedJSON = #"""
+        {
+          "applicationOpened": true,
+          "clickThroughUrl": "https://google.com",
+          "eventType": "pushTracking.applicationOpened"
+        }
+        """#
+        
+        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(messagingEvent))
     }
     
     func test_notificationCustomAction_willNotLaunchUrl() {
