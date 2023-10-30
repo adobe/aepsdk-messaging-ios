@@ -14,10 +14,12 @@ import Foundation
 @testable import AEPCore
 @testable import AEPMessaging
 import AEPEdgeIdentity
+import AEPServices
 import AEPTestUtils
 import XCTest
 
 class MessagingNotificationTrackingTests: TestBase {
+    private let mockNetworkService: MockNetworkService = MockNetworkService()
     
     static let mockUserInfo = ["_xdm" :
                                 ["cjm":
@@ -42,6 +44,7 @@ class MessagingNotificationTrackingTests: TestBase {
 
     override func setUp() {
         super.setUp()
+        ServiceProvider.shared.networkService = mockNetworkService
         continueAfterFailure = true
         FileManager.default.clearCache()
 
