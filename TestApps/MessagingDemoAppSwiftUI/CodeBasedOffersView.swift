@@ -16,7 +16,8 @@ import SwiftUI
 struct CodeBasedOffersView: View {
     @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
     @State private var viewDidLoad = false
-    let testSurface = Surface(path: "codeBasedView#customHtmlOffer")
+//    let testSurface = Surface(path: "codeBasedView#customHtmlOffer")
+    let testSurface = Surface(path: "cbeoffers3")
     var body: some View {
         VStack {
             Text("Code Based Experiences")
