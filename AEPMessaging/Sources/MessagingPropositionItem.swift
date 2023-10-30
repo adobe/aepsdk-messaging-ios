@@ -57,14 +57,14 @@ public class MessagingPropositionItem: NSObject, Codable {
         propositionId = try container.decode(String.self, forKey: .id)
         schema = SchemaType(from: try container.decode(String.self, forKey: .schema))
         let codableContent = try? container.decode([String: AnyCodable].self, forKey: .data)
-        propositionData = codableContent?.asDictionary()
+        propositionData = AnyCodable.toAnyDictionary(dictionary: codableContent)
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(propositionId, forKey: .id)
-        try container.encode(schema, forKey: .schema)
+        try container.encode(schema.toString(), forKey: .schema)
         try container.encode(AnyCodable.from(dictionary: propositionData), forKey: .data)
     }
 }
@@ -77,11 +77,7 @@ public extension MessagingPropositionItem {
         return try? JSONDecoder().decode(MessagingPropositionItem.self, from: detailsData)
     }
     
-    static func fromRuleConsequenceEvent(_ event: Event) -> MessagingPropositionItem? {
-        guard let eventData = event.data else {
-            return nil
-        }
-        
+    static func fromRuleConsequenceEvent(_ event: Event) -> MessagingPropositionItem? {                
         // propositionData is optional, thus left out of this guard intentionally
         guard let id = event.schemaId, let schema = event.schemaType else {
             return nil

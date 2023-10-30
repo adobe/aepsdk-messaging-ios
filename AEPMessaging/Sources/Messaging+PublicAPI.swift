@@ -129,7 +129,7 @@ import UserNotifications
                 return
             }
 
-            guard let propositions = responseEvent.propositions else {
+            guard let propositions = responseEvent.propositions else {  // losing prop items here
                 completion(nil, AEPError.unexpected)
                 return
             }

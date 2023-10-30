@@ -207,7 +207,7 @@ extension Event {
         parentID?.uuidString as? String ?? data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
     }
 
-    /// payload is an array of `Proposition` objects, each containing inbound content and related tracking information
+    /// payload is an array of `MessagingProposition` objects, each containing inbound content and related tracking information
     var payload: [MessagingProposition]? {
         guard let payloadMap = data?[MessagingConstants.Event.Data.Key.Personalization.PAYLOAD] as? [[String: Any]] else {
             return nil

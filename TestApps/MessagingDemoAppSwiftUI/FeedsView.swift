@@ -17,6 +17,8 @@ struct FeedsView: View {
     @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
     @State private var viewDidLoad = false
     @State private var feedName: String = "API feed"
+    private let surface = Surface(path: "feeds/apifeed")
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -24,20 +26,12 @@ struct FeedsView: View {
                     .font(.title)
                     .padding(.top, 30)
                 List {
-<<<<<<< HEAD
-                    ForEach(propositionsResult.propositionsDict?[Surface(path: "feeds/apifeed")]?.compactMap {
+                    ForEach(propositionsDict?[surface]?.compactMap {
                         $0.items.first } ?? [], id: \.propositionId ) { propositionItem in
                             if let feedItemSchema = propositionItem.feedItemSchemaData, let feedItem = feedItemSchema.getFeedItem() {
                                 NavigationLink(destination: FeedItemDetailView(feedItem: feedItem)) {
                                     FeedItemView(feedItem: feedItem)
                                 }
-=======
-                    ForEach(propositionsDict?[Surface(path: "feeds/apifeed")]?
-                        .compactMap { $0.items.first?.decodeContent() } ?? [], id: \.uniqueId) { inboundMessage in
-                        if let feedItem = inboundMessage.decodeContent(FeedItem.self) {
-                            NavigationLink(destination: FeedItemDetailView(feedItem: feedItem)) {
-                                FeedItemView(feedItem: feedItem)
->>>>>>> b06a62d1f3eabd945ad8a38ba95bfee75b2a2238
                             }
                         }
                 }
@@ -46,9 +40,9 @@ struct FeedsView: View {
                 .onAppear {
                     if viewDidLoad == false {
                         viewDidLoad = true
-                        Messaging.updatePropositionsForSurfaces([Surface(path: "feeds/apifeed")])
+                        Messaging.updatePropositionsForSurfaces([surface])
                     }
-                    Messaging.getPropositionsForSurfaces([Surface(path: "feeds/apifeed")]) { propositionsDict, error in
+                    Messaging.getPropositionsForSurfaces([surface]) { propositionsDict, error in
                         guard error == nil else {
                             return
                         }

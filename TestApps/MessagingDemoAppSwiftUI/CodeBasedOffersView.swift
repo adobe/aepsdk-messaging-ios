@@ -16,27 +16,19 @@ import SwiftUI
 struct CodeBasedOffersView: View {
     @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
     @State private var viewDidLoad = false
+    let testSurface = Surface(path: "codeBasedView#customHtmlOffer")
     var body: some View {
         VStack {
             Text("Code Based Experiences")
                 .font(Font.title)
                 .padding(.top, 30)
             List {
-<<<<<<< HEAD
-                if let codePropositions: [Proposition] = propositionsResult.propositionsDict?[Surface(path: "cbeoffers3")], !codePropositions.isEmpty {
-                    ForEach(codePropositions.first?.items as? [PropositionItem] ?? [], id:\.propositionId) { item in
+                if let codePropositions: [MessagingProposition] = propositionsDict?[testSurface], !codePropositions.isEmpty {
+                    ForEach(codePropositions.first?.items as? [MessagingPropositionItem] ?? [], id:\.propositionId) { item in
                         if item.schema == .htmlContent {
                             CustomHtmlView(htmlString: item.htmlContent ?? "")
                         } else if item.schema == .jsonContent {
                             CustomTextView(text: item.jsonContent?.description ?? "")
-=======
-                if let codePropositions: [MessagingProposition] = propositionsDict?[Surface(path: "<your-surface-path>")], !codePropositions.isEmpty {
-                    ForEach(codePropositions.first?.items ?? [], id:\.uniqueId) { item in
-                        if item.schema.contains("html-content-item") {
-                            CustomHtmlView(htmlString: item.content)
-                        } else if item.schema.contains("json-content-item") {
-                            CustomTextView(text: item.content)
->>>>>>> b06a62d1f3eabd945ad8a38ba95bfee75b2a2238
                         }
                     }
                 }
@@ -45,9 +37,9 @@ struct CodeBasedOffersView: View {
         .onAppear {
             if viewDidLoad == false {
                 viewDidLoad = true
-                Messaging.updatePropositionsForSurfaces([Surface(path: "<your-surface-path>")])
+                Messaging.updatePropositionsForSurfaces([testSurface])
             }
-            Messaging.getPropositionsForSurfaces([Surface(path: "<your-surface-path>")]) { propositionsDict, error in
+            Messaging.getPropositionsForSurfaces([testSurface]) { propositionsDict, error in
                 guard error == nil else {
                     return
                 }

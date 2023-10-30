@@ -17,7 +17,7 @@ import Foundation
 @objcMembers
 public class HtmlContentSchemaData: NSObject, Codable {
     public let content: String
-    public let format: ContentType
+    public let format: ContentType?
     
     enum CodingKeys: String, CodingKey {
         case content
@@ -26,15 +26,19 @@ public class HtmlContentSchemaData: NSObject, Codable {
     
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        
-        format = ContentType(from: try values.decode(String.self, forKey: .format))
+                
+        if let decodedFormat = try? values.decode(String.self, forKey: .format) {
+            format = ContentType(from: decodedFormat)
+        } else {
+            format = .textHtml
+        }
         content = try values.decode(String.self, forKey: .content)
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(format.toString(), forKey: .format)
+        try container.encode(format?.toString() ?? ContentType.textHtml.toString(), forKey: .format)
         try container.encode(content, forKey: .content)
     }
 }

@@ -54,8 +54,9 @@ public class Messaging: NSObject, Extension {
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
-        MessagingConstants.XDM.Inbound.Value.SCHEMA_AJO_HTML,
-        MessagingConstants.XDM.Inbound.Value.SCHEMA_AJO_JSON
+        MessagingConstants.Event.Data.Values.Inbound.SCHEMA_HTML_CONTENT,
+        MessagingConstants.Event.Data.Values.Inbound.SCHEMA_JSON_CONTENT,
+        MessagingConstants.Event.Data.Values.Inbound.SCHEMA_RULESET_ITEM
     ]
 
     // MARK: - Extension protocol methods
@@ -533,8 +534,16 @@ public class Messaging: NSObject, Extension {
             return
         }
         
-        if propositionItem.schema == .inapp {
-            
+        switch propositionItem.schema {
+        case .inapp:
+            if let message = Message.fromPropositionItem(propositionItem, with: self, triggeringEvent: event),
+               let propositionInfo = propositionInfoForMessageId(propositionItem.propositionId) {
+                message.propositionInfo = propositionInfo
+                message.trigger()
+                message.show(withMessagingDelegateControl: true)
+            }
+        default:
+            return
         }
     }
 

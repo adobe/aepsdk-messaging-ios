@@ -18,7 +18,7 @@ import Foundation
 @objcMembers
 public class JsonContentSchemaData: NSObject, Codable {
     public let content: [String: Any]
-    public let format: ContentType
+    public let format: ContentType?
     
     enum CodingKeys: String, CodingKey {
         case content
@@ -28,7 +28,12 @@ public class JsonContentSchemaData: NSObject, Codable {
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
-        format = ContentType(from: try values.decode(String.self, forKey: .format))
+        if let decodedFormat = try? values.decode(String.self, forKey: .format) {
+            format = ContentType(from: decodedFormat)
+        } else {
+            format = .applicationJson
+        }
+        
         let codableContent = try values.decode([String: AnyCodable].self, forKey: .content)
         content = codableContent.asDictionary() ?? [:]
     }
@@ -36,7 +41,7 @@ public class JsonContentSchemaData: NSObject, Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(format.toString(), forKey: .format)
+        try container.encode(format?.toString() ?? ContentType.applicationJson.toString(), forKey: .format)
         try container.encode(AnyCodable.from(dictionary: content), forKey: .content)
     }
 }
