@@ -15,9 +15,10 @@ import SwiftUI
 
 struct FeedsView: View {
     @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
-    @State private var viewDidLoad = false
+    @State private var propositionsHaveBeenFetched = false
     @State private var feedName: String = "API feed"
-    private let surface = Surface(path: "feeds/apifeed")
+    private let surface = Surface(path: "feeds/schema_feeditem_with_id_hack")
+//    private let surface = Surface(path: "feeds/schema_feeditem_sale")
     
     var body: some View {
         NavigationView {
@@ -38,17 +39,16 @@ struct FeedsView: View {
                 .listStyle(.plain)
                 .navigationBarTitle(Text("Back"), displayMode: .inline)
                 .onAppear {
-                    if viewDidLoad == false {
-                        viewDidLoad = true
+                    if !propositionsHaveBeenFetched {
                         Messaging.updatePropositionsForSurfaces([surface])
+                        propositionsHaveBeenFetched = true
                     }
+                    
                     Messaging.getPropositionsForSurfaces([surface]) { propositionsDict, error in
                         guard error == nil else {
                             return
                         }
-                        DispatchQueue.main.async {
-                            self.propositionsDict = propositionsDict
-                        }
+                        self.propositionsDict = propositionsDict
                     }
                 }
             }

@@ -285,13 +285,15 @@ public class Messaging: NSObject, Extension {
             for (surface, propositionItemsArray) in propositionItemsBySurface {
                 var tempPropositions: [MessagingProposition] = []
                 for propositionItem in propositionItemsArray {
-                    guard let propositionInfo = propositionInfo[propositionItem.propositionId] else {
+                    // TODO: REVERT THIS
+                    guard let propositionInfo = propositionInfo.first?.value else { //propositionInfo[propositionItem.propositionId] else {
                         continue
                     }
                     
                     // get proposition that this item belongs to
                     let proposition = MessagingProposition(
-                        uniqueId: propositionInfo.id,
+                        // TODO: REVERT THIS TOO
+                        uniqueId: UUID().uuidString, // propositionInfo.id,
                         scope: propositionInfo.scope,
                         scopeDetails: propositionInfo.scopeDetails,
                         items: [propositionItem]

@@ -26,7 +26,16 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         MobileCore.setLogLevel(.trace)
 
-        MobileCore.registerExtensions([AEPEdgeIdentity.Identity.self, Lifecycle.self, Signal.self, Edge.self, Messaging.self, Assurance.self]) {
+        let extensions = [
+            AEPEdgeIdentity.Identity.self, 
+            Lifecycle.self,
+            Signal.self,
+            Edge.self,
+            Messaging.self,
+//            Assurance.self
+        ]
+        
+        MobileCore.registerExtensions(extensions) {
             MobileCore.configureWith(appId: self.ENVIRONMENT_FILE_ID)
 
             // set `messaging.useSandbox` to "true"  to test push notifications in debug environment (Apps signed with Development Certificate)

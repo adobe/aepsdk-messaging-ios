@@ -44,9 +44,7 @@ struct CodeBasedOffersView: View {
                 guard error == nil else {
                     return
                 }
-                DispatchQueue.main.async {
-                    self.propositionsDict = propositionsDict
-                }
+                self.propositionsDict = propositionsDict                
             }
         }
     }
