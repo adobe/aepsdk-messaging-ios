@@ -43,18 +43,18 @@ public class InAppSchemaData: NSObject, Codable {
         contentType = ContentType(from: try values.decode(String.self, forKey: .contentType))
         if contentType == .applicationJson {
             let codableContent = try values.decode([String: AnyCodable].self, forKey: .content)
-            content = codableContent.asDictionary() ?? [:]
+            content = AnyCodable.toAnyDictionary(dictionary: codableContent) ?? [:]
         } else {
             content = try values.decode(String.self, forKey: .content)
         }
         publishedDate = try? values.decode(Int.self, forKey: .publishedDate)
         expiryDate = try? values.decode(Int.self, forKey: .expiryDate)
         let codableMeta = try? values.decode([String: AnyCodable].self, forKey: .meta)
-        meta = codableMeta?.asDictionary()
+        meta = AnyCodable.toAnyDictionary(dictionary: codableMeta)
         let codableMobileParams = try? values.decode([String: AnyCodable].self, forKey: .mobileParameters)
-        mobileParameters = codableMobileParams?.asDictionary()
+        mobileParameters = AnyCodable.toAnyDictionary(dictionary: codableMobileParams)
         let codableWebParams = try? values.decode([String: AnyCodable].self, forKey: .webParameters)
-        webParameters = codableWebParams?.asDictionary()
+        webParameters = AnyCodable.toAnyDictionary(dictionary: codableWebParams)
         remoteAssets = try? values.decode([String].self, forKey: .remoteAssets)
     }
     

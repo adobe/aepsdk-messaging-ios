@@ -39,18 +39,49 @@ public class Messaging: NSObject, Extension {
     let rulesEngine: MessagingRulesEngine
     let feedRulesEngine: FeedRulesEngine
 
+    /// Dispatch queue used to protect against simultaneous access of our containers from multiple threads
+    private let queue: DispatchQueue = .init(label: "com.adobe.messaging.containers.queue")
+    
     /// stores CBE propositions (json-content, html-content, default-content)
-    var propositions: [Surface: [MessagingProposition]] = [:]
+    private var _propositions: [Surface: [MessagingProposition]] = [:]
+    var propositions: [Surface: [MessagingProposition]] {
+        get { queue.sync { self._propositions } }
+        set { queue.async { self._propositions = newValue } }
+    }
+    
     /// propositionInfo stored by RuleConsequence.id
-    var propositionInfo: [String: PropositionInfo] = [:]
+    private var _propositionInfo: [String: PropositionInfo] = [:]
+    var propositionInfo: [String: PropositionInfo] {
+        get { queue.sync { self._propositionInfo } }
+        set { queue.async { self._propositionInfo = newValue } }
+    }
+    
     /// keeps a list of all surfaces requested per personalization request event by event id
-    private var requestedSurfacesForEventId: [String: [Surface]] = [:]
+    private var _requestedSurfacesForEventId: [String: [Surface]] = [:]
+    private var requestedSurfacesForEventId: [String: [Surface]] {
+        get { queue.sync { self._requestedSurfacesForEventId } }
+        set { queue.async { self._requestedSurfacesForEventId = newValue } }
+    }
+        
     /// used while processing streaming payloads for a single request
-    private var inProgressPropositions: [Surface: [MessagingProposition]] = [:]
+    private var _inProgressPropositions: [Surface: [MessagingProposition]] = [:]
+    private var inProgressPropositions: [Surface: [MessagingProposition]] {
+        get { queue.sync { self._inProgressPropositions } }
+        set { queue.async { self._inProgressPropositions = newValue } }
+    }
 
-    private var inAppRulesBySurface: [Surface: [LaunchRule]] = [:]
+    private var _inAppRulesBySurface: [Surface: [LaunchRule]] = [:]
+    private var inAppRulesBySurface: [Surface: [LaunchRule]] {
+        get { queue.sync { self._inAppRulesBySurface } }
+        set { queue.async { self._inAppRulesBySurface = newValue } }
+    }
+    
     /// used to manage feed rules between multiple surfaces and multiple requests
-    private var feedRulesBySurface: [Surface: [LaunchRule]] = [:]
+    private var _feedRulesBySurface: [Surface: [LaunchRule]] = [:]
+    private var feedRulesBySurface: [Surface: [LaunchRule]] {
+        get { queue.sync { self._feedRulesBySurface } }
+        set { queue.async { self._feedRulesBySurface = newValue } }
+    }
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [

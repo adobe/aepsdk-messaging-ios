@@ -30,7 +30,7 @@ public class RulesetSchemaData: NSObject, Codable {
         
         version = try values.decode(Int.self, forKey: .version)
         let codableRulesArray = try values.decode([[String: AnyCodable]].self, forKey: .rules)
-        rules = codableRulesArray.compactMap { $0.asDictionary() }
+        rules = codableRulesArray.compactMap { AnyCodable.toAnyDictionary(dictionary: $0) }
     }
     
     public func encode(to encoder: Encoder) throws {

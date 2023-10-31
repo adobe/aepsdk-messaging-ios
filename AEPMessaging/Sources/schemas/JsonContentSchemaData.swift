@@ -35,7 +35,7 @@ public class JsonContentSchemaData: NSObject, Codable {
         }
         
         let codableContent = try values.decode([String: AnyCodable].self, forKey: .content)
-        content = codableContent.asDictionary() ?? [:]
+        content = AnyCodable.toAnyDictionary(dictionary: codableContent) ?? [:]
     }
     
     public func encode(to encoder: Encoder) throws {
