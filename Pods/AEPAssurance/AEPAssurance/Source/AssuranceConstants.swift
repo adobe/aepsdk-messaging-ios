@@ -15,7 +15,7 @@ import Foundation
 enum AssuranceConstants {
     static let EXTENSION_NAME = "com.adobe.assurance"
     static let FRIENDLY_NAME = "Assurance"
-    static let EXTENSION_VERSION = "4.0.0"
+    static let EXTENSION_VERSION = "4.1.0"
     static let LOG_TAG = FRIENDLY_NAME
     static let DEFAULT_ENVIRONMENT = AssuranceEnvironment.prod
 
@@ -92,8 +92,8 @@ enum AssuranceConstants {
     }
 
     enum SharedStateKeys {
-        static let CLIENT_ID = "sessionid"
-        static let SESSION_ID = "clientid"
+        static let CLIENT_ID = "clientid"
+        static let SESSION_ID = "sessionid"
         static let INTEGRATION_ID = "integrationid"
     }
 
