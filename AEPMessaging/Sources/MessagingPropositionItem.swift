@@ -85,13 +85,21 @@ public extension MessagingPropositionItem {
         
         return MessagingPropositionItem(propositionId: id, schema: schema, propositionData: event.schemaData)
     }
-    
-    var jsonContent: [String: Any]? {
+        
+    var jsonContentDictionary: [String: Any]? {
         guard schema == .jsonContent, let jsonItem = getTypedData(JsonContentSchemaData.self) else {
             return nil
         }
         
-        return jsonItem.content
+        return jsonItem.getDictionaryValue
+    }
+        
+    var jsonContentArray: [Any]? {
+        guard schema == .jsonContent, let jsonItem = getTypedData(JsonContentSchemaData.self) else {
+            return nil
+        }
+        
+        return jsonItem.getArrayValue
     }
     
     var htmlContent: String? {

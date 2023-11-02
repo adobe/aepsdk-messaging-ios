@@ -17,7 +17,7 @@ import Foundation
 @objc(AEPJsonContentSchemaData)
 @objcMembers
 public class JsonContentSchemaData: NSObject, Codable {
-    public let content: [String: Any]
+    public let content: Any
     public let format: ContentType?
     
     enum CodingKeys: String, CodingKey {
@@ -33,15 +33,46 @@ public class JsonContentSchemaData: NSObject, Codable {
         } else {
             format = .applicationJson
         }
-        
-        let codableContent = try values.decode([String: AnyCodable].self, forKey: .content)
-        content = AnyCodable.toAnyDictionary(dictionary: codableContent) ?? [:]
+                
+        // TODO: core team is adding support for converting [AnyCodable] to [Any]
+        // we'll need to update this condition to be less awkward when that's released
+        if let _ = try? values.decode([AnyCodable].self, forKey: .content) {
+            let codableAny = try values.decode(AnyCodable.self, forKey: .content)
+            content = codableAny.arrayValue ?? []
+        } else if let codableDictionary = try? values.decode([String: AnyCodable].self, forKey: .content) {
+            content = AnyCodable.toAnyDictionary(dictionary: codableDictionary) ?? [:]
+        } else {
+            content = [:]
+        }
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(format?.toString() ?? ContentType.applicationJson.toString(), forKey: .format)
-        try container.encode(AnyCodable.from(dictionary: content), forKey: .content)
+        
+        if isArray {
+            try container.encode(AnyCodable.init(getArrayValue), forKey: .content)
+        } else if isDictionary {
+            try container.encode(AnyCodable.from(dictionary: getDictionaryValue), forKey: .content)
+        }
+    }
+}
+
+public extension JsonContentSchemaData {
+    var isArray: Bool {
+        content as? [Any] != nil
+    }
+    
+    var isDictionary: Bool {
+        content as? [String: Any] != nil
+    }
+    
+    var getArrayValue: [Any]? {
+        content as? [Any]
+    }
+    
+    var getDictionaryValue: [String: Any]? {
+        content as? [String: Any]
     }
 }

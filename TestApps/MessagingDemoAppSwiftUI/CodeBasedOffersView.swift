@@ -17,7 +17,10 @@ struct CodeBasedOffersView: View {
     @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
     @State private var viewDidLoad = false
 //    let testSurface = Surface(path: "codeBasedView#customHtmlOffer")
-    let testSurface = Surface(path: "cbeoffers3")
+//    let testSurface = Surface(path: "sb/cbe-json-object")
+    let testSurface = Surface(path: "sb/cbe-json")
+    
+//    let testSurface = Surface(path: "cbeoffers3")
     var body: some View {
         VStack {
             Text("Code Based Experiences")
@@ -29,7 +32,11 @@ struct CodeBasedOffersView: View {
                         if item.schema == .htmlContent {
                             CustomHtmlView(htmlString: item.htmlContent ?? "")
                         } else if item.schema == .jsonContent {
-                            CustomTextView(text: item.jsonContent?.description ?? "")
+                            if let jsonArray = item.jsonContentArray {
+                                CustomTextView(text: jsonArray.description)
+                            } else {
+                                CustomTextView(text: item.jsonContentDictionary?.description ?? "")
+                            }
                         }
                     }
                 }
