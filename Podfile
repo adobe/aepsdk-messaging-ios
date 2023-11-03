@@ -73,6 +73,7 @@ end
 
 target 'FunctionalTests' do
   app_main
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'persistence-cleanup-helper'
 end
 
 target 'E2EFunctionalTests' do

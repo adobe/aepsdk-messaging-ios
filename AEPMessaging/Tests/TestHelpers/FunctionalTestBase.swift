@@ -12,6 +12,7 @@
 
 @testable import AEPCore
 import AEPServices
+import AEPTestUtils
 import Foundation
 import XCTest
 
@@ -79,6 +80,7 @@ class FunctionalTestBase: XCTestCase {
         EventHub.reset()
         UserDefaults.clearAll()
         FileManager.default.clearCache()
+        FileManager.default.removeAdobeDirectory(appGroup: nil)
     }
 
     /// Reset event and network request expectations and drop the items received until this point
