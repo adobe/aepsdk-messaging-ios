@@ -76,6 +76,7 @@ end
 
 target 'UnitTests' do
   lib_main
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'beta-testing'
 end
 
 target 'FunctionalTests' do

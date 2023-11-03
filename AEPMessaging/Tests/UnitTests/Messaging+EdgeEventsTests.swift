@@ -16,6 +16,7 @@ import XCTest
 import AEPCore
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
 class MessagingEdgeEventsTests: XCTestCase {
     var mockRuntime: TestableExtensionRuntime!

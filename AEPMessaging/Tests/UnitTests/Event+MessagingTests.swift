@@ -15,6 +15,7 @@ import XCTest
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+import AEPTestUtils
 
 class EventPlusMessagingTests: XCTestCase {
     var messaging: Messaging!
