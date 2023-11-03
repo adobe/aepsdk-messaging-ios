@@ -12,6 +12,7 @@
 
 import AEPCore
 import AEPServices
+import AEPTestUtils
 import XCTest
 
 @testable import AEPMessaging

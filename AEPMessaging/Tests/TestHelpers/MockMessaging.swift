@@ -12,6 +12,7 @@
 
 @testable import AEPCore
 @testable import AEPMessaging
+import AEPTestUtils
 import Foundation
 
 class MockMessaging: Messaging {

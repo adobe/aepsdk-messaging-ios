@@ -70,6 +70,11 @@ class MessagingNotificationTrackingTests: TestBase {
         setNotificationCategories()
     }
     
+    override func tearDown() {
+        super.tearDown()
+        mockNetworkService.reset()
+    }
+    
     // MARK: - Tests
     
     func test_notificationTracking_whenUser_tapsNotificationBody() {

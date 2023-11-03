@@ -33,7 +33,7 @@ def app_main
     pod 'AEPLifecycle'
     pod 'AEPRulesEngine'
     pod 'AEPSignal'
-    pod 'AEPEdge'    
+    pod 'AEPEdge'
     pod 'AEPEdgeIdentity'
     pod 'AEPEdgeConsent'
     pod 'AEPAssurance'
@@ -69,6 +69,7 @@ end
 
 target 'UnitTests' do
   lib_main
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'beta-testing'
 end
 
 target 'FunctionalTests' do
