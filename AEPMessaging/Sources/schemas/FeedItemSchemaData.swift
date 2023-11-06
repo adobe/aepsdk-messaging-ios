@@ -72,6 +72,7 @@ public class FeedItemSchemaData: NSObject, Codable {
 }
 
 extension FeedItemSchemaData {
+    /// ONLY USED FOR TESTING
     static func getEmpty() -> FeedItemSchemaData {
         return FeedItemSchemaData()
     }

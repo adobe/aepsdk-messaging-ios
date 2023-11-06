@@ -28,7 +28,7 @@ struct FeedsView: View {
                     .padding(.top, 30)
                 List {
                     ForEach(propositionsDict?[surface]?.compactMap {
-                        $0.items.first } ?? [], id: \.propositionId ) { propositionItem in
+                        $0.items.first } ?? [], id: \.itemId ) { propositionItem in
                             if let feedItemSchema = propositionItem.feedItemSchemaData, let feedItem = feedItemSchema.getFeedItem() {
                                 NavigationLink(destination: FeedItemDetailView(feedItem: feedItem)) {
                                     FeedItemView(feedItem: feedItem)

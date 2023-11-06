@@ -75,3 +75,50 @@ public class InAppSchemaData: NSObject, Codable {
         try container.encode(remoteAssets, forKey: .remoteAssets)
     }
 }
+
+extension InAppSchemaData {
+    func getMessageSettings(with parent: Any?) -> MessageSettings {
+        guard let mobileParameters = mobileParameters else {
+            return MessageSettings(parent: parent)
+        }
+        
+        let vAlign = mobileParameters[MessagingConstants.Event.Data.Key.IAM.VERTICAL_ALIGN] as? String
+        let hAlign = mobileParameters[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_ALIGN] as? String
+        var opacity: CGFloat? = nil
+        if let opacityDouble = mobileParameters[MessagingConstants.Event.Data.Key.IAM.BACKDROP_OPACITY] as? Double {
+            opacity = CGFloat(opacityDouble)
+        }
+        var cornerRadius: CGFloat? = nil
+        if let cornerRadiusInt = mobileParameters[MessagingConstants.Event.Data.Key.IAM.CORNER_RADIUS] as? Int {
+            cornerRadius = CGFloat(cornerRadiusInt)
+        }
+        let displayAnimation = mobileParameters[MessagingConstants.Event.Data.Key.IAM.DISPLAY_ANIMATION] as? String
+        let dismissAnimation = mobileParameters[MessagingConstants.Event.Data.Key.IAM.DISMISS_ANIMATION] as? String
+        var gestures: [MessageGesture: URL]? = nil
+        if let gesturesMap = mobileParameters[MessagingConstants.Event.Data.Key.IAM.GESTURES] as? [String: String] {
+            gestures = [:]
+            for gesture in gesturesMap {
+                if let gestureEnum = MessageGesture.fromString(gesture.key), let url = URL(string: gesture.value) {
+                    gestures?[gestureEnum] = url
+                }
+            }
+        }
+        
+        let settings = MessageSettings(parent: parent)
+            .setWidth(mobileParameters[MessagingConstants.Event.Data.Key.IAM.WIDTH] as? Int)
+            .setHeight(mobileParameters[MessagingConstants.Event.Data.Key.IAM.HEIGHT] as? Int)
+            .setVerticalAlign(MessageAlignment.fromString(vAlign ?? "center"))
+            .setVerticalInset(mobileParameters[MessagingConstants.Event.Data.Key.IAM.VERTICAL_INSET] as? Int)
+            .setHorizontalAlign(MessageAlignment.fromString(hAlign ?? "center"))
+            .setHorizontalInset(mobileParameters[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_INSET] as? Int)
+            .setUiTakeover(mobileParameters[MessagingConstants.Event.Data.Key.IAM.UI_TAKEOVER] as? Bool ?? true)
+            .setBackdropColor(mobileParameters[MessagingConstants.Event.Data.Key.IAM.BACKDROP_COLOR] as? String)
+            .setBackdropOpacity(opacity)
+            .setCornerRadius(cornerRadius)
+            .setDisplayAnimation(MessageAnimation.fromString(displayAnimation ?? "none"))
+            .setDismissAnimation(MessageAnimation.fromString(dismissAnimation ?? "none"))
+            .setGestures(gestures)
+        return settings
+        
+    }
+}

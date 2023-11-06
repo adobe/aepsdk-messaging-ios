@@ -84,7 +84,6 @@
 		242920DA2ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920D92ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift */; };
 		242920E42AC4D060000DB2CD /* FeedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920E22AC4D060000DB2CD /* FeedTests.swift */; };
 		242920E52AC4D060000DB2CD /* InboundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920E32AC4D060000DB2CD /* InboundTests.swift */; };
-		242920E72AC4D1F4000DB2CD /* inboundConsequenceDetail.json in Resources */ = {isa = PBXBuildFile; fileRef = 242920E62AC4D1F4000DB2CD /* inboundConsequenceDetail.json */; };
 		242920E92AC4EE2D000DB2CD /* Messaging+StateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920E82AC4EE2D000DB2CD /* Messaging+StateTests.swift */; };
 		242920EB2AC5D745000DB2CD /* cachedProposition.json in Resources */ = {isa = PBXBuildFile; fileRef = 242920EA2AC5D744000DB2CD /* cachedProposition.json */; };
 		242920ED2ACF7760000DB2CD /* SchemaType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920EC2ACF7760000DB2CD /* SchemaType.swift */; };
@@ -427,7 +426,6 @@
 		242920D92ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuleConsequence+MessagingTests.swift"; sourceTree = "<group>"; };
 		242920E22AC4D060000DB2CD /* FeedTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedTests.swift; sourceTree = "<group>"; };
 		242920E32AC4D060000DB2CD /* InboundTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InboundTests.swift; sourceTree = "<group>"; };
-		242920E62AC4D1F4000DB2CD /* inboundConsequenceDetail.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = inboundConsequenceDetail.json; sourceTree = "<group>"; };
 		242920E82AC4EE2D000DB2CD /* Messaging+StateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+StateTests.swift"; sourceTree = "<group>"; };
 		242920EA2AC5D744000DB2CD /* cachedProposition.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cachedProposition.json; sourceTree = "<group>"; };
 		242920EC2ACF7760000DB2CD /* SchemaType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaType.swift; sourceTree = "<group>"; };
@@ -728,7 +726,6 @@
 				240FC43D2AB0B8A200AFEEEB /* inappPropositionV1Content.json */,
 				240FC4372AAFCE3400AFEEEB /* inappPropositionV2.json */,
 				240FC43E2AB0B8A300AFEEEB /* inappPropositionV2Content.json */,
-				242920E62AC4D1F4000DB2CD /* inboundConsequenceDetail.json */,
 				2438B92E29C12179001D6F3A /* malformedContentRule.json */,
 				242920D32ABCA559000DB2CD /* ruleWithNoConsequence.json */,
 				242920D52ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json */,
@@ -1384,7 +1381,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				242920E72AC4D1F4000DB2CD /* inboundConsequenceDetail.json in Resources */,
 				2469A5DF274465C900E56457 /* showOnceRule.json in Resources */,
 				240FC4362AAFCBE500AFEEEB /* feedProposition.json in Resources */,
 				242920EB2AC5D745000DB2CD /* cachedProposition.json in Resources */,

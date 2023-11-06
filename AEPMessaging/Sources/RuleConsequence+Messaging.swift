@@ -15,11 +15,11 @@ import Foundation
 
 extension RuleConsequence {
     var isFeedItem: Bool {
-        detailSchema == MessagingConstants.Event.Data.Values.Inbound.SCHEMA_FEED_ITEM
+        detailSchema == MessagingConstants.PersonalizationSchemas.FEED_ITEM
     }
 
     var isInApp: Bool {
-        detailSchema == MessagingConstants.Event.Data.Values.Inbound.SCHEMA_IAM
+        detailSchema == MessagingConstants.PersonalizationSchemas.IN_APP
     }
     
     var isOldInApp: Bool {

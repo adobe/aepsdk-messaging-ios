@@ -85,9 +85,9 @@ public class Messaging: NSObject, Extension {
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
-        MessagingConstants.Event.Data.Values.Inbound.SCHEMA_HTML_CONTENT,
-        MessagingConstants.Event.Data.Values.Inbound.SCHEMA_JSON_CONTENT,
-        MessagingConstants.Event.Data.Values.Inbound.SCHEMA_RULESET_ITEM
+        MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
+        MessagingConstants.PersonalizationSchemas.JSON_CONTENT,
+        MessagingConstants.PersonalizationSchemas.RULESET_ITEM
     ]
 
     // MARK: - Extension protocol methods
@@ -298,13 +298,6 @@ public class Messaging: NSObject, Extension {
         Log.trace(label: MessagingConstants.LOG_TAG, "End of streaming response events for requesting event '\(endingEventId)'")
         endRequestFor(eventId: endingEventId)
 
-        // TODO: why do we need to cache these?
-        // check for new feed items from recently updated rules engine
-//        if let propositionItemsBySurface = feedRulesEngine.evaluate(event: event) {
-//            cachePropositionsFor(propositionItemsBySurface)
-//            
-//        }
-
         // dispatch notification event for request
         dispatchNotificationEventFor(event, requestedSurfaces: requestedSurfaces)
     }
@@ -317,7 +310,7 @@ public class Messaging: NSObject, Extension {
                 var tempPropositions: [MessagingProposition] = []
                 for propositionItem in propositionItemsArray {
                     // TODO: REVERT THIS
-                    guard let propositionInfo = propositionInfo.first?.value else { //propositionInfo[propositionItem.propositionId] else {
+                    guard let propositionInfo = propositionInfo.first?.value else { //propositionInfo[propositionItem.itemId] else {
                         continue
                     }
                     
@@ -570,7 +563,7 @@ public class Messaging: NSObject, Extension {
         switch propositionItem.schema {
         case .inapp:
             if let message = Message.fromPropositionItem(propositionItem, with: self, triggeringEvent: event),
-               let propositionInfo = propositionInfoForMessageId(propositionItem.propositionId) {
+               let propositionInfo = propositionInfoForMessageId(propositionItem.itemId) {
                 message.propositionInfo = propositionInfo
                 message.trigger()
                 message.show(withMessagingDelegateControl: true)

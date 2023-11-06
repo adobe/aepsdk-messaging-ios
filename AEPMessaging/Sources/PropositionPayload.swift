@@ -51,7 +51,7 @@ struct PropositionPayload: Codable {
     func convertToProposition() -> MessagingProposition {
         var propItems: [MessagingPropositionItem] = []
         for item in items {
-            propItems.append(MessagingPropositionItem(propositionId: item.propositionId, schema: item.schema, propositionData: item.propositionData))
+            propItems.append(MessagingPropositionItem(itemId: item.itemId, schema: item.schema, itemData: item.itemData))
         }
         return MessagingProposition(uniqueId: propositionInfo.id,
                                     scope: propositionInfo.scope,

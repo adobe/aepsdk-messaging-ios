@@ -37,7 +37,7 @@ struct ParsedPropositions {
                 }
                 
                 // handle format for old versions of IAM
-                if let oldRules = parseRule(proposition.items.first?.propositionData ?? [:]) {
+                if let oldRules = parseRule(proposition.items.first?.itemData ?? [:]) {
                     if let consequence = oldRules.first?.consequences.first,
                        consequence.isOldInApp {
                         propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
@@ -56,7 +56,7 @@ struct ParsedPropositions {
                 switch firstPropositionItem.schema {
                 // - handle ruleset-item schemas
                 case .ruleset:
-                    guard let parsedRules = parseRule(firstPropositionItem.propositionData ?? [:]) else {
+                    guard let parsedRules = parseRule(firstPropositionItem.itemData ?? [:]) else {
                         continue
                     }
                     guard let consequence = parsedRules.first?.consequences.first,

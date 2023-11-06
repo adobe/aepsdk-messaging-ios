@@ -28,7 +28,7 @@ struct CodeBasedOffersView: View {
                 .padding(.top, 30)
             List {
                 if let codePropositions: [MessagingProposition] = propositionsDict?[testSurface], !codePropositions.isEmpty {
-                    ForEach(codePropositions.first?.items as? [MessagingPropositionItem] ?? [], id:\.propositionId) { item in
+                    ForEach(codePropositions.first?.items as? [MessagingPropositionItem] ?? [], id:\.itemId) { item in
                         if item.schema == .htmlContent {
                             CustomHtmlView(htmlString: item.htmlContent ?? "")
                         } else if item.schema == .jsonContent {

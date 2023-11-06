@@ -800,7 +800,7 @@ class MessagingTests: XCTestCase {
     //
     //    func testParsePropositionsNoItemsInPayload() throws {
     //        // setup
-    //        let proposition = Proposition(propositionId: "a", scope: "a", scopeDetails: [:], items: [])
+    //        let proposition = Proposition(itemId: "a", scope: "a", scopeDetails: [:], items: [])
     //
     //        // test
     //        let rules = messaging.parsePropositions([proposition], expectedSurfaces: [mockIamSurface], clearExisting: false)
@@ -815,9 +815,9 @@ class MessagingTests: XCTestCase {
     //        // setup
     //        let itemData = ItemData(content: "")
     //        let payloadItem = PayloadItem(data: itemData)
-    //        let propositionItem = PropositionItem(propositionId: "a", schema: "a", content: "a")
+    //        let propositionItem = PropositionItem(itemId: "a", schema: "a", content: "a")
     //        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
-    //        let proposition = Proposition(propositionId: "a", scope: "a", scopeDetails: [:], items: [propositionItem])
+    //        let proposition = Proposition(itemId: "a", scope: "a", scopeDetails: [:], items: [propositionItem])
     //
     //        // test
     //        let rules = messaging.parsePropositions([proposition], expectedSurfaces: [mockIamSurface], clearExisting: false)

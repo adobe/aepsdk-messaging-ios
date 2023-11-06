@@ -28,25 +28,25 @@ public enum SchemaType: Int, Codable {
     /// - Parameter schema: SchemaType content schema string
     init(from schema: String) {
         switch schema {
-        case MessagingConstants.Event.Data.Values.Inbound.SCHEMA_HTML_CONTENT:
+        case MessagingConstants.PersonalizationSchemas.HTML_CONTENT:
             self = .htmlContent
 
-        case MessagingConstants.Event.Data.Values.Inbound.SCHEMA_JSON_CONTENT:
+        case MessagingConstants.PersonalizationSchemas.JSON_CONTENT:
             self = .jsonContent
             
-        case MessagingConstants.Event.Data.Values.Inbound.SCHEMA_RULESET_ITEM:
+        case MessagingConstants.PersonalizationSchemas.RULESET_ITEM:
             self = .ruleset
             
-        case MessagingConstants.Event.Data.Values.Inbound.SCHEMA_IAM:
+        case MessagingConstants.PersonalizationSchemas.IN_APP:
             self = .inapp
             
-        case MessagingConstants.Event.Data.Values.Inbound.SCHEMA_FEED_ITEM:
+        case MessagingConstants.PersonalizationSchemas.FEED_ITEM:
             self = .feed
             
-        case MessagingConstants.Event.Data.Values.Inbound.SCHEMA_NATIVE_ALERT:
+        case MessagingConstants.PersonalizationSchemas.NATIVE_ALERT:
             self = .nativeAlert
             
-        case MessagingConstants.Event.Data.Values.Inbound.SCHEMA_DEFAULT_CONTENT:
+        case MessagingConstants.PersonalizationSchemas.DEFAULT_CONTENT:
             self = .defaultContent
 
         default:
@@ -59,19 +59,19 @@ public enum SchemaType: Int, Codable {
     public func toString() -> String {
         switch self {
         case .htmlContent:
-            return MessagingConstants.Event.Data.Values.Inbound.SCHEMA_HTML_CONTENT
+            return MessagingConstants.PersonalizationSchemas.HTML_CONTENT
         case .jsonContent:
-            return MessagingConstants.Event.Data.Values.Inbound.SCHEMA_JSON_CONTENT
+            return MessagingConstants.PersonalizationSchemas.JSON_CONTENT
         case .ruleset:
-            return MessagingConstants.Event.Data.Values.Inbound.SCHEMA_RULESET_ITEM
+            return MessagingConstants.PersonalizationSchemas.RULESET_ITEM
         case .inapp:
-            return MessagingConstants.Event.Data.Values.Inbound.SCHEMA_IAM
+            return MessagingConstants.PersonalizationSchemas.IN_APP
         case .feed:
-            return MessagingConstants.Event.Data.Values.Inbound.SCHEMA_FEED_ITEM
+            return MessagingConstants.PersonalizationSchemas.FEED_ITEM
         case .nativeAlert:
-            return MessagingConstants.Event.Data.Values.Inbound.SCHEMA_NATIVE_ALERT
+            return MessagingConstants.PersonalizationSchemas.NATIVE_ALERT
         case .defaultContent:
-            return MessagingConstants.Event.Data.Values.Inbound.SCHEMA_DEFAULT_CONTENT
+            return MessagingConstants.PersonalizationSchemas.DEFAULT_CONTENT
         default:
             return ""
         }

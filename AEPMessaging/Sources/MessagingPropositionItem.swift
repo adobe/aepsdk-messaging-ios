@@ -24,17 +24,17 @@ import Foundation
 @objc(AEPMessagingPropositionItem)
 @objcMembers
 public class MessagingPropositionItem: NSObject, Codable {
-    /// Unique PropositionItem identifier
+    /// Unique identifier for this `MessagingPropositionItem`
     /// contains value for `id` in JSON
-    public let propositionId: String
+    public let itemId: String
 
-    /// PropositionItem schema string
+    /// `MessagingPropositionItem` schema string
     /// contains value for `schema` in JSON
     public let schema: SchemaType
 
-    /// PropositionItem data as dictionary
+    /// `MessagingPropositionItem` data as dictionary
     /// contains value for `data` in JSON
-    public let propositionData: [String: Any]?
+    public let itemData: [String: Any]?
 
     /// Weak reference to Proposition instance
     weak var proposition: MessagingProposition?
@@ -45,27 +45,27 @@ public class MessagingPropositionItem: NSObject, Codable {
         case data
     }
 
-    init(propositionId: String, schema: SchemaType, propositionData: [String: Any]?) {
-        self.propositionId = propositionId
+    init(itemId: String, schema: SchemaType, itemData: [String: Any]?) {
+        self.itemId = itemId
         self.schema = schema
-        self.propositionData = propositionData
+        self.itemData = itemData
     }
 
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        propositionId = try container.decode(String.self, forKey: .id)
+        itemId = try container.decode(String.self, forKey: .id)
         schema = SchemaType(from: try container.decode(String.self, forKey: .schema))
-        let codableContent = try? container.decode([String: AnyCodable].self, forKey: .data)
-        propositionData = AnyCodable.toAnyDictionary(dictionary: codableContent)
+        let codableItemData = try? container.decode([String: AnyCodable].self, forKey: .data)
+        itemData = AnyCodable.toAnyDictionary(dictionary: codableItemData)
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
-        try container.encode(propositionId, forKey: .id)
+        try container.encode(itemId, forKey: .id)
         try container.encode(schema.toString(), forKey: .schema)
-        try container.encode(AnyCodable.from(dictionary: propositionData), forKey: .data)
+        try container.encode(AnyCodable.from(dictionary: itemData), forKey: .data)
     }
 }
 
@@ -78,12 +78,12 @@ public extension MessagingPropositionItem {
     }
     
     static func fromRuleConsequenceEvent(_ event: Event) -> MessagingPropositionItem? {                
-        // propositionData is optional, thus left out of this guard intentionally
+        // itemData is optional, thus left out of this guard intentionally
         guard let id = event.schemaId, let schema = event.schemaType else {
             return nil
         }
         
-        return MessagingPropositionItem(propositionId: id, schema: schema, propositionData: event.schemaData)
+        return MessagingPropositionItem(itemId: id, schema: schema, itemData: event.schemaData)
     }
         
     var jsonContentDictionary: [String: Any]? {
@@ -125,13 +125,13 @@ public extension MessagingPropositionItem {
     }
     
     private func getTypedData<T>(_ type: T.Type) -> T? where T : Decodable {
-        guard let content = propositionData,
-              let contentAsData = try? JSONSerialization.data(withJSONObject: content) else {
+        guard let itemData = itemData,
+              let itemDataAsData = try? JSONSerialization.data(withJSONObject: itemData) else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to get typed data for proposition item - could not convert 'data' field to type 'Data'.")
             return nil
         }
         do {
-            return try JSONDecoder().decode(type, from: contentAsData)
+            return try JSONDecoder().decode(type, from: itemDataAsData)
         } catch {
             print("error \(error.localizedDescription)")
             return nil
