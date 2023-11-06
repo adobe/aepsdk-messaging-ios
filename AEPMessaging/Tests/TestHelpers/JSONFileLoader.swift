@@ -25,4 +25,11 @@ class JSONFileLoader {
 
         return jsonString
     }
+    
+    static func getRulesJsonFromFile(_ fileName: String) -> [String: Any] {
+        let jsonString = getRulesStringFromFile(fileName)
+        let jsonData = Data(jsonString.utf8)
+        let jsonMap = try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]
+        return jsonMap ?? [:]
+    }
 }

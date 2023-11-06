@@ -18,8 +18,12 @@ import Foundation
 extension Event {
     // MARK: - In-app Message Consequence Event Handling
 
-    var isInAppMessage: Bool {
+    var isCjmIamConsequence: Bool {
         consequenceType == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE
+    }
+    
+    var isSchemaConsequence: Bool {
+        consequenceType == MessagingConstants.ConsequenceTypes.SCHEMA
     }
 
     // MARK: - In-app Message Properties
@@ -203,7 +207,7 @@ extension Event {
         parentID?.uuidString as? String ?? data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
     }
 
-    /// payload is an array of `Proposition` objects, each containing inbound content and related tracking information
+    /// payload is an array of `MessagingProposition` objects, each containing inbound content and related tracking information
     var payload: [MessagingProposition]? {
         guard let payloadMap = data?[MessagingConstants.Event.Data.Key.Personalization.PAYLOAD] as? [[String: Any]] else {
             return nil
@@ -281,7 +285,7 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool ?? false
     }
 
-    // MARK: - Get Feed Messages Public API Event
+    // MARK: - Get propositions public API event
 
     var isGetPropositionsEvent: Bool {
         isMessagingType && isRequestContentSource && getPropositions
@@ -303,7 +307,10 @@ extension Event {
     }
 
     var responseError: AEPError? {
-        data?[MessagingConstants.Event.Data.Key.RESPONSE_ERROR] as? AEPError
+        guard let errorInt = data?[MessagingConstants.Event.Data.Key.RESPONSE_ERROR] as? Int else {
+            return nil
+        }
+        return AEPError(rawValue: errorInt)
     }
 
     // MARK: - SetPushIdentifier Event
@@ -362,5 +369,22 @@ extension Event {
                             data: [
                                 MessagingConstants.Event.Data.Key.RESPONSE_ERROR: error.rawValue
                             ])
+    }
+    
+    // MARK: - Schema consequence event
+    var schemaId: String? {
+        details?[MessagingConstants.Event.Data.Key.ID] as? String
+    }
+    
+    var schemaType: SchemaType? {
+        guard let schemaString = details?[MessagingConstants.Event.Data.Key.SCHEMA] as? String else {
+            return nil
+        }
+        
+        return SchemaType(from: schemaString)
+    }
+    
+    var schemaData: [String: Any]? {
+        details?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
     }
 }

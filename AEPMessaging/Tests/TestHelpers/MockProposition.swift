@@ -10,24 +10,31 @@
  governing permissions and limitations under the License.
  */
 
-import AEPServices
+@testable import AEPCore
+@testable import AEPMessaging
 import Foundation
 
-@objc(AEPFeed)
-@objcMembers
-public class Feed: NSObject, Codable {
-    /// Identification for this feed, represented by the AJO Surface URI used to retrieve it
-    public let surface: Surface
-
-    /// Friendly name for the feed, provided in the AJO UI
-    public let name: String
-    
-    /// Array of `FeedItemSchemaData` that are members of this `Feed`
-    public internal(set) var items: [FeedItemSchemaData]
-
-    public init(name: String, surface: Surface, items: [FeedItemSchemaData]) {
-        self.name = name
-        self.surface = surface
-        self.items = items
-    }
+class MockProposition: Proposition {
+        
+//    override let scope: String {
+//        get {
+//            return internalScope
+//        }
+//    }
+//    
+//    override var items: [PropositionItem] {
+//        get {
+//            return internalItems
+//        }
+//    }
+//    
+//    var internalScope: String = ""
+//    func setScope(_ scope: String) {
+//        internalScope = scope
+//    }
+//    
+//    var internalItems: [PropositionItem] = []
+//    func setItems(_ items: [PropositionItem]) {
+//        internalItems = items
+//    }
 }

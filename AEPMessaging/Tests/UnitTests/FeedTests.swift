@@ -10,24 +10,26 @@
  governing permissions and limitations under the License.
  */
 
-import AEPServices
 import Foundation
+import XCTest
 
-@objc(AEPFeed)
-@objcMembers
-public class Feed: NSObject, Codable {
-    /// Identification for this feed, represented by the AJO Surface URI used to retrieve it
-    public let surface: Surface
+@testable import AEPMessaging
+import AEPServices
 
-    /// Friendly name for the feed, provided in the AJO UI
-    public let name: String
-    
-    /// Array of `FeedItemSchemaData` that are members of this `Feed`
-    public internal(set) var items: [FeedItemSchemaData]
-
-    public init(name: String, surface: Surface, items: [FeedItemSchemaData]) {
-        self.name = name
-        self.surface = surface
-        self.items = items
+class FeedTests: XCTestCase {
+    func testFeedIsCreatable() throws {
+        // setup
+        let mockName = "aName"
+        let mockSurface = Surface(uri: "mySurface")
+        let mockFeedItem = FeedItemSchemaData.getEmpty()
+        
+        // test
+        let feed = Feed(name: mockName, surface: mockSurface, items: [mockFeedItem])
+        
+        // verify
+        XCTAssertEqual(mockName, feed.name)
+        XCTAssertEqual(mockSurface, feed.surface)
+        XCTAssertEqual(1, feed.items.count)
+        XCTAssertEqual(mockFeedItem, feed.items.first)
     }
 }

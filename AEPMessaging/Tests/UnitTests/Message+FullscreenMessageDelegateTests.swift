@@ -60,6 +60,14 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
         // verify
         XCTAssertFalse(mockMessage.dismissCalled)
     }
+    
+    func testOverrideUrlLoadNilUrlParam() throws {
+        // test
+        let result = message.overrideUrlLoad(message: mockFullscreenMessage, url: nil)
+
+        // verify
+        XCTAssertTrue(result)
+    }
 
     func testOverrideUrlLoadGenericUrl() throws {
         // test

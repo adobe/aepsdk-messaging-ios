@@ -25,7 +25,7 @@ struct ParsedPropositions {
     var propositionsToPersist: [Surface: [MessagingProposition]] = [:]
 
     // in-app and feed rules that need to be applied to their respective rules engines
-    var surfaceRulesByInboundType: [InboundType: [Surface: [LaunchRule]]] = [:]
+    var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
 
     init(with propositions: [Surface: [MessagingProposition]], requestedSurfaces: [Surface]) {
         for propositionsArray in propositions.values {
@@ -35,55 +35,84 @@ struct ParsedPropositions {
                               "Ignoring proposition where scope (\(proposition.scope)) does not match one of the expected surfaces.")
                     continue
                 }
-
-                guard let contentString = proposition.items.first?.content, !contentString.isEmpty else {
-                    Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring Proposition with empty content.")
-                    continue
-                }
-
-                // iam and feed items will be wrapped in a valid rules engine rule - code-based experiences are not
-                guard let parsedRules = parseRule(contentString) else {
-                    Log.debug(label: MessagingConstants.LOG_TAG, "Proposition did not contain a rule, adding as a code-based experience.")
-                    propositionsToCache.add(proposition, forKey: surface)
-                    continue
-                }
-
-                let consequence = parsedRules.first?.consequences.first
-                if let messageId = consequence?.id {
-                    // store reporting data for this payload
-                    propositionInfoToCache[messageId] = PropositionInfo.fromProposition(proposition)
-                }
-
-                var inboundType = InboundType.unknown
-                let isInAppConsequence = consequence?.isInApp ?? false
-                if isInAppConsequence {
-                    inboundType = .inapp
-                    propositionsToPersist.add(proposition, forKey: surface)
-                } else {
-                    inboundType = InboundType(from: consequence?.detailSchema ?? "")
-                    let isFeedConsequence = consequence?.isFeedItem ?? false
-                    if !isFeedConsequence {
-                        propositionsToCache.add(proposition, forKey: surface)
+                
+                // handle format for old versions of IAM
+                if let oldRules = parseRule(proposition.items.first?.itemData ?? [:]) {
+                    if let consequence = oldRules.first?.consequences.first,
+                       consequence.isOldInApp {
+                        propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+                        propositionsToPersist.add(proposition, forKey: surface)
+                        mergeRules(oldRules, for: surface, with: .inapp)
+                        continue
                     }
                 }
-
-                mergeRules(parsedRules, for: surface, with: inboundType)
+                
+                
+                // if not an old format of IAM, handle schema consequences which are representable as PropositionItems
+                guard let firstPropositionItem = proposition.items.first else {
+                    continue
+                }
+                
+                switch firstPropositionItem.schema {
+                // - handle ruleset-item schemas
+                case .ruleset:
+                    guard let parsedRules = parseRule(firstPropositionItem.itemData ?? [:]) else {
+                        continue
+                    }
+                    guard let consequence = parsedRules.first?.consequences.first,
+                          let schemaConsequence = MessagingPropositionItem.fromRuleConsequence(consequence) else {
+                        continue
+                    }
+                    
+                    // handle these schemas when they're embedded in ruleset-item schemas:
+                    // a. in-app schema consequences get persisted to disk, cached for reporting, and added to rules that need to be updated
+                    //    i. default-content schema consequences are treated like in-app at a proposition level
+                    // b. feed schema consequences get cached for reporting added to rules that need to be updated
+                    //
+                    // IMPORTANT! - for schema consequences that are embedded in ruleset-items, the following is true:
+                    //
+                    //    consequence.id == consequence.detail.id
+                    //
+                    // this is important because we need a reliable key to store and retrieve `PropositionInfo` for reporting
+                    switch schemaConsequence.schema {
+                    case .inapp, .defaultContent:
+                        propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+                        propositionsToPersist.add(proposition, forKey: surface)
+                        mergeRules(parsedRules, for: surface, with: .inapp)
+                    case .feed:
+                        propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+                        mergeRules(parsedRules, for: surface, with: .feed)
+                    default:
+                        continue
+                    }
+                    
+                // - handle json-content, html-content, and default-content schemas for code based experiences
+                //   a. code based schemas are cached for reporting
+                case .jsonContent, .htmlContent, .defaultContent:
+                    propositionsToCache.add(proposition, forKey: surface)
+                case .unknown:
+                    continue
+                default:
+                    continue
+                }
             }
         }
     }
-
-    private func parseRule(_ rule: String) -> [LaunchRule]? {
-        JSONRulesParser.parse(rule.data(using: .utf8) ?? Data())
+    
+    private func parseRule(_ rule: [String: Any]) -> [LaunchRule]? {
+        let ruleData = try? JSONSerialization.data(withJSONObject: rule, options: .prettyPrinted)
+        return JSONRulesParser.parse(ruleData ?? Data())
     }
 
-    private mutating func mergeRules(_ rules: [LaunchRule], for surface: Surface, with inboundType: InboundType) {
-        // get rules we may already have for this inboundType
-        var tempRulesByInboundType = surfaceRulesByInboundType[inboundType] ?? [:]
+    private mutating func mergeRules(_ rules: [LaunchRule], for surface: Surface, with schemaType: SchemaType) {
+        // get rules we may already have for this schemaType
+        var tempRulesBySchemaType = surfaceRulesBySchemaType[schemaType] ?? [:]
 
         // combine rules with existing
-        tempRulesByInboundType.addArray(rules, forKey: surface)
+        tempRulesBySchemaType.addArray(rules, forKey: surface)
 
-        // apply up to surfaceRulesByInboundType
-        surfaceRulesByInboundType[inboundType] = tempRulesByInboundType
+        // apply up to surfaceRulesBySchemaType
+        surfaceRulesBySchemaType[schemaType] = tempRulesBySchemaType
     }
 }
+

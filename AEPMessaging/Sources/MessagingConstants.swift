@@ -23,6 +23,13 @@ enum MessagingConstants {
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
 
+    enum ContentTypes {
+        static let APPLICATION_JSON = "application/json"
+        static let TEXT_HTML = "text/html"
+        static let TEXT_XML = "text/xml"
+        static let TEXT_PLAIN = "text/plain"
+    }
+    
     enum Caches {
         static let CACHE_NAME = "com.adobe.messaging.cache"
         static let MESSAGES = "messages"
@@ -33,7 +40,17 @@ enum MessagingConstants {
 
     enum ConsequenceTypes {
         static let IN_APP_MESSAGE = "cjmiam"
-        static let AJO_INBOUND = "ajoInbound"
+        static let SCHEMA = "schema"
+    }
+    
+    enum PersonalizationSchemas {        
+        static let HTML_CONTENT = "https://ns.adobe.com/personalization/html-content-item"
+        static let JSON_CONTENT = "https://ns.adobe.com/personalization/json-content-item"
+        static let RULESET_ITEM = "https://ns.adobe.com/personalization/ruleset-item"
+        static let DEFAULT_CONTENT = "https://ns.adobe.com/personalization/default-content-item"
+        static let IN_APP = "https://ns.adobe.com/personalization/message/in-app"
+        static let FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"
+        static let NATIVE_ALERT = "https://ns.adobe.com/personalization/message/native-alert"
     }
 
     enum Event {
@@ -83,6 +100,7 @@ enum MessagingConstants {
                 static let DETAIL = "detail"
                 static let TYPE = "type"
                 static let SCHEMA = "schema"
+                static let DATA = "data"
                 static let SOURCE = "source"
 
                 enum Feed {
@@ -147,12 +165,6 @@ enum MessagingConstants {
                     static let SWIPE_LEFT = "swipeLeft"
                     static let SWIPE_RIGHT = "swipeRight"
                     static let TAP_BACKGROUND = "tapBackground"
-                }
-
-                enum Inbound {
-                    // schema values
-                    static let SCHEMA_FEED_ITEM = "https://ns.adobe.com/personalization/inbound/feed-item"
-                    static let SCHEMA_IAM = "https://ns.adobe.com/personalization/message/in-app"
                 }
             }
         }

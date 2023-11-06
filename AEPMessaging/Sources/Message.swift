@@ -61,7 +61,7 @@ public class Message: NSObject {
         id = event.messageId ?? ""
         super.init()
         let messageSettings = event.getMessageSettings(withParent: self)
-        let usingLocalAssets = generateAssetMap()
+        let usingLocalAssets = generateAssetMap(triggeringEvent.remoteAssets)
         fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
                                                                                       listener: self,
                                                                                       isLocalImageUsed: usingLocalAssets,
@@ -70,7 +70,14 @@ public class Message: NSObject {
             fullscreenMessage?.setAssetMap(assets)
         }
     }
-
+    
+    private init(parent: Messaging, triggeringEvent: Event) {
+        self.id = ""
+        self.parent = parent
+        self.triggeringEvent = triggeringEvent
+        super.init()
+    }
+    
     // MARK: - UI management
 
     /// Requests that UIServices show the this message.
@@ -142,13 +149,14 @@ public class Message: NSObject {
 
     /// Generates a mapping of the message's assets to their representation in local cache.
     ///
-    /// This method will iterate through the `remoteAssets` of the triggering event for the message.
+    /// This method will iterate through the provided `newAssets`.
     /// In each iteration, it will check to see if there is a corresponding cache entry for the
     /// asset string.  If a match is found, an entry will be made in the `Message`s `assets` dictionary.
     ///
+    /// - Parameter newAssets: optional array of asset urls represented as strings
     /// - Returns: `true` if an asset map was generated
-    private func generateAssetMap() -> Bool {
-        guard let remoteAssetsArray = triggeringEvent.remoteAssets, !remoteAssetsArray.isEmpty else {
+    private func generateAssetMap(_ newAssets: [String]?) -> Bool {
+        guard let remoteAssetsArray = newAssets, !remoteAssetsArray.isEmpty else {
             return false
         }
 
@@ -162,5 +170,28 @@ public class Message: NSObject {
         }
 
         return true
+    }
+}
+
+extension Message {
+    static func fromPropositionItem(_ propositionItem: MessagingPropositionItem, with parent: Messaging, triggeringEvent event: Event) -> Message? {
+        guard let iamSchemaData = propositionItem.inappSchemaData,
+              let htmlContent = iamSchemaData.content as? String else {
+            return nil
+        }
+        
+        let message = Message(parent: parent, triggeringEvent: event)
+        message.id = propositionItem.itemId
+        let messageSettings = iamSchemaData.getMessageSettings(with: message)
+        let usingLocalAssets = message.generateAssetMap(iamSchemaData.remoteAssets)
+        message.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: htmlContent,
+                                                                                              listener: message,
+                                                                                              isLocalImageUsed: usingLocalAssets, 
+                                                                                              settings: messageSettings) as? FullscreenMessage
+        if usingLocalAssets {
+            message.fullscreenMessage?.setAssetMap(message.assets)
+        }
+        
+        return message
     }
 }
