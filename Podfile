@@ -76,17 +76,17 @@ end
 
 target 'UnitTests' do
   lib_main
-  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'apply-cache-cleanup-helper'
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'main'
 end
 
 target 'FunctionalTests' do
   app_main
-  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'apply-cache-cleanup-helper'
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'main'
 end
 
 target 'E2EFunctionalTests' do
   app_main
-  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'apply-cache-cleanup-helper'
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'main'
 end
 
 target 'FunctionalTestApp' do
