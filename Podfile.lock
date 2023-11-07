@@ -34,7 +34,7 @@ DEPENDENCIES:
   - AEPRulesEngine
   - AEPServices
   - AEPSignal
-  - AEPTestUtils (from `https://github.com/adobe/aepsdk-testutils-ios.git`, branch `persistence-cleanup-helper`)
+  - AEPTestUtils (from `https://github.com/adobe/aepsdk-testutils-ios.git`, branch `main`)
   - SwiftLint (= 0.52.0)
 
 SPEC REPOS:
@@ -52,12 +52,12 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   AEPTestUtils:
-    :branch: persistence-cleanup-helper
+    :branch: main
     :git: https://github.com/adobe/aepsdk-testutils-ios.git
 
 CHECKOUT OPTIONS:
   AEPTestUtils:
-    :commit: 9f13bdbb762d0ef5c07b6ad82d27788546cf555e
+    :commit: 109e389c49824b7c97467b61a0b4ea4df7238022
     :git: https://github.com/adobe/aepsdk-testutils-ios.git
 
 SPEC CHECKSUMS:
@@ -73,6 +73,6 @@ SPEC CHECKSUMS:
   AEPTestUtils: 756e5997318be74584057d7628941c737d358640
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: 650b18f08525e64ca05bf6a5f3480a8a4f44eda8
+PODFILE CHECKSUM: 36e10755de661bfe539aa1a22e4a2d2f5b67dafc
 
 COCOAPODS: 1.12.0

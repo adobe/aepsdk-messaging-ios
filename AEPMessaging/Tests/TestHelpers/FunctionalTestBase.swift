@@ -80,7 +80,7 @@ class FunctionalTestBase: XCTestCase {
         EventHub.reset()
         UserDefaults.clearAll()
         FileManager.default.clearCache()
-        FileManager.default.removeAdobeDirectory(appGroup: nil)
+        FileManager.default.removeAdobeCacheDirectory()
     }
 
     /// Reset event and network request expectations and drop the items received until this point
