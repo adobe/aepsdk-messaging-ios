@@ -18,9 +18,8 @@ import XCTest
 
 class RuleConsequenceMessagingTests: XCTestCase {
     
-    let SCHEMA_FEED_ITEM = "https://ns.adobe.com/personalization/inbound/feed-item"
+    let SCHEMA_FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"
     let SCHEMA_IAM = "https://ns.adobe.com/personalization/message/in-app"
-    let IN_APP_MESSAGE_TYPE = "cjmiam"
         
     func testIsFeedItemTrue() throws {
         // setup
@@ -46,14 +45,6 @@ class RuleConsequenceMessagingTests: XCTestCase {
         XCTAssertTrue(consequence.isInApp)
     }
     
-    func testIsInAppTrueType() throws {
-        // setup
-        let consequence = RuleConsequence(id: "id", type: IN_APP_MESSAGE_TYPE, details: [ "schema": "not an iam" ])
-        
-        // verify
-        XCTAssertTrue(consequence.isInApp)
-    }
-    
     func testIsInAppFalse() throws {
         // setup
         let consequence = RuleConsequence(id: "id", type: "type", details: [ "schema": "not an iam" ])
@@ -62,27 +53,21 @@ class RuleConsequenceMessagingTests: XCTestCase {
         XCTAssertFalse(consequence.isInApp)
     }
     
-    func testDetailSchemaWhenItIsAString() throws {
-        // setup
-        let consequence = RuleConsequence(id: "id", type: "type", details: [ "schema": SCHEMA_IAM ])
-        
-        // verify
-        XCTAssertEqual(SCHEMA_IAM, consequence.detailSchema)
-    }
-    
-    func testDetailSchemaWhenItIsNotAString() throws {
+    func testWhenDetailsSchemaIsNotAString() throws {
         // setup
         let consequence = RuleConsequence(id: "id", type: "type", details: [ "schema": 552 ])
         
         // verify
-        XCTAssertEqual("", consequence.detailSchema)
+        XCTAssertFalse(consequence.isInApp)
+        XCTAssertFalse(consequence.isFeedItem)
     }
     
-    func testDetailSchemaWhenItDoesNotExist() throws {
+    func testWhenDetailsSchemaIsNotPresent() throws {
         // setup
-        let consequence = RuleConsequence(id: "id", type: "type", details: [ "schememama": "hello" ])
+        let consequence = RuleConsequence(id: "id", type: "type", details: [ "not a schema key": SCHEMA_IAM ])
         
         // verify
-        XCTAssertEqual("", consequence.detailSchema)
+        XCTAssertFalse(consequence.isInApp)
+        XCTAssertFalse(consequence.isFeedItem)
     }
 }

@@ -479,7 +479,7 @@ class MessagingPublicApiTest: XCTestCase {
             eventExpectation.fulfill()
             
             // dispatch the response
-            let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1")
+            let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2")
             let responseEvent = event.createResponseEvent(name: "name", type: "type", source: "source", data: ["propositions": [ propositionJson ]])
             MobileCore.dispatch(event: responseEvent)
         }

@@ -23,11 +23,6 @@ class ParsedPropositionTests: XCTestCase {
     let jsonSchema: SchemaType = .jsonContent
     let htmlSchema: SchemaType = .htmlContent
     
-    var mockInAppPropositionItem: MessagingPropositionItem!
-    var mockInAppProposition: MessagingProposition!
-    var mockInAppSurface: Surface!
-    let mockInAppMessageId = "6ac78390-84e3-4d35-b798-8e7080e69a66"
-    
     var mockInAppPropositionItemv2: MessagingPropositionItem!
     var mockInAppPropositionv2: MessagingProposition!
     var mockInAppSurfacev2: Surface!
@@ -46,11 +41,6 @@ class ParsedPropositionTests: XCTestCase {
         
     override func setUp() {
         mockSurface = Surface(uri: "mobileapp://some.not.matching.surface/path")
-        
-        let inappPropositionV1Content = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1Content")
-        mockInAppPropositionItem = MessagingPropositionItem(itemId: "inapp", schema: jsonSchema, itemData: inappPropositionV1Content)
-        mockInAppProposition = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [mockInAppPropositionItem])
-        mockInAppSurface = Surface(uri: "inapp")
         
         let inappPropositionV2Content = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
         mockInAppPropositionItemv2 = MessagingPropositionItem(itemId: "inapp2", schema: rulesetSchema, itemData: inappPropositionV2Content)
@@ -86,7 +76,6 @@ class ParsedPropositionTests: XCTestCase {
     func testInitWithPropositionScopeNotMatchingRequestedSurfaces() throws {
         // setup
         let propositions: [Surface: [MessagingProposition]] = [
-            mockInAppSurface: [mockInAppProposition],
             mockFeedSurface: [mockFeedProposition],
             mockCodeBasedSurface: [mockCodeBasedProposition]
         ]
@@ -100,30 +89,6 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
-    }
-    
-    func testInitWithInAppPropositionV1() throws {
-        // setup
-        let propositions: [Surface: [MessagingProposition]] = [
-            mockInAppSurface: [mockInAppProposition]
-        ]
-        
-        // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurface])
-        
-        // verify
-        XCTAssertNotNil(result)
-        XCTAssertEqual(1, result.propositionInfoToCache.count, "should have one IAM in propositionInfo for tracking purposes")
-        let iamPropInfo = result.propositionInfoToCache[mockInAppMessageId]
-        XCTAssertEqual("inapp", iamPropInfo?.id)
-        XCTAssertEqual(0, result.propositionsToCache.count)
-        XCTAssertEqual(1, result.propositionsToPersist.count, "should have one entry for persistence")
-        let iamPersist = result.propositionsToPersist[mockInAppSurface]
-        XCTAssertEqual(1, iamPersist?.count)
-        XCTAssertEqual("inapp", iamPersist?.first?.uniqueId)
-        XCTAssertEqual(1, result.surfaceRulesBySchemaType.count, "should have one rule to insert in the IAM rules engine")
-        let iamRules = result.surfaceRulesBySchemaType[.inapp]
-        XCTAssertEqual(1, iamRules?.count)
     }
     
     func testInitWithInAppPropositionV2() throws {
@@ -168,21 +133,20 @@ class ParsedPropositionTests: XCTestCase {
     func testInitWithMultipleInAppPropositionTypes() throws {
         // setup
         let propositions: [Surface: [MessagingProposition]] = [
-            mockInAppSurface: [mockInAppProposition],
             mockInAppSurfacev2: [mockInAppPropositionv2]
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurface, mockInAppSurfacev2])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
         
         // verify
         XCTAssertNotNil(result)
-        XCTAssertEqual(2, result.propositionInfoToCache.count, "should have two IAM in propositionInfo for tracking purposes")
+        XCTAssertEqual(1, result.propositionInfoToCache.count, "should have one IAM in propositionInfo for tracking purposes")
         XCTAssertEqual(0, result.propositionsToCache.count)
-        XCTAssertEqual(2, result.propositionsToPersist.count, "should have two entries for persistence")
-        XCTAssertEqual(1, result.surfaceRulesBySchemaType.count, "should have two rules to insert in the IAM rules engine")
+        XCTAssertEqual(1, result.propositionsToPersist.count, "should have one entries for persistence")
+        XCTAssertEqual(1, result.surfaceRulesBySchemaType.count, "should have one rules to insert in the IAM rules engine")
         let iamRules = result.surfaceRulesBySchemaType[.inapp]
-        XCTAssertEqual(2, iamRules?.count)
+        XCTAssertEqual(1, iamRules?.count)
     }
     
     func testInitWithFeedProposition() throws {
@@ -233,14 +197,14 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitPropositionItemEmptyContentString() throws {
         // setup
-        mockInAppPropositionItem = MessagingPropositionItem(itemId: "inapp", schema: .inapp, itemData: nil)
-        mockInAppProposition = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [mockInAppPropositionItem])
+        mockInAppPropositionItemv2 = MessagingPropositionItem(itemId: "inapp", schema: .inapp, itemData: nil)
+        mockInAppPropositionv2 = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [mockInAppPropositionItemv2])
         let propositions: [Surface: [MessagingProposition]] = [
-            mockInAppSurface: [mockInAppProposition]
+            mockInAppSurfacev2: [mockInAppPropositionv2]
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurface])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
         
         // verify
         XCTAssertNotNil(result)
@@ -256,11 +220,11 @@ class ParsedPropositionTests: XCTestCase {
         let pi = MessagingPropositionItem(itemId: "inapp", schema: .ruleset, itemData: noConsequenceRule)
         let prop = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
         let propositions: [Surface: [MessagingProposition]] = [
-            mockInAppSurface: [prop]
+            mockInAppSurfacev2: [prop]
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurface])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
         
         // verify
         XCTAssertNotNil(result)
@@ -276,11 +240,11 @@ class ParsedPropositionTests: XCTestCase {
         let pi = MessagingPropositionItem(itemId: "inapp", schema: .ruleset, itemData: content)
         let prop = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
         let propositions: [Surface: [MessagingProposition]] = [
-            mockInAppSurface: [prop]
+            mockInAppSurfacev2: [prop]
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurface])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
         
         // verify
         XCTAssertNotNil(result)
@@ -295,11 +259,11 @@ class ParsedPropositionTests: XCTestCase {
         let pi = MessagingPropositionItem(itemId: "inapp", schema: .unknown, itemData: nil)
         let prop = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
         let propositions: [Surface: [MessagingProposition]] = [
-            mockInAppSurface: [prop]
+            mockInAppSurfacev2: [prop]
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurface])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
         
         // verify
         XCTAssertNotNil(result)
@@ -313,11 +277,11 @@ class ParsedPropositionTests: XCTestCase {
         // setup
         let prop = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [])
         let propositions: [Surface: [MessagingProposition]] = [
-            mockInAppSurface: [prop]
+            mockInAppSurfacev2: [prop]
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurface])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
         
         // verify
         XCTAssertNotNil(result)

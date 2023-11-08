@@ -36,19 +36,7 @@ struct ParsedPropositions {
                     continue
                 }
                 
-                // handle format for old versions of IAM
-                if let oldRules = parseRule(proposition.items.first?.itemData ?? [:]) {
-                    if let consequence = oldRules.first?.consequences.first,
-                       consequence.isOldInApp {
-                        propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
-                        propositionsToPersist.add(proposition, forKey: surface)
-                        mergeRules(oldRules, for: surface, with: .inapp)
-                        continue
-                    }
-                }
-                
-                
-                // if not an old format of IAM, handle schema consequences which are representable as PropositionItems
+                // handle schema consequences which are representable as MessagingPropositionItems
                 guard let firstPropositionItem = proposition.items.first else {
                     continue
                 }
@@ -103,7 +91,7 @@ struct ParsedPropositions {
         let ruleData = try? JSONSerialization.data(withJSONObject: rule, options: .prettyPrinted)
         return JSONRulesParser.parse(ruleData ?? Data())
     }
-
+    
     private mutating func mergeRules(_ rules: [LaunchRule], for surface: Surface, with schemaType: SchemaType) {
         // get rules we may already have for this schemaType
         var tempRulesBySchemaType = surfaceRulesBySchemaType[schemaType] ?? [:]

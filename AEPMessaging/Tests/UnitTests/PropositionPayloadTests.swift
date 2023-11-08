@@ -42,7 +42,7 @@ class PropositionPayloadTests: XCTestCase {
     
     func getDecodedPropositionPayload(fromString: String? = nil) -> PropositionPayload? {
         let decoder = JSONDecoder()
-        let propositionPayloadString = fromString ??  "{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"correlationID\":\"\(mockCorrelationId)\"},\"items\":[{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockItemSchema)\",\"data\":{\"id\":\"\(mockDataId)\",\"content\":\"\(mockDataContent)\"}}]}"
+        let propositionPayloadString = fromString ??  "{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"correlationID\":\"\(mockCorrelationId)\"},\"items\":[{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockItemSchema.toString())\",\"data\":{\"id\":\"\(mockDataId)\",\"content\":\"\(mockDataContent)\"}}]}"
  
         let propositionPayloadData = propositionPayloadString.data(using: .utf8)!
         
@@ -80,7 +80,7 @@ class PropositionPayloadTests: XCTestCase {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"id\":\"mockId\",\"scope\":\"mockScope\",\"scopeDetails\":{\"correlationID\":\"mockCorrelationId\"},\"items\":[{\"id\":\"mockItemId\",\"schema\":\"mockItemSchema\",\"data\":{\"id\":\"mockDataId\",\"content\":\"mockDataContent\"}}]}") ?? "fail"
+        let expected = getAnyCodable("{\"id\":\"mockId\",\"scope\":\"mockScope\",\"scopeDetails\":{\"correlationID\":\"mockCorrelationId\"},\"items\":[{\"id\":\"mockItemId\",\"schema\":\"https://ns.adobe.com/personalization/html-content-item\",\"data\":{\"id\":\"mockDataId\",\"content\":\"mockDataContent\"}}]}") ?? "fail"
 
         // test
         guard let encodedPropositionPayload = try? encoder.encode(propositionPayload) else {

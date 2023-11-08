@@ -787,7 +787,7 @@ class EventPlusMessagingTests: XCTestCase {
     
     func testPropositions() throws {
         // setup
-        let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1")
+        let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2")
         let event = Event(name: "name", type: "type", source: "source", data: ["propositions": [ propositionJson ]])
         
         // verify
