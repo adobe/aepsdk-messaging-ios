@@ -29,7 +29,7 @@ enum MessagingConstants {
         static let TEXT_XML = "text/xml"
         static let TEXT_PLAIN = "text/plain"
     }
-    
+
     enum Caches {
         static let CACHE_NAME = "com.adobe.messaging.cache"
         static let MESSAGES = "messages"
@@ -42,8 +42,8 @@ enum MessagingConstants {
         static let IN_APP_MESSAGE = "cjmiam"
         static let SCHEMA = "schema"
     }
-    
-    enum PersonalizationSchemas {        
+
+    enum PersonalizationSchemas {
         static let HTML_CONTENT = "https://ns.adobe.com/personalization/html-content-item"
         static let JSON_CONTENT = "https://ns.adobe.com/personalization/json-content-item"
         static let RULESET_ITEM = "https://ns.adobe.com/personalization/ruleset-item"

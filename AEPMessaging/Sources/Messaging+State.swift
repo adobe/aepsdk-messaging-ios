@@ -56,7 +56,7 @@ extension Messaging {
 
         // remove any surfaces if necessary
         if let surfaces = surfaces {
-            for surface in surfaces {                
+            for surface in surfaces {
                 propositions.removeValue(forKey: surface)
             }
         }
@@ -68,13 +68,14 @@ extension Messaging {
             for proposition in propositionArray {
                 for propositionItem in proposition.items {
                     guard propositionItem.schema == .feed,
-                          let feedItemSchemaData = propositionItem.feedItemSchemaData else {
+                          let feedItemSchemaData = propositionItem.feedItemSchemaData
+                    else {
                         continue
                     }
-                    
+
                     // feedName should always be available in the meta dictionary of a feed-item proposition
                     let feedName = feedItemSchemaData.meta?[MessagingConstants.Event.Data.Key.Feed.FEED_NAME] as? String ?? ""
-                    
+
                     // find the feed to insert the feed item else create a new feed for it
                     if feedMessages[surface] != nil {
                         feedMessages[surface]?.items.append(feedItemSchemaData)
