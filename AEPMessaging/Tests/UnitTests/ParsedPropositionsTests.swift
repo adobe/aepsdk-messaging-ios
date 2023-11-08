@@ -23,24 +23,24 @@ class ParsedPropositionTests: XCTestCase {
     let jsonSchema: SchemaType = .jsonContent
     let htmlSchema: SchemaType = .htmlContent
     
-    var mockInAppPropositionItem: PropositionItem!
-    var mockInAppProposition: Proposition!
+    var mockInAppPropositionItem: MessagingPropositionItem!
+    var mockInAppProposition: MessagingProposition!
     var mockInAppSurface: Surface!
     let mockInAppMessageId = "6ac78390-84e3-4d35-b798-8e7080e69a66"
     
-    var mockInAppPropositionItemv2: PropositionItem!
-    var mockInAppPropositionv2: Proposition!
+    var mockInAppPropositionItemv2: MessagingPropositionItem!
+    var mockInAppPropositionv2: MessagingProposition!
     var mockInAppSurfacev2: Surface!
     let mockInAppMessageIdv2 = "6ac78390-84e3-4d35-b798-8e7080e69a67"
     
-    var mockFeedPropositionItem: PropositionItem!
-    var mockFeedProposition: Proposition!
+    var mockFeedPropositionItem: MessagingPropositionItem!
+    var mockFeedProposition: MessagingProposition!
     var mockFeedSurface: Surface!
     let mockFeedMessageId = "183639c4-cb37-458e-a8ef-4e130d767ebf"
     var mockFeedContent: [String: Any]!
     
-    var mockCodeBasedPropositionItem: PropositionItem!
-    var mockCodeBasedProposition: Proposition!
+    var mockCodeBasedPropositionItem: MessagingPropositionItem!
+    var mockCodeBasedProposition: MessagingProposition!
     var mockCodeBasedSurface: Surface!
     var mockCodeBasedContent: [String: Any]!
         
@@ -48,29 +48,29 @@ class ParsedPropositionTests: XCTestCase {
         mockSurface = Surface(uri: "mobileapp://some.not.matching.surface/path")
         
         let inappPropositionV1Content = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1Content")
-        mockInAppPropositionItem = PropositionItem(propositionId: "inapp", schema: jsonSchema, propositionData: inappPropositionV1Content)
-        mockInAppProposition = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [mockInAppPropositionItem])
+        mockInAppPropositionItem = MessagingPropositionItem(itemId: "inapp", schema: jsonSchema, itemData: inappPropositionV1Content)
+        mockInAppProposition = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [mockInAppPropositionItem])
         mockInAppSurface = Surface(uri: "inapp")
         
         let inappPropositionV2Content = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
-        mockInAppPropositionItemv2 = PropositionItem(propositionId: "inapp2", schema: rulesetSchema, propositionData: inappPropositionV2Content)
-        mockInAppPropositionv2 = Proposition(uniqueId: "inapp2", scope: "inapp2", scopeDetails: ["key": "value"], items: [mockInAppPropositionItemv2])
+        mockInAppPropositionItemv2 = MessagingPropositionItem(itemId: "inapp2", schema: rulesetSchema, itemData: inappPropositionV2Content)
+        mockInAppPropositionv2 = MessagingProposition(uniqueId: "inapp2", scope: "inapp2", scopeDetails: ["key": "value"], items: [mockInAppPropositionItemv2])
         mockInAppSurfacev2 = Surface(uri: "inapp2")
         
         mockFeedContent = JSONFileLoader.getRulesJsonFromFile("feedPropositionContent")
-        mockFeedPropositionItem = PropositionItem(propositionId: "feed", schema: rulesetSchema, propositionData: mockFeedContent)
-        mockFeedProposition = Proposition(uniqueId: "feed", scope: "feed", scopeDetails: ["key":"value"], items: [mockFeedPropositionItem])
+        mockFeedPropositionItem = MessagingPropositionItem(itemId: "feed", schema: rulesetSchema, itemData: mockFeedContent)
+        mockFeedProposition = MessagingProposition(uniqueId: "feed", scope: "feed", scopeDetails: ["key":"value"], items: [mockFeedPropositionItem])
         mockFeedSurface = Surface(uri: "feed")
         
         mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionContent")
-        mockCodeBasedPropositionItem = PropositionItem(propositionId: "codebased", schema: htmlSchema, propositionData: mockCodeBasedContent)
-        mockCodeBasedProposition = Proposition(uniqueId: "codebased", scope: "codebased", scopeDetails: ["key":"value"], items: [mockCodeBasedPropositionItem])
+        mockCodeBasedPropositionItem = MessagingPropositionItem(itemId: "codebased", schema: htmlSchema, itemData: mockCodeBasedContent)
+        mockCodeBasedProposition = MessagingProposition(uniqueId: "codebased", scope: "codebased", scopeDetails: ["key":"value"], items: [mockCodeBasedPropositionItem])
         mockCodeBasedSurface = Surface(uri: "codebased")
     }
     
     func testInitWithEmptyPropositions() throws {
         // setup
-        let propositions: [Surface: [Proposition]] = [mockSurface: []]
+        let propositions: [Surface: [MessagingProposition]] = [mockSurface: []]
         
         // test
         let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockSurface])
@@ -85,7 +85,7 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitWithPropositionScopeNotMatchingRequestedSurfaces() throws {
         // setup
-        let propositions: [Surface: [Proposition]] = [
+        let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurface: [mockInAppProposition],
             mockFeedSurface: [mockFeedProposition],
             mockCodeBasedSurface: [mockCodeBasedProposition]
@@ -104,7 +104,7 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitWithInAppPropositionV1() throws {
         // setup
-        let propositions: [Surface: [Proposition]] = [
+        let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurface: [mockInAppProposition]
         ]
         
@@ -128,7 +128,7 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitWithInAppPropositionV2() throws {
         // setup
-        let propositions: [Surface: [Proposition]] = [
+        let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurfacev2: [mockInAppPropositionv2]
         ]
         
@@ -150,7 +150,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(1, iamRules?.count)
         let firstConsequence = iamRules?.first?.value.first?.consequences.first
         XCTAssertNotNil(firstConsequence)
-        let consequenceAsPropositionItem = PropositionItem.fromRuleConsequence(firstConsequence!)
+        let consequenceAsPropositionItem = MessagingPropositionItem.fromRuleConsequence(firstConsequence!)
         let inappSchemaData = consequenceAsPropositionItem?.inappSchemaData
         XCTAssertEqual("text/html", inappSchemaData?.contentType.toString())
         XCTAssertEqual("<html><body>Is this thing even on?</body></html>", inappSchemaData?.content as? String)
@@ -167,7 +167,7 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitWithMultipleInAppPropositionTypes() throws {
         // setup
-        let propositions: [Surface: [Proposition]] = [
+        let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurface: [mockInAppProposition],
             mockInAppSurfacev2: [mockInAppPropositionv2]
         ]
@@ -187,7 +187,7 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitWithFeedProposition() throws {
         // setup
-        let propositions: [Surface: [Proposition]] = [
+        let propositions: [Surface: [MessagingProposition]] = [
             mockFeedSurface: [mockFeedProposition]
         ]
         
@@ -210,7 +210,7 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitWithCodeBasedProposition() throws {
         // setup
-        let propositions: [Surface: [Proposition]] = [
+        let propositions: [Surface: [MessagingProposition]] = [
             mockCodeBasedSurface: [mockCodeBasedProposition]
         ]
         
@@ -233,9 +233,9 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitPropositionItemEmptyContentString() throws {
         // setup
-        mockInAppPropositionItem = PropositionItem(propositionId: "inapp", schema: .inapp, propositionData: nil)
-        mockInAppProposition = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [mockInAppPropositionItem])
-        let propositions: [Surface: [Proposition]] = [
+        mockInAppPropositionItem = MessagingPropositionItem(itemId: "inapp", schema: .inapp, itemData: nil)
+        mockInAppProposition = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [mockInAppPropositionItem])
+        let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurface: [mockInAppProposition]
         ]
         
@@ -253,9 +253,9 @@ class ParsedPropositionTests: XCTestCase {
     func testInitPropositionRuleHasNoConsequence() throws {
         // setup
         let noConsequenceRule = JSONFileLoader.getRulesJsonFromFile("ruleWithNoConsequence")
-        let pi = PropositionItem(propositionId: "inapp", schema: .ruleset, propositionData: noConsequenceRule)
-        let prop = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
-        let propositions: [Surface: [Proposition]] = [
+        let pi = MessagingPropositionItem(itemId: "inapp", schema: .ruleset, itemData: noConsequenceRule)
+        let prop = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
+        let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurface: [prop]
         ]
         
@@ -273,9 +273,9 @@ class ParsedPropositionTests: XCTestCase {
     func testInitPropositionRulesetConsequenceHasUnknownSchema() throws {
         // setup
         let content = JSONFileLoader.getRulesJsonFromFile("ruleWithUnknownConsequenceSchema")
-        let pi = PropositionItem(propositionId: "inapp", schema: .ruleset, propositionData: content)
-        let prop = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
-        let propositions: [Surface: [Proposition]] = [
+        let pi = MessagingPropositionItem(itemId: "inapp", schema: .ruleset, itemData: content)
+        let prop = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
+        let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurface: [prop]
         ]
         
@@ -292,9 +292,9 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitPropositionUnknownSchema() throws {
         // setup
-        let pi = PropositionItem(propositionId: "inapp", schema: .unknown, propositionData: nil)
-        let prop = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
-        let propositions: [Surface: [Proposition]] = [
+        let pi = MessagingPropositionItem(itemId: "inapp", schema: .unknown, itemData: nil)
+        let prop = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
+        let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurface: [prop]
         ]
         
@@ -311,8 +311,8 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitPropositionConsequenceNoPropositionItem() throws {
         // setup
-        let prop = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [])
-        let propositions: [Surface: [Proposition]] = [
+        let prop = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [])
+        let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurface: [prop]
         ]
         

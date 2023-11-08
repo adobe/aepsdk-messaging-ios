@@ -28,14 +28,14 @@ class PropositionPayloadTests: XCTestCase {
     
     let mockItemId = "mockItemId"
     let mockItemSchema: SchemaType = .htmlContent
-    var mockPropositionItem: PropositionItem!
-    var mockItems: [PropositionItem]!
+    var mockPropositionItem: MessagingPropositionItem!
+    var mockItems: [MessagingPropositionItem]!
     
     override func setUp() {
         mockScopeDetails = [
             "correlationID": AnyCodable(mockCorrelationId)
         ]
-        mockPropositionItem = PropositionItem(propositionId: mockItemId, schema: mockItemSchema, propositionData: ["content": mockDataContent])
+        mockPropositionItem = MessagingPropositionItem(itemId: mockItemId, schema: mockItemSchema, itemData: ["content": mockDataContent])
         
         mockItems = [mockPropositionItem]
     }
@@ -68,7 +68,7 @@ class PropositionPayloadTests: XCTestCase {
         XCTAssertEqual(mockScopeDetails, propositionPayload.propositionInfo.scopeDetails)
         XCTAssertEqual(1, propositionPayload.items.count)
         let decodedItem = propositionPayload.items.first!
-        XCTAssertEqual(mockItemId, decodedItem.propositionId)
+        XCTAssertEqual(mockItemId, decodedItem.itemId)
         XCTAssertEqual(mockItemSchema, decodedItem.schema)
         XCTAssertEqual(mockDataContent, decodedItem.htmlContent)
     }
