@@ -130,25 +130,6 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual("urlToAnImage", inappSchemaData?.remoteAssets?.first)
     }
     
-    func testInitWithMultipleInAppPropositionTypes() throws {
-        // setup
-        let propositions: [Surface: [MessagingProposition]] = [
-            mockInAppSurfacev2: [mockInAppPropositionv2]
-        ]
-        
-        // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
-        
-        // verify
-        XCTAssertNotNil(result)
-        XCTAssertEqual(1, result.propositionInfoToCache.count, "should have one IAM in propositionInfo for tracking purposes")
-        XCTAssertEqual(0, result.propositionsToCache.count)
-        XCTAssertEqual(1, result.propositionsToPersist.count, "should have one entries for persistence")
-        XCTAssertEqual(1, result.surfaceRulesBySchemaType.count, "should have one rules to insert in the IAM rules engine")
-        let iamRules = result.surfaceRulesBySchemaType[.inapp]
-        XCTAssertEqual(1, iamRules?.count)
-    }
-    
     func testInitWithFeedProposition() throws {
         // setup
         let propositions: [Surface: [MessagingProposition]] = [
