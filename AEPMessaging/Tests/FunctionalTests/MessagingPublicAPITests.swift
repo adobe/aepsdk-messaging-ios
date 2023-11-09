@@ -13,9 +13,10 @@
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+import AEPTestUtils
 import XCTest
 
-class MessagingPublicAPITests: XCTestCase {
+class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
     var messaging: Messaging!
     var mockRuntime: TestableExtensionRuntime!
     var mockConfigSharedState: [String: Any] = [:]
@@ -45,20 +46,51 @@ class MessagingPublicAPITests: XCTestCase {
         let edgeEvent = mockRuntime.dispatchedEvents[0]
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
-        XCTAssertEqual("apns", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProvider"] as? String)
-        XCTAssertEqual("mockMessageId", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProviderMessageID"] as? String)
-        XCTAssertEqual(1, flattenEdgeEvent?["xdm.application.launches.value"] as? Int)
-        XCTAssertEqual("pushTracking.customAction", flattenEdgeEvent?["xdm.eventType"] as? String)
-        XCTAssertEqual("mockEventDataset", flattenEdgeEvent?["meta.collect.datasetId"] as? String)
-        XCTAssertEqual("mockCustomActionId", flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
-        // cjm/mixins data
-        XCTAssertEqual("some-journeyVersionId", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.journeyVersionID"] as? String)
-        XCTAssertEqual("someJourneyVersionInstanceId", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.journeyVersionInstanceId"] as? String)
-        XCTAssertEqual("567", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.messageID"] as? String)
-        XCTAssertEqual("apns", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.pushChannelContext.platform"] as? String)
-        XCTAssertEqual("https://ns.adobe.com/xdm/channels/push", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageProfile.channel._id"] as? String)
-        XCTAssertEqual("16-Sept-postman", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.messageExecutionID"] as? String)
+        
+        let expectedJSON = #"""
+        {
+          "xdm": {
+            "pushNotificationTracking": {
+              "pushProvider": "apns",
+              "pushProviderMessageID": "mockMessageId",
+              "customAction": {
+                "actionID": "mockCustomActionId"
+              }
+            },
+            "application": {
+              "launches": {
+                "value": 1
+              }
+            },
+            "eventType": "pushTracking.customAction",
+            "_experience": {
+              "customerJourneyManagement": {
+                "messageExecution": {
+                  "journeyVersionID": "some-journeyVersionId",
+                  "journeyVersionInstanceId": "someJourneyVersionInstanceId",
+                  "messageID": "567",
+                  "messageExecutionID": "16-Sept-postman"
+                },
+                "pushChannelContext": {
+                  "platform": "apns"
+                },
+                "messageProfile": {
+                  "channel": {
+                    "_id": "https://ns.adobe.com/xdm/channels/push"
+                  }
+                }
+              }
+            }
+          },
+          "meta": {
+            "collect": {
+              "datasetId": "mockEventDataset"
+            }
+          }
+        }
+        """#
+        
+        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
     }
 
     func testHandleNotificationResponse_noEventDatasetId() {
@@ -114,14 +146,33 @@ class MessagingPublicAPITests: XCTestCase {
         let edgeEvent = mockRuntime.dispatchedEvents[0]
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
-        XCTAssertEqual("apns", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProvider"] as? String)
-        XCTAssertEqual("mockMessageId", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProviderMessageID"] as? String)
-        XCTAssertEqual(1, flattenEdgeEvent?["xdm.application.launches.value"] as? Int)
-        XCTAssertEqual("pushTracking.customAction", flattenEdgeEvent?["xdm.eventType"] as? String)
-        XCTAssertEqual("mockEventDataset", flattenEdgeEvent?["meta.collect.datasetId"] as? String)
-        XCTAssertEqual("mockCustomActionId", flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
-        XCTAssertNil(flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.messageExecutionID"])
+        
+        let expectedJSON = #"""
+        {
+          "xdm": {
+            "pushNotificationTracking": {
+              "pushProvider": "apns",
+              "pushProviderMessageID": "mockMessageId",
+              "customAction": {
+                "actionID": "mockCustomActionId"
+              }
+            },
+            "application": {
+              "launches": {
+                "value": 1
+              }
+            },
+            "eventType": "pushTracking.customAction"
+          },
+          "meta": {
+            "collect": {
+              "datasetId": "mockEventDataset"
+            }
+          }
+        }
+        """#
+        
+        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
     }
 
     // MARK: - Helpers

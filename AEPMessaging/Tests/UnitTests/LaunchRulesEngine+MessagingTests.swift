@@ -14,6 +14,7 @@
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+import AEPTestUtils
 import Foundation
 import XCTest
 

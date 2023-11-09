@@ -76,14 +76,17 @@ end
 
 target 'UnitTests' do
   lib_main
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'json-comparison-custom-protocol'
 end
 
 target 'FunctionalTests' do
   app_main
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'json-comparison-custom-protocol'
 end
 
 target 'E2EFunctionalTests' do
   app_main
+  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :branch => 'json-comparison-custom-protocol'
 end
 
 target 'FunctionalTestApp' do
