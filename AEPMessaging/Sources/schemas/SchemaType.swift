@@ -33,19 +33,19 @@ public enum SchemaType: Int, Codable {
 
         case MessagingConstants.PersonalizationSchemas.JSON_CONTENT:
             self = .jsonContent
-            
+
         case MessagingConstants.PersonalizationSchemas.RULESET_ITEM:
             self = .ruleset
-            
+
         case MessagingConstants.PersonalizationSchemas.IN_APP:
             self = .inapp
-            
+
         case MessagingConstants.PersonalizationSchemas.FEED_ITEM:
             self = .feed
-            
+
         case MessagingConstants.PersonalizationSchemas.NATIVE_ALERT:
             self = .nativeAlert
-            
+
         case MessagingConstants.PersonalizationSchemas.DEFAULT_CONTENT:
             self = .defaultContent
 

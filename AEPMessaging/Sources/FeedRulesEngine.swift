@@ -43,10 +43,11 @@ class FeedRulesEngine {
         var propositionItemsBySurface: [Surface: [MessagingPropositionItem]] = [:]
         for consequence in consequences {
             guard let propositionItem = MessagingPropositionItem.fromRuleConsequence(consequence),
-                  let propositionAsFeedItem = propositionItem.feedItemSchemaData else {
+                  let propositionAsFeedItem = propositionItem.feedItemSchemaData
+            else {
                 continue
             }
-                        
+
             let surfaceUri = propositionAsFeedItem.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
             let surface = Surface(uri: surfaceUri)
 

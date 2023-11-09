@@ -22,7 +22,7 @@ public class FeedItemSchemaData: NSObject, Codable {
     public let publishedDate: Int?
     public let expiryDate: Int?
     public let meta: [String: Any]?
-    
+
     enum CodingKeys: String, CodingKey {
         case content
         case contentType
@@ -30,20 +30,20 @@ public class FeedItemSchemaData: NSObject, Codable {
         case expiryDate
         case meta
     }
-    
+
     /// ONLY USED FOR TESTING
-    private override init() {
-        self.content = "plain-text content"
-        self.contentType = .textPlain
-        self.publishedDate = nil
-        self.expiryDate = nil
-        self.meta = nil
+    override private init() {
+        content = "plain-text content"
+        contentType = .textPlain
+        publishedDate = nil
+        expiryDate = nil
+        meta = nil
     }
-    
+
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        
-        contentType = ContentType(from: try values.decode(String.self, forKey: .contentType))
+
+        contentType = try ContentType(from: values.decode(String.self, forKey: .contentType))
         if contentType == .applicationJson {
             let codableContent = try values.decode([String: AnyCodable].self, forKey: .content)
             content = AnyCodable.toAnyDictionary(dictionary: codableContent) ?? [:]
@@ -55,10 +55,10 @@ public class FeedItemSchemaData: NSObject, Codable {
         let codableMeta = try? values.decode([String: AnyCodable].self, forKey: .meta)
         meta = AnyCodable.toAnyDictionary(dictionary: codableMeta)
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
+
         try container.encode(contentType.toString(), forKey: .contentType)
         if contentType == .applicationJson {
             try container.encode(AnyCodable.from(dictionary: content as? [String: Any]), forKey: .content)
@@ -74,15 +74,16 @@ public class FeedItemSchemaData: NSObject, Codable {
 extension FeedItemSchemaData {
     /// ONLY USED FOR TESTING
     static func getEmpty() -> FeedItemSchemaData {
-        return FeedItemSchemaData()
+        FeedItemSchemaData()
     }
-    
+
     public func getFeedItem() -> FeedItem? {
         guard contentType == .applicationJson,
-              let contentAsJsonData = try? JSONSerialization.data(withJSONObject: content, options: .prettyPrinted) else {
+              let contentAsJsonData = try? JSONSerialization.data(withJSONObject: content, options: .prettyPrinted)
+        else {
             return nil
         }
-        
+
         return try? JSONDecoder().decode(FeedItem.self, from: contentAsJsonData)
     }
 }

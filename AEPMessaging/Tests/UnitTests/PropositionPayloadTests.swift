@@ -28,21 +28,21 @@ class PropositionPayloadTests: XCTestCase {
     
     let mockItemId = "mockItemId"
     let mockItemSchema: SchemaType = .htmlContent
-    var mockPropositionItem: PropositionItem!
-    var mockItems: [PropositionItem]!
+    var mockPropositionItem: MessagingPropositionItem!
+    var mockItems: [MessagingPropositionItem]!
     
     override func setUp() {
         mockScopeDetails = [
             "correlationID": AnyCodable(mockCorrelationId)
         ]
-        mockPropositionItem = PropositionItem(propositionId: mockItemId, schema: mockItemSchema, propositionData: ["content": mockDataContent])
+        mockPropositionItem = MessagingPropositionItem(itemId: mockItemId, schema: mockItemSchema, itemData: ["content": mockDataContent])
         
         mockItems = [mockPropositionItem]
     }
     
     func getDecodedPropositionPayload(fromString: String? = nil) -> PropositionPayload? {
         let decoder = JSONDecoder()
-        let propositionPayloadString = fromString ??  "{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"correlationID\":\"\(mockCorrelationId)\"},\"items\":[{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockItemSchema)\",\"data\":{\"id\":\"\(mockDataId)\",\"content\":\"\(mockDataContent)\"}}]}"
+        let propositionPayloadString = fromString ??  "{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"correlationID\":\"\(mockCorrelationId)\"},\"items\":[{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockItemSchema.toString())\",\"data\":{\"id\":\"\(mockDataId)\",\"content\":\"\(mockDataContent)\"}}]}"
  
         let propositionPayloadData = propositionPayloadString.data(using: .utf8)!
         
@@ -68,7 +68,7 @@ class PropositionPayloadTests: XCTestCase {
         XCTAssertEqual(mockScopeDetails, propositionPayload.propositionInfo.scopeDetails)
         XCTAssertEqual(1, propositionPayload.items.count)
         let decodedItem = propositionPayload.items.first!
-        XCTAssertEqual(mockItemId, decodedItem.propositionId)
+        XCTAssertEqual(mockItemId, decodedItem.itemId)
         XCTAssertEqual(mockItemSchema, decodedItem.schema)
         XCTAssertEqual(mockDataContent, decodedItem.htmlContent)
     }
@@ -80,7 +80,7 @@ class PropositionPayloadTests: XCTestCase {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"id\":\"mockId\",\"scope\":\"mockScope\",\"scopeDetails\":{\"correlationID\":\"mockCorrelationId\"},\"items\":[{\"id\":\"mockItemId\",\"schema\":\"mockItemSchema\",\"data\":{\"id\":\"mockDataId\",\"content\":\"mockDataContent\"}}]}") ?? "fail"
+        let expected = getAnyCodable("{\"id\":\"mockId\",\"scope\":\"mockScope\",\"scopeDetails\":{\"correlationID\":\"mockCorrelationId\"},\"items\":[{\"id\":\"mockItemId\",\"schema\":\"https://ns.adobe.com/personalization/html-content-item\",\"data\":{\"id\":\"mockDataId\",\"content\":\"mockDataContent\"}}]}") ?? "fail"
 
         // test
         guard let encodedPropositionPayload = try? encoder.encode(propositionPayload) else {

@@ -30,10 +30,10 @@ public enum ContentType: Int, Codable {
 
         case MessagingConstants.ContentTypes.TEXT_HTML:
             self = .textHtml
-            
+
         case MessagingConstants.ContentTypes.TEXT_XML:
             self = .textXml
-            
+
         case MessagingConstants.ContentTypes.TEXT_PLAIN:
             self = .textPlain
 

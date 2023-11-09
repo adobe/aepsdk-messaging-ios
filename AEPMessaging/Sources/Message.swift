@@ -70,14 +70,14 @@ public class Message: NSObject {
             fullscreenMessage?.setAssetMap(assets)
         }
     }
-    
+
     private init(parent: Messaging, triggeringEvent: Event) {
-        self.id = ""
+        id = ""
         self.parent = parent
         self.triggeringEvent = triggeringEvent
         super.init()
     }
-    
+
     // MARK: - UI management
 
     /// Requests that UIServices show the this message.
@@ -176,22 +176,23 @@ public class Message: NSObject {
 extension Message {
     static func fromPropositionItem(_ propositionItem: MessagingPropositionItem, with parent: Messaging, triggeringEvent event: Event) -> Message? {
         guard let iamSchemaData = propositionItem.inappSchemaData,
-              let htmlContent = iamSchemaData.content as? String else {
+              let htmlContent = iamSchemaData.content as? String
+        else {
             return nil
         }
-        
+
         let message = Message(parent: parent, triggeringEvent: event)
         message.id = propositionItem.itemId
         let messageSettings = iamSchemaData.getMessageSettings(with: message)
         let usingLocalAssets = message.generateAssetMap(iamSchemaData.remoteAssets)
         message.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: htmlContent,
                                                                                               listener: message,
-                                                                                              isLocalImageUsed: usingLocalAssets, 
+                                                                                              isLocalImageUsed: usingLocalAssets,
                                                                                               settings: messageSettings) as? FullscreenMessage
         if usingLocalAssets {
             message.fullscreenMessage?.setAssetMap(message.assets)
         }
-        
+
         return message
     }
 }

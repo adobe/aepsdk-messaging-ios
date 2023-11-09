@@ -181,8 +181,8 @@ class PropositionInfoTests: XCTestCase {
     
     func testFromProposition() throws {
         // setup
-        let propItem = PropositionItem(propositionId: "itemId", schema: .defaultContent, propositionData: nil)
-        let proposition = Proposition(uniqueId: mockId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propItem])
+        let propItem = MessagingPropositionItem(itemId: "itemId", schema: .defaultContent, itemData: nil)
+        let proposition = MessagingProposition(uniqueId: mockId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propItem])
         
         // test
         let propositionInfo = PropositionInfo.fromProposition(proposition)

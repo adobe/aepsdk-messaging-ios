@@ -524,7 +524,7 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(1, scopeDetails1?.count)
         let item1 = p1?.items.first
         XCTAssertNotNil(item1)
-        XCTAssertEqual(mockContent1, item1?.propositionData?["content"] as? String)
+        XCTAssertEqual(mockContent1, item1?.itemData?["content"] as? String)
         
         let p2 = event.payload?[1]
         XCTAssertNotNil(p2)
@@ -535,7 +535,7 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(1, scopeDetails2?.count)
         let item2 = p2?.items.first
         XCTAssertNotNil(item2)
-        XCTAssertEqual(mockContent2, item2?.propositionData?["content"] as? String)
+        XCTAssertEqual(mockContent2, item2?.itemData?["content"] as? String)
     }
     
     func testPayloadIsNil() throws {
@@ -787,7 +787,7 @@ class EventPlusMessagingTests: XCTestCase {
     
     func testPropositions() throws {
         // setup
-        let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1")
+        let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2")
         let event = Event(name: "name", type: "type", source: "source", data: ["propositions": [ propositionJson ]])
         
         // verify

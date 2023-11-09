@@ -25,7 +25,7 @@ public class InAppSchemaData: NSObject, Codable {
     public let mobileParameters: [String: Any]?
     public let webParameters: [String: Any]?
     public let remoteAssets: [String]?
-    
+
     enum CodingKeys: String, CodingKey {
         case content
         case contentType
@@ -36,11 +36,11 @@ public class InAppSchemaData: NSObject, Codable {
         case webParameters
         case remoteAssets
     }
-    
+
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        
-        contentType = ContentType(from: try values.decode(String.self, forKey: .contentType))
+
+        contentType = try ContentType(from: values.decode(String.self, forKey: .contentType))
         if contentType == .applicationJson {
             let codableContent = try values.decode([String: AnyCodable].self, forKey: .content)
             content = AnyCodable.toAnyDictionary(dictionary: codableContent) ?? [:]
@@ -57,10 +57,10 @@ public class InAppSchemaData: NSObject, Codable {
         webParameters = AnyCodable.toAnyDictionary(dictionary: codableWebParams)
         remoteAssets = try? values.decode([String].self, forKey: .remoteAssets)
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
+
         try container.encode(contentType.toString(), forKey: .contentType)
         if contentType == .applicationJson {
             try container.encode(AnyCodable.from(dictionary: content as? [String: Any]), forKey: .content)
@@ -81,20 +81,20 @@ extension InAppSchemaData {
         guard let mobileParameters = mobileParameters else {
             return MessageSettings(parent: parent)
         }
-        
+
         let vAlign = mobileParameters[MessagingConstants.Event.Data.Key.IAM.VERTICAL_ALIGN] as? String
         let hAlign = mobileParameters[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_ALIGN] as? String
-        var opacity: CGFloat? = nil
+        var opacity: CGFloat?
         if let opacityDouble = mobileParameters[MessagingConstants.Event.Data.Key.IAM.BACKDROP_OPACITY] as? Double {
             opacity = CGFloat(opacityDouble)
         }
-        var cornerRadius: CGFloat? = nil
+        var cornerRadius: CGFloat?
         if let cornerRadiusInt = mobileParameters[MessagingConstants.Event.Data.Key.IAM.CORNER_RADIUS] as? Int {
             cornerRadius = CGFloat(cornerRadiusInt)
         }
         let displayAnimation = mobileParameters[MessagingConstants.Event.Data.Key.IAM.DISPLAY_ANIMATION] as? String
         let dismissAnimation = mobileParameters[MessagingConstants.Event.Data.Key.IAM.DISMISS_ANIMATION] as? String
-        var gestures: [MessageGesture: URL]? = nil
+        var gestures: [MessageGesture: URL]?
         if let gesturesMap = mobileParameters[MessagingConstants.Event.Data.Key.IAM.GESTURES] as? [String: String] {
             gestures = [:]
             for gesture in gesturesMap {
@@ -103,7 +103,7 @@ extension InAppSchemaData {
                 }
             }
         }
-        
+
         let settings = MessageSettings(parent: parent)
             .setWidth(mobileParameters[MessagingConstants.Event.Data.Key.IAM.WIDTH] as? Int)
             .setHeight(mobileParameters[MessagingConstants.Event.Data.Key.IAM.HEIGHT] as? Int)
@@ -119,6 +119,5 @@ extension InAppSchemaData {
             .setDismissAnimation(MessageAnimation.fromString(dismissAnimation ?? "none"))
             .setGestures(gestures)
         return settings
-        
     }
 }

@@ -19,21 +19,21 @@ import Foundation
 public class JsonContentSchemaData: NSObject, Codable {
     public let content: Any
     public let format: ContentType?
-    
+
     enum CodingKeys: String, CodingKey {
         case content
         case format
     }
-    
+
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         if let decodedFormat = try? values.decode(String.self, forKey: .format) {
             format = ContentType(from: decodedFormat)
         } else {
             format = .applicationJson
         }
-                
+
         // TODO: core team is adding support for converting [AnyCodable] to [Any]
         // we'll need to update this condition to be less awkward when that's released
         if let _ = try? values.decode([AnyCodable].self, forKey: .content) {
@@ -45,14 +45,14 @@ public class JsonContentSchemaData: NSObject, Codable {
             content = [:]
         }
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
+
         try container.encode(format?.toString() ?? ContentType.applicationJson.toString(), forKey: .format)
-        
+
         if isArray {
-            try container.encode(AnyCodable.init(getArrayValue), forKey: .content)
+            try container.encode(AnyCodable(getArrayValue), forKey: .content)
         } else if isDictionary {
             try container.encode(AnyCodable.from(dictionary: getDictionaryValue), forKey: .content)
         }
@@ -63,15 +63,15 @@ public extension JsonContentSchemaData {
     var isArray: Bool {
         content as? [Any] != nil
     }
-    
+
     var isDictionary: Bool {
         content as? [String: Any] != nil
     }
-    
+
     var getArrayValue: [Any]? {
         content as? [Any]
     }
-    
+
     var getDictionaryValue: [String: Any]? {
         content as? [String: Any]
     }

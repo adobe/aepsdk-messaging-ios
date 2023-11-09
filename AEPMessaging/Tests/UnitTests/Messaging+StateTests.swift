@@ -24,8 +24,8 @@ class MessagingPlusStateTests: XCTestCase {
     var mockLaunchRulesEngineForFeeds: MockLaunchRulesEngine!
     var mockCache: MockCache!
     let mockIamSurface = Surface(uri: "mobileapp://com.apple.dt.xctest.tool")
-    var mockProposition: Proposition!
-    var mockPropositionItem: PropositionItem!
+    var mockProposition: MessagingProposition!
+    var mockPropositionItem: MessagingPropositionItem!
     var mockPropositionInfo: PropositionInfo!
 
     // Mock constants
@@ -44,10 +44,8 @@ class MessagingPlusStateTests: XCTestCase {
         mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngineForFeeds)
         messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface.uri, cache: mockCache)
         
-        mockPropositionItem = PropositionItem(propositionId: "propItemId", schema: .defaultContent, propositionData: nil)
-        mockProposition = MockProposition(uniqueId: "propId", scope: mockIamSurface.uri, scopeDetails: [:], items: [mockPropositionItem])
-//        let inboundConsequenceDetail = JSONFileLoader.getRulesJsonFromFile("inboundConsequenceDetail")
-//        mockInbound = Inbound.from(consequenceDetail: inboundConsequenceDetail, id: "consequenceId")
+        mockPropositionItem = MessagingPropositionItem(itemId: "propItemId", schema: .defaultContent, itemData: nil)
+        mockProposition = MessagingProposition(uniqueId: "propId", scope: mockIamSurface.uri, scopeDetails: [:], items: [mockPropositionItem])
         mockPropositionInfo = PropositionInfo(id: "propInfoId", scope: mockIamSurface.uri, scopeDetails: [:])
     }
 
@@ -133,7 +131,7 @@ class MessagingPlusStateTests: XCTestCase {
     func testUpdatePropositions() throws {
         // setup
         messaging.propositions = [ mockIamSurface: [mockProposition] ]
-        let newProp = Proposition(uniqueId: "newId", scope: "newScope", scopeDetails: [:], items: [])
+        let newProp = MessagingProposition(uniqueId: "newId", scope: "newScope", scopeDetails: [:], items: [])
         let newPropositions = [Surface(uri: "newScope"): [newProp]]
         
         // test
@@ -146,7 +144,7 @@ class MessagingPlusStateTests: XCTestCase {
     func testUpdatePropositionsRemovingSurfaces() throws {
         // setup
         messaging.propositions = [ mockIamSurface: [mockProposition] ]
-        let newProp = Proposition(uniqueId: "newId", scope: "newScope", scopeDetails: [:], items: [])
+        let newProp = MessagingProposition(uniqueId: "newId", scope: "newScope", scopeDetails: [:], items: [])
         let newPropositions = [Surface(uri: "newScope"): [newProp]]
         
         // test

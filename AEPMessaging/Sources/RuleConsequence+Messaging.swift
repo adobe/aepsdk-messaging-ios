@@ -21,12 +21,8 @@ extension RuleConsequence {
     var isInApp: Bool {
         detailSchema == MessagingConstants.PersonalizationSchemas.IN_APP
     }
-    
-    var isOldInApp: Bool {
-        type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE
-    }
 
-    var detailSchema: String {
+    private var detailSchema: String {
         details[MessagingConstants.Event.Data.Key.SCHEMA] as? String ?? ""
     }
 }

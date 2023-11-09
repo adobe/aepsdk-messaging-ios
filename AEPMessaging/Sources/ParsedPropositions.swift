@@ -35,24 +35,12 @@ struct ParsedPropositions {
                               "Ignoring proposition where scope (\(proposition.scope)) does not match one of the expected surfaces.")
                     continue
                 }
-                
-                // handle format for old versions of IAM
-                if let oldRules = parseRule(proposition.items.first?.itemData ?? [:]) {
-                    if let consequence = oldRules.first?.consequences.first,
-                       consequence.isOldInApp {
-                        propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
-                        propositionsToPersist.add(proposition, forKey: surface)
-                        mergeRules(oldRules, for: surface, with: .inapp)
-                        continue
-                    }
-                }
-                
-                
-                // if not an old format of IAM, handle schema consequences which are representable as PropositionItems
+
+                // handle schema consequences which are representable as MessagingPropositionItems
                 guard let firstPropositionItem = proposition.items.first else {
                     continue
                 }
-                
+
                 switch firstPropositionItem.schema {
                 // - handle ruleset-item schemas
                 case .ruleset:
@@ -60,10 +48,11 @@ struct ParsedPropositions {
                         continue
                     }
                     guard let consequence = parsedRules.first?.consequences.first,
-                          let schemaConsequence = MessagingPropositionItem.fromRuleConsequence(consequence) else {
+                          let schemaConsequence = MessagingPropositionItem.fromRuleConsequence(consequence)
+                    else {
                         continue
                     }
-                    
+
                     // handle these schemas when they're embedded in ruleset-item schemas:
                     // a. in-app schema consequences get persisted to disk, cached for reporting, and added to rules that need to be updated
                     //    i. default-content schema consequences are treated like in-app at a proposition level
@@ -85,7 +74,7 @@ struct ParsedPropositions {
                     default:
                         continue
                     }
-                    
+
                 // - handle json-content, html-content, and default-content schemas for code based experiences
                 //   a. code based schemas are cached for reporting
                 case .jsonContent, .htmlContent, .defaultContent:
@@ -98,7 +87,7 @@ struct ParsedPropositions {
             }
         }
     }
-    
+
     private func parseRule(_ rule: [String: Any]) -> [LaunchRule]? {
         let ruleData = try? JSONSerialization.data(withJSONObject: rule, options: .prettyPrinted)
         return JSONRulesParser.parse(ruleData ?? Data())
@@ -115,4 +104,3 @@ struct ParsedPropositions {
         surfaceRulesBySchemaType[schemaType] = tempRulesBySchemaType
     }
 }
-

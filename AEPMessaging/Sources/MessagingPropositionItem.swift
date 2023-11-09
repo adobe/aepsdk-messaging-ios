@@ -55,7 +55,7 @@ public class MessagingPropositionItem: NSObject, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         itemId = try container.decode(String.self, forKey: .id)
-        schema = SchemaType(from: try container.decode(String.self, forKey: .schema))
+        schema = try SchemaType(from: container.decode(String.self, forKey: .schema))
         let codableItemData = try? container.decode([String: AnyCodable].self, forKey: .data)
         itemData = AnyCodable.toAnyDictionary(dictionary: codableItemData)
     }
@@ -76,57 +76,58 @@ public extension MessagingPropositionItem {
         }
         return try? JSONDecoder().decode(MessagingPropositionItem.self, from: detailsData)
     }
-    
-    static func fromRuleConsequenceEvent(_ event: Event) -> MessagingPropositionItem? {                
+
+    static func fromRuleConsequenceEvent(_ event: Event) -> MessagingPropositionItem? {
         // itemData is optional, thus left out of this guard intentionally
         guard let id = event.schemaId, let schema = event.schemaType else {
             return nil
         }
-        
+
         return MessagingPropositionItem(itemId: id, schema: schema, itemData: event.schemaData)
     }
-        
+
     var jsonContentDictionary: [String: Any]? {
         guard schema == .jsonContent, let jsonItem = getTypedData(JsonContentSchemaData.self) else {
             return nil
         }
-        
+
         return jsonItem.getDictionaryValue
     }
-        
+
     var jsonContentArray: [Any]? {
         guard schema == .jsonContent, let jsonItem = getTypedData(JsonContentSchemaData.self) else {
             return nil
         }
-        
+
         return jsonItem.getArrayValue
     }
-    
+
     var htmlContent: String? {
         guard schema == .htmlContent, let htmlItem = getTypedData(HtmlContentSchemaData.self) else {
             return nil
         }
-        
+
         return htmlItem.content
     }
-    
+
     var inappSchemaData: InAppSchemaData? {
         guard schema == .inapp else {
             return nil
         }
         return getTypedData(InAppSchemaData.self)
     }
-    
+
     var feedItemSchemaData: FeedItemSchemaData? {
         guard schema == .feed else {
             return nil
         }
         return getTypedData(FeedItemSchemaData.self)
     }
-    
-    private func getTypedData<T>(_ type: T.Type) -> T? where T : Decodable {
+
+    private func getTypedData<T>(_ type: T.Type) -> T? where T: Decodable {
         guard let itemData = itemData,
-              let itemDataAsData = try? JSONSerialization.data(withJSONObject: itemData) else {
+              let itemDataAsData = try? JSONSerialization.data(withJSONObject: itemData)
+        else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to get typed data for proposition item - could not convert 'data' field to type 'Data'.")
             return nil
         }
