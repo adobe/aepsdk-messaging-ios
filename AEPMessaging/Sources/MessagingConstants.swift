@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "4.0.0"
+    static let EXTENSION_VERSION = "4.1.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let FEED_RULES_ENGINE_NAME = EXTENSION_NAME + "Feed" + ".rulesengine"
@@ -61,12 +61,12 @@ enum MessagingConstants {
             static let PUSH_TRACKING_EDGE = "Push tracking edge event"
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
-
             static let UPDATE_PROPOSITIONS = "Update propositions"
             static let GET_PROPOSITIONS = "Get propositions"
             static let MESSAGE_PROPOSITIONS_RESPONSE = "Message propositions response"
             static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
             static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
+            static let PUSH_TRACKING_STATUS = "Push tracking status event"
         }
 
         enum Source {
@@ -85,6 +85,7 @@ enum MessagingConstants {
                 static let APPLICATION_OPENED = "applicationOpened"
                 static let ACTION_ID = "actionId"
                 static let REFRESH_MESSAGES = "refreshmessages"
+                static let PUSH_CLICK_THROUGH_URL = "clickThroughUrl"
                 static let ADOBE_XDM = "adobe_xdm"
                 static let REQUEST_EVENT_ID = "requestEventId"
                 static let IAM_HISTORY = "iam"
@@ -94,7 +95,8 @@ enum MessagingConstants {
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
                 static let ENDING_EVENT_ID = "endingEventId"
-
+                static let PUSH_NOTIFICATION_TRACKING_STATUS = "pushTrackingStatus"
+                static let PUSH_NOTIFICATION_TRACKING_MESSAGE = "pushTrackingStatusMessage"
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
                 static let DETAIL = "detail"
@@ -346,6 +348,12 @@ enum MessagingConstants {
             static let IDENTITY_MAP = "identityMap"
             static let ECID = "ECID"
             static let ID = "id"
+        }
+    }
+
+    enum PushNotification {
+        enum UserInfoKey {
+            static let ACTION_URL = "adb_uri"
         }
     }
 }

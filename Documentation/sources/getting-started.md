@@ -97,5 +97,8 @@ If testing in an APNS sandbox environment, add the `messaging.useSandbox` proper
 Immediately after SDK configuration, update the configuration by doing the following:
 
 ```swift
-MobileCore.updateConfigurationWith(configDict: ["messaging.useSandbox": true])
+    #if DEBUG
+            MobileCore.updateConfigurationWith(configDict: ["messaging.useSandbox": true])
+    #endif
+
 ```

@@ -66,4 +66,18 @@
     // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
 }
 
+
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+
+}
+
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+    [AEPMobileMessaging handleNotificationResponse:response closure:^(AEPPushTrackingStatus status){
+        if (status == AEPPushTrackingStatusTrackingInitiated) {
+            NSLog(@"Successfully started push notification tracking");
+        }
+    }];
+}
+
 @end

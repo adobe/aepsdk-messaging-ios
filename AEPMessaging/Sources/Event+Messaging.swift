@@ -388,4 +388,21 @@ extension Event {
     var schemaData: [String: Any]? {
         details?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
     }
+        
+        
+    // MARK: - Push tracking
+        
+    var pushTrackingStatus: PushTrackingStatus? {
+        guard let statusInt = data?[MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS] as? Int else {
+            return nil
+        }
+        return PushTrackingStatus(fromRawValue: statusInt)
+    }
+
+    var pushClickThroughUrl: URL? {
+        guard let link = data?[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] as? String else {
+            return nil
+        }
+        return URL(string: link)
+    }
 }

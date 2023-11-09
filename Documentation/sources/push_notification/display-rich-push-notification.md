@@ -1,15 +1,16 @@
-//
-// Copyright 2023 Adobe. All rights reserved.
-// This file is licensed to you under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License. You may obtain a copy
-// of the License at http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software distributed under
-// the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
-// OF ANY KIND, either express or implied. See the License for the specific language
-// governing permissions and limitations under the License.
-//
+# Display rich push notifications
 
+You must use a Notification Service app extension to download images or other media attachments for the notification before displaying it on user's iOS device.
+
+Follow Apple's documentation to [Add a Notification Service app extension to your project](https://developer.apple.com/documentation/usernotifications/modifying_content_in_newly_delivered_notifications#2942063).
+
+
+### Notification Service Extension Implementation
+ 
+ Here is an example of how to implement the Notification Service Extension to download the media attachment for the notification from Adobe Journey Optimizer.
+
+
+```swift
 import UserNotifications
 
 class NotificationService: UNNotificationServiceExtension {
@@ -49,7 +50,7 @@ extension UNNotificationRequest {
             return nil
         }
         
-        // do not attach anything if its not a valid URL
+        // do not attach anything if it is not a valid URL
         guard let attachmentURL = URL(string: attachmentString) else {
             return nil
         }
@@ -63,9 +64,9 @@ extension UNNotificationRequest {
     }
 }
 
-
 extension UNNotificationAttachment {
-    /// convenience initializer to create a UNNotificationAttachment from a URL
+
+    /// Convenience initializer to create a UNNotificationAttachment from a URL
     /// - Parameters:
     ///  - data: the data to be displayed in the notification
     ///  - options : options for the attachment
@@ -80,16 +81,8 @@ extension UNNotificationAttachment {
         // determine the attachment type from the url
         // common format are png, jpg, gif, mp3,  mpeg4, avi, mp4
         // Reference Apple documentation for supported file types and maximum size : https://developer.apple.com/documentation/usernotifications/unnotificationattachment
-        // sample urls used for testing
-        /// jpg : https://picsum.photos/600
-        /// gif  : https://media.giphy.com/media/MeJgB3yMMwIaHmKD4z/giphy.gif
-        ///
         /// NOTE : Please edit the below code according to the type of rich media notification that your app needs to support
-        if ((attachmentURL.host?.contains("media.giphy.com")) != nil) {
-            attachmentType = ".gif"
-        } else {
-            attachmentType = ".jpg"
-        }
+        attachmentType = ".jpg"
         
         let attachmentName = UUID().uuidString + attachmentType
         let fileURL = temporaryFolderURL.appendingPathComponent(attachmentName)
@@ -98,3 +91,4 @@ extension UNNotificationAttachment {
     }
     
 }
+```

@@ -635,10 +635,15 @@ class MessagingTests: XCTestCase {
         
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let dispatchedInfoEvent = mockRuntime.firstEvent
-        XCTAssertEqual(EventType.edge, dispatchedInfoEvent?.type)
-        XCTAssertEqual(EventSource.requestContent, dispatchedInfoEvent?.source)
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        
+        let dispatchedStatusEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.messaging, dispatchedStatusEvent?.type)
+        XCTAssertEqual(EventSource.responseContent, dispatchedStatusEvent?.source)
+        
+        let dispatchedEdgeEvent = mockRuntime.secondEvent
+        XCTAssertEqual(EventType.edge, dispatchedEdgeEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, dispatchedEdgeEvent?.source)
     }
     
     func testHandleProcessEventRefreshMessageEvent() throws {
