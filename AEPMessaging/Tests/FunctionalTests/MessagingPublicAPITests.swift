@@ -16,7 +16,7 @@
 import AEPTestUtils
 import XCTest
 
-class MessagingPublicAPITests: XCTestCase {
+class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
     var messaging: Messaging!
     var mockRuntime: TestableExtensionRuntime!
     var mockConfigSharedState: [String: Any] = [:]

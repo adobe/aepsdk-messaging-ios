@@ -17,10 +17,11 @@ import AEPEdgeIdentity
 @testable import AEPMessaging
 @testable import AEPRulesEngine
 @testable import AEPServices
+import AEPTestUtils
 
 import XCTest
 
-class InAppMessagingEventTests: XCTestCase {
+class InAppMessagingEventTests: XCTestCase, AnyCodableAsserts {
     
     // testing variables
     var currentMessage: Message?
