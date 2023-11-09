@@ -13,6 +13,7 @@
 @testable import AEPCore
 @testable import AEPServices
 @testable import AEPMessaging
+import AEPTestUtils
 import XCTest
 
 class MessagingPlusStateTests: XCTestCase {
