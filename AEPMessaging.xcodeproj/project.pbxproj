@@ -77,7 +77,6 @@
 		241B2DD62821C99500E4FF67 /* URL+QueryParamsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241B2DD52821C99500E4FF67 /* URL+QueryParamsTests.swift */; };
 		242920D42ABCA559000DB2CD /* ruleWithNoConsequence.json in Resources */ = {isa = PBXBuildFile; fileRef = 242920D32ABCA559000DB2CD /* ruleWithNoConsequence.json */; };
 		242920D62ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json in Resources */ = {isa = PBXBuildFile; fileRef = 242920D52ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json */; };
-		242920D82ABCEEC8000DB2CD /* XCTestCase+AnyCodableAsserts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920D72ABCEEC8000DB2CD /* XCTestCase+AnyCodableAsserts.swift */; };
 		242920DA2ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920D92ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift */; };
 		242920E42AC4D060000DB2CD /* FeedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920E22AC4D060000DB2CD /* FeedTests.swift */; };
 		242920E52AC4D060000DB2CD /* InboundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242920E32AC4D060000DB2CD /* InboundTests.swift */; };
@@ -176,8 +175,6 @@
 		75B4333CC0B4F5BFAC707055 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */; };
 		8C4723D49BD3F1EB4060FEAE /* Pods_FunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB9F1A791A757B3C68D23B9D /* Pods_FunctionalTestApp.framework */; };
 		8DEEA93D16C40CA285E20AD5 /* Pods_MessagingDemoAppSwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91A11E37A49E14EB847FB2DF /* Pods_MessagingDemoAppSwiftUI.framework */; };
-		9231545E261E3B6F004AE7D3 /* TestableExtensionRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543D261E3B36004AE7D3 /* TestableExtensionRuntime.swift */; };
-		92315465261E3B72004AE7D3 /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543E261E3B36004AE7D3 /* MockNetworkService.swift */; };
 		9231546C261E3B75004AE7D3 /* MockExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543F261E3B36004AE7D3 /* MockExtension.swift */; };
 		92315508261E444A004AE7D3 /* AEPMessaging.h in Headers */ = {isa = PBXBuildFile; fileRef = 92315435261E3B36004AE7D3 /* AEPMessaging.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9249A4E2252292AB009193AB /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
@@ -406,7 +403,6 @@
 		241B2DD52821C99500E4FF67 /* URL+QueryParamsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+QueryParamsTests.swift"; sourceTree = "<group>"; };
 		242920D32ABCA559000DB2CD /* ruleWithNoConsequence.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ruleWithNoConsequence.json; sourceTree = "<group>"; };
 		242920D52ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ruleWithUnknownConsequenceSchema.json; sourceTree = "<group>"; };
-		242920D72ABCEEC8000DB2CD /* XCTestCase+AnyCodableAsserts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+AnyCodableAsserts.swift"; sourceTree = "<group>"; };
 		242920D92ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuleConsequence+MessagingTests.swift"; sourceTree = "<group>"; };
 		242920E22AC4D060000DB2CD /* FeedTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedTests.swift; sourceTree = "<group>"; };
 		242920E32AC4D060000DB2CD /* InboundTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InboundTests.swift; sourceTree = "<group>"; };
@@ -909,8 +905,6 @@
 				92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */,
 				2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */,
 				243EA6DF2739D9D700195945 /* TestableMessagingMobileParameters.swift */,
-				928639D026374463000AFA53 /* TestableNetworkService.swift */,
-				242920D72ABCEEC8000DB2CD /* XCTestCase+AnyCodableAsserts.swift */,
 			);
 			path = TestHelpers;
 			sourceTree = "<group>";
@@ -1872,7 +1866,6 @@
 				245059702673DBFE00CC7CA0 /* Messaging+PublicApiTest.swift in Sources */,
 				243EA6D0273325DC00195945 /* MessageTests.swift in Sources */,
 				244FEA4629B6A5D30058FA1C /* FeedItemTests.swift in Sources */,
-				92FC58C9263688F0005BAE02 /* EventHub+Testable.swift in Sources */,
 				243EA6C92733258600195945 /* Dictionary+MergingTests.swift in Sources */,
 				2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */,
 				243EA6DA2739D47500195945 /* MockMessaging.swift in Sources */,
@@ -1896,7 +1889,6 @@
 				248BD9CA28BD56A200C49B94 /* PropositionInfoTests.swift in Sources */,
 				240FC4302AAFB08E00AFEEEB /* ParsedPropositionsTests.swift in Sources */,
 				243EA6DC2739D48900195945 /* MockMessage.swift in Sources */,
-				242920D82ABCEEC8000DB2CD /* XCTestCase+AnyCodableAsserts.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1905,13 +1897,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				090290C329D4EA9F00388226 /* MockCache.swift in Sources */,
-				92FC58D326368900005BAE02 /* MockNetworkService.swift in Sources */,
-				92FC58CE263688FD005BAE02 /* TestableExtensionRuntime.swift in Sources */,
 				928639FC263757A7000AFA53 /* Dictionary+Flatten.swift in Sources */,
 				2402745D29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */,
 				24EE301E28FF61F0005E417C /* InAppMessagingEventTests.swift in Sources */,
-				92FC58C8263688F0005BAE02 /* EventHub+Testable.swift in Sources */,
-				928639D126374463000AFA53 /* TestableNetworkService.swift in Sources */,
 				92FC594526372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */,
 				92FC587B2636840C005BAE02 /* MessagingPublicAPITests.swift in Sources */,
 				2469A5FB2759401900E56457 /* ConfigurationLoader.swift in Sources */,
