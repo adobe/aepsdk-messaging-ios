@@ -15,8 +15,9 @@ import XCTest
 
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
-class PropositionPayloadTests: XCTestCase {
+class PropositionPayloadTests: XCTestCase, AnyCodableAsserts {
     let mockId = "mockId"
     let mockScope = "mockScope"
     let mockCorrelationId = "mockCorrelationId"
