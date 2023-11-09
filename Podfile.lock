@@ -34,7 +34,7 @@ DEPENDENCIES:
   - AEPRulesEngine
   - AEPServices
   - AEPSignal
-  - AEPTestUtils (from `https://github.com/adobe/aepsdk-testutils-ios.git`, branch `main`)
+  - AEPTestUtils (from `https://github.com/adobe/aepsdk-testutils-ios.git`, branch `json-comparison-custom-protocol`)
   - SwiftLint (= 0.52.0)
 
 SPEC REPOS:
@@ -52,12 +52,12 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   AEPTestUtils:
-    :branch: main
+    :branch: json-comparison-custom-protocol
     :git: https://github.com/adobe/aepsdk-testutils-ios.git
 
 CHECKOUT OPTIONS:
   AEPTestUtils:
-    :commit: 642f978a483058219a58e8022dd219bce8fd3306
+    :commit: 566ce383cbe90ace30dc9d9e6a37c1d031bf2494
     :git: https://github.com/adobe/aepsdk-testutils-ios.git
 
 SPEC CHECKSUMS:
@@ -73,6 +73,6 @@ SPEC CHECKSUMS:
   AEPTestUtils: 756e5997318be74584057d7628941c737d358640
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: c00e75d52d16b2abe586aa736936e0f94b5ced1c
+PODFILE CHECKSUM: 19c08cd37d44baa4252bc7328222a03d3eca7e0b
 
 COCOAPODS: 1.12.0
