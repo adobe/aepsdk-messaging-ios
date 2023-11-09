@@ -14,7 +14,6 @@
 import AEPEdge
 import AEPEdgeConsent
 import AEPEdgeIdentity
-import AEPTestUtils
 @testable import AEPMessaging
 @testable import AEPRulesEngine
 @testable import AEPServices
