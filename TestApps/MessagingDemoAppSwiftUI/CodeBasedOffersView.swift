@@ -16,11 +16,14 @@ import SwiftUI
 struct CodeBasedOffersView: View {
     @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
     @State private var viewDidLoad = false
+    
+    // prod surfaces
 //    let testSurface = Surface(path: "codeBasedView#customHtmlOffer")
 //    let testSurface = Surface(path: "sb/cbe-json-object")
-    let testSurface = Surface(path: "sb/cbe-json")
+//    let testSurface = Surface(path: "sb/cbe-json")
     
-//    let testSurface = Surface(path: "cbeoffers3")
+    // staging surfaces
+    let testSurface = Surface(path: "cbeoffers3")
     var body: some View {
         VStack {
             Text("Code Based Experiences")
