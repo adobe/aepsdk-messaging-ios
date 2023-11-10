@@ -246,5 +246,4 @@ import UserNotifications
 
         return modifiedEventData
     }
-
 }
