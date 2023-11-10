@@ -18,7 +18,7 @@ import AEPServices
 import AEPTestUtils
 import XCTest
 
-class MessagingNotificationTrackingTests: TestBase {
+class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
     private let mockNetworkService: MockNetworkService = MockNetworkService()
 
     static let mockUserInfo = ["_xdm" :
