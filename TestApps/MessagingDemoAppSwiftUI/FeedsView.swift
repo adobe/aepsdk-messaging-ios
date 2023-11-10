@@ -17,8 +17,10 @@ struct FeedsView: View {
     @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
     @State private var propositionsHaveBeenFetched = false
     @State private var feedName: String = "API feed"
+    
+    // staging feeds
     private let surface = Surface(path: "feeds/schema_feeditem_with_id_hack")
-//    private let surface = Surface(path: "feeds/schema_feeditem_sale")
+    // private let surface = Surface(path: "feeds/schema_feeditem_sale")
     
     var body: some View {
         NavigationView {

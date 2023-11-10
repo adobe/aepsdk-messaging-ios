@@ -18,9 +18,9 @@ import AEPServices
 import AEPTestUtils
 import XCTest
 
-class MessagingNotificationTrackingTests: TestBase {
+class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
     private let mockNetworkService: MockNetworkService = MockNetworkService()
-    
+
     static let mockUserInfo = ["_xdm" :
                                 ["cjm":
                                     ["_experience":
@@ -44,6 +44,7 @@ class MessagingNotificationTrackingTests: TestBase {
 
     override func setUp() {
         super.setUp()
+
         ServiceProvider.shared.networkService = mockNetworkService
         continueAfterFailure = true
         FileManager.default.clearCache()
@@ -99,7 +100,7 @@ class MessagingNotificationTrackingTests: TestBase {
         let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
         XCTAssertEqual(1, events.count)
         let edgeEvent = events.first!
-        
+
         // Note: JSON comparison tool cannot currently validate that a key does not exist
         // it also cannot strictly validate the count of collections when using assertExact/TypeMatch modes
         if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
@@ -411,7 +412,6 @@ class MessagingNotificationTrackingTests: TestBase {
         // verify push tracking information
         XCTAssertNil(flattenedEvent?["pushClickThroughUrl"] as? String)
     }
-
     
     
     // MARK: - Private Helpers functions

@@ -198,7 +198,8 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
         
         // verify
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        // TODO: verify push status event response?
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
     }
     
     func testFetchMessages_whenUpdateFeedsRequest_emptySurfacesArray() throws {
@@ -217,7 +218,8 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
         
         // verify
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        // TODO: verify push status event response?
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
     }
     
 //    func testHandleEdgePersonalizationNotificationHappy_inAppPropositions() throws {
@@ -635,10 +637,15 @@ class MessagingTests: XCTestCase {
         
         // test
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let dispatchedInfoEvent = mockRuntime.firstEvent
-        XCTAssertEqual(EventType.edge, dispatchedInfoEvent?.type)
-        XCTAssertEqual(EventSource.requestContent, dispatchedInfoEvent?.source)
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        
+        let dispatchedStatusEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.messaging, dispatchedStatusEvent?.type)
+        XCTAssertEqual(EventSource.responseContent, dispatchedStatusEvent?.source)
+        
+        let dispatchedEdgeEvent = mockRuntime.secondEvent
+        XCTAssertEqual(EventType.edge, dispatchedEdgeEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, dispatchedEdgeEvent?.source)
     }
     
     func testHandleProcessEventRefreshMessageEvent() throws {

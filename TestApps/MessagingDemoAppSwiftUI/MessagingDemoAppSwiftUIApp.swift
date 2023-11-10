@@ -21,11 +21,13 @@ import AEPMessaging
 import SwiftUI
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
+    // change bundle id to com.steveb.iamStagingTester to work on staging
     // stage
-    // private let ENVIRONMENT_FILE_ID = "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development"
+     private let ENVIRONMENT_FILE_ID = "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development"
     
+    // change bundle id to com.adobe.MessagingDemoAppSwiftUI to work on prod
     // prod
-    private let ENVIRONMENT_FILE_ID = "3149c49c3910/b6541e5e6301/launch-f7ac0a320fb3-development"
+    // private let ENVIRONMENT_FILE_ID = "3149c49c3910/b6541e5e6301/launch-f7ac0a320fb3-development"
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         MobileCore.setLogLevel(.trace)
@@ -44,8 +46,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 
             // set `messaging.useSandbox` to "true"  to test push notifications in debug environment (Apps signed with Development Certificate)
         #if DEBUG
-//            let debugConfig = ["messaging.useSandbox": true, "edge.environment": "int"]
-//            MobileCore.updateConfigurationWith(configDict: debugConfig)
+            let debugConfig = ["messaging.useSandbox": true, "edge.environment": "int"]
+            MobileCore.updateConfigurationWith(configDict: debugConfig)
         #endif
         }
         
