@@ -22,10 +22,10 @@ public class Feed: NSObject, Codable {
     /// Friendly name for the feed, provided in the AJO UI
     public let name: String
 
-    /// Array of `FeedItem` that are members of this `Feed`
-    public internal(set) var items: [FeedItem]
+    /// Array of `FeedItemSchemaData` that are members of this `Feed`
+    public internal(set) var items: [FeedItemSchemaData]
 
-    public init(name: String, surface: Surface, items: [FeedItem]) {
+    public init(name: String, surface: Surface, items: [FeedItemSchemaData]) {
         self.name = name
         self.surface = surface
         self.items = items

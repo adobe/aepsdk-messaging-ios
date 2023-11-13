@@ -14,9 +14,14 @@ import AEPMessaging
 import SwiftUI
 
 struct FeedsView: View {
-    @ObservedObject var propositionsResult: PropositionsResult
-    @State private var viewDidLoad = false
+    @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
+    @State private var propositionsHaveBeenFetched = false
     @State private var feedName: String = "API feed"
+    
+    // staging feeds
+    private let surface = Surface(path: "feeds/schema_feeditem_with_id_hack")
+    // private let surface = Surface(path: "feeds/schema_feeditem_sale")
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -24,30 +29,28 @@ struct FeedsView: View {
                     .font(.title)
                     .padding(.top, 30)
                 List {
-                    ForEach(propositionsResult.propositionsDict?[Surface(path: "feeds/apifeed")]?
-                        .compactMap { $0.items.first?.decodeContent() } ?? [], id: \.uniqueId) { inboundMessage in
-                        if let feedItem = inboundMessage.decodeContent(FeedItem.self) {
-                            NavigationLink(destination: FeedItemDetailView(feedItem: feedItem)) {
-                                FeedItemView(feedItem: feedItem)
+                    ForEach(propositionsDict?[surface]?.compactMap {
+                        $0.items.first } ?? [], id: \.itemId ) { propositionItem in
+                            if let feedItemSchema = propositionItem.feedItemSchemaData, let feedItem = feedItemSchema.getFeedItem() {
+                                NavigationLink(destination: FeedItemDetailView(feedItem: feedItem)) {
+                                    FeedItemView(feedItem: feedItem)
+                                }
                             }
                         }
-                    }
                 }
                 .listStyle(.plain)
                 .navigationBarTitle(Text("Back"), displayMode: .inline)
                 .onAppear {
-                    if viewDidLoad == false {
-                        viewDidLoad = true
-                        Messaging.updatePropositionsForSurfaces([Surface(path: "feeds/apifeed")])
-                    } else {
-                        Messaging.getPropositionsForSurfaces([Surface(path: "feeds/apifeed")]) { propositionsDict, error in
-                            guard error == nil else {
-                                return
-                            }
-                            DispatchQueue.main.async {
-                                self.propositionsResult.propositionsDict = propositionsDict
-                            }
+                    if !propositionsHaveBeenFetched {
+                        Messaging.updatePropositionsForSurfaces([surface])
+                        propositionsHaveBeenFetched = true
+                    }
+                    
+                    Messaging.getPropositionsForSurfaces([surface]) { propositionsDict, error in
+                        guard error == nil else {
+                            return
                         }
+                        self.propositionsDict = propositionsDict
                     }
                 }
             }
@@ -58,6 +61,6 @@ struct FeedsView: View {
 
 struct FeedsView_Previews: PreviewProvider {
     static var previews: some View {
-        FeedsView(propositionsResult: PropositionsResult())
+        FeedsView()
     }
 }

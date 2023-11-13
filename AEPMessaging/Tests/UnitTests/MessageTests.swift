@@ -16,6 +16,7 @@ import XCTest
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+import AEPTestUtils
 import WebKit
 
 class MessageTests: XCTestCase, FullscreenMessageDelegate {

@@ -16,6 +16,7 @@ import XCTest
 import AEPCore
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
 class MessageFullscreenMessageDelegateTests: XCTestCase {
     var message: Message!

@@ -15,7 +15,8 @@
           "id": "e572a8fa-eada-4d72-a643-ec4de447678c",
           "schema": "https:\/\/ns.adobe.com\/personalization\/html-content-item",
           "data": {
-              "content": "<!DOCTYPE html> <html> <body> <p style=\"color:black;font-size:60px;\">!!Spring sale!!<\/p> <p style=\"color:green;font-size:40px;\">Get 20% off on your first purchase.<\/p> <\/body> <\/html>"
+              "content": "<!DOCTYPE html> <html> <body> <p style=\"color:black;font-size:60px;\">!!Spring sale!!<\/p> <p style=\"color:green;font-size:40px;\">Get 20% off on your first purchase.<\/p> <\/body> <\/html>",
+              "format": "text/html"
           }
         }
     ],

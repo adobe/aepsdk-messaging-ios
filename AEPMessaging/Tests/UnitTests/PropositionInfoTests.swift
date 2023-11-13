@@ -15,8 +15,9 @@ import XCTest
 
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
-class PropositionInfoTests: XCTestCase {
+class PropositionInfoTests: XCTestCase, AnyCodableAsserts {
     let mockId = "mockId"
     let mockScope = "mockScope"
     let mockCorrelationId = "mockCorrelationId"
@@ -152,5 +153,44 @@ class PropositionInfoTests: XCTestCase {
         
         // verify
         XCTAssertEqual("", propositionInfo.activityId)
+    }
+    
+    // MARK: - extension vars
+    func testActivityId() throws {
+        // setup
+        let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: mockScopeDetails)
+        
+        // verify
+        XCTAssertEqual(mockActivityId, propositionInfo.activityId)
+    }
+    
+    func testActivityIdNoActivityObject() throws {
+        // setup
+        let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: [ "noActivityObject": "foundHere" ])
+        
+        // verify
+        XCTAssertEqual("", propositionInfo.activityId)
+    }
+    
+    func testActivityIdNoIdInActivityObject() throws {
+        // setup
+        let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: [ "activity": [ "noId": "foundHere" ]])
+        
+        // verify
+        XCTAssertEqual("", propositionInfo.activityId)
+    }
+    
+    func testFromProposition() throws {
+        // setup
+        let propItem = MessagingPropositionItem(itemId: "itemId", schema: .defaultContent, itemData: nil)
+        let proposition = MessagingProposition(uniqueId: mockId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propItem])
+        
+        // test
+        let propositionInfo = PropositionInfo.fromProposition(proposition)
+        
+        // verify
+        XCTAssertEqual(mockId, propositionInfo.id)
+        XCTAssertEqual(mockScope, propositionInfo.scope)
+        XCTAssertEqual(2, propositionInfo.scopeDetails.count)
     }
 }

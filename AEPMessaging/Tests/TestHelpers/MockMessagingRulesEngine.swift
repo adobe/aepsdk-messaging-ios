@@ -13,6 +13,7 @@
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+import AEPTestUtils
 import Foundation
 
 class MockMessagingRulesEngine: MessagingRulesEngine {
@@ -25,7 +26,6 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
         mockRuntime = TestableExtensionRuntime()
         mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: runtime)
         super.init(extensionRuntime: mockRuntime, launchRulesEngine: mockRulesEngine, cache: mockCache)
-        //        super.init(name: name, extensionRuntime: runtime)
     }
 
     override init(extensionRuntime: ExtensionRuntime, launchRulesEngine: LaunchRulesEngine, cache: Cache) {

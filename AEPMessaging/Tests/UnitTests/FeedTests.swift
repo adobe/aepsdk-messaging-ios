@@ -10,31 +10,26 @@
  governing permissions and limitations under the License.
  */
 
-@testable import AEPCore
-@testable import AEPMessaging
 import Foundation
+import XCTest
 
-class MockProposition: Proposition {
+@testable import AEPMessaging
+import AEPServices
+
+class FeedTests: XCTestCase {
+    func testFeedIsCreatable() throws {
+        // setup
+        let mockName = "aName"
+        let mockSurface = Surface(uri: "mySurface")
+        let mockFeedItem = FeedItemSchemaData.getEmpty()
         
-//    override let scope: String {
-//        get {
-//            return internalScope
-//        }
-//    }
-//    
-//    override var items: [PropositionItem] {
-//        get {
-//            return internalItems
-//        }
-//    }
-//    
-//    var internalScope: String = ""
-//    func setScope(_ scope: String) {
-//        internalScope = scope
-//    }
-//    
-//    var internalItems: [PropositionItem] = []
-//    func setItems(_ items: [PropositionItem]) {
-//        internalItems = items
-//    }
+        // test
+        let feed = Feed(name: mockName, surface: mockSurface, items: [mockFeedItem])
+        
+        // verify
+        XCTAssertEqual(mockName, feed.name)
+        XCTAssertEqual(mockSurface, feed.surface)
+        XCTAssertEqual(1, feed.items.count)
+        XCTAssertEqual(mockFeedItem, feed.items.first)
+    }
 }
