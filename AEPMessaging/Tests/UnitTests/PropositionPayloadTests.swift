@@ -15,8 +15,9 @@ import XCTest
 
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
-class PropositionPayloadTests: XCTestCase {
+class PropositionPayloadTests: XCTestCase, AnyCodableAsserts {
     let mockId = "mockId"
     let mockScope = "mockScope"
     let mockCorrelationId = "mockCorrelationId"
@@ -25,25 +26,24 @@ class PropositionPayloadTests: XCTestCase {
     
     let mockDataId = "mockDataId"
     let mockDataContent = "mockDataContent"
-    var mockItemData: ItemData!
     
     let mockItemId = "mockItemId"
-    let mockItemSchema = "mockItemSchema"
-    var mockPayloadItem: PayloadItem!
-    var mockItems: [PayloadItem]!
+    let mockItemSchema: SchemaType = .htmlContent
+    var mockPropositionItem: MessagingPropositionItem!
+    var mockItems: [MessagingPropositionItem]!
     
     override func setUp() {
         mockScopeDetails = [
             "correlationID": AnyCodable(mockCorrelationId)
         ]
-        mockItemData = ItemData(id: mockDataId, content: mockDataContent)
-        mockPayloadItem = PayloadItem(id: mockItemId, schema: mockItemSchema, data: mockItemData)
-        mockItems = [mockPayloadItem]
+        mockPropositionItem = MessagingPropositionItem(itemId: mockItemId, schema: mockItemSchema, itemData: ["content": mockDataContent])
+        
+        mockItems = [mockPropositionItem]
     }
     
     func getDecodedPropositionPayload(fromString: String? = nil) -> PropositionPayload? {
         let decoder = JSONDecoder()
-        let propositionPayloadString = fromString ??  "{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"correlationID\":\"\(mockCorrelationId)\"},\"items\":[{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockItemSchema)\",\"data\":{\"id\":\"\(mockDataId)\",\"content\":\"\(mockDataContent)\"}}]}"
+        let propositionPayloadString = fromString ??  "{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"correlationID\":\"\(mockCorrelationId)\"},\"items\":[{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockItemSchema.toString())\",\"data\":{\"id\":\"\(mockDataId)\",\"content\":\"\(mockDataContent)\"}}]}"
  
         let propositionPayloadData = propositionPayloadString.data(using: .utf8)!
         
@@ -69,10 +69,9 @@ class PropositionPayloadTests: XCTestCase {
         XCTAssertEqual(mockScopeDetails, propositionPayload.propositionInfo.scopeDetails)
         XCTAssertEqual(1, propositionPayload.items.count)
         let decodedItem = propositionPayload.items.first!
-        XCTAssertEqual(mockItemId, decodedItem.id)
+        XCTAssertEqual(mockItemId, decodedItem.itemId)
         XCTAssertEqual(mockItemSchema, decodedItem.schema)
-        XCTAssertEqual(mockDataId, decodedItem.data.id)
-        XCTAssertEqual(mockDataContent, decodedItem.data.content)
+        XCTAssertEqual(mockDataContent, decodedItem.htmlContent)
     }
     
     func testIsEncodable() throws {
@@ -82,6 +81,7 @@ class PropositionPayloadTests: XCTestCase {
             return
         }
         let encoder = JSONEncoder()
+        let expected = getAnyCodable("{\"id\":\"mockId\",\"scope\":\"mockScope\",\"scopeDetails\":{\"correlationID\":\"mockCorrelationId\"},\"items\":[{\"id\":\"mockItemId\",\"schema\":\"https://ns.adobe.com/personalization/html-content-item\",\"data\":{\"id\":\"mockDataId\",\"content\":\"mockDataContent\"}}]}") ?? "fail"
 
         // test
         guard let encodedPropositionPayload = try? encoder.encode(propositionPayload) else {
@@ -90,7 +90,8 @@ class PropositionPayloadTests: XCTestCase {
         }
 
         // verify
-        XCTAssertEqual("{\"id\":\"mockId\",\"scope\":\"mockScope\",\"scopeDetails\":{\"correlationID\":\"mockCorrelationId\"},\"items\":[{\"id\":\"mockItemId\",\"schema\":\"mockItemSchema\",\"data\":{\"id\":\"mockDataId\",\"content\":\"mockDataContent\"}}]}", String(data: encodedPropositionPayload, encoding: .utf8))
+        let actual = getAnyCodable(String(data: encodedPropositionPayload, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expected, actual: actual)
     }
     
     // MARK: - Exception path

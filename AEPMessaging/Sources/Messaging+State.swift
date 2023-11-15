@@ -27,7 +27,6 @@ extension Messaging {
     func clear(surfaces: [Surface]) {
         for surface in surfaces {
             propositions.removeValue(forKey: surface)
-            inboundMessages.removeValue(forKey: surface)
             for (key, value) in propositionInfo where value.scope == surface.uri {
                 propositionInfo.removeValue(forKey: key)
             }
@@ -63,34 +62,26 @@ extension Messaging {
         }
     }
 
-    func updateInboundMessages(_ newInboundMessages: [Surface: [Inbound]], surfaces: [Surface]) {
-        for surface in surfaces {
-            if let inboundMessagesArray = newInboundMessages[surface] {
-                inboundMessages[surface] = inboundMessagesArray
-            } else {
-                if inboundMessages.contains(where: { $0.key == surface }) {
-                    inboundMessages.removeValue(forKey: surface)
-                }
-            }
-        }
-    }
-
     func retrieveFeedMessages() -> [Surface: Feed] {
         var feedMessages: [Surface: Feed] = [:]
-        for (surface, inboundArr) in inboundMessages {
-            for inbound in inboundArr {
-                guard let feedItem: FeedItem = inbound.decodeContent(FeedItem.self) else {
-                    continue
-                }
+        for (surface, propositionArray) in propositions {
+            for proposition in propositionArray {
+                for propositionItem in proposition.items {
+                    guard propositionItem.schema == .feed,
+                          let feedItemSchemaData = propositionItem.feedItemSchemaData
+                    else {
+                        continue
+                    }
 
-                feedItem.inbound = inbound
-                let feedName = inbound.meta?[MessagingConstants.Event.Data.Key.Feed.FEED_NAME] as? String ?? ""
+                    // feedName should always be available in the meta dictionary of a feed-item proposition
+                    let feedName = feedItemSchemaData.meta?[MessagingConstants.Event.Data.Key.Feed.FEED_NAME] as? String ?? ""
 
-                // Find the feed to insert the feed item else create a new feed for it
-                if feedMessages[surface] != nil {
-                    feedMessages[surface]?.items.append(feedItem)
-                } else {
-                    feedMessages[surface] = Feed(name: feedName, surface: surface, items: [feedItem])
+                    // find the feed to insert the feed item else create a new feed for it
+                    if feedMessages[surface] != nil {
+                        feedMessages[surface]?.items.append(feedItemSchemaData)
+                    } else {
+                        feedMessages[surface] = Feed(name: feedName, surface: surface, items: [feedItemSchemaData])
+                    }
                 }
             }
         }
@@ -101,7 +92,7 @@ extension Messaging {
 
     private func hydratePropositionsRulesEngine() {
         let parsedPropositions = ParsedPropositions(with: propositions, requestedSurfaces: propositions.map { $0.key })
-        if let inAppRules = parsedPropositions.surfaceRulesByInboundType[.inapp] {
+        if let inAppRules = parsedPropositions.surfaceRulesBySchemaType[.inapp] {
             rulesEngine.launchRulesEngine.replaceRules(with: inAppRules.flatMap { $0.value })
         }
     }

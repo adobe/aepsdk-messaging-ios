@@ -15,6 +15,7 @@ import XCTest
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+import AEPTestUtils
 
 class EventPlusMessagingTests: XCTestCase {
     var messaging: Messaging!
@@ -51,7 +52,7 @@ class EventPlusMessagingTests: XCTestCase {
     // MARK: - Helpers
 
     /// Gets an event to use for simulating a rules consequence
-    func getRulesResponseEvent(type: String? = MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
+    private func getRulesResponseEvent(type: String? = MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
                                triggeredConsequence: [String: Any]? = nil,
                                removeDetails: [String]? = nil) -> Event {
 
@@ -116,7 +117,7 @@ class EventPlusMessagingTests: XCTestCase {
      */
     
     /// Gets an AEP Response Event for testing
-    func getAEPResponseEvent(type: String = EventType.edge,
+    private func getAEPResponseEvent(type: String = EventType.edge,
                              source: String = MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
                              data: [String: Any]? = nil) -> Event {
         var eventData = data
@@ -171,7 +172,7 @@ class EventPlusMessagingTests: XCTestCase {
         return rulesEvent
     }
 
-    func getRefreshMessagesEvent(type: String = MessagingConstants.Event.EventType.messaging,
+    private func getRefreshMessagesEvent(type: String = MessagingConstants.Event.EventType.messaging,
                                  source: String = EventSource.requestContent,
                                  data: [String: Any]? = nil) -> Event {
         var eventData = data
@@ -187,7 +188,7 @@ class EventPlusMessagingTests: XCTestCase {
         return event
     }
 
-    func getClickthroughEvent(_ data: [String: Any]? = nil) -> Event {
+    private func getClickthroughEvent(_ data: [String: Any]? = nil) -> Event {
         let data = data ?? [
             MessagingConstants.Event.Data.Key.EVENT_TYPE: mockXdmEventType,
             MessagingConstants.Event.Data.Key.MESSAGE_ID: mockMessagingId,
@@ -203,12 +204,21 @@ class EventPlusMessagingTests: XCTestCase {
                      source: EventSource.requestContent, data: data)
     }
     
-    func getSetPushIdentifierEvent(overriddingData: [String: Any]? = nil) -> Event {
-        let data = overriddingData ?? [
+    private func getSetPushIdentifierEvent(overridingData: [String: Any]? = nil) -> Event {
+        let data = overridingData ?? [
             MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: mockPushToken
         ]
         
         return Event(name: "Test Set Push Identifier Event", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
+    }
+    
+    private func getPushTrackingStatusEvent(status: PushTrackingStatus = .trackingInitiated, overridingData: [String: Any]? = nil) -> Event {
+        let data = overridingData ?? [
+            MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS: status.rawValue,
+            MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_MESSAGE: status.toString()
+        ]
+        
+        return Event(name: "Push tracking status event", type: EventType.messaging, source: EventSource.responseContent, data: data)
     }
 
     // MARK: - Testing Happy Path
@@ -218,7 +228,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
 
         // verify
-        XCTAssertTrue(event.isInAppMessage)
+        XCTAssertTrue(event.isCjmIamConsequence)
     }
 
     func testInAppMessageMessageId() throws {
@@ -384,7 +394,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
         // verify
-        XCTAssertFalse(event.isInAppMessage)
+        XCTAssertFalse(event.isCjmIamConsequence)
         XCTAssertNil(event.template)
         XCTAssertNil(event.html)
         XCTAssertNil(event.remoteAssets)
@@ -399,7 +409,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
         // verify
-        XCTAssertFalse(event.isInAppMessage)
+        XCTAssertFalse(event.isCjmIamConsequence)
         XCTAssertNil(event.template)
         XCTAssertNil(event.html)
         XCTAssertNil(event.remoteAssets)
@@ -410,12 +420,12 @@ class EventPlusMessagingTests: XCTestCase {
         let triggeredConsequence: [String: Any] = [
             MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
             MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
-            MessagingConstants.Event.Data.Key.DETAIL: ["unintersting": "data"]
+            MessagingConstants.Event.Data.Key.DETAIL: ["uninteresting": "data"]
         ]
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
         // verify
-        XCTAssertTrue(event.isInAppMessage)
+        XCTAssertTrue(event.isCjmIamConsequence)
         XCTAssertNil(event.template)
         XCTAssertNil(event.html)
         XCTAssertNil(event.remoteAssets)
@@ -430,7 +440,7 @@ class EventPlusMessagingTests: XCTestCase {
         let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
 
         // verify
-        XCTAssertTrue(event.isInAppMessage)
+        XCTAssertTrue(event.isCjmIamConsequence)
         XCTAssertNil(event.template)
         XCTAssertNil(event.html)
         XCTAssertNil(event.remoteAssets)
@@ -524,7 +534,7 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(1, scopeDetails1?.count)
         let item1 = p1?.items.first
         XCTAssertNotNil(item1)
-        XCTAssertEqual(mockContent1, item1?.content)
+        XCTAssertEqual(mockContent1, item1?.itemData?["content"] as? String)
         
         let p2 = event.payload?[1]
         XCTAssertNotNil(p2)
@@ -535,7 +545,7 @@ class EventPlusMessagingTests: XCTestCase {
         XCTAssertEqual(1, scopeDetails2?.count)
         let item2 = p2?.items.first
         XCTAssertNotNil(item2)
-        XCTAssertEqual(mockContent2, item2?.content)
+        XCTAssertEqual(mockContent2, item2?.itemData?["content"] as? String)
     }
     
     func testPayloadIsNil() throws {
@@ -719,9 +729,142 @@ class EventPlusMessagingTests: XCTestCase {
     
     func testPushTokenNoToken() throws {
         // setup
-        let event = getSetPushIdentifierEvent(overriddingData: [:])
+        let event = getSetPushIdentifierEvent(overridingData: [:])
         
         // verify
         XCTAssertNil(event.token)
+    }
+    
+    // MARK: - update propositions api events
+    
+    func testIsUpdatePropositionsEvent() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["updatepropositions": true])
+        let event2 = Event(name: "s", type: EventType.rulesEngine, source: EventSource.requestContent, data: ["updatepropositions": true])
+        let event3 = Event(name: "s", type: EventType.messaging, source: EventSource.requestIdentity, data: ["updatepropositions": true])
+        let event4 = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["nope": true])
+        let event5 = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["updatepropositions": false])
+        
+        // verify
+        XCTAssertTrue(event.isUpdatePropositionsEvent)
+        XCTAssertFalse(event2.isUpdatePropositionsEvent)
+        XCTAssertFalse(event3.isUpdatePropositionsEvent)
+        XCTAssertFalse(event4.isUpdatePropositionsEvent)
+        XCTAssertFalse(event5.isUpdatePropositionsEvent)
+    }
+    
+    func testSurfaces() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["surfaces": [
+            [ "uri": "https://blah" ],
+            [ "uri": "https://otherBlah/somepath/yay" ]
+        ]])
+        
+        // verify
+        let result = event.surfaces
+        XCTAssertEqual(2, result?.count)
+        let first = result?.first
+        XCTAssertEqual("https://blah", first?.uri)
+        let second = result?[1]
+        XCTAssertEqual("https://otherBlah/somepath/yay", second?.uri)
+    }
+    
+    func testSurfacesNoSurfaces() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: [:])
+        
+        // verify
+        XCTAssertNil(event.surfaces)        
+    }
+    
+    // MARK: - get propositions api events
+    
+    func testIsGetPropositionsEvent() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["getpropositions": true])
+        let event2 = Event(name: "s", type: EventType.rulesEngine, source: EventSource.requestContent, data: ["getpropositions": true])
+        let event3 = Event(name: "s", type: EventType.messaging, source: EventSource.requestIdentity, data: ["getpropositions": true])
+        let event4 = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["nope": true])
+        let event5 = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: ["getpropositions": false])
+        
+        // verify
+        XCTAssertTrue(event.isGetPropositionsEvent)
+        XCTAssertFalse(event2.isGetPropositionsEvent)
+        XCTAssertFalse(event3.isGetPropositionsEvent)
+        XCTAssertFalse(event4.isGetPropositionsEvent)
+        XCTAssertFalse(event5.isGetPropositionsEvent)
+    }
+    
+    func testPropositions() throws {
+        // setup
+        let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2")
+        let event = Event(name: "name", type: "type", source: "source", data: ["propositions": [ propositionJson ]])
+        
+        // verify
+        XCTAssertNotNil(event.propositions)
+        XCTAssertEqual(1, event.propositions?.count)
+    }
+    
+    func testPropositionsBUTTHEREARENONE() throws {
+        // setup
+        let propositionJson = JSONFileLoader.getRulesJsonFromFile("inappPropositionV1")
+        let event = Event(name: "name", type: "type", source: "source", data: ["THESEARENOTpropositions": [ propositionJson ]])
+        
+        // verify
+        XCTAssertNil(event.propositions)
+    }
+    
+    func testResponseError() throws {
+        // setup
+        let event = Event(name: "name", type: "type", source: "source", data: ["responseerror": 1 ])
+        let event2 = Event(name: "name", type: "type", source: "source", data: ["nothing": 1 ])
+        
+        // verify
+        XCTAssertNotNil(event.responseError)
+        XCTAssertEqual(event.responseError, .callbackTimeout)
+        XCTAssertNil(event2.responseError)        
+    }
+    
+    // MARK: - error response event
+    
+    func testCreateErrorResponseEvent() throws {
+        // setup
+        let event = getClickthroughEvent()
+        
+        // test
+        let responseEvent = event.createErrorResponseEvent(.invalidResponse)
+        
+        // verify
+        XCTAssertEqual("Message propositions response", responseEvent.name)
+        XCTAssertEqual(EventType.messaging, responseEvent.type)
+        XCTAssertEqual(EventSource.responseContent, responseEvent.source)
+        XCTAssertEqual(1, responseEvent.data?.count)
+        let error = AEPError(rawValue: responseEvent.data?["responseerror"] as? Int ?? 0)
+        XCTAssertEqual(error, .invalidResponse)
+    }
+
+    func testGetPushTrackingStatus() throws {
+        // verify
+        XCTAssertEqual(PushTrackingStatus.trackingInitiated, getPushTrackingStatusEvent(status: .trackingInitiated).pushTrackingStatus)
+        XCTAssertEqual(PushTrackingStatus.noDatasetConfigured, getPushTrackingStatusEvent(status: .noDatasetConfigured).pushTrackingStatus)
+        XCTAssertEqual(PushTrackingStatus.noTrackingData, getPushTrackingStatusEvent(status: .noTrackingData).pushTrackingStatus)
+        XCTAssertEqual(PushTrackingStatus.invalidMessageId, getPushTrackingStatusEvent(status: .invalidMessageId).pushTrackingStatus)
+        XCTAssertEqual(PushTrackingStatus.unknownError, getPushTrackingStatusEvent(status: .unknownError).pushTrackingStatus)
+    }
+    
+    func testGetPushTrackingStatus_whenNoKey() throws {
+        // setup
+        let event = getPushTrackingStatusEvent(overridingData: [:])
+       
+        // verify
+        XCTAssertNil(event.pushTrackingStatus)
+    }
+    
+    func testGetPushTrackingStatus_whenStatus_withInvalid() throws {
+        // setup
+        let event = getPushTrackingStatusEvent(overridingData: [MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS: 10])
+       
+        // verify
+        XCTAssertEqual(.unknownError ,event.pushTrackingStatus)
     }
 }

@@ -16,12 +16,23 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
+<<<<<<< HEAD
     static let EXTENSION_VERSION = "4.2.0-beta"
+=======
+    static let EXTENSION_VERSION = "4.3.0"
+>>>>>>> 21f46611aea235f2e198ac534840b5e088839934
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let FEED_RULES_ENGINE_NAME = EXTENSION_NAME + "Feed" + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
+
+    enum ContentTypes {
+        static let APPLICATION_JSON = "application/json"
+        static let TEXT_HTML = "text/html"
+        static let TEXT_XML = "text/xml"
+        static let TEXT_PLAIN = "text/plain"
+    }
 
     enum Caches {
         static let CACHE_NAME = "com.adobe.messaging.cache"
@@ -33,7 +44,17 @@ enum MessagingConstants {
 
     enum ConsequenceTypes {
         static let IN_APP_MESSAGE = "cjmiam"
-        static let AJO_INBOUND = "ajoInbound"
+        static let SCHEMA = "schema"
+    }
+
+    enum PersonalizationSchemas {
+        static let HTML_CONTENT = "https://ns.adobe.com/personalization/html-content-item"
+        static let JSON_CONTENT = "https://ns.adobe.com/personalization/json-content-item"
+        static let RULESET_ITEM = "https://ns.adobe.com/personalization/ruleset-item"
+        static let DEFAULT_CONTENT = "https://ns.adobe.com/personalization/default-content-item"
+        static let IN_APP = "https://ns.adobe.com/personalization/message/in-app"
+        static let FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"
+        static let NATIVE_ALERT = "https://ns.adobe.com/personalization/message/native-alert"
     }
 
     enum Event {
@@ -44,12 +65,12 @@ enum MessagingConstants {
             static let PUSH_TRACKING_EDGE = "Push tracking edge event"
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
-
             static let UPDATE_PROPOSITIONS = "Update propositions"
             static let GET_PROPOSITIONS = "Get propositions"
             static let MESSAGE_PROPOSITIONS_RESPONSE = "Message propositions response"
             static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
             static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
+            static let PUSH_TRACKING_STATUS = "Push tracking status event"
         }
 
         enum Source {
@@ -68,6 +89,7 @@ enum MessagingConstants {
                 static let APPLICATION_OPENED = "applicationOpened"
                 static let ACTION_ID = "actionId"
                 static let REFRESH_MESSAGES = "refreshmessages"
+                static let PUSH_CLICK_THROUGH_URL = "clickThroughUrl"
                 static let ADOBE_XDM = "adobe_xdm"
                 static let REQUEST_EVENT_ID = "requestEventId"
                 static let IAM_HISTORY = "iam"
@@ -77,12 +99,14 @@ enum MessagingConstants {
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
                 static let ENDING_EVENT_ID = "endingEventId"
-
+                static let PUSH_NOTIFICATION_TRACKING_STATUS = "pushTrackingStatus"
+                static let PUSH_NOTIFICATION_TRACKING_MESSAGE = "pushTrackingStatusMessage"
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
                 static let DETAIL = "detail"
                 static let TYPE = "type"
                 static let SCHEMA = "schema"
+                static let DATA = "data"
                 static let SOURCE = "source"
 
                 enum Feed {
@@ -147,12 +171,6 @@ enum MessagingConstants {
                     static let SWIPE_LEFT = "swipeLeft"
                     static let SWIPE_RIGHT = "swipeRight"
                     static let TAP_BACKGROUND = "tapBackground"
-                }
-
-                enum Inbound {
-                    // schema values
-                    static let SCHEMA_FEED_ITEM = "https://ns.adobe.com/personalization/inbound/feed-item"
-                    static let SCHEMA_IAM = "https://ns.adobe.com/personalization/message/in-app"
                 }
             }
         }
@@ -334,6 +352,12 @@ enum MessagingConstants {
             static let IDENTITY_MAP = "identityMap"
             static let ECID = "ECID"
             static let ID = "id"
+        }
+    }
+
+    enum PushNotification {
+        enum UserInfoKey {
+            static let ACTION_URL = "adb_uri"
         }
     }
 }

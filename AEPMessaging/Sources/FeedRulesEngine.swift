@@ -34,30 +34,29 @@ class FeedRulesEngine {
     }
 
     /// if we have rules loaded, then we simply process the event.
-    /// if rules are not yet loaded, add the event to the waitingEvents array to
-    func evaluate(event: Event) -> [Surface: [Inbound]]? {
+    func evaluate(event: Event) -> [Surface: [MessagingPropositionItem]]? {
         let consequences = launchRulesEngine.evaluate(event: event)
         guard let consequences = consequences else {
             return nil
         }
 
-        var inboundMessages: [Surface: [Inbound]] = [:]
+        var propositionItemsBySurface: [Surface: [MessagingPropositionItem]] = [:]
         for consequence in consequences {
-            let detail = consequence.details as [String: Any]
-
-            guard let inboundMessage = Inbound.from(consequenceDetail: detail, id: consequence.id) else {
+            guard let propositionItem = MessagingPropositionItem.fromRuleConsequence(consequence),
+                  let propositionAsFeedItem = propositionItem.feedItemSchemaData
+            else {
                 continue
             }
 
-            let surfaceUri = inboundMessage.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
+            let surfaceUri = propositionAsFeedItem.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
             let surface = Surface(uri: surfaceUri)
 
-            if inboundMessages[surface] != nil {
-                inboundMessages[surface]?.append(inboundMessage)
+            if propositionItemsBySurface[surface] != nil {
+                propositionItemsBySurface[surface]?.append(propositionItem)
             } else {
-                inboundMessages[surface] = [inboundMessage]
+                propositionItemsBySurface[surface] = [propositionItem]
             }
         }
-        return inboundMessages
+        return propositionItemsBySurface
     }
 }

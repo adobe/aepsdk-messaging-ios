@@ -56,7 +56,8 @@ public class MessagingProposition: NSObject, Codable {
         scope = try container.decode(String.self, forKey: .scope)
         let anyCodableDict = try? container.decode([String: AnyCodable].self, forKey: .scopeDetails)
         scopeDetails = AnyCodable.toAnyDictionary(dictionary: anyCodableDict) ?? [:]
-        propositionItems = (try? container.decode([MessagingPropositionItem].self, forKey: .items, ignoreInvalid: true)) ?? []
+        let tempItems = (try? container.decode([MessagingPropositionItem].self, forKey: .items))
+        propositionItems = tempItems ?? []
     }
 
     public func encode(to encoder: Encoder) throws {

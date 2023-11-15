@@ -14,6 +14,7 @@
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+import AEPTestUtils
 import Foundation
 import XCTest
 
@@ -27,35 +28,36 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
     }
     
     func testLoadRulesHappy() throws {
-       // setup
+        
+        // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        let ruleString = propositions.first?.items.first?.data.content
+        let ruleString = propositions.first?.items.first?.itemData?["content"] as? String
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
-       // test
-       launchRulesEngine.loadRules(rulesArray, clearExisting: false)
+        // test
+        launchRulesEngine.replaceRules(with: rulesArray)
 
-       // verify
-       XCTAssertTrue(launchRulesEngine.addRulesCalled)
-       XCTAssertEqual(1, launchRulesEngine.paramAddRulesRules?.count)
+        // verify
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
    }
 
     func testLoadRulesClearExisting() throws {
-       // setup
+        // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        let ruleString = propositions.first?.items.first?.data.content
+        let ruleString = propositions.first?.items.first?.itemData?["content"] as? String
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
-       // test
-        launchRulesEngine.loadRules(rulesArray, clearExisting: true)
+        // test
+        launchRulesEngine.replaceRules(with: rulesArray)
 
-       // verify
-       XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
-       XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
+        // verify
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
    }
 
     func testLoadRulesEmptyStringContent() throws {
@@ -63,11 +65,11 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("emptyContentStringRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        let ruleString = propositions.first?.items.first?.data.content
+        let ruleString = propositions.first?.items.first?.itemData?["content"] as? String
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
         // test
-        launchRulesEngine.loadRules(rulesArray, clearExisting: false)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
         XCTAssertFalse(launchRulesEngine.addRulesCalled)
@@ -78,11 +80,11 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("malformedContentRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        let ruleString = propositions.first?.items.first?.data.content
+        let ruleString = propositions.first?.items.first?.itemData?["content"] as? String
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
         // test
-        launchRulesEngine.loadRules(rulesArray, clearExisting: false)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
         XCTAssertFalse(launchRulesEngine.addRulesCalled)
@@ -93,15 +95,15 @@ class LaunchRulesEngineMessagingTests: XCTestCase {
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("eventSequenceRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        let ruleString = propositions.first?.items.first?.data.content
+        let ruleString = propositions.first?.items.first?.itemData?["content"] as? String
         let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
 
         // test
-        launchRulesEngine.loadRules(rulesArray, clearExisting: false)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
-        XCTAssertTrue(launchRulesEngine.addRulesCalled)
-        XCTAssertEqual(1, launchRulesEngine.paramAddRulesRules?.count)
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
     }
 }
