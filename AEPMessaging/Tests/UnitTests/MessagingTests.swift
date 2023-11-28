@@ -18,6 +18,8 @@ import XCTest
 @testable import AEPMessaging
 
 class MessagingTests: XCTestCase {
+    static let EXPERIENCE_CLOUD_ORG = "experienceCloud.org"
+    
     var messaging: Messaging!
     var mockRuntime: TestableExtensionRuntime!
     var mockNetworkService: MockNetworkService?
@@ -934,7 +936,7 @@ class MessagingTests: XCTestCase {
         messaging.propositionInfo["id"] = PropositionInfo(id: "pid", scope: "scope", scopeDetails: [:])
         
         // test
-        let propInfo = messaging.propositionInfoForMessageId("id")
+        let propInfo = messaging.propositionInfoFor(messageId: "id")
         
         // verify
         XCTAssertNotNil(propInfo)
@@ -945,7 +947,7 @@ class MessagingTests: XCTestCase {
     
     func testPropositionInfoForMessageIdNoMatch() throws {
         // test
-        let propInfo = messaging.propositionInfoForMessageId("good luck finding a message with this id. ha!")
+        let propInfo = messaging.propositionInfoFor(messageId: "good luck finding a message with this id. ha!")
         
         // verify
         XCTAssertNil(propInfo)

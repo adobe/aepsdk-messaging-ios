@@ -44,7 +44,7 @@ class MockMessaging: Messaging {
     
     var propositionInfoForMessageIdCalled = false
     var propositionInfoForMessageIdReturnValue: PropositionInfo?
-    override func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
+    override func propositionInfoFor(messageId: String) -> PropositionInfo? {
         propositionInfoForMessageIdCalled = true
         return propositionInfoForMessageIdReturnValue
     }

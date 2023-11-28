@@ -120,10 +120,10 @@ public class Messaging: NSObject, Extension {
                          listener: handleProcessEvent)
 
         // register listener for Messaging request content event
-        registerListener(type: MessagingConstants.Event.EventType.messaging,
+        registerListener(type: EventType.messaging,
                          source: EventSource.requestContent,
                          listener: handleProcessEvent)
-
+        
         // register wildcard listener for messaging rules engine
         registerListener(type: EventType.wildcard,
                          source: EventSource.wildcard,
@@ -237,10 +237,10 @@ public class Messaging: NSObject, Extension {
         ]
 
         // add a `data` object to the request specifying the format desired in the response from XAS
-        eventData[MessagingConstants.DATA.Key.DATA] = [
-            MessagingConstants.DATA.AdobeKeys.NAMESPACE: [
-                MessagingConstants.DATA.AdobeKeys.AJO: [
-                    MessagingConstants.DATA.AdobeKeys.INAPP_RESPONSE_FORMAT: MessagingConstants.XDM.Inbound.Value.IAM_RESPONSE_FORMAT
+        eventData[MessagingConstants.Event.Data.Key.DATA] = [
+            MessagingConstants.Event.Data.AdobeKeys.NAMESPACE: [
+                MessagingConstants.Event.Data.AdobeKeys.AJO: [
+                    MessagingConstants.Event.Data.AdobeKeys.INAPP_RESPONSE_FORMAT: MessagingConstants.XDM.Inbound.Value.IAM_RESPONSE_FORMAT
                 ]
             ]
         ]
@@ -521,40 +521,28 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    /// Handles Rules Consequence events containing message definitions.
+    /// Handles Rules Consequence events containing schemas
     private func handleRulesResponse(_ event: Event) {
-        if event.data == nil {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process a Rules Consequence Event. Event data is null.")
+        guard event.isSchemaConsequence, event.data != nil else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. Either consequence is not of type 'schema' or 'eventData' is nil.")
             return
         }
-
-        if event.isCjmIamConsequence {
-            showMessageForEvent(event)
-        } else if event.isSchemaConsequence {
-            handleSchemaConsequence(event)
-        } else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event which is not of type 'cjmiam' nor 'schema'.")
-            return
-        }
+        
+        handleSchemaConsequence(event)
     }
 
     /// Creates and shows a fullscreen message as defined by the contents of the provided `Event`'s data.
     /// - Parameter event: the `Event` containing data necessary to create the message and report on it
-    private func showMessageForEvent(_ event: Event) {
-        guard event.html != nil else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to show message for event \(event.id) - it contains no HTML defining the message.")
-            return
-        }
-
-        let message = Message(parent: self, event: event)
-        message.propositionInfo = propositionInfoForMessageId(message.id)
-        if message.propositionInfo == nil {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Preparing to show a message that does not contain information necessary for tracking with Adobe Journey Optimizer. If you are spoofing this message from the AJO authoring UI or from Assurance, ignore this message.")
-        }
-
-        message.trigger()
-        message.show(withMessagingDelegateControl: true)
-    }
+//    private func showMessageForEvent(_ event: Event) {
+//        let message = Message(parent: self, event: event)
+//        message.propositionInfo = propositionInfoFor(messageId: message.id)
+//        if message.propositionInfo == nil {
+//            Log.warning(label: MessagingConstants.LOG_TAG, "Preparing to show a message that does not contain information necessary for tracking with Adobe Journey Optimizer. If you are spoofing this message from the AJO authoring UI or from Assurance, ignore this message.")
+//        }
+//
+//        message.trigger()
+//        message.show(withMessagingDelegateControl: true)
+//    }
 
     private func handleSchemaConsequence(_ event: Event) {
         guard let propositionItem = MessagingPropositionItem.fromRuleConsequenceEvent(event) else {
@@ -564,7 +552,7 @@ public class Messaging: NSObject, Extension {
         switch propositionItem.schema {
         case .inapp:
             if let message = Message.fromPropositionItem(propositionItem, with: self, triggeringEvent: event),
-               let propositionInfo = propositionInfoForMessageId(propositionItem.itemId)
+               let propositionInfo = propositionInfoFor(messageId: propositionItem.itemId)
             {
                 message.propositionInfo = propositionInfo
                 message.trigger()
@@ -584,13 +572,13 @@ public class Messaging: NSObject, Extension {
     /// - Parameters:
     ///   - event: An `Event` to be processed
     func handleProcessEvent(_ event: Event) {
-        if event.data == nil {
+        guard event.data != nil else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Process event handling ignored as event does not have any data - `\(event.id)`.")
             return
         }
 
         // hard dependency on configuration shared state
-        guard let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value else {
+        guard getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value != nil else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
             return
         }
@@ -665,7 +653,7 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
+    func propositionInfoFor(messageId: String) -> PropositionInfo? {
         propositionInfo[messageId]
     }
 

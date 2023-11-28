@@ -55,21 +55,21 @@ public class Message: NSObject {
     /// - Parameters:
     ///   - parent: the `Messaging` object that owns the new `Message`
     ///   - event: the Rules Consequence `Event` that defines the message and contains reporting information
-    init(parent: Messaging, event: Event) {
-        self.parent = parent
-        triggeringEvent = event
-        id = event.messageId ?? ""
-        super.init()
-        let messageSettings = event.getMessageSettings(withParent: self)
-        let usingLocalAssets = generateAssetMap(triggeringEvent.remoteAssets)
-        fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
-                                                                                      listener: self,
-                                                                                      isLocalImageUsed: usingLocalAssets,
-                                                                                      settings: messageSettings) as? FullscreenMessage
-        if usingLocalAssets {
-            fullscreenMessage?.setAssetMap(assets)
-        }
-    }
+//    init(parent: Messaging, event: Event) {
+//        self.parent = parent
+//        triggeringEvent = event
+//        id = event.messageId ?? ""
+//        super.init()
+//        let messageSettings = event.getMessageSettings(withParent: self)
+//        let usingLocalAssets = generateAssetMap(triggeringEvent.remoteAssets)
+//        fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
+//                                                                                      listener: self,
+//                                                                                      isLocalImageUsed: usingLocalAssets,
+//                                                                                      settings: messageSettings) as? FullscreenMessage
+//        if usingLocalAssets {
+//            fullscreenMessage?.setAssetMap(assets)
+//        }
+//    }
 
     private init(parent: Messaging, triggeringEvent: Event) {
         id = ""
