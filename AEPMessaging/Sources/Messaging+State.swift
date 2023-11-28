@@ -24,18 +24,6 @@ extension Messaging {
         hydratePropositionsRulesEngine()
     }
 
-//    func clear(surfaces: [Surface]) {
-//        for surface in surfaces {
-//            propositions.removeValue(forKey: surface)
-//            for (key, value) in propositionInfo where value.scope == surface.uri {
-//                propositionInfo.removeValue(forKey: key)
-//            }
-//        }
-//
-//        // remove in-app message from cache
-//        removeCachedPropositions(surfaces: surfaces)
-//    }
-
     func updatePropositionInfo(_ newPropositionInfo: [String: PropositionInfo], removing surfaces: [Surface]? = nil) {
         propositionInfo.merge(newPropositionInfo) { _, new in new }
 
@@ -61,32 +49,6 @@ extension Messaging {
             }
         }
     }
-
-//    func retrieveFeedMessages() -> [Surface: Feed] {
-//        var feedMessages: [Surface: Feed] = [:]
-//        for (surface, propositionArray) in propositions {
-//            for proposition in propositionArray {
-//                for propositionItem in proposition.items {
-//                    guard propositionItem.schema == .feed,
-//                          let feedItemSchemaData = propositionItem.feedItemSchemaData
-//                    else {
-//                        continue
-//                    }
-//
-//                    // feedName should always be available in the meta dictionary of a feed-item proposition
-//                    let feedName = feedItemSchemaData.meta?[MessagingConstants.Event.Data.Key.Feed.FEED_NAME] as? String ?? ""
-//
-//                    // find the feed to insert the feed item else create a new feed for it
-//                    if feedMessages[surface] != nil {
-//                        feedMessages[surface]?.items.append(feedItemSchemaData)
-//                    } else {
-//                        feedMessages[surface] = Feed(name: feedName, surface: surface, items: [feedItemSchemaData])
-//                    }
-//                }
-//            }
-//        }
-//        return feedMessages
-//    }
 
     // MARK: - private methods
 
