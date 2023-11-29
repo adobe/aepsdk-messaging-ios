@@ -9,7 +9,7 @@
     * Ensure the *Edge Segmentation* box is checked.
     * Ensure the *Adobe Journey Optimizer* box is checked.
 
-![Datastream](./../assets/edge-config.png)
+![Datastream](./../../assets/edge-config.png)
 
 ### Setup mobile property in Adobe Data Collection
 
