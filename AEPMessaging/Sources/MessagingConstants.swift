@@ -32,14 +32,11 @@ enum MessagingConstants {
 
     enum Caches {
         static let CACHE_NAME = "com.adobe.messaging.cache"
-        static let MESSAGES = "messages"
         static let PROPOSITIONS = "propositions"
-        static let MESSAGES_DELIMITER = "||"
         static let PATH = "PATH"
     }
 
     enum ConsequenceTypes {
-        static let IN_APP_MESSAGE = "cjmiam"
         static let SCHEMA = "schema"
     }
 
@@ -73,15 +70,16 @@ enum MessagingConstants {
             static let PERSONALIZATION_DECISIONS = "personalization:decisions"
         }
 
-        enum EventType {
-            static let messaging = "com.adobe.eventType.messaging"
-        }
-
         enum Data {
+            enum AdobeKeys {
+                static let NAMESPACE = "__adobe"
+                static let AJO = "ajo"
+                static let INAPP_RESPONSE_FORMAT = "in-app-response-format"
+            }
+            
             enum Key {
                 static let PUSH_IDENTIFIER = "pushidentifier"
                 static let EVENT_TYPE = "eventType"
-                static let MESSAGE_ID = "id"
                 static let APPLICATION_OPENED = "applicationOpened"
                 static let ACTION_ID = "actionId"
                 static let REFRESH_MESSAGES = "refreshmessages"
@@ -103,34 +101,16 @@ enum MessagingConstants {
                 static let TYPE = "type"
                 static let SCHEMA = "schema"
                 static let DATA = "data"
-                static let SOURCE = "source"
 
                 enum Feed {
                     static let SURFACE = "surface"
-                    static let FEED_NAME = "feedName"
                 }
 
                 // In-App Messages
                 enum IAM {
-                    static let ID = "id"
-                    static let TEMPLATE = "template"
-                    static let HTML = "html"
                     static let REMOTE_ASSETS = "remoteAssets"
-                    static let TITLE = "title"
-                    static let CONTENT = "content"
-                    static let CONFIRM = "confirm"
-                    static let CANCEL = "cancel"
-                    static let URL = "url"
-                    static let WAIT = "wait"
-                    static let DATE = "date"
-                    static let DEEPLINK = "adb_deeplink"
-                    static let USER_DATA = "userData"
-                    static let CATEGORY = "category"
-                    static let SOUND = "sound"
 
                     // layout keys
-                    static let MOBILE_PARAMETERS = "mobileParameters"
-                    static let SCHEMA_VERSION = "schemaVersion"
                     static let WIDTH = "width"
                     static let HEIGHT = "height"
                     static let VERTICAL_ALIGN = "verticalAlign"
@@ -141,7 +121,6 @@ enum MessagingConstants {
                     static let DISPLAY_ANIMATION = "displayAnimation"
                     static let DISMISS_ANIMATION = "dismissAnimation"
                     static let GESTURES = "gestures"
-                    static let BODY = "body"
                     static let BACKDROP_COLOR = "backdropColor"
                     static let BACKDROP_OPACITY = "backdropOpacity"
                     static let CORNER_RADIUS = "cornerRadius"
@@ -152,21 +131,6 @@ enum MessagingConstants {
                     static let CORRELATION_ID = "correlationID"
                     static let ACTIVITY = "activity"
                     static let ID = "id"
-                }
-            }
-
-            enum Values {
-                enum IAM {
-                    // template values
-                    static let FULLSCREEN = "fullscreen"
-                    static let LOCAL = "local"
-
-                    // layout values
-                    static let SWIPE_UP = "swipeUp"
-                    static let SWIPE_DOWN = "swipeDown"
-                    static let SWIPE_LEFT = "swipeLeft"
-                    static let SWIPE_RIGHT = "swipeRight"
-                    static let TAP_BACKGROUND = "tapBackground"
                 }
             }
         }
@@ -196,23 +160,6 @@ enum MessagingConstants {
             static let LINK = "link"
             static let ANIMATE = "animate"
         }
-
-        enum Plist {
-            static let ACTIVITY_ID = "MESSAGING_ACTIVITY_ID"
-            static let PLACEMENT_ID = "MESSAGING_PLACEMENT_ID"
-        }
-    }
-
-    enum DATA {
-        enum AdobeKeys {
-            static let NAMESPACE = "__adobe"
-            static let AJO = "ajo"
-            static let INAPP_RESPONSE_FORMAT = "in-app-response-format"
-        }
-
-        enum Key {
-            static let DATA = "data"
-        }
     }
 
     enum XDM {
@@ -222,14 +169,18 @@ enum MessagingConstants {
             static let MIXINS = "mixins"
             static let EXPERIENCE = "_experience"
             static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement"
-            static let MESSAGE_EXECUTION = "messageExecution"
-            static let MESSAGE_EXECUTION_ID = "messageExecutionID"
             static let APPLICATION = "application"
             static let LAUNCHES = "launches"
             static let LAUNCHES_VALUE = "value"
-            static let MESSAGE_PROFILE_JSON = "{\n   \"messageProfile\":" +
-                "{\n      \"channel\": {\n         \"_id\": \"https://ns.adobe.com/xdm/channels/push\"\n      }\n   }" +
-                ",\n   \"pushChannelContext\": {\n      \"platform\": \"apns\"\n   }\n}"
+            
+            /// messageProfile for push tracking in AJO
+            static let MESSAGE_PROFILE = "messageProfile"
+            static let CHANNEL = "channel"
+            static let _ID = "_id"
+            static let PUSH_CHANNEL_ID = "https://ns.adobe.com/xdm/channels/push"
+            static let PUSH_CHANNEL_CONTEXT = "pushChannelContext"
+            static let PLATFORM = "platform"
+            static let APNS = "apns"
         }
 
         enum Key {
@@ -280,24 +231,11 @@ enum MessagingConstants {
                 static let ID = "id"
                 static let SCOPE = "scope"
                 static let SCOPE_DETAILS = "scopeDetails"
-                static let CHARACTERISTICS = "characteristics"
-                static let CJM_XDM = "cjmXdm"
-                static let IN_APP_MESSAGE_TRACKING = "inappMessageTracking"
-                static let ACTION = "action"
             }
 
             enum Value {
-                static let TRIGGERED = "triggered"
-                static let DISPLAYED = "displayed"
-                static let CLICKED = "clicked"
-                static let DISMISSED = "dismissed"
-                static let EMPTY_CONTENT = "{}"
                 /// enum (int) representing desired format returned by XAS for in-app message propositions
                 static let IAM_RESPONSE_FORMAT = 2
-
-                // Supported schemas
-                static let SCHEMA_AJO_HTML = "https://ns.adobe.com/personalization/html-content-item"
-                static let SCHEMA_AJO_JSON = "https://ns.adobe.com/personalization/json-content-item"
             }
         }
 
@@ -326,7 +264,6 @@ enum MessagingConstants {
     }
 
     enum SharedState {
-        static let stateOwner = "stateowner"
 
         enum Messaging {
             static let PUSH_IDENTIFIER = "pushidentifier"
@@ -334,7 +271,6 @@ enum MessagingConstants {
 
         enum Configuration {
             static let NAME = "com.adobe.module.configuration"
-            static let EXPERIENCE_CLOUD_ORG = "experienceCloud.org"
 
             // Messaging dataset ids
             static let EXPERIENCE_EVENT_DATASET = "messaging.eventDataset"

@@ -32,7 +32,7 @@ import UserNotifications
         }
 
         // Creating event data with tracking informations
-        var eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
+        var eventData: [String: Any] = [MessagingConstants.Event.Data.Key.ID: notificationRequest.identifier,
                                         MessagingConstants.Event.Data.Key.APPLICATION_OPENED: applicationOpened,
                                         MessagingConstants.XDM.Key.ADOBE_XDM: xdm]
         if customActionId == nil {
@@ -43,7 +43,7 @@ import UserNotifications
         }
 
         let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
-                          type: MessagingConstants.Event.EventType.messaging,
+                          type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
         MobileCore.dispatch(event: event)
@@ -69,14 +69,14 @@ import UserNotifications
         DispatchQueue.global().async {
             hasApplicationOpenedForResponse(response, completion: { isAppOpened in
 
-                let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.MESSAGE_ID: notificationRequest.identifier,
+                let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.ID: notificationRequest.identifier,
                                                 MessagingConstants.Event.Data.Key.APPLICATION_OPENED: isAppOpened,
                                                 MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm]
 
                 let modifiedEventData = addNotificationActionToEventData(eventData, response)
 
                 let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
-                                  type: MessagingConstants.Event.EventType.messaging,
+                                  type: EventType.messaging,
                                   source: EventSource.requestContent,
                                   data: modifiedEventData)
 
@@ -95,7 +95,7 @@ import UserNotifications
     static func refreshInAppMessages() {
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.REFRESH_MESSAGES: true]
         let event = Event(name: MessagingConstants.Event.Name.REFRESH_MESSAGES,
-                          type: MessagingConstants.Event.EventType.messaging,
+                          type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
 
