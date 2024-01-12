@@ -148,14 +148,19 @@ extension Messaging {
         if var experienceDict = xdmDictResult[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any] {
             if var cjmDict = experienceDict[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] as? [String: Any] {
                 // Adding Message profile and push channel context to CUSTOMER_JOURNEY_MANAGEMENT
-                guard let messageProfile = MessagingConstants.XDM.AdobeKeys.MESSAGE_PROFILE_JSON.toJsonDictionary() else {
-                    Log.warning(label: MessagingConstants.LOG_TAG,
-                                "Failed to update xdmMap with adobe/cjm informations:" +
-                                    "converting message profile string to dictionary failed in the event '\(event.id.uuidString)'.")
-                    return xdmDictResult
-                }
+                let cjmPushProfile = [
+                    MessagingConstants.XDM.AdobeKeys.MESSAGE_PROFILE: [
+                        MessagingConstants.XDM.AdobeKeys.CHANNEL: [
+                            MessagingConstants.XDM.AdobeKeys._ID: MessagingConstants.XDM.AdobeKeys.PUSH_CHANNEL_ID
+                        ]
+                    ],
+                    MessagingConstants.XDM.AdobeKeys.PUSH_CHANNEL_CONTEXT: [
+                        MessagingConstants.XDM.AdobeKeys.PLATFORM: MessagingConstants.XDM.AdobeKeys.APNS
+                    ]
+                ]
+
                 // Merging the dictionary
-                cjmDict.mergeXdm(rhs: messageProfile)
+                cjmDict.mergeXdm(rhs: cjmPushProfile)
                 experienceDict[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] = cjmDict
                 xdmDictResult[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experienceDict
             }
