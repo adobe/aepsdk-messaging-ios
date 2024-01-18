@@ -76,7 +76,7 @@ enum MessagingConstants {
                 static let AJO = "ajo"
                 static let INAPP_RESPONSE_FORMAT = "in-app-response-format"
             }
-            
+
             enum Key {
                 static let PUSH_IDENTIFIER = "pushidentifier"
                 static let EVENT_TYPE = "eventType"
@@ -172,7 +172,7 @@ enum MessagingConstants {
             static let APPLICATION = "application"
             static let LAUNCHES = "launches"
             static let LAUNCHES_VALUE = "value"
-            
+
             /// messageProfile for push tracking in AJO
             static let MESSAGE_PROFILE = "messageProfile"
             static let CHANNEL = "channel"
@@ -264,7 +264,6 @@ enum MessagingConstants {
     }
 
     enum SharedState {
-
         enum Messaging {
             static let PUSH_IDENTIFIER = "pushidentifier"
         }
