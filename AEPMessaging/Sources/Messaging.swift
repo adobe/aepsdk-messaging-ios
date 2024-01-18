@@ -123,7 +123,7 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.messaging,
                          source: EventSource.requestContent,
                          listener: handleProcessEvent)
-        
+
         // register wildcard listener for messaging rules engine
         registerListener(type: EventType.wildcard,
                          source: EventSource.wildcard,
@@ -310,15 +310,13 @@ public class Messaging: NSObject, Extension {
             for (surface, propositionItemsArray) in propositionItemsBySurface {
                 var tempPropositions: [MessagingProposition] = []
                 for propositionItem in propositionItemsArray {
-                    // TODO: REVERT THIS
-                    guard let propositionInfo = propositionInfo.first?.value else { // propositionInfo[propositionItem.itemId] else {
+                    guard let propositionInfo = propositionInfo[propositionItem.itemId] else {
                         continue
                     }
 
                     // get proposition that this item belongs to
                     let proposition = MessagingProposition(
-                        // TODO: REVERT THIS TOO
-                        uniqueId: UUID().uuidString, // propositionInfo.id,
+                        uniqueId: propositionInfo.id,
                         scope: propositionInfo.scope,
                         scopeDetails: propositionInfo.scopeDetails,
                         items: [propositionItem]
@@ -527,7 +525,7 @@ public class Messaging: NSObject, Extension {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. Either consequence is not of type 'schema' or 'eventData' is nil.")
             return
         }
-        
+
         handleSchemaConsequence(event)
     }
 
@@ -538,8 +536,9 @@ public class Messaging: NSObject, Extension {
 
         switch propositionItem.schema {
         case .inapp:
-            if let message = Message.fromPropositionItem(propositionItem, with: self, triggeringEvent: event),
-               let propositionInfo = propositionInfoFor(messageId: propositionItem.itemId)
+            if
+                let message = Message.fromPropositionItem(propositionItem, with: self, triggeringEvent: event),
+                let propositionInfo = propositionInfoFor(messageId: propositionItem.itemId)
             {
                 message.propositionInfo = propositionInfo
                 message.trigger()

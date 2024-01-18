@@ -209,7 +209,7 @@ extension Event {
     var adobeXdm: [String: Any]? {
         data?[MessagingConstants.XDM.Key.ADOBE_XDM] as? [String: Any]
     }
-    
+
     // MARK: - Error response Event
 
     /// Creates a response event with specified AEPError type added in the Event data.
@@ -241,7 +241,7 @@ extension Event {
     var schemaData: [String: Any]? {
         details?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
     }
-    
+
     // MARK: - In-app Message Properties
 
     /// sample `mobileParameters` json which gets represented by a `MessageSettings` object:
