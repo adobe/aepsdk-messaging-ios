@@ -29,8 +29,8 @@ public class MessagingProposition: NSObject, Codable {
     private let propositionItems: [MessagingPropositionItem]
 
     public lazy var items: [MessagingPropositionItem] = {
-        propositionItems.forEach {
-            $0.proposition = self
+        for item in propositionItems {
+            item.proposition = self
         }
         return propositionItems
     }()

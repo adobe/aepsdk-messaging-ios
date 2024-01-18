@@ -13,7 +13,7 @@
 import AEPServices
 import Foundation
 
-struct MessagingMigrator {
+enum MessagingMigrator {
     static func migrate(cache: Cache) {
         guard let cachedPropositions = cache.get(key: MessagingConstants.Caches.PROPOSITIONS) else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages, cache file not found.")
