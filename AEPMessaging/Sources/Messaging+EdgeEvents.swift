@@ -313,7 +313,7 @@ extension Messaging {
         ]
 
         // only add `propositionAction` data if this is an interact event
-        if eventType == .inappInteract {
+        if eventType == .interact {
             let propositionAction: [String: String] = [
                 MessagingConstants.XDM.Inbound.Key.ID: interaction ?? "",
                 MessagingConstants.XDM.Inbound.Key.LABEL: interaction ?? ""

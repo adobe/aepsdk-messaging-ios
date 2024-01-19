@@ -479,6 +479,25 @@ public class Messaging: NSObject, Extension {
         dispatch(event: responseEvent)
     }
 
+    /// Generates and dispatches an event prompting the Edge extension to send a proposition interactions tracking event.
+    ///
+    /// - Parameter event: request event containing proposition interactions XDM data
+    private func trackMessages(_ event: Event) {
+        guard let propositionInteractionsXdm = event.propositionInteractionsXdm else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Cannot track proposition item, interaction data is not present.")
+            return
+        }
+
+        var eventData: [String: Any] = [:]
+        eventData[MessagingConstants.XDM.Key.XDM] = propositionInteractionsXdm
+
+        let event = Event(name: MessagingConstants.Event.Name.TRACK_PROPOSITION_INTERACTIONS,
+                          type: EventType.edge,
+                          source: EventSource.requestContent,
+                          data: eventData)
+        dispatch(event: event)
+    }
+
     /// Validates that the received event contains in-app message definitions and loads them in the `MessagingRulesEngine`.
     /// - Parameter event: an `Event` containing an in-app message definition in its data
     private func handleEdgePersonalizationNotification(_ event: Event) {
@@ -582,6 +601,13 @@ public class Messaging: NSObject, Extension {
             // Queue the get propositions event in internal events queue to ensure any prior update requests are completed
             // before it is processed.
             eventsQueue.add(event)
+            return
+        }
+
+        // handle an event to track propositions
+        if event.isTrackPropositionsEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to track propositions.")
+            trackMessages(event)
             return
         }
 

@@ -137,7 +137,7 @@ private class MessageHandler: MessagingDelegate {
         // see Assets/nativeMethodCallingSample.html for an example of how to call this method
         message?.handleJavascriptMessage("buttonClicked") { content in
             print("magical handling of our content from js! content is: \(content ?? "empty")")
-            message?.track(content as? String, withEdgeEventType: .inappInteract)
+            message?.track(content as? String, withEdgeEventType: .interact)
         }
 
         // if using the webview for something, make sure to dispatch back to the main thread
@@ -158,12 +158,12 @@ private class MessageHandler: MessagingDelegate {
         // if we're not showing the message now, we can save it for later
         if !showMessages {
             currentMessage = message
-            currentMessage?.track("message suppressed", withEdgeEventType: .inappTrigger)
+            currentMessage?.track("message suppressed", withEdgeEventType: .trigger)
         } else if autoDismiss {
             currentMessage = message
             let _ = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { timer in
                 timer.invalidate()
-                self.currentMessage?.track("test for reporting", withEdgeEventType: .inappInteract)
+                self.currentMessage?.track("test for reporting", withEdgeEventType: .interact)
                 self.currentMessage?.dismiss()
             }
         }

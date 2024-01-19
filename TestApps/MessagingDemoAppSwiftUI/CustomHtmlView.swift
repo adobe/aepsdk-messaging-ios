@@ -11,14 +11,23 @@ governing permissions and limitations under the License.
 */
 import SwiftUI
 import WebKit
+import AEPMessaging
 
 struct CustomHtmlView: View {
     @State var htmlString: String
+    var trackAction: ((MessagingEdgeEventType) -> Void)? = nil
+
     var body: some View {
         WebView(htmlString: self.$htmlString)
             .multilineTextAlignment(.center)
             .frame(height: 150)
             .frame(maxWidth: .infinity)
+            .onAppear {
+                self.trackAction?(.display)
+            }
+            .onTapGesture {
+                self.trackAction?(.interact)
+            }
     }
 }
 
@@ -36,6 +45,6 @@ struct WebView: UIViewRepresentable {
 
 struct CustomHtmlView_Previews: PreviewProvider {
     static var previews: some View {
-        CustomHtmlView(htmlString: "<!DOCTYPE html><html><body><h1>Sample html</h1></body></html>")
+        CustomHtmlView(htmlString: "<!DOCTYPE html><html><body><h1>Sample html</h1></body></html>", trackAction: {_ in })
     }
 }

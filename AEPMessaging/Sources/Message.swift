@@ -75,7 +75,7 @@ public class Message: NSObject {
     @objc(dismissSuppressingAutoTrack:)
     public func dismiss(suppressAutoTrack: Bool = false) {
         if autoTrack, !suppressAutoTrack {
-            track(nil, withEdgeEventType: .inappDismiss)
+            track(nil, withEdgeEventType: .dismiss)
         }
 
         fullscreenMessage?.dismiss()
@@ -120,7 +120,7 @@ public class Message: NSObject {
     /// Called when a `Message` is triggered - i.e. it's conditional criteria have been met.
     func trigger() {
         if autoTrack {
-            track(nil, withEdgeEventType: .inappTrigger)
+            track(nil, withEdgeEventType: .trigger)
         }
     }
 
