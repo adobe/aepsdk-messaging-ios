@@ -99,11 +99,11 @@ struct MessagingPropositionInteraction: Codable {
 
         guard
             let eventTypeString = try? container.decode(String.self, forKey: .eventType),
-            let eventType = MessagingEdgeEventType(fromType: eventTypeString)
+            let edgeEventType = MessagingEdgeEventType(fromType: eventTypeString)
         else {
             throw DecodingError.dataCorruptedError(forKey: CodingKeys.eventType, in: container, debugDescription: "Cannot create MessagingEdgeEventType from the provided event type string.")
         }
-        self.eventType = eventType
+        eventType = edgeEventType
         interaction = try container.decodeIfPresent(String.self, forKey: .interaction)
         propositionInfo = try container.decode(PropositionInfo.self, forKey: .propositionInfo)
         itemId = try container.decodeIfPresent(String.self, forKey: .itemId)
