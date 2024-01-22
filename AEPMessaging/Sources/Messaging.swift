@@ -585,6 +585,13 @@ public class Messaging: NSObject, Extension {
             return
         }
 
+        // handle an event to track propositions
+        if event.isTrackPropositionsEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to track propositions.")
+            trackMessages(event)
+            return
+        }
+
         // handle an event for refreshing in-app messages from the remote
         if event.isRefreshMessageEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing manual request to refresh In-App Message definitions from the remote.")

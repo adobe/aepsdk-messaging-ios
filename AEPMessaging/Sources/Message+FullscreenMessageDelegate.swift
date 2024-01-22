@@ -21,7 +21,7 @@ extension Message: FullscreenMessageDelegate {
         }
 
         if message.autoTrack {
-            message.track(nil, withEdgeEventType: .inappDisplay)
+            message.track(nil, withEdgeEventType: .display)
         }
     }
 
@@ -65,7 +65,7 @@ extension Message: FullscreenMessageDelegate {
 
             // handle optional tracking
             if let interaction = queryParams[MessagingConstants.IAM.HTML.INTERACTION], !interaction.isEmpty {
-                message?.track(interaction, withEdgeEventType: .inappInteract)
+                message?.track(interaction, withEdgeEventType: .interact)
             }
 
             // dismiss if requested

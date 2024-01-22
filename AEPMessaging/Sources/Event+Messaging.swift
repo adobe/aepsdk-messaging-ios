@@ -124,6 +124,26 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool ?? false
     }
 
+    // MARK: - Track Propositions Public API event
+
+    var isTrackPropositionsEvent: Bool {
+        isMessagingType && isRequestContentSource && trackPropositions
+    }
+
+    var propositionInteractionXdm: [String: Any]? {
+        guard
+            let propositionInteractionXdm = data?[MessagingConstants.Event.Data.Key.PROPOSITION_INTERACTION] as? [String: Any],
+            !propositionInteractionXdm.isEmpty
+        else {
+            return nil
+        }
+        return propositionInteractionXdm
+    }
+
+    private var trackPropositions: Bool {
+        data?[MessagingConstants.Event.Data.Key.TRACK_PROPOSITIONS] as? Bool ?? false
+    }
+
     // MARK: - Get propositions public API event
 
     var isGetPropositionsEvent: Bool {

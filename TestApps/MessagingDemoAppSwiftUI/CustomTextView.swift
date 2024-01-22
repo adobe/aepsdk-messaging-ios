@@ -10,14 +10,23 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 import SwiftUI
+import AEPMessaging
 
 struct CustomTextView: View {
     @State var text: String
+    var trackAction: ((MessagingEdgeEventType) -> Void)? = nil
+
     var body: some View {
         Text(text)
             .multilineTextAlignment(.center)
             .frame(height: 150)
             .frame(maxWidth: .infinity)
+            .onAppear {
+                self.trackAction?(.display)
+            }
+            .onTapGesture {
+                self.trackAction?(.interact)
+            }
     }
 }
 

@@ -60,6 +60,7 @@ enum MessagingConstants {
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
             static let UPDATE_PROPOSITIONS = "Update propositions"
             static let GET_PROPOSITIONS = "Get propositions"
+            static let TRACK_PROPOSITIONS = "Track propositions"
             static let MESSAGE_PROPOSITIONS_RESPONSE = "Message propositions response"
             static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
             static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
@@ -89,6 +90,8 @@ enum MessagingConstants {
                 static let IAM_HISTORY = "iam"
                 static let UPDATE_PROPOSITIONS = "updatepropositions"
                 static let GET_PROPOSITIONS = "getpropositions"
+                static let TRACK_PROPOSITIONS = "trackpropositions"
+                static let PROPOSITION_INTERACTION = "propositioninteraction"
                 static let SURFACES = "surfaces"
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
@@ -231,6 +234,7 @@ enum MessagingConstants {
                 static let ID = "id"
                 static let SCOPE = "scope"
                 static let SCOPE_DETAILS = "scopeDetails"
+                static let ITEMS = "items"
             }
 
             enum Value {
