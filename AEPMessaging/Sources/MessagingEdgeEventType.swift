@@ -46,6 +46,27 @@ public enum MessagingEdgeEventType: Int {
             return MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
         }
     }
+
+    /// Initializes `MessagingEdgeEventType` with the provided type string.
+    /// - Parameter type: Event type string
+    init?(fromType type: String) {
+        switch type {
+        case MessagingConstants.XDM.Inbound.EventType.DISMISS:
+            self = .dismiss
+        case MessagingConstants.XDM.Inbound.EventType.TRIGGER:
+            self = .trigger
+        case MessagingConstants.XDM.Inbound.EventType.INTERACT:
+            self = .interact
+        case MessagingConstants.XDM.Inbound.EventType.DISPLAY:
+            self = .display
+        case MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION:
+            self = .pushCustomAction
+        case MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED:
+            self = .pushApplicationOpened
+        default:
+            return nil
+        }
+    }
 }
 
 extension MessagingEdgeEventType {

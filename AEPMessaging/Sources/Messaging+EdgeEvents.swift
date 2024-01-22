@@ -248,6 +248,18 @@ extension Messaging {
         return configuration.pushPlatform
     }
 
+    /// Generates and dispatches an event prompting the Edge extension to send a proposition interactions tracking event.
+    ///
+    /// - Parameter event: request event containing proposition interaction XDM data
+    func trackMessages(_ event: Event) {
+        guard let propositionInteractionXdm = event.propositionInteractionXdm else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Cannot track proposition item, proposition interaction XDM is not available.")
+            return
+        }
+
+        sendPropositionInteraction(withXdm: propositionInteractionXdm)
+    }
+
     /// {
     ///     "xdm": {
     ///         "eventType": "decisioning.propositionInteract",
@@ -283,76 +295,27 @@ extension Messaging {
 
     /// Sends a proposition interaction to the customer's experience event dataset.
     ///
-    /// If the message does not contain `scopeDetails`, required for properly tracking in AJO, this method will return as a no-op.
-    ///
     /// - Parameters:
-    ///   - eventType: type of event corresponding to this interaction
-    ///   - interaction: a `String` describing the interaction
-    ///   - message: the `Message` for which the interaction should be recorded
-    func sendPropositionInteraction(withEventType eventType: MessagingEdgeEventType, andInteraction interaction: String?, forMessage message: Message) {
-        guard let propInfo = message.propositionInfo, !propInfo.scopeDetails.isEmpty else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction - `scopeDetails` were not found for message (\(message.id)).")
-            return
+    ///   - xdm: a dictionary containing the proposition interaction XDM.
+    ///   - history: a dictionary containing key-values pairs to be used for event history.
+    ///   - mask: an array of event properties that should be used in the hash for event history storage.
+    func sendPropositionInteraction(withXdm xdm: [String: Any], andEventHistory history: [String: Any]? = nil, usingMask mask: [String]? = nil) {
+        var eventData: [String: Any] = [:]
+
+        if
+            let history = history,
+            let _ = mask
+        {
+            eventData = history
         }
 
-        let propositions: [[String: Any]] = [
-            [
-                MessagingConstants.XDM.Inbound.Key.ID: propInfo.id,
-                MessagingConstants.XDM.Inbound.Key.SCOPE: propInfo.scope,
-                MessagingConstants.XDM.Inbound.Key.SCOPE_DETAILS: propInfo.scopeDetails.asDictionary() ?? [:]
-            ]
-        ]
-
-        let propositionEventType: [String: Int] = [
-            eventType.propositionEventType: 1
-        ]
-
-        var decisioning: [String: Any] = [
-            MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE: propositionEventType,
-            MessagingConstants.XDM.Inbound.Key.PROPOSITIONS: propositions
-        ]
-
-        // only add `propositionAction` data if this is an interact event
-        if eventType == .interact {
-            let propositionAction: [String: String] = [
-                MessagingConstants.XDM.Inbound.Key.ID: interaction ?? "",
-                MessagingConstants.XDM.Inbound.Key.LABEL: interaction ?? ""
-            ]
-            decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_ACTION] = propositionAction
-        }
-
-        let experience: [String: Any] = [
-            MessagingConstants.XDM.Inbound.Key.DECISIONING: decisioning
-        ]
-
-        let xdm: [String: Any] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE: eventType.toString(),
-            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: experience
-        ]
-
-        // iam dictionary used for event history
-        let iamHistory: [String: String] = [
-            MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
-            MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.activityId,
-            MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? ""
-        ]
-
-        let mask = [
-            MessagingConstants.Event.History.Mask.EVENT_TYPE,
-            MessagingConstants.Event.History.Mask.MESSAGE_ID,
-            MessagingConstants.Event.History.Mask.TRACKING_ACTION
-        ]
-
-        let xdmEventData: [String: Any] = [
-            MessagingConstants.XDM.Key.XDM: xdm,
-            MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory
-        ]
+        eventData[MessagingConstants.XDM.Key.XDM] = xdm
 
         // Creating xdm edge event with request content source type
         let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
                           type: EventType.edge,
                           source: EventSource.requestContent,
-                          data: xdmEventData,
+                          data: eventData,
                           mask: mask)
         dispatch(event: event)
     }

@@ -34,14 +34,14 @@ struct CodeBasedOffersView: View {
                     ForEach(codePropositions.first?.items as? [MessagingPropositionItem] ?? [], id:\.itemId) { item in
                         if item.schema == .htmlContent {
                             CustomHtmlView(htmlString: item.htmlContent ?? "",
-                                           trackAction: item.track(interaction:))
+                                           trackAction: item.track(eventType:))
                         } else if item.schema == .jsonContent {
                             if let jsonArray = item.jsonContentArray {
                                 CustomTextView(text: jsonArray.description,
-                                               trackAction: item.track(interaction:))
+                                               trackAction: item.track(eventType:))
                             } else {
                                 CustomTextView(text: item.jsonContentDictionary?.description ?? "",
-                                               trackAction: item.track(interaction:))
+                                               trackAction: item.track(eventType:))
                             }
                         }
                     }

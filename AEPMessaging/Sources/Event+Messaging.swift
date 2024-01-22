@@ -130,14 +130,14 @@ extension Event {
         isMessagingType && isRequestContentSource && trackPropositions
     }
 
-    var propositionInteractionsXdm: [String: Any]? {
+    var propositionInteractionXdm: [String: Any]? {
         guard
-            let propositionInteractionsXdm = data?[MessagingConstants.Event.Data.Key.PROPOSITION_INTERACTIONS] as? [String: Any],
-            !propositionInteractionsXdm.isEmpty
+            let propositionInteractionXdm = data?[MessagingConstants.Event.Data.Key.PROPOSITION_INTERACTION] as? [String: Any],
+            !propositionInteractionXdm.isEmpty
         else {
             return nil
         }
-        return propositionInteractionsXdm
+        return propositionInteractionXdm
     }
 
     private var trackPropositions: Bool {

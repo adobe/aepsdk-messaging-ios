@@ -70,6 +70,45 @@ public class MessagingPropositionItem: NSObject, Codable {
 }
 
 public extension MessagingPropositionItem {
+    /// Tracks interaction with the given proposition item.
+    ///
+    /// - Parameter eventType: an enum specifying event type for the interaction.
+    func track(eventType: MessagingEdgeEventType) {
+        guard let propositionInteractionXdm = generateInteractionXdm(forEventType: eventType) else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Cannot track proposition interaction for item \(itemId), could not generate interactions XDM.")
+            return
+        }
+
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.TRACK_PROPOSITIONS: true,
+            MessagingConstants.Event.Data.Key.PROPOSITION_INTERACTION: propositionInteractionXdm
+        ]
+
+        let event = Event(name: MessagingConstants.Event.Name.TRACK_PROPOSITIONS,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: eventData)
+
+        MobileCore.dispatch(event: event)
+    }
+
+    /// Creates a dictionary containing XDM data for interaction with the given proposition item, for the provided event type.
+    ///
+    /// If the proposition reference within the item is released and no longer valid, the method returns `nil`.
+    ///
+    /// - Parameter eventType: an enum specifying event type for the interaction.
+    /// - Returns A dictionary containing XDM data for the propositon interaction.
+    func generateInteractionXdm(forEventType eventType: MessagingEdgeEventType) -> [String: Any]? {
+        guard let proposition = proposition else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Cannot generate interaction XDM for item \(itemId), proposition reference is not available.")
+            return nil
+        }
+
+        return MessagingPropositionInteraction(eventType: eventType, interaction: nil, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId).xdm
+    }
+
     static func fromRuleConsequence(_ consequence: RuleConsequence) -> MessagingPropositionItem? {
         guard let detailsData = try? JSONSerialization.data(withJSONObject: consequence.details, options: .prettyPrinted) else {
             return nil

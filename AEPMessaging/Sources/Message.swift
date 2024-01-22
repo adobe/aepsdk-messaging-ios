@@ -90,7 +90,31 @@ public class Message: NSObject {
     ///   - eventType: the `MessagingEdgeEventType` to be used for the ensuing Edge Event
     @objc(trackInteraction:withEdgeEventType:)
     public func track(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType) {
-        parent?.sendPropositionInteraction(withEventType: eventType, andInteraction: interaction, forMessage: self)
+        guard let propInfo = propositionInfo else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction, proposition info is not found for message (\(id)).")
+            return
+        }
+
+        let propositionInteractionXdm = MessagingPropositionInteraction(eventType: eventType, interaction: interaction ?? "", propositionInfo: propInfo, itemId: nil).xdm
+
+        // iam dictionary used for event history
+        let iamHistory: [String: String] = [
+            MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
+            MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.activityId,
+            MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? ""
+        ]
+
+        let mask = [
+            MessagingConstants.Event.History.Mask.EVENT_TYPE,
+            MessagingConstants.Event.History.Mask.MESSAGE_ID,
+            MessagingConstants.Event.History.Mask.TRACKING_ACTION
+        ]
+
+        let eventHistoryData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory
+        ]
+
+        parent?.sendPropositionInteraction(withXdm: propositionInteractionXdm, andEventHistory: eventHistoryData, usingMask: mask)
     }
 
     // MARK: - WebView javascript handling
