@@ -23,6 +23,7 @@ extension Message: FullscreenMessageDelegate {
         if message.autoTrack {
             message.track(nil, withEdgeEventType: .display)
         }
+        message.recordEventHistory(eventType: .display, interaction: nil)
     }
 
     public func onShowFailure() {}
@@ -33,6 +34,7 @@ extension Message: FullscreenMessageDelegate {
         guard let message = message.parent else {
             return
         }
+        message.recordEventHistory(eventType: .dismiss, interaction: nil)
         message.dismiss()
     }
 
@@ -66,6 +68,7 @@ extension Message: FullscreenMessageDelegate {
             // handle optional tracking
             if let interaction = queryParams[MessagingConstants.IAM.HTML.INTERACTION], !interaction.isEmpty {
                 message?.track(interaction, withEdgeEventType: .interact)
+                message?.recordEventHistory(eventType: .interact, interaction: interaction)
             }
 
             // dismiss if requested
