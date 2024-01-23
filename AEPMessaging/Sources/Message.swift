@@ -174,6 +174,30 @@ public class Message: NSObject {
 
         return true
     }
+    
+    private func trackEventHistory(activityId: String, eventType: MessagingEdgeEventType, interaction: String?) {
+        guard let propInfo = propositionInfo else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction, proposition info is not found for message (\(id)).")
+            return
+        }
+        
+        // iam dictionary used for event history
+        let iamHistory: [String: String] = [
+            MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
+            MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.activityId,
+            MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? ""
+        ]
+
+        let mask = [
+            MessagingConstants.Event.History.Mask.EVENT_TYPE,
+            MessagingConstants.Event.History.Mask.MESSAGE_ID,
+            MessagingConstants.Event.History.Mask.TRACKING_ACTION
+        ]
+
+        let eventHistoryData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory
+        ]
+    }
 }
 
 extension Message {

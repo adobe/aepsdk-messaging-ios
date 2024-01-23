@@ -384,7 +384,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces)
+        let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces, runtime: self.runtime)
 
         // we need to preserve cache for any surfaces that were not a part of this request
         // any requested surface that is absent from the response needs to be removed from cache and persistence
