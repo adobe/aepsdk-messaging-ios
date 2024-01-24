@@ -14,6 +14,8 @@ import AEPCore
 import AEPServices
 
 struct ParsedPropositions {
+    weak var runtime: ExtensionRuntime?
+    
     // store tracking information for propositions loaded into rules engines
     var propositionInfoToCache: [String: PropositionInfo] = [:]
 
@@ -27,7 +29,8 @@ struct ParsedPropositions {
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
 
-    init(with propositions: [Surface: [MessagingProposition]], requestedSurfaces: [Surface]) {
+    init(with propositions: [Surface: [MessagingProposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime) {
+        self.runtime = runtime
         for propositionsArray in propositions.values {
             for proposition in propositionsArray {
                 guard let surface = requestedSurfaces.first(where: { $0.uri == proposition.scope }) else {
@@ -90,7 +93,7 @@ struct ParsedPropositions {
 
     private func parseRule(_ rule: [String: Any]) -> [LaunchRule]? {
         let ruleData = try? JSONSerialization.data(withJSONObject: rule, options: .prettyPrinted)
-        return JSONRulesParser.parse(ruleData ?? Data())
+        return JSONRulesParser.parse(ruleData ?? Data(), runtime: runtime)
     }
 
     private mutating func mergeRules(_ rules: [LaunchRule], for surface: Surface, with schemaType: SchemaType) {

@@ -36,7 +36,7 @@ struct InAppView: View {
                     }
                     
                     Button("modal") {
-                        MobileCore.track(action: "triggerModal", data: ["testModal": "true"])
+                        MobileCore.track(action: "untilClicked", data: ["testModal": "true"])
                     }
                 }
                 GridRow {
@@ -45,7 +45,7 @@ struct InAppView: View {
                     }
                     
                     Button("bottom banner") {
-                        MobileCore.track(action: "modalTakeoverGestures", data: nil)
+                        MobileCore.track(action: "surfaceTesting", data: nil)
                     }
                 }
             }

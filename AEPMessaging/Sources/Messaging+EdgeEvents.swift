@@ -297,17 +297,8 @@ extension Messaging {
     ///
     /// - Parameters:
     ///   - xdm: a dictionary containing the proposition interaction XDM.
-    ///   - history: a dictionary containing key-values pairs to be used for event history.
-    ///   - mask: an array of event properties that should be used in the hash for event history storage.
-    func sendPropositionInteraction(withXdm xdm: [String: Any], andEventHistory history: [String: Any]? = nil, usingMask mask: [String]? = nil) {
+    func sendPropositionInteraction(withXdm xdm: [String: Any]) {
         var eventData: [String: Any] = [:]
-
-        if
-            let history = history,
-            let _ = mask
-        {
-            eventData = history
-        }
 
         eventData[MessagingConstants.XDM.Key.XDM] = xdm
 
@@ -315,8 +306,7 @@ extension Messaging {
         let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
                           type: EventType.edge,
                           source: EventSource.requestContent,
-                          data: eventData,
-                          mask: mask)
+                          data: eventData)
         dispatch(event: event)
     }
 

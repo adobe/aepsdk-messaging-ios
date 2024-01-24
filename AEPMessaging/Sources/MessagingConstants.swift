@@ -65,12 +65,14 @@ enum MessagingConstants {
             static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
             static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
             static let PUSH_TRACKING_STATUS = "Push tracking status event"
+            static let EVENT_HISTORY_WRITE = "Write IAM event to history"
         }
 
         enum Source {
+            static let EVENT_HISTORY_WRITE = "com.adobe.eventSource.eventHistoryWrite"
             static let PERSONALIZATION_DECISIONS = "personalization:decisions"
         }
-
+        
         enum Data {
             enum AdobeKeys {
                 static let NAMESPACE = "__adobe"
