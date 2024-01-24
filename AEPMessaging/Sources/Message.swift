@@ -164,7 +164,12 @@ public class Message: NSObject {
         
         let interactionLog = interaction == nil ? "" : " with value '\(interaction ?? "")'"
         Log.trace(label: MessagingConstants.LOG_TAG, "Writing '\(eventType.propositionEventType)' event\(interactionLog) to EventHistory for in-app message with activityId '\(propInfo.activityId)'")
-        let event = Event(name: "EventHistoryWrite", type: "history", source: "history", data: eventHistoryData, mask: mask)
+        
+        let event = Event(name: MessagingConstants.Event.Name.EVENT_HISTORY_WRITE,
+                          type: EventType.messaging,
+                          source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE,
+                          data: eventHistoryData,
+                          mask: mask)
         parent?.runtime.dispatch(event: event)
     }
 
