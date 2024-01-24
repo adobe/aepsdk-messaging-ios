@@ -15,7 +15,7 @@ import XCTest
 
 @testable import AEPMessaging
 
-class DictionaryMergingTests: XCTestCase {
+class DictionaryMessagingTests: XCTestCase {
     var dictionary1: [String: Any] = [
         "key": "value",
         "key2": "value2",
