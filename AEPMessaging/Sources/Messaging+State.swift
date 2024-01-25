@@ -53,7 +53,7 @@ extension Messaging {
     // MARK: - private methods
 
     private func hydratePropositionsRulesEngine() {
-        let parsedPropositions = ParsedPropositions(with: propositions, requestedSurfaces: propositions.map { $0.key }, runtime: self.runtime)
+        let parsedPropositions = ParsedPropositions(with: propositions, requestedSurfaces: propositions.map { $0.key }, runtime: runtime)
         if let inAppRules = parsedPropositions.surfaceRulesBySchemaType[.inapp] {
             rulesEngine.launchRulesEngine.replaceRules(with: inAppRules.flatMap { $0.value })
         }

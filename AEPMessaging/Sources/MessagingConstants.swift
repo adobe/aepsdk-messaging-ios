@@ -72,7 +72,7 @@ enum MessagingConstants {
             static let EVENT_HISTORY_WRITE = "com.adobe.eventSource.eventHistoryWrite"
             static let PERSONALIZATION_DECISIONS = "personalization:decisions"
         }
-        
+
         enum Data {
             enum AdobeKeys {
                 static let NAMESPACE = "__adobe"
