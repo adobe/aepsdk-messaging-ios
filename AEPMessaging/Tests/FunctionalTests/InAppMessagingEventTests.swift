@@ -75,7 +75,7 @@ class InAppMessagingEventTests: XCTestCase, AnyCodableAsserts {
     }
 
     func registerMessagingRequestContentListener(_ listener: @escaping EventListener) {
-        MobileCore.registerEventListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, listener: listener)
+        MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.requestContent, listener: listener)
     }
 
     func registerEdgePersonalizationDecisionsListener(_ listener: @escaping EventListener) {
