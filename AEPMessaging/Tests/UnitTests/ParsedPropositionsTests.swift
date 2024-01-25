@@ -42,6 +42,7 @@ class ParsedPropositionTests: XCTestCase {
         
     override func setUp() {
         mockSurface = Surface(uri: "mobileapp://some.not.matching.surface/path")
+        mockRuntime = TestableExtensionRuntime()
         
         let inappPropositionV2Content = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
         mockInAppPropositionItemv2 = MessagingPropositionItem(itemId: "inapp2", schema: rulesetSchema, itemData: inappPropositionV2Content)

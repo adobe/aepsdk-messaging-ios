@@ -94,7 +94,7 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
         XCTAssertFalse(result)
         XCTAssertTrue(mockMessage.trackCalled)
         XCTAssertEqual("testing", mockMessage.paramTrackInteraction)
-        XCTAssertEqual(.inappInteract, mockMessage.paramTrackEventType)
+        XCTAssertEqual(.interact, mockMessage.paramTrackEventType)
         XCTAssertTrue(mockMessage.dismissCalled)
     }
 
