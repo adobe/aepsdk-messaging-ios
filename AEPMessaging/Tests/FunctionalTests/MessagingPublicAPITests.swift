@@ -166,7 +166,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
           },
           "meta": {
             "collect": {
-              "datasetId": "mockEventDataset"ny
+              "datasetId": "mockEventDataset"
             }
           }
         }
