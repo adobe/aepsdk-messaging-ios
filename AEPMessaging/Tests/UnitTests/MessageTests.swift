@@ -43,7 +43,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
                 MessagingConstants.Event.Data.Key.ID: mockMessageId,
                 MessagingConstants.Event.Data.Key.DETAIL: [
                     MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: [mockAssetString],
-                    MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: TestableMobileParameters.mobileParameters
+                    "mobileParameters": TestableMobileParameters.mobileParameters
                 ]
             ]
         ]
@@ -58,7 +58,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
 
         // test
-        let message = Message(parent: mockMessaging, event: mockEvent)
+        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
 
         // verify
         XCTAssertEqual(mockMessaging, message.parent)
@@ -81,7 +81,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
             ]
         ]
         mockEvent = Event(name: "Message Test", type: "type", source: "source", data: mockEventData)
-        let message = Message(parent: mockMessaging, event: mockEvent)
+        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
 
         // verify
         XCTAssertEqual(mockMessaging, message.parent)
@@ -98,7 +98,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
 
         // test
-        let message = Message(parent: mockMessaging, event: mockEvent)
+        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
         message.propositionInfo = mockPropositionInfo
 
         // verify
@@ -109,7 +109,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
 
     func testShow() throws {
         // setup
-        let message = Message(parent: mockMessaging, event: mockEvent)
+        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
         message.fullscreenMessage?.listener = self
         onShowExpectation = XCTestExpectation(description: "onShow called")
 
@@ -122,7 +122,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
 
     func testDismiss() throws {
         // setup
-        let message = Message(parent: mockMessaging, event: mockEvent)
+        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
         message.fullscreenMessage?.listener = self
         onDismissExpectation = XCTestExpectation(description: "onDismiss called")
         
@@ -140,7 +140,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
 
     func testHandleJavascriptMessage() throws {
         // setup
-        let message = Message(parent: mockMessaging, event: mockEvent)
+        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
         let mockFullscreenMessage = MockFullscreenMessage(parent: message)
         mockFullscreenMessage.paramJavascriptHandlerReturnValue = "abc"
         message.fullscreenMessage = mockFullscreenMessage
@@ -160,7 +160,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
 
     func testViewAccess() throws {
         // setup
-        let message = Message(parent: mockMessaging, event: mockEvent)
+        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
         let mockFullscreenMessage = MockFullscreenMessage(parent: message)
         message.fullscreenMessage = mockFullscreenMessage
 
@@ -171,7 +171,7 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
 
     func testTriggerable() throws {
         // setup
-        let message = Message(parent: mockMessaging, event: mockEvent)
+        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
 
         // verify
         message.trigger()

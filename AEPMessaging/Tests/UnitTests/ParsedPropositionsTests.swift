@@ -12,12 +12,13 @@
 
 import Foundation
 import XCTest
-
+import AEPTestUtils
 @testable import AEPMessaging
 @testable import AEPServices
 
 class ParsedPropositionTests: XCTestCase {
     var mockSurface: Surface!
+    var mockRuntime: TestableExtensionRuntime!
     
     let rulesetSchema: SchemaType = .ruleset
     let jsonSchema: SchemaType = .jsonContent
@@ -63,7 +64,7 @@ class ParsedPropositionTests: XCTestCase {
         let propositions: [Surface: [MessagingProposition]] = [mockSurface: []]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockSurface])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockSurface], runtime: mockRuntime)
         
         // verify
         XCTAssertNotNil(result)
@@ -81,7 +82,7 @@ class ParsedPropositionTests: XCTestCase {
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockSurface])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockSurface], runtime: mockRuntime)
         
         // verify
         XCTAssertNotNil(result)
@@ -98,7 +99,7 @@ class ParsedPropositionTests: XCTestCase {
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
         
         // verify
         XCTAssertNotNil(result)
@@ -137,7 +138,7 @@ class ParsedPropositionTests: XCTestCase {
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockFeedSurface])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockFeedSurface], runtime: mockRuntime)
         
         // verify
         XCTAssertNotNil(result)
@@ -160,7 +161,7 @@ class ParsedPropositionTests: XCTestCase {
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockCodeBasedSurface])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockCodeBasedSurface], runtime: mockRuntime)
         
         // verify
         XCTAssertNotNil(result)
@@ -185,7 +186,7 @@ class ParsedPropositionTests: XCTestCase {
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
         
         // verify
         XCTAssertNotNil(result)
@@ -205,7 +206,7 @@ class ParsedPropositionTests: XCTestCase {
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
         
         // verify
         XCTAssertNotNil(result)
@@ -225,7 +226,7 @@ class ParsedPropositionTests: XCTestCase {
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
         
         // verify
         XCTAssertNotNil(result)
@@ -244,7 +245,7 @@ class ParsedPropositionTests: XCTestCase {
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
         
         // verify
         XCTAssertNotNil(result)
@@ -262,7 +263,7 @@ class ParsedPropositionTests: XCTestCase {
         ]
         
         // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2])
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
         
         // verify
         XCTAssertNotNil(result)

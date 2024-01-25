@@ -34,6 +34,7 @@ class MessagingTests: XCTestCase {
     let MOCK_EVENT_DATASET = "mock_event_dataset"
     let MOCK_EXP_ORG_ID = "mock_exp_org_id"
     let MOCK_PUSH_TOKEN = "mock_pushToken"
+    let EXPERIENCE_CLOUD_ORG = "experienceCloud.org"
     
     // before each
     override func setUp() {
@@ -193,7 +194,7 @@ class MessagingTests: XCTestCase {
                                 ""
                             ]
                           ])
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
         
         // test
@@ -213,7 +214,7 @@ class MessagingTests: XCTestCase {
                             "updatefeeds": true,
                             "surfaces": [] as [String]
                           ])
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
         
         // test
@@ -561,7 +562,7 @@ class MessagingTests: XCTestCase {
     
     /// validating handleProcessEvent with working shared state and data
     func testHandleProcessEvent_withNoIdentityData() {
-        let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
         
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
         
@@ -577,7 +578,7 @@ class MessagingTests: XCTestCase {
     /// validating handleProcessEvent with working shared state and data
     
     func testhandleProcessEvent_withConfigAndIdentityData() {
-        let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
         
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
         
@@ -595,7 +596,7 @@ class MessagingTests: XCTestCase {
     
     /// validating handleProcessEvent with working apns sandbox
     func testHandleProcessEvent_withApnsSandbox() {
-        let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID,
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID,
                           MessagingConstants.SharedState.Configuration.USE_SANDBOX: true] as [String: Any]
         
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
@@ -610,7 +611,7 @@ class MessagingTests: XCTestCase {
     
     /// validating handleProcessEvent with working apns sandbox
     func testHandleProcessEvent_withApns() {
-        let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID,
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID,
                           MessagingConstants.SharedState.Configuration.USE_SANDBOX: false] as [String: Any]
         
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
@@ -630,10 +631,10 @@ class MessagingTests: XCTestCase {
         
         let eventData: [String: Any]? = [
             MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType",
-            MessagingConstants.Event.Data.Key.MESSAGE_ID: "testMessageId"
+            MessagingConstants.Event.Data.Key.ID: "testMessageId"
         ]
         
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
         
@@ -652,7 +653,7 @@ class MessagingTests: XCTestCase {
     
     func testHandleProcessEventRefreshMessageEvent() throws {
         // setup
-        let event = Event(name: "handleProcessEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: [
+        let event = Event(name: "handleProcessEvent", type: EventType.messaging, source: EventSource.requestContent, data: [
             MessagingConstants.Event.Data.Key.REFRESH_MESSAGES: true
         ])
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [:], status: SharedStateStatus.set))
@@ -693,7 +694,7 @@ class MessagingTests: XCTestCase {
 
     func testHandleProcessEventNoIdentityMap() throws {
         // setup
-        let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
@@ -705,7 +706,7 @@ class MessagingTests: XCTestCase {
     }
     
     func testhandleProcessEventNoEcidArrayInIdentityMap() {
-        let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
         mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
@@ -1095,7 +1096,7 @@ class MessagingTests: XCTestCase {
         return [
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
                 MessagingConstants.Event.Data.Key.ID: id,
-                MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
+                MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.SCHEMA,
                 MessagingConstants.Event.Data.Key.DETAIL: detailDictionary
             ] as [String: Any]
         ]

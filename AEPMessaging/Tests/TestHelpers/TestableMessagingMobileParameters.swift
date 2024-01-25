@@ -53,7 +53,9 @@ class TestableMobileParameters {
         var eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
                 MessagingConstants.Event.Data.Key.DETAIL: [
-                    MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: mobileParameters
+                    MessagingConstants.Event.Data.Key.DATA: [
+                        "mobileParameters": mobileParameters
+                    ]
                 ]
             ]
         ]

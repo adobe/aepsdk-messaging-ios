@@ -67,7 +67,7 @@ class MessagingEdgeEventsTests: XCTestCase {
     func getMessageTrackingEventData(addAdobeXdm: Bool? = true, addMixins: Bool? = false, addCjm: Bool? = true) -> [String: Any] {
         var data: [String: Any] = [:]
         data[MessagingConstants.Event.Data.Key.EVENT_TYPE] = "testEventType"
-        data[MessagingConstants.Event.Data.Key.MESSAGE_ID] = "testMessageId"
+        data[MessagingConstants.Event.Data.Key.ID] = "testMessageId"
 
         if addAdobeXdm! {
             var adobeXdmData: [String: Any] = [:]
@@ -109,7 +109,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -147,7 +147,7 @@ class MessagingEdgeEventsTests: XCTestCase {
     func testGetPushPlatformNormal() throws {
         // setup
         setConfigSharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
 
         // test
         let result = messaging.getPushPlatform(forEvent: event)
@@ -162,7 +162,7 @@ class MessagingEdgeEventsTests: XCTestCase {
             MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET: MOCK_EVENT_DATASET,
             MessagingConstants.SharedState.Configuration.USE_SANDBOX: true
         ])
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
 
         // test
         let result = messaging.getPushPlatform(forEvent: event)
@@ -173,7 +173,7 @@ class MessagingEdgeEventsTests: XCTestCase {
 
     func testGetPushPlatformNoConfig() throws {
         // setup
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
 
         // test
         let result = messaging.getPushPlatform(forEvent: event)
@@ -187,7 +187,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let eventData = getMessageTrackingEventData().merging([MessagingConstants.Event.Data.Key.ACTION_ID: "superActionId"]) { _, new in new }
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -210,7 +210,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState([:])
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -227,7 +227,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState([MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET: ""])
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -244,7 +244,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: [:])
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: [:])
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -261,7 +261,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType"])
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType"])
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -278,7 +278,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType", MessagingConstants.Event.Data.Key.MESSAGE_ID: ""])
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType", MessagingConstants.Event.Data.Key.ID: ""])
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -328,7 +328,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let eventData = getMessageTrackingEventData()
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -361,7 +361,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let eventData = getMessageTrackingEventData(addAdobeXdm: false)
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -381,7 +381,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let eventData = getMessageTrackingEventData(addMixins: true)
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -402,7 +402,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let eventData = getMessageTrackingEventData(addMixins: false, addCjm: false)
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -422,7 +422,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let eventData = getMessageTrackingEventData().merging([MessagingConstants.Event.Data.Key.APPLICATION_OPENED: true]) { _, new in new }
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -443,7 +443,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let eventData = getMessageTrackingEventData().merging([MessagingConstants.Event.Data.Key.APPLICATION_OPENED: false]) { _, new in new }
         setConfigSharedState()
         setIdentitySharedState()
-        let event = Event(name: "trackingInfo", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: eventData)
+        let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
         messaging.handleTrackingInfo(event: event)
@@ -463,14 +463,15 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.inappInteract
+        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.interact
         let mockInteraction = "swords"
-        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
         mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
         
         // test
-        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        messaging.sendPropositionInteraction(withXdm: [:])
+//        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
         
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -509,14 +510,15 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.inappDisplay
+        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.display
         let mockInteraction = "swords"
-        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
         mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
         
         // test
-        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        messaging.sendPropositionInteraction(withXdm: [:])
+//        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
         
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -553,14 +555,15 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.inappDismiss
+        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.dismiss
         let mockInteraction = "swords"
-        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
         mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
         
         // test
-        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        messaging.sendPropositionInteraction(withXdm: [:])
+//        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
         
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -597,15 +600,16 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.inappTrigger
+        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.trigger
         let mockInteraction = "swords"
         let mockMessageId = "SUCHMESSAGEVERYID"
-        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
         mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["activity":["id":mockMessageId], "correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
         
         // test
-        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        messaging.sendPropositionInteraction(withXdm: [:])
+//        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
         
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -646,13 +650,14 @@ class MessagingEdgeEventsTests: XCTestCase {
         // setup
         setConfigSharedState()
         setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.inappInteract
+        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+        let mockEdgeEventType = MessagingEdgeEventType.interact
         let mockInteraction = "swords"
-        let mockMessage = MockMessage(parent: messaging, event: mockEvent)
+        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
                 
         // test
-        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
+        messaging.sendPropositionInteraction(withXdm: [:])
+//        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
         
         // verify
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
