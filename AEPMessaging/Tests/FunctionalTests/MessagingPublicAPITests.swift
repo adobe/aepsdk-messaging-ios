@@ -32,7 +32,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
     // MARK: - Handle Notification Response
 
     func testHandleNotificationResponse() {
-        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getEventData())
 
         // mock configuration shared state
         mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: event), data: (value: mockConfigSharedState, status: .set))
@@ -94,7 +94,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
     }
 
     func testHandleNotificationResponse_noEventDatasetId() {
-        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getEventData())
 
         // empty datasetId
         mockConfigSharedState = [:]
@@ -112,7 +112,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
     }
 
     func testHandleNotificationResponse_datasetIdIsEmpty() {
-        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getEventData())
 
         // empty datasetId
         mockConfigSharedState = ["messaging.eventDataset": ""]
@@ -132,7 +132,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
     func testHandleNotificationResponse_missingXDMData() {
         var data = getEventData()
         data[MessagingConstants.Event.Data.Key.ADOBE_XDM] = nil
-        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: data)
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
         mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: event), data: (value: mockConfigSharedState, status: .set))
@@ -184,7 +184,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
             "journeyVersionInstanceId": "someJourneyVersionInstanceId",
             "messageID": "567"
         ]]]]]
-        let data = [MessagingConstants.Event.Data.Key.MESSAGE_ID: "mockMessageId",
+        let data = [MessagingConstants.Event.Data.Key.ID: "mockMessageId",
                     MessagingConstants.Event.Data.Key.APPLICATION_OPENED: true,
                     MessagingConstants.Event.Data.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION,
                     MessagingConstants.Event.Data.Key.ACTION_ID: "mockCustomActionId",

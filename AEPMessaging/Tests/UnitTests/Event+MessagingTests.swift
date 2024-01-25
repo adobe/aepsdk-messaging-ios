@@ -52,15 +52,19 @@ class EventPlusMessagingTests: XCTestCase {
     // MARK: - Helpers
 
     /// Gets an event to use for simulating a rules consequence
-    private func getRulesResponseEvent(type: String? = MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
+    private func getRulesResponseEvent(type: String? = MessagingConstants.ConsequenceTypes.SCHEMA,
                                triggeredConsequence: [String: Any]? = nil,
                                removeDetails: [String]? = nil) -> Event {
 
         // details are the same for postback and pii, different for open url
-        var details: [String: Any] = type == MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE ? [
-            MessagingConstants.Event.Data.Key.IAM.TEMPLATE: MessagingConstants.Event.Data.Values.IAM.FULLSCREEN,
-            MessagingConstants.Event.Data.Key.IAM.HTML: testHtml,
-            MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS: testAssets
+        var details: [String: Any] = type == MessagingConstants.ConsequenceTypes.SCHEMA ? [
+            MessagingConstants.Event.Data.Key.ID: mockMessagingId,
+            MessagingConstants.Event.Data.Key.SCHEMA: MessagingConstants.PersonalizationSchemas.IN_APP,
+            MessagingConstants.Event.Data.Key.DATA: [
+                "contentType": MessagingConstants.ContentTypes.TEXT_HTML,
+                "content": testHtml,
+                "remoteAssets": testAssets
+            ]
         ] : [:]
 
         if let keysToBeRemoved = removeDetails {
@@ -172,7 +176,7 @@ class EventPlusMessagingTests: XCTestCase {
         return rulesEvent
     }
 
-    private func getRefreshMessagesEvent(type: String = MessagingConstants.Event.EventType.messaging,
+    private func getRefreshMessagesEvent(type: String = EventType.messaging,
                                  source: String = EventSource.requestContent,
                                  data: [String: Any]? = nil) -> Event {
         var eventData = data
@@ -191,7 +195,7 @@ class EventPlusMessagingTests: XCTestCase {
     private func getClickthroughEvent(_ data: [String: Any]? = nil) -> Event {
         let data = data ?? [
             MessagingConstants.Event.Data.Key.EVENT_TYPE: mockXdmEventType,
-            MessagingConstants.Event.Data.Key.MESSAGE_ID: mockMessagingId,
+            MessagingConstants.Event.Data.Key.ID: mockMessagingId,
             MessagingConstants.Event.Data.Key.ACTION_ID: mockActionId,
             MessagingConstants.Event.Data.Key.APPLICATION_OPENED: mockApplicationOpened,
             MessagingConstants.XDM.Key.ADOBE_XDM: [
@@ -200,7 +204,7 @@ class EventPlusMessagingTests: XCTestCase {
             ]
         ]
 
-        return Event(name: "Test Push clickthrough event", type: MessagingConstants.Event.EventType.messaging,
+        return Event(name: "Test Push clickthrough event", type: EventType.messaging,
                      source: EventSource.requestContent, data: data)
     }
     
@@ -221,259 +225,31 @@ class EventPlusMessagingTests: XCTestCase {
         return Event(name: "Push tracking status event", type: EventType.messaging, source: EventSource.responseContent, data: data)
     }
 
-    // MARK: - Testing Happy Path
-
-    func testInAppMessageConsequenceType() throws {
-        // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
-
-        // verify
-        XCTAssertTrue(event.isCjmIamConsequence)
-    }
-
-    func testInAppMessageMessageId() throws {
-        // setup
-        let event = getRulesResponseEvent()
-
-        // verify
-        XCTAssertEqual("552", event.messageId!)
-    }
-
-    func testInAppMessageTemplate() throws {
-        // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
-
-        // verify
-        XCTAssertEqual(MessagingConstants.Event.Data.Values.IAM.FULLSCREEN, event.template!)
-    }
-
-    func testInAppMessageHtml() throws {
-        // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
-
-        // verify
-        XCTAssertEqual(testHtml, event.html!)
-    }
-
-    func testInAppMessageAssets() throws {
-        // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
-
-        // verify
-        XCTAssertEqual(2, event.remoteAssets!.count)
-        XCTAssertEqual(testAssets[0], event.remoteAssets![0])
-        XCTAssertEqual(testAssets[1], event.remoteAssets![1])
-    }
-
-    // MARK: - Test mobileParameters
-
-    func testGetMessageSettingsHappy() throws {
-        // setup
-        let event = TestableMobileParameters.getMobileParametersEvent()
-
-        // test
-        let settings = event.getMessageSettings(withParent: self)
-
-        // verify
-        XCTAssertNotNil(settings)
-        XCTAssertTrue(settings.parent is EventPlusMessagingTests)
-        XCTAssertEqual(TestableMobileParameters.mockWidth, settings.width)
-        XCTAssertEqual(TestableMobileParameters.mockHeight, settings.height)
-        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockVAlign), settings.verticalAlign)
-        XCTAssertEqual(TestableMobileParameters.mockVInset, settings.verticalInset)
-        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockHAlign), settings.horizontalAlign)
-        XCTAssertEqual(TestableMobileParameters.mockHInset, settings.horizontalInset)
-        XCTAssertEqual(TestableMobileParameters.mockUiTakeover, settings.uiTakeover)
-        XCTAssertEqual(UIColor(red: 0xAA / 255.0, green: 0xBB / 255.0, blue: 0xCC / 255.0, alpha: 0), settings.getBackgroundColor(opacity: 0))
-        XCTAssertEqual(CGFloat(TestableMobileParameters.mockCornerRadius), settings.cornerRadius)
-        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDisplayAnimation), settings.displayAnimation)
-        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDismissAnimation), settings.dismissAnimation)
-        XCTAssertNotNil(settings.gestures)
-        XCTAssertEqual(1, settings.gestures?.count)
-        XCTAssertEqual(URL(string: "adbinapp://dismiss")!.absoluteString, (settings.gestures![.swipeDown]!).absoluteString)
-    }
-
-    func testGetMessageSettingsNoParent() throws {
-        // setup
-        let event = TestableMobileParameters.getMobileParametersEvent()
-
-        // test
-        let settings = event.getMessageSettings(withParent: nil)
-
-        // verify
-        XCTAssertNotNil(settings)
-        XCTAssertNil(settings.parent)
-        XCTAssertEqual(TestableMobileParameters.mockWidth, settings.width)
-        XCTAssertEqual(TestableMobileParameters.mockHeight, settings.height)
-        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockVAlign), settings.verticalAlign)
-        XCTAssertEqual(TestableMobileParameters.mockVInset, settings.verticalInset)
-        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockHAlign), settings.horizontalAlign)
-        XCTAssertEqual(TestableMobileParameters.mockHInset, settings.horizontalInset)
-        XCTAssertEqual(TestableMobileParameters.mockUiTakeover, settings.uiTakeover)
-        XCTAssertEqual(UIColor(red: 0xAA / 255.0, green: 0xBB / 255.0, blue: 0xCC / 255.0, alpha: 0), settings.getBackgroundColor(opacity: 0))
-        XCTAssertEqual(CGFloat(TestableMobileParameters.mockCornerRadius), settings.cornerRadius)
-        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDisplayAnimation), settings.displayAnimation)
-        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDismissAnimation), settings.dismissAnimation)
-        XCTAssertNotNil(settings.gestures)
-        XCTAssertEqual(1, settings.gestures?.count)
-        XCTAssertEqual(URL(string: "adbinapp://dismiss")!.absoluteString, (settings.gestures![.swipeDown]!).absoluteString)
-    }
-
-    func testGetMessageSettingsMobileParametersEmpty() throws {
-        // setup
-        let event = getRefreshMessagesEvent()
-
-        // test
-        let settings = event.getMessageSettings(withParent: self)
-
-        // verify
-        XCTAssertNotNil(settings)
-        XCTAssertTrue(settings.parent is EventPlusMessagingTests)
-        XCTAssertNil(settings.width)
-        XCTAssertNil(settings.height)
-        XCTAssertEqual(.center, settings.verticalAlign)
-        XCTAssertNil(settings.verticalInset)
-        XCTAssertEqual(.center, settings.horizontalAlign)
-        XCTAssertNil(settings.horizontalInset)
-        XCTAssertTrue(settings.uiTakeover!)
-        XCTAssertEqual(UIColor(red: 1, green: 1, blue: 1, alpha: 0), settings.getBackgroundColor(opacity: 0))
-        XCTAssertNil(settings.cornerRadius)
-        XCTAssertEqual(.none, settings.displayAnimation!)
-        XCTAssertEqual(.none, settings.dismissAnimation!)
-        XCTAssertNil(settings.gestures)
-    }
-
-    func testGetMessageSettingsEmptyGestures() throws {
-        // setup
-        let params: [String: Any] = [
-            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
-                MessagingConstants.Event.Data.Key.DETAIL: [
-                    MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: [
-                        MessagingConstants.Event.Data.Key.IAM.GESTURES: [:] as [String: Any]
-                    ]
-                ]
-            ]
-        ]
-        let event = TestableMobileParameters.getMobileParametersEvent(withData: params)
-
-        // test
-        let settings = event.getMessageSettings(withParent: self)
-
-        // verify
-        XCTAssertNotNil(settings)
-        XCTAssertNil(settings.gestures)
-    }
-
-    // MARK: - Testing Message Object Validation
-
-    func testInAppMessageObjectValidation() throws {
-        // setup
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE)
-
-        // verify
-        XCTAssertTrue(event.containsValidInAppMessage)
-    }
-    
-    func testContainsValidInAppMessageNotIAMEvent() throws {
-        // setup
-        let event = Event(name: "not iam", type: "type", source: "source", data: nil)
-
-        // verify
-        XCTAssertFalse(event.containsValidInAppMessage)
-    }
-
     // MARK: - Testing Invalid Events
 
-    func testWrongConsequenceType() throws {
+    func testIsSchemaConsequenceWrongConsequenceType() throws {
         // setup
         let triggeredConsequence: [String: Any] = [
             MessagingConstants.Event.Data.Key.TYPE: "Invalid",
             MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
             MessagingConstants.Event.Data.Key.DETAIL: [:] as [String: Any]
         ]
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.SCHEMA, triggeredConsequence: triggeredConsequence)
 
         // verify
-        XCTAssertFalse(event.isCjmIamConsequence)
-        XCTAssertNil(event.template)
-        XCTAssertNil(event.html)
-        XCTAssertNil(event.remoteAssets)
+        XCTAssertFalse(event.isSchemaConsequence)
     }
 
-    func testNoConsequenceType() throws {
+    func testIsSchemaConsequenceNoConsequenceType() throws {
         // setup
         let triggeredConsequence: [String: Any] = [
             MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
             MessagingConstants.Event.Data.Key.DETAIL: [:] as [String: Any]
         ]
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
+        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.SCHEMA, triggeredConsequence: triggeredConsequence)
 
         // verify
-        XCTAssertFalse(event.isCjmIamConsequence)
-        XCTAssertNil(event.template)
-        XCTAssertNil(event.html)
-        XCTAssertNil(event.remoteAssets)
-    }
-
-    func testMissingValuesInDetails() throws {
-        // setup
-        let triggeredConsequence: [String: Any] = [
-            MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
-            MessagingConstants.Event.Data.Key.ID: UUID().uuidString,
-            MessagingConstants.Event.Data.Key.DETAIL: ["uninteresting": "data"]
-        ]
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
-
-        // verify
-        XCTAssertTrue(event.isCjmIamConsequence)
-        XCTAssertNil(event.template)
-        XCTAssertNil(event.html)
-        XCTAssertNil(event.remoteAssets)
-    }
-
-    func testNoDetails() throws {
-        // setup
-        let triggeredConsequence: [String: Any] = [
-            MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE,
-            MessagingConstants.Event.Data.Key.ID: UUID().uuidString
-        ]
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, triggeredConsequence: triggeredConsequence)
-
-        // verify
-        XCTAssertTrue(event.isCjmIamConsequence)
-        XCTAssertNil(event.template)
-        XCTAssertNil(event.html)
-        XCTAssertNil(event.remoteAssets)
-    }
-
-    func testInAppMessageObjectValidationNoRemoteAssets() throws {
-        // setup
-        let keysToRemove = [MessagingConstants.Event.Data.Key.IAM.REMOTE_ASSETS]
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, removeDetails: keysToRemove)
-
-        // verify
-        XCTAssertNil(event.remoteAssets)
-        XCTAssertTrue(event.containsValidInAppMessage, "remoteAssets is not a required field")
-    }
-
-    func testInAppMessageObjectValidationNoTemplate() throws {
-        // setup
-        let keysToRemove = [MessagingConstants.Event.Data.Key.IAM.TEMPLATE]
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, removeDetails: keysToRemove)
-
-        // verify
-        XCTAssertNil(event.template)
-        XCTAssertTrue(event.containsValidInAppMessage, "template is not a required field")
-    }
-
-    func testInAppMessageObjectValidationNoHtml() throws {
-        // setup
-        let keysToRemove = [MessagingConstants.Event.Data.Key.IAM.HTML]
-        let event = getRulesResponseEvent(type: MessagingConstants.ConsequenceTypes.IN_APP_MESSAGE, removeDetails: keysToRemove)
-
-        // verify
-        XCTAssertNil(event.html)
-        XCTAssertFalse(event.containsValidInAppMessage, "html is a required field")
+        XCTAssertFalse(event.isSchemaConsequence)
     }
 
     // MARK: - AEP Response Event Handling

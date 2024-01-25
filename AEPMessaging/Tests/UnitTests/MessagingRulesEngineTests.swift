@@ -60,3 +60,93 @@ class MessagingRulesEngineTests: XCTestCase {
         XCTAssertEqual(event, mockRulesEngine.paramProcessedEvent)
     }
 }
+
+class LaunchRulesEngineMessagingTests: XCTestCase {
+    var launchRulesEngine: MockLaunchRulesEngine!
+    var mockRuntime: TestableExtensionRuntime!
+    
+    override func setUp() {
+        mockRuntime = TestableExtensionRuntime()
+        launchRulesEngine = MockLaunchRulesEngine(name: "mockLaunchRulesEngine", extensionRuntime: mockRuntime)
+    }
+    
+    func testLoadRulesHappy() throws {
+        
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let ruleString = propositions.first?.items.first?.itemData?["content"] as? String
+        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
+
+        // test
+        launchRulesEngine.replaceRules(with: rulesArray)
+
+        // verify
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
+   }
+
+    func testLoadRulesClearExisting() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let ruleString = propositions.first?.items.first?.itemData?["content"] as? String
+        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
+
+        // test
+        launchRulesEngine.replaceRules(with: rulesArray)
+
+        // verify
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
+   }
+
+    func testLoadRulesEmptyStringContent() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("emptyContentStringRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let ruleString = propositions.first?.items.first?.itemData?["content"] as? String
+        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
+
+        // test
+        launchRulesEngine.replaceRules(with: rulesArray)
+
+        // verify
+        XCTAssertFalse(launchRulesEngine.addRulesCalled)
+    }
+
+    func testLoadRulesMalformedContent() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("malformedContentRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let ruleString = propositions.first?.items.first?.itemData?["content"] as? String
+        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
+
+        // test
+        launchRulesEngine.replaceRules(with: rulesArray)
+
+        // verify
+        XCTAssertFalse(launchRulesEngine.addRulesCalled)
+    }
+
+    func testLoadRulesEventSequence() throws {
+        // setup
+        let decoder = JSONDecoder()
+        let propString: String = JSONFileLoader.getRulesStringFromFile("eventSequenceRule")
+        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
+        let ruleString = propositions.first?.items.first?.itemData?["content"] as? String
+        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
+
+
+        // test
+        launchRulesEngine.replaceRules(with: rulesArray)
+
+        // verify
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
+    }
+}

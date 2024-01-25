@@ -50,7 +50,7 @@ public class Message: NSObject {
     /// Holds XDM data necessary for tracking `Message` interactions with Adobe Journey Optimizer.
     var propositionInfo: PropositionInfo?
 
-    private init(parent: Messaging, triggeringEvent: Event) {
+    init(parent: Messaging, triggeringEvent: Event) {
         id = ""
         self.parent = parent
         self.triggeringEvent = triggeringEvent
@@ -77,7 +77,7 @@ public class Message: NSObject {
         if autoTrack, !suppressAutoTrack {
             track(nil, withEdgeEventType: .dismiss)
         }
-        
+
         fullscreenMessage?.dismiss()
     }
 
@@ -94,7 +94,7 @@ public class Message: NSObject {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction, proposition info is not found for message (\(id)).")
             return
         }
-                
+
         let propositionInteractionXdm = MessagingPropositionInteraction(eventType: eventType, interaction: interaction ?? "", propositionInfo: propInfo, itemId: nil).xdm
         parent?.sendPropositionInteraction(withXdm: propositionInteractionXdm)
     }
@@ -130,7 +130,7 @@ public class Message: NSObject {
         }
         recordEventHistory(eventType: .trigger, interaction: nil)
     }
-    
+
     /// Dispatches an event to be recorded in Event History.
     ///
     /// Record is created using the `propositionInfo.activityId` for this message.
@@ -143,7 +143,7 @@ public class Message: NSObject {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to write event history event '\(eventType.propositionEventType)', proposition info is not available for message (\(id)).")
             return
         }
-        
+
         // iam dictionary used for event history
         let iamHistory: [String: String] = [
             MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
@@ -155,16 +155,16 @@ public class Message: NSObject {
         let eventHistoryData: [String: Any] = [
             MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory
         ]
-        
+
         let mask = [
             MessagingConstants.Event.History.Mask.EVENT_TYPE,
             MessagingConstants.Event.History.Mask.MESSAGE_ID,
             MessagingConstants.Event.History.Mask.TRACKING_ACTION
         ]
-        
+
         let interactionLog = interaction == nil ? "" : " with value '\(interaction ?? "")'"
         Log.trace(label: MessagingConstants.LOG_TAG, "Writing '\(eventType.propositionEventType)' event\(interactionLog) to EventHistory for in-app message with activityId '\(propInfo.activityId)'")
-        
+
         let event = Event(name: MessagingConstants.Event.Name.EVENT_HISTORY_WRITE,
                           type: EventType.messaging,
                           source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE,
@@ -187,7 +187,7 @@ public class Message: NSObject {
         guard let remoteAssetsArray = newAssets, !remoteAssetsArray.isEmpty else {
             return false
         }
-        
+
         let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
         assets = [:]
         for asset in remoteAssetsArray {
@@ -196,7 +196,7 @@ public class Message: NSObject {
                 assets?[asset] = cachedAsset.metadata?[MessagingConstants.Caches.PATH]
             }
         }
-        
+
         return true
     }
 }

@@ -36,8 +36,8 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
     override func setUp() {
         mockMessaging = MockMessaging(runtime: mockRuntime)
         mockEvent = Event(name: "Message Test", type: "type", source: "source", data: nil)
-        message = Message(parent: mockMessaging, event: mockEvent)
-        mockMessage = MockMessage(parent: mockMessaging, event: mockEvent)
+        message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
+        mockMessage = MockMessage(parent: mockMessaging, triggeringEvent: mockEvent)
         mockFullscreenMessage = MockFullscreenMessage(parent: mockMessage)
         mockMessage.fullscreenMessage = mockFullscreenMessage
     }
@@ -94,7 +94,7 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
         XCTAssertFalse(result)
         XCTAssertTrue(mockMessage.trackCalled)
         XCTAssertEqual("testing", mockMessage.paramTrackInteraction)
-        XCTAssertEqual(.inappInteract, mockMessage.paramTrackEventType)
+        XCTAssertEqual(.interact, mockMessage.paramTrackEventType)
         XCTAssertTrue(mockMessage.dismissCalled)
     }
 

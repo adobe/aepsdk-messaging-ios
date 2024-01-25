@@ -15,7 +15,7 @@ import AEPServices
 
 struct ParsedPropositions {
     weak var runtime: ExtensionRuntime?
-    
+
     // store tracking information for propositions loaded into rules engines
     var propositionInfoToCache: [String: PropositionInfo] = [:]
 

@@ -73,20 +73,6 @@ class MessagingPlusStateTests: XCTestCase {
         XCTAssertFalse(mockLaunchRulesEngineForIAM.replaceRulesCalled)
     }
     
-    func testClear() throws {
-        // setup
-        messaging.propositions = [ mockIamSurface: [mockProposition] ]
-        messaging.propositionInfo = [ "consequenceId": mockPropositionInfo ]
-        
-        // test
-        messaging.clear(surfaces: [mockIamSurface])
-        
-        // verify
-        XCTAssertNil(messaging.propositions[mockIamSurface])
-        XCTAssertNil(messaging.propositionInfo["consequenceId"])
-        XCTAssertTrue(mockCache.removeCalled)
-    }
-    
     func testUpdatePropositionInfo() throws {
         // setup
         messaging.propositionInfo = [ "id1": mockPropositionInfo ]
