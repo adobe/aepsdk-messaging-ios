@@ -157,6 +157,9 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
 
         // verify
         XCTAssertNotNil(feedItem)
+        XCTAssertEqual(mockContentType, feedItem?.contentType)
+        let content = feedItem?.content as? [String: String]
+        XCTAssertEqual(mockContentValue, content?[mockContentKey])
     }
     
     // GetFeedItem
