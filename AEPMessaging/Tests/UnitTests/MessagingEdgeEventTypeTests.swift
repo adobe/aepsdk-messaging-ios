@@ -17,6 +17,42 @@ import XCTest
 class MessagingEdgeEventTypeTests: XCTestCase {
     func testInAppDismiss() throws {
         // setup
+        let value = MessagingEdgeEventType(rawValue: 6)
+
+        // verify
+        XCTAssertEqual(value, .dismiss)
+        XCTAssertEqual("decisioning.propositionDismiss", value?.toString())
+    }
+
+    func testInAppInteract() throws {
+        // setup
+        let value = MessagingEdgeEventType(rawValue: 7)
+
+        // verify
+        XCTAssertEqual(value, .interact)
+        XCTAssertEqual("decisioning.propositionInteract", value?.toString())
+    }
+
+    func testInAppTrigger() throws {
+        // setup
+        let value = MessagingEdgeEventType(rawValue: 8)
+
+        // verify
+        XCTAssertEqual(value, .trigger)
+        XCTAssertEqual("decisioning.propositionTrigger", value?.toString())
+    }
+
+    func testInAppDisplay() throws {
+        // setup
+        let value = MessagingEdgeEventType(rawValue: 9)
+
+        // verify
+        XCTAssertEqual(value, .display)
+        XCTAssertEqual("decisioning.propositionDisplay", value?.toString())
+    }
+    
+    func testInAppDismissDeprecated() throws {
+        // setup
         let value = MessagingEdgeEventType(rawValue: 0)
 
         // verify
@@ -24,7 +60,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         XCTAssertEqual("decisioning.propositionDismiss", value?.toString())
     }
 
-    func testInAppInteract() throws {
+    func testInAppInteractDeprecated() throws {
         // setup
         let value = MessagingEdgeEventType(rawValue: 1)
 
@@ -33,7 +69,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         XCTAssertEqual("decisioning.propositionInteract", value?.toString())
     }
 
-    func testInAppTrigger() throws {
+    func testInAppTriggerDeprecated() throws {
         // setup
         let value = MessagingEdgeEventType(rawValue: 2)
 
@@ -42,7 +78,7 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         XCTAssertEqual("decisioning.propositionTrigger", value?.toString())
     }
 
-    func testInAppDisplay() throws {
+    func testInAppDisplayDeprecated() throws {
         // setup
         let value = MessagingEdgeEventType(rawValue: 3)
 
@@ -70,18 +106,34 @@ class MessagingEdgeEventTypeTests: XCTestCase {
     }
     
     func testPropEventTypeDismiss() throws {
-        XCTAssertEqual("dismiss", MessagingEdgeEventType.inappDismiss.propositionEventType)
+        XCTAssertEqual("dismiss", MessagingEdgeEventType.dismiss.propositionEventType)
     }
     
     func testPropEventTypeDisplay() throws {
-        XCTAssertEqual("display", MessagingEdgeEventType.inappDisplay.propositionEventType)
+        XCTAssertEqual("display", MessagingEdgeEventType.display.propositionEventType)
     }
     
     func testPropEventTypeInteract() throws {
-        XCTAssertEqual("interact", MessagingEdgeEventType.inappInteract.propositionEventType)
+        XCTAssertEqual("interact", MessagingEdgeEventType.interact.propositionEventType)
     }
     
     func testPropEventTypeTrigger() throws {
+        XCTAssertEqual("trigger", MessagingEdgeEventType.trigger.propositionEventType)
+    }
+    
+    func testPropEventTypeDismissDeprecated() throws {
+        XCTAssertEqual("dismiss", MessagingEdgeEventType.inappDismiss.propositionEventType)
+    }
+    
+    func testPropEventTypeDisplayDeprecated() throws {
+        XCTAssertEqual("display", MessagingEdgeEventType.inappDisplay.propositionEventType)
+    }
+    
+    func testPropEventTypeInteractDeprecated() throws {
+        XCTAssertEqual("interact", MessagingEdgeEventType.inappInteract.propositionEventType)
+    }
+    
+    func testPropEventTypeTriggerDeprecated() throws {
         XCTAssertEqual("trigger", MessagingEdgeEventType.inappTrigger.propositionEventType)
     }
 }
