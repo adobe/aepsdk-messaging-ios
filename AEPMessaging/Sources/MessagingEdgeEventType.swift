@@ -83,8 +83,6 @@ extension MessagingEdgeEventType {
             return MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY
         case .pushApplicationOpened, .pushCustomAction:
             return ""
-        default:
-            return ""
         }
     }
 }
