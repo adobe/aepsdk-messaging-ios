@@ -15,11 +15,80 @@ import XCTest
 
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
-class HtmlContentSchemaDataTests: XCTestCase {
-                
-    override func setUp() {
+class HtmlContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
+     
+    let mockContent = "<html>this is some html</html>"
+    let mockFormat = ContentType.textHtml
         
+    func getDecodedObject(fromString: String) -> HtmlContentSchemaData? {
+        let decoder = JSONDecoder()
+        let objectData = fromString.data(using: .utf8)!
+        guard let object = try? decoder.decode(HtmlContentSchemaData.self, from: objectData) else {
+            return nil
+        }
+        return object
     }
     
+    func testIsDecodable() throws {
+        // setup
+        let json = "{\"content\":\"\(mockContent)\",\"format\":\"\(mockFormat.toString())\"}"
+        
+        // test
+        guard let decodedObject = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        
+        // verify
+        XCTAssertNotNil(decodedObject)
+        XCTAssertEqual(mockContent, decodedObject.content)
+        XCTAssertEqual(mockFormat, decodedObject.format)
+    }
+    
+    func testIsEncodable() throws {
+        // setup
+        let json = "{\"content\":\"\(mockContent)\",\"format\":\"\(mockFormat.toString())\"}"
+        guard let object = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        let encoder = JSONEncoder()
+        let expected = getAnyCodable("{\"content\":\"\(mockContent)\",\"format\":\"\(mockFormat.toString())\"}") ?? "fail"
+
+        // test
+        guard let encodedObject = try? encoder.encode(object) else {
+            XCTFail("unable to encode object")
+            return
+        }
+
+        // verify
+        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expected, actual: actual)
+    }
+    
+    func testContentIsRequired() throws {
+        // setup
+        let json = "{\"format\":\"\(mockFormat.toString())\"}"
+        
+        // test
+        let object = getDecodedObject(fromString: json)
+
+        // verify
+        XCTAssertNil(object)
+    }
+    
+    func testFormatIsOptional() throws {
+        // setup
+        let json = "{\"content\":\"\(mockContent)\"}"
+                
+        // test
+        let object = getDecodedObject(fromString: json)
+
+        // verify
+        XCTAssertNotNil(object)
+        XCTAssertEqual(mockContent, object?.content)
+        XCTAssertEqual(.textHtml, object?.format)
+    }
 }
