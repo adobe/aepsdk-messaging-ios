@@ -139,6 +139,5 @@ class JsonContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
         let dictionaryValue = decodedObject?.getDictionaryValue
         XCTAssertEqual("value", dictionaryValue?["key"] as? String)
         XCTAssertEqual(mockFormat, decodedObject?.format)
-    }
-    
+    }    
 }
