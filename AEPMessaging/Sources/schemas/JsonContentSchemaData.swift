@@ -39,10 +39,9 @@ public class JsonContentSchemaData: NSObject, Codable {
         if let _ = try? values.decode([AnyCodable].self, forKey: .content) {
             let codableAny = try values.decode(AnyCodable.self, forKey: .content)
             content = codableAny.arrayValue ?? []
-        } else if let codableDictionary = try? values.decode([String: AnyCodable].self, forKey: .content) {
-            content = AnyCodable.toAnyDictionary(dictionary: codableDictionary) ?? [:]
         } else {
-            content = [:]
+            let codableDictionary = try values.decode([String: AnyCodable].self, forKey: .content)
+            content = AnyCodable.toAnyDictionary(dictionary: codableDictionary) ?? [:]
         }
     }
 
