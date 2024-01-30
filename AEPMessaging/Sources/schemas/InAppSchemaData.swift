@@ -41,7 +41,7 @@ public class InAppSchemaData: NSObject, Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
         contentType = try ContentType(from: values.decode(String.self, forKey: .contentType))
-        
+
         if contentType == .applicationJson {
             if let _ = try? values.decode([AnyCodable].self, forKey: .content) {
                 let codableAny = try values.decode(AnyCodable.self, forKey: .content)
@@ -53,7 +53,7 @@ public class InAppSchemaData: NSObject, Codable {
         } else {
             content = try values.decode(String.self, forKey: .content)
         }
-        
+
         publishedDate = try? values.decode(Int.self, forKey: .publishedDate)
         expiryDate = try? values.decode(Int.self, forKey: .expiryDate)
         let codableMeta = try? values.decode([String: AnyCodable].self, forKey: .meta)
@@ -74,7 +74,7 @@ public class InAppSchemaData: NSObject, Codable {
                 try container.encode(AnyCodable(getArrayValue), forKey: .content)
             } else if isDictionary {
                 try container.encode(AnyCodable.from(dictionary: getDictionaryValue), forKey: .content)
-            }            
+            }
         } else {
             try container.encode(content as? String, forKey: .content)
         }
