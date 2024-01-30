@@ -44,8 +44,6 @@ class JsonContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
         
         // verify
         XCTAssertNotNil(decodedObject)
-        XCTAssertTrue(decodedObject.isDictionary)
-        XCTAssertFalse(decodedObject.isArray)
         let dictionaryValue = decodedObject.getDictionaryValue
         XCTAssertEqual("value", dictionaryValue?["key"] as? String)
         XCTAssertEqual(mockFormat, decodedObject.format)
@@ -63,8 +61,6 @@ class JsonContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
         
         // verify
         XCTAssertNotNil(decodedObject)
-        XCTAssertFalse(decodedObject.isDictionary)
-        XCTAssertTrue(decodedObject.isArray)
         let arrayValue = decodedObject.getArrayValue
         XCTAssertEqual(2, arrayValue?.count)
         XCTAssertEqual("content", arrayValue?[0] as? String)
@@ -134,8 +130,6 @@ class JsonContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
 
         // verify
         XCTAssertNotNil(decodedObject)
-        XCTAssertEqual(true, decodedObject?.isDictionary)
-        XCTAssertEqual(false, decodedObject?.isArray)
         let dictionaryValue = decodedObject?.getDictionaryValue
         XCTAssertEqual("value", dictionaryValue?["key"] as? String)
         XCTAssertEqual(mockFormat, decodedObject?.format)

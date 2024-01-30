@@ -70,10 +70,10 @@ public class InAppSchemaData: NSObject, Codable {
 
         try container.encode(contentType.toString(), forKey: .contentType)
         if contentType == .applicationJson {
-            if isArray {
-                try container.encode(AnyCodable(getArrayValue), forKey: .content)
-            } else if isDictionary {
-                try container.encode(AnyCodable.from(dictionary: getDictionaryValue), forKey: .content)
+            if let arrayValue = getArrayValue {
+                try container.encode(AnyCodable(arrayValue), forKey: .content)
+            } else if let dictionaryValue = getDictionaryValue {
+                try container.encode(AnyCodable.from(dictionary: dictionaryValue), forKey: .content)
             }
         } else {
             try container.encode(content as? String, forKey: .content)
@@ -88,14 +88,6 @@ public class InAppSchemaData: NSObject, Codable {
 }
 
 extension InAppSchemaData {
-    var isArray: Bool {
-        content as? [Any] != nil
-    }
-
-    var isDictionary: Bool {
-        content as? [String: Any] != nil
-    }
-
     var getArrayValue: [Any]? {
         content as? [Any]
     }
