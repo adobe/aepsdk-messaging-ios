@@ -95,7 +95,7 @@ public class Message: NSObject {
             return
         }
 
-        let propositionInteractionXdm = MessagingPropositionInteraction(eventType: eventType, interaction: interaction ?? "", propositionInfo: propInfo, itemId: nil).xdm
+        let propositionInteractionXdm = MessagingPropositionInteraction(eventType: eventType, interaction: interaction ?? "", propositionInfo: propInfo, itemId: nil, tokens: nil).xdm
         parent?.sendPropositionInteraction(withXdm: propositionInteractionXdm)
     }
 
