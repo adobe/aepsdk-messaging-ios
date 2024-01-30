@@ -73,8 +73,8 @@ public extension MessagingPropositionItem {
     /// Tracks interaction with the given proposition item.
     ///
     /// - Parameter eventType: an enum specifying event type for the interaction.
-    func track(eventType: MessagingEdgeEventType) {
-        guard let propositionInteractionXdm = generateInteractionXdm(forEventType: eventType) else {
+    func track(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType, forTokens tokens: [String]? = nil) {
+        guard let propositionInteractionXdm = generateInteractionXdm(interaction, withEdgeEventType: eventType, forTokens: tokens) else {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Cannot track proposition interaction for item \(itemId), could not generate interactions XDM.")
             return
@@ -99,14 +99,14 @@ public extension MessagingPropositionItem {
     ///
     /// - Parameter eventType: an enum specifying event type for the interaction.
     /// - Returns A dictionary containing XDM data for the propositon interaction.
-    func generateInteractionXdm(forEventType eventType: MessagingEdgeEventType) -> [String: Any]? {
+    func generateInteractionXdm(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType, forTokens tokens: [String]?) -> [String: Any]? {
         guard let proposition = proposition else {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Cannot generate interaction XDM for item \(itemId), proposition reference is not available.")
             return nil
         }
 
-        return MessagingPropositionInteraction(eventType: eventType, interaction: nil, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId).xdm
+        return MessagingPropositionInteraction(eventType: eventType, interaction: interaction, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId, tokens: tokens).xdm
     }
 
     static func fromRuleConsequence(_ consequence: RuleConsequence) -> MessagingPropositionItem? {
