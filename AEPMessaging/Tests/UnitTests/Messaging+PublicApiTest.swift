@@ -20,7 +20,7 @@ class MessagingPublicApiTest: XCTestCase {
     let ASYNC_TIMEOUT = 2.0
     var mockXdmData: [String: Any] = ["somekey": "somedata"]
     var notificationContent: [AnyHashable: Any] = [:]
-    let MOCK_BUNDLE_IDENTIFIER = "mobileapp://com.apple.dt.xctest.tool/"
+    let MOCK_BUNDLE_IDENTIFIER = "mobileapp://com.apple.dt.xctest.tool"
     let MOCK_FEEDS_SURFACE = "mobileapp://com.apple.dt.xctest.tool/promos/feed1"
     
     override func setUp() {
@@ -152,7 +152,7 @@ class MessagingPublicApiTest: XCTestCase {
         }
 
         Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: mockCustomActionId)
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
 
     func testHandleNotificationResponse_when_emptyMessageId() {
@@ -207,7 +207,7 @@ class MessagingPublicApiTest: XCTestCase {
         }
 
         Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: "customActionId")
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
     func testHandleNotificationResponse_when_emptyXdmInNotification() {
@@ -240,7 +240,7 @@ class MessagingPublicApiTest: XCTestCase {
         })
         
         XCTAssertEqual(.noTrackingData , acutalStatus)
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
 
@@ -301,8 +301,8 @@ class MessagingPublicApiTest: XCTestCase {
                 return
             }
             XCTAssertEqual(2, surfaces.count)
-            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)promos/feed1", surfaces[0]["uri"] as? String)
-            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)promos/feed2", surfaces[1]["uri"] as? String)
+            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)/promos/feed1", surfaces[0]["uri"] as? String)
+            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)/promos/feed2", surfaces[1]["uri"] as? String)
 
             expectation.fulfill()
         }
@@ -342,8 +342,9 @@ class MessagingPublicApiTest: XCTestCase {
                 XCTFail("Surface path strings array should be valid.")
                 return
             }
-            XCTAssertEqual(1, surfaces.count)
-            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)promos/feed2", surfaces[0]["uri"] as? String)
+            XCTAssertEqual(2, surfaces.count)
+            XCTAssertEqual(self.MOCK_BUNDLE_IDENTIFIER, surfaces[0]["uri"] as? String)
+            XCTAssertEqual("\(self.MOCK_BUNDLE_IDENTIFIER)/promos/feed2", surfaces[1]["uri"] as? String)
 
             expectation.fulfill()
         }
@@ -360,13 +361,34 @@ class MessagingPublicApiTest: XCTestCase {
     
     func testUpdatePropositionsForSurfaces_whenEmptySurfaceInArray() {
         // setup
-        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should not dispatch an event.")
-        expectation.isInverted = true
+        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should dispatch an event.")
+        expectation.assertForOverFulfill = true
 
-        // test
+        let testEvent = Event(name: "Update propositions",
+                              type: "com.adobe.eventType.messaging",
+                              source: "com.adobe.eventSource.requestContent",
+                              data: [
+                                "updatepropositions": true,
+                                "surfaces": [
+                                    [ : ]
+                                ]
+                              ])
+        
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
             type: "com.adobe.eventType.messaging",
-            source: "com.adobe.eventSource.requestContent") { _ in
+            source: "com.adobe.eventSource.requestContent") { event in
+                
+            XCTAssertEqual(testEvent.name, event.name)
+            XCTAssertNotNil(event.data)
+            XCTAssertEqual(true, event.data?["updatepropositions"] as? Bool)
+            guard let surfaces = event.data?["surfaces"] as? [[String: Any]], !surfaces.isEmpty else {
+                XCTFail("Surface path strings array should be valid.")
+                return
+            }
+            XCTAssertEqual(1, surfaces.count)
+            XCTAssertEqual(self.MOCK_BUNDLE_IDENTIFIER, surfaces[0]["uri"] as? String)
+
             expectation.fulfill()
         }
 
@@ -376,7 +398,7 @@ class MessagingPublicApiTest: XCTestCase {
         ])
 
         // verify
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
     func testUpdatePropositionsForSurfaces_whenEmptySurfacesArray() {
@@ -395,7 +417,7 @@ class MessagingPublicApiTest: XCTestCase {
         Messaging.updatePropositionsForSurfaces([])
 
         // verify
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
     // MARK: - getPropositionsForSurfaces

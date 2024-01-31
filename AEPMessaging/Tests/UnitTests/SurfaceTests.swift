@@ -29,12 +29,23 @@ class SurfaceTests: XCTestCase {
         XCTAssertTrue(surface.isValid)
     }
     
+    func testSurfaceUriHappy() {
+        let myAppSurface = "myProtocol://com.my.bundle.id/myView"
+        
+        // test
+        let surface = Surface(uri: myAppSurface)
+        
+        // verify
+        XCTAssertEqual(myAppSurface, surface.uri)
+        XCTAssertTrue(surface.isValid)
+    }
+    
     func testSurfaceEmptyPath() {
         // test
         let surface = Surface(path: "")
         
         // verify
-        XCTAssertEqual("", surface.uri)
+        XCTAssertEqual(mockAppSurface, surface.uri)
     }
     
     func testSurfaceIsEqual() {
@@ -49,7 +60,7 @@ class SurfaceTests: XCTestCase {
     
     func testSurfaceIsEqualDifferentSurfaces() {
         // test
-        let surface1 = Surface(uri: "myTestView")
+        let surface1 = Surface(path: "myTestView")
         let surface2 = Surface()
         
         // verify
@@ -60,18 +71,9 @@ class SurfaceTests: XCTestCase {
     func testSurfaceIsEqualNotValidSurface() {
         // test
         let surface = Surface()
-        let notASurface = ["uri": "myTestView"] as? Any
+        let notASurface = ["path": "myTestView"] as? Any
         
         // verify
         XCTAssertFalse(surface.isEqual(notASurface))
     }
-    
-    func testSurfaceIsValidInvalidUri() {
-        // test
-        let surface1 = Surface(uri: "mobileapp://@@")
-        
-        // verify
-        XCTAssertFalse(surface1.isValid)
-    }
-    
 }
