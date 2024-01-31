@@ -15,110 +15,325 @@ import XCTest
 
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
-class InAppSchemaDataTests: XCTestCase {
+class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
                 
-    override func setUp() {
+    let mockContentJson = "{\"key\":\"value\"}"
+    let mockContentString = "contentString"
+    let mockPublishedDate = 123456789
+    let mockExpiryDate = 234567890
+    let mockMetaKey = "metaKey"
+    let mockMetaValue = "metaValue"
+    let mockMobileParamsKey = "mobKey"
+    let mockMobileParamsValue = "mobValue"
+    let mockWebParamsKey = "webKey"
+    let mockWebParamsValue = "webValue"
+    let mockRemoteAsset = "https://somedomain.com/someimage.jpg"
         
+    func getDecodedObject(fromString: String) -> InAppSchemaData? {
+        let decoder = JSONDecoder()
+        let objectData = fromString.data(using: .utf8)!
+        guard let object = try? decoder.decode(InAppSchemaData.self, from: objectData) else {
+            return nil
+        }
+        return object
     }
     
-    // MARK: - helpers
+    // MARK: - codable tests
     
+    func testIsDecodableJsonObject() throws {
+        // setup
+        let json = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}"
+        
+        // test
+        guard let decodedObject = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        
+        // verify
+        XCTAssertNotNil(decodedObject)
+        let contentDictionary = decodedObject.content as? [String: Any]
+        XCTAssertEqual("value", contentDictionary?["key"] as? String)
+        XCTAssertEqual(.applicationJson, decodedObject.contentType)
+        XCTAssertEqual(mockPublishedDate, decodedObject.publishedDate)
+        XCTAssertEqual(mockExpiryDate, decodedObject.expiryDate)
+        XCTAssertEqual(mockMetaValue, decodedObject.meta?[mockMetaKey] as? String)
+        XCTAssertEqual(mockMobileParamsValue, decodedObject.mobileParameters?[mockMobileParamsKey] as? String)
+        XCTAssertEqual(mockWebParamsValue, decodedObject.webParameters?[mockWebParamsKey] as? String)
+        XCTAssertEqual(mockRemoteAsset, decodedObject.remoteAssets?.first)
+    }
     
-//    func testGetMessageSettingsHappy() throws {
-//        // setup
-//        let event = TestableMobileParameters.getMobileParametersEvent()
-//
-//        // test
-//        let settings = event.getMessageSettings(withParent: self)
-//
-//        // verify
-//        XCTAssertNotNil(settings)
-//        XCTAssertTrue(settings.parent is EventPlusMessagingTests)
-//        XCTAssertEqual(TestableMobileParameters.mockWidth, settings.width)
-//        XCTAssertEqual(TestableMobileParameters.mockHeight, settings.height)
-//        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockVAlign), settings.verticalAlign)
-//        XCTAssertEqual(TestableMobileParameters.mockVInset, settings.verticalInset)
-//        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockHAlign), settings.horizontalAlign)
-//        XCTAssertEqual(TestableMobileParameters.mockHInset, settings.horizontalInset)
-//        XCTAssertEqual(TestableMobileParameters.mockUiTakeover, settings.uiTakeover)
-//        XCTAssertEqual(UIColor(red: 0xAA / 255.0, green: 0xBB / 255.0, blue: 0xCC / 255.0, alpha: 0), settings.getBackgroundColor(opacity: 0))
-//        XCTAssertEqual(CGFloat(TestableMobileParameters.mockCornerRadius), settings.cornerRadius)
-//        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDisplayAnimation), settings.displayAnimation)
-//        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDismissAnimation), settings.dismissAnimation)
-//        XCTAssertNotNil(settings.gestures)
-//        XCTAssertEqual(1, settings.gestures?.count)
-//        XCTAssertEqual(URL(string: "adbinapp://dismiss")!.absoluteString, (settings.gestures![.swipeDown]!).absoluteString)
-//    }
-//
-//    func testGetMessageSettingsNoParent() throws {
-//        // setup
-//        let event = TestableMobileParameters.getMobileParametersEvent()
-//
-//        // test
-//        let settings = event.getMessageSettings(withParent: nil)
-//
-//        // verify
-//        XCTAssertNotNil(settings)
-//        XCTAssertNil(settings.parent)
-//        XCTAssertEqual(TestableMobileParameters.mockWidth, settings.width)
-//        XCTAssertEqual(TestableMobileParameters.mockHeight, settings.height)
-//        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockVAlign), settings.verticalAlign)
-//        XCTAssertEqual(TestableMobileParameters.mockVInset, settings.verticalInset)
-//        XCTAssertEqual(MessageAlignment.fromString(TestableMobileParameters.mockHAlign), settings.horizontalAlign)
-//        XCTAssertEqual(TestableMobileParameters.mockHInset, settings.horizontalInset)
-//        XCTAssertEqual(TestableMobileParameters.mockUiTakeover, settings.uiTakeover)
-//        XCTAssertEqual(UIColor(red: 0xAA / 255.0, green: 0xBB / 255.0, blue: 0xCC / 255.0, alpha: 0), settings.getBackgroundColor(opacity: 0))
-//        XCTAssertEqual(CGFloat(TestableMobileParameters.mockCornerRadius), settings.cornerRadius)
-//        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDisplayAnimation), settings.displayAnimation)
-//        XCTAssertEqual(MessageAnimation.fromString(TestableMobileParameters.mockDismissAnimation), settings.dismissAnimation)
-//        XCTAssertNotNil(settings.gestures)
-//        XCTAssertEqual(1, settings.gestures?.count)
-//        XCTAssertEqual(URL(string: "adbinapp://dismiss")!.absoluteString, (settings.gestures![.swipeDown]!).absoluteString)
-//    }
-//
-//    func testGetMessageSettingsMobileParametersEmpty() throws {
-//        // setup
-//        let event = getRefreshMessagesEvent()
-//
-//        // test
-//        let settings = event.getMessageSettings(withParent: self)
-//
-//        // verify
-//        XCTAssertNotNil(settings)
-//        XCTAssertTrue(settings.parent is EventPlusMessagingTests)
-//        XCTAssertNil(settings.width)
-//        XCTAssertNil(settings.height)
-//        XCTAssertEqual(.center, settings.verticalAlign)
-//        XCTAssertNil(settings.verticalInset)
-//        XCTAssertEqual(.center, settings.horizontalAlign)
-//        XCTAssertNil(settings.horizontalInset)
-//        XCTAssertTrue(settings.uiTakeover!)
-//        XCTAssertEqual(UIColor(red: 1, green: 1, blue: 1, alpha: 0), settings.getBackgroundColor(opacity: 0))
-//        XCTAssertNil(settings.cornerRadius)
-//        XCTAssertEqual(.none, settings.displayAnimation!)
-//        XCTAssertEqual(.none, settings.dismissAnimation!)
-//        XCTAssertNil(settings.gestures)
-//    }
-//
-//    func testGetMessageSettingsEmptyGestures() throws {
-//        // setup
-//        let params: [String: Any] = [
-//            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
-//                MessagingConstants.Event.Data.Key.DETAIL: [
-//                    MessagingConstants.Event.Data.Key.IAM.MOBILE_PARAMETERS: [
-//                        MessagingConstants.Event.Data.Key.IAM.GESTURES: [:] as [String: Any]
-//                    ]
-//                ]
-//            ]
-//        ]
-//        let event = TestableMobileParameters.getMobileParametersEvent(withData: params)
-//
-//        // test
-//        let settings = event.getMessageSettings(withParent: self)
-//
-//        // verify
-//        XCTAssertNotNil(settings)
-//        XCTAssertNil(settings.gestures)
-//    }
+    func testIsDecodableJsonArray() throws {
+        // setup
+        let json = "{\"content\":[\(mockContentJson)],\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}"
+        
+        // test
+        guard let decodedObject = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        
+        // verify
+        XCTAssertNotNil(decodedObject)
+        let contentArray = decodedObject.content as? [[String: Any]]
+        let contentDictionary = contentArray?.first
+        XCTAssertEqual("value", contentDictionary?["key"] as? String)
+        XCTAssertEqual(.applicationJson, decodedObject.contentType)
+        XCTAssertEqual(mockPublishedDate, decodedObject.publishedDate)
+        XCTAssertEqual(mockExpiryDate, decodedObject.expiryDate)
+        XCTAssertEqual(mockMetaValue, decodedObject.meta?[mockMetaKey] as? String)
+        XCTAssertEqual(mockMobileParamsValue, decodedObject.mobileParameters?[mockMobileParamsKey] as? String)
+        XCTAssertEqual(mockWebParamsValue, decodedObject.webParameters?[mockWebParamsKey] as? String)
+        XCTAssertEqual(mockRemoteAsset, decodedObject.remoteAssets?.first)
+    }
+    
+    func testIsDecodableString() throws {
+        // setup
+        let json = "{\"content\":\"\(mockContentString)\",\"contentType\":\"\(ContentType.textHtml.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}"
+        
+        // test
+        guard let decodedObject = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        
+        // verify
+        XCTAssertNotNil(decodedObject)
+        XCTAssertEqual(mockContentString, decodedObject.content as? String)
+        XCTAssertEqual(.textHtml, decodedObject.contentType)
+        XCTAssertEqual(mockPublishedDate, decodedObject.publishedDate)
+        XCTAssertEqual(mockExpiryDate, decodedObject.expiryDate)
+        XCTAssertEqual(mockMetaValue, decodedObject.meta?[mockMetaKey] as? String)
+        XCTAssertEqual(mockMobileParamsValue, decodedObject.mobileParameters?[mockMobileParamsKey] as? String)
+        XCTAssertEqual(mockWebParamsValue, decodedObject.webParameters?[mockWebParamsKey] as? String)
+        XCTAssertEqual(mockRemoteAsset, decodedObject.remoteAssets?.first)
+    }
+
+    func testIsEncodableJsonObjectContent() throws {
+        // setup
+        let json = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}"
+        guard let object = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        let encoder = JSONEncoder()
+        let expected = getAnyCodable("{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}") ?? "fail"
+
+        // test
+        guard let encodedObject = try? encoder.encode(object) else {
+            XCTFail("unable to encode object")
+            return
+        }
+
+        // verify
+        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expected, actual: actual)
+    }
+    
+    func testIsEncodableJsonArrayContent() throws {
+        // setup
+        let json = "{\"content\":[\(mockContentJson)],\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}"
+        guard let object = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        let encoder = JSONEncoder()
+        let expected = getAnyCodable("{\"content\":[\(mockContentJson)],\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}") ?? "fail"
+
+        // test
+        guard let encodedObject = try? encoder.encode(object) else {
+            XCTFail("unable to encode object")
+            return
+        }
+
+        // verify
+        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expected, actual: actual)
+    }
+    
+    func testIsEncodableStringContent() throws {
+        // setup
+        let json = "{\"content\":\"\(mockContentString)\",\"contentType\":\"\(ContentType.textHtml.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}"
+        guard let object = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        let encoder = JSONEncoder()
+        let expected = getAnyCodable("{\"content\":\"\(mockContentString)\",\"contentType\":\"\(ContentType.textHtml.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}") ?? "fail"
+
+        // test
+        guard let encodedObject = try? encoder.encode(object) else {
+            XCTFail("unable to encode object")
+            return
+        }
+
+        // verify
+        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expected, actual: actual)
+    }
+    
+    // MARK: - required vs. not required properties
+    
+    func testContentIsRequired() throws {
+        // setup
+        let json = "{\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}"
+        
+        // test
+        let decodedObject = getDecodedObject(fromString: json)
+        
+        // verify
+        XCTAssertNil(decodedObject)
+    }
+    
+    func testContentTypeIsRequired() throws {
+        // setup
+        let json = "{\"content\":\(mockContentJson),\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}"
+        
+        // test
+        let decodedObject = getDecodedObject(fromString: json)
+        
+        // verify
+        XCTAssertNil(decodedObject)
+    }
+    
+    func testOnlyContentAndContentTypeAreRequired() throws {
+        // setup
+        let json = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\"}"
+        
+        // test
+        let decodedObject = getDecodedObject(fromString: json)
+        
+        // verify
+        XCTAssertNotNil(decodedObject)
+        let contentDictionary = decodedObject?.content as? [String: Any]
+        XCTAssertEqual("value", contentDictionary?["key"] as? String)
+        XCTAssertEqual(.applicationJson, decodedObject?.contentType)
+        XCTAssertNil(decodedObject?.publishedDate)
+        XCTAssertNil(decodedObject?.expiryDate)
+        XCTAssertNil(decodedObject?.meta)
+        XCTAssertNil(decodedObject?.mobileParameters)
+        XCTAssertNil(decodedObject?.webParameters)
+        XCTAssertNil(decodedObject?.remoteAssets)
+    }
+    
+    // MARK: - getMessageSettings
+
+    /// sample `mobileParameters` json which gets represented by a `MessageSettings` object:
+    /// {
+    ///     "mobileParameters": {
+    ///         "schemaVersion": "1.0",
+    ///         "width": 80,
+    ///         "height": 50,
+    ///         "verticalAlign": "center",
+    ///         "verticalInset": 0,
+    ///         "horizontalAlign": "center",
+    ///         "horizontalInset": 0,
+    ///         "uiTakeover": true,
+    ///         "displayAnimation": "top",
+    ///         "dismissAnimation": "top",
+    ///         "backdropColor": "000000",    // RRGGBB
+    ///         "backdropOpacity: 0.3,
+    ///         "cornerRadius": 15,
+    ///         "gestures": {
+    ///             "swipeUp": "adbinapp://dismiss",
+    ///             "swipeDown": "adbinapp://dismiss",
+    ///             "swipeLeft": "adbinapp://dismiss?interaction=negative",
+    ///             "swipeRight": "adbinapp://dismiss?interaction=positive",
+    ///             "backgroundTap": "adbinapp://dismiss"
+    ///         }
+    ///     }
+    /// }
+    
+    func testGetMessageSettingsHappy() throws {
+        // setup
+        let testMobileParameters = "{\"schemaVersion\":\"1.0\",\"width\":80,\"height\":50,\"verticalAlign\":\"center\",\"verticalInset\":0,\"horizontalAlign\":\"center\",\"horizontalInset\":0,\"uiTakeover\":true,\"displayAnimation\":\"top\",\"dismissAnimation\":\"top\",\"backdropColor\":\"000000\",\"backdropOpacity\":0.3,\"cornerRadius\":15,\"gestures\":{\"swipeUp\":\"adbinapp://dismiss?interaction=swipeUp\",\"swipeDown\":\"adbinapp://dismiss?interaction=swipeDown\",\"swipeLeft\":\"adbinapp://dismiss?interaction=swipeLeft\",\"swipeRight\":\"adbinapp://dismiss?interaction=swipeRight\",\"backgroundTap\":\"adbinapp://dismiss?interaction=backgroundTap\"}}"
+        
+        let json = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"mobileParameters\":\(testMobileParameters)}"
+        guard let decodedObject = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        
+        // test
+        let result = decodedObject.getMessageSettings(with: self)
+        
+        // verify
+        XCTAssertEqual(self, result.parent as? InAppSchemaDataTests)
+        XCTAssertEqual(80, result.width)
+        XCTAssertEqual(50, result.height)
+        XCTAssertEqual(.center, result.verticalAlign)
+        XCTAssertEqual(0, result.verticalInset)
+        XCTAssertEqual(.center, result.horizontalAlign)
+        XCTAssertEqual(0, result.horizontalInset)
+        XCTAssertEqual(true, result.uiTakeover)
+        XCTAssertEqual(.top, result.displayAnimation)
+        XCTAssertEqual(.top, result.dismissAnimation)
+        XCTAssertEqual(UIColor(hue: 0, saturation: 0, brightness: 0, alpha: 0.3), result.getBackgroundColor()) // 000000 color and 0.3 opacity
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeUp"), result.gestures?[.swipeUp])
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeDown"), result.gestures?[.swipeDown])
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeLeft"), result.gestures?[.swipeLeft])
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeRight"), result.gestures?[.swipeRight])
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=backgroundTap"), result.gestures?[.backgroundTap])
+    }
+    
+    func testGetMessageSettingsNoMobileParameters() throws {
+        // setup
+        let json = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\"}"
+        guard let decodedObject = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        
+        // test
+        let result = decodedObject.getMessageSettings(with: self)
+        
+        // verify
+        XCTAssertEqual(self, result.parent as? InAppSchemaDataTests)
+        XCTAssertNil(result.width)
+        XCTAssertNil(result.width)
+        XCTAssertNil(result.height)
+        XCTAssertNil(result.verticalAlign)
+        XCTAssertNil(result.verticalInset)
+        XCTAssertNil(result.horizontalAlign)
+        XCTAssertNil(result.horizontalInset)
+        XCTAssertNil(result.uiTakeover)
+        XCTAssertNil(result.displayAnimation)
+        XCTAssertNil(result.dismissAnimation)
+        XCTAssertEqual(UIColor(red: 1, green: 1, blue: 1, alpha: 0), result.getBackgroundColor()) // default color
+        XCTAssertNil(result.gestures)
+    }
+    
+    func testGetMessageSettingsDefaultValues() throws {
+        // setup
+        let testMobileParameters = "{\"schemaVersion\":\"1.0\",\"width\":80,\"height\":50,\"verticalInset\":0,\"horizontalInset\":0,\"backdropColor\":\"000000\",\"backdropOpacity\":0.3,\"cornerRadius\":15,\"gestures\":{\"swipeUp\":\"adbinapp://dismiss?interaction=swipeUp\",\"swipeDown\":\"adbinapp://dismiss?interaction=swipeDown\",\"swipeLeft\":\"adbinapp://dismiss?interaction=swipeLeft\",\"swipeRight\":\"adbinapp://dismiss?interaction=swipeRight\",\"backgroundTap\":\"adbinapp://dismiss?interaction=backgroundTap\"}}"
+        
+        let json = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"mobileParameters\":\(testMobileParameters)}"
+        guard let decodedObject = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        
+        // test
+        let result = decodedObject.getMessageSettings(with: self)
+        
+        // verify
+        XCTAssertEqual(self, result.parent as? InAppSchemaDataTests)
+        XCTAssertEqual(80, result.width)
+        XCTAssertEqual(50, result.height)
+        XCTAssertEqual(.center, result.verticalAlign)
+        XCTAssertEqual(0, result.verticalInset)
+        XCTAssertEqual(.center, result.horizontalAlign)
+        XCTAssertEqual(0, result.horizontalInset)
+        XCTAssertEqual(true, result.uiTakeover)
+        XCTAssertEqual(MessageAnimation.none, result.displayAnimation)
+        XCTAssertEqual(MessageAnimation.none, result.dismissAnimation)
+        XCTAssertEqual(UIColor(hue: 0, saturation: 0, brightness: 0, alpha: 0.3), result.getBackgroundColor()) // 000000 color and 0.3 opacity
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeUp"), result.gestures?[.swipeUp])
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeDown"), result.gestures?[.swipeDown])
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeLeft"), result.gestures?[.swipeLeft])
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeRight"), result.gestures?[.swipeRight])
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=backgroundTap"), result.gestures?[.backgroundTap])
+    }
 }

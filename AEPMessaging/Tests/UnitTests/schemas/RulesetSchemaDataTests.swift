@@ -15,11 +15,80 @@ import XCTest
 
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
-class RulesetSchemaDataTests: XCTestCase {
+class RulesetSchemaDataTests: XCTestCase, AnyCodableAsserts {
                 
-    override func setUp() {
-        
+    let mockVersion = 1
+    let mockRuleKey = "ruleKey"
+    let mockRuleValue = "ruleValue"
+            
+    func getDecodedObject(fromString: String) -> RulesetSchemaData? {
+        let decoder = JSONDecoder()
+        let objectData = fromString.data(using: .utf8)!
+        guard let object = try? decoder.decode(RulesetSchemaData.self, from: objectData) else {
+            return nil
+        }
+        return object
     }
     
+    func testIsDecodable() throws {
+        // setup
+        let json = "{\"version\":\(mockVersion),\"rules\":[{\"\(mockRuleKey)\":\"\(mockRuleValue)\"}]}"
+        
+        // test
+        guard let decodedObject = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        
+        // verify
+        XCTAssertNotNil(decodedObject)
+        XCTAssertEqual(mockVersion, decodedObject.version)
+        let dictionaryValue = decodedObject.rules.first
+        XCTAssertEqual(mockRuleValue, dictionaryValue?[mockRuleKey] as? String)
+    }
+    
+    func testIsEncodable() throws {
+        // setup
+        let json = "{\"version\":\(mockVersion),\"rules\":[{\"\(mockRuleKey)\":\"\(mockRuleValue)\"}]}"
+        guard let object = getDecodedObject(fromString: json) else {
+            XCTFail("unable to decode json")
+            return
+        }
+        let encoder = JSONEncoder()
+        let expected = getAnyCodable("{\"version\":\(mockVersion),\"rules\":[{\"\(mockRuleKey)\":\"\(mockRuleValue)\"}]}") ?? "fail"
+
+        // test
+        guard let encodedObject = try? encoder.encode(object) else {
+            XCTFail("unable to encode object")
+            return
+        }
+
+        // verify
+        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expected, actual: actual)
+    }
+    
+    func testVersionIsRequired() throws {
+        // setup
+        let json = "{\"rules\":[{\"\(mockRuleKey)\":\"\(mockRuleValue)\"}]}"
+        
+        // test
+        let object = getDecodedObject(fromString: json)
+
+        // verify
+        XCTAssertNil(object)
+    }
+    
+    func testRulesIsRequired() throws {
+        // setup
+        let json = "{\"version\":\(mockVersion)}"
+        
+        // test
+        let object = getDecodedObject(fromString: json)
+
+        // verify
+        XCTAssertNil(object)
+    }
 }
