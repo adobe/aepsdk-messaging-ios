@@ -14,12 +14,17 @@ import Foundation
 import XCTest
 
 @testable import AEPMessaging
-import AEPServices
 
 class BundleMessagingTests: XCTestCase {
-                
-    override func setUp() {
+    func testMobileAppSurface() throws {
+        // setup
+        let base = "mobileapp://"
+        let bundleIdentifier = Bundle.main.bundleIdentifier!
         
+        // test
+        let result = Bundle.main.mobileappSurface
+        
+        // verify
+        XCTAssertEqual("\(base)\(bundleIdentifier)", result)
     }
-    
 }
