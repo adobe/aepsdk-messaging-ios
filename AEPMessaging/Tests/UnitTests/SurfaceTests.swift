@@ -17,9 +17,61 @@ import XCTest
 import AEPServices
 
 class SurfaceTests: XCTestCase {
-                
-    override func setUp() {
+    
+    let mockAppSurface = "mobileapp://com.apple.dt.xctest.tool"
+    
+    func testSurfaceHappy() {
+        // test
+        let surface = Surface(path: "myTestView")
         
+        // verify
+        XCTAssertEqual("\(mockAppSurface)/myTestView", surface.uri)
+        XCTAssertTrue(surface.isValid)
+    }
+    
+    func testSurfaceEmptyPath() {
+        // test
+        let surface = Surface(path: "")
+        
+        // verify
+        XCTAssertEqual("", surface.uri)
+    }
+    
+    func testSurfaceIsEqual() {
+        // test
+        let surface1 = Surface()
+        let surface2 = Surface()
+        
+        // verify
+        XCTAssertTrue(surface1.isEqual(surface2))
+        XCTAssertEqual(surface1, surface2)
+    }
+    
+    func testSurfaceIsEqualDifferentSurfaces() {
+        // test
+        let surface1 = Surface(uri: "myTestView")
+        let surface2 = Surface()
+        
+        // verify
+        XCTAssertFalse(surface1.isEqual(surface2))
+        XCTAssertNotEqual(surface1, surface2)
+    }
+    
+    func testSurfaceIsEqualNotValidSurface() {
+        // test
+        let surface = Surface()
+        let notASurface = ["uri": "myTestView"] as? Any
+        
+        // verify
+        XCTAssertFalse(surface.isEqual(notASurface))
+    }
+    
+    func testSurfaceIsValidInvalidUri() {
+        // test
+        let surface1 = Surface(uri: "mobileapp://@@")
+        
+        // verify
+        XCTAssertFalse(surface1.isValid)
     }
     
 }

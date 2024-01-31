@@ -17,9 +17,77 @@ import XCTest
 import AEPServices
 
 class ArrayMessagingTests: XCTestCase {
-                
-    override func setUp() {
+
+    class Shape: Equatable {
+        let name: String
+        let vertices: Int
         
+        init(_ name: String, withVertices vertices: Int) {
+            self.name = name
+            self.vertices = vertices
+        }
+        
+        static func == (lhs: Shape, rhs: Shape) -> Bool {
+            return lhs.name == rhs.name && lhs.vertices == rhs.vertices
+        }
     }
     
+    var shapes: [Shape] = []
+    var array1: [String] = [ "value1", "value2", "value3" ]
+
+    override func setUp() {
+        shapes = [
+            Shape("triangle", withVertices: 3),
+            Shape("square", withVertices: 4),
+            Shape("pentagon", withVertices: 5)
+        ]
+    }
+    
+    func testArrayMinus() {
+        let arrayToMinus = ["value2", "value4"]
+        
+        // test
+        let result = array1.minus(arrayToMinus).sorted()
+        
+        // verify
+        XCTAssertEqual(2, result.count)
+        XCTAssertEqual("value1", result[0])
+        XCTAssertEqual("value3", result[1])
+    }
+    
+    func testArrayMinusAll() {
+        let arrayToMinus = ["value2", "value3", "value1"]
+        
+        // test
+        let result = array1.minus(arrayToMinus)
+        
+        // verify
+        XCTAssertTrue(result.isEmpty)
+    }
+    
+    func testToDictionary() {
+        // test
+        let dict: [String: [Shape]] = shapes.toDictionary { String($0.vertices) }
+
+        // verify
+        XCTAssertEqual(3, dict.count)
+        XCTAssertEqual([shapes[0]], dict["3"])
+        XCTAssertEqual([shapes[1]], dict["4"])
+        XCTAssertEqual([shapes[2]], dict["5"])
+    }
+    
+    func testToDictionaryExistingKey() {
+        shapes.append(Shape("rectangle", withVertices: 4))
+        
+        // test
+        let dict: [String: [Shape]] = shapes.toDictionary { String($0.vertices) }
+
+        // verify
+        XCTAssertEqual(3, dict.count)
+        XCTAssertEqual([shapes[0]], dict["3"])
+        XCTAssertEqual(2, dict["4"]?.count)
+        XCTAssertEqual(shapes[1], dict["4"]?[0])
+        XCTAssertEqual(shapes[3], dict["4"]?[1])
+        XCTAssertEqual([shapes[2]], dict["5"])
+    }
 }
