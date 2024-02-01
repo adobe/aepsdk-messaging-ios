@@ -59,11 +59,6 @@ extension Cache {
             propositionsToCache[key.uri] = value
         }
 
-        if propositionsToCache.isEmpty {
-            Log.trace(label: MessagingConstants.LOG_TAG, "No new messages are available to update in-app messaging cache.")
-            return
-        }
-
         let encoder = JSONEncoder()
         guard let cacheData = try? encoder.encode(propositionsToCache) else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Error creating in-app messaging cache, unable to encode proposition.")
