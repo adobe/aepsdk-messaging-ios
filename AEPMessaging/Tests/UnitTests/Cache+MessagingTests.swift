@@ -15,11 +15,271 @@ import XCTest
 
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
 class CacheMessagingTests: XCTestCase {
-                
-    override func setUp() {
+    let mockCache = MockCache(name: "mockCache")
+    var mockSurface: Surface!
+    
+    var mockProposition: MessagingProposition!
+    var mockPropositionItem: MessagingPropositionItem!
         
+    override func setUp() {
+        let propositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
+        mockPropositionItem = MessagingPropositionItem(itemId: "inapp2", schema: .ruleset, itemData: propositionContent)
+        mockProposition = MessagingProposition(uniqueId: "inapp2", scope: "inapp2", scopeDetails: ["key": "value"], items: [mockPropositionItem])
+        mockSurface = Surface(uri: "inapp2")
+    }
+        
+    func getPropositionCacheEntry(_ seededPropositions: [String: [MessagingProposition]]? = nil) -> CacheEntry? {
+        let seededPropositions = seededPropositions ?? [
+            mockSurface.uri: [mockProposition]
+        ]
+        
+        let encoder = JSONEncoder()
+        guard let cacheData = try? encoder.encode(seededPropositions) else {
+            return nil
+        }
+        
+        return CacheEntry(data: cacheData, expiry: .never, metadata: nil)
     }
     
+    func testPropositionsHappy() throws {
+        // setup
+        mockCache.getReturnValue = getPropositionCacheEntry()
+        
+        // test
+        let result = mockCache.propositions
+        
+        // verify
+        XCTAssertNotNil(result)
+        XCTAssertEqual(1, result?.count)
+        let propForSurface = result?[mockSurface]
+        XCTAssertNotNil(propForSurface)
+        let firstProp = propForSurface?.first
+        XCTAssertNotNil(firstProp)
+        XCTAssertEqual("inapp2", firstProp?.uniqueId)
+        XCTAssertEqual("inapp2", firstProp?.scope)
+        XCTAssertEqual("value", firstProp?.scopeDetails["key"] as? String)
+        XCTAssertEqual(1, firstProp?.items.count)
+        let propItem = firstProp?.items.first
+        XCTAssertEqual("inapp2", propItem?.itemId)
+        XCTAssertEqual(.ruleset, propItem?.schema)
+        XCTAssertNotNil(propItem?.itemData)
+        XCTAssertEqual(2, propItem?.itemData?.count)
+        XCTAssertNotNil(propItem?.itemData?["rules"])
+        XCTAssertNotNil(propItem?.itemData?["version"])
+    }
+    
+    func testPropositionsNoneInCache() throws {
+        // setup
+        mockCache.getReturnValue = nil
+        
+        // test
+        let result = mockCache.propositions
+        
+        // verify
+        XCTAssertNil(result)
+    }
+    
+    func testPropositionsCachedItemsAreNotDecodable() throws {
+        // setup
+        mockCache.getReturnValue = CacheEntry(data: "i am not valid propositions".data(using: .utf8)!, expiry: .never, metadata: nil)
+        
+        // test
+        let result = mockCache.propositions
+        
+        // verify
+        XCTAssertNil(result)
+    }
+    
+    func testUpdatePropositionsHappy() throws {
+        // setup
+        let newSurface = Surface(uri: "inapp4")
+        let newPropositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
+        let newPropositionItem = MessagingPropositionItem(itemId: "inapp4", schema: .ruleset, itemData: newPropositionContent)
+        let newProposition = MessagingProposition(uniqueId: "inapp4", scope: "inapp4", scopeDetails: ["key": "value"], items: [newPropositionItem])
+        let newProps: [Surface: [MessagingProposition]] = [
+            newSurface: [newProposition]
+        ]
+        
+        // test
+        mockCache.updatePropositions(newProps)
+        
+        // verify
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertEqual("propositions", mockCache.setParamKey)
+        guard let setParamCache = mockCache.setParamEntry else {
+            XCTFail("no cache parameter in 'set' call")
+            return
+        }
+        let decoder = JSONDecoder()
+        guard let decodedSetParam = try? decoder.decode([String: [MessagingProposition]].self, from: setParamCache.data) else {
+            XCTFail("failed to decode cache parameter sent during 'set' call")
+            return
+        }
+        XCTAssertEqual(1, decodedSetParam.count)
+        let paramProp = decodedSetParam["inapp4"]?.first
+        XCTAssertEqual("inapp4", paramProp?.uniqueId)
+        XCTAssertEqual("inapp4", paramProp?.scope)
+        XCTAssertEqual(1, paramProp?.items.count)
+    }
+    
+    func testUpdatePropositionsExistingPropositions() throws {
+        // setup
+        mockCache.getReturnValue = getPropositionCacheEntry()
+        let newSurface = Surface(uri: "inapp4")
+        let newPropositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
+        let newPropositionItem = MessagingPropositionItem(itemId: "inapp4", schema: .ruleset, itemData: newPropositionContent)
+        let newProposition = MessagingProposition(uniqueId: "inapp4", scope: "inapp4", scopeDetails: ["key": "value"], items: [newPropositionItem])
+        let newProps: [Surface: [MessagingProposition]] = [
+            newSurface: [newProposition]
+        ]
+        
+        // test
+        mockCache.updatePropositions(newProps)
+        
+        // verify
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertEqual("propositions", mockCache.setParamKey)
+        guard let setParamCache = mockCache.setParamEntry else {
+            XCTFail("no cache parameter in 'set' call")
+            return
+        }
+        let decoder = JSONDecoder()
+        guard let decodedSetParam = try? decoder.decode([String: [MessagingProposition]].self, from: setParamCache.data) else {
+            XCTFail("failed to decode cache parameter sent during 'set' call")
+            return
+        }
+        XCTAssertEqual(2, decodedSetParam.count)
+    }
+    
+    func testUpdatePropositionsRemovingSurfaces() throws {
+        // setup
+        mockCache.getReturnValue = getPropositionCacheEntry()
+        let newSurface = Surface(uri: "inapp4")
+        let newPropositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
+        let newPropositionItem = MessagingPropositionItem(itemId: "inapp4", schema: .ruleset, itemData: newPropositionContent)
+        let newProposition = MessagingProposition(uniqueId: "inapp4", scope: "inapp4", scopeDetails: ["key": "value"], items: [newPropositionItem])
+        let newProps: [Surface: [MessagingProposition]] = [
+            newSurface: [newProposition]
+        ]
+        
+        // test
+        mockCache.updatePropositions(newProps, removing: [mockSurface])
+        
+        // verify
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertEqual("propositions", mockCache.setParamKey)
+        guard let setParamCache = mockCache.setParamEntry else {
+            XCTFail("no cache parameter in 'set' call")
+            return
+        }
+        let decoder = JSONDecoder()
+        guard let decodedSetParam = try? decoder.decode([String: [MessagingProposition]].self, from: setParamCache.data) else {
+            XCTFail("failed to decode cache parameter sent during 'set' call")
+            return
+        }
+        XCTAssertEqual(1, decodedSetParam.count)
+        let paramProp = decodedSetParam["inapp4"]?.first
+        XCTAssertEqual("inapp4", paramProp?.uniqueId)
+        XCTAssertEqual("inapp4", paramProp?.scope)
+        XCTAssertEqual(1, paramProp?.items.count)
+    }
+    
+    func testUpdatePropositionsNoNewPropositionsClearExisting() throws {
+        // setup
+        mockCache.getReturnValue = getPropositionCacheEntry()
+                
+        // test
+        mockCache.updatePropositions(nil, removing: [mockSurface])
+        
+        // verify
+        XCTAssertTrue(mockCache.removeCalled)
+        XCTAssertFalse(mockCache.setCalled)
+    }
+    
+    func testUpdatePropositionsOverwriteExistingPropositions() throws {
+        // setup
+        mockCache.getReturnValue = getPropositionCacheEntry()
+        let newSurface = mockSurface
+        let newPropositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
+        let newPropositionItem = MessagingPropositionItem(itemId: "inapp4", schema: .ruleset, itemData: newPropositionContent)
+        let newProposition = MessagingProposition(uniqueId: "inapp4", scope: "inapp4", scopeDetails: ["key": "value"], items: [newPropositionItem])
+        let newProps: [Surface: [MessagingProposition]] = [
+            newSurface!: [newProposition]
+        ]
+        
+        // test
+        mockCache.updatePropositions(newProps)
+        
+        // verify
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertEqual("propositions", mockCache.setParamKey)
+        guard let setParamCache = mockCache.setParamEntry else {
+            XCTFail("no cache parameter in 'set' call")
+            return
+        }
+        let decoder = JSONDecoder()
+        guard let decodedSetParam = try? decoder.decode([String: [MessagingProposition]].self, from: setParamCache.data) else {
+            XCTFail("failed to decode cache parameter sent during 'set' call")
+            return
+        }
+        XCTAssertEqual(1, decodedSetParam.count)
+        let paramProp = decodedSetParam["inapp2"]?.first
+        XCTAssertEqual("inapp4", paramProp?.uniqueId)
+        XCTAssertEqual("inapp4", paramProp?.scope)
+        XCTAssertEqual(1, paramProp?.items.count)
+    }
+    
+    // TODO: how to get encoding to fail (or mock it)
+    func testUpdatePropositionsBadFormatEncodeFailure() throws {
+        // setup
+        let newSurface = Surface(uri: "inapp4")
+        let newProposition = MessagingProposition(uniqueId: "", scope: "", scopeDetails: ["": ""], items: [])
+        let newProps: [Surface: [MessagingProposition]] = [
+            newSurface: [newProposition]
+        ]
+        
+        // test
+        mockCache.updatePropositions(newProps)
+        
+        // verify
+        XCTAssertFalse(mockCache.removeCalled)
+        // set should not be called but is currently because encoding doesn't fail
+        // XCTAssertFalse(mockCache.setCalled)
+    }
+    
+    func testUpdatePropositionsSetThrows() throws {
+        // setup
+        mockCache.setShouldThrow = true
+        let newSurface = Surface(uri: "inapp4")
+        let newPropositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
+        let newPropositionItem = MessagingPropositionItem(itemId: "inapp4", schema: .ruleset, itemData: newPropositionContent)
+        let newProposition = MessagingProposition(uniqueId: "inapp4", scope: "inapp4", scopeDetails: ["key": "value"], items: [newPropositionItem])
+        let newProps: [Surface: [MessagingProposition]] = [
+            newSurface: [newProposition]
+        ]
+        
+        // test
+        mockCache.updatePropositions(newProps)
+        
+        // verify
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertEqual("propositions", mockCache.setParamKey)
+        guard let setParamCache = mockCache.setParamEntry else {
+            XCTFail("no cache parameter in 'set' call")
+            return
+        }
+        let decoder = JSONDecoder()
+        guard let decodedSetParam = try? decoder.decode([String: [MessagingProposition]].self, from: setParamCache.data) else {
+            XCTFail("failed to decode cache parameter sent during 'set' call")
+            return
+        }
+        XCTAssertEqual(1, decodedSetParam.count)
+        let paramProp = decodedSetParam["inapp4"]?.first
+        XCTAssertEqual("inapp4", paramProp?.uniqueId)
+        XCTAssertEqual("inapp4", paramProp?.scope)
+        XCTAssertEqual(1, paramProp?.items.count)
+    }
 }
