@@ -23,7 +23,6 @@ class CacheMessagingTests: XCTestCase {
     
     var mockProposition: MessagingProposition!
     var mockPropositionItem: MessagingPropositionItem!
-    let mockId = "6ac78390-84e3-4d35-b798-8e7080e69a67"
         
     override func setUp() {
         let propositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
@@ -96,7 +95,7 @@ class CacheMessagingTests: XCTestCase {
     
     func testUpdatePropositionsHappy() throws {
         // setup
-        let newSurface = Surface(uri: "newSurface")
+        let newSurface = Surface(uri: "inapp4")
         let newPropositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
         let newPropositionItem = MessagingPropositionItem(itemId: "inapp4", schema: .ruleset, itemData: newPropositionContent)
         let newProposition = MessagingProposition(uniqueId: "inapp4", scope: "inapp4", scopeDetails: ["key": "value"], items: [newPropositionItem])
@@ -120,7 +119,7 @@ class CacheMessagingTests: XCTestCase {
             return
         }
         XCTAssertEqual(1, decodedSetParam.count)
-        let paramProp = decodedSetParam["newSurface"]?.first
+        let paramProp = decodedSetParam["inapp4"]?.first
         XCTAssertEqual("inapp4", paramProp?.uniqueId)
         XCTAssertEqual("inapp4", paramProp?.scope)
         XCTAssertEqual(1, paramProp?.items.count)
@@ -129,7 +128,7 @@ class CacheMessagingTests: XCTestCase {
     func testUpdatePropositionsExistingPropositions() throws {
         // setup
         mockCache.getReturnValue = getPropositionCacheEntry()
-        let newSurface = Surface(uri: "newSurface")
+        let newSurface = Surface(uri: "inapp4")
         let newPropositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
         let newPropositionItem = MessagingPropositionItem(itemId: "inapp4", schema: .ruleset, itemData: newPropositionContent)
         let newProposition = MessagingProposition(uniqueId: "inapp4", scope: "inapp4", scopeDetails: ["key": "value"], items: [newPropositionItem])
@@ -158,7 +157,7 @@ class CacheMessagingTests: XCTestCase {
     func testUpdatePropositionsRemovingSurfaces() throws {
         // setup
         mockCache.getReturnValue = getPropositionCacheEntry()
-        let newSurface = Surface(uri: "newSurface")
+        let newSurface = Surface(uri: "inapp4")
         let newPropositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
         let newPropositionItem = MessagingPropositionItem(itemId: "inapp4", schema: .ruleset, itemData: newPropositionContent)
         let newProposition = MessagingProposition(uniqueId: "inapp4", scope: "inapp4", scopeDetails: ["key": "value"], items: [newPropositionItem])
@@ -182,7 +181,7 @@ class CacheMessagingTests: XCTestCase {
             return
         }
         XCTAssertEqual(1, decodedSetParam.count)
-        let paramProp = decodedSetParam["newSurface"]?.first
+        let paramProp = decodedSetParam["inapp4"]?.first
         XCTAssertEqual("inapp4", paramProp?.uniqueId)
         XCTAssertEqual("inapp4", paramProp?.scope)
         XCTAssertEqual(1, paramProp?.items.count)
@@ -236,7 +235,7 @@ class CacheMessagingTests: XCTestCase {
     // TODO: how to get encoding to fail (or mock it)
     func testUpdatePropositionsBadFormatEncodeFailure() throws {
         // setup
-        let newSurface = Surface(uri: "newSurface")
+        let newSurface = Surface(uri: "inapp4")
         let newProposition = MessagingProposition(uniqueId: "", scope: "", scopeDetails: ["": ""], items: [])
         let newProps: [Surface: [MessagingProposition]] = [
             newSurface: [newProposition]
@@ -254,7 +253,7 @@ class CacheMessagingTests: XCTestCase {
     func testUpdatePropositionsSetThrows() throws {
         // setup
         mockCache.setShouldThrow = true
-        let newSurface = Surface(uri: "newSurface")
+        let newSurface = Surface(uri: "inapp4")
         let newPropositionContent = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
         let newPropositionItem = MessagingPropositionItem(itemId: "inapp4", schema: .ruleset, itemData: newPropositionContent)
         let newProposition = MessagingProposition(uniqueId: "inapp4", scope: "inapp4", scopeDetails: ["key": "value"], items: [newPropositionItem])
@@ -278,7 +277,7 @@ class CacheMessagingTests: XCTestCase {
             return
         }
         XCTAssertEqual(1, decodedSetParam.count)
-        let paramProp = decodedSetParam["newSurface"]?.first
+        let paramProp = decodedSetParam["inapp4"]?.first
         XCTAssertEqual("inapp4", paramProp?.uniqueId)
         XCTAssertEqual("inapp4", paramProp?.scope)
         XCTAssertEqual(1, paramProp?.items.count)
