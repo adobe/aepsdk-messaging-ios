@@ -66,9 +66,9 @@ class CacheMessagingTests: XCTestCase {
         XCTAssertEqual("inapp2", propItem?.itemId)
         XCTAssertEqual(.ruleset, propItem?.schema)
         XCTAssertNotNil(propItem?.itemData)
-        XCTAssertEqual(2, propItem?.itemData?.count)
-        XCTAssertNotNil(propItem?.itemData?["rules"])
-        XCTAssertNotNil(propItem?.itemData?["version"])
+        XCTAssertEqual(2, propItem?.itemData.count)
+        XCTAssertNotNil(propItem?.itemData["rules"])
+        XCTAssertNotNil(propItem?.itemData["version"])
     }
     
     func testPropositionsNoneInCache() throws {
