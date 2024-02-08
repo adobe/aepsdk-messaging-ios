@@ -15,11 +15,193 @@ import XCTest
 
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
-class MessagingPropositionInteractionTests: XCTestCase {
-                
+class MessagingPropositionInteractionTests: XCTestCase, AnyCodableAsserts {
+
+    let mockDisplayEventType: MessagingEdgeEventType = .display
+    let mockInteractEventType: MessagingEdgeEventType = .interact
+    let mockItemId = "mockItemId"
+    var mockPropositionInfo: PropositionInfo!
+    
     override func setUp() {
-        
+        mockPropositionInfo = PropositionInfo(id: "mockPropositionId", scope: "mockScope", scopeDetails: AnyCodable.from(dictionary: ["key": "value"]) ?? [:])
     }
     
+    func getDecodedObject(fromString: String) -> MessagingPropositionInteraction? {
+        let decoder = JSONDecoder()
+        let objectData = fromString.data(using: .utf8)!
+        guard let propositionInteraction = try? decoder.decode(MessagingPropositionInteraction.self, from: objectData) else {
+            return nil
+        }
+        return propositionInteraction
+    }
+    
+    func testMessagingPropositionInteractionInit() {
+        // test
+        let propositionInteraction = MessagingPropositionInteraction(eventType: mockDisplayEventType, interaction: "", propositionInfo: mockPropositionInfo, itemId: mockItemId)
+        
+        // verify
+        XCTAssertNotNil(propositionInteraction)
+        XCTAssertEqual(mockDisplayEventType, propositionInteraction.eventType)
+        XCTAssertEqual("", propositionInteraction.interaction)
+        XCTAssertEqual(mockPropositionInfo.id, propositionInteraction.propositionInfo.id)
+        XCTAssertEqual(mockPropositionInfo.scope, propositionInteraction.propositionInfo.scope)
+        XCTAssertEqual(AnyCodable(mockPropositionInfo.scopeDetails), AnyCodable(propositionInteraction.propositionInfo.scopeDetails))
+        XCTAssertEqual(mockItemId, propositionInteraction.itemId)
+    }
+    
+    func testMessagingPropositionInteractionIsDecodable() {
+        // setup
+        let propositionInteractionJsonString = #"""
+        {
+            "eventType": "decisioning.propositionDisplay",
+            "propositionInfo": {
+                "id": "mockPropositionId",
+                "scope": "mockScope",
+                "scopeDetails": {
+                    "key": "value"
+                }
+            },
+            "interaction": "",
+            "itemId": "mockItemId"
+        }
+        """#
+        
+        // test
+        guard let propositionInteraction = getDecodedObject(fromString: propositionInteractionJsonString) else {
+            XCTFail("Proposition Interaction object should be decodable.")
+            return
+        }
+        
+        // verify
+        XCTAssertNotNil(propositionInteraction)
+        XCTAssertEqual(mockDisplayEventType, propositionInteraction.eventType)
+        XCTAssertEqual("", propositionInteraction.interaction)
+        XCTAssertEqual(mockPropositionInfo.id, propositionInteraction.propositionInfo.id)
+        XCTAssertEqual(mockPropositionInfo.scope, propositionInteraction.propositionInfo.scope)
+        XCTAssertEqual(AnyCodable(mockPropositionInfo.scopeDetails), AnyCodable(propositionInteraction.propositionInfo.scopeDetails))
+        XCTAssertEqual(mockItemId, propositionInteraction.itemId)
+    }
+    
+    func testMessagingPropositionInteractionIsEncodable() {
+        // setup
+        let propositionInteractionJsonString = #"""
+        {
+            "eventType": "decisioning.propositionInteract",
+            "propositionInfo": {
+                "id": "mockPropositionId",
+                "scope": "mockScope",
+                "scopeDetails": {
+                    "key": "value"
+                }
+            },
+            "interaction": "mockInteraction",
+            "itemId": "mockItemId"
+        }
+        """#
+        
+        guard let propositionInteraction = getDecodedObject(fromString: propositionInteractionJsonString) else {
+            XCTFail("Proposition Interaction object should be decodable.")
+            return
+        }
+        
+        let encoder = JSONEncoder()
+        let expected = getAnyCodable(propositionInteractionJsonString) ?? "fail"
+
+        // test
+        guard let encodedObject = try? encoder.encode(propositionInteraction) else {
+            XCTFail("Proposition Interaction object should be encodable.")
+            return
+        }
+        
+        // verify
+        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
+        assertExactMatch(expected: expected, actual: actual)
+    }
+    
+    func testMessagingPropositionInteractionDecodeInvalidEventType() {
+        // setup
+        let propositionInteractionJsonString = #"""
+        {
+            "eventType": "decisioning.propositionSomething",
+            "propositionInfo": {
+                "id": "mockPropositionId",
+                "scope": "mockScope",
+                "scopeDetails": {
+                    "key": "value"
+                }
+            },
+            "interaction": "",
+            "itemId": "mockItemId"
+        }
+        """#
+        
+        // test
+        let propositionInteraction = getDecodedObject(fromString: propositionInteractionJsonString)
+        
+        // verify
+        XCTAssertNil(propositionInteraction)
+    }
+
+    func testMessagingPropositionInteractionXdmForInteract() throws {
+        // setup
+        let mockInteraction = "mockInteraction"
+        let propositionInteraction = MessagingPropositionInteraction(eventType: mockInteractEventType, interaction: mockInteraction, propositionInfo: mockPropositionInfo, itemId: mockItemId)
+        
+        // test
+        let xdm = propositionInteraction.xdm
+        
+        // verify
+        XCTAssertTrue(!xdm.isEmpty)
+        XCTAssertEqual(mockInteractEventType.toString(), xdm["eventType"] as? String)
+        let experience = try XCTUnwrap(xdm["_experience"] as? [String: Any])
+        let decisioning = try XCTUnwrap(experience["decisioning"] as? [String: Any])
+        let propositionEventType = try XCTUnwrap(decisioning["propositionEventType"] as? [String: Any])
+        XCTAssertEqual(1, propositionEventType["interact"] as? Int)
+        
+        let propositions = try XCTUnwrap(decisioning["propositions"] as? [[String: Any]])
+        XCTAssertEqual(1, propositions.count)
+        XCTAssertEqual(mockPropositionInfo.id, propositions[0]["id"] as? String)
+        XCTAssertEqual(mockPropositionInfo.scope, propositions[0]["scope"] as? String)
+        assertExactMatch(expected: AnyCodable(mockPropositionInfo.scopeDetails), actual: AnyCodable(propositions[0]["scopeDetails"]))
+
+        let items = try XCTUnwrap(propositions[0]["items"] as? [[String: Any]])
+        XCTAssertEqual(1, items.count)
+        XCTAssertEqual(mockItemId, items[0]["id"] as? String)
+        
+        let propositionAction = try XCTUnwrap(decisioning["propositionAction"] as? [String: Any])
+        XCTAssertEqual(2, propositionAction.count)
+        XCTAssertEqual(mockInteraction, propositionAction["id"] as? String)
+        XCTAssertEqual(mockInteraction, propositionAction["label"] as? String)
+    }
+    
+    func testMessagingPropositionInteractionXdmForDisplay() throws {
+        // setup
+        let mockInteraction = ""
+        let propositionInteraction = MessagingPropositionInteraction(eventType: mockDisplayEventType, interaction: mockInteraction, propositionInfo: mockPropositionInfo, itemId: mockItemId)
+        
+        // test
+        let xdm = propositionInteraction.xdm
+        
+        // verify
+        XCTAssertTrue(!xdm.isEmpty)
+        XCTAssertEqual(mockDisplayEventType.toString(), xdm["eventType"] as? String)
+        let experience = try XCTUnwrap(xdm["_experience"] as? [String: Any])
+        let decisioning = try XCTUnwrap(experience["decisioning"] as? [String: Any])
+        let propositionEventType = try XCTUnwrap(decisioning["propositionEventType"] as? [String: Any])
+        XCTAssertEqual(1, propositionEventType["display"] as? Int)
+        
+        let propositions = try XCTUnwrap(decisioning["propositions"] as? [[String: Any]])
+        XCTAssertEqual(1, propositions.count)
+        XCTAssertEqual(mockPropositionInfo.id, propositions[0]["id"] as? String)
+        XCTAssertEqual(mockPropositionInfo.scope, propositions[0]["scope"] as? String)
+        assertExactMatch(expected: AnyCodable(mockPropositionInfo.scopeDetails), actual: AnyCodable(propositions[0]["scopeDetails"]))
+
+        let items = try XCTUnwrap(propositions[0]["items"] as? [[String: Any]])
+        XCTAssertEqual(1, items.count)
+        XCTAssertEqual(mockItemId, items[0]["id"] as? String)
+        
+        XCTAssertNil(decisioning["propositionAction"])
+    }
 }
