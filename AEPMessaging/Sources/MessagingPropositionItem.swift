@@ -34,7 +34,7 @@ public class MessagingPropositionItem: NSObject, Codable {
 
     /// `MessagingPropositionItem` data as dictionary
     /// contains value for `data` in JSON
-    public let itemData: [String: Any]?
+    public let itemData: [String: Any]
 
     /// Weak reference to Proposition instance
     weak var proposition: MessagingProposition?
@@ -45,7 +45,7 @@ public class MessagingPropositionItem: NSObject, Codable {
         case data
     }
 
-    init(itemId: String, schema: SchemaType, itemData: [String: Any]?) {
+    init(itemId: String, schema: SchemaType, itemData: [String: Any]) {
         self.itemId = itemId
         self.schema = schema
         self.itemData = itemData
@@ -56,8 +56,11 @@ public class MessagingPropositionItem: NSObject, Codable {
 
         itemId = try container.decode(String.self, forKey: .id)
         schema = try SchemaType(from: container.decode(String.self, forKey: .schema))
-        let codableItemData = try? container.decode([String: AnyCodable].self, forKey: .data)
-        itemData = AnyCodable.toAnyDictionary(dictionary: codableItemData)
+        let codableItemData = try container.decode([String: AnyCodable].self, forKey: .data)
+        itemData = AnyCodable.toAnyDictionary(dictionary: codableItemData) ?? [:]
+        guard !itemData.isEmpty else {
+            throw DecodingError.dataCorruptedError(forKey: CodingKeys.data, in: container, debugDescription: "Item data is corrupted and cannot be decoded.")
+        }
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -117,12 +120,11 @@ public extension MessagingPropositionItem {
     }
 
     static func fromRuleConsequenceEvent(_ event: Event) -> MessagingPropositionItem? {
-        // itemData is optional, thus left out of this guard intentionally
-        guard let id = event.schemaId, let schema = event.schemaType else {
+        guard let id = event.schemaId, let schema = event.schemaType, let schemaData = event.schemaData else {
             return nil
         }
 
-        return MessagingPropositionItem(itemId: id, schema: schema, itemData: event.schemaData)
+        return MessagingPropositionItem(itemId: id, schema: schema, itemData: schemaData)
     }
 
     var jsonContentDictionary: [String: Any]? {
@@ -164,8 +166,7 @@ public extension MessagingPropositionItem {
     }
 
     private func getTypedData<T>(_ type: T.Type) -> T? where T: Decodable {
-        guard let itemData = itemData,
-              let itemDataAsData = try? JSONSerialization.data(withJSONObject: itemData)
+        guard let itemDataAsData = try? JSONSerialization.data(withJSONObject: itemData)
         else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to get typed data for proposition item - could not convert 'data' field to type 'Data'.")
             return nil
