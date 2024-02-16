@@ -14,7 +14,7 @@ import AEPMessaging
 import SwiftUI
 
 struct FeedsView: View {
-    @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
+    @State var propositionsDict: [Surface: [Proposition]]? = nil
     @State private var propositionsHaveBeenFetched = false
     @State private var feedName: String = "API feed"
     

@@ -14,30 +14,30 @@ import AEPCore
 import AEPServices
 import Foundation
 
-/// A `MessagingPropositionItem` object represents a personalization JSON object returned by Konductor
+/// A `PropositionItem` object represents a personalization JSON object returned by Konductor
 /// In its JSON form, it has the following properties:
 /// - `id`
 /// - `schema`
 /// - `data`
 /// This contents of `data` will be determined by the provided `schema`.
 /// This class provides helper access to get strongly typed content - e.g. `getTypedData`
-@objc(AEPMessagingPropositionItem)
+@objc(AEPPropositionItem)
 @objcMembers
-public class MessagingPropositionItem: NSObject, Codable {
-    /// Unique identifier for this `MessagingPropositionItem`
+public class PropositionItem: NSObject, Codable {
+    /// Unique identifier for this `PropositionItem`
     /// contains value for `id` in JSON
     public let itemId: String
 
-    /// `MessagingPropositionItem` schema string
+    /// `PropositionItem` schema string
     /// contains value for `schema` in JSON
     public let schema: SchemaType
 
-    /// `MessagingPropositionItem` data as dictionary
+    /// `PropositionItem` data as dictionary
     /// contains value for `data` in JSON
     public let itemData: [String: Any]
 
     /// Weak reference to Proposition instance
-    weak var proposition: MessagingProposition?
+    weak var proposition: Proposition?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -69,7 +69,7 @@ public class MessagingPropositionItem: NSObject, Codable {
     }
 }
 
-public extension MessagingPropositionItem {
+public extension PropositionItem {
     /// Tracks interaction with the given proposition item.
     ///
     /// - Parameter eventType: an enum specifying event type for the interaction.
@@ -106,22 +106,22 @@ public extension MessagingPropositionItem {
             return nil
         }
 
-        return MessagingPropositionInteraction(eventType: eventType, interaction: nil, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId).xdm
+        return PropositionInteraction(eventType: eventType, interaction: nil, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId).xdm
     }
 
-    static func fromRuleConsequence(_ consequence: RuleConsequence) -> MessagingPropositionItem? {
+    static func fromRuleConsequence(_ consequence: RuleConsequence) -> PropositionItem? {
         guard let detailsData = try? JSONSerialization.data(withJSONObject: consequence.details, options: .prettyPrinted) else {
             return nil
         }
-        return try? JSONDecoder().decode(MessagingPropositionItem.self, from: detailsData)
+        return try? JSONDecoder().decode(PropositionItem.self, from: detailsData)
     }
 
-    static func fromRuleConsequenceEvent(_ event: Event) -> MessagingPropositionItem? {
+    static func fromRuleConsequenceEvent(_ event: Event) -> PropositionItem? {
         guard let id = event.schemaId, let schema = event.schemaType, let schemaData = event.schemaData else {
             return nil
         }
 
-        return MessagingPropositionItem(itemId: id, schema: schema, itemData: schemaData)
+        return PropositionItem(itemId: id, schema: schema, itemData: schemaData)
     }
 
     var jsonContentDictionary: [String: Any]? {

@@ -17,7 +17,7 @@ import XCTest
 import AEPServices
 import AEPTestUtils
 
-class MessagingPropositionTests: XCTestCase, AnyCodableAsserts {
+class PropositionTests: XCTestCase, AnyCodableAsserts {
     
     let mockScope = "mockScope"
     let mockPropositionId = "mockPropositionId"
@@ -26,10 +26,10 @@ class MessagingPropositionTests: XCTestCase, AnyCodableAsserts {
     let mockJsonSchema: SchemaType = .jsonContent
     let mockScopeDetails: [String: Any] = ["key":"value"]
     
-    func getDecodedObject(fromString: String) -> MessagingProposition? {
+    func getDecodedObject(fromString: String) -> Proposition? {
         let decoder = JSONDecoder()
         let objectData = fromString.data(using: .utf8)!
-        guard let proposition = try? decoder.decode(MessagingProposition.self, from: objectData) else {
+        guard let proposition = try? decoder.decode(Proposition.self, from: objectData) else {
             return nil
         }
         return proposition
@@ -40,8 +40,8 @@ class MessagingPropositionTests: XCTestCase, AnyCodableAsserts {
         let mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionJsonContent")
         
         // test
-        let propositionItem = MessagingPropositionItem(itemId: mockItemId, schema: .jsonContent, itemData: mockCodeBasedContent)
-        let proposition = MessagingProposition(uniqueId: mockPropositionId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propositionItem])
+        let propositionItem = PropositionItem(itemId: mockItemId, schema: .jsonContent, itemData: mockCodeBasedContent)
+        let proposition = Proposition(uniqueId: mockPropositionId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propositionItem])
         
         // verify
         XCTAssertEqual(mockPropositionId, proposition.uniqueId)

@@ -14,7 +14,7 @@ import AEPMessaging
 import SwiftUI
 
 struct CodeBasedOffersView: View {
-    @State var propositionsDict: [Surface: [MessagingProposition]]? = nil
+    @State var propositionsDict: [Surface: [Proposition]]? = nil
     @State private var viewDidLoad = false
     
     // prod surfaces
@@ -30,8 +30,8 @@ struct CodeBasedOffersView: View {
                 .font(Font.title)
                 .padding(.top, 30)
             List {
-                if let codePropositions: [MessagingProposition] = propositionsDict?[testSurface], !codePropositions.isEmpty {
-                    ForEach(codePropositions.first?.items as? [MessagingPropositionItem] ?? [], id:\.itemId) { item in
+                if let codePropositions: [Proposition] = propositionsDict?[testSurface], !codePropositions.isEmpty {
+                    ForEach(codePropositions.first?.items as? [PropositionItem] ?? [], id:\.itemId) { item in
                         if item.schema == .htmlContent {
                             CustomHtmlView(htmlString: item.htmlContent ?? "",
                                            trackAction: item.track(eventType:))
