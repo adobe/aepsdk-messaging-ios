@@ -54,8 +54,8 @@ struct PropositionPayload: Codable {
             propItems.append(PropositionItem(itemId: item.itemId, schema: item.schema, itemData: item.itemData))
         }
         return Proposition(uniqueId: propositionInfo.id,
-                                    scope: propositionInfo.scope,
-                                    scopeDetails: AnyCodable.toAnyDictionary(dictionary: propositionInfo.scopeDetails) ?? [:],
-                                    items: propItems)
+                           scope: propositionInfo.scope,
+                           scopeDetails: AnyCodable.toAnyDictionary(dictionary: propositionInfo.scopeDetails) ?? [:],
+                           items: propItems)
     }
 }
