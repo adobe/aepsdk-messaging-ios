@@ -54,7 +54,7 @@ class ParsedPropositionTests: XCTestCase {
         mockFeedProposition = MessagingProposition(uniqueId: "feed", scope: "feed", scopeDetails: ["key":"value"], items: [mockFeedPropositionItem])
         mockFeedSurface = Surface(uri: "feed")
         
-        mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionContent")
+        mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionHtmlContent")
         mockCodeBasedPropositionItem = MessagingPropositionItem(itemId: "codebased", schema: htmlSchema, itemData: mockCodeBasedContent)
         mockCodeBasedProposition = MessagingProposition(uniqueId: "codebased", scope: "codebased", scopeDetails: ["key":"value"], items: [mockCodeBasedPropositionItem])
         mockCodeBasedSurface = Surface(uri: "codebased")
@@ -180,7 +180,7 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitPropositionItemEmptyContentString() throws {
         // setup
-        mockInAppPropositionItemv2 = MessagingPropositionItem(itemId: "inapp", schema: .inapp, itemData: nil)
+        mockInAppPropositionItemv2 = MessagingPropositionItem(itemId: "inapp", schema: .inapp, itemData: [:])
         mockInAppPropositionv2 = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [mockInAppPropositionItemv2])
         let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurfacev2: [mockInAppPropositionv2]
@@ -239,7 +239,7 @@ class ParsedPropositionTests: XCTestCase {
     
     func testInitPropositionUnknownSchema() throws {
         // setup
-        let pi = MessagingPropositionItem(itemId: "inapp", schema: .unknown, itemData: nil)
+        let pi = MessagingPropositionItem(itemId: "inapp", schema: .unknown, itemData: [:])
         let prop = MessagingProposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
         let propositions: [Surface: [MessagingProposition]] = [
             mockInAppSurfacev2: [prop]

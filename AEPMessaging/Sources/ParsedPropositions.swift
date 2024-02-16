@@ -47,7 +47,7 @@ struct ParsedPropositions {
                 switch firstPropositionItem.schema {
                 // - handle ruleset-item schemas
                 case .ruleset:
-                    guard let parsedRules = parseRule(firstPropositionItem.itemData ?? [:]) else {
+                    guard let parsedRules = parseRule(firstPropositionItem.itemData) else {
                         continue
                     }
                     guard let consequence = parsedRules.first?.consequences.first,
