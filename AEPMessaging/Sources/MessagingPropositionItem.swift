@@ -58,9 +58,6 @@ public class MessagingPropositionItem: NSObject, Codable {
         schema = try SchemaType(from: container.decode(String.self, forKey: .schema))
         let codableItemData = try container.decode([String: AnyCodable].self, forKey: .data)
         itemData = AnyCodable.toAnyDictionary(dictionary: codableItemData) ?? [:]
-        guard !itemData.isEmpty else {
-            throw DecodingError.dataCorruptedError(forKey: CodingKeys.data, in: container, debugDescription: "Item data is corrupted and cannot be decoded.")
-        }
     }
 
     public func encode(to encoder: Encoder) throws {

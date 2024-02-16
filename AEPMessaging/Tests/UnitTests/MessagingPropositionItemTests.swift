@@ -27,6 +27,7 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
     let mockItemId = "mockItemId"
     let mockHtmlSchema: SchemaType = .htmlContent
     let mockJsonSchema: SchemaType = .jsonContent
+    let mockDefaultContentSchema: SchemaType = .defaultContent
     let mockContent = "customContent"
     let mockFormat: ContentType = .textHtml
     
@@ -102,13 +103,18 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
     
     func testPropositionItemDecodeEmptyData() {
         // setup
-        let json = "{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockHtmlSchema.toString())\",\"data\":{}}"
+        let json = "{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockDefaultContentSchema.toString())\",\"data\":{}}"
         
         // test
-        let propositionItem = getDecodedObject(fromString: json)
+        guard let propositionItem = getDecodedObject(fromString: json) else {
+            XCTFail("PropositionItem object should be decodable.")
+            return
+        }
         
         // verify
-        XCTAssertNil(propositionItem)
+        XCTAssertEqual(mockItemId, propositionItem.itemId)
+        XCTAssertEqual(mockDefaultContentSchema, propositionItem.schema)
+        XCTAssertTrue(propositionItem.itemData.isEmpty)
     }
     
     func testPropositionItemIsEncodable() {
