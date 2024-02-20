@@ -14,30 +14,30 @@ import AEPCore
 import AEPServices
 import Foundation
 
-/// A `MessagingPropositionItem` object represents a personalization JSON object returned by Konductor
+/// A `PropositionItem` object represents a personalization JSON object returned by Konductor
 /// In its JSON form, it has the following properties:
 /// - `id`
 /// - `schema`
 /// - `data`
 /// This contents of `data` will be determined by the provided `schema`.
 /// This class provides helper access to get strongly typed content - e.g. `getTypedData`
-@objc(AEPMessagingPropositionItem)
+@objc(AEPPropositionItem)
 @objcMembers
-public class MessagingPropositionItem: NSObject, Codable {
-    /// Unique identifier for this `MessagingPropositionItem`
+public class PropositionItem: NSObject, Codable {
+    /// Unique identifier for this `PropositionItem`
     /// contains value for `id` in JSON
     public let itemId: String
 
-    /// `MessagingPropositionItem` schema string
+    /// `PropositionItem` schema string
     /// contains value for `schema` in JSON
     public let schema: SchemaType
 
-    /// `MessagingPropositionItem` data as dictionary
+    /// `PropositionItem` data as dictionary
     /// contains value for `data` in JSON
-    public let itemData: [String: Any]?
+    public let itemData: [String: Any]
 
     /// Weak reference to Proposition instance
-    weak var proposition: MessagingProposition?
+    weak var proposition: Proposition?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -45,7 +45,7 @@ public class MessagingPropositionItem: NSObject, Codable {
         case data
     }
 
-    init(itemId: String, schema: SchemaType, itemData: [String: Any]?) {
+    init(itemId: String, schema: SchemaType, itemData: [String: Any]) {
         self.itemId = itemId
         self.schema = schema
         self.itemData = itemData
@@ -56,8 +56,8 @@ public class MessagingPropositionItem: NSObject, Codable {
 
         itemId = try container.decode(String.self, forKey: .id)
         schema = try SchemaType(from: container.decode(String.self, forKey: .schema))
-        let codableItemData = try? container.decode([String: AnyCodable].self, forKey: .data)
-        itemData = AnyCodable.toAnyDictionary(dictionary: codableItemData)
+        let codableItemData = try container.decode([String: AnyCodable].self, forKey: .data)
+        itemData = AnyCodable.toAnyDictionary(dictionary: codableItemData) ?? [:]
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -69,12 +69,15 @@ public class MessagingPropositionItem: NSObject, Codable {
     }
 }
 
-public extension MessagingPropositionItem {
+public extension PropositionItem {
     /// Tracks interaction with the given proposition item.
     ///
-    /// - Parameter eventType: an enum specifying event type for the interaction.
-    func track(eventType: MessagingEdgeEventType) {
-        guard let propositionInteractionXdm = generateInteractionXdm(forEventType: eventType) else {
+    /// - Parameters
+    ///     - interaction: a custom string value describing the interaction.
+    ///     - eventType: an enum specifying event type for the interaction.
+    ///     - tokens: an array containing the sub-item tokens for recording interaction.
+    func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType, forTokens tokens: [String]? = nil) {
+        guard let propositionInteractionXdm = generateInteractionXdm(interaction, withEdgeEventType: eventType, forTokens: tokens) else {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Cannot track proposition interaction for item \(itemId), could not generate interactions XDM.")
             return
@@ -97,32 +100,34 @@ public extension MessagingPropositionItem {
     ///
     /// If the proposition reference within the item is released and no longer valid, the method returns `nil`.
     ///
-    /// - Parameter eventType: an enum specifying event type for the interaction.
+    /// - Parameters
+    ///     - interaction: a custom string value describing the interaction.
+    ///     - eventType: an enum specifying event type for the interaction.
+    ///     - tokens: an array containing the sub-item tokens for recording interaction.
     /// - Returns A dictionary containing XDM data for the propositon interaction.
-    func generateInteractionXdm(forEventType eventType: MessagingEdgeEventType) -> [String: Any]? {
+    func generateInteractionXdm(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType, forTokens tokens: [String]? = nil) -> [String: Any]? {
         guard let proposition = proposition else {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Cannot generate interaction XDM for item \(itemId), proposition reference is not available.")
             return nil
         }
 
-        return MessagingPropositionInteraction(eventType: eventType, interaction: nil, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId).xdm
+        return PropositionInteraction(eventType: eventType, interaction: interaction, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId, tokens: tokens).xdm
     }
 
-    static func fromRuleConsequence(_ consequence: RuleConsequence) -> MessagingPropositionItem? {
+    static func fromRuleConsequence(_ consequence: RuleConsequence) -> PropositionItem? {
         guard let detailsData = try? JSONSerialization.data(withJSONObject: consequence.details, options: .prettyPrinted) else {
             return nil
         }
-        return try? JSONDecoder().decode(MessagingPropositionItem.self, from: detailsData)
+        return try? JSONDecoder().decode(PropositionItem.self, from: detailsData)
     }
 
-    static func fromRuleConsequenceEvent(_ event: Event) -> MessagingPropositionItem? {
-        // itemData is optional, thus left out of this guard intentionally
-        guard let id = event.schemaId, let schema = event.schemaType else {
+    static func fromRuleConsequenceEvent(_ event: Event) -> PropositionItem? {
+        guard let id = event.schemaId, let schema = event.schemaType, let schemaData = event.schemaData else {
             return nil
         }
 
-        return MessagingPropositionItem(itemId: id, schema: schema, itemData: event.schemaData)
+        return PropositionItem(itemId: id, schema: schema, itemData: schemaData)
     }
 
     var jsonContentDictionary: [String: Any]? {
@@ -164,8 +169,7 @@ public extension MessagingPropositionItem {
     }
 
     private func getTypedData<T>(_ type: T.Type) -> T? where T: Decodable {
-        guard let itemData = itemData,
-              let itemDataAsData = try? JSONSerialization.data(withJSONObject: itemData)
+        guard let itemDataAsData = try? JSONSerialization.data(withJSONObject: itemData)
         else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to get typed data for proposition item - could not convert 'data' field to type 'Data'.")
             return nil

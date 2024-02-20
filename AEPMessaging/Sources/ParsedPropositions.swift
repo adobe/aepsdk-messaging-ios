@@ -20,16 +20,16 @@ struct ParsedPropositions {
     var propositionInfoToCache: [String: PropositionInfo] = [:]
 
     // non-in-app propositions should be cached and not persisted
-    var propositionsToCache: [Surface: [MessagingProposition]] = [:]
+    var propositionsToCache: [Surface: [Proposition]] = [:]
 
     // in-app propositions don't need to stay in cache, but must be persisted
     // also need to store tracking info for in-app propositions as `PropositionInfo`
-    var propositionsToPersist: [Surface: [MessagingProposition]] = [:]
+    var propositionsToPersist: [Surface: [Proposition]] = [:]
 
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
 
-    init(with propositions: [Surface: [MessagingProposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime) {
+    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime) {
         self.runtime = runtime
         for propositionsArray in propositions.values {
             for proposition in propositionsArray {
@@ -39,7 +39,7 @@ struct ParsedPropositions {
                     continue
                 }
 
-                // handle schema consequences which are representable as MessagingPropositionItems
+                // handle schema consequences which are representable as PropositionItems
                 guard let firstPropositionItem = proposition.items.first else {
                     continue
                 }
@@ -47,11 +47,11 @@ struct ParsedPropositions {
                 switch firstPropositionItem.schema {
                 // - handle ruleset-item schemas
                 case .ruleset:
-                    guard let parsedRules = parseRule(firstPropositionItem.itemData ?? [:]) else {
+                    guard let parsedRules = parseRule(firstPropositionItem.itemData) else {
                         continue
                     }
                     guard let consequence = parsedRules.first?.consequences.first,
-                          let schemaConsequence = MessagingPropositionItem.fromRuleConsequence(consequence)
+                          let schemaConsequence = PropositionItem.fromRuleConsequence(consequence)
                     else {
                         continue
                     }

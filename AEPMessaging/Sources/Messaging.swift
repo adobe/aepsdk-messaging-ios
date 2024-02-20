@@ -44,8 +44,8 @@ public class Messaging: NSObject, Extension {
     private let queue: DispatchQueue = .init(label: "com.adobe.messaging.containers.queue")
 
     /// stores CBE propositions (json-content, html-content, default-content)
-    private var _propositions: [Surface: [MessagingProposition]] = [:]
-    var propositions: [Surface: [MessagingProposition]] {
+    private var _propositions: [Surface: [Proposition]] = [:]
+    var propositions: [Surface: [Proposition]] {
         get { queue.sync { self._propositions } }
         set { queue.async { self._propositions = newValue } }
     }
@@ -65,8 +65,8 @@ public class Messaging: NSObject, Extension {
     }
 
     /// used while processing streaming payloads for a single request
-    private var _inProgressPropositions: [Surface: [MessagingProposition]] = [:]
-    private var inProgressPropositions: [Surface: [MessagingProposition]] {
+    private var _inProgressPropositions: [Surface: [Proposition]] = [:]
+    private var inProgressPropositions: [Surface: [Proposition]] {
         get { queue.sync { self._inProgressPropositions } }
         set { queue.async { self._inProgressPropositions = newValue } }
     }
@@ -303,19 +303,19 @@ public class Messaging: NSObject, Extension {
         dispatchNotificationEventFor(event, requestedSurfaces: requestedSurfaces)
     }
 
-    private func getPropositionsFromFeedRulesEngine(_ event: Event) -> [Surface: [MessagingProposition]] {
-        var surfacePropositions: [Surface: [MessagingProposition]] = [:]
+    private func getPropositionsFromFeedRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
+        var surfacePropositions: [Surface: [Proposition]] = [:]
 
         if let propositionItemsBySurface = feedRulesEngine.evaluate(event: event) {
             for (surface, propositionItemsArray) in propositionItemsBySurface {
-                var tempPropositions: [MessagingProposition] = []
+                var tempPropositions: [Proposition] = []
                 for propositionItem in propositionItemsArray {
                     guard let propositionInfo = propositionInfo[propositionItem.itemId] else {
                         continue
                     }
 
                     // get proposition that this item belongs to
-                    let proposition = MessagingProposition(
+                    let proposition = Proposition(
                         uniqueId: propositionInfo.id,
                         scope: propositionInfo.scope,
                         scopeDetails: propositionInfo.scopeDetails,
@@ -513,7 +513,7 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Returns propositions by surface from `propositions` matching the provided `surfaces`
-    private func retrieveCachedPropositions(for surfaces: [Surface]) -> [Surface: [MessagingProposition]] {
+    private func retrieveCachedPropositions(for surfaces: [Surface]) -> [Surface: [Proposition]] {
         propositions.filter { surface, _ in
             surfaces.contains(where: { $0.uri == surface.uri })
         }
@@ -530,7 +530,7 @@ public class Messaging: NSObject, Extension {
     }
 
     private func handleSchemaConsequence(_ event: Event) {
-        guard let propositionItem = MessagingPropositionItem.fromRuleConsequenceEvent(event) else {
+        guard let propositionItem = PropositionItem.fromRuleConsequenceEvent(event) else {
             return
         }
 

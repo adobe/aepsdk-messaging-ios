@@ -237,6 +237,8 @@ enum MessagingConstants {
                 static let SCOPE = "scope"
                 static let SCOPE_DETAILS = "scopeDetails"
                 static let ITEMS = "items"
+                static let CHARACTERISTICS = "characteristics"
+                static let TOKENS = "tokens"
             }
 
             enum Value {

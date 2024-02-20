@@ -29,14 +29,14 @@ class PropositionPayloadTests: XCTestCase, AnyCodableAsserts {
     
     let mockItemId = "mockItemId"
     let mockItemSchema: SchemaType = .htmlContent
-    var mockPropositionItem: MessagingPropositionItem!
-    var mockItems: [MessagingPropositionItem]!
+    var mockPropositionItem: PropositionItem!
+    var mockItems: [PropositionItem]!
     
     override func setUp() {
         mockScopeDetails = [
             "correlationID": AnyCodable(mockCorrelationId)
         ]
-        mockPropositionItem = MessagingPropositionItem(itemId: mockItemId, schema: mockItemSchema, itemData: ["content": mockDataContent])
+        mockPropositionItem = PropositionItem(itemId: mockItemId, schema: mockItemSchema, itemData: ["content": mockDataContent])
         
         mockItems = [mockPropositionItem]
     }

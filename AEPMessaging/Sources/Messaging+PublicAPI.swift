@@ -134,7 +134,7 @@ import UserNotifications
     /// - Parameters:
     ///   - surfacePaths: An array of surface objects.
     ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Proposition objects.
-    static func getPropositionsForSurfaces(_ surfacePaths: [Surface], _ completion: @escaping ([Surface: [MessagingProposition]]?, Error?) -> Void) {
+    static func getPropositionsForSurfaces(_ surfacePaths: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
         let validSurfaces = surfacePaths
             .filter { $0.isValid }
 
