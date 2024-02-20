@@ -381,7 +381,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
        let propositionAction = try XCTUnwrap(decisioning["propositionAction"] as? [String: Any])
        XCTAssertEqual("buttonTap", propositionAction["id"] as? String)
        XCTAssertEqual("buttonTap", propositionAction["label"] as? String)
-       
+
        let propositions = try XCTUnwrap(decisioning["propositions"] as? [[String: Any]])
        XCTAssertEqual(1, propositions.count)
        XCTAssertEqual(proposition.uniqueId, propositions[0]["id"] as? String)
@@ -426,7 +426,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         let itemCharacteristics = try XCTUnwrap(items[0]["characteristics"] as? [String: String])
         XCTAssertEqual(1, itemCharacteristics.count)
         XCTAssertEqual("token1,token2", itemCharacteristics["tokens"])
-     }
+    }
     
     func testPropositionItemGenerateInteractionXdmNoPropositionRef() throws {
         // setup
