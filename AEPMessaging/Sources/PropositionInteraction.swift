@@ -13,7 +13,7 @@
 import AEPServices
 import Foundation
 
-struct MessagingPropositionInteraction: Codable {
+struct PropositionInteraction: Codable {
     var eventType: MessagingEdgeEventType
     var interaction: String?
     var propositionInfo: PropositionInfo

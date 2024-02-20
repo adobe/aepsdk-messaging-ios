@@ -46,13 +46,13 @@ extension Event {
         parentID?.uuidString as? String ?? data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
     }
 
-    /// payload is an array of `MessagingProposition` objects, each containing inbound content and related tracking information
-    var payload: [MessagingProposition]? {
+    /// payload is an array of `Proposition` objects, each containing inbound content and related tracking information
+    var payload: [Proposition]? {
         guard let payloadMap = data?[MessagingConstants.Event.Data.Key.Personalization.PAYLOAD] as? [[String: Any]] else {
             return nil
         }
 
-        var returnablePayloads: [MessagingProposition] = []
+        var returnablePayloads: [Proposition] = []
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()
         for thisPayloadAny in payloadMap {
@@ -61,7 +61,7 @@ extension Event {
                 let payloadData = try? encoder.encode(thisPayload)
             {
                 do {
-                    let payloadObject = try decoder.decode(MessagingProposition.self, from: payloadData)
+                    let payloadObject = try decoder.decode(Proposition.self, from: payloadData)
                     returnablePayloads.append(payloadObject)
                 } catch {
                     Log.warning(label: MessagingConstants.LOG_TAG, "Failed to decode an invalid personalization response: \(error)")
@@ -154,7 +154,7 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false
     }
 
-    var propositions: [MessagingProposition]? {
+    var propositions: [Proposition]? {
         guard
             let propositionsData = data?[MessagingConstants.Event.Data.Key.PROPOSITIONS] as? [[String: Any]],
             let jsonData = try? JSONSerialization.data(withJSONObject: propositionsData)
@@ -162,7 +162,7 @@ extension Event {
             return nil
         }
 
-        return try? JSONDecoder().decode([MessagingProposition].self, from: jsonData)
+        return try? JSONDecoder().decode([Proposition].self, from: jsonData)
     }
 
     var responseError: AEPError? {

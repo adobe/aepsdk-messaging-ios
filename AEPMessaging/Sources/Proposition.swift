@@ -13,9 +13,9 @@
 import AEPServices
 import Foundation
 
-@objc(AEPMessagingProposition)
+@objc(AEPProposition)
 @objcMembers
-public class MessagingProposition: NSObject, Codable {
+public class Proposition: NSObject, Codable {
     /// Unique proposition identifier
     public let uniqueId: String
 
@@ -26,9 +26,9 @@ public class MessagingProposition: NSObject, Codable {
     var scopeDetails: [String: Any]
 
     /// Array containing proposition decision items
-    private let propositionItems: [MessagingPropositionItem]
+    private let propositionItems: [PropositionItem]
 
-    public lazy var items: [MessagingPropositionItem] = {
+    public lazy var items: [PropositionItem] = {
         for item in propositionItems {
             item.proposition = self
         }
@@ -42,7 +42,7 @@ public class MessagingProposition: NSObject, Codable {
         case items
     }
 
-    init(uniqueId: String, scope: String, scopeDetails: [String: Any], items: [MessagingPropositionItem]) {
+    init(uniqueId: String, scope: String, scopeDetails: [String: Any], items: [PropositionItem]) {
         self.uniqueId = uniqueId
         self.scope = scope
         self.scopeDetails = scopeDetails
@@ -59,7 +59,7 @@ public class MessagingProposition: NSObject, Codable {
         guard !scopeDetails.isEmpty else {
             throw DecodingError.dataCorruptedError(forKey: CodingKeys.scopeDetails, in: container, debugDescription: "Scope details is corrupted and cannot be decoded.")
         }
-        let tempItems = (try? container.decode([MessagingPropositionItem].self, forKey: .items))
+        let tempItems = (try? container.decode([PropositionItem].self, forKey: .items))
         propositionItems = tempItems ?? []
     }
 

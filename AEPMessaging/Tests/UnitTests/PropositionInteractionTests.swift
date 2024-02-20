@@ -17,7 +17,7 @@ import XCTest
 import AEPServices
 import AEPTestUtils
 
-class MessagingPropositionInteractionTests: XCTestCase, AnyCodableAsserts {
+class PropositionInteractionTests: XCTestCase, AnyCodableAsserts {
 
     let mockDisplayEventType: MessagingEdgeEventType = .display
     let mockInteractEventType: MessagingEdgeEventType = .interact
@@ -28,18 +28,18 @@ class MessagingPropositionInteractionTests: XCTestCase, AnyCodableAsserts {
         mockPropositionInfo = PropositionInfo(id: "mockPropositionId", scope: "mockScope", scopeDetails: AnyCodable.from(dictionary: ["key": "value"]) ?? [:])
     }
     
-    func getDecodedObject(fromString: String) -> MessagingPropositionInteraction? {
+    func getDecodedObject(fromString: String) -> PropositionInteraction? {
         let decoder = JSONDecoder()
         let objectData = fromString.data(using: .utf8)!
-        guard let propositionInteraction = try? decoder.decode(MessagingPropositionInteraction.self, from: objectData) else {
+        guard let propositionInteraction = try? decoder.decode(PropositionInteraction.self, from: objectData) else {
             return nil
         }
         return propositionInteraction
     }
     
-    func testMessagingPropositionInteractionInit() {
+    func testPropositionInteractionInit() {
         // test
-        let propositionInteraction = MessagingPropositionInteraction(eventType: mockDisplayEventType, interaction: "", propositionInfo: mockPropositionInfo, itemId: mockItemId)
+        let propositionInteraction = PropositionInteraction(eventType: mockDisplayEventType, interaction: "", propositionInfo: mockPropositionInfo, itemId: mockItemId)
         
         // verify
         XCTAssertNotNil(propositionInteraction)
@@ -51,7 +51,7 @@ class MessagingPropositionInteractionTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(mockItemId, propositionInteraction.itemId)
     }
     
-    func testMessagingPropositionInteractionIsDecodable() {
+    func testPropositionInteractionIsDecodable() {
         // setup
         let propositionInteractionJsonString = #"""
         {
@@ -84,7 +84,7 @@ class MessagingPropositionInteractionTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(mockItemId, propositionInteraction.itemId)
     }
     
-    func testMessagingPropositionInteractionIsEncodable() {
+    func testPropositionInteractionIsEncodable() {
         // setup
         let propositionInteractionJsonString = #"""
         {
@@ -120,7 +120,7 @@ class MessagingPropositionInteractionTests: XCTestCase, AnyCodableAsserts {
         assertExactMatch(expected: expected, actual: actual)
     }
     
-    func testMessagingPropositionInteractionDecodeInvalidEventType() {
+    func testPropositionInteractionDecodeInvalidEventType() {
         // setup
         let propositionInteractionJsonString = #"""
         {
@@ -144,10 +144,10 @@ class MessagingPropositionInteractionTests: XCTestCase, AnyCodableAsserts {
         XCTAssertNil(propositionInteraction)
     }
 
-    func testMessagingPropositionInteractionXdmForInteract() throws {
+    func testPropositionInteractionXdmForInteract() throws {
         // setup
         let mockInteraction = "mockInteraction"
-        let propositionInteraction = MessagingPropositionInteraction(eventType: mockInteractEventType, interaction: mockInteraction, propositionInfo: mockPropositionInfo, itemId: mockItemId)
+        let propositionInteraction = PropositionInteraction(eventType: mockInteractEventType, interaction: mockInteraction, propositionInfo: mockPropositionInfo, itemId: mockItemId)
         
         // test
         let xdm = propositionInteraction.xdm
@@ -176,10 +176,10 @@ class MessagingPropositionInteractionTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(mockInteraction, propositionAction["label"] as? String)
     }
     
-    func testMessagingPropositionInteractionXdmForDisplay() throws {
+    func testPropositionInteractionXdmForDisplay() throws {
         // setup
         let mockInteraction = ""
-        let propositionInteraction = MessagingPropositionInteraction(eventType: mockDisplayEventType, interaction: mockInteraction, propositionInfo: mockPropositionInfo, itemId: mockItemId)
+        let propositionInteraction = PropositionInteraction(eventType: mockDisplayEventType, interaction: mockInteraction, propositionInfo: mockPropositionInfo, itemId: mockItemId)
         
         // test
         let xdm = propositionInteraction.xdm

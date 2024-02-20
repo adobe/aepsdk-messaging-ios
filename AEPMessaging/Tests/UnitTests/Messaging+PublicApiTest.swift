@@ -25,9 +25,13 @@ class MessagingPublicApiTest: XCTestCase {
     
     override func setUp() {
         notificationContent = [MessagingConstants.XDM.AdobeKeys._XDM: mockXdmData]
-        MockExtension.reset()
         EventHub.shared.start()
         registerMockExtension(MockExtension.self)
+    }
+    
+    override func tearDown() {
+        MockExtension.reset()
+        EventHub.reset()
     }
 
     private func registerMockExtension<T: Extension>(_ type: T.Type) {
