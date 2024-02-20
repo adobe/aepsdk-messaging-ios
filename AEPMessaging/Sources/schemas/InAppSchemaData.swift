@@ -41,12 +41,19 @@ public class InAppSchemaData: NSObject, Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
         contentType = try ContentType(from: values.decode(String.self, forKey: .contentType))
+
         if contentType == .applicationJson {
-            let codableContent = try values.decode([String: AnyCodable].self, forKey: .content)
-            content = AnyCodable.toAnyDictionary(dictionary: codableContent) ?? [:]
+            if let _ = try? values.decode([AnyCodable].self, forKey: .content) {
+                let codableAny = try values.decode(AnyCodable.self, forKey: .content)
+                content = codableAny.arrayValue ?? []
+            } else {
+                let codableDictionary = try values.decode([String: AnyCodable].self, forKey: .content)
+                content = AnyCodable.toAnyDictionary(dictionary: codableDictionary) ?? [:]
+            }
         } else {
             content = try values.decode(String.self, forKey: .content)
         }
+
         publishedDate = try? values.decode(Int.self, forKey: .publishedDate)
         expiryDate = try? values.decode(Int.self, forKey: .expiryDate)
         let codableMeta = try? values.decode([String: AnyCodable].self, forKey: .meta)
@@ -63,7 +70,11 @@ public class InAppSchemaData: NSObject, Codable {
 
         try container.encode(contentType.toString(), forKey: .contentType)
         if contentType == .applicationJson {
-            try container.encode(AnyCodable.from(dictionary: content as? [String: Any]), forKey: .content)
+            if let arrayValue = getArrayValue {
+                try container.encode(AnyCodable(arrayValue), forKey: .content)
+            } else if let dictionaryValue = getDictionaryValue {
+                try container.encode(AnyCodable.from(dictionary: dictionaryValue), forKey: .content)
+            }
         } else {
             try container.encode(content as? String, forKey: .content)
         }
@@ -73,6 +84,16 @@ public class InAppSchemaData: NSObject, Codable {
         try container.encode(AnyCodable.from(dictionary: mobileParameters), forKey: .mobileParameters)
         try container.encode(AnyCodable.from(dictionary: webParameters), forKey: .webParameters)
         try container.encode(remoteAssets, forKey: .remoteAssets)
+    }
+}
+
+extension InAppSchemaData {
+    var getArrayValue: [Any]? {
+        content as? [Any]
+    }
+
+    var getDictionaryValue: [String: Any]? {
+        content as? [String: Any]
     }
 }
 

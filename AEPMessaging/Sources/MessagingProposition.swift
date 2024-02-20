@@ -54,8 +54,11 @@ public class MessagingProposition: NSObject, Codable {
 
         uniqueId = try container.decode(String.self, forKey: .id)
         scope = try container.decode(String.self, forKey: .scope)
-        let anyCodableDict = try? container.decode([String: AnyCodable].self, forKey: .scopeDetails)
-        scopeDetails = AnyCodable.toAnyDictionary(dictionary: anyCodableDict) ?? [:]
+        let codableScopeDetails = try? container.decode([String: AnyCodable].self, forKey: .scopeDetails)
+        scopeDetails = AnyCodable.toAnyDictionary(dictionary: codableScopeDetails) ?? [:]
+        guard !scopeDetails.isEmpty else {
+            throw DecodingError.dataCorruptedError(forKey: CodingKeys.scopeDetails, in: container, debugDescription: "Scope details is corrupted and cannot be decoded.")
+        }
         let tempItems = (try? container.decode([MessagingPropositionItem].self, forKey: .items))
         propositionItems = tempItems ?? []
     }

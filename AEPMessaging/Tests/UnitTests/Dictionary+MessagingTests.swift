@@ -27,15 +27,81 @@ class DictionaryMessagingTests: XCTestCase {
         "key3": "value3",
         "number": 552
     ]
+    
+    var dictionary3: [String: [Any]] = [
+        "key4": ["value4a", "value4b"],
+        "key5": ["value5"]
+    ]
 
     func testMerge() throws {
         // test
         dictionary1.mergeXdm(rhs: dictionary2)
 
         // verify
+        XCTAssertEqual(4, dictionary1.count)
         XCTAssertEqual("newValue", dictionary1["key"] as? String)
         XCTAssertEqual("value2", dictionary1["key2"] as? String)
         XCTAssertEqual("value3", dictionary1["key3"] as? String)
         XCTAssertEqual(552, dictionary1["number"] as? Int)
+    }
+    
+    func testAddArray() {
+        let arrayToAdd = ["value4c"]
+
+        // test
+        dictionary3.addArray(arrayToAdd, forKey: "key4")
+        
+        // verify
+        XCTAssertEqual(3, dictionary3["key4"]?.count)
+        XCTAssertEqual("value4a", dictionary3["key4"]?[0] as? String)
+        XCTAssertEqual("value4b", dictionary3["key4"]?[1] as? String)
+        XCTAssertEqual("value4c", dictionary3["key4"]?[2] as? String)
+    }
+    
+    func testAddArrayKeyNotPresent() {
+        let arrayToAdd = [42]
+
+        // test
+        dictionary3.addArray(arrayToAdd, forKey: "key6")
+        
+        // verify
+        XCTAssertEqual(1, dictionary3["key6"]?.count)
+        XCTAssertEqual(42, dictionary3["key6"]?[0] as? Int)
+    }
+    
+    func testAddArrayEmpty() {
+        let arrayToAdd: [String] = []
+
+        // test
+        dictionary3.addArray(arrayToAdd, forKey: "key4")
+        
+        // verify
+        XCTAssertEqual(2, dictionary3["key4"]?.count)
+        XCTAssertEqual("value4a", dictionary3["key4"]?[0] as? String)
+        XCTAssertEqual("value4b", dictionary3["key4"]?[1] as? String)
+    }
+    
+    func testAdd() {
+        let elementToAdd = "value4c"
+
+        // test
+        dictionary3.add(elementToAdd, forKey: "key4")
+        
+        // verify
+        XCTAssertEqual(3, dictionary3["key4"]?.count)
+        XCTAssertEqual("value4a", dictionary3["key4"]?[0] as? String)
+        XCTAssertEqual("value4b", dictionary3["key4"]?[1] as? String)
+        XCTAssertEqual("value4c", dictionary3["key4"]?[2] as? String)
+    }
+    
+    func testAddKeyNotPresent() {
+        let elementToAdd = 42
+
+        // test
+        dictionary3.add(elementToAdd, forKey: "key6")
+        
+        // verify
+        XCTAssertEqual(1, dictionary3["key6"]?.count)
+        XCTAssertEqual(42, dictionary3["key6"]?[0] as? Int)
     }
 }

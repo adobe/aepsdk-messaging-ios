@@ -34,6 +34,10 @@
 		091881FB2A16D15100615481 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		091881FC2A16D15100615481 /* AEPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		091881FF2A16D7A200615481 /* PushView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881FE2A16D7A200615481 /* PushView.swift */; };
+		09265D602B74497E0085D825 /* codeBasedPropositionHtml.json in Resources */ = {isa = PBXBuildFile; fileRef = 09265D5C2B74497E0085D825 /* codeBasedPropositionHtml.json */; };
+		09265D612B74497E0085D825 /* codeBasedPropositionHtmlContent.json in Resources */ = {isa = PBXBuildFile; fileRef = 09265D5D2B74497E0085D825 /* codeBasedPropositionHtmlContent.json */; };
+		09265D622B74497E0085D825 /* codeBasedPropositionJsonContent.json in Resources */ = {isa = PBXBuildFile; fileRef = 09265D5E2B74497E0085D825 /* codeBasedPropositionJsonContent.json */; };
+		09265D632B74497E0085D825 /* codeBasedPropositionJson.json in Resources */ = {isa = PBXBuildFile; fileRef = 09265D5F2B74497E0085D825 /* codeBasedPropositionJson.json */; };
 		092A77F22A757CB40026D325 /* CodeBasedOffersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092A77F12A757CB40026D325 /* CodeBasedOffersView.swift */; };
 		094C4E9E2A74FC4200D99C70 /* FeedItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094C4E9D2A74FC4200D99C70 /* FeedItemView.swift */; };
 		0969D6342A75D55E00A00BF7 /* CustomImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D6332A75D55E00A00BF7 /* CustomImageView.swift */; };
@@ -47,7 +51,6 @@
 		09B071E82A64D80E00F259C1 /* Bundle+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */; };
 		09B071EC2A651C7800F259C1 /* MessagingProposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071EB2A651C7800F259C1 /* MessagingProposition.swift */; };
 		09B071EE2A651CB200F259C1 /* MessagingPropositionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071ED2A651CB200F259C1 /* MessagingPropositionItem.swift */; };
-		09B071F22A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071F12A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift */; };
 		09B071F62A7318CB00F259C1 /* Array+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071F52A7318CB00F259C1 /* Array+Messaging.swift */; };
 		09F5D9402B5CF35F00117437 /* MessagingPropositionInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F5D93F2B5CF35F00117437 /* MessagingPropositionInteraction.swift */; };
 		2402745C29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
@@ -59,9 +62,7 @@
 		240FC4302AAFB08E00AFEEEB /* ParsedPropositionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240FC42F2AAFB08E00AFEEEB /* ParsedPropositionsTests.swift */; };
 		240FC4362AAFCBE500AFEEEB /* feedProposition.json in Resources */ = {isa = PBXBuildFile; fileRef = 240FC4352AAFCBE500AFEEEB /* feedProposition.json */; };
 		240FC4382AAFCE3400AFEEEB /* inappPropositionV2.json in Resources */ = {isa = PBXBuildFile; fileRef = 240FC4372AAFCE3400AFEEEB /* inappPropositionV2.json */; };
-		240FC43A2AAFCE4E00AFEEEB /* codeBasedProposition.json in Resources */ = {isa = PBXBuildFile; fileRef = 240FC4392AAFCE4E00AFEEEB /* codeBasedProposition.json */; };
 		240FC43F2AB0B8A300AFEEEB /* feedPropositionContent.json in Resources */ = {isa = PBXBuildFile; fileRef = 240FC43B2AB0B8A200AFEEEB /* feedPropositionContent.json */; };
-		240FC4402AB0B8A300AFEEEB /* codeBasedPropositionContent.json in Resources */ = {isa = PBXBuildFile; fileRef = 240FC43C2AB0B8A200AFEEEB /* codeBasedPropositionContent.json */; };
 		240FC4422AB0B8A300AFEEEB /* inappPropositionV2Content.json in Resources */ = {isa = PBXBuildFile; fileRef = 240FC43E2AB0B8A300AFEEEB /* inappPropositionV2Content.json */; };
 		2414ED832899BA080036D505 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED822899BA080036D505 /* AppDelegate.m */; };
 		2414ED862899BA080036D505 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2414ED852899BA080036D505 /* SceneDelegate.m */; };
@@ -178,7 +179,6 @@
 		24CA4BD12B617AC800D16369 /* Bundle+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BD02B617AC800D16369 /* Bundle+MessagingTests.swift */; };
 		24CA4BD32B617AED00D16369 /* Cache+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BD22B617AED00D16369 /* Cache+MessagingTests.swift */; };
 		24CA4BD52B6195A500D16369 /* FeedRulesEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BD42B6195A500D16369 /* FeedRulesEngineTests.swift */; };
-		24CA4BD72B6195ED00D16369 /* KeyedDecodingContainer+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BD62B6195ED00D16369 /* KeyedDecodingContainer+MessagingTests.swift */; };
 		24CA4BD92B6196DF00D16369 /* MessagingMigratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BD82B6196DF00D16369 /* MessagingMigratorTests.swift */; };
 		24CA4BDB2B61971000D16369 /* MessagingPropositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BDA2B61971000D16369 /* MessagingPropositionTests.swift */; };
 		24CA4BDD2B61972500D16369 /* MessagingPropositionItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BDC2B61972500D16369 /* MessagingPropositionItemTests.swift */; };
@@ -382,6 +382,10 @@
 		091881F22A16C2A200615481 /* InAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppView.swift; sourceTree = "<group>"; };
 		091881F52A16C2D600615481 /* FeedsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedsView.swift; sourceTree = "<group>"; };
 		091881FE2A16D7A200615481 /* PushView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushView.swift; sourceTree = "<group>"; };
+		09265D5C2B74497E0085D825 /* codeBasedPropositionHtml.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = codeBasedPropositionHtml.json; sourceTree = "<group>"; };
+		09265D5D2B74497E0085D825 /* codeBasedPropositionHtmlContent.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = codeBasedPropositionHtmlContent.json; sourceTree = "<group>"; };
+		09265D5E2B74497E0085D825 /* codeBasedPropositionJsonContent.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = codeBasedPropositionJsonContent.json; sourceTree = "<group>"; };
+		09265D5F2B74497E0085D825 /* codeBasedPropositionJson.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = codeBasedPropositionJson.json; sourceTree = "<group>"; };
 		092A77F12A757CB40026D325 /* CodeBasedOffersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeBasedOffersView.swift; sourceTree = "<group>"; };
 		09305F0B2AC2EAFF00406607 /* MessagingDemoAppSwiftUI-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "MessagingDemoAppSwiftUI-Info.plist"; sourceTree = SOURCE_ROOT; };
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -397,7 +401,6 @@
 		09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Messaging.swift"; sourceTree = "<group>"; };
 		09B071EB2A651C7800F259C1 /* MessagingProposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingProposition.swift; sourceTree = "<group>"; };
 		09B071ED2A651CB200F259C1 /* MessagingPropositionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingPropositionItem.swift; sourceTree = "<group>"; };
-		09B071F12A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KeyedDecodingContainer+Messaging.swift"; sourceTree = "<group>"; };
 		09B071F52A7318CB00F259C1 /* Array+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Messaging.swift"; sourceTree = "<group>"; };
 		09F5D93F2B5CF35F00117437 /* MessagingPropositionInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingPropositionInteraction.swift; sourceTree = "<group>"; };
 		2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableMessagingDelegate.swift; sourceTree = "<group>"; };
@@ -407,9 +410,7 @@
 		240FC42F2AAFB08E00AFEEEB /* ParsedPropositionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsedPropositionsTests.swift; sourceTree = "<group>"; };
 		240FC4352AAFCBE500AFEEEB /* feedProposition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedProposition.json; sourceTree = "<group>"; };
 		240FC4372AAFCE3400AFEEEB /* inappPropositionV2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = inappPropositionV2.json; sourceTree = "<group>"; };
-		240FC4392AAFCE4E00AFEEEB /* codeBasedProposition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = codeBasedProposition.json; sourceTree = "<group>"; };
 		240FC43B2AB0B8A200AFEEEB /* feedPropositionContent.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = feedPropositionContent.json; sourceTree = "<group>"; };
-		240FC43C2AB0B8A200AFEEEB /* codeBasedPropositionContent.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = codeBasedPropositionContent.json; sourceTree = "<group>"; };
 		240FC43E2AB0B8A300AFEEEB /* inappPropositionV2Content.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = inappPropositionV2Content.json; sourceTree = "<group>"; };
 		2414ED7F2899BA080036D505 /* MessagingDemoAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2414ED812899BA080036D505 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -514,7 +515,6 @@
 		24CA4BD02B617AC800D16369 /* Bundle+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+MessagingTests.swift"; sourceTree = "<group>"; };
 		24CA4BD22B617AED00D16369 /* Cache+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Cache+MessagingTests.swift"; sourceTree = "<group>"; };
 		24CA4BD42B6195A500D16369 /* FeedRulesEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedRulesEngineTests.swift; sourceTree = "<group>"; };
-		24CA4BD62B6195ED00D16369 /* KeyedDecodingContainer+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KeyedDecodingContainer+MessagingTests.swift"; sourceTree = "<group>"; };
 		24CA4BD82B6196DF00D16369 /* MessagingMigratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingMigratorTests.swift; sourceTree = "<group>"; };
 		24CA4BDA2B61971000D16369 /* MessagingPropositionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingPropositionTests.swift; sourceTree = "<group>"; };
 		24CA4BDC2B61972500D16369 /* MessagingPropositionItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingPropositionItemTests.swift; sourceTree = "<group>"; };
@@ -740,9 +740,11 @@
 		2469A5DD2744657000E56457 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				09265D5C2B74497E0085D825 /* codeBasedPropositionHtml.json */,
+				09265D5D2B74497E0085D825 /* codeBasedPropositionHtmlContent.json */,
+				09265D5F2B74497E0085D825 /* codeBasedPropositionJson.json */,
+				09265D5E2B74497E0085D825 /* codeBasedPropositionJsonContent.json */,
 				242920EA2AC5D744000DB2CD /* cachedProposition.json */,
-				240FC4392AAFCE4E00AFEEEB /* codeBasedProposition.json */,
-				240FC43C2AB0B8A200AFEEEB /* codeBasedPropositionContent.json */,
 				2438B92D29C12179001D6F3A /* emptyContentStringRule.json */,
 				2469A5E02744696400E56457 /* eventSequenceRule.json */,
 				240FC4352AAFCBE500AFEEEB /* feedProposition.json */,
@@ -881,7 +883,6 @@
 				244FEA4329B6A1060058FA1C /* FeedItem.swift */,
 				090290C429DCED0B00388226 /* FeedRulesEngine.swift */,
 				246FD07126B9F86F00FD130B /* FullscreenMessage+Message.swift */,
-				09B071F12A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift */,
 				244E9583268262C7001DC957 /* Message.swift */,
 				244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
@@ -935,7 +936,6 @@
 				244FEA4529B6A5D30058FA1C /* FeedItemTests.swift */,
 				24CA4BD42B6195A500D16369 /* FeedRulesEngineTests.swift */,
 				243EA6CA273325A000195945 /* FullscreenMessage+MessageTests.swift */,
-				24CA4BD62B6195ED00D16369 /* KeyedDecodingContainer+MessagingTests.swift */,
 				243EA6CC273325B700195945 /* MessageTests.swift */,
 				243EA6CE273325CC00195945 /* Message+FullscreenMessageDelegateTests.swift */,
 				245059642673DBFD00CC7CA0 /* MessagingTests.swift */,
@@ -1436,16 +1436,18 @@
 				240FC4362AAFCBE500AFEEEB /* feedProposition.json in Resources */,
 				242920EB2AC5D745000DB2CD /* cachedProposition.json in Resources */,
 				242920D42ABCA559000DB2CD /* ruleWithNoConsequence.json in Resources */,
+				09265D622B74497E0085D825 /* codeBasedPropositionJsonContent.json in Resources */,
 				240FC43F2AB0B8A300AFEEEB /* feedPropositionContent.json in Resources */,
-				240FC43A2AAFCE4E00AFEEEB /* codeBasedProposition.json in Resources */,
-				240FC4402AB0B8A300AFEEEB /* codeBasedPropositionContent.json in Resources */,
 				2438B92C29C10B2D001D6F3A /* wrongScopeRule.json in Resources */,
 				240FC4422AB0B8A300AFEEEB /* inappPropositionV2Content.json in Resources */,
 				2438B93029C12179001D6F3A /* malformedContentRule.json in Resources */,
 				240FC4382AAFCE3400AFEEEB /* inappPropositionV2.json in Resources */,
 				2438B92F29C12179001D6F3A /* emptyContentStringRule.json in Resources */,
 				242920D62ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json in Resources */,
+				09265D602B74497E0085D825 /* codeBasedPropositionHtml.json in Resources */,
+				09265D612B74497E0085D825 /* codeBasedPropositionHtmlContent.json in Resources */,
 				2469A5E12744696400E56457 /* eventSequenceRule.json in Resources */,
+				09265D632B74497E0085D825 /* codeBasedPropositionJson.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1922,7 +1924,6 @@
 				090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */,
 				242920EF2AD05AFA000DB2CD /* InAppSchemaData.swift in Sources */,
 				244C2BDE26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift in Sources */,
-				09B071F22A71122900F259C1 /* KeyedDecodingContainer+Messaging.swift in Sources */,
 				0969D6382A79BB3C00A00BF7 /* Messaging+State.swift in Sources */,
 				242920F82AD06791000DB2CD /* RulesetSchemaData.swift in Sources */,
 				241B2DD42821C80C00E4FF67 /* URL+QueryParams.swift in Sources */,
@@ -1951,7 +1952,6 @@
 				244FEA4629B6A5D30058FA1C /* FeedItemTests.swift in Sources */,
 				24CA4BC12B6178EE00D16369 /* InAppSchemaDataTests.swift in Sources */,
 				24CA4BC72B617A2500D16369 /* HtmlContentSchemaDataTests.swift in Sources */,
-				24CA4BD72B6195ED00D16369 /* KeyedDecodingContainer+MessagingTests.swift in Sources */,
 				B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */,
 				243EA6C92733258600195945 /* Dictionary+MessagingTests.swift in Sources */,
 				2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */,

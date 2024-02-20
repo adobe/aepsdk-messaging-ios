@@ -261,32 +261,4 @@ extension Event {
     var schemaData: [String: Any]? {
         details?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
     }
-
-    // MARK: - In-app Message Properties
-
-    /// sample `mobileParameters` json which gets represented by a `MessageSettings` object:
-    /// {
-    ///     "mobileParameters": {
-    ///         "schemaVersion": "1.0",
-    ///         "width": 80,
-    ///         "height": 50,
-    ///         "verticalAlign": "center",
-    ///         "verticalInset": 0,
-    ///         "horizontalAlign": "center",
-    ///         "horizontalInset": 0,
-    ///         "uiTakeover": true,
-    ///         "displayAnimation": "top",
-    ///         "dismissAnimation": "top",
-    ///         "backdropColor": "000000",    // RRGGBB
-    ///         "backdropOpacity: 0.3,
-    ///         "cornerRadius": 15,
-    ///         "gestures": {
-    ///             "swipeUp": "adbinapp://dismiss",
-    ///             "swipeDown": "adbinapp://dismiss",
-    ///             "swipeLeft": "adbinapp://dismiss?interaction=negative",
-    ///             "swipeRight": "adbinapp://dismiss?interaction=positive",
-    ///             "tapBackground": "adbinapp://dismiss"
-    ///         }
-    ///     }
-    /// }
 }

@@ -29,18 +29,19 @@ public class Surface: NSObject, Codable {
     }
 
     public init(path: String) {
+        let baseUri = Bundle.main.mobileappSurface
         guard !path.isEmpty else {
-            uri = ""
+            uri = baseUri
             return
         }
-        uri = Bundle.main.mobileappSurface + MessagingConstants.PATH_SEPARATOR + path
+        uri = baseUri + MessagingConstants.PATH_SEPARATOR + path
     }
 
     init(uri: String) {
         self.uri = uri
     }
 
-    override convenience init() {
+    override public convenience init() {
         self.init(uri: Bundle.main.mobileappSurface)
     }
 
