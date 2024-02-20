@@ -54,6 +54,7 @@
 		2402745D29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
 		2402745E29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
 		240316B82A83DDD80016B0D9 /* Cache+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */; };
+		240BDFF72B72F10000AE8547 /* mockMessagingPropositionItem.json in Resources */ = {isa = PBXBuildFile; fileRef = 240BDFF52B72E83E00AE8547 /* mockMessagingPropositionItem.json */; };
 		240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */; };
 		240FC42E2AA920D400AFEEEB /* ParsedPropositions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240FC42D2AA920D400AFEEEB /* ParsedPropositions.swift */; };
 		240FC4302AAFB08E00AFEEEB /* ParsedPropositionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240FC42F2AAFB08E00AFEEEB /* ParsedPropositionsTests.swift */; };
@@ -402,6 +403,7 @@
 		09F5D93F2B5CF35F00117437 /* MessagingPropositionInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingPropositionInteraction.swift; sourceTree = "<group>"; };
 		2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableMessagingDelegate.swift; sourceTree = "<group>"; };
 		240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Cache+Messaging.swift"; sourceTree = "<group>"; };
+		240BDFF52B72E83E00AE8547 /* mockMessagingPropositionItem.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = mockMessagingPropositionItem.json; sourceTree = "<group>"; };
 		240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedStateResult+Messaging.swift"; sourceTree = "<group>"; };
 		240FC42D2AA920D400AFEEEB /* ParsedPropositions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsedPropositions.swift; sourceTree = "<group>"; };
 		240FC42F2AAFB08E00AFEEEB /* ParsedPropositionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsedPropositionsTests.swift; sourceTree = "<group>"; };
@@ -751,6 +753,7 @@
 				240FC4372AAFCE3400AFEEEB /* inappPropositionV2.json */,
 				240FC43E2AB0B8A300AFEEEB /* inappPropositionV2Content.json */,
 				2438B92E29C12179001D6F3A /* malformedContentRule.json */,
+				240BDFF52B72E83E00AE8547 /* mockMessagingPropositionItem.json */,
 				242920D32ABCA559000DB2CD /* ruleWithNoConsequence.json */,
 				242920D52ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json */,
 				2469A5DE274465C900E56457 /* showOnceRule.json */,
@@ -1444,6 +1447,7 @@
 				2438B93029C12179001D6F3A /* malformedContentRule.json in Resources */,
 				240FC4382AAFCE3400AFEEEB /* inappPropositionV2.json in Resources */,
 				2438B92F29C12179001D6F3A /* emptyContentStringRule.json in Resources */,
+				240BDFF72B72F10000AE8547 /* mockMessagingPropositionItem.json in Resources */,
 				242920D62ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json in Resources */,
 				2469A5E12744696400E56457 /* eventSequenceRule.json in Resources */,
 			);

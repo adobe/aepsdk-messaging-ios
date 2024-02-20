@@ -19,7 +19,7 @@ import XCTest
 import AEPTestUtils
 import WebKit
 
-class MessageTests: XCTestCase, FullscreenMessageDelegate {
+class MessageTests: XCTestCase {
     let ASYNC_TIMEOUT = 5.0
     var mockMessaging: MockMessaging!
     var mockRuntime = TestableExtensionRuntime()
@@ -27,6 +27,8 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     var mockEventData: [String: Any]?
     let mockAssetString = "https://blog.adobe.com/en/publish/2020/05/28/media_1cc0fcc19cf0e64decbceb3a606707a3ad23f51dd.png"
     let mockMessageId = "552"
+    var mockInAppItemData: [String: Any]?
+    var mockMessagingPropositionItem: MessagingPropositionItem!
     var mockPropositionInfo: PropositionInfo!
     let mockPropId = "1337"
     let mockPropScope = "mobileapp://com.apple.dt.xctest.tool"
@@ -36,6 +38,8 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
     var handleJavascriptMessageExpectation: XCTestExpectation?
         
     override func setUp() {
+        mockInAppItemData = JSONFileLoader.getRulesJsonFromFile("mockMessagingPropositionItem")
+        
         mockMessaging = MockMessaging(runtime: mockRuntime)
 
         mockEventData = [
@@ -52,130 +56,182 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         mockPropositionInfo = PropositionInfo(id: mockPropId, scope: mockPropScope, scopeDetails: mockPropScopeDetails)
     }
 
-    func testMessageInitHappy() throws {
+    func testCreateFromPropositionItemHappy() throws {
         // setup
+        mockMessagingPropositionItem = MessagingPropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
         let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
         try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
 
         // test
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
+        guard let message = Message.fromPropositionItem(mockMessagingPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
 
         // verify
         XCTAssertEqual(mockMessaging, message.parent)
         XCTAssertEqual(mockEvent, message.triggeringEvent)
-        XCTAssertEqual("", message.id)
-        XCTAssertNil(message.fullscreenMessage)
+        XCTAssertEqual("itemId", message.id)
+        XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNotNil(message.assets)
+        XCTAssertEqual(1, message.assets?.count)
+
+        // cleanup
+        try cache.remove(key: mockAssetString)
+    }
+    
+    func testCreateFromPropositionItemAssetNotInCache() throws {
+        // setup
+        mockMessagingPropositionItem = MessagingPropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+
+        // test
+        guard let message = Message.fromPropositionItem(mockMessagingPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+
+        // verify
+        XCTAssertEqual(mockMessaging, message.parent)
+        XCTAssertEqual(mockEvent, message.triggeringEvent)
+        XCTAssertEqual("itemId", message.id)
+        XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNotNil(message.assets)
+        XCTAssertEqual(0, message.assets?.count)
+    }
+    
+    func testCreateFromPropositionItemNoAssets() throws {
+        // setup
+        mockInAppItemData?.removeValue(forKey: "remoteAssets")
+        mockMessagingPropositionItem = MessagingPropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
+        try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
+
+        // test
+        guard let message = Message.fromPropositionItem(mockMessagingPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+
+        // verify
+        XCTAssertEqual(mockMessaging, message.parent)
+        XCTAssertEqual(mockEvent, message.triggeringEvent)
+        XCTAssertEqual("itemId", message.id)
+        XCTAssertNotNil(message.fullscreenMessage)
         XCTAssertNil(message.assets)
 
         // cleanup
         try cache.remove(key: mockAssetString)
     }
+    
+    func testCreateFromPropositionItemNotIamSchemaData() throws {
+        // setup
+        mockMessagingPropositionItem = MessagingPropositionItem(itemId: "itemId", schema: .htmlContent, itemData: [:])
 
-    func testMessageInitUsingDefaultValues() throws {
         // test
-        mockEventData = [
-            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
-                MessagingConstants.Event.Data.Key.DETAIL: [:]
-            ]
-        ]
-        mockEvent = Event(name: "Message Test", type: "type", source: "source", data: mockEventData)
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-
+        let message = Message.fromPropositionItem(mockMessagingPropositionItem, with: mockMessaging, triggeringEvent: mockEvent)
+        
         // verify
-        XCTAssertEqual(mockMessaging, message.parent)
-        XCTAssertEqual(mockEvent, message.triggeringEvent)
-        XCTAssertEqual("", message.id)
-        XCTAssertNil(message.fullscreenMessage)
-        XCTAssertNil(message.assets)
+        XCTAssertNil(message)
     }
     
-    func testPropositionInfo() throws {
+    func testShow() throws {
         // setup
-        let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
-        try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
+        mockMessagingPropositionItem = MessagingPropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        onShowExpectation = XCTestExpectation(description: "onShow called")
+        
+        // test
+        guard let message = Message.fromPropositionItem(mockMessagingPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.fullscreenMessage?.listener = self
 
         // test
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-        message.propositionInfo = mockPropositionInfo
+        message.show()
 
         // verify
-        XCTAssertEqual(mockPropositionInfo.id, message.propositionInfo?.id)
-        XCTAssertEqual(mockPropositionInfo.scope, message.propositionInfo?.scope)
-        XCTAssertEqual(mockPropositionInfo.scopeDetails, message.propositionInfo?.scopeDetails)
+        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
     }
-
-//    func testShow() throws {
-//        // setup
-//        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-//        message.fullscreenMessage?.listener = self
-//        onShowExpectation = XCTestExpectation(description: "onShow called")
-//
-//        // test
-//        message.show()
-//
-//        // verify
-//        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
-//    }
-//
-//    func testDismiss() throws {
-//        // setup
-//        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-//        message.fullscreenMessage?.listener = self
-//        onDismissExpectation = XCTestExpectation(description: "onDismiss called")
-//        
-//        // onDismiss will not get called if the message isn't currently being shown
-//        onShowExpectation = XCTestExpectation(description: "onShow called")
-//        message.show()
-//        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
-//
-//        // test
-//        message.dismiss()
-//
-//        // verify
-//        wait(for: [onDismissExpectation!], timeout: ASYNC_TIMEOUT)
-//    }
-
-    func testHandleJavascriptMessage() throws {
+    
+    func testDismiss() throws {
         // setup
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-        let mockFullscreenMessage = MockFullscreenMessage(parent: message)
-        mockFullscreenMessage.paramJavascriptHandlerReturnValue = "abc"
-        message.fullscreenMessage = mockFullscreenMessage
-        handleJavascriptMessageExpectation = XCTestExpectation(description: "jsHandler called")
+        mockMessagingPropositionItem = MessagingPropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        onDismissExpectation = XCTestExpectation(description: "onDismiss called")
+        guard let message = Message.fromPropositionItem(mockMessagingPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.fullscreenMessage?.listener = self
+        
+        // onDismiss will not get called if the message isn't currently being shown
+        onShowExpectation = XCTestExpectation(description: "onShow called")
+        message.show()
+        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
 
         // test
-        message.handleJavascriptMessage("test") { body in
-            XCTAssertEqual("abc", body as? String)
-            self.handleJavascriptMessageExpectation?.fulfill()
+        message.dismiss()
+
+        // verify
+        wait(for: [onDismissExpectation!], timeout: ASYNC_TIMEOUT)
+    }
+    
+    func testTrack() throws {
+        // setup
+        mockMessagingPropositionItem = MessagingPropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        guard let message = Message.fromPropositionItem(mockMessagingPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
         }
 
-        // verify
-        wait(for: [handleJavascriptMessageExpectation!], timeout: ASYNC_TIMEOUT)
-        XCTAssertTrue(mockFullscreenMessage.handleJavascriptMessageCalled)
-        XCTAssertEqual("test", mockFullscreenMessage.paramJavascriptMessage)
-    }
-
-    func testViewAccess() throws {
-        // setup
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-        let mockFullscreenMessage = MockFullscreenMessage(parent: message)
-        message.fullscreenMessage = mockFullscreenMessage
+        // test
+        message.track("mockInteraction", withEdgeEventType: .interact)
 
         // verify
-        XCTAssertNotNil(message.view)
-        XCTAssertTrue(message.view is WKWebView)
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
     }
 
-    func testTriggerable() throws {
-        // setup
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
+//    func testHandleJavascriptMessage() throws {
+//        // setup
+//        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
+//        let mockFullscreenMessage = MockFullscreenMessage(parent: message)
+//        mockFullscreenMessage.paramJavascriptHandlerReturnValue = "abc"
+//        message.fullscreenMessage = mockFullscreenMessage
+//        handleJavascriptMessageExpectation = XCTestExpectation(description: "jsHandler called")
+//
+//        // test
+//        message.handleJavascriptMessage("test") { body in
+//            XCTAssertEqual("abc", body as? String)
+//            self.handleJavascriptMessageExpectation?.fulfill()
+//        }
+//
+//        // verify
+//        wait(for: [handleJavascriptMessageExpectation!], timeout: ASYNC_TIMEOUT)
+//        XCTAssertTrue(mockFullscreenMessage.handleJavascriptMessageCalled)
+//        XCTAssertEqual("test", mockFullscreenMessage.paramJavascriptMessage)
+//    }
+//
+//    func testViewAccess() throws {
+//        // setup
+//        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
+//        let mockFullscreenMessage = MockFullscreenMessage(parent: message)
+//        message.fullscreenMessage = mockFullscreenMessage
+//
+//        // verify
+//        XCTAssertNotNil(message.view)
+//        XCTAssertTrue(message.view is WKWebView)
+//    }
+//
+//    func testTriggerable() throws {
+//        // setup
+//        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
+//
+//        // verify
+//        message.trigger()
+//    }
 
-        // verify
-        message.trigger()
-    }
+}
 
-    // MARK: - FullscreenMessageDelegate
-
+extension MessageTests: FullscreenMessageDelegate {
     public func onShow(message _: FullscreenMessage) {
         onShowExpectation?.fulfill()
     }

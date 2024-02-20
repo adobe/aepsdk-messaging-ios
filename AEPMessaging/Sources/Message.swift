@@ -50,6 +50,7 @@ public class Message: NSObject {
     /// Holds XDM data necessary for tracking `Message` interactions with Adobe Journey Optimizer.
     var propositionInfo: PropositionInfo?
 
+    /// Basic initializer only called by convenience constructor
     init(parent: Messaging, triggeringEvent: Event) {
         id = ""
         self.parent = parent
