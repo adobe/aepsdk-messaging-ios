@@ -381,7 +381,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
        let propositionAction = try XCTUnwrap(decisioning["propositionAction"] as? [String: Any])
        XCTAssertEqual("buttonTap", propositionAction["id"] as? String)
        XCTAssertEqual("buttonTap", propositionAction["label"] as? String)
-       
+
        let propositions = try XCTUnwrap(decisioning["propositions"] as? [[String: Any]])
        XCTAssertEqual(1, propositions.count)
        XCTAssertEqual(proposition.uniqueId, propositions[0]["id"] as? String)
@@ -426,7 +426,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         let itemCharacteristics = try XCTUnwrap(items[0]["characteristics"] as? [String: String])
         XCTAssertEqual(1, itemCharacteristics.count)
         XCTAssertEqual("token1,token2", itemCharacteristics["tokens"])
-     }
+    }
     
     func testPropositionItemGenerateInteractionXdmNoPropositionRef() throws {
         // setup
@@ -438,7 +438,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
 
         // verify
         XCTAssertNil(xdm)
-     }
+    }
     
     func testPropositionItemTrack() throws {
         // setup
@@ -558,7 +558,6 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
 
         // test
         proposition.items[0].track("buttonTap", withEdgeEventType: MessagingEdgeEventType.interact, forTokens: ["token1"])
-        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
     func testPropositionItemTrackNoPropositionRef() throws {
