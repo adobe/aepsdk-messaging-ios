@@ -95,7 +95,7 @@ public class Message: NSObject {
             return
         }
 
-        let propositionInteractionXdm = MessagingPropositionInteraction(eventType: eventType, interaction: interaction ?? "", propositionInfo: propInfo, itemId: nil, tokens: nil).xdm
+        let propositionInteractionXdm = PropositionInteraction(eventType: eventType, interaction: interaction ?? "", propositionInfo: propInfo, itemId: nil, tokens: nil).xdm
         parent?.sendPropositionInteraction(withXdm: propositionInteractionXdm)
     }
 
@@ -202,7 +202,7 @@ public class Message: NSObject {
 }
 
 extension Message {
-    static func fromPropositionItem(_ propositionItem: MessagingPropositionItem, with parent: Messaging, triggeringEvent event: Event) -> Message? {
+    static func fromPropositionItem(_ propositionItem: PropositionItem, with parent: Messaging, triggeringEvent event: Event) -> Message? {
         guard let iamSchemaData = propositionItem.inappSchemaData,
               let htmlContent = iamSchemaData.content as? String
         else {

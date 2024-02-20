@@ -13,9 +13,9 @@
 import AEPServices
 import Foundation
 
-/// `MessagingPropositionInteraction` is a container for tracking related information needed to dispatch a
+/// `PropositionInteraction` is a container for tracking related information needed to dispatch a
 /// `decisioning.propositionDisplay` or `decisioning.propositionInteract` event to the Experience Edge.
-struct MessagingPropositionInteraction: Codable {
+struct PropositionInteraction: Codable {
     /// Edge event type represented by enum `MessagingEdgeEventType`
     var eventType: MessagingEdgeEventType
 
@@ -45,12 +45,14 @@ struct MessagingPropositionInteraction: Codable {
             let itemId = itemId,
             !itemId.isEmpty
         {
-            var itemDict = [
+            var itemDict: [String: Any] = [
                 MessagingConstants.XDM.Inbound.Key.ID: itemId
             ]
 
             if let tokens = tokens, !tokens.isEmpty {
-                itemDict[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] = tokens.joined(separator: ",")
+                itemDict[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] = [
+                    MessagingConstants.XDM.Inbound.Key.TOKENS: tokens.joined(separator: ",")
+                ]
             }
 
             propositionDetailsData[MessagingConstants.XDM.Inbound.Key.ITEMS] = [itemDict]
@@ -127,5 +129,6 @@ struct MessagingPropositionInteraction: Codable {
         interaction = try container.decodeIfPresent(String.self, forKey: .interaction)
         propositionInfo = try container.decode(PropositionInfo.self, forKey: .propositionInfo)
         itemId = try container.decodeIfPresent(String.self, forKey: .itemId)
+        tokens = try container.decodeIfPresent([String].self, forKey: .tokens)
     }
 }

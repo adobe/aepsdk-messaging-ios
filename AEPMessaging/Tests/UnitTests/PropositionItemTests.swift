@@ -18,7 +18,7 @@ import XCTest
 import AEPServices
 import AEPTestUtils
 
-class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
+class PropositionItemTests: XCTestCase, AnyCodableAsserts {
     let ASYNC_TIMEOUT = 5.0
     let mockPropositionId = "mockPropositionId"
     let mockScope = "mockScope"
@@ -41,10 +41,10 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
         EventHub.reset()
     }
 
-    func getDecodedObject(fromString: String) -> MessagingPropositionItem? {
+    func getDecodedObject(fromString: String) -> PropositionItem? {
         let decoder = JSONDecoder()
         let objectData = fromString.data(using: .utf8)!
-        guard let propositionItem = try? decoder.decode(MessagingPropositionItem.self, from: objectData) else {
+        guard let propositionItem = try? decoder.decode(PropositionItem.self, from: objectData) else {
             return nil
         }
         return propositionItem
@@ -64,7 +64,7 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
         let mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionHtmlContent")
         
         // test
-        let propositionItem = MessagingPropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
+        let propositionItem = PropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
 
         // verify
         XCTAssertEqual(mockItemId, propositionItem.itemId)
@@ -77,7 +77,7 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
         let mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionJsonContent")
         
         // test
-        let propositionItem = MessagingPropositionItem(itemId: mockItemId, schema: .jsonContent, itemData: mockCodeBasedContent)
+        let propositionItem = PropositionItem(itemId: mockItemId, schema: .jsonContent, itemData: mockCodeBasedContent)
 
         // verify
         XCTAssertEqual(mockItemId, propositionItem.itemId)
@@ -182,7 +182,7 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
         }
         
         // test
-        let propositionItem = MessagingPropositionItem.fromRuleConsequence(feedConsequence)
+        let propositionItem = PropositionItem.fromRuleConsequence(feedConsequence)
         
         let expectedData = #"""
         {
@@ -246,7 +246,7 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
                               data: testEventData)
         
         // test
-        let propositionItem = MessagingPropositionItem.fromRuleConsequenceEvent(testEvent)
+        let propositionItem = PropositionItem.fromRuleConsequenceEvent(testEvent)
         
         let expectedData = #"""
         {
@@ -285,7 +285,7 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
         }
         
         // test
-        let propositionItem = MessagingPropositionItem.fromRuleConsequence(inappConsequence)
+        let propositionItem = PropositionItem.fromRuleConsequence(inappConsequence)
         let inappSchemaData = propositionItem?.inappSchemaData
         
         let expectedMobileParameters = #"""
@@ -327,7 +327,7 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
             return
         }
         
-        let propositionItem = MessagingPropositionItem.fromRuleConsequence(feedConsequence)
+        let propositionItem = PropositionItem.fromRuleConsequence(feedConsequence)
         
         // test
         let feedItemSchemaData = propositionItem?.feedItemSchemaData
@@ -362,11 +362,11 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
    func testPropositionItemGenerateInteractionXdm() throws {
        // setup
        let mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionHtmlContent")
-       let propositionItem = MessagingPropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
-       let proposition = MessagingProposition(uniqueId: mockPropositionId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propositionItem])
+       let propositionItem = PropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
+       let proposition = Proposition(uniqueId: mockPropositionId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propositionItem])
 
        // test
-       guard let xdm = proposition.items[0].generateInteractionXdm(forEventType: MessagingEdgeEventType.interact) else {
+       guard let xdm = proposition.items[0].generateInteractionXdm("buttonTap", withEdgeEventType: MessagingEdgeEventType.interact) else {
             XCTFail("Interaction XDM should not be nil")
             return
         }
@@ -377,6 +377,10 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
        let decisioning = try XCTUnwrap(experience["decisioning"] as? [String: Any])
        let propositionEventType = try XCTUnwrap(decisioning["propositionEventType"] as? [String: Any])
        XCTAssertEqual(1, propositionEventType["interact"] as? Int)
+       
+       let propositionAction = try XCTUnwrap(decisioning["propositionAction"] as? [String: Any])
+       XCTAssertEqual("buttonTap", propositionAction["id"] as? String)
+       XCTAssertEqual("buttonTap", propositionAction["label"] as? String)
        
        let propositions = try XCTUnwrap(decisioning["propositions"] as? [[String: Any]])
        XCTAssertEqual(1, propositions.count)
@@ -389,13 +393,48 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
        XCTAssertEqual(mockItemId, items[0]["id"] as? String)
     }
     
+    func testPropositionItemGenerateInteractionXdmForTokens() throws {
+        // setup
+        let mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionHtmlContent")
+        let propositionItem = PropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
+        let proposition = Proposition(uniqueId: mockPropositionId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propositionItem])
+
+        // test
+        guard let xdm = proposition.items[0].generateInteractionXdm(withEdgeEventType: MessagingEdgeEventType.display, forTokens: ["token1", "token2"]) else {
+             XCTFail("Interaction XDM should not be nil")
+             return
+         }
+
+        // verify
+        XCTAssertEqual("decisioning.propositionDisplay", xdm["eventType"] as? String)
+        let experience = try XCTUnwrap(xdm["_experience"] as? [String: Any])
+        let decisioning = try XCTUnwrap(experience["decisioning"] as? [String: Any])
+        let propositionEventType = try XCTUnwrap(decisioning["propositionEventType"] as? [String: Any])
+        XCTAssertEqual(1, propositionEventType["display"] as? Int)
+        XCTAssertNil(decisioning["propositionAction"] as? [String: Any])
+        
+        let propositions = try XCTUnwrap(decisioning["propositions"] as? [[String: Any]])
+        XCTAssertEqual(1, propositions.count)
+        XCTAssertEqual(proposition.uniqueId, propositions[0]["id"] as? String)
+        XCTAssertEqual(proposition.scope, propositions[0]["scope"] as? String)
+        assertExactMatch(expected: AnyCodable(proposition.scopeDetails), actual: AnyCodable(propositions[0]["scopeDetails"]))
+        
+        let items = try XCTUnwrap(propositions[0]["items"] as? [[String: Any]])
+        XCTAssertEqual(1, items.count)
+        XCTAssertEqual(mockItemId, items[0]["id"] as? String)
+        
+        let itemCharacteristics = try XCTUnwrap(items[0]["characteristics"] as? [String: String])
+        XCTAssertEqual(1, itemCharacteristics.count)
+        XCTAssertEqual("token1,token2", itemCharacteristics["tokens"])
+     }
+    
     func testPropositionItemGenerateInteractionXdmNoPropositionRef() throws {
         // setup
         let mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionHtmlContent")
-        let propositionItem = MessagingPropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
+        let propositionItem = PropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
 
         // test
-        let xdm = propositionItem.generateInteractionXdm(forEventType: MessagingEdgeEventType.interact)
+        let xdm = propositionItem.generateInteractionXdm("buttonTap", withEdgeEventType: MessagingEdgeEventType.interact)
 
         // verify
         XCTAssertNil(xdm)
@@ -450,11 +489,75 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
         }
         
         let mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionHtmlContent")
-        let propositionItem = MessagingPropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
-        let proposition = MessagingProposition(uniqueId: mockPropositionId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propositionItem])
+        let propositionItem = PropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
+        let proposition = Proposition(uniqueId: mockPropositionId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propositionItem])
 
         // test
-        proposition.items[0].track(eventType: MessagingEdgeEventType.display)
+        proposition.items[0].track(withEdgeEventType: MessagingEdgeEventType.display)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+    }
+    
+    func testPropositionItemTrackForTokens() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "track should dispatch an event with expected data.")
+        expectation.assertForOverFulfill = true
+
+        let testEventData: [String: Any] = [
+            "trackpropositions": true,
+            "propositioninteraction": [
+                "eventType": "decisioning.propositionInteract",
+                "_experience": [
+                    "decisioning": [
+                        "propositionEventType": [
+                            "interact": 1
+                        ],
+                        "propositionAction": [
+                            "id": "buttonTap",
+                            "label": "buttonTap"
+                        ],
+                        "propositions": [
+                            [
+                                "id": "mockPropositionId",
+                                "scope": "mockScope",
+                                "scopeDetails": [
+                                    "key": "value"
+                                ],
+                                "items": [
+                                    [
+                                        "id": "mockItemId",
+                                        "characteristics": [
+                                            "tokens": "token1"
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+        
+        let testEvent = Event(name: "Track propositions",
+                              type: "com.adobe.eventType.messaging",
+                              source: "com.adobe.eventSource.requestContent",
+                              data: testEventData)
+        
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: testEvent.type, source: testEvent.source) { event in
+            // verify
+            XCTAssertEqual(testEvent.name, event.name)
+            XCTAssertNotNil(event.data)
+            self.assertExactMatch(expected: AnyCodable(testEventData), actual: AnyCodable(event.data))
+
+            expectation.fulfill()
+        }
+        
+        let mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionHtmlContent")
+        let propositionItem = PropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
+        let proposition = Proposition(uniqueId: mockPropositionId, scope: mockScope, scopeDetails: mockScopeDetails, items: [propositionItem])
+
+        // test
+        proposition.items[0].track("buttonTap", withEdgeEventType: MessagingEdgeEventType.interact, forTokens: ["token1"])
         wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
@@ -503,10 +606,10 @@ class MessagingPropositionItemTests: XCTestCase, AnyCodableAsserts {
         }
         
         let mockCodeBasedContent = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionHtmlContent")
-        let propositionItem = MessagingPropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
+        let propositionItem = PropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
 
         // test
-        propositionItem.track(eventType: MessagingEdgeEventType.display)
+        propositionItem.track(nil, withEdgeEventType: MessagingEdgeEventType.display)
         wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
