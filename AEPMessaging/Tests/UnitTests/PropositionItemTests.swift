@@ -438,7 +438,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
 
         // verify
         XCTAssertNil(xdm)
-     }
+    }
     
     func testPropositionItemTrack() throws {
         // setup
@@ -609,7 +609,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         let propositionItem = PropositionItem(itemId: mockItemId, schema: .htmlContent, itemData: mockCodeBasedContent)
 
         // test
-        propositionItem.track(nil, withEdgeEventType: MessagingEdgeEventType.display)
+        propositionItem.track(withEdgeEventType: MessagingEdgeEventType.display)
         wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
