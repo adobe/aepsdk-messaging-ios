@@ -4,7 +4,7 @@
 version: 2.1
 
 orbs:
-  codecov: codecov/codecov@3.2.5
+  codecov: codecov/codecov@3.3.0
   macos: circleci/macos@2
 
 workflows:
@@ -65,13 +65,13 @@ commands:
     steps:
       - macos/preboot-simulator:
           platform: "iOS"
-          version: "16.1"
-          device: "iPhone 14"
+          version: "17.0"
+          device: "iPhone 15"
 
 jobs:
   validate-code:
     macos:
-      xcode: 14.1.0 # Specify the Xcode version to use
+      xcode: 15.0.0 # Specify the Xcode version to use
 
     steps:
       - checkout
@@ -88,7 +88,7 @@ jobs:
 
   test-ios:
     macos:
-      xcode: 14.1.0 # Specify the Xcode version to use
+      xcode: 15.0.0 # Specify the Xcode version to use
 
     steps:
       - checkout
@@ -110,7 +110,7 @@ jobs:
 
   test-spm-podspec-archive:  
     macos:
-      xcode: 14.1.0 # Specify the Xcode version to use
+      xcode: 15.0.0 # Specify the Xcode version to use
     
     steps:
       - checkout

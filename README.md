@@ -21,7 +21,7 @@ The AEPMessaging extension enables the following workflows:
 For further information about Adobe SDKs, visit the [developer documentation](https://developer.adobe.com/client-sdks/documentation/).
 
 ## Requirements
-- Xcode 14.1 (or newer)
+- Xcode 15 (or newer)
 - Swift 5.1 (or newer)
 
 ## Installation
