@@ -13,12 +13,25 @@
 import AEPServices
 import Foundation
 
+/// `PropositionInteraction` is a container for tracking related information needed to dispatch a
+/// `decisioning.propositionDisplay` or `decisioning.propositionInteract` event to the Experience Edge.
 struct PropositionInteraction: Codable {
+    /// Edge event type represented by enum `MessagingEdgeEventType`
     var eventType: MessagingEdgeEventType
+
+    /// Interaction string to identify interaction type with the proposition item
     var interaction: String?
+
+    /// `PropositionInfo` instance to encapsulate proposition related information
     var propositionInfo: PropositionInfo
+
+    /// Item ID string to identity the proposition item interacted with
     var itemId: String?
 
+    /// Sub-item tokens array to track interactions with proposition sub-items
+    var tokens: [String]?
+
+    /// Proposition interaction XDM
     var xdm: [String: Any] {
         var propositionDetailsData: [String: Any] = [:]
 
@@ -32,11 +45,17 @@ struct PropositionInteraction: Codable {
             let itemId = itemId,
             !itemId.isEmpty
         {
-            propositionDetailsData[MessagingConstants.XDM.Inbound.Key.ITEMS] = [
-                [
-                    MessagingConstants.XDM.Inbound.Key.ID: itemId
-                ]
+            var itemDict: [String: Any] = [
+                MessagingConstants.XDM.Inbound.Key.ID: itemId
             ]
+
+            if let tokens = tokens, !tokens.isEmpty {
+                itemDict[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] = [
+                    MessagingConstants.XDM.Inbound.Key.TOKENS: tokens.joined(separator: ",")
+                ]
+            }
+
+            propositionDetailsData[MessagingConstants.XDM.Inbound.Key.ITEMS] = [itemDict]
         }
 
         let propositionEventType: [String: Any] = [
@@ -76,13 +95,15 @@ struct PropositionInteraction: Codable {
         case interaction
         case propositionInfo
         case itemId
+        case tokens
     }
 
-    init(eventType: MessagingEdgeEventType, interaction: String?, propositionInfo: PropositionInfo, itemId: String?) {
+    init(eventType: MessagingEdgeEventType, interaction: String?, propositionInfo: PropositionInfo, itemId: String?, tokens: [String]?) {
         self.eventType = eventType
         self.interaction = interaction
         self.propositionInfo = propositionInfo
         self.itemId = itemId
+        self.tokens = tokens
     }
 
     func encode(to encoder: Encoder) throws {
@@ -92,6 +113,7 @@ struct PropositionInteraction: Codable {
         try container.encode(interaction, forKey: .interaction)
         try container.encode(propositionInfo, forKey: .propositionInfo)
         try container.encode(itemId, forKey: .itemId)
+        try container.encode(tokens, forKey: .tokens)
     }
 
     init(from decoder: Decoder) throws {
@@ -107,5 +129,6 @@ struct PropositionInteraction: Codable {
         interaction = try container.decodeIfPresent(String.self, forKey: .interaction)
         propositionInfo = try container.decode(PropositionInfo.self, forKey: .propositionInfo)
         itemId = try container.decodeIfPresent(String.self, forKey: .itemId)
+        tokens = try container.decodeIfPresent([String].self, forKey: .tokens)
     }
 }

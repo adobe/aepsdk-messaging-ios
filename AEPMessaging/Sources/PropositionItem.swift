@@ -72,9 +72,12 @@ public class PropositionItem: NSObject, Codable {
 public extension PropositionItem {
     /// Tracks interaction with the given proposition item.
     ///
-    /// - Parameter eventType: an enum specifying event type for the interaction.
-    func track(eventType: MessagingEdgeEventType) {
-        guard let propositionInteractionXdm = generateInteractionXdm(forEventType: eventType) else {
+    /// - Parameters
+    ///     - interaction: a custom string value describing the interaction.
+    ///     - eventType: an enum specifying event type for the interaction.
+    ///     - tokens: an array containing the sub-item tokens for recording interaction.
+    func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType, forTokens tokens: [String]? = nil) {
+        guard let propositionInteractionXdm = generateInteractionXdm(interaction, withEdgeEventType: eventType, forTokens: tokens) else {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Cannot track proposition interaction for item \(itemId), could not generate interactions XDM.")
             return
@@ -97,16 +100,19 @@ public extension PropositionItem {
     ///
     /// If the proposition reference within the item is released and no longer valid, the method returns `nil`.
     ///
-    /// - Parameter eventType: an enum specifying event type for the interaction.
+    /// - Parameters
+    ///     - interaction: a custom string value describing the interaction.
+    ///     - eventType: an enum specifying event type for the interaction.
+    ///     - tokens: an array containing the sub-item tokens for recording interaction.
     /// - Returns A dictionary containing XDM data for the propositon interaction.
-    func generateInteractionXdm(forEventType eventType: MessagingEdgeEventType) -> [String: Any]? {
+    func generateInteractionXdm(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType, forTokens tokens: [String]? = nil) -> [String: Any]? {
         guard let proposition = proposition else {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Cannot generate interaction XDM for item \(itemId), proposition reference is not available.")
             return nil
         }
 
-        return PropositionInteraction(eventType: eventType, interaction: nil, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId).xdm
+        return PropositionInteraction(eventType: eventType, interaction: interaction, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId, tokens: tokens).xdm
     }
 
     static func fromRuleConsequence(_ consequence: RuleConsequence) -> PropositionItem? {
