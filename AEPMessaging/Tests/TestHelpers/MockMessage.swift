@@ -15,13 +15,6 @@
 import Foundation
 
 class MockMessage: Message {
-    static func getInAppMessage(parent: Messaging, triggeringEvent: Event) -> MockMessage {
-        let mockPropositionItemData = JSONFileLoader.getRulesJsonFromFile("mockPropositionItem")
-        let mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockPropositionItemData)
-        let message = Message.fromPropositionItem(mockPropositionItem, with: parent, triggeringEvent: triggeringEvent)
-        return message as! MockMessage
-    }
-    
     var onDismissCalled = false
     var paramOnDismissMessage: FullscreenMessage?
     override func onDismiss(message: FullscreenMessage) {

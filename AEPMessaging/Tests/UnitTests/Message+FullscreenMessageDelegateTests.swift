@@ -41,7 +41,7 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
         mockMessaging = MockMessaging(runtime: mockRuntime)
         mockEvent = Event(name: "Message Test", type: "type", source: "source", data: nil)
         message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent)
-        mockMessage = MockMessage.getInAppMessage(parent: mockMessaging, triggeringEvent: mockEvent)
+        mockMessage = MockMessage(parent: mockMessaging, triggeringEvent: mockEvent)
         mockFullscreenMessage = MockFullscreenMessage(parent: mockMessage)
         mockMessage.fullscreenMessage = mockFullscreenMessage
     }
