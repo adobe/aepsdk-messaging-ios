@@ -177,7 +177,7 @@ public extension PropositionItem {
         do {
             return try JSONDecoder().decode(type, from: itemDataAsData)
         } catch {
-            Log.warning(label: MessagingConstants.LOG_TAG, "An error occurred while decoding a MessagingPropositionItem: \(error)")
+            Log.warning(label: MessagingConstants.LOG_TAG, "An error occurred while decoding a PropositionItem: \(error)")
             return nil
         }
     }

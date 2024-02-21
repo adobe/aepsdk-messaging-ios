@@ -25,7 +25,7 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
     var mockEvent: Event!
     var mockFullscreenMessage: MockFullscreenMessage!
     var mockMessage: MockMessage!
-    var mockMessagingPropositionItem: MessagingPropositionItem!
+    var mockPropositionItem: PropositionItem!
     let invalidUrlString = "-.98.3/~@!# oopsnotaurllol"
     let genericUrlString = "https://www.adobe.com/"
     let inAppUrlString = "adbinapp://dismiss?interaction=testing&link=https://www.adobe.com/"
@@ -35,12 +35,12 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
     let animationOverrideEmptyUrlString = "adbinapp://dismiss?animate="
 
     override func setUp() {
-        let mockMessagingPropositionItemData = JSONFileLoader.getRulesJsonFromFile("mockMessagingPropositionItem")
-        mockMessagingPropositionItem = MessagingPropositionItem(itemId: "itemId", schema: .inapp, itemData: mockMessagingPropositionItemData)
+        let mockPropositionItemData = JSONFileLoader.getRulesJsonFromFile("mockPropositionItem")
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockPropositionItemData)
         
         mockMessaging = MockMessaging(runtime: mockRuntime)
         mockEvent = Event(name: "Message Test", type: "type", source: "source", data: nil)
-        message = Message.fromPropositionItem(mockMessagingPropositionItem, with: mockMessaging, triggeringEvent: mockEvent)
+        message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent)
         mockMessage = MockMessage.getInAppMessage(parent: mockMessaging, triggeringEvent: mockEvent)
         mockFullscreenMessage = MockFullscreenMessage(parent: mockMessage)
         mockMessage.fullscreenMessage = mockFullscreenMessage
