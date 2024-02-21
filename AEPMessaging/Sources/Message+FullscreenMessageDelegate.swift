@@ -21,7 +21,7 @@ extension Message: FullscreenMessageDelegate {
         }
 
         if message.autoTrack {
-            message.track(nil, withEdgeEventType: .display)
+            message.track(withEdgeEventType: .display)
         }
         message.recordEventHistory(eventType: .display, interaction: nil)
     }
