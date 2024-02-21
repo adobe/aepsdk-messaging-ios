@@ -229,7 +229,7 @@ class MessageTests: XCTestCase {
         message.propositionInfo = mockPropositionInfo
 
         // test
-        message.track(nil, withEdgeEventType: .display)
+        message.track(withEdgeEventType: .display)
 
         // verify
         XCTAssertEqual(1, mockMessaging.testableRuntime.dispatchedEvents.count)

@@ -76,7 +76,7 @@ public class Message: NSObject {
     @objc(dismissSuppressingAutoTrack:)
     public func dismiss(suppressAutoTrack: Bool = false) {
         if autoTrack, !suppressAutoTrack {
-            track(nil, withEdgeEventType: .dismiss)
+            track(withEdgeEventType: .dismiss)
         }
 
         fullscreenMessage?.dismiss()
@@ -90,7 +90,7 @@ public class Message: NSObject {
     ///   - interaction: a custom `String` value to be recorded in the interaction
     ///   - eventType: the `MessagingEdgeEventType` to be used for the ensuing Edge Event
     @objc(trackInteraction:withEdgeEventType:)
-    public func track(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType) {
+    public func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let propInfo = propositionInfo else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction, proposition info is not found for message (\(id)).")
             return
@@ -127,7 +127,7 @@ public class Message: NSObject {
     /// Called when a `Message` is triggered - i.e. it's conditional criteria have been met.
     func trigger() {
         if autoTrack {
-            track(nil, withEdgeEventType: .trigger)
+            track(withEdgeEventType: .trigger)
         }
         recordEventHistory(eventType: .trigger, interaction: nil)
     }
