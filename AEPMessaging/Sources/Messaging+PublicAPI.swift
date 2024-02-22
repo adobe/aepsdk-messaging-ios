@@ -16,40 +16,6 @@ import UserNotifications
 
 @objc public extension Messaging {
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
-    /// - Parameters:
-    ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
-    ///   - applicationOpened: Boolean values denoting whether the application was opened when notification was clicked
-    ///   - customActionId: String value of the custom action (e.g button id on the notification) which was clicked.
-    @available(*, deprecated, message: "This method is deprecated. Use Messaging.handleNotificationResponse(:) instead to automatically track application open and handle notification actions.")
-    @objc(handleNotificationResponse:applicationOpened:withCustomActionId:)
-    static func handleNotificationResponse(_ response: UNNotificationResponse, applicationOpened: Bool, customActionId: String?) {
-        let notificationRequest = response.notification.request
-
-        // Checking if the message has the _xdm key that contains tracking information
-        guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
-            return
-        }
-
-        // Creating event data with tracking informations
-        var eventData: [String: Any] = [MessagingConstants.Event.Data.Key.ID: notificationRequest.identifier,
-                                        MessagingConstants.Event.Data.Key.APPLICATION_OPENED: applicationOpened,
-                                        MessagingConstants.XDM.Key.ADOBE_XDM: xdm]
-        if customActionId == nil {
-            eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
-        } else {
-            eventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
-            eventData[MessagingConstants.Event.Data.Key.ACTION_ID] = customActionId
-        }
-
-        let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
-                          type: EventType.messaging,
-                          source: EventSource.requestContent,
-                          data: eventData)
-        MobileCore.dispatch(event: event)
-    }
-
-    /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// This API method will also automatically handle click behavior defined for the push notification.
     /// Use the optional urlHandler callback to handle the actionalbe URL from the push notification.
     /// If the urlHandler closure returns `true`, the SDK will not handle the URL and the application is responsible for handling the URL.
