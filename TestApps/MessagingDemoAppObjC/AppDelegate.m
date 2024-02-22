@@ -73,7 +73,7 @@
 
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    [AEPMobileMessaging handleNotificationResponse:response closure:^(AEPPushTrackingStatus status){
+    [AEPMobileMessaging handleNotificationResponse:response urlHandler:nil closure:^(AEPPushTrackingStatus status){
         if (status == AEPPushTrackingStatusTrackingInitiated) {
             NSLog(@"Successfully started push notification tracking");
         }
