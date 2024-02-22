@@ -20,8 +20,8 @@ import AEPTestUtils
 
 class FullscreenMessageMessageTests: XCTestCase {
     func testFullscreenMessageParentExtension() throws {
-        // setup
-        let message = Message(parent: Messaging(runtime: TestableExtensionRuntime())!, triggeringEvent: Event(name: "name", type: "type", source: "source", data: nil))
+        // setup        
+        let message = MockMessage(parent: Messaging(runtime: TestableExtensionRuntime())!, triggeringEvent: Event(name: "name", type: "type", source: "source", data: nil))
         let messageSettings = MessageSettings(parent: message)
         let fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: "", listener: nil, isLocalImageUsed: false, settings: messageSettings) as! FullscreenMessage
 

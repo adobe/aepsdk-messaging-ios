@@ -19,23 +19,28 @@ import XCTest
 import AEPTestUtils
 import WebKit
 
-class MessageTests: XCTestCase, FullscreenMessageDelegate {
+class MessageTests: XCTestCase {
     let ASYNC_TIMEOUT = 5.0
     var mockMessaging: MockMessaging!
-    var mockRuntime = TestableExtensionRuntime()
+    var mockRuntime: TestableExtensionRuntime!
     var mockEvent: Event!
     var mockEventData: [String: Any]?
     let mockAssetString = "https://blog.adobe.com/en/publish/2020/05/28/media_1cc0fcc19cf0e64decbceb3a606707a3ad23f51dd.png"
     let mockMessageId = "552"
+    var mockInAppItemData: [String: Any]!
+    var mockPropositionItem: PropositionItem!
     var mockPropositionInfo: PropositionInfo!
     let mockPropId = "1337"
     let mockPropScope = "mobileapp://com.apple.dt.xctest.tool"
-    let mockPropScopeDetails: [String: AnyCodable] = ["akey":"avalue"]
+    let mockPropScopeDetails: [String: AnyCodable] = ["activity":["id":"1337"]]
     var onShowExpectation: XCTestExpectation?
     var onDismissExpectation: XCTestExpectation?
     var handleJavascriptMessageExpectation: XCTestExpectation?
         
     override func setUp() {
+        mockInAppItemData = JSONFileLoader.getRulesJsonFromFile("mockPropositionItem")
+        
+        mockRuntime = TestableExtensionRuntime()
         mockMessaging = MockMessaging(runtime: mockRuntime)
 
         mockEventData = [
@@ -52,92 +57,206 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         mockPropositionInfo = PropositionInfo(id: mockPropId, scope: mockPropScope, scopeDetails: mockPropScopeDetails)
     }
 
-    func testMessageInitHappy() throws {
+    func testCreateFromPropositionItemHappy() throws {
         // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
         let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
         try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
 
         // test
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
 
         // verify
         XCTAssertEqual(mockMessaging, message.parent)
         XCTAssertEqual(mockEvent, message.triggeringEvent)
-        XCTAssertEqual("", message.id)
-        XCTAssertNil(message.fullscreenMessage)
+        XCTAssertEqual("itemId", message.id)
+        XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNotNil(message.assets)
+        XCTAssertEqual(1, message.assets?.count)
+
+        // cleanup
+        try cache.remove(key: mockAssetString)
+    }
+    
+    func testCreateFromPropositionItemAssetNotInCache() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+
+        // test
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+
+        // verify
+        XCTAssertEqual(mockMessaging, message.parent)
+        XCTAssertEqual(mockEvent, message.triggeringEvent)
+        XCTAssertEqual("itemId", message.id)
+        XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNotNil(message.assets)
+        XCTAssertEqual(0, message.assets?.count)
+    }
+    
+    func testCreateFromPropositionItemNoAssets() throws {
+        // setup
+        mockInAppItemData?.removeValue(forKey: "remoteAssets")
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
+        try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
+
+        // test
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+
+        // verify
+        XCTAssertEqual(mockMessaging, message.parent)
+        XCTAssertEqual(mockEvent, message.triggeringEvent)
+        XCTAssertEqual("itemId", message.id)
+        XCTAssertNotNil(message.fullscreenMessage)
         XCTAssertNil(message.assets)
 
         // cleanup
         try cache.remove(key: mockAssetString)
     }
+    
+    func testCreateFromPropositionItemNotIamSchemaData() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .htmlContent, itemData: [:])
 
-    func testMessageInitUsingDefaultValues() throws {
         // test
-        mockEventData = [
-            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: [
-                MessagingConstants.Event.Data.Key.DETAIL: [:]
-            ]
-        ]
-        mockEvent = Event(name: "Message Test", type: "type", source: "source", data: mockEventData)
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-
+        let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent)
+        
         // verify
-        XCTAssertEqual(mockMessaging, message.parent)
-        XCTAssertEqual(mockEvent, message.triggeringEvent)
-        XCTAssertEqual("", message.id)
-        XCTAssertNil(message.fullscreenMessage)
-        XCTAssertNil(message.assets)
+        XCTAssertNil(message)
     }
     
-    func testPropositionInfo() throws {
+    func testWKWebViewIsGettable() throws {
         // setup
-        let cache = Cache(name: MessagingConstants.Caches.CACHE_NAME)
-        try cache.set(key: mockAssetString, entry: CacheEntry(data: mockAssetString.data(using: .utf8)!, expiry: .never, metadata: nil))
-
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        onShowExpectation = XCTestExpectation(description: "onShow called")
+        
         // test
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-        message.propositionInfo = mockPropositionInfo
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.fullscreenMessage?.listener = self
+        message.show()
+        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
+        
+        // test
+        let webView = message.view as? WKWebView
 
         // verify
-        XCTAssertEqual(mockPropositionInfo.id, message.propositionInfo?.id)
-        XCTAssertEqual(mockPropositionInfo.scope, message.propositionInfo?.scope)
-        XCTAssertEqual(mockPropositionInfo.scopeDetails, message.propositionInfo?.scopeDetails)
+        XCTAssertNotNil(webView)
+        
+        // cleanup
+        message.dismiss()
     }
+    
+    func testShow() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        onShowExpectation = XCTestExpectation(description: "onShow called")
+        
+        // test
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.fullscreenMessage?.listener = self
 
-//    func testShow() throws {
-//        // setup
-//        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-//        message.fullscreenMessage?.listener = self
-//        onShowExpectation = XCTestExpectation(description: "onShow called")
-//
-//        // test
-//        message.show()
-//
-//        // verify
-//        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
-//    }
-//
-//    func testDismiss() throws {
-//        // setup
-//        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-//        message.fullscreenMessage?.listener = self
-//        onDismissExpectation = XCTestExpectation(description: "onDismiss called")
-//        
-//        // onDismiss will not get called if the message isn't currently being shown
-//        onShowExpectation = XCTestExpectation(description: "onShow called")
-//        message.show()
-//        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
-//
-//        // test
-//        message.dismiss()
-//
-//        // verify
-//        wait(for: [onDismissExpectation!], timeout: ASYNC_TIMEOUT)
-//    }
+        // test
+        message.show()
+
+        // verify
+        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
+        
+        // cleanup
+        message.dismiss()
+    }
+    
+    func testDismiss() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        onDismissExpectation = XCTestExpectation(description: "onDismiss called")
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.fullscreenMessage?.listener = self
+        
+        // onDismiss will not get called if the message isn't currently being shown
+        onShowExpectation = XCTestExpectation(description: "onShow called")
+        message.show()
+        wait(for: [onShowExpectation!], timeout: ASYNC_TIMEOUT)
+
+        // test
+        message.dismiss()
+
+        // verify
+        wait(for: [onDismissExpectation!], timeout: ASYNC_TIMEOUT)
+    }
+    
+    func testTrackInteraction() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.propositionInfo = mockPropositionInfo
+
+        // test
+        message.track("mockInteraction", withEdgeEventType: .interact)
+
+        // verify
+        XCTAssertEqual(1, mockMessaging.testableRuntime.dispatchedEvents.count)
+    }
+    
+    func testTrackDisplay() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.propositionInfo = mockPropositionInfo
+
+        // test
+        message.track(withEdgeEventType: .display)
+
+        // verify
+        XCTAssertEqual(1, mockMessaging.testableRuntime.dispatchedEvents.count)
+    }
+    
+    func testTrackNoPropositionInfo() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+
+        // test
+        message.track("mockInteraction", withEdgeEventType: .interact)
+
+        // verify
+        XCTAssertEqual(0, mockMessaging.testableRuntime.dispatchedEvents.count)
+    }
 
     func testHandleJavascriptMessage() throws {
         // setup
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
         let mockFullscreenMessage = MockFullscreenMessage(parent: message)
         mockFullscreenMessage.paramJavascriptHandlerReturnValue = "abc"
         message.fullscreenMessage = mockFullscreenMessage
@@ -155,34 +274,137 @@ class MessageTests: XCTestCase, FullscreenMessageDelegate {
         XCTAssertEqual("test", mockFullscreenMessage.paramJavascriptMessage)
     }
 
-    func testViewAccess() throws {
+    func testTriggerableWithAutoTrack() throws {
         // setup
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-        let mockFullscreenMessage = MockFullscreenMessage(parent: message)
-        message.fullscreenMessage = mockFullscreenMessage
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.propositionInfo = mockPropositionInfo
 
-        // verify
-        XCTAssertNotNil(message.view)
-        XCTAssertTrue(message.view is WKWebView)
-    }
-
-    func testTriggerable() throws {
-        // setup
-        let message = Message(parent: mockMessaging, triggeringEvent: mockEvent)
-
-        // verify
+        // test
         message.trigger()
+
+        // verify
+        XCTAssertEqual(2, mockMessaging.testableRuntime.dispatchedEvents.count)
+        let trackEvent = mockMessaging.testableRuntime.firstEvent
+        XCTAssertEqual("Messaging interaction event", trackEvent?.name)
+        let eventHistoryEvent = mockMessaging.testableRuntime.secondEvent
+        XCTAssertEqual("Write IAM event to history", eventHistoryEvent?.name)
     }
+    
+    func testTriggerableNoAutoTrack() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.propositionInfo = mockPropositionInfo
+        message.autoTrack = false
 
-    // MARK: - FullscreenMessageDelegate
+        // test
+        message.trigger()
 
-    public func onShow(message _: FullscreenMessage) {
+        // verify
+        XCTAssertEqual(1, mockMessaging.testableRuntime.dispatchedEvents.count)
+        let eventHistoryEvent = mockMessaging.testableRuntime.firstEvent
+        XCTAssertEqual("Write IAM event to history", eventHistoryEvent?.name)
+    }
+    
+    func testRecordEventHistoryHappy() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.propositionInfo = mockPropositionInfo
+
+        // test
+        message.recordEventHistory(eventType: .display, interaction: "interaction")
+
+        // verify
+        XCTAssertEqual(1, mockMessaging.testableRuntime.dispatchedEvents.count)
+        let eventHistoryEvent = mockMessaging.testableRuntime.firstEvent
+        XCTAssertEqual(EventType.messaging, eventHistoryEvent?.type)
+        XCTAssertEqual(MessagingConstants.Event.Source.EVENT_HISTORY_WRITE, eventHistoryEvent?.source)
+        let eventData = eventHistoryEvent?.data
+        XCTAssertEqual(1, eventData?.count)
+        let iamMap = try XCTUnwrap(eventData?["iam"] as? [String: Any])
+        XCTAssertEqual(3, iamMap.count)
+        let iamEventType = try XCTUnwrap(iamMap["eventType"] as? String)
+        XCTAssertEqual("display", iamEventType)
+        let iamMessageId = try XCTUnwrap(iamMap["id"] as? String)
+        XCTAssertEqual(mockPropId, iamMessageId)
+        let iamAction = try XCTUnwrap(iamMap["action"] as? String)
+        XCTAssertEqual("interaction", iamAction)
+        XCTAssertNotNil(eventHistoryEvent?.mask)
+        XCTAssertEqual(3, eventHistoryEvent?.mask?.count)
+        XCTAssertEqual("iam.eventType", eventHistoryEvent?.mask?[0])
+        XCTAssertEqual("iam.id", eventHistoryEvent?.mask?[1])
+        XCTAssertEqual("iam.action", eventHistoryEvent?.mask?[2])
+    }
+    
+    func testRecordEventHistoryNoPropInfo() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+
+        // test
+        message.recordEventHistory(eventType: .display, interaction: "interaction")
+
+        // verify
+        XCTAssertEqual(0, mockMessaging.testableRuntime.dispatchedEvents.count)
+    }
+    
+    func testRecordEventHistoryNoInteraction() throws {
+        // setup
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+        message.propositionInfo = mockPropositionInfo
+
+        // test
+        message.recordEventHistory(eventType: .display, interaction: nil)
+
+        // verify
+        XCTAssertEqual(1, mockMessaging.testableRuntime.dispatchedEvents.count)
+        let eventHistoryEvent = mockMessaging.testableRuntime.firstEvent
+        XCTAssertEqual(EventType.messaging, eventHistoryEvent?.type)
+        XCTAssertEqual(MessagingConstants.Event.Source.EVENT_HISTORY_WRITE, eventHistoryEvent?.source)
+        let eventData = eventHistoryEvent?.data
+        XCTAssertEqual(1, eventData?.count)
+        let iamMap = try XCTUnwrap(eventData?["iam"] as? [String: Any])
+        XCTAssertEqual(3, iamMap.count)
+        let iamEventType = try XCTUnwrap(iamMap["eventType"] as? String)
+        XCTAssertEqual("display", iamEventType)
+        let iamMessageId = try XCTUnwrap(iamMap["id"] as? String)
+        XCTAssertEqual(mockPropId, iamMessageId)
+        let iamAction = try XCTUnwrap(iamMap["action"] as? String)
+        XCTAssertEqual("", iamAction)
+        XCTAssertNotNil(eventHistoryEvent?.mask)
+        XCTAssertEqual(3, eventHistoryEvent?.mask?.count)
+        XCTAssertEqual("iam.eventType", eventHistoryEvent?.mask?[0])
+        XCTAssertEqual("iam.id", eventHistoryEvent?.mask?[1])
+        XCTAssertEqual("iam.action", eventHistoryEvent?.mask?[2])
+    }
+}
+
+extension MessageTests: FullscreenMessageDelegate {
+    public func onShow(message: FullscreenMessage) {
         onShowExpectation?.fulfill()
     }
 
     public func onShowFailure() {}
 
-    public func onDismiss(message _: FullscreenMessage) {
+    public func onDismiss(message: FullscreenMessage) {
         onDismissExpectation?.fulfill()
     }
 
