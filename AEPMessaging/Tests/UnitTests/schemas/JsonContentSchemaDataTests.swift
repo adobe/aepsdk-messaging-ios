@@ -76,7 +76,7 @@ class JsonContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"content\":\(mockJsonObjectContent),\"format\":\"\(mockFormat.toString())\"}") ?? "fail"
+        let expected = "{\"content\":\(mockJsonObjectContent),\"format\":\"\(mockFormat.toString())\"}".toAnyCodable() ?? "fail"
 
         // test
         guard let encodedObject = try? encoder.encode(object) else {
@@ -85,8 +85,8 @@ class JsonContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedObject, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testIsEncodableJsonArray() throws {
@@ -97,7 +97,7 @@ class JsonContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"content\":\(mockJsonArrayContent),\"format\":\"\(mockFormat.toString())\"}") ?? "fail"
+        let expected = "{\"content\":\(mockJsonArrayContent),\"format\":\"\(mockFormat.toString())\"}".toAnyCodable() ?? "fail"
 
         // test
         guard let encodedObject = try? encoder.encode(object) else {
@@ -106,8 +106,8 @@ class JsonContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedObject, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testContentIsRequired() throws {

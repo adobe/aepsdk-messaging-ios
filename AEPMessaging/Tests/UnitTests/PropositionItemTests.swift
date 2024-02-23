@@ -127,7 +127,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         }
         
         let encoder = JSONEncoder()
-        let expected = getAnyCodable(json) ?? "fail"
+        let expected = json.toAnyCodable() ?? "fail"
 
         // test
         guard let encodedObject = try? encoder.encode(propositionItem) else {
@@ -136,8 +136,8 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedObject, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testPropositionItemIdIsRequired() {
@@ -208,7 +208,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         XCTAssertNotNil(propositionItem)
         XCTAssertEqual("183639c4-cb37-458e-a8ef-4e130d767ebf", propositionItem?.itemId)
         XCTAssertEqual(.feed, propositionItem?.schema)
-        assertExactMatch(expected: getAnyCodable(expectedData)!, actual: AnyCodable(propositionItem?.itemData))
+        assertExactMatch(expected: expectedData.toAnyCodable()!, actual: propositionItem?.itemData.toAnyCodable(), pathOptions: [])
     }
     
     func testPropositionItemFromRuleConsequenceEvent() {
@@ -272,7 +272,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         XCTAssertNotNil(propositionItem)
         XCTAssertEqual("183639c4-cb37-458e-a8ef-4e130d767ebf", propositionItem?.itemId)
         XCTAssertEqual(.feed, propositionItem?.schema)
-        assertExactMatch(expected: getAnyCodable(expectedData)!, actual: AnyCodable(propositionItem?.itemData))
+        assertExactMatch(expected: expectedData.toAnyCodable()!, actual: propositionItem?.itemData.toAnyCodable(), pathOptions: [])
         
     }
     
@@ -315,7 +315,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual("urlToAnImage", inappSchemaData?.remoteAssets?.first)
         XCTAssertEqual(.textHtml, inappSchemaData?.contentType)
         XCTAssertEqual("<html><body>Is this thing even on?</body></html>", inappSchemaData?.content as? String)
-        assertExactMatch(expected: getAnyCodable(expectedMobileParameters)!, actual: AnyCodable(inappSchemaData?.mobileParameters))
+        assertExactMatch(expected: expectedMobileParameters.toAnyCodable()!, actual: inappSchemaData?.mobileParameters?.toAnyCodable(), pathOptions: [])
         XCTAssertEqual("webParamValue", inappSchemaData?.webParameters?["webParamKey"] as? String)
     }
 
@@ -355,8 +355,9 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(1723163897, feedItemSchemaData?.expiryDate)
         XCTAssertEqual(1691541497, feedItemSchemaData?.publishedDate)
         XCTAssertEqual(ContentType.applicationJson, feedItemSchemaData?.contentType)
-        assertExactMatch(expected: getAnyCodable(expectedContent)!, actual: AnyCodable(feedItemSchemaData?.content as? [String: Any]))
-        assertExactMatch(expected: getAnyCodable(expectedMeta)!, actual: AnyCodable(feedItemSchemaData?.meta))
+        let feedItemContent = feedItemSchemaData?.content as? [String: Any]
+        assertExactMatch(expected: expectedContent.toAnyCodable()!, actual: feedItemContent?.toAnyCodable(), pathOptions: [])
+        assertExactMatch(expected: expectedMeta.toAnyCodable()!, actual: feedItemSchemaData?.meta?.toAnyCodable(), pathOptions: [])
     }
     
    func testPropositionItemGenerateInteractionXdm() throws {

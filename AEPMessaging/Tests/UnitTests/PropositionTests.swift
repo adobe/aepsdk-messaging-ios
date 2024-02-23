@@ -70,7 +70,7 @@ class PropositionTests: XCTestCase, AnyCodableAsserts {
         // verify
         XCTAssertEqual(mockPropositionId, proposition.uniqueId)
         XCTAssertEqual(mockScope, proposition.scope)
-        assertExactMatch(expected: getAnyCodable(mockScopeDetailsString)!, actual: AnyCodable(proposition.scopeDetails))
+        assertExactMatch(expected: mockScopeDetailsString.toAnyCodable()!, actual: proposition.scopeDetails.toAnyCodable(), pathOptions: [])
         XCTAssertEqual(1, proposition.items.count)
         let propItem = proposition.items[0]
         XCTAssertEqual(mockItemId, propItem.itemId)
@@ -87,7 +87,7 @@ class PropositionTests: XCTestCase, AnyCodableAsserts {
         }
         
         let encoder = JSONEncoder()
-        let expected = getAnyCodable(propositionJsonString) ?? "fail"
+        let expected = propositionJsonString.toAnyCodable() ?? "fail"
 
         // test
         guard let encodedObject = try? encoder.encode(proposition) else {
@@ -96,8 +96,8 @@ class PropositionTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedObject, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testScopeDetailsIsRequired() throws {

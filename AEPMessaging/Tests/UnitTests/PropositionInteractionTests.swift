@@ -113,7 +113,7 @@ class PropositionInteractionTests: XCTestCase, AnyCodableAsserts {
         }
         
         let encoder = JSONEncoder()
-        let expected = getAnyCodable(propositionInteractionJsonString) ?? "fail"
+        let expected = propositionInteractionJsonString.toAnyCodable() ?? "fail"
 
         // test
         guard let encodedObject = try? encoder.encode(propositionInteraction) else {
@@ -122,8 +122,8 @@ class PropositionInteractionTests: XCTestCase, AnyCodableAsserts {
         }
         
         // verify
-        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedObject, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testPropositionInteractionDecodeInvalidEventType() {
