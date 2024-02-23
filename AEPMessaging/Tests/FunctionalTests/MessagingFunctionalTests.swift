@@ -71,7 +71,7 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
         }
         """#
         
-        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
         if let dataDict = edgeEvent.data?["data"] as? [String: Any],
            let pushNotificationDetails = dataDict["pushNotificationDetails"] as? [[String: Any]] {
             XCTAssertEqual(1, pushNotificationDetails.count)
@@ -176,7 +176,7 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
         }
         """#
         
-        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
         if let dataDict = edgeEvent.data?["data"] as? [String: Any],
            let pushNotificationDetails = dataDict["pushNotificationDetails"] as? [[String: Any]] {
             XCTAssertEqual(1, pushNotificationDetails.count)

@@ -48,7 +48,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         ServiceProvider.shared.networkService = mockNetworkService
         continueAfterFailure = true
         FileManager.default.clearCache()
-        FileManager.default.removeAdobeCacheDirectory()
+        FileManager.default.clearDirectory()
 
         // hub shared state update for 1 extension versions (InstrumentedExtension (registered in FunctionalTestBase), IdentityEdge, Edge Identity, Config
         setExpectationEvent(type: EventType.hub, source: EventSource.sharedState, expectedCount: 3)
@@ -152,7 +152,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
           }
         }
         """#
-        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
     }
     
     func test_notificationTracking_whenUser_DismissesNotification() {
@@ -186,7 +186,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
           }
         }
         """#
-        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
     }
     
     func test_notificationTracking_whenUser_tapsNotificationActionThatOpensTheApp() {
@@ -221,7 +221,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         }
         """#
         
-        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
     }
     
     func test_notificationOpen_whenNotAJONotification() {
@@ -302,7 +302,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         }
         """#
         
-        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
     }
     
     func test_notificationTracking_whenUser_tapsNotificationActionThatDoNotOpenTheApp_Case2() {
@@ -338,7 +338,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         }
         """#
         
-        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
     }
     
     func test_notificationOpen_willLaunchUrl() {
@@ -364,7 +364,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         }
         """#
         
-        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(messagingEvent))
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: messagingEvent.toAnyCodable(), pathOptions: [])
     }
     
     func test_notificationCustomAction_willNotLaunchUrl() {

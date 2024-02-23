@@ -55,7 +55,7 @@ class HtmlContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"content\":\"\(mockContent)\",\"format\":\"\(mockFormat.toString())\"}") ?? "fail"
+        let expected = "{\"content\":\"\(mockContent)\",\"format\":\"\(mockFormat.toString())\"}".toAnyCodable() ?? "fail"
 
         // test
         guard let encodedObject = try? encoder.encode(object) else {
@@ -64,8 +64,8 @@ class HtmlContentSchemaDataTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedObject, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testContentIsRequired() throws {
