@@ -75,7 +75,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     }
 
     func registerMessagingRequestContentListener(_ listener: @escaping EventListener) {
-        MobileCore.registerEventListener(type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, listener: listener)
+        MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.requestContent, listener: listener)
     }
 
     func registerEdgePersonalizationDecisionsListener(_ listener: @escaping EventListener) {
@@ -244,7 +244,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         """#
 
         // validate required fields are in first payload item and their types are correct
-        assertTypeMatch(expected: getAnyCodable(expectedPayloadJSON)!, actual: AnyCodable(payload))
+        assertTypeMatch(expected: expectedPayloadJSON.toAnyCodable()!, actual: AnyCodable(payload), pathOptions: [])
     }
     
     func missingField(_ key: String) -> String {
@@ -258,7 +258,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
 
 extension E2EFunctionalTests: MessagingDelegate {
     func onShow(message: Showable) {
-        currentMessage?.track("clicked", withEdgeEventType: .inappInteract)
+        currentMessage?.track("clicked", withEdgeEventType: .interact)
     }
 
     func onDismiss(message: Showable) {
