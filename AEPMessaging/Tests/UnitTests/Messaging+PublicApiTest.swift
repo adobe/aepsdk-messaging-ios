@@ -436,10 +436,10 @@ class MessagingPublicApiTest: XCTestCase {
             eventExpectation.fulfill()
         }
         
-        let surfacePaths = [Surface(uri: "")]
+        let surfaces = [Surface(uri: "")]
         
         // test
-        Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
+        Messaging.getPropositionsForSurfaces(surfaces) { surfacePropositions, error in
             XCTAssertNil(surfacePropositions)
             XCTAssertNotNil(error)
             XCTAssertEqual(AEPError.invalidRequest, error as? AEPError)
@@ -460,10 +460,10 @@ class MessagingPublicApiTest: XCTestCase {
             // don't send a response event
         }
         
-        let surfacePaths = [Surface(uri: MOCK_FEEDS_SURFACE)]
+        let surfaces = [Surface(uri: MOCK_FEEDS_SURFACE)]
         
         // test
-        Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
+        Messaging.getPropositionsForSurfaces(surfaces) { surfacePropositions, error in
             XCTAssertNil(surfacePropositions)
             XCTAssertEqual(AEPError.callbackTimeout, error as? AEPError)
             expectation.fulfill()
@@ -490,10 +490,10 @@ class MessagingPublicApiTest: XCTestCase {
             MobileCore.dispatch(event: responseEvent)
         }
         
-        let surfacePaths = [Surface(uri: MOCK_FEEDS_SURFACE)]
+        let surfaces = [Surface(uri: MOCK_FEEDS_SURFACE)]
         
         // test
-        Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
+        Messaging.getPropositionsForSurfaces(surfaces) { surfacePropositions, error in
             XCTAssertNil(surfacePropositions)
             XCTAssertEqual(AEPError.serverError, error as? AEPError)            
             expectation.fulfill()
@@ -516,10 +516,10 @@ class MessagingPublicApiTest: XCTestCase {
             MobileCore.dispatch(event: responseEvent)
         }
         
-        let surfacePaths = [Surface(uri: MOCK_FEEDS_SURFACE)]
+        let surfaces = [Surface(uri: MOCK_FEEDS_SURFACE)]
         
         // test
-        Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
+        Messaging.getPropositionsForSurfaces(surfaces) { surfacePropositions, error in
             XCTAssertNil(surfacePropositions)
             XCTAssertEqual(AEPError.unexpected, error as? AEPError)
             expectation.fulfill()
@@ -552,10 +552,10 @@ class MessagingPublicApiTest: XCTestCase {
             MobileCore.dispatch(event: responseEvent)
         }
         
-        let surfacePaths = [Surface(uri: MOCK_FEEDS_SURFACE)]
+        let surfaces = [Surface(uri: MOCK_FEEDS_SURFACE)]
         
         // test
-        Messaging.getPropositionsForSurfaces(surfacePaths) { surfacePropositions, error in
+        Messaging.getPropositionsForSurfaces(surfaces) { surfacePropositions, error in
             XCTAssertEqual(1, surfacePropositions?.count)
             if let aepError = error as? AEPError {
                 XCTAssertEqual(aepError, .none)
