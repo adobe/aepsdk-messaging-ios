@@ -17,7 +17,7 @@ import UserNotifications
 @objc public extension Messaging {
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// This API method will also automatically handle click behavior defined for the push notification.
-    /// Use the optional urlHandler callback to handle the actionalbe URL from the push notification.
+    /// Use the optional urlHandler callback to handle the actionable URL from the push notification.
     /// If the urlHandler closure returns `true`, the SDK will not handle the URL and the application is responsible for handling the URL.
     /// If the urlHandler closure returns `false`, the SDK will handle the opening of the URL.
     ///
