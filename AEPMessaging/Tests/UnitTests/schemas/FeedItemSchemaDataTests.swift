@@ -88,7 +88,7 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"\(mockContentKey)\":\"\(mockContentValue)\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}") ?? "fail"
+        let expected = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"\(mockContentKey)\":\"\(mockContentValue)\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}".toAnyCodable() ?? "fail"
 
         // test
         guard let encodedFeedItem = try? encoder.encode(feedItem) else {
@@ -97,8 +97,8 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedFeedItem, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedFeedItem, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testIsEncodableStringContent() throws {
@@ -109,7 +109,7 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":\"\(mockContentValue)\",\"contentType\":\"\(ContentType.textPlain.toString())\",\"publishedDate\":\(mockPublished)}") ?? "fail"
+        let expected = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":\"\(mockContentValue)\",\"contentType\":\"\(ContentType.textPlain.toString())\",\"publishedDate\":\(mockPublished)}".toAnyCodable() ?? "fail"
 
         // test
         guard let encodedFeedItem = try? encoder.encode(feedItem) else {
@@ -118,8 +118,8 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedFeedItem, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedFeedItem, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     // Exception paths

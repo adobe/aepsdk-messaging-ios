@@ -52,7 +52,7 @@ class PropositionInfoTests: XCTestCase, AnyCodableAsserts {
         // setup
         let encoder = JSONEncoder()
         let propositionInfo = PropositionInfo(id: mockId, scope: mockScope, scopeDetails: mockScopeDetails)
-        let expected = getAnyCodable("{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"activity\":{\"id\":\"\(mockActivityId)\"},\"correlationID\":\"\(mockCorrelationId)\"}}") ?? "fail"
+        let expected = "{\"id\":\"\(mockId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":{\"activity\":{\"id\":\"\(mockActivityId)\"},\"correlationID\":\"\(mockCorrelationId)\"}}".toAnyCodable() ?? "fail"
         
         // test
         guard let encodedPropositionInfo = try? encoder.encode(propositionInfo) else {
@@ -61,8 +61,8 @@ class PropositionInfoTests: XCTestCase, AnyCodableAsserts {
         }
         
         // verify
-        let actual = getAnyCodable(String(data: encodedPropositionInfo, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedPropositionInfo, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testIsDecodable() throws {

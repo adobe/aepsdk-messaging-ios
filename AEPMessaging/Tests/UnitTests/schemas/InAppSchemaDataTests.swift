@@ -119,7 +119,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}") ?? "fail"
+        let expected = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}".toAnyCodable() ?? "fail"
 
         // test
         guard let encodedObject = try? encoder.encode(object) else {
@@ -128,8 +128,8 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedObject, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testIsEncodableJsonArrayContent() throws {
@@ -140,7 +140,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"content\":[\(mockContentJson)],\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}") ?? "fail"
+        let expected = "{\"content\":[\(mockContentJson)],\"contentType\":\"\(ContentType.applicationJson.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}".toAnyCodable() ?? "fail"
 
         // test
         guard let encodedObject = try? encoder.encode(object) else {
@@ -149,8 +149,8 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedObject, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testIsEncodableStringContent() throws {
@@ -161,7 +161,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"content\":\"\(mockContentString)\",\"contentType\":\"\(ContentType.textHtml.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}") ?? "fail"
+        let expected = "{\"content\":\"\(mockContentString)\",\"contentType\":\"\(ContentType.textHtml.toString())\",\"publishedDate\":\(mockPublishedDate),\"expiryDate\":\(mockExpiryDate),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"mobileParameters\":{\"\(mockMobileParamsKey)\":\"\(mockMobileParamsValue)\"},\"webParameters\":{\"\(mockWebParamsKey)\":\"\(mockWebParamsValue)\"},\"remoteAssets\":[\"\(mockRemoteAsset)\"]}".toAnyCodable() ?? "fail"
 
         // test
         guard let encodedObject = try? encoder.encode(object) else {
@@ -170,8 +170,8 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedObject, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     // MARK: - required vs. not required properties

@@ -90,7 +90,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
         }
         """#
         
-        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
     }
 
     func testHandleNotificationResponse_noEventDatasetId() {
@@ -172,7 +172,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
         }
         """#
         
-        assertExactMatch(expected: getAnyCodable(expectedJSON)!, actual: getAnyCodable(edgeEvent))
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
     }
 
     // MARK: - Helpers

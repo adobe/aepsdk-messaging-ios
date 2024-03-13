@@ -229,7 +229,7 @@ class InAppMessagingEventTests: XCTestCase, AnyCodableAsserts {
         }
         """#
         
-        assertTypeMatch(expected: getAnyCodable(expectedJSON)!, actual: AnyCodable(AnyCodable.from(dictionary: (payload))))
+        assertTypeMatch(expected: expectedJSON.toAnyCodable()!, actual: AnyCodable.from(dictionary: (payload)), pathOptions: [])
     }
     
     func missingField(_ key: String) -> String {

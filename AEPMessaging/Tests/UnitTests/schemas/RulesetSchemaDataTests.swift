@@ -57,7 +57,7 @@ class RulesetSchemaDataTests: XCTestCase, AnyCodableAsserts {
             return
         }
         let encoder = JSONEncoder()
-        let expected = getAnyCodable("{\"version\":\(mockVersion),\"rules\":[{\"\(mockRuleKey)\":\"\(mockRuleValue)\"}]}") ?? "fail"
+        let expected = "{\"version\":\(mockVersion),\"rules\":[{\"\(mockRuleKey)\":\"\(mockRuleValue)\"}]}".toAnyCodable() ?? "fail"
 
         // test
         guard let encodedObject = try? encoder.encode(object) else {
@@ -66,8 +66,8 @@ class RulesetSchemaDataTests: XCTestCase, AnyCodableAsserts {
         }
 
         // verify
-        let actual = getAnyCodable(String(data: encodedObject, encoding: .utf8) ?? "")
-        assertExactMatch(expected: expected, actual: actual)
+        let actual = String(data: encodedObject, encoding: .utf8)?.toAnyCodable() ?? ""
+        assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testVersionIsRequired() throws {
