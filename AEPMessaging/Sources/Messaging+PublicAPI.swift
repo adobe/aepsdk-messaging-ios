@@ -161,7 +161,8 @@ import UserNotifications
     ///   - completion: The completion block to be executed with a boolean value determining if application was opened because of user's interaction with the notification.
     ///
     /// - Note: The completion handler is invoked asynchronously, so any code relying on the result should be placed within the completion handler or called from there.
-    private static func hasApplicationOpenedForResponse(_ response: UNNotificationResponse, completion: @escaping (Bool) -> Void) {
+    private static func hasApplicationOpenedForResponse(_ response: UNNotificationResponse,
+                                                        completion: @escaping (Bool) -> Void) {
         switch response.actionIdentifier {
         case UNNotificationDefaultActionIdentifier:
             completion(true)
