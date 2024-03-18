@@ -29,8 +29,7 @@ import UserNotifications
     @objc(handleNotificationResponse:urlHandler:closure:)
     static func handleNotificationResponse(_ response: UNNotificationResponse,
                                            urlHandler: ((URL) -> Bool)? = nil,
-                                           closure: ((PushTrackingStatus) -> Void)? = nil)
-    {
+                                           closure: ((PushTrackingStatus) -> Void)? = nil) {
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
@@ -198,8 +197,7 @@ import UserNotifications
     /// - Returns: The modified event data dictionary.
     private static func addNotificationActionToEventData(_ eventData: [String: Any],
                                                          _ response: UNNotificationResponse,
-                                                         _ urlHandler: ((URL) -> Bool)?) -> [String: Any]
-    {
+                                                         _ urlHandler: ((URL) -> Bool)?) -> [String: Any] {
         var modifiedEventData = eventData
         switch response.actionIdentifier {
         case UNNotificationDefaultActionIdentifier:
