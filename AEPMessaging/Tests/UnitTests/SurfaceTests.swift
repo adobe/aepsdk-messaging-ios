@@ -18,7 +18,7 @@ import AEPServices
 
 class SurfaceTests: XCTestCase {
     
-    let mockAppSurface = "mobileapp://com.apple.dt.xctest.tool"
+    let mockAppSurface = "mobileapp://com.adobe.ajo.e2eTestApp"
     
     func testSurfaceHappy() {
         // test
