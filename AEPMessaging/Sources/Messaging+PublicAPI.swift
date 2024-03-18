@@ -24,12 +24,13 @@ import UserNotifications
     ///
     /// - Parameters:
     ///   - response: UNNotificationResponse object which contains the payload and xdm informations.
-    ///   - urlHandler: An optional closure to handle the actionable URL from the push notification. 
+    ///   - urlHandler: An optional closure to handle the actionable URL from the push notification.
     ///   - closure : An optional callback with `PushTrackingStatus` representing the tracking status of the interacted notification
     @objc(handleNotificationResponse:urlHandler:closure:)
     static func handleNotificationResponse(_ response: UNNotificationResponse,
-                                           urlHandler:((URL)-> Bool)? = nil,
-                                           closure: ((PushTrackingStatus) -> Void)? = nil) {
+                                           urlHandler: ((URL) -> Bool)? = nil,
+                                           closure: ((PushTrackingStatus) -> Void)? = nil)
+    {
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
@@ -197,7 +198,8 @@ import UserNotifications
     /// - Returns: The modified event data dictionary.
     private static func addNotificationActionToEventData(_ eventData: [String: Any],
                                                          _ response: UNNotificationResponse,
-                                                         _ urlHandler: ((URL)-> Bool)?) -> [String: Any] {
+                                                         _ urlHandler: ((URL) -> Bool)?) -> [String: Any]
+    {
         var modifiedEventData = eventData
         switch response.actionIdentifier {
         case UNNotificationDefaultActionIdentifier:
@@ -208,22 +210,23 @@ import UserNotifications
             let userInfo = response.notification.request.content.userInfo
             // If the notification does not contain a valid click through URL, log a warning and break
             guard let clickThroughURLString = userInfo[MessagingConstants.PushNotification.UserInfoKey.ACTION_URL] as? String,
-                  let clickThroughURL = URL(string: clickThroughURLString) else {
+                  let clickThroughURL = URL(string: clickThroughURLString)
+            else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Invalid or missing click through URL on notification.")
                 break
             }
-            
-           // If the urlHandler is not defined by the consumer app, then add the click through URL to the event data.
+
+            // If the urlHandler is not defined by the consumer app, then add the click through URL to the event data.
             guard let urlHandler = urlHandler else {
                 modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURLString
                 break
             }
-            
+
             // If the urlHandler returns false, then add the click through URL to the event data.
             if !urlHandler(clickThroughURL) {
                 modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURLString
             }
-            
+
         case UNNotificationDismissActionIdentifier:
             // actionIdentifier `UNNotificationDismissActionIdentifier` indicates user has dismissed the
             // notification by tapping "Clear" action button.
