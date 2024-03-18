@@ -18,6 +18,7 @@ import UserNotifications
     /// Sends the push notification interactions as an experience event to Adobe Experience Edge.
     /// This API method will also automatically handle click behavior defined for the push notification.
     /// Use the optional urlHandler callback to handle the actionable URL from the push notification.
+    /// The urlHandler does not get called for push notification that is not originated from Adobe Journey Optimizer.
     /// If the urlHandler closure returns `true`, the SDK will not handle the URL and the application is responsible for handling the URL.
     /// If the urlHandler closure returns `false`, the SDK will handle the opening of the URL.
     ///
@@ -192,6 +193,7 @@ import UserNotifications
     /// - Parameters:
     ///   - eventData: The original event data dictionary.
     ///   - response: The user's response to a notification, represented by a `UNNotificationResponse` object.
+    ///   - urlHandler: An optional closure defined in the consumer app to  handle the actionable URL from the push notification.
     /// - Returns: The modified event data dictionary.
     private static func addNotificationActionToEventData(_ eventData: [String: Any],
                                                          _ response: UNNotificationResponse,
@@ -203,20 +205,25 @@ import UserNotifications
             // This results in opening of the application.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
 
-            // Add actionable URL to eventData if available
-            if let clickThroughURLString = response.notification.request.content.userInfo[MessagingConstants.PushNotification.UserInfoKey.ACTION_URL] as? String {
-                if let clickThroughURL = URL(string: clickThroughURLString) {
-                    if let urlHandler = urlHandler {
-                        if !urlHandler(clickThroughURL) {
-                            modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURLString
-                        }
-                    } else {
-                        modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURLString
-                    }
-                } else {
-                    Log.warning(label: MessagingConstants.LOG_TAG, "Invalid click through URL on notification. URL String: \(clickThroughURLString)")
-                }
+            let userInfo = response.notification.request.content.userInfo
+            // If the notification does not contain a valid click through URL, log a warning and break
+            guard let clickThroughURLString = userInfo[MessagingConstants.PushNotification.UserInfoKey.ACTION_URL] as? String,
+                  let clickThroughURL = URL(string: clickThroughURLString) else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Invalid or missing click through URL on notification.")
+                break
             }
+            
+           // If the urlHandler is not defined by the consumer app, then add the click through URL to the event data.
+            guard let urlHandler = urlHandler else {
+                modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURLString
+                break
+            }
+            
+            // If the urlHandler returns false, then add the click through URL to the event data.
+            if !urlHandler(clickThroughURL) {
+                modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURLString
+            }
+            
         case UNNotificationDismissActionIdentifier:
             // actionIdentifier `UNNotificationDismissActionIdentifier` indicates user has dismissed the
             // notification by tapping "Clear" action button.
