@@ -49,7 +49,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
     }
     
     
-    func testHandleNotificationResponse_whenNotificationBodyTapped() {
+    func testHandleNotificationResponse_when_notificationTapped() {
         // mock notification response indicating click of notification
         let mockedResponse = createNotificationResponse(actionId: UNNotificationDefaultActionIdentifier)
         
@@ -79,7 +79,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
     }
     
     
-    func testHandleNotificationResponse_whenNotificationDismissed() {
+    func testHandleNotificationResponse_when_notificationDismissed() {
         // mock notification response indicating notification dismiss
         let mockedResponse = createNotificationResponse(actionId: UNNotificationDismissActionIdentifier)
         
@@ -270,7 +270,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
     }
     
     
-    func testHandleNotificationResponse_when_urlHandlerIsNil_then_ClickThroughUrlAttached_() {
+    func testHandleNotificationResponse_when_urlHandlerIsNil_then_ClickThroughUrlAttached() {
         // Mock notification response indicating custom action being taken on a notification
         let mockedResponse = createNotificationResponse(url: MessagingPublicApiTest.DEEPLINK_URL)
         

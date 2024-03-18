@@ -241,7 +241,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
     ///             "swipeDown": "adbinapp://dismiss",
     ///             "swipeLeft": "adbinapp://dismiss?interaction=negative",
     ///             "swipeRight": "adbinapp://dismiss?interaction=positive",
-    ///             "backgroundTap": "adbinapp://dismiss"
+    ///             "tapBackground": "adbinapp://dismiss"
     ///         }
     ///     }
     /// }
