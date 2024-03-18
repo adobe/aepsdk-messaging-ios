@@ -248,7 +248,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
     
     func testGetMessageSettingsHappy() throws {
         // setup
-        let testMobileParameters = "{\"schemaVersion\":\"1.0\",\"width\":80,\"height\":50,\"verticalAlign\":\"center\",\"verticalInset\":0,\"horizontalAlign\":\"center\",\"horizontalInset\":0,\"uiTakeover\":true,\"displayAnimation\":\"top\",\"dismissAnimation\":\"top\",\"backdropColor\":\"000000\",\"backdropOpacity\":0.3,\"cornerRadius\":15,\"gestures\":{\"swipeUp\":\"adbinapp://dismiss?interaction=swipeUp\",\"swipeDown\":\"adbinapp://dismiss?interaction=swipeDown\",\"swipeLeft\":\"adbinapp://dismiss?interaction=swipeLeft\",\"swipeRight\":\"adbinapp://dismiss?interaction=swipeRight\",\"backgroundTap\":\"adbinapp://dismiss?interaction=backgroundTap\"}}"
+        let testMobileParameters = "{\"schemaVersion\":\"1.0\",\"width\":80,\"height\":50,\"verticalAlign\":\"center\",\"verticalInset\":0,\"horizontalAlign\":\"center\",\"horizontalInset\":0,\"uiTakeover\":true,\"displayAnimation\":\"top\",\"dismissAnimation\":\"top\",\"backdropColor\":\"000000\",\"backdropOpacity\":0.3,\"cornerRadius\":15,\"gestures\":{\"swipeUp\":\"adbinapp://dismiss?interaction=swipeUp\",\"swipeDown\":\"adbinapp://dismiss?interaction=swipeDown\",\"swipeLeft\":\"adbinapp://dismiss?interaction=swipeLeft\",\"swipeRight\":\"adbinapp://dismiss?interaction=swipeRight\",\"tapBackground\":\"adbinapp://dismiss?interaction=tapBackground\"}}"
         
         let json = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"mobileParameters\":\(testMobileParameters)}"
         guard let decodedObject = getDecodedObject(fromString: json) else {
@@ -275,7 +275,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeDown"), result.gestures?[.swipeDown])
         XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeLeft"), result.gestures?[.swipeLeft])
         XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeRight"), result.gestures?[.swipeRight])
-        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=backgroundTap"), result.gestures?[.backgroundTap])
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=tapBackground"), result.gestures?[.tapBackground])
     }
     
     func testGetMessageSettingsNoMobileParameters() throws {
@@ -307,7 +307,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
     
     func testGetMessageSettingsDefaultValues() throws {
         // setup
-        let testMobileParameters = "{\"schemaVersion\":\"1.0\",\"width\":80,\"height\":50,\"verticalInset\":0,\"horizontalInset\":0,\"backdropColor\":\"000000\",\"backdropOpacity\":0.3,\"cornerRadius\":15,\"gestures\":{\"swipeUp\":\"adbinapp://dismiss?interaction=swipeUp\",\"swipeDown\":\"adbinapp://dismiss?interaction=swipeDown\",\"swipeLeft\":\"adbinapp://dismiss?interaction=swipeLeft\",\"swipeRight\":\"adbinapp://dismiss?interaction=swipeRight\",\"backgroundTap\":\"adbinapp://dismiss?interaction=backgroundTap\"}}"
+        let testMobileParameters = "{\"schemaVersion\":\"1.0\",\"width\":80,\"height\":50,\"verticalInset\":0,\"horizontalInset\":0,\"backdropColor\":\"000000\",\"backdropOpacity\":0.3,\"cornerRadius\":15,\"gestures\":{\"swipeUp\":\"adbinapp://dismiss?interaction=swipeUp\",\"swipeDown\":\"adbinapp://dismiss?interaction=swipeDown\",\"swipeLeft\":\"adbinapp://dismiss?interaction=swipeLeft\",\"swipeRight\":\"adbinapp://dismiss?interaction=swipeRight\",\"tapBackground\":\"adbinapp://dismiss?interaction=tapBackground\"}}"
         
         let json = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"mobileParameters\":\(testMobileParameters)}"
         guard let decodedObject = getDecodedObject(fromString: json) else {
@@ -334,6 +334,6 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeDown"), result.gestures?[.swipeDown])
         XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeLeft"), result.gestures?[.swipeLeft])
         XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=swipeRight"), result.gestures?[.swipeRight])
-        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=backgroundTap"), result.gestures?[.backgroundTap])
+        XCTAssertEqual(URL(string: "adbinapp://dismiss?interaction=tapBackground"), result.gestures?[.tapBackground])
     }
 }
