@@ -50,42 +50,6 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         XCTAssertEqual(value, .display)
         XCTAssertEqual("decisioning.propositionDisplay", value?.toString())
     }
-    
-    func testInAppDismiss_Deprecated() throws {
-        // setup
-        let value = MessagingEdgeEventType(rawValue: 0)
-
-        // verify
-        XCTAssertEqual(value, .inappDismiss)
-        XCTAssertEqual("decisioning.propositionDismiss", value?.toString())
-    }
-
-    func testInAppInteract_Deprecated() throws {
-        // setup
-        let value = MessagingEdgeEventType(rawValue: 1)
-
-        // verify
-        XCTAssertEqual(value, .inappInteract)
-        XCTAssertEqual("decisioning.propositionInteract", value?.toString())
-    }
-
-    func testInAppTrigger_Deprecated() throws {
-        // setup
-        let value = MessagingEdgeEventType(rawValue: 2)
-
-        // verify
-        XCTAssertEqual(value, .inappTrigger)
-        XCTAssertEqual("decisioning.propositionTrigger", value?.toString())
-    }
-
-    func testInAppDisplay_Deprecated() throws {
-        // setup
-        let value = MessagingEdgeEventType(rawValue: 3)
-
-        // verify
-        XCTAssertEqual(value, .inappDisplay)
-        XCTAssertEqual("decisioning.propositionDisplay", value?.toString())
-    }
 
     func testPushApplicationOpened() throws {
         // setup
@@ -175,22 +139,6 @@ class MessagingEdgeEventTypeTests: XCTestCase {
     
     func testPropEventTypeTrigger() throws {
         XCTAssertEqual("trigger", MessagingEdgeEventType.trigger.propositionEventType)
-    }
-    
-    func testPropEventTypeDismiss_Deprecated() throws {
-        XCTAssertEqual("dismiss", MessagingEdgeEventType.inappDismiss.propositionEventType)
-    }
-    
-    func testPropEventTypeDisplay_Deprecated() throws {
-        XCTAssertEqual("display", MessagingEdgeEventType.inappDisplay.propositionEventType)
-    }
-    
-    func testPropEventTypeInteract_Deprecated() throws {
-        XCTAssertEqual("interact", MessagingEdgeEventType.inappInteract.propositionEventType)
-    }
-    
-    func testPropEventTypeTrigger_Deprecated() throws {
-        XCTAssertEqual("trigger", MessagingEdgeEventType.inappTrigger.propositionEventType)
     }
     
     func testPropEventTypePushCases() throws {

@@ -15,14 +15,6 @@ import Foundation
 /// Provides mapping to XDM EventType strings needed for Experience Event requests
 @objc(AEPMessagingEdgeEventType)
 public enum MessagingEdgeEventType: Int {
-    @available(*, deprecated, message: "Use 'dismiss' instead.")
-    case inappDismiss = 0
-    @available(*, deprecated, message: "Use 'interact' instead.")
-    case inappInteract = 1
-    @available(*, deprecated, message: "Use 'trigger' instead.")
-    case inappTrigger = 2
-    @available(*, deprecated, message: "Use 'display' instead.")
-    case inappDisplay = 3
     case pushApplicationOpened = 4
     case pushCustomAction = 5
     case dismiss = 6
@@ -32,13 +24,13 @@ public enum MessagingEdgeEventType: Int {
 
     public func toString() -> String {
         switch self {
-        case .inappDismiss, .dismiss:
+        case .dismiss:
             return MessagingConstants.XDM.Inbound.EventType.DISMISS
-        case .inappTrigger, .trigger:
+        case .trigger:
             return MessagingConstants.XDM.Inbound.EventType.TRIGGER
-        case .inappInteract, .interact:
+        case .interact:
             return MessagingConstants.XDM.Inbound.EventType.INTERACT
-        case .inappDisplay, .display:
+        case .display:
             return MessagingConstants.XDM.Inbound.EventType.DISPLAY
         case .pushCustomAction:
             return MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
@@ -73,13 +65,13 @@ extension MessagingEdgeEventType {
     /// Used to generate `propositionEventType` payload in outgoing proposition interaction events
     var propositionEventType: String {
         switch self {
-        case .inappDismiss, .dismiss:
+        case .dismiss:
             return MessagingConstants.XDM.Inbound.PropositionEventType.DISMISS
-        case .inappInteract, .interact:
+        case .interact:
             return MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT
-        case .inappTrigger, .trigger:
+        case .trigger:
             return MessagingConstants.XDM.Inbound.PropositionEventType.TRIGGER
-        case .inappDisplay, .display:
+        case .display:
             return MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY
         case .pushApplicationOpened, .pushCustomAction:
             return ""

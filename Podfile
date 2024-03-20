@@ -36,7 +36,7 @@ def app_main
     pod 'AEPEdge'
     pod 'AEPEdgeIdentity'
     pod 'AEPEdgeConsent'
-    pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'staging'
+    pod 'AEPAssurance'
 end
 
 def app_dev
@@ -48,6 +48,10 @@ def app_dev
     pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'staging'
     pod 'AEPAnalytics', :git => 'https://github.com/adobe/aepsdk-analytics-ios.git', :branch => 'staging'
     pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'staging'
+end
+
+def test_utils
+    pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
 end
 
 # ==================
@@ -72,25 +76,25 @@ end
 
 target 'UnitTests' do
   lib_main
-  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
+  test_utils
 end
 
 target 'FunctionalTests' do
   app_main
-  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
+  test_utils
 end
 
 target 'E2EFunctionalTests' do
   app_main
-  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
+  test_utils
 end
 
 target 'FunctionalTestApp' do
   app_main
-  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
+  test_utils
 end
 
 target 'E2EFunctionalTestApp' do
   app_main
-  pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
+  test_utils
 end
