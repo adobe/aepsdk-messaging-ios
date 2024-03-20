@@ -39,7 +39,7 @@ Alternatively, if your project has a `Package.swift` file, you can add AEPMessag
 
 ```
 dependencies: [
-    .package(url: "https://github.com/adobe/aepsdk-messaging-ios.git", .upToNextMajor(from: "1.1.0"))
+    .package(url: "https://github.com/adobe/aepsdk-messaging-ios.git", .upToNextMajor(from: "5.0.0"))
 ],
 targets: [
     .target(name: "YourTarget",
@@ -97,5 +97,8 @@ If testing in an APNS sandbox environment, add the `messaging.useSandbox` proper
 Immediately after SDK configuration, update the configuration by doing the following:
 
 ```swift
-MobileCore.updateConfigurationWith(configDict: ["messaging.useSandbox": true])
+    #if DEBUG
+            MobileCore.updateConfigurationWith(configDict: ["messaging.useSandbox": true])
+    #endif
+
 ```

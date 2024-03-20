@@ -1,44 +1,46 @@
 PODS:
-  - AEPAssurance (3.1.1):
-    - AEPCore (>= 3.1.0)
-    - AEPServices (>= 3.1.0)
-  - AEPCore (3.8.2):
-    - AEPRulesEngine (>= 1.2.2)
-    - AEPServices (>= 3.8.2)
-  - AEPEdge (1.6.0):
-    - AEPCore (>= 3.7.0)
-    - AEPEdgeIdentity (>= 1.2.0)
-  - AEPEdgeConsent (1.1.0):
-    - AEPCore (>= 3.7.0)
-    - AEPEdge (>= 1.6.0)
-  - AEPEdgeIdentity (1.2.0):
-    - AEPCore (>= 3.7.0)
-  - AEPLifecycle (3.8.2):
-    - AEPCore (>= 3.8.2)
-  - AEPRulesEngine (1.2.3)
-  - AEPServices (3.8.2)
-  - AEPSignal (3.8.2):
-    - AEPCore (>= 3.8.2)
-  - SwiftLint (0.44.0)
+  - AEPAssurance (5.0.0):
+    - AEPCore (< 6.0.0, >= 5.0.0)
+    - AEPServices (< 6.0.0, >= 5.0.0)
+  - AEPCore (5.0.0):
+    - AEPRulesEngine (< 6.0.0, >= 5.0.0)
+    - AEPServices (< 6.0.0, >= 5.0.0)
+  - AEPEdge (5.0.0):
+    - AEPCore (< 6.0.0, >= 5.0.0)
+    - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
+  - AEPEdgeConsent (5.0.0):
+    - AEPCore (< 6.0.0, >= 5.0.0)
+    - AEPEdge (< 6.0.0, >= 5.0.0)
+  - AEPEdgeIdentity (5.0.0):
+    - AEPCore (< 6.0.0, >= 5.0.0)
+  - AEPLifecycle (5.0.0):
+    - AEPCore (< 6.0.0, >= 5.0.0)
+  - AEPRulesEngine (5.0.0)
+  - AEPServices (5.0.0)
+  - AEPSignal (5.0.0):
+    - AEPCore (< 6.0.0, >= 5.0.0)
+  - AEPTestUtils (5.0.0):
+    - AEPCore
+    - AEPServices
+  - SwiftLint (0.52.0)
 
 DEPENDENCIES:
-  - AEPAssurance
+  - AEPAssurance (from `https://github.com/adobe/aepsdk-assurance-ios.git`, branch `staging`)
   - AEPCore
   - AEPEdge
-  - AEPEdgeConsent
+  - AEPEdgeConsent (from `https://github.com/adobe/aepsdk-edgeconsent-ios.git`, branch `staging`)
   - AEPEdgeIdentity
   - AEPLifecycle
   - AEPRulesEngine
   - AEPServices
   - AEPSignal
-  - SwiftLint (= 0.44.0)
+  - AEPTestUtils (from `https://github.com/adobe/aepsdk-testutils-ios.git`, tag `5.0.0`)
+  - SwiftLint (= 0.52.0)
 
 SPEC REPOS:
   trunk:
-    - AEPAssurance
     - AEPCore
     - AEPEdge
-    - AEPEdgeConsent
     - AEPEdgeIdentity
     - AEPLifecycle
     - AEPRulesEngine
@@ -46,18 +48,41 @@ SPEC REPOS:
     - AEPSignal
     - SwiftLint
 
+EXTERNAL SOURCES:
+  AEPAssurance:
+    :branch: staging
+    :git: https://github.com/adobe/aepsdk-assurance-ios.git
+  AEPEdgeConsent:
+    :branch: staging
+    :git: https://github.com/adobe/aepsdk-edgeconsent-ios.git
+  AEPTestUtils:
+    :git: https://github.com/adobe/aepsdk-testutils-ios.git
+    :tag: 5.0.0
+
+CHECKOUT OPTIONS:
+  AEPAssurance:
+    :commit: 6098c48a067daf4c70cb630b0000564552ad3bc7
+    :git: https://github.com/adobe/aepsdk-assurance-ios.git
+  AEPEdgeConsent:
+    :commit: ef4f28ad50a1645c0a5faee5c257e1070bbb2cda
+    :git: https://github.com/adobe/aepsdk-edgeconsent-ios.git
+  AEPTestUtils:
+    :git: https://github.com/adobe/aepsdk-testutils-ios.git
+    :tag: 5.0.0
+
 SPEC CHECKSUMS:
-  AEPAssurance: 92645b36b3295ebefefaf0465ceae750a6307edd
-  AEPCore: 52249635f856d5ee4b1042059cd5d55656f368d1
-  AEPEdge: e4364a56d358c517f7d4cef87570ac4e7652d3a2
-  AEPEdgeConsent: d10d4232615b880d484050edf47b2e3fbfb787bb
-  AEPEdgeIdentity: 6bb2c1e62d48cdc988b4d492e8e6d563f0ced73d
-  AEPLifecycle: 7392d3df030bfbd81166334e88e0b1160d05a43f
-  AEPRulesEngine: f8d6eb0fa5a83d791f57867ed02f25fdf99894ec
-  AEPServices: 46df834256a392e67f5a24c894eff770bb05d678
-  AEPSignal: b3982205017270366d19765d68ca9e9eebb24f67
-  SwiftLint: e96c0a8c770c7ebbc4d36c55baf9096bb65c4584
+  AEPAssurance: 7f260ded4df38a70a06efebade8c33a3e3221984
+  AEPCore: f1c3e9238bb12e7e1103f4407c341ebc65aeab5b
+  AEPEdge: 6bc7c3f6573fdf0a12fb3ddfd32420112a89c80b
+  AEPEdgeConsent: d7db1d19eb4c1e2146360ed3c8df315f671b26d5
+  AEPEdgeIdentity: 3161ff33434586962946912d6b8e9e8fca1c4d23
+  AEPLifecycle: d4e0e1e86d6225d87203875d67f56c48f7ab7f67
+  AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
+  AEPServices: e42e5118128e81c0f797fdfb1dc9c4a714d644b8
+  AEPSignal: b146a3d4e5af51ff588f4f1ffbd40f1541325143
+  AEPTestUtils: 20495b368da57904ca2e9f241d1d8b114f9887b5
+  SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: 83165eb311788d20fc1a1e2c6a32e403783a1ecd
+PODFILE CHECKSUM: 1c8e6f127cf5d46ac427a447adb66819dafa561a
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.14.3

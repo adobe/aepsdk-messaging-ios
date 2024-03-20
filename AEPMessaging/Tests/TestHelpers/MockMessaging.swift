@@ -12,6 +12,7 @@
 
 @testable import AEPCore
 @testable import AEPMessaging
+import AEPTestUtils
 import Foundation
 
 class MockMessaging: Messaging {
@@ -25,4 +26,11 @@ class MockMessaging: Messaging {
     var paramInteraction: String?
     var paramMessage: Message?    
     var sendPropositionInteractionCalled = false
+    
+    var propositionInfoForMessageIdCalled = false
+    var propositionInfoForMessageIdReturnValue: PropositionInfo?
+    override func propositionInfoFor(messageId: String) -> PropositionInfo? {
+        propositionInfoForMessageIdCalled = true
+        return propositionInfoForMessageIdReturnValue
+    }
 }

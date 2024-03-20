@@ -50,25 +50,12 @@ public class Message: NSObject {
     /// Holds XDM data necessary for tracking `Message` interactions with Adobe Journey Optimizer.
     var propositionInfo: PropositionInfo?
 
-    /// Creates a Message object which owns and controls UI and tracking behavior of an In-App Message.
-    ///
-    /// - Parameters:
-    ///   - parent: the `Messaging` object that owns the new `Message`
-    ///   - event: the Rules Consequence `Event` that defines the message and contains reporting information
-    init(parent: Messaging, event: Event) {
+    /// Basic initializer only called by convenience constructor
+    init(parent: Messaging, triggeringEvent: Event) {
+        id = ""
         self.parent = parent
-        triggeringEvent = event
-        id = event.messageId ?? ""
+        self.triggeringEvent = triggeringEvent
         super.init()
-        let messageSettings = event.getMessageSettings(withParent: self)
-        let usingLocalAssets = generateAssetMap()
-        fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: event.html ?? "",
-                                                                                      listener: self,
-                                                                                      isLocalImageUsed: usingLocalAssets,
-                                                                                      settings: messageSettings) as? FullscreenMessage
-        if usingLocalAssets {
-            fullscreenMessage?.setAssetMap(assets)
-        }
     }
 
     // MARK: - UI management
@@ -81,7 +68,7 @@ public class Message: NSObject {
     public func show() {
         show(withMessagingDelegateControl: false)
     }
-    
+
     /// Signals to the UIServices that the message should be dismissed.
     /// If `autoTrack` is true, calling this method will result in an "inapp.dismiss" Edge Event being dispatched.
     /// - Parameter suppressAutoTrack: if set to `true`, the "inapp.dismiss" Edge Event will not be sent regardless
@@ -89,7 +76,7 @@ public class Message: NSObject {
     @objc(dismissSuppressingAutoTrack:)
     public func dismiss(suppressAutoTrack: Bool = false) {
         if autoTrack, !suppressAutoTrack {
-            track(nil, withEdgeEventType: .inappDismiss)
+            track(withEdgeEventType: .dismiss)
         }
 
         fullscreenMessage?.dismiss()
@@ -103,8 +90,14 @@ public class Message: NSObject {
     ///   - interaction: a custom `String` value to be recorded in the interaction
     ///   - eventType: the `MessagingEdgeEventType` to be used for the ensuing Edge Event
     @objc(trackInteraction:withEdgeEventType:)
-    public func track(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType) {
-        parent?.sendPropositionInteraction(withEventType: eventType, andInteraction: interaction, forMessage: self)
+    public func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
+        guard let propInfo = propositionInfo else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction, proposition info is not found for message (\(id)).")
+            return
+        }
+
+        let propositionInteractionXdm = PropositionInteraction(eventType: eventType, interaction: interaction ?? "", propositionInfo: propInfo, itemId: nil, tokens: nil).xdm
+        parent?.sendPropositionInteraction(withXdm: propositionInteractionXdm)
     }
 
     // MARK: - WebView javascript handling
@@ -130,25 +123,72 @@ public class Message: NSObject {
     func show(withMessagingDelegateControl callDelegate: Bool) {
         fullscreenMessage?.show(withMessagingDelegateControl: callDelegate)
     }
-    
+
     /// Called when a `Message` is triggered - i.e. it's conditional criteria have been met.
     func trigger() {
         if autoTrack {
-            track(nil, withEdgeEventType: .inappTrigger)
+            track(withEdgeEventType: .trigger)
         }
+        recordEventHistory(eventType: .trigger, interaction: nil)
     }
-    
+
+    /// Dispatches an event to be recorded in Event History.
+    ///
+    /// Record is created using the `propositionInfo.activityId` for this message.
+    ///
+    /// - Parameters:
+    ///  - eventType: `MessagingEdgeEventType` to be recorded
+    ///  - interaction: if provided, adds a custom interaction to the hash
+    func recordEventHistory(eventType: MessagingEdgeEventType, interaction: String?) {
+        guard let propInfo = propositionInfo else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to write event history event '\(eventType.propositionEventType)', proposition info is not available for message (\(id)).")
+            return
+        }
+
+        // iam dictionary used for event history
+        let iamHistory: [String: String] = [
+            MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
+            MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.activityId,
+            MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? ""
+        ]
+
+        // wrap history in an "iam" object
+        let eventHistoryData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory
+        ]
+
+        let mask = [
+            MessagingConstants.Event.History.Mask.EVENT_TYPE,
+            MessagingConstants.Event.History.Mask.MESSAGE_ID,
+            MessagingConstants.Event.History.Mask.TRACKING_ACTION
+        ]
+
+        var interactionLog = ""
+        if let interaction = interaction {
+            interactionLog = " with value '\(interaction)'"
+        }
+        Log.trace(label: MessagingConstants.LOG_TAG, "Writing '\(eventType.propositionEventType)' event\(interactionLog) to EventHistory for in-app message with activityId '\(propInfo.activityId)'")
+
+        let event = Event(name: MessagingConstants.Event.Name.EVENT_HISTORY_WRITE,
+                          type: EventType.messaging,
+                          source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE,
+                          data: eventHistoryData,
+                          mask: mask)
+        parent?.runtime.dispatch(event: event)
+    }
+
     // MARK: - Private methods
-    
+
     /// Generates a mapping of the message's assets to their representation in local cache.
     ///
-    /// This method will iterate through the `remoteAssets` of the triggering event for the message.
+    /// This method will iterate through the provided `newAssets`.
     /// In each iteration, it will check to see if there is a corresponding cache entry for the
     /// asset string.  If a match is found, an entry will be made in the `Message`s `assets` dictionary.
     ///
+    /// - Parameter newAssets: optional array of asset urls represented as strings
     /// - Returns: `true` if an asset map was generated
-    private func generateAssetMap() -> Bool {
-        guard let remoteAssetsArray = triggeringEvent.remoteAssets, !remoteAssetsArray.isEmpty else {
+    private func generateAssetMap(_ newAssets: [String]?) -> Bool {
+        guard let remoteAssetsArray = newAssets, !remoteAssetsArray.isEmpty else {
             return false
         }
 
@@ -162,5 +202,29 @@ public class Message: NSObject {
         }
 
         return true
+    }
+}
+
+extension Message {
+    static func fromPropositionItem(_ propositionItem: PropositionItem, with parent: Messaging, triggeringEvent event: Event) -> Message? {
+        guard let iamSchemaData = propositionItem.inappSchemaData,
+              let htmlContent = iamSchemaData.content as? String
+        else {
+            return nil
+        }
+
+        let message = Message(parent: parent, triggeringEvent: event)
+        message.id = propositionItem.itemId
+        let messageSettings = iamSchemaData.getMessageSettings(with: message)
+        let usingLocalAssets = message.generateAssetMap(iamSchemaData.remoteAssets)
+        message.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: htmlContent,
+                                                                                              listener: message,
+                                                                                              isLocalImageUsed: usingLocalAssets,
+                                                                                              settings: messageSettings) as? FullscreenMessage
+        if usingLocalAssets {
+            message.fullscreenMessage?.setAssetMap(message.assets)
+        }
+
+        return message
     }
 }

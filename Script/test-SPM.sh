@@ -30,7 +30,7 @@ let package = Package(
     name: \"TestProject\",
     defaultLocalization: \"en-US\",
     platforms: [
-        .iOS(.v10)
+        .iOS(.v12)
     ],
     products: [
         .library(
@@ -64,7 +64,7 @@ let package = Package(
 swift package update
 swift package resolve
 
-# This is nececery to avoid internal PIF error
+# This is necessary to avoid internal PIF error
 swift package dump-pif > /dev/null
 (xcodebuild clean -scheme TestProject -destination 'generic/platform=iOS' > /dev/null) || :
 

@@ -21,7 +21,7 @@ struct PropositionInfo: Codable {
 
 extension PropositionInfo {
     var correlationId: String {
-        return scopeDetails[MessagingConstants.Event.Data.Key.Personalization.CORRELATION_ID]?.stringValue ?? ""
+        scopeDetails[MessagingConstants.Event.Data.Key.Personalization.CORRELATION_ID]?.stringValue ?? ""
     }
 
     var activityId: String {
@@ -29,5 +29,11 @@ extension PropositionInfo {
             return ""
         }
         return activity[MessagingConstants.Event.Data.Key.Personalization.ID] as? String ?? ""
+    }
+
+    static func fromProposition(_ proposition: Proposition) -> PropositionInfo {
+        PropositionInfo(id: proposition.uniqueId,
+                        scope: proposition.scope,
+                        scopeDetails: AnyCodable.from(dictionary: proposition.scopeDetails) ?? [:])
     }
 }

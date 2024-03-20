@@ -1,0 +1,28 @@
+{
+    "publishedDate": 1691541497,
+    "expiryDate": 1723163897,
+    "meta": {
+        "metaKey": "metaValue"
+    },
+    "mobileParameters": {
+        "verticalAlign": "center",
+        "dismissAnimation": "bottom",
+        "verticalInset": 0,
+        "backdropOpacity": 0.2,
+        "cornerRadius": 15,
+        "gestures": {},
+        "horizontalInset": 0,
+        "uiTakeover": true,
+        "horizontalAlign": "center",
+        "width": 100,
+        "displayAnimation": "bottom",
+        "backdropColor": "#000000",
+        "height": 100
+    },
+    "webParameters": {
+        "webParamKey": "webParamValue"
+    },
+    "remoteAssets": [ "https://blog.adobe.com/en/publish/2020/05/28/media_1cc0fcc19cf0e64decbceb3a606707a3ad23f51dd.png" ],
+    "contentType": "text/html",
+    "content": "<html><body>Is this thing even on?</body></html>"
+}

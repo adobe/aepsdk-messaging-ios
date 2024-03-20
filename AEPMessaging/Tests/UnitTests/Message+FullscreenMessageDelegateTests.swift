@@ -16,6 +16,7 @@ import XCTest
 import AEPCore
 @testable import AEPMessaging
 import AEPServices
+import AEPTestUtils
 
 class MessageFullscreenMessageDelegateTests: XCTestCase {
     var message: Message!
@@ -24,6 +25,7 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
     var mockEvent: Event!
     var mockFullscreenMessage: MockFullscreenMessage!
     var mockMessage: MockMessage!
+    var mockPropositionItem: PropositionItem!
     let invalidUrlString = "-.98.3/~@!# oopsnotaurllol"
     let genericUrlString = "https://www.adobe.com/"
     let inAppUrlString = "adbinapp://dismiss?interaction=testing&link=https://www.adobe.com/"
@@ -33,10 +35,13 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
     let animationOverrideEmptyUrlString = "adbinapp://dismiss?animate="
 
     override func setUp() {
+        let mockPropositionItemData = JSONFileLoader.getRulesJsonFromFile("mockPropositionItem")
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockPropositionItemData)
+        
         mockMessaging = MockMessaging(runtime: mockRuntime)
         mockEvent = Event(name: "Message Test", type: "type", source: "source", data: nil)
-        message = Message(parent: mockMessaging, event: mockEvent)
-        mockMessage = MockMessage(parent: mockMessaging, event: mockEvent)
+        message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent)
+        mockMessage = MockMessage(parent: mockMessaging, triggeringEvent: mockEvent)
         mockFullscreenMessage = MockFullscreenMessage(parent: mockMessage)
         mockMessage.fullscreenMessage = mockFullscreenMessage
     }
@@ -59,6 +64,14 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
 
         // verify
         XCTAssertFalse(mockMessage.dismissCalled)
+    }
+    
+    func testOverrideUrlLoadNilUrlParam() throws {
+        // test
+        let result = message.overrideUrlLoad(message: mockFullscreenMessage, url: nil)
+
+        // verify
+        XCTAssertTrue(result)
     }
 
     func testOverrideUrlLoadGenericUrl() throws {
@@ -85,7 +98,7 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
         XCTAssertFalse(result)
         XCTAssertTrue(mockMessage.trackCalled)
         XCTAssertEqual("testing", mockMessage.paramTrackInteraction)
-        XCTAssertEqual(.inappInteract, mockMessage.paramTrackEventType)
+        XCTAssertEqual(.interact, mockMessage.paramTrackEventType)
         XCTAssertTrue(mockMessage.dismissCalled)
     }
 

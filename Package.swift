@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 /*
@@ -17,18 +17,23 @@ import PackageDescription
 
 let package = Package(
     name: "AEPMessaging",
-    platforms: [.iOS(.v10)],
+    platforms: [.iOS(.v12)],
     products: [
         .library(name: "AEPMessaging", targets: ["AEPMessaging"])
     ],
     dependencies: [
-        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "3.8.1")),
-        .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .upToNextMajor(from: "1.5.0")),
-        .package(url: "https://github.com/adobe/aepsdk-edgeidentity-ios.git", .upToNextMajor(from: "1.1.0"))
+        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "5.0.0")),
+        .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .upToNextMajor(from: "5.0.0")),
+        .package(url: "https://github.com/adobe/aepsdk-edgeidentity-ios.git", .upToNextMajor(from: "5.0.0"))
     ],
     targets: [
         .target(name: "AEPMessaging",
-                dependencies: ["AEPCore", "AEPServices", "AEPEdge", "AEPEdgeIdentity"],
-                path: "AEPMessaging/Sources")
+            dependencies: [
+                .product(name: "AEPCore", package: "aepsdk-core-ios"),
+                .product(name: "AEPServices", package: "aepsdk-core-ios"),
+                .product(name: "AEPEdge", package: "aepsdk-edge-ios"),
+                .product(name: "AEPEdgeIdentity", package: "aepsdk-edgeidentity-ios")
+            ],
+            path: "AEPMessaging/Sources")
     ]
 )

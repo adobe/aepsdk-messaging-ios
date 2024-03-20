@@ -15,7 +15,7 @@ import Foundation
 
 struct PropositionPayload: Codable {
     var propositionInfo: PropositionInfo
-    var items: [PayloadItem]
+    var items: [PropositionItem]
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -31,7 +31,7 @@ struct PropositionPayload: Codable {
         let scopeDetails = try values.decode([String: AnyCodable].self, forKey: .scopeDetails)
 
         propositionInfo = PropositionInfo(id: id, scope: scope, scopeDetails: scopeDetails)
-        items = try values.decode([PayloadItem].self, forKey: .items)
+        items = try values.decode([PropositionItem].self, forKey: .items)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -41,10 +41,21 @@ struct PropositionPayload: Codable {
         try container.encode(propositionInfo.scopeDetails, forKey: .scopeDetails)
         try container.encode(items, forKey: .items)
     }
-    
+
     /// internal use only for testing
-    init(propositionInfo: PropositionInfo, items: [PayloadItem]) {
+    init(propositionInfo: PropositionInfo, items: [PropositionItem]) {
         self.propositionInfo = propositionInfo
         self.items = items
+    }
+
+    func convertToProposition() -> Proposition {
+        var propItems: [PropositionItem] = []
+        for item in items {
+            propItems.append(PropositionItem(itemId: item.itemId, schema: item.schema, itemData: item.itemData))
+        }
+        return Proposition(uniqueId: propositionInfo.id,
+                           scope: propositionInfo.scope,
+                           scopeDetails: AnyCodable.toAnyDictionary(dictionary: propositionInfo.scopeDetails) ?? [:],
+                           items: propItems)
     }
 }

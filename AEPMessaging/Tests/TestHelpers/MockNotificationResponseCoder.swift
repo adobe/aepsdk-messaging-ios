@@ -15,14 +15,20 @@ import UserNotifications
 
 class MockNotificationResponseCoder: NSCoder {
     private let request: UNNotificationRequest
+    private let actionIdentifier : String
     private let testIdentifier = "mockIdentifier"
     private enum FieldKey: String {
         case request, originIdentifier, sourceIdentifier, actionIdentifier, notification
     }
 
     override var allowsKeyedCoding: Bool { true }
-    init(with request: UNNotificationRequest) {
+    convenience init(with request: UNNotificationRequest) {
+        self.init(with: request, actionIdentifier: "mockActionIdentifier")
+    }
+    
+    init(with request: UNNotificationRequest, actionIdentifier: String) {
         self.request = request
+        self.actionIdentifier = actionIdentifier
     }
 
     override func decodeObject(forKey key: String) -> Any? {
@@ -30,8 +36,10 @@ class MockNotificationResponseCoder: NSCoder {
         switch fieldKey {
         case .request:
             return request
-        case .sourceIdentifier, .actionIdentifier, .originIdentifier:
-            return testIdentifier
+        case .actionIdentifier:
+            return actionIdentifier
+        case .sourceIdentifier, .originIdentifier:
+            return actionIdentifier
         case .notification:
             return UNNotification(coder: self)
         default:
