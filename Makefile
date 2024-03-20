@@ -59,11 +59,17 @@ zip:
 	cd build && zip -r -X $(PROJECT_NAME).xcframework.zip $(PROJECT_NAME).xcframework/
 	swift package compute-checksum build/$(PROJECT_NAME).xcframework.zip
 
-test: clean
+unit-test: clean
 	@echo "######################################################################"
-	@echo "### Testing iOS"
+	@echo "### Unit Testing"
 	@echo "######################################################################"
-	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme "UnitTests" -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
+
+functional-test: clean
+	@echo "######################################################################"
+	@echo "### Functional Testing"
+	@echo "######################################################################"
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme "FunctionalTests" -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
 
 install-githook:
 	./tools/git-hooks/setup.sh
@@ -93,9 +99,6 @@ test-SPM-integration:
 
 test-podspec:
 	(sh ./Script/test-podspec.sh)
-
-functional-test: pod-install
-	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme E2EFunctionalTests -destination 'platform=iOS Simulator,name=iPhone 12' -derivedDataPath build/out
 
 # usage - 
 # make set-environment ENV=[environment]

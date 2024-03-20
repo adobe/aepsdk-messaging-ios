@@ -312,6 +312,20 @@
 			remoteGlobalIDString = B6165DA229A67AD90031B84D;
 			remoteInfo = NotificationService;
 		};
+		B6D6AE912BA8C48100F0E975 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2469A6012759999E00E56457;
+			remoteInfo = FunctionalTestApp;
+		};
+		B6D6AE932BA8E50600F0E975 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2469A6012759999E00E56457;
+			remoteInfo = FunctionalTestApp;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -1164,6 +1178,7 @@
 			dependencies = (
 				246EFA1327973E7400C76A6B /* PBXTargetDependency */,
 				24B071BC29072FAE00F4B18A /* PBXTargetDependency */,
+				B6D6AE942BA8E50600F0E975 /* PBXTargetDependency */,
 			);
 			name = E2EFunctionalTests;
 			productName = E2EFunctionalTests;
@@ -1246,6 +1261,7 @@
 			);
 			dependencies = (
 				9296BA882537BFC0002C88F7 /* PBXTargetDependency */,
+				B6D6AE922BA8C48100F0E975 /* PBXTargetDependency */,
 			);
 			name = UnitTests;
 			productName = UnitTests;
@@ -1310,7 +1326,7 @@
 					};
 					246EFA0C27973E7400C76A6B = {
 						CreatedOnToolsVersion = 13.2.1;
-						TestTargetID = 24B071A429072E9800F4B18A;
+						TestTargetID = 2469A6012759999E00E56457;
 					};
 					24B071A429072E9800F4B18A = {
 						CreatedOnToolsVersion = 14.0.1;
@@ -1326,6 +1342,7 @@
 					};
 					9296BA802537BFC0002C88F7 = {
 						CreatedOnToolsVersion = 12.0.1;
+						TestTargetID = 2469A6012759999E00E56457;
 					};
 					92FC58772636840C005BAE02 = {
 						CreatedOnToolsVersion = 12.4;
@@ -2094,6 +2111,16 @@
 			target = B6165DA229A67AD90031B84D /* NotificationService */;
 			targetProxy = B6165DA829A67ADA0031B84D /* PBXContainerItemProxy */;
 		};
+		B6D6AE922BA8C48100F0E975 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2469A6012759999E00E56457 /* FunctionalTestApp */;
+			targetProxy = B6D6AE912BA8C48100F0E975 /* PBXContainerItemProxy */;
+		};
+		B6D6AE942BA8E50600F0E975 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2469A6012759999E00E56457 /* FunctionalTestApp */;
+			targetProxy = B6D6AE932BA8E50600F0E975 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -2370,7 +2397,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/E2EFunctionalTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/E2EFunctionalTestApp";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FunctionalTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FunctionalTestApp";
 			};
 			name = Debug;
 		};
@@ -2390,7 +2417,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/E2EFunctionalTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/E2EFunctionalTestApp";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FunctionalTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FunctionalTestApp";
 			};
 			name = Release;
 		};
@@ -2749,6 +2776,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FunctionalTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FunctionalTestApp";
 			};
 			name = Debug;
 		};
@@ -2791,6 +2819,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FunctionalTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FunctionalTestApp";
 			};
 			name = Release;
 		};

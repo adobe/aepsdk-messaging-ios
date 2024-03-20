@@ -114,7 +114,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-        Messaging.handleNotificationResponse(response)
+        Messaging.handleNotificationResponse(response) { url in
+            print("")
+            return false
+        }
         // Always call the completion handler when done.
         completionHandler()
     }
