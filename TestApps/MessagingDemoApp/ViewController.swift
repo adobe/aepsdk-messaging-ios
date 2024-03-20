@@ -30,11 +30,13 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_: Any) {
-        MobileCore.track(action: "fullscreen", data: ["testFullscreen": "true"])
+        MobileCore.track(action: "once", data: nil)
+//        MobileCore.track(action: "fullscreen", data: ["testFullscreen": "true"])
     }
 
     @IBAction func triggerModal(_: Any) {
-        MobileCore.track(action: "triggerModal", data: ["testModal": "true"])
+        MobileCore.track(action: "migrate", data: nil)
+//        MobileCore.track(action: "triggerModal", data: ["testModal": "true"])
     }
 
     @IBAction func triggerBannerTop(_: Any) {
@@ -71,7 +73,7 @@ class ViewController: UIViewController {
             // see Assets/nativeMethodCallingSample.html for an example of how to call this method
             message?.handleJavascriptMessage("buttonClicked") { content in
                 print("magical handling of our content from js! content is: \(content ?? "empty")")
-                message?.track(content as? String, withEdgeEventType: .inappInteract)
+                message?.track(content as? String, withEdgeEventType: .interact)
             }
 
             // if using the webview for something, make sure to dispatch back to the main thread
@@ -92,12 +94,12 @@ class ViewController: UIViewController {
             // if we're not showing the message now, we can save it for later
             if !showMessages {
                 currentMessage = message
-                currentMessage?.track("message suppressed", withEdgeEventType: .inappTrigger)
+                currentMessage?.track("message suppressed", withEdgeEventType: .trigger)
             } else if autoDismiss {
                 currentMessage = message
                 let _ = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { timer in
                     timer.invalidate()
-                    self.currentMessage?.track("test for reporting", withEdgeEventType: .inappInteract)
+                    self.currentMessage?.track("test for reporting", withEdgeEventType: .interact)
                     self.currentMessage?.dismiss()
                 }
             }

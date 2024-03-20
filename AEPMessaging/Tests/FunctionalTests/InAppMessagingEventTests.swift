@@ -243,7 +243,7 @@ class InAppMessagingEventTests: XCTestCase, AnyCodableAsserts {
 
 extension InAppMessagingEventTests: MessagingDelegate {
     func onShow(message: Showable) {
-        currentMessage?.track("clicked", withEdgeEventType: .inappInteract)
+        currentMessage?.track("clicked", withEdgeEventType: .interact)
     }
 
     func onDismiss(message: Showable) {
