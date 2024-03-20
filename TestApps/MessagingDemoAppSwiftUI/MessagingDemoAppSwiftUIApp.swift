@@ -106,14 +106,14 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         // Perform the task associated with the action.
         switch response.actionIdentifier {
         case "ACCEPT_ACTION":
-            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: "ACCEPT_ACTION")
+            Messaging.handleNotificationResponse(response)
 
         case "DECLINE_ACTION":
-            Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: "DECLINE_ACTION")
+            Messaging.handleNotificationResponse(response)
 
         // Handle other actions…
         default:
-            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: nil)
+            Messaging.handleNotificationResponse(response)
         }
 
         // Always call the completion handler when done.

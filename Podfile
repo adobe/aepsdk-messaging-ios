@@ -30,67 +30,67 @@ def lib_dev
 end
 
 def app_main
-    lib_main    
-    pod 'AEPLifecycle'    
+    lib_main
+    pod 'AEPLifecycle'
     pod 'AEPSignal'
     pod 'AEPEdge'
     pod 'AEPEdgeIdentity'
-    pod 'AEPEdgeConsent'
-    pod 'AEPAssurance'
+    pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'staging'
+    pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'staging'
 end
 
 def app_dev
-    lib_dev    
+    lib_dev
     pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'staging'
     pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'staging'    
-    pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'dev-v5.0.0'
-    pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'dev-v5.0.0'
-    pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'dev-v5.0.0'
-    pod 'AEPAnalytics', :git => 'https://github.com/adobe/aepsdk-analytics-ios.git', :branch => 'dev-v5.0.0'
-    pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'dev-v5.0.0'
+    pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'staging'
+    pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'staging'
+    pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'staging'
+    pod 'AEPAnalytics', :git => 'https://github.com/adobe/aepsdk-analytics-ios.git', :branch => 'staging'
+    pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'staging'
 end
 
 # ==================
 # TARGET DEFINITIONS
 # ==================
 target 'AEPMessaging' do
-  lib_dev
+  lib_main
 end
 
 target 'MessagingDemoApp' do
-  app_dev
+  app_main
 end
 
 target 'MessagingDemoAppObjC' do
-  app_dev
+  app_main
 end
 
 target 'MessagingDemoAppSwiftUI' do
-  app_dev
+  app_main
 end
 
 
 target 'UnitTests' do
-  lib_dev
+  lib_main
   pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
 end
 
 target 'FunctionalTests' do
-  app_dev
+  app_main
   pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
 end
 
 target 'E2EFunctionalTests' do
-  app_dev
+  app_main
   pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
 end
 
 target 'FunctionalTestApp' do
-  app_dev
+  app_main
   pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
 end
 
 target 'E2EFunctionalTestApp' do
-  app_dev
+  app_main
   pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.0'
 end
