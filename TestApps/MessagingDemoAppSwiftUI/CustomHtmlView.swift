@@ -15,7 +15,7 @@ import AEPMessaging
 
 struct CustomHtmlView: View {
     @State var htmlString: String
-    var trackAction: ((MessagingEdgeEventType) -> Void)? = nil
+    var trackAction: ((String?, MessagingEdgeEventType, [String]?) -> Void)? = nil
 
     var body: some View {
         WebView(htmlString: self.$htmlString)
@@ -23,10 +23,10 @@ struct CustomHtmlView: View {
             .frame(height: 150)
             .frame(maxWidth: .infinity)
             .onAppear {
-                self.trackAction?(.display)
+                self.trackAction?(nil, .display, nil)
             }
             .onTapGesture {
-                self.trackAction?(.interact)
+                self.trackAction?(nil, .interact, nil)
             }
     }
 }

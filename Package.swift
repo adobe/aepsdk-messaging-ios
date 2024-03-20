@@ -28,7 +28,12 @@ let package = Package(
     ],
     targets: [
         .target(name: "AEPMessaging",
-                dependencies: ["AEPCore", "AEPServices", "AEPEdge", "AEPEdgeIdentity"],
-                path: "AEPMessaging/Sources")
+            dependencies: [
+                .product(name: "AEPCore", package: "aepsdk-core-ios"),
+                .product(name: "AEPServices", package: "aepsdk-core-ios"),
+                .product(name: "AEPEdge", package: "aepsdk-edge-ios"),
+                .product(name: "AEPEdgeIdentity", package: "aepsdk-edgeidentity-ios")
+            ],
+            path: "AEPMessaging/Sources")
     ]
 )

@@ -14,7 +14,7 @@ import AEPMessaging
 
 struct CustomTextView: View {
     @State var text: String
-    var trackAction: ((MessagingEdgeEventType) -> Void)? = nil
+    var trackAction: ((String?, MessagingEdgeEventType, [String]?) -> Void)? = nil
 
     var body: some View {
         Text(text)
@@ -22,10 +22,10 @@ struct CustomTextView: View {
             .frame(height: 150)
             .frame(maxWidth: .infinity)
             .onAppear {
-                self.trackAction?(.display)
+                self.trackAction?(nil, .display, nil)
             }
             .onTapGesture {
-                self.trackAction?(.interact)
+                self.trackAction?(nil, .interact, nil)
             }
     }
 }

@@ -12,6 +12,7 @@
 
 import AEPCore
 import AEPServices
+import Foundation
 
 struct ParsedPropositions {
     weak var runtime: ExtensionRuntime?

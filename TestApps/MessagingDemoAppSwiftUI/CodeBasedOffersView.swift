@@ -19,29 +19,32 @@ struct CodeBasedOffersView: View {
     
     // prod surfaces
 //    let testSurface = Surface(path: "codeBasedView#customHtmlOffer")
-//    let testSurface = Surface(path: "sb/cbe-json-object")
+    let testSurface = Surface(path: "sb/cbe-json-object")
 //    let testSurface = Surface(path: "sb/cbe-json")
     
     // staging surfaces
-    let testSurface = Surface(path: "cbeoffers3")
+//    let testSurface = Surface(path: "cbeoffers3")
+    
     var body: some View {
         VStack {
             Text("Code Based Experiences")
                 .font(Font.title)
                 .padding(.top, 30)
             List {
-                if let codePropositions: [Proposition] = propositionsDict?[testSurface], !codePropositions.isEmpty {
-                    ForEach(codePropositions.first?.items as? [PropositionItem] ?? [], id:\.itemId) { item in
+                if let codePropositions: [Proposition] = propositionsDict?[testSurface], 
+                    !codePropositions.isEmpty,
+                let propItems = codePropositions.first?.items as? [PropositionItem] {
+                    ForEach(propItems, id:\.itemId) { item in
                         if item.schema == .htmlContent {
                             CustomHtmlView(htmlString: item.htmlContent ?? "",
-                                           trackAction: item.track(eventType:))
+                                           trackAction: item.track(_:withEdgeEventType:forTokens:))
                         } else if item.schema == .jsonContent {
                             if let jsonArray = item.jsonContentArray {
                                 CustomTextView(text: jsonArray.description,
-                                               trackAction: item.track(eventType:))
+                                               trackAction: item.track(_:withEdgeEventType:forTokens:))
                             } else {
                                 CustomTextView(text: item.jsonContentDictionary?.description ?? "",
-                                               trackAction: item.track(eventType:))
+                                               trackAction: item.track(_:withEdgeEventType:forTokens:))
                             }
                         }
                     }
