@@ -85,8 +85,7 @@ extension Message: FullscreenMessageDelegate {
             if
                 let link = queryParams[MessagingConstants.IAM.HTML.LINK],
                 let decodedLink = link.removingPercentEncoding, !decodedLink.isEmpty,
-                let deeplinkUrl = URL(string: decodedLink)
-            {
+                let deeplinkUrl = URL(string: decodedLink) {
                 UIApplication.shared.open(deeplinkUrl)
             }
 

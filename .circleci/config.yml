@@ -98,8 +98,8 @@ jobs:
       - prestart_ios_simulator
 
       - run:
-          name: Run AEPMessaging Tests
-          command: make test
+          name: Run Unit Tests
+          command: make unit-test
 
       # Code coverage upload using Codecov
       # See options explanation here: https://docs.codecov.com/docs/codecov-uploader
@@ -107,6 +107,11 @@ jobs:
       #     flags: aepmessaging-ios-tests
       #     upload_name: Coverage Report for AEPMessaging iOS Tests
       #     xtra_args: -c -v --xc --xp ./build/AEPMessaging.xcresult
+
+      - run:
+          name: Run Functional Tests
+          command: make functional-test
+          when: always # run even if unit tests fail
 
   test-spm-podspec-archive:  
     macos:

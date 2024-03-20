@@ -43,8 +43,7 @@ struct PropositionInteraction: Codable {
 
         if
             let itemId = itemId,
-            !itemId.isEmpty
-        {
+            !itemId.isEmpty {
             var itemDict: [String: Any] = [
                 MessagingConstants.XDM.Inbound.Key.ID: itemId
             ]
@@ -70,8 +69,7 @@ struct PropositionInteraction: Codable {
         // only add `propositionAction` data if this is an interact event
         if
             eventType == .interact,
-            let interaction = interaction
-        {
+            let interaction = interaction {
             let propositionAction: [String: String] = [
                 MessagingConstants.XDM.Inbound.Key.ID: interaction,
                 MessagingConstants.XDM.Inbound.Key.LABEL: interaction

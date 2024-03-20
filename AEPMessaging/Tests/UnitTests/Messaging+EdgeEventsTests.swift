@@ -306,7 +306,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let pushDetails = pushDetailsArray?[0]
         XCTAssertEqual(5, pushDetails?.count)
         let appId = pushDetails?[MessagingConstants.XDM.Push.APP_ID] as? String
-        XCTAssertEqual("com.apple.dt.xctest.tool", appId)
+        XCTAssertEqual("com.adobe.ajo.e2eTestApp", appId)
         let token = pushDetails?[MessagingConstants.XDM.Push.TOKEN] as? String
         XCTAssertEqual(MOCK_PUSH_TOKEN, token)
         let platform = pushDetails?[MessagingConstants.XDM.Push.PLATFORM] as? String
