@@ -28,7 +28,7 @@ DEPENDENCIES:
   - AEPAssurance (from `https://github.com/adobe/aepsdk-assurance-ios.git`, branch `staging`)
   - AEPCore
   - AEPEdge
-  - AEPEdgeConsent (from `https://github.com/adobe/aepsdk-edgeconsent-ios.git`, branch `staging`)
+  - AEPEdgeConsent
   - AEPEdgeIdentity
   - AEPLifecycle
   - AEPRulesEngine
@@ -41,6 +41,7 @@ SPEC REPOS:
   trunk:
     - AEPCore
     - AEPEdge
+    - AEPEdgeConsent
     - AEPEdgeIdentity
     - AEPLifecycle
     - AEPRulesEngine
@@ -52,20 +53,14 @@ EXTERNAL SOURCES:
   AEPAssurance:
     :branch: staging
     :git: https://github.com/adobe/aepsdk-assurance-ios.git
-  AEPEdgeConsent:
-    :branch: staging
-    :git: https://github.com/adobe/aepsdk-edgeconsent-ios.git
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-testutils-ios.git
     :tag: 5.0.0
 
 CHECKOUT OPTIONS:
   AEPAssurance:
-    :commit: 6098c48a067daf4c70cb630b0000564552ad3bc7
+    :commit: ba663aa783d14c039626af88f3159fb47f3bae4a
     :git: https://github.com/adobe/aepsdk-assurance-ios.git
-  AEPEdgeConsent:
-    :commit: ef4f28ad50a1645c0a5faee5c257e1070bbb2cda
-    :git: https://github.com/adobe/aepsdk-edgeconsent-ios.git
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-testutils-ios.git
     :tag: 5.0.0
@@ -83,6 +78,6 @@ SPEC CHECKSUMS:
   AEPTestUtils: 20495b368da57904ca2e9f241d1d8b114f9887b5
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: 1c8e6f127cf5d46ac427a447adb66819dafa561a
+PODFILE CHECKSUM: 9f1f3ac6017df6b5467fecddd383dea2045b102c
 
 COCOAPODS: 1.14.3
