@@ -14,6 +14,8 @@
 import Foundation
 
 class MockLaunchRulesEngine: LaunchRulesEngine {
+    var ruleConsequences: [RuleConsequence] = []
+    
     override init(name: String, extensionRuntime: ExtensionRuntime) {
         super.init(name: name, extensionRuntime: extensionRuntime)
     }
@@ -26,11 +28,19 @@ class MockLaunchRulesEngine: LaunchRulesEngine {
         return event
     }
 
+    var evaluateCalled: Bool = false
+    var paramEvaluateEvent: Event?
+    override func evaluate(event: Event) -> [RuleConsequence]? {
+        evaluateCalled = true
+        paramEvaluateEvent = event
+        return ruleConsequences
+    }
+        
     var replaceRulesCalled: Bool = false
-    var paramRules: [LaunchRule]?
+    var paramReplaceRulesRules: [LaunchRule]?
     override func replaceRules(with rules: [LaunchRule]) {
         replaceRulesCalled = true
-        paramRules = rules
+        paramReplaceRulesRules = rules
     }
     
     var addRulesCalled: Bool = false

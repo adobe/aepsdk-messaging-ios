@@ -21,8 +21,9 @@ extension Message: FullscreenMessageDelegate {
         }
 
         if message.autoTrack {
-            message.track(nil, withEdgeEventType: .inappDisplay)
+            message.track(withEdgeEventType: .display)
         }
+        message.recordEventHistory(eventType: .display, interaction: nil)
     }
 
     public func onShowFailure() {}
@@ -33,6 +34,7 @@ extension Message: FullscreenMessageDelegate {
         guard let message = message.parent else {
             return
         }
+        message.recordEventHistory(eventType: .dismiss, interaction: nil)
         message.dismiss()
     }
 
@@ -65,7 +67,8 @@ extension Message: FullscreenMessageDelegate {
 
             // handle optional tracking
             if let interaction = queryParams[MessagingConstants.IAM.HTML.INTERACTION], !interaction.isEmpty {
-                message?.track(interaction, withEdgeEventType: .inappInteract)
+                message?.track(interaction, withEdgeEventType: .interact)
+                message?.recordEventHistory(eventType: .interact, interaction: interaction)
             }
 
             // dismiss if requested
@@ -80,9 +83,9 @@ extension Message: FullscreenMessageDelegate {
 
             // handle optional deep link
             if
-                let link = queryParams[MessagingConstants.IAM.HTML.LINK], !link.isEmpty,
-                let deeplinkUrl = URL(string: link.removingPercentEncoding ?? "")
-            {
+                let link = queryParams[MessagingConstants.IAM.HTML.LINK],
+                let decodedLink = link.removingPercentEncoding, !decodedLink.isEmpty,
+                let deeplinkUrl = URL(string: decodedLink) {
                 UIApplication.shared.open(deeplinkUrl)
             }
 

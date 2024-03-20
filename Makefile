@@ -9,7 +9,7 @@ SIMULATOR_ARCHIVE_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive/Prod
 SIMULATOR_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive/dSYMs/
 IOS_ARCHIVE_PATH = $(CURRENT_DIRECTORY)/build/ios.xcarchive/Products/Library/Frameworks/
 IOS_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios.xcarchive/dSYMs/
-IOS_DESTINATION = 'platform=iOS Simulator,name=iPhone 14'
+IOS_DESTINATION = 'platform=iOS Simulator,name=iPhone 15'
 
 E2E_PROJECT_PLIST_FILE = $(CURRENT_DIRECTORY)/AEPMessaging/Tests/E2EFunctionalTests/E2EFunctionalTestApp/Info.plist
 
@@ -45,7 +45,11 @@ open-app:
 clean:
 	(rm -rf build)
 
-archive: clean pod-install build
+archive: pod-install _archive
+
+ci-archive: ci-pod-install _archive
+
+_archive: clean build
 	xcodebuild -create-xcframework \
 		-framework $(SIMULATOR_ARCHIVE_PATH)$(EXTENSION_NAME).framework -debug-symbols $(SIMULATOR_ARCHIVE_DSYM_PATH)$(EXTENSION_NAME).framework.dSYM \
 		-framework $(IOS_ARCHIVE_PATH)$(EXTENSION_NAME).framework -debug-symbols $(IOS_ARCHIVE_DSYM_PATH)$(EXTENSION_NAME).framework.dSYM \
@@ -59,11 +63,17 @@ zip:
 	cd build && zip -r -X $(PROJECT_NAME).xcframework.zip $(PROJECT_NAME).xcframework/
 	swift package compute-checksum build/$(PROJECT_NAME).xcframework.zip
 
-test: clean
+unit-test: clean
 	@echo "######################################################################"
-	@echo "### Testing iOS"
+	@echo "### Unit Testing"
 	@echo "######################################################################"
-	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme "UnitTests" -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
+
+functional-test: clean
+	@echo "######################################################################"
+	@echo "### Functional Testing"
+	@echo "######################################################################"
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme "FunctionalTests" -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
 
 install-githook:
 	./tools/git-hooks/setup.sh
@@ -94,9 +104,6 @@ test-SPM-integration:
 test-podspec:
 	(sh ./Script/test-podspec.sh)
 
-functional-test: pod-install
-	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme E2EFunctionalTests -destination 'platform=iOS Simulator,name=iPhone 12' -derivedDataPath build/out
-
 # usage - 
 # make set-environment ENV=[environment]
 set-environment:
@@ -105,4 +112,4 @@ set-environment:
 
 # used to test update-versions.sh script locally
 test-versions:
-	(sh ./Script/update-versions.sh -n Messaging -v 4.0.0 -d "AEPCore 4.0.0, AEPServices 4.0.0, AEPEdge 4.0.0, AEPEdgeIdentity 4.0.0")
+	(sh ./Script/update-versions.sh -n Messaging -v 5.0.0 -d "AEPCore 5.0.0, AEPServices 5.0.0, AEPEdge 5.0.0, AEPEdgeIdentity 5.0.0")

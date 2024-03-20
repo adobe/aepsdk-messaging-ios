@@ -23,14 +23,14 @@ mkdir -p $PROJECT_NAME && cd $PROJECT_NAME
 swift package init
 
 # Create the Package.swift.
-echo "// swift-tools-version:5.1
+echo "// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 import PackageDescription
 let package = Package(
     name: \"TestProject\",
     defaultLocalization: \"en-US\",
     platforms: [
-        .iOS(.v11)
+        .iOS(.v12)
     ],
     products: [
         .library(
@@ -39,9 +39,9 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(name: \"AEPCore\", url: \"https://github.com/adobe/aepsdk-core-ios.git\", .upToNextMajor(from:\"4.0.0\")),
-        .package(name: \"AEPEdge\", url: \"https://github.com/adobe/aepsdk-edge-ios.git\", .upToNextMajor(from:\"4.0.0\")),
-        .package(name: \"AEPEdgeIdentity\", url: \"https://github.com/adobe/aepsdk-edgeidentity-ios.git\", .upToNextMajor(from:\"4.0.0\")),
+        .package(name: \"AEPCore\", url: \"https://github.com/adobe/aepsdk-core-ios.git\", .branch(\"main\")),
+        .package(name: \"AEPEdge\", url: \"https://github.com/adobe/aepsdk-edge-ios.git\", .branch(\"main\")),
+        .package(name: \"AEPEdgeIdentity\", url: \"https://github.com/adobe/aepsdk-edgeidentity-ios.git\", .branch(\"main\")),
         .package(name: \"AEPMessaging\", path: \"../\")
     ],
     targets: [
@@ -64,7 +64,7 @@ let package = Package(
 swift package update
 swift package resolve
 
-# This is nececery to avoid internal PIF error
+# This is necessary to avoid internal PIF error
 swift package dump-pif > /dev/null
 (xcodebuild clean -scheme TestProject -destination 'generic/platform=iOS' > /dev/null) || :
 

@@ -14,6 +14,7 @@
 @testable import AEPMessaging
 @testable import AEPRulesEngine
 @testable import AEPServices
+import AEPTestUtils
 import Foundation
 import XCTest
 
@@ -28,7 +29,7 @@ class MessagingRulesEngineTests: XCTestCase {
         mockRuntime = TestableExtensionRuntime()
         mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: mockRuntime)
         mockCache = MockCache(name: "mockCache")
-        messagingRulesEngine = MessagingRulesEngine(extensionRuntime: mockRuntime, rulesEngine: mockRulesEngine, cache: mockCache)
+        messagingRulesEngine = MessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockRulesEngine, cache: mockCache)
     }
 
     func testInitializer() throws {
@@ -39,11 +40,11 @@ class MessagingRulesEngineTests: XCTestCase {
         try? cache.set(key: "propositions", entry: cacheEntry)
 
         // test
-        let mre = MessagingRulesEngine(name: "mockRE", extensionRuntime: TestableExtensionRuntime())
+        let mre = MessagingRulesEngine(name: "mockRE", extensionRuntime: TestableExtensionRuntime(), cache: mockCache)
 
         // verify
         XCTAssertNotNil(mre.runtime)
-        XCTAssertNotNil(mre.rulesEngine)
+        XCTAssertNotNil(mre.launchRulesEngine)
         XCTAssertNotNil(mre.cache)
     }
 
@@ -58,235 +59,94 @@ class MessagingRulesEngineTests: XCTestCase {
         XCTAssertTrue(mockRulesEngine.processCalled)
         XCTAssertEqual(event, mockRulesEngine.paramProcessedEvent)
     }
+}
 
-    func testLoadPropositionsHappy() throws {
+class LaunchRulesEngineMessagingTests: XCTestCase {
+    var launchRulesEngine: MockLaunchRulesEngine!
+    var mockRuntime: TestableExtensionRuntime!
+    
+    override func setUp() {
+        mockRuntime = TestableExtensionRuntime()
+        launchRulesEngine = MockLaunchRulesEngine(name: "mockLaunchRulesEngine", extensionRuntime: mockRuntime)
+    }
+    
+    func testLoadRulesHappy() throws {
+        
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
+        let ruleString = propositions.first?.items.first?.itemData["content"] as? String
+        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
+
         // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, persistChanges: true, expectedScope: mockIamSurface)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
-        XCTAssertTrue(mockRulesEngine.addRulesCalled)
-        XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
-        XCTAssertTrue(mockCache.setCalled)
-    }
-    
-    func testLoadPropositionsDefaultSavesToPersitence() throws {
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
+   }
+
+    func testLoadRulesClearExisting() throws {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
+        let ruleString = propositions.first?.items.first?.itemData["content"] as? String
+        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
+
         // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, expectedScope: mockIamSurface)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
-        XCTAssertTrue(mockCache.setCalled)
-    }
-    
-    func testLoadPropositionsClearExisting() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
-        // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: true, expectedScope: mockIamSurface)
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
+   }
 
-        // verify
-        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(1, mockRulesEngine.paramRules?.count)
-    }
-    
-    func testLoadPropositionsMismatchedScope() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("wrongScopeRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
-        // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, persistChanges: true, expectedScope: mockIamSurface)
-
-        // verify
-        XCTAssertFalse(mockRulesEngine.addRulesCalled)
-    }
-    
-    func testLoadPropositionsEmptyStringContent() throws {
+    func testLoadRulesEmptyStringContent() throws {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("emptyContentStringRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
+        let ruleString = propositions.first?.items.first?.itemData["content"] as? String
+        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
+
         // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, persistChanges: true, expectedScope: mockIamSurface)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
-        XCTAssertFalse(mockRulesEngine.addRulesCalled)
+        XCTAssertFalse(launchRulesEngine.addRulesCalled)
     }
-    
-    func testLoadPropositionsMalformedContent() throws {
+
+    func testLoadRulesMalformedContent() throws {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("malformedContentRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
+        let ruleString = propositions.first?.items.first?.itemData["content"] as? String
+        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
+
         // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, persistChanges: true, expectedScope: mockIamSurface)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
-        XCTAssertFalse(mockRulesEngine.addRulesCalled)
+        XCTAssertFalse(launchRulesEngine.addRulesCalled)
     }
-    
-    func testLoadPropositionsEmptyRuleString() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("wrongScopeRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
-        // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, persistChanges: true, expectedScope: mockIamSurface)
 
-        // verify
-        XCTAssertFalse(mockRulesEngine.addRulesCalled)
-    }
-    
-    func testLoadPropositionsNoItemsInPayload() throws {
-        // setup
-        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
-        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [])
-        
-        // test
-        messagingRulesEngine.loadPropositions([propPayload], clearExisting: false, expectedScope: mockIamSurface)
-        
-        // verify
-        XCTAssertFalse(mockRulesEngine.replaceRulesCalled)
-        XCTAssertFalse(mockRulesEngine.addRulesCalled)
-    }
-    
-    func testLoadPropositionsEmptyContentInPayload() throws {
-        // setup
-        let itemData = ItemData(content: "")
-        let payloadItem = PayloadItem(data: itemData)
-        let propInfo = PropositionInfo(id: "a", scope: "a", scopeDetails: [:])
-        let propPayload = PropositionPayload(propositionInfo: propInfo, items: [payloadItem])
-        
-        // test
-        messagingRulesEngine.loadPropositions([propPayload], clearExisting: false, expectedScope: mockIamSurface)
-        
-        // verify
-        XCTAssertFalse(mockRulesEngine.replaceRulesCalled)
-        XCTAssertFalse(mockRulesEngine.addRulesCalled)
-    }
-    
-    func testLoadPropositionsEventSequence() throws {
+    func testLoadRulesEventSequence() throws {
         // setup
         let decoder = JSONDecoder()
         let propString: String = JSONFileLoader.getRulesStringFromFile("eventSequenceRule")
         let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
-        // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, expectedScope: mockIamSurface)
+        let ruleString = propositions.first?.items.first?.itemData["content"] as? String
+        let rulesArray = JSONRulesParser.parse(ruleString?.data(using: .utf8) ?? Data(), runtime: mockRuntime) ?? []
 
-        // verify
-        XCTAssertTrue(mockRulesEngine.addRulesCalled)
-        XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
-    }
-
-    func testLoadPropositionsEmptyPropositions() throws {
-        // setup
-        let propositions: [PropositionPayload] = []
 
         // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: true, expectedScope: mockIamSurface)
+        launchRulesEngine.replaceRules(with: rulesArray)
 
         // verify
-        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
-    }
-    
-    func testLoadPropositionsExistingReplacedWithEmpty() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
-        // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, expectedScope: mockIamSurface)
-
-        // verify
-        XCTAssertTrue(mockRulesEngine.addRulesCalled)
-        XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
-        XCTAssertEqual(1, messagingRulesEngine.propositionInfoCount())
-        XCTAssertEqual(1, messagingRulesEngine.inMemoryPropositionsCount())
-        
-        // test
-        messagingRulesEngine.loadPropositions(nil, clearExisting: true, persistChanges: true, expectedScope: mockIamSurface)
-        
-        // verify
-        XCTAssertTrue(mockRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(0, mockRulesEngine.paramRules?.count)
-        XCTAssertEqual(0, messagingRulesEngine.propositionInfoCount())
-        XCTAssertEqual(0, messagingRulesEngine.inMemoryPropositionsCount())
-    }
-    
-    func testLoadPropositionsExistingNoReplacedWithEmpty() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
-        // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, expectedScope: mockIamSurface)
-
-        // verify
-        XCTAssertTrue(mockRulesEngine.addRulesCalled)
-        XCTAssertEqual(1, mockRulesEngine.paramAddRulesRules?.count)
-        XCTAssertEqual(1, messagingRulesEngine.propositionInfoCount())
-        XCTAssertEqual(1, messagingRulesEngine.inMemoryPropositionsCount())
-        
-        // test
-        messagingRulesEngine.loadPropositions(nil, clearExisting: false, persistChanges: true, expectedScope: mockIamSurface)
-        
-        // verify
-        XCTAssertEqual(1, messagingRulesEngine.propositionInfoCount())
-        XCTAssertEqual(1, messagingRulesEngine.inMemoryPropositionsCount())
-    }
-    
-    func testLoadPropositionsDoNotPersistChanges() throws {
-        // setup
-        let decoder = JSONDecoder()
-        let propString: String = JSONFileLoader.getRulesStringFromFile("showOnceRule")
-        let propositions = try decoder.decode([PropositionPayload].self, from: propString.data(using: .utf8)!)
-        
-        // test
-        messagingRulesEngine.loadPropositions(propositions, clearExisting: false, persistChanges: false, expectedScope: mockIamSurface)
-
-        // verify
-        XCTAssertFalse(mockCache.setCalled)
-    }
-    
-    func testPropositionInfoForMessageIdHappy() throws {
-        // setup
-        messagingRulesEngine.propositionInfo["id"] = PropositionInfo(id: "pid", scope: "scope", scopeDetails: [:])
-        
-        // test
-        let propInfo = messagingRulesEngine.propositionInfoForMessageId("id")
-        
-        // verify
-        XCTAssertNotNil(propInfo)
-        XCTAssertEqual("pid", propInfo?.id)
-        XCTAssertEqual("scope", propInfo?.scope)
-        XCTAssertEqual(0, propInfo?.scopeDetails.count)
-    }
-    
-    func testPropositionInfoForMessageIdNoMatch() throws {
-        // test
-        let propInfo = messagingRulesEngine.propositionInfoForMessageId("good luck finding a message with this id. ha!")
-        
-        // verify
-        XCTAssertNil(propInfo)
+        XCTAssertTrue(launchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(1, launchRulesEngine.paramReplaceRulesRules?.count)
     }
 }

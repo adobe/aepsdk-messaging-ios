@@ -183,7 +183,7 @@ public class TestableExtensionRuntime: ExtensionRuntime {
 
 public extension TestableExtensionRuntime {
     var firstEvent: Event? {
-        dispatchedEvents[0]
+        dispatchedEvents.count > 0 ? dispatchedEvents[0] : nil
     }
 
     var secondEvent: Event? {

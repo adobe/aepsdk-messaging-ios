@@ -13,6 +13,7 @@
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+import AEPTestUtils
 import Foundation
 
 class MockMessagingRulesEngine: MessagingRulesEngine {
@@ -24,15 +25,14 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
         mockCache = MockCache(name: "mockCache")
         mockRuntime = TestableExtensionRuntime()
         mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: runtime)
-        super.init(extensionRuntime: mockRuntime, rulesEngine: mockRulesEngine, cache: mockCache)
-        //        super.init(name: name, extensionRuntime: runtime)
+        super.init(extensionRuntime: mockRuntime, launchRulesEngine: mockRulesEngine, cache: mockCache)
     }
 
-    override init(extensionRuntime: ExtensionRuntime, rulesEngine: LaunchRulesEngine, cache: Cache) {
+    override init(extensionRuntime: ExtensionRuntime, launchRulesEngine: LaunchRulesEngine, cache: Cache) {
         mockCache = MockCache(name: "mockCache")
         mockRuntime = TestableExtensionRuntime()
         mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: extensionRuntime)
-        super.init(extensionRuntime: extensionRuntime, rulesEngine: rulesEngine, cache: cache)
+        super.init(extensionRuntime: extensionRuntime, launchRulesEngine: launchRulesEngine, cache: cache)
     }
 
     var processCalled = false
@@ -40,25 +40,5 @@ class MockMessagingRulesEngine: MessagingRulesEngine {
     override func process(event: Event) {
         processCalled = true
         paramProcessEvent = event
-    }
-
-    var loadPropositionsCalled = false
-    var paramLoadPropositionsPropositions: [PropositionPayload]?
-    var paramLoadPropositionsClearExisting: Bool?
-    var paramLoadPropositionsPersistChanges: Bool?
-    var paramLoadPropositionsExpectedScope: String?
-    override func loadPropositions(_ propositions: [PropositionPayload]?, clearExisting: Bool, persistChanges: Bool = true, expectedScope: String) {
-        loadPropositionsCalled = true
-        paramLoadPropositionsPropositions = propositions
-        paramLoadPropositionsClearExisting = clearExisting
-        paramLoadPropositionsPersistChanges = persistChanges
-        paramLoadPropositionsExpectedScope = expectedScope
-    }
-    
-    var propositionInfoForMessageIdCalled = false
-    var propositionInfoForMessageIdReturnValue: PropositionInfo?
-    override func propositionInfoForMessageId(_ messageId: String) -> PropositionInfo? {
-        propositionInfoForMessageIdCalled = true
-        return propositionInfoForMessageIdReturnValue
     }
 }

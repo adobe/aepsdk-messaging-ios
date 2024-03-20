@@ -76,7 +76,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             guard granted else { return }
             
             center.delegate = self
-            
+                        
+            self?.registerNotificationCategories()
             DispatchQueue.main.async {
                 application.registerForRemoteNotifications()
             }
@@ -84,9 +85,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
     
     func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
-        let token = tokenParts.joined()
-        print("Device token is - \(token)")
         MobileCore.setPushIdentifier(deviceToken)
     }
 
@@ -116,20 +114,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-        // Perform the task associated with the action.
-        switch response.actionIdentifier {
-        case "ACCEPT_ACTION":
-            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: "ACCEPT_ACTION")
-
-        case "DECLINE_ACTION":
-            Messaging.handleNotificationResponse(response, applicationOpened: false, customActionId: "DECLINE_ACTION")
-
-        // Handle other actions…
-        default:
-            Messaging.handleNotificationResponse(response, applicationOpened: true, customActionId: nil)
+        Messaging.handleNotificationResponse(response) { url in
+            print("")
+            return false
         }
-
         // Always call the completion handler when done.
         completionHandler()
+    }
+    
+    // Register notification categories to enable different actions for notification
+    func registerNotificationCategories() {
+        // Define actions
+        let action1 = UNNotificationAction(identifier: "foreground", title: "Foreground", options: [.foreground])
+        let action2 = UNNotificationAction(identifier: "destructive", title: "Destructive", options: [.destructive])
+        let action3 = UNNotificationAction(identifier: "default", title: "Default", options: [])
+        
+        // Define category with actions
+        let category = UNNotificationCategory(identifier: "categoryId", actions: [action1, action2, action3], intentIdentifiers: [], options: [.customDismissAction])
+        
+        // Register the category
+        UNUserNotificationCenter.current().setNotificationCategories([category])
     }
 }
