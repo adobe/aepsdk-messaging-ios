@@ -107,6 +107,8 @@ jobs:
     
     steps:
       - checkout
+      - install_dependencies
+      
       # verify XCFramework archive builds
       - run:
           name: Build XCFramework

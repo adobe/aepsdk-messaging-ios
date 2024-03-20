@@ -35,7 +35,7 @@ def app_main
     pod 'AEPSignal'
     pod 'AEPEdge'
     pod 'AEPEdgeIdentity'
-    pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'staging'
+    pod 'AEPEdgeConsent'
     pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'staging'
 end
 
