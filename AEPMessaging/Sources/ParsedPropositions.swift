@@ -10,9 +10,9 @@
  governing permissions and limitations under the License.
  */
 
-import Foundation
 import AEPCore
 import AEPServices
+import Foundation
 
 struct ParsedPropositions {
     weak var runtime: ExtensionRuntime?
