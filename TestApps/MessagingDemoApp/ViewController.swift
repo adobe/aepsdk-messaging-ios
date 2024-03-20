@@ -30,7 +30,8 @@ class ViewController: UIViewController {
     }
 
     @IBAction func triggerFullscreen(_: Any) {
-        MobileCore.track(action: "fullscreen", data: ["testFullscreen": "true"])
+        MobileCore.track(action: "once", data: nil)
+//        MobileCore.track(action: "fullscreen", data: ["testFullscreen": "true"])
     }
 
     @IBAction func triggerModal(_: Any) {
