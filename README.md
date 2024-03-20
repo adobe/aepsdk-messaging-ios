@@ -1,13 +1,9 @@
-# Adobe Experience Platform - Messaging extension for iOS (Beta feature - Experience Decisioning in Code Based Experiences)
+# Adobe Experience Platform - Messaging extension for iOS
 
 [![Cocoapods](https://img.shields.io/github/v/release/adobe/aepsdk-messaging-ios?label=CocoaPods&logo=apple&logoColor=white&color=orange&sort=semver)](https://cocoapods.org/pods/AEPMessaging)
 [![SPM](https://img.shields.io/github/v/release/adobe/aepsdk-messaging-ios?label=SPM&logo=apple&logoColor=white&color=orange&sort=semver)](https://github.com/adobe/aepsdk-messaging-ios/releases)
 [![CircleCI](https://img.shields.io/circleci/project/github/adobe/aepsdk-messaging-ios/main.svg?logo=circleci&label=Build)](https://circleci.com/gh/adobe/workflows/aepsdk-messaging-ios)
 <!-- [![Code Coverage](https://img.shields.io/codecov/c/github/adobe/aepsdk-messaging-ios/main.svg?logo=codecov&label=Coverage)](https://codecov.io/gh/adobe/aepsdk-messaging-ios/branch/main) -->
-
-## Beta feature acknowledgment
-
-By using the AEPMessaging SDK (“Beta feature”), you hereby acknowledge that the Beta is provided “as is” without warranty of any kind. Adobe shall have no obligation to maintain, correct, update, change, modify or otherwise support the Beta. You are advised to use caution and not to rely in any way on the correct functioning or performance of such Beta and/or accompanying materials.
 
 ## About this project
 
