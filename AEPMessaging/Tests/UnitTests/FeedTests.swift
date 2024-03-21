@@ -1,5 +1,5 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
+ Copyright 2023 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -14,28 +14,22 @@ import Foundation
 import XCTest
 
 @testable import AEPMessaging
+import AEPServices
 
-class DictionaryMergingTests: XCTestCase {
-    var dictionary1: [String: Any] = [
-        "key": "value",
-        "key2": "value2",
-        "number": 1
-    ]
-
-    var dictionary2: [String: Any] = [
-        "key": "newValue",
-        "key3": "value3",
-        "number": 552
-    ]
-
-    func testMerge() throws {
+class FeedTests: XCTestCase {
+    func testFeedIsCreatable() throws {
+        // setup
+        let mockName = "aName"
+        let mockSurface = Surface(uri: "mySurface")
+        let mockFeedItem = FeedItemSchemaData.getEmpty()
+        
         // test
-        dictionary1.mergeXdm(rhs: dictionary2)
-
+        let feed = Feed(name: mockName, surface: mockSurface, items: [mockFeedItem])
+        
         // verify
-        XCTAssertEqual("newValue", dictionary1["key"] as? String)
-        XCTAssertEqual("value2", dictionary1["key2"] as? String)
-        XCTAssertEqual("value3", dictionary1["key3"] as? String)
-        XCTAssertEqual(552, dictionary1["number"] as? Int)
+        XCTAssertEqual(mockName, feed.name)
+        XCTAssertEqual(mockSurface, feed.surface)
+        XCTAssertEqual(1, feed.items.count)
+        XCTAssertEqual(mockFeedItem, feed.items.first)
     }
 }

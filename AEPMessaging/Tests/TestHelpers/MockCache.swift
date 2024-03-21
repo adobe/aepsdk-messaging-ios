@@ -11,6 +11,7 @@
  */
 
 @testable import AEPServices
+@testable import AEPMessaging
 import Foundation
 import XCTest
 

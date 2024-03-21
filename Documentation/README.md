@@ -2,6 +2,8 @@
 
 ### Prerequisites
 
+- Code-based Experiences  
+  - [APIs usage](./sources/exd-cbe-beta/apis-usage.md)  
 - Push Messaging
   - [Enable push notifications in your app](./sources/prerequisite/enable-push-notifications.md)  
 - Push and In-app Messaging

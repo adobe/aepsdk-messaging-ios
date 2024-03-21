@@ -32,7 +32,7 @@ class MockMessage: Message {
     var trackCalled = false
     var paramTrackInteraction: String?
     var paramTrackEventType: MessagingEdgeEventType?
-    override func track(_ interaction: String?, withEdgeEventType eventType: MessagingEdgeEventType) {
+    override func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         trackCalled = true
         paramTrackInteraction = interaction
         paramTrackEventType = eventType

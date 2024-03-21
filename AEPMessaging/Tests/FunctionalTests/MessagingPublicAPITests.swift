@@ -13,9 +13,10 @@
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
+import AEPTestUtils
 import XCTest
 
-class MessagingPublicAPITests: XCTestCase {
+class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
     var messaging: Messaging!
     var mockRuntime: TestableExtensionRuntime!
     var mockConfigSharedState: [String: Any] = [:]
@@ -31,7 +32,7 @@ class MessagingPublicAPITests: XCTestCase {
     // MARK: - Handle Notification Response
 
     func testHandleNotificationResponse() {
-        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getEventData())
 
         // mock configuration shared state
         mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: event), data: (value: mockConfigSharedState, status: .set))
@@ -45,24 +46,55 @@ class MessagingPublicAPITests: XCTestCase {
         let edgeEvent = mockRuntime.dispatchedEvents[1]
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
-        XCTAssertEqual("apns", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProvider"] as? String)
-        XCTAssertEqual("mockMessageId", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProviderMessageID"] as? String)
-        XCTAssertEqual(1, flattenEdgeEvent?["xdm.application.launches.value"] as? Int)
-        XCTAssertEqual("pushTracking.customAction", flattenEdgeEvent?["xdm.eventType"] as? String)
-        XCTAssertEqual("mockEventDataset", flattenEdgeEvent?["meta.collect.datasetId"] as? String)
-        XCTAssertEqual("mockCustomActionId", flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
-        // cjm/mixins data
-        XCTAssertEqual("some-journeyVersionId", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.journeyVersionID"] as? String)
-        XCTAssertEqual("someJourneyVersionInstanceId", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.journeyVersionInstanceId"] as? String)
-        XCTAssertEqual("567", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.messageID"] as? String)
-        XCTAssertEqual("apns", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.pushChannelContext.platform"] as? String)
-        XCTAssertEqual("https://ns.adobe.com/xdm/channels/push", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageProfile.channel._id"] as? String)
-        XCTAssertEqual("16-Sept-postman", flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.messageExecutionID"] as? String)
+        
+        let expectedJSON = #"""
+        {
+          "xdm": {
+            "pushNotificationTracking": {
+              "pushProvider": "apns",
+              "pushProviderMessageID": "mockMessageId",
+              "customAction": {
+                "actionID": "mockCustomActionId"
+              }
+            },
+            "application": {
+              "launches": {
+                "value": 1
+              }
+            },
+            "eventType": "pushTracking.customAction",
+            "_experience": {
+              "customerJourneyManagement": {
+                "messageExecution": {
+                  "journeyVersionID": "some-journeyVersionId",
+                  "journeyVersionInstanceId": "someJourneyVersionInstanceId",
+                  "messageID": "567",
+                  "messageExecutionID": "16-Sept-postman"
+                },
+                "pushChannelContext": {
+                  "platform": "apns"
+                },
+                "messageProfile": {
+                  "channel": {
+                    "_id": "https://ns.adobe.com/xdm/channels/push"
+                  }
+                }
+              }
+            }
+          },
+          "meta": {
+            "collect": {
+              "datasetId": "mockEventDataset"
+            }
+          }
+        }
+        """#
+        
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
     }
 
     func testHandleNotificationResponse_noEventDatasetId() {
-        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getEventData())
 
         // empty datasetId
         mockConfigSharedState = [:]
@@ -80,7 +112,7 @@ class MessagingPublicAPITests: XCTestCase {
     }
 
     func testHandleNotificationResponse_datasetIdIsEmpty() {
-        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getEventData())
 
         // empty datasetId
         mockConfigSharedState = ["messaging.eventDataset": ""]
@@ -100,7 +132,7 @@ class MessagingPublicAPITests: XCTestCase {
     func testHandleNotificationResponse_missingXDMData() {
         var data = getEventData()
         data[MessagingConstants.Event.Data.Key.ADOBE_XDM] = nil
-        let event = Event(name: "", type: MessagingConstants.Event.EventType.messaging, source: EventSource.requestContent, data: data)
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: data)
 
         // mock configuration shared state
         mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: event), data: (value: mockConfigSharedState, status: .set))
@@ -114,14 +146,33 @@ class MessagingPublicAPITests: XCTestCase {
         let edgeEvent = mockRuntime.dispatchedEvents[1]
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
-        let flattenEdgeEvent = edgeEvent.data?.flattening()
-        XCTAssertEqual("apns", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProvider"] as? String)
-        XCTAssertEqual("mockMessageId", flattenEdgeEvent?["xdm.pushNotificationTracking.pushProviderMessageID"] as? String)
-        XCTAssertEqual(1, flattenEdgeEvent?["xdm.application.launches.value"] as? Int)
-        XCTAssertEqual("pushTracking.customAction", flattenEdgeEvent?["xdm.eventType"] as? String)
-        XCTAssertEqual("mockEventDataset", flattenEdgeEvent?["meta.collect.datasetId"] as? String)
-        XCTAssertEqual("mockCustomActionId", flattenEdgeEvent?["xdm.pushNotificationTracking.customAction.actionID"] as? String)
-        XCTAssertNil(flattenEdgeEvent?["xdm._experience.customerJourneyManagement.messageExecution.messageExecutionID"])
+        
+        let expectedJSON = #"""
+        {
+          "xdm": {
+            "pushNotificationTracking": {
+              "pushProvider": "apns",
+              "pushProviderMessageID": "mockMessageId",
+              "customAction": {
+                "actionID": "mockCustomActionId"
+              }
+            },
+            "application": {
+              "launches": {
+                "value": 1
+              }
+            },
+            "eventType": "pushTracking.customAction"
+          },
+          "meta": {
+            "collect": {
+              "datasetId": "mockEventDataset"
+            }
+          }
+        }
+        """#
+        
+        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
     }
 
     // MARK: - Helpers
@@ -133,7 +184,7 @@ class MessagingPublicAPITests: XCTestCase {
             "journeyVersionInstanceId": "someJourneyVersionInstanceId",
             "messageID": "567"
         ]]]]]
-        let data = [MessagingConstants.Event.Data.Key.MESSAGE_ID: "mockMessageId",
+        let data = [MessagingConstants.Event.Data.Key.ID: "mockMessageId",
                     MessagingConstants.Event.Data.Key.APPLICATION_OPENED: true,
                     MessagingConstants.Event.Data.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION,
                     MessagingConstants.Event.Data.Key.ACTION_ID: "mockCustomActionId",

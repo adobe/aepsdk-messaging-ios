@@ -15,27 +15,48 @@ import Foundation
 /// Provides mapping to XDM EventType strings needed for Experience Event requests
 @objc(AEPMessagingEdgeEventType)
 public enum MessagingEdgeEventType: Int {
-    case inappDismiss = 0
-    case inappInteract = 1
-    case inappTrigger = 2
-    case inappDisplay = 3
     case pushApplicationOpened = 4
     case pushCustomAction = 5
+    case dismiss = 6
+    case interact = 7
+    case trigger = 8
+    case display = 9
 
     public func toString() -> String {
         switch self {
-        case .inappDismiss:
-            return MessagingConstants.XDM.IAM.EventType.DISMISS
-        case .inappTrigger:
-            return MessagingConstants.XDM.IAM.EventType.TRIGGER
-        case .inappInteract:
-            return MessagingConstants.XDM.IAM.EventType.INTERACT
-        case .inappDisplay:
-            return MessagingConstants.XDM.IAM.EventType.DISPLAY
+        case .dismiss:
+            return MessagingConstants.XDM.Inbound.EventType.DISMISS
+        case .trigger:
+            return MessagingConstants.XDM.Inbound.EventType.TRIGGER
+        case .interact:
+            return MessagingConstants.XDM.Inbound.EventType.INTERACT
+        case .display:
+            return MessagingConstants.XDM.Inbound.EventType.DISPLAY
         case .pushCustomAction:
             return MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
         case .pushApplicationOpened:
             return MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
+        }
+    }
+
+    /// Initializes `MessagingEdgeEventType` with the provided type string.
+    /// - Parameter type: Event type string
+    init?(fromType type: String) {
+        switch type {
+        case MessagingConstants.XDM.Inbound.EventType.DISMISS:
+            self = .dismiss
+        case MessagingConstants.XDM.Inbound.EventType.TRIGGER:
+            self = .trigger
+        case MessagingConstants.XDM.Inbound.EventType.INTERACT:
+            self = .interact
+        case MessagingConstants.XDM.Inbound.EventType.DISPLAY:
+            self = .display
+        case MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION:
+            self = .pushCustomAction
+        case MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED:
+            self = .pushApplicationOpened
+        default:
+            return nil
         }
     }
 }
@@ -44,17 +65,15 @@ extension MessagingEdgeEventType {
     /// Used to generate `propositionEventType` payload in outgoing proposition interaction events
     var propositionEventType: String {
         switch self {
-        case .inappDismiss:
-            return MessagingConstants.XDM.IAM.PropositionEventType.DISMISS
-        case .inappInteract:
-            return MessagingConstants.XDM.IAM.PropositionEventType.INTERACT
-        case .inappTrigger:
-            return MessagingConstants.XDM.IAM.PropositionEventType.TRIGGER
-        case .inappDisplay:
-            return MessagingConstants.XDM.IAM.PropositionEventType.DISPLAY
+        case .dismiss:
+            return MessagingConstants.XDM.Inbound.PropositionEventType.DISMISS
+        case .interact:
+            return MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT
+        case .trigger:
+            return MessagingConstants.XDM.Inbound.PropositionEventType.TRIGGER
+        case .display:
+            return MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY
         case .pushApplicationOpened, .pushCustomAction:
-            return ""
-        default:
             return ""
         }
     }
