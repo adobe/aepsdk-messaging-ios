@@ -537,9 +537,9 @@ public class Messaging: NSObject, Extension {
         switch propositionItem.schema {
         case .inapp:
             if
-                let message = Message.fromPropositionItem(propositionItem, with: self, triggeringEvent: event),
-                let propositionInfo = propositionInfoFor(messageId: propositionItem.itemId) {
-                message.propositionInfo = propositionInfo
+                let message = Message.fromPropositionItem(propositionItem, with: self, triggeringEvent: event) {
+                //let propositionInfo = propositionInfoFor(messageId: propositionItem.itemId) {
+                //message.propositionInfo = propositionInfo
                 message.trigger()
                 message.show(withMessagingDelegateControl: true)
             }
