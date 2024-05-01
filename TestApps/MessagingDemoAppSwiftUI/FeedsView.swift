@@ -19,8 +19,9 @@ struct FeedsView: View {
     @State private var feedName: String = "API feed"
     
     // staging feeds
-    private let surface = Surface(path: "feeds/schema_feeditem_with_id_hack")
+//    private let surface = Surface(path: "feeds/schema_feeditem_with_id_hack")
     // private let surface = Surface(path: "feeds/schema_feeditem_sale")
+    private let surface = Surface(path: "cards/ms")
     
     var body: some View {
         NavigationView {

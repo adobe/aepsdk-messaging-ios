@@ -11,6 +11,7 @@ governing permissions and limitations under the License.
 */
 
 import AEPCore
+import AEPEdge
 import AEPMessaging
 import AEPServices
 import SwiftUI
@@ -50,7 +51,7 @@ struct InAppView: View {
                 }
             }
             VStack {
-                Text("Event Sequencing")
+                Text("Content card qualification")
                     .font(Font.title2.weight(.bold))
                     .frame(height: 70)
                     .padding(.top, 30)
@@ -58,25 +59,18 @@ struct InAppView: View {
             }
             Grid(alignment: .leading, horizontalSpacing: 70, verticalSpacing: 30) {
                 GridRow {
-                    Button("event 1") {
-                        let event = Event(name: "Event1", type: "iam.tester", source: "inbound", data: ["firstEvent": "true"], mask: ["firstEvent"])
-                        MobileCore.dispatch(event: event)
+                    Button("qualify 1") {
+                        MobileCore.track(action: "timestampz", data: nil)
+                    }
+                    Button("qualify 2") {
+                        let experienceEvent = ExperienceEvent(xdm: ["player": "julio"])
+                        Edge.sendEvent(experienceEvent: experienceEvent)
                     }
                 }
                 GridRow {
-                    Button("event 2") {
-                        let event = Event(name: "Event2", type: "iam.tester", source: "inbound", data: ["secondEvent": "true"], mask: ["secondEvent"])
-                        MobileCore.dispatch(event: event)
-                    }
-                    Button("1 > 2 > 3?") {
-                        let checkSequenceEvent = Event(name: "Check Sequence", type: "iam.tester", source: "inbound", data: ["checkSequence": "true"])
-                        MobileCore.dispatch(event: checkSequenceEvent)
-                    }
-                }
-                GridRow {
-                    Button("event 3") {
-                        let event = Event(name: "Event3", type: "iam.tester", source: "inbound", data: ["thirdEvent": "true"], mask: ["thirdEvent"])
-                        MobileCore.dispatch(event: event)
+                    Button("request cards") {
+                        let msContentCardsSurface = Surface(path: "cards/ms")
+                        Messaging.updatePropositionsForSurfaces([msContentCardsSurface])
                     }
                 }
             }

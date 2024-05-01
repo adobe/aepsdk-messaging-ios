@@ -83,6 +83,13 @@ public class Messaging: NSObject, Extension {
         get { queue.sync { self._feedRulesBySurface } }
         set { queue.async { self._feedRulesBySurface = newValue } }
     }
+    
+    /// holds content cards that the user has qualified for
+    private var _contentCardsBySurface: [Surface: [Proposition]] = [:]
+    private var contentCardsBySurface: [Surface: [Proposition]] {
+        get { queue.sync { self._contentCardsBySurface } }
+        set { queue.async { self._contentCardsBySurface = newValue } }
+    }
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
@@ -96,9 +103,10 @@ public class Messaging: NSObject, Extension {
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
         MessagingMigrator.migrate(cache: cache)
-        rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
-        feedRulesEngine = FeedRulesEngine(name: MessagingConstants.FEED_RULES_ENGINE_NAME, extensionRuntime: runtime)
+        self.rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
+        self.feedRulesEngine = FeedRulesEngine(name: MessagingConstants.FEED_RULES_ENGINE_NAME, extensionRuntime: runtime)
         super.init()
+        self.feedRulesEngine.setParent(self)
         loadCachedPropositions()
     }
 
@@ -191,6 +199,12 @@ public class Messaging: NSObject, Extension {
     /// Called on every event, used to allow processing of the Messaging rules engine
     private func handleWildcardEvent(_ event: Event) {
         rulesEngine.process(event: event)
+        
+        let qualifiedContentCardsBySurface = getPropositionsFromFeedRulesEngine(event)
+        for (surface, propositions) in qualifiedContentCardsBySurface {
+            _contentCardsBySurface.addArray(propositions, forKey: surface)
+            Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for one or more content cards for surface \(surface.uri). The user now has qualified for   \(_contentCardsBySurface[surface]?.count ?? 0) content card(s) in this surface. Qualifying event: \(event)")
+        }
     }
 
     /// Generates and dispatches an event prompting the Edge extension to fetch in-app or feed messages or code-based experiences.
@@ -441,6 +455,13 @@ public class Messaging: NSObject, Extension {
 
                 // update rules in feed rules engine
                 feedRulesEngine.launchRulesEngine.replaceRules(with: feedRulesBySurface.flatMap { $0.value })
+                
+                // process a generic event to see if there are any content cards with no client-side qualification
+                let genericEvent = Event(name: "Seed content cards", type: EventType.edge, source: EventSource.requestContent, data: nil)
+                let qualifiedContentCardsBySurface = getPropositionsFromFeedRulesEngine(genericEvent)
+                for (surface, propositions) in qualifiedContentCardsBySurface {
+                    _contentCardsBySurface.addArray(propositions, forKey: surface)
+                }
 
             default:
                 // no-op
@@ -458,15 +479,9 @@ public class Messaging: NSObject, Extension {
             dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
             return
         }
-
-        // get propositions from rules engine where conditions are met by this event
-        let ruleConsequencePropositions = getPropositionsFromFeedRulesEngine(event)
-        // get cached propositions
-        var requestedPropositions = retrieveCachedPropositions(for: requestedSurfaces)
-
-        for (surface, propositions) in ruleConsequencePropositions {
-            requestedPropositions.addArray(propositions, forKey: surface)
-        }
+        
+        // get proposition items from cache
+        let requestedPropositions = _contentCardsBySurface.filter { surfaces.contains($0.key)}
 
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
 
@@ -547,7 +562,7 @@ public class Messaging: NSObject, Extension {
             return
         }
     }
-
+    
     // MARK: - Event Handers
 
     /// Processes the events in the event queue in the order they were received.

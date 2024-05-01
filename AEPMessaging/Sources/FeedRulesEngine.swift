@@ -18,6 +18,7 @@ import Foundation
 class FeedRulesEngine {
     let launchRulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
+    private weak var parent: Messaging?
 
     /// Initialize this class, creating a new rules engine with the provided name and runtime
     init(name: String, extensionRuntime: ExtensionRuntime) {
@@ -31,6 +32,10 @@ class FeedRulesEngine {
     init(extensionRuntime: ExtensionRuntime, launchRulesEngine: LaunchRulesEngine) {
         runtime = extensionRuntime
         self.launchRulesEngine = launchRulesEngine
+    }
+    
+    func setParent(_ parent: Messaging?) {
+        self.parent = parent
     }
 
     /// if we have rules loaded, then we simply process the event.
@@ -48,8 +53,12 @@ class FeedRulesEngine {
                 continue
             }
 
-            let surfaceUri = propositionAsFeedItem.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
-            let surface = Surface(uri: surfaceUri)
+            let propInfo = parent?.propositionInfo[consequence.id]
+            let surface = Surface(uri: propInfo?.scope ?? "")
+            
+            // TODO: - if we can get surface added to meta for each item, this is the preferred way to retrieve it
+            // let surfaceUri = propositionAsFeedItem.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
+            // let surface = Surface(uri: surfaceUri)
 
             if propositionItemsBySurface[surface] != nil {
                 propositionItemsBySurface[surface]?.append(propositionItem)
