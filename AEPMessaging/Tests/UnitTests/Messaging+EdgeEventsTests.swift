@@ -292,8 +292,12 @@ class MessagingEdgeEventsTests: XCTestCase {
     }
 
     func testSendPushTokenHappy() throws {
+        // setup
+        setConfigSharedState(["messaging.useSandbox": "false"])
+        let mockEvent = Event(name: "mockName", type: "mockType", source: "mockSource", data: nil)
+        
         // test
-        messaging.sendPushToken(ecid: MOCK_ECID, token: MOCK_PUSH_TOKEN, platform: MOCK_PUSH_PLATFORM)
+        messaging.sendPushToken(ecid: MOCK_ECID, token: MOCK_PUSH_TOKEN, event: mockEvent)
 
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)

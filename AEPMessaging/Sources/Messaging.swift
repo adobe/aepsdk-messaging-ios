@@ -644,7 +644,7 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
-            sendPushToken(ecid: ecid, token: token, platform: getPushPlatform(forEvent: event))
+            sendPushToken(ecid: ecid, token: token, event: event)
         }
 
         // Check if the event type is `MessagingConstants.Event.EventType.messaging` and
