@@ -26,14 +26,17 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
     static let DEEPLINK_URL = URL(string: "deeplink://")!
     let MOCK_BUNDLE_IDENTIFIER = "mobileapp://com.adobe.ajo.e2eTestApp"
     let MOCK_FEEDS_SURFACE = "mobileapp://com.adobe.ajo.e2eTestApp/promos/feed1"
+    var mockURLOpener = MockURLOpening()
     
     override func setUp() {
         registerNotificationCategories()
         EventHub.shared.start()
         registerMockExtension(MockExtension.self)
+        AEPServices.ServiceProvider.shared.urlService = mockURLOpener
     }
     
     override func tearDown() {
+        mockURLOpener.reset()
         resetNotificationCategories()
         MockExtension.reset()
         EventHub.reset()
@@ -61,7 +64,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
                 "eventType": "pushTracking.applicationOpened",
                 "applicationOpened": true,
                 "id": "mockIdentifier",
-                "clickThroughUrl": "https://adobe.com",
                 "adobe_xdm": {
                     "trackingKey": "trackingValue"
                 }
@@ -205,7 +207,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         
         // register listener to verify messaging request content event
         MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.requestContent) { event in
-            XCTAssertEqual(event.data!["clickThroughUrl"] as! String, MessagingPublicApiTest.WEB_URL.absoluteString)
             eventExpectation.fulfill()
         }
         
@@ -217,6 +218,8 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         
         // verify expectation
         wait(for: [eventExpectation], timeout: ASYNC_TIMEOUT)
+        XCTAssertTrue(mockURLOpener.isOpenURLCalled)
+        XCTAssertEqual(mockURLOpener.openedURLString, MessagingPublicApiTest.WEB_URL.absoluteString)
     }
 
     func testHandleNotificationResponse_when_URLHandledByApplication() {
@@ -228,8 +231,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         
         // register listener to verify messaging request content event
         MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.requestContent) { event in
-            // verify clickThroughUrl is not present in the event data
-            XCTAssertNil(event.data!["clickThroughUrl"])
             eventExpectation.fulfill()
         }
         
@@ -241,21 +242,19 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         
         // verify expectation
         wait(for: [eventExpectation], timeout: ASYNC_TIMEOUT)
+        XCTAssertFalse(mockURLOpener.isOpenURLCalled)
     }
     
     
-    func testHandleNotificationResponse_when_customAction_then_NoClickThroughUrlAttached() {
+    func testHandleNotificationResponse_when_customAction_then_noUrlActionIsTaken() {
         // Mock notification response indicating custom action being taken on a notification
         let mockedResponse = createNotificationResponse(actionId: "open", url: MessagingPublicApiTest.DEEPLINK_URL)
         
         // create your expectations
-        let eventExpectation = XCTestExpectation(description: "clickthrough url should not be present in event payload")
+        let eventExpectation = XCTestExpectation(description: "Messaging Request content event should be dispatched.")
         
         // register listener to verify messaging request content event
         MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.requestContent) { event in
-            // verify clickThroughUrl is not present in the event data
-            // "ClickthroughUrl" key will only exist when notification body is tapped
-            XCTAssertNil(event.data!["clickThroughUrl"])
             eventExpectation.fulfill()
         }
         
@@ -267,19 +266,19 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         
         // verify expectation
         wait(for: [eventExpectation], timeout: ASYNC_TIMEOUT)
+        XCTAssertFalse(mockURLOpener.isOpenURLCalled)
     }
     
     
-    func testHandleNotificationResponse_when_urlHandlerIsNil_then_ClickThroughUrlAttached() {
+    func testHandleNotificationResponse_when_urlHandlerIsNil_then_UrlIsHandledBySDK() {
         // Mock notification response indicating custom action being taken on a notification
         let mockedResponse = createNotificationResponse(url: MessagingPublicApiTest.DEEPLINK_URL)
         
         // create your expectations
-        let eventExpectation = XCTestExpectation(description: "clickthrough url should be present in event payload")
+        let eventExpectation = XCTestExpectation(description: "Messaging Request content event should be dispatched.")
         
         // register listener to verify messaging request content event
         MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.requestContent) { event in
-            XCTAssertNotNil(event.data!["clickThroughUrl"])
             eventExpectation.fulfill()
         }
         
@@ -288,6 +287,8 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         
         // verify expectation
         wait(for: [eventExpectation], timeout: ASYNC_TIMEOUT)
+        XCTAssertTrue(mockURLOpener.isOpenURLCalled)
+        XCTAssertEqual(mockURLOpener.openedURLString, MessagingPublicApiTest.DEEPLINK_URL.absoluteString)
     }
     
     

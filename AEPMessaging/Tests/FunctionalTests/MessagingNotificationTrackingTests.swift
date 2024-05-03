@@ -359,7 +359,6 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         let expectedJSON = #"""
         {
           "applicationOpened": true,
-          "clickThroughUrl": "https://google.com",
           "eventType": "pushTracking.applicationOpened"
         }
         """#
