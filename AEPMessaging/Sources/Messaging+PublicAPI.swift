@@ -32,6 +32,9 @@ import UserNotifications
                                            closure: ((PushTrackingStatus) -> Void)? = nil) {
         let notificationRequest = response.notification.request
 
+        // Handle the click-through URL ASAP to avoid any delay in deeplinking f the client app.
+        handleClickUrl(response, urlHandler)
+
         // Checking if the message has the _xdm key that contains tracking information
         guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
@@ -47,7 +50,7 @@ import UserNotifications
                                                 MessagingConstants.Event.Data.Key.APPLICATION_OPENED: isAppOpened,
                                                 MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm]
 
-                let modifiedEventData = addNotificationActionToEventData(eventData, response, urlHandler)
+                let modifiedEventData = addNotificationActionToEventData(eventData, response)
 
                 let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
                                   type: EventType.messaging,
@@ -194,37 +197,15 @@ import UserNotifications
     /// - Parameters:
     ///   - eventData: The original event data dictionary.
     ///   - response: The user's response to a notification, represented by a `UNNotificationResponse` object.
-    ///   - urlHandler: An optional closure defined in the consumer app to  handle the actionable URL from the push notification.
     /// - Returns: The modified event data dictionary.
     private static func addNotificationActionToEventData(_ eventData: [String: Any],
-                                                         _ response: UNNotificationResponse,
-                                                         _ urlHandler: ((URL) -> Bool)?) -> [String: Any] {
+                                                         _ response: UNNotificationResponse) -> [String: Any] {
         var modifiedEventData = eventData
         switch response.actionIdentifier {
         case UNNotificationDefaultActionIdentifier:
             // actionIdentifier `UNNotificationDefaultActionIdentifier` indicates user tapped the notification body.
             // This results in opening of the application.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
-
-            let userInfo = response.notification.request.content.userInfo
-            // If the notification does not contain a valid click through URL, log a warning and break
-            guard let clickThroughURLString = userInfo[MessagingConstants.PushNotification.UserInfoKey.ACTION_URL] as? String,
-                  let clickThroughURL = URL(string: clickThroughURLString)
-            else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Invalid or missing click through URL on notification.")
-                break
-            }
-
-            // If the urlHandler is not defined by the consumer app, then add the click through URL to the event data.
-            guard let urlHandler = urlHandler else {
-                modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURLString
-                break
-            }
-
-            // If the urlHandler returns false, then add the click through URL to the event data.
-            if !urlHandler(clickThroughURL) {
-                modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] = clickThroughURLString
-            }
 
         case UNNotificationDismissActionIdentifier:
             // actionIdentifier `UNNotificationDismissActionIdentifier` indicates user has dismissed the
@@ -239,5 +220,42 @@ import UserNotifications
         }
 
         return modifiedEventData
+    }
+
+    /// Handles the click-through URL from a notification response.
+    /// The SDK processes the click-through URL based on the following conditions:
+    /// - If a valid URL is extracted from the "adb_uri" key within the notification payload.
+    /// - If the default action is initiated by the user tapping on the notification body.
+    /// - If  the `urlHandler` closure does not return true indicating the client app has decided to handle notification
+    ///
+    /// - Parameters:
+    ///   - response: Represents the user's response to a notification, encapsulated in a `UNNotificationResponse` object.
+    ///   - urlHandler: An optional closure provided by the consumer app to manage the actionable URL from the push notification.
+    private static func handleClickUrl(_ response: UNNotificationResponse, _ urlHandler: ((URL) -> Bool)?) {
+        let userInfo = response.notification.request.content.userInfo
+
+        // Bail out if valid click url is not available.
+        guard let clickThroughUrlString = userInfo[MessagingConstants.PushNotification.UserInfoKey.ACTION_URL] as? String,
+              let clickThroughUrl = URL(string: clickThroughUrlString)
+        else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Invalid or missing click through URL on notification.")
+            return
+        }
+
+        // only handle notification click url if default action was taken
+        if response.actionIdentifier != UNNotificationDefaultActionIdentifier {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring click through URL as it was not triggered by default action.")
+            return
+        }
+
+        // handle the click url
+        if let urlHandler = urlHandler, urlHandler(clickThroughUrl) {
+            // If urlHandler exists and returns true, do nothing. The client app has handled the url.
+        } else {
+            // If there is no urlHandler or urlHandler returns false, handle clickThroughUrl in the SDK
+            DispatchQueue.main.async {
+                ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
+            }
+        }
     }
 }
