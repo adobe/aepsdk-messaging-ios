@@ -190,13 +190,6 @@ extension Event {
         return PushTrackingStatus(fromRawValue: statusInt)
     }
 
-    var pushClickThroughUrl: URL? {
-        guard let link = data?[MessagingConstants.Event.Data.Key.PUSH_CLICK_THROUGH_URL] as? String else {
-            return nil
-        }
-        return URL(string: link)
-    }
-
     var isMessagingRequestContentEvent: Bool {
         type == EventType.messaging && source == EventSource.requestContent
     }

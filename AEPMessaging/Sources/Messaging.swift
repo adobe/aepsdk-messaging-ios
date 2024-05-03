@@ -635,11 +635,6 @@ public class Messaging: NSObject, Extension {
         // Check if the event type is `MessagingConstants.Event.EventType.messaging` and
         // eventSource is `EventSource.requestContent` handle processing of the tracking information
         if event.isMessagingRequestContentEvent {
-            if let clickThroughUrl = event.pushClickThroughUrl {
-                DispatchQueue.main.async {
-                    ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
-                }
-            }
             handleTrackingInfo(event: event)
             return
         }
