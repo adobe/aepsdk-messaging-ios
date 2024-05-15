@@ -162,10 +162,11 @@ public extension PropositionItem {
     }
 
     var feedItemSchemaData: FeedItemSchemaData? {
-        guard schema == .feed else {
+        guard schema == .feed, let feedItemSchemaData = getTypedData(FeedItemSchemaData.self) else {
             return nil
         }
-        return getTypedData(FeedItemSchemaData.self)
+        feedItemSchemaData.parent = self
+        return feedItemSchemaData
     }
 
     private func getTypedData<T>(_ type: T.Type) -> T? where T: Decodable {

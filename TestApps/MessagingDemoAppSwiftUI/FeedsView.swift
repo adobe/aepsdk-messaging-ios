@@ -23,6 +23,18 @@ struct FeedsView: View {
     // private let surface = Surface(path: "feeds/schema_feeditem_sale")
     private let surface = Surface(path: "cards/ms")
     
+    //
+    struct ExecuteCode : View {
+        init( _ codeToExec: () -> () ) {
+            codeToExec()
+        }
+        
+        var body: some View {
+            EmptyView()
+        }
+    }
+    //
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -33,6 +45,9 @@ struct FeedsView: View {
                     ForEach(propositionsDict?[surface]?.compactMap {
                         $0.items.first } ?? [], id: \.itemId ) { propositionItem in
                             if let feedItemSchema = propositionItem.feedItemSchemaData, let feedItem = feedItemSchema.getFeedItem() {
+                                ExecuteCode {
+                                    feedItem.track(withEdgeEventType: .display)
+                                }
                                 NavigationLink(destination: FeedItemDetailView(feedItem: feedItem)) {
                                     FeedItemView(feedItem: feedItem)
                                 }

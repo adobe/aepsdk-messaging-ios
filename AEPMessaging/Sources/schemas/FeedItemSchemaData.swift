@@ -23,6 +23,8 @@ public class FeedItemSchemaData: NSObject, Codable {
     public let expiryDate: Int?
     public let meta: [String: Any]?
 
+    var parent: PropositionItem?
+    
     enum CodingKeys: String, CodingKey {
         case content
         case contentType
@@ -76,14 +78,29 @@ extension FeedItemSchemaData {
     static func getEmpty() -> FeedItemSchemaData {
         FeedItemSchemaData()
     }
+}
 
-    public func getFeedItem() -> FeedItem? {
+public extension FeedItemSchemaData {
+    func getFeedItem() -> FeedItem? {
         guard contentType == .applicationJson,
               let contentAsJsonData = try? JSONSerialization.data(withJSONObject: content, options: .prettyPrinted)
         else {
             return nil
         }
+        
+        guard let feedItem = try? JSONDecoder().decode(FeedItem.self, from: contentAsJsonData) else {
+            return nil
+        }
 
-        return try? JSONDecoder().decode(FeedItem.self, from: contentAsJsonData)
+        feedItem.parent = self
+        return feedItem
+    }
+    
+    func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
+        guard let parent = parent else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track FeedItemSchemaData, parent proposition item is unavailable.")
+            return
+        }
+        parent.track(interaction, withEdgeEventType: eventType)
     }
 }

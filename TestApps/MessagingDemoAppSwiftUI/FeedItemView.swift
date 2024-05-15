@@ -14,7 +14,7 @@ import AEPMessaging
 import SwiftUI
 
 struct FeedItemView: View {
-    @State var feedItem: FeedItem
+    @State var feedItem: FeedItem    
     
     var body: some View {
         HStack(spacing: 10) {

@@ -17,6 +17,7 @@ struct FeedItemDetailView: View {
     @State var feedItem: FeedItem
     
     var body: some View {
+        
         ScrollView {
             VStack {
                 Text(feedItem.title)
@@ -29,16 +30,23 @@ struct FeedItemDetailView: View {
                     .multilineTextAlignment(.center)
                     .frame(height: 100)
                     .frame(maxWidth: .infinity)
-                Button(action: {
+                Button(action: {                    
                     if
                         let actionUrl = feedItem.actionUrl,
-                        let url = URL(string: actionUrl) {
+                        let url = URL(string: actionUrl) {                        
+                        feedItem.track("cta clicked", withEdgeEventType: .interact)
                         UIApplication.shared.open(url)
                     }
                 }) {
                     HStack {
-                        Text(feedItem.actionTitle ?? "OK")
-                            .font(.title3)
+                        if let customTitle = feedItem.actionTitle, !customTitle.isEmpty {
+                            Text(customTitle)
+                                .font(.title3)
+                        } else {
+                            Text("OK")
+                                .font(.title3)
+                        }
+                        
                     }
                     .frame(maxWidth: 150)
                     .padding()

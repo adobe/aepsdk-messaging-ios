@@ -53,12 +53,9 @@ class FeedRulesEngine {
                 continue
             }
 
-            let propInfo = parent?.propositionInfo[consequence.id]
-            let surface = Surface(uri: propInfo?.scope ?? "")
-            
-            // TODO: - if we can get surface added to meta for each item, this is the preferred way to retrieve it
-            // let surfaceUri = propositionAsFeedItem.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
-            // let surface = Surface(uri: surfaceUri)
+            // surface is automatically added to the metadata for content cards
+            let surfaceUri = propositionAsFeedItem.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
+            let surface = Surface(uri: surfaceUri)
 
             if propositionItemsBySurface[surface] != nil {
                 propositionItemsBySurface[surface]?.append(propositionItem)
