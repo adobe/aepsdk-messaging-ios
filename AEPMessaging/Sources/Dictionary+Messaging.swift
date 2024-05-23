@@ -28,7 +28,7 @@ extension Dictionary {
         }
         self[key] == nil ? self[key] = value : self[key]?.append(contentsOf: sequence)
     }
-
+    
     mutating func add<T>(_ element: T, forKey key: Key) where Value == [T] {
         self[key] == nil ? self[key] = [element] : self[key]?.append(element)
     }

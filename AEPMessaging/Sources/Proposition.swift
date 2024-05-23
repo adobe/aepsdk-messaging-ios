@@ -71,4 +71,18 @@ public class Proposition: NSObject, Codable {
         try container.encode(AnyCodable.from(dictionary: scopeDetails), forKey: .scopeDetails)
         try container.encode(items, forKey: .items)
     }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        activityId == (object as? Proposition)?.activityId
+    }
+}
+
+extension Proposition {
+    var activityId: String {
+        guard let activityCodable = scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY] as? AnyCodable,
+              let activity = activityCodable.dictionaryValue else {
+            return ""
+        }
+        return activity[MessagingConstants.Event.Data.Key.Personalization.ID] as? String ?? ""
+    }
 }

@@ -202,8 +202,25 @@ public class Messaging: NSObject, Extension {
         
         let qualifiedContentCardsBySurface = getPropositionsFromFeedRulesEngine(event)
         for (surface, propositions) in qualifiedContentCardsBySurface {
-            _contentCardsBySurface.addArray(propositions, forKey: surface)
+            addOrReplaceContentCards(propositions, forSurface: surface)
             Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for one or more content cards for surface \(surface.uri). The user now has qualified for \(_contentCardsBySurface[surface]?.count ?? 0) content card(s) in this surface. \nQualifying event: \(event)")
+        }
+    }
+    
+    private func addOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface) {
+        if var existingPropositionsArray = _contentCardsBySurface[surface] {
+            for proposition in propositions {
+                if let index = existingPropositionsArray.firstIndex(of: proposition) {
+                    existingPropositionsArray.remove(at: index)
+                } else {
+                    proposition.items.first?.track(withEdgeEventType: .trigger)
+                }
+                
+                existingPropositionsArray.append(proposition)
+            }
+            _contentCardsBySurface[surface] = existingPropositionsArray
+        } else {
+            _contentCardsBySurface[surface] = propositions
         }
     }
 

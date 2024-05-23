@@ -77,6 +77,11 @@ public extension PropositionItem {
     ///     - eventType: an enum specifying event type for the interaction.
     ///     - tokens: an array containing the sub-item tokens for recording interaction.
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType, forTokens tokens: [String]? = nil) {
+        
+        
+        // add code to put this in event history
+        
+        
         guard let propositionInteractionXdm = generateInteractionXdm(interaction, withEdgeEventType: eventType, forTokens: tokens) else {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Cannot track proposition interaction for item \(itemId), could not generate interactions XDM.")
