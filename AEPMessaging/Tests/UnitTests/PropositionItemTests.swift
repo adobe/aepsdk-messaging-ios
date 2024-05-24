@@ -207,7 +207,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         // verify
         XCTAssertNotNil(propositionItem)
         XCTAssertEqual("183639c4-cb37-458e-a8ef-4e130d767ebf", propositionItem?.itemId)
-        XCTAssertEqual(.feed, propositionItem?.schema)
+        XCTAssertEqual(.contentCard, propositionItem?.schema)
         assertExactMatch(expected: expectedData.toAnyCodable()!, actual: propositionItem?.itemData.toAnyCodable(), pathOptions: [])
     }
     
@@ -330,7 +330,7 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         let propositionItem = PropositionItem.fromRuleConsequence(feedConsequence)
         
         // test
-        let feedItemSchemaData = propositionItem?.feedItemSchemaData
+        let feedItemSchemaData = propositionItem?.contentCardSchemaData
         
         let expectedContent = #"""
         {
