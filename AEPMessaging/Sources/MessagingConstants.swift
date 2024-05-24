@@ -19,9 +19,12 @@ enum MessagingConstants {
     static let EXTENSION_VERSION = "5.0.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
-    static let FEED_RULES_ENGINE_NAME = EXTENSION_NAME + "Feed" + ".rulesengine"
+    static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
+    
+    @available(*, deprecated, renamed: "CONTENT_CARD_RULES_ENGINE_NAME")
+    static let FEED_RULES_ENGINE_NAME = EXTENSION_NAME + "Feed" + ".rulesengine"
 
     enum ContentTypes {
         static let APPLICATION_JSON = "application/json"
@@ -46,8 +49,11 @@ enum MessagingConstants {
         static let RULESET_ITEM = "https://ns.adobe.com/personalization/ruleset-item"
         static let DEFAULT_CONTENT = "https://ns.adobe.com/personalization/default-content-item"
         static let IN_APP = "https://ns.adobe.com/personalization/message/in-app"
-        static let FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"
+        static let CONTENT_CARD = "https://ns.adobe.com/personalization/message/content-card"
         static let NATIVE_ALERT = "https://ns.adobe.com/personalization/message/native-alert"
+        
+        @available(*, deprecated, renamed: "CONTENT_CARD")
+        static let FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"
     }
 
     enum Event {

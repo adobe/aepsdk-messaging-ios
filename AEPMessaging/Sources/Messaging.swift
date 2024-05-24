@@ -38,7 +38,7 @@ public class Messaging: NSObject, Extension {
 
     private var initialLoadComplete = false
     let rulesEngine: MessagingRulesEngine
-    let feedRulesEngine: FeedRulesEngine
+    let contentCardRulesEngine: ContentCardRulesEngine
 
     /// Dispatch queue used to protect against simultaneous access of our containers from multiple threads
     private let queue: DispatchQueue = .init(label: "com.adobe.messaging.containers.queue")
@@ -77,11 +77,11 @@ public class Messaging: NSObject, Extension {
         set { queue.async { self._inAppRulesBySurface = newValue } }
     }
 
-    /// used to manage feed rules between multiple surfaces and multiple requests
-    private var _feedRulesBySurface: [Surface: [LaunchRule]] = [:]
-    private var feedRulesBySurface: [Surface: [LaunchRule]] {
-        get { queue.sync { self._feedRulesBySurface } }
-        set { queue.async { self._feedRulesBySurface = newValue } }
+    /// used to manage content card rules between multiple surfaces and multiple requests
+    private var _contentCardRulesBySurface: [Surface: [LaunchRule]] = [:]
+    private var contentCardRulesBySurface: [Surface: [LaunchRule]] {
+        get { queue.sync { self._contentCardRulesBySurface } }
+        set { queue.async { self._contentCardRulesBySurface = newValue } }
     }
     
     /// holds content cards that the user has qualified for
@@ -109,19 +109,19 @@ public class Messaging: NSObject, Extension {
         self.runtime = runtime
         MessagingMigrator.migrate(cache: cache)
         self.rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
-        self.feedRulesEngine = FeedRulesEngine(name: MessagingConstants.FEED_RULES_ENGINE_NAME, extensionRuntime: runtime)
+        self.contentCardRulesEngine = ContentCardRulesEngine(name: MessagingConstants.CONTENT_CARD_RULES_ENGINE_NAME, extensionRuntime: runtime)
         super.init()
-        self.feedRulesEngine.setParent(self)
+        self.contentCardRulesEngine.setParent(self)
         loadCachedPropositions()
         Messaging.shared = self
     }
 
     /// INTERNAL ONLY
     /// used for testing
-    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, feedRulesEngine: FeedRulesEngine, expectedSurfaceUri _: String, cache: Cache) {
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, contentCardRulesEngine: ContentCardRulesEngine, expectedSurfaceUri _: String, cache: Cache) {
         self.runtime = runtime
         self.rulesEngine = rulesEngine
-        self.feedRulesEngine = feedRulesEngine
+        self.contentCardRulesEngine = contentCardRulesEngine
         self.cache = cache
         super.init()
         loadCachedPropositions()
@@ -195,7 +195,7 @@ public class Messaging: NSObject, Extension {
         // once we have valid configuration, fetch message definitions from offers if we haven't already
         if !initialLoadComplete {
             initialLoadComplete = true
-            fetchMessages(event)
+            fetchPropositions(event)
         }
 
         return true
@@ -207,7 +207,7 @@ public class Messaging: NSObject, Extension {
     private func handleWildcardEvent(_ event: Event) {
         rulesEngine.process(event: event)
         
-        let qualifiedContentCardsBySurface = getPropositionsFromFeedRulesEngine(event)
+        let qualifiedContentCardsBySurface = getPropositionsFromContentCardRulesEngine(event)
         for (surface, propositions) in qualifiedContentCardsBySurface {
             addOrReplaceContentCards(propositions, forSurface: surface)
             Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for one or more content cards for surface \(surface.uri). The user now has qualified for \(contentCardsBySurface[surface]?.count ?? 0) content card(s) in this surface. \nQualifying event: \(event)")
@@ -237,15 +237,15 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    /// Generates and dispatches an event prompting the Edge extension to fetch in-app or feed messages or code-based experiences.
+    /// Generates and dispatches an event prompting the Edge extension to fetch propositions (in-app, content cards, or code-based experiences).
     ///
     /// The surface URIs used in the request are generated using the `bundleIdentifier` for the app.
     /// If the `bundleIdentifier` is unavailable, calling this method will do nothing.
     ///
     /// - Parameters:
-    /// - event - do this
-    ///   - surfaces: an array of surface path strings for fetching feed messages, if available.
-    private func fetchMessages(_ event: Event, for surfaces: [Surface]? = nil) {
+    ///   - event - parent event requesting that the messages be fetched. Used for event chaining to help with debugging.
+    ///   - surfaces: an array of surface path strings for fetching propositions, if available.
+    private func fetchPropositions(_ event: Event, for surfaces: [Surface]? = nil) {
         var requestedSurfaces: [Surface] = []
 
         // if surfaces are provided, use them - otherwise assume the request is for base surface (mobileapp://{bundle identifier})
@@ -347,10 +347,10 @@ public class Messaging: NSObject, Extension {
         dispatchNotificationEventFor(event, requestedSurfaces: requestedSurfaces)
     }
 
-    private func getPropositionsFromFeedRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
+    private func getPropositionsFromContentCardRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
         var surfacePropositions: [Surface: [Proposition]] = [:]
 
-        if let propositionItemsBySurface = feedRulesEngine.evaluate(event: event) {
+        if let propositionItemsBySurface = contentCardRulesEngine.evaluate(event: event) {
             for (surface, propositionItemsArray) in propositionItemsBySurface {
                 var tempPropositions: [Proposition] = []
                 for propositionItem in propositionItemsArray {
@@ -472,23 +472,23 @@ public class Messaging: NSObject, Extension {
                 // update rules in in-app engine
                 rulesEngine.launchRulesEngine.replaceRules(with: allInAppRules)
 
-            case .feed:
-                Log.trace(label: MessagingConstants.LOG_TAG, "Updating feed definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
+            case .feed, .contentCard:
+                Log.trace(label: MessagingConstants.LOG_TAG, "Updating content card definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
 
-                // replace rules for each feed surface we got back
-                feedRulesBySurface.merge(newRules) { _, new in new }
+                // replace rules for each content card surface we got back
+                contentCardRulesBySurface.merge(newRules) { _, new in new }
 
                 // remove any surfaces that were requested but had no in-app content returned
                 for surface in surfacesToRemove {
-                    feedRulesBySurface.removeValue(forKey: surface)
+                    contentCardRulesBySurface.removeValue(forKey: surface)
                 }
 
-                // update rules in feed rules engine
-                feedRulesEngine.launchRulesEngine.replaceRules(with: feedRulesBySurface.flatMap { $0.value })
+                // update rules in content card rules engine
+                contentCardRulesEngine.launchRulesEngine.replaceRules(with: contentCardRulesBySurface.flatMap { $0.value })
                 
                 // process a generic event to see if there are any content cards with no client-side qualification
                 let genericEvent = Event(name: "Seed content cards", type: EventType.edge, source: EventSource.requestContent, data: nil)
-                let qualifiedContentCardsBySurface = getPropositionsFromFeedRulesEngine(genericEvent)
+                let qualifiedContentCardsBySurface = getPropositionsFromContentCardRulesEngine(genericEvent)
                 for (surface, propositions) in qualifiedContentCardsBySurface {
                     addOrReplaceContentCards(propositions, forSurface: surface)
                 }
@@ -505,7 +505,7 @@ public class Messaging: NSObject, Extension {
         let requestedSurfaces = surfaces.filter { $0.isValid }
 
         guard !requestedSurfaces.isEmpty else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve feed messages, no valid surface paths found.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve propositions, no valid surface paths found.")
             dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
             return
         }
@@ -616,11 +616,11 @@ public class Messaging: NSObject, Extension {
         // handle an event to request propositions from the remote
         if event.isUpdatePropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update propositions from the remote.")
-            fetchMessages(event, for: event.surfaces ?? [])
+            fetchPropositions(event, for: event.surfaces ?? [])
             return
         }
 
-        // handle an event to get cached message feeds in the SDK
+        // handle an event to get cached propositions from the SDK
         if event.isGetPropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
             // Queue the get propositions event in internal events queue to ensure any prior update requests are completed
@@ -639,7 +639,7 @@ public class Messaging: NSObject, Extension {
         // handle an event for refreshing in-app messages from the remote
         if event.isRefreshMessageEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing manual request to refresh In-App Message definitions from the remote.")
-            fetchMessages(event)
+            fetchPropositions(event)
             return
         }
 

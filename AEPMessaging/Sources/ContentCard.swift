@@ -1,5 +1,5 @@
 /*
- Copyright 2023 Adobe. All rights reserved.
+ Copyright 2024 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,10 +13,9 @@
 import AEPServices
 import Foundation
 
-@available(*, deprecated, renamed: "ContentCard")
-@objc(AEPFeedItem)
+@objc(AEPContentCard)
 @objcMembers
-public class FeedItem: NSObject, Codable {
+public class ContentCard: NSObject, Codable {
     /// Plain-text title for the feed item
     public let title: String
 
@@ -32,8 +31,8 @@ public class FeedItem: NSObject, Codable {
     /// Required if `actionUrl` is provided. Text to be used in title of button or link in feed item
     public let actionTitle: String?
 
-    /// Reference to parent feedItemSchemaData instance
-    var parent: FeedItemSchemaData?
+    /// Reference to parent ContentCardSchemaData instance
+    var parent: ContentCardSchemaData?
 
     enum CodingKeys: String, CodingKey {
         case title
@@ -76,7 +75,7 @@ public class FeedItem: NSObject, Codable {
     }
 }
 
-public extension FeedItem {
+public extension ContentCard {
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let parent = parent else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track FeedItem, parent schema object is unavailable.")

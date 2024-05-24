@@ -23,7 +23,7 @@
 /* Begin PBXBuildFile section */
 		01B9DD6617C6AD6E99EE8472 /* Pods_E2EFunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB180620A608D2821FE98F37 /* Pods_E2EFunctionalTests.framework */; };
 		090290C329D4EA9F00388226 /* MockCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5E8274C107100E56457 /* MockCache.swift */; };
-		090290C529DCED0B00388226 /* FeedRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C429DCED0B00388226 /* FeedRulesEngine.swift */; };
+		090290C529DCED0B00388226 /* ContentCardRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C429DCED0B00388226 /* ContentCardRulesEngine.swift */; };
 		090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */; };
 		090290CB29DE3F8200388226 /* MockFeedRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290CA29DE3F8200388226 /* MockFeedRulesEngine.swift */; };
 		091881E72A16BAE300615481 /* MessagingDemoAppSwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881E62A16BAE300615481 /* MessagingDemoAppSwiftUIApp.swift */; };
@@ -143,6 +143,8 @@
 		2469A60E275999A000E56457 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60D275999A000E56457 /* Assets.xcassets */; };
 		2469A611275999A000E56457 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60F275999A000E56457 /* LaunchScreen.storyboard */; };
 		246EF0602BFFC6B5002A9B22 /* Messaging+EventHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF05F2BFFC6B5002A9B22 /* Messaging+EventHistory.swift */; };
+		246EF0622C013D4A002A9B22 /* ContentCardSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF0612C013D4A002A9B22 /* ContentCardSchemaData.swift */; };
+		246EF0642C013DED002A9B22 /* ContentCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF0632C013DED002A9B22 /* ContentCard.swift */; };
 		246EFA1027973E7400C76A6B /* E2EFunctionalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EFA0F27973E7400C76A6B /* E2EFunctionalTests.swift */; };
 		246EFA1127973E7400C76A6B /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; platformFilter = ios; };
 		246EFA19279743EB00C76A6B /* ConfigurationLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5FA2759401900E56457 /* ConfigurationLoader.swift */; };
@@ -388,7 +390,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		090290C429DCED0B00388226 /* FeedRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedRulesEngine.swift; sourceTree = "<group>"; };
+		090290C429DCED0B00388226 /* ContentCardRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardRulesEngine.swift; sourceTree = "<group>"; };
 		090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuleConsequence+Messaging.swift"; sourceTree = "<group>"; };
 		090290CA29DE3F8200388226 /* MockFeedRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MockFeedRulesEngine.swift; path = AEPMessaging/Tests/TestHelpers/MockFeedRulesEngine.swift; sourceTree = SOURCE_ROOT; };
 		091881E42A16BAE200615481 /* MessagingDemoAppSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoAppSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -509,6 +511,8 @@
 		2469A610275999A000E56457 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2469A612275999A000E56457 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		246EF05F2BFFC6B5002A9B22 /* Messaging+EventHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+EventHistory.swift"; sourceTree = "<group>"; };
+		246EF0612C013D4A002A9B22 /* ContentCardSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardSchemaData.swift; sourceTree = "<group>"; };
+		246EF0632C013DED002A9B22 /* ContentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCard.swift; sourceTree = "<group>"; };
 		246EFA0D27973E7400C76A6B /* E2EFunctionalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = E2EFunctionalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		246EFA0F27973E7400C76A6B /* E2EFunctionalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = E2EFunctionalTests.swift; sourceTree = "<group>"; };
 		246FD07126B9F86F00FD130B /* FullscreenMessage+Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FullscreenMessage+Message.swift"; sourceTree = "<group>"; };
@@ -745,6 +749,7 @@
 			isa = PBXGroup;
 			children = (
 				24569A8E2AE2CD6E00FC356F /* ContentType.swift */,
+				246EF0612C013D4A002A9B22 /* ContentCardSchemaData.swift */,
 				242920F02AD061F3000DB2CD /* FeedItemSchemaData.swift */,
 				242920F42AD06215000DB2CD /* HtmlContentSchemaData.swift */,
 				242920EE2AD05AFA000DB2CD /* InAppSchemaData.swift */,
@@ -896,11 +901,12 @@
 				09B071F52A7318CB00F259C1 /* Array+Messaging.swift */,
 				09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */,
 				240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */,
+				246EF0632C013DED002A9B22 /* ContentCard.swift */,
+				090290C429DCED0B00388226 /* ContentCardRulesEngine.swift */,
 				244E955A267BB253001DC957 /* Dictionary+Messaging.swift */,
 				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
 				244FEA4729B8E2950058FA1C /* Feed.swift */,
 				244FEA4329B6A1060058FA1C /* FeedItem.swift */,
-				090290C429DCED0B00388226 /* FeedRulesEngine.swift */,
 				246FD07126B9F86F00FD130B /* FullscreenMessage+Message.swift */,
 				244E9583268262C7001DC957 /* Message.swift */,
 				244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */,
@@ -1918,6 +1924,7 @@
 				244E9555267BB018001DC957 /* String+JSON.swift in Sources */,
 				242920F12AD061F3000DB2CD /* FeedItemSchemaData.swift in Sources */,
 				09B071E62A64D3D900F259C1 /* Surface.swift in Sources */,
+				246EF0622C013D4A002A9B22 /* ContentCardSchemaData.swift in Sources */,
 				240FC42E2AA920D400AFEEEB /* ParsedPropositions.swift in Sources */,
 				246EF0602BFFC6B5002A9B22 /* Messaging+EventHistory.swift in Sources */,
 				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
@@ -1931,12 +1938,13 @@
 				240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */,
 				2469A5E3274863F600E56457 /* MessagingRulesEngine+Caching.swift in Sources */,
 				242920F32AD06207000DB2CD /* JsonContentSchemaData.swift in Sources */,
-				090290C529DCED0B00388226 /* FeedRulesEngine.swift in Sources */,
+				090290C529DCED0B00388226 /* ContentCardRulesEngine.swift in Sources */,
 				242920F52AD06215000DB2CD /* HtmlContentSchemaData.swift in Sources */,
 				244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */,
 				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
 				09B071F62A7318CB00F259C1 /* Array+Messaging.swift in Sources */,
 				244FEA4829B8E2950058FA1C /* Feed.swift in Sources */,
+				246EF0642C013DED002A9B22 /* ContentCard.swift in Sources */,
 				240316B82A83DDD80016B0D9 /* Cache+Messaging.swift in Sources */,
 				245059522671283F00CC7CA0 /* MessagingRulesEngine.swift in Sources */,
 				244C2BD826B36480008F086A /* MessagingEdgeEventType.swift in Sources */,

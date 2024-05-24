@@ -15,7 +15,7 @@ import AEPRulesEngine
 import AEPServices
 import Foundation
 
-class FeedRulesEngine {
+class ContentCardRulesEngine {
     let launchRulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
     private weak var parent: Messaging?

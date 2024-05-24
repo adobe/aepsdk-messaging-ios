@@ -72,9 +72,9 @@ struct ParsedPropositions {
                         propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
                         propositionsToPersist.add(proposition, forKey: surface)
                         mergeRules(parsedRules, for: surface, with: .inapp)
-                    case .feed:
+                    case .feed, .contentCard:
                         propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
-                        mergeRules(parsedRules, for: surface, with: .feed)
+                        mergeRules(parsedRules, for: surface, with: .contentCard)
                     default:
                         continue
                     }

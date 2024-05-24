@@ -13,6 +13,7 @@
 import AEPServices
 import Foundation
 
+@available(*, deprecated, message: "Unused class 'Feed' will be removed in next major version update of AEPMessaging extension.")
 @objc(AEPFeed)
 @objcMembers
 public class Feed: NSObject, Codable {
