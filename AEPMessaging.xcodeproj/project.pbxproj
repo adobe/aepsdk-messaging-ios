@@ -151,7 +151,6 @@
 		246EFA1A2797441600C76A6B /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
 		246EFA1C2797441600C76A6B /* JSONFileLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5EA274D49B100E56457 /* JSONFileLoader.swift */; };
 		246EFA1D2797441600C76A6B /* MockCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5E8274C107100E56457 /* MockCache.swift */; };
-		246EFA1E2797441600C76A6B /* MockExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543F261E3B36004AE7D3 /* MockExtension.swift */; };
 		246EFA1F2797441600C76A6B /* MockFullscreenMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243EA6DD2739D4A400195945 /* MockFullscreenMessage.swift */; };
 		246EFA202797441600C76A6B /* MockLaunchRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */; };
 		246EFA212797441600C76A6B /* MockMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243EA6DB2739D48900195945 /* MockMessage.swift */; };
@@ -195,7 +194,6 @@
 		75B4333CC0B4F5BFAC707055 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */; };
 		8C4723D49BD3F1EB4060FEAE /* Pods_FunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB9F1A791A757B3C68D23B9D /* Pods_FunctionalTestApp.framework */; };
 		8DEEA93D16C40CA285E20AD5 /* Pods_MessagingDemoAppSwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91A11E37A49E14EB847FB2DF /* Pods_MessagingDemoAppSwiftUI.framework */; };
-		9231546C261E3B75004AE7D3 /* MockExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543F261E3B36004AE7D3 /* MockExtension.swift */; };
 		92315508261E444A004AE7D3 /* AEPMessaging.h in Headers */ = {isa = PBXBuildFile; fileRef = 92315435261E3B36004AE7D3 /* AEPMessaging.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9249A4E2252292AB009193AB /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		9249A4E3252292AB009193AB /* AEPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -211,7 +209,6 @@
 		9296BA862537BFC0002C88F7 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		92FC587B2636840C005BAE02 /* MessagingPublicAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC587A2636840C005BAE02 /* MessagingPublicAPITests.swift */; };
 		92FC587D2636840C005BAE02 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
-		92FC58D826368901005BAE02 /* MockExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9231543F261E3B36004AE7D3 /* MockExtension.swift */; };
 		92FC594526372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */; };
 		92FC594626372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */; };
 		B3F98C855B004D1DE6BF2C47 /* Pods_AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9B29BC8FDB1668EB2D55D15 /* Pods_AEPMessaging.framework */; };
@@ -561,7 +558,6 @@
 		92315436261E3B36004AE7D3 /* Messaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Messaging.swift; sourceTree = "<group>"; };
 		92315437261E3B36004AE7D3 /* MessagingConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingConstants.swift; sourceTree = "<group>"; };
 		92315438261E3B36004AE7D3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9231543F261E3B36004AE7D3 /* MockExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockExtension.swift; sourceTree = "<group>"; };
 		923155762620FC53004AE7D3 /* Event+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Event+Messaging.swift"; sourceTree = "<group>"; };
 		9249A4E8252294AD009193AB /* AEPCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9249A4EA252294AD009193AB /* AEPIdentity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPIdentity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -996,7 +992,6 @@
 				928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */,
 				2469A5EA274D49B100E56457 /* JSONFileLoader.swift */,
 				2469A5E8274C107100E56457 /* MockCache.swift */,
-				9231543F261E3B36004AE7D3 /* MockExtension.swift */,
 				090290CA29DE3F8200388226 /* MockFeedRulesEngine.swift */,
 				243EA6DD2739D4A400195945 /* MockFullscreenMessage.swift */,
 				2469A5DB27445CAF00E56457 /* MockLaunchRulesEngine.swift */,
@@ -1882,7 +1877,6 @@
 				246EFA1A2797441600C76A6B /* Dictionary+Flatten.swift in Sources */,
 				246EFA1C2797441600C76A6B /* JSONFileLoader.swift in Sources */,
 				246EFA1D2797441600C76A6B /* MockCache.swift in Sources */,
-				246EFA1E2797441600C76A6B /* MockExtension.swift in Sources */,
 				246EFA1F2797441600C76A6B /* MockFullscreenMessage.swift in Sources */,
 				246EFA202797441600C76A6B /* MockLaunchRulesEngine.swift in Sources */,
 				246EFA212797441600C76A6B /* MockMessage.swift in Sources */,
@@ -2017,7 +2011,6 @@
 				24CA4BC32B6179F800D16369 /* ContentTypeTests.swift in Sources */,
 				243EA6CB273325A000195945 /* FullscreenMessage+MessageTests.swift in Sources */,
 				248BD9CC28BD56B300C49B94 /* PropositionPayloadTests.swift in Sources */,
-				9231546C261E3B75004AE7D3 /* MockExtension.swift in Sources */,
 				248BD9CA28BD56A200C49B94 /* PropositionInfoTests.swift in Sources */,
 				240FC4302AAFB08E00AFEEEB /* ParsedPropositionsTests.swift in Sources */,
 				243EA6DC2739D48900195945 /* MockMessage.swift in Sources */,
@@ -2044,7 +2037,6 @@
 				92FC587B2636840C005BAE02 /* MessagingPublicAPITests.swift in Sources */,
 				2469A5FB2759401900E56457 /* ConfigurationLoader.swift in Sources */,
 				92863A022637706F000AFA53 /* MessagingFunctionalTests.swift in Sources */,
-				92FC58D826368901005BAE02 /* MockExtension.swift in Sources */,
 				B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */,
 				B631AE1C2A613A1E00E8B82E /* FileManager+Test.swift .swift in Sources */,
 			);
@@ -2499,7 +2491,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3908C9B2C6C8F309DF735FAF /* Pods-MessagingDemoApp.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
 				CODE_SIGN_ENTITLEMENTS = TestApps/MessagingDemoApp/MessagingDemoApp.entitlements;
@@ -2523,7 +2514,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 38F4A4735D3FB26229C244BC /* Pods-MessagingDemoApp.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
 				CODE_SIGN_ENTITLEMENTS = TestApps/MessagingDemoApp/MessagingDemoApp.entitlements;

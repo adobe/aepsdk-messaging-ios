@@ -43,7 +43,7 @@ class MessagingPlusStateTests: XCTestCase {
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngineForIAM, cache: mockCache)
         mockLaunchRulesEngineForFeeds = MockLaunchRulesEngine(name: "mockLaunchRulesEngineFeeds", extensionRuntime: mockRuntime)
         mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngineForFeeds)
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface.uri, cache: mockCache)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface.uri, cache: mockCache)
         
         mockPropositionItem = PropositionItem(itemId: "propItemId", schema: .defaultContent, itemData: [:])
         mockProposition = Proposition(uniqueId: "propId", scope: mockIamSurface.uri, scopeDetails: [:], items: [mockPropositionItem])

@@ -150,7 +150,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
         XCTAssertEqual(1, result.surfaceRulesBySchemaType.count, "should have one rule to insert in the feeds rules engine")
-        let feedRules = result.surfaceRulesBySchemaType[.feed]
+        let feedRules = result.surfaceRulesBySchemaType[.contentCard]
         XCTAssertNotNil(feedRules)
         XCTAssertEqual(1, feedRules?.count)
     }
