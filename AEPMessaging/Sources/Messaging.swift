@@ -125,6 +125,7 @@ public class Messaging: NSObject, Extension {
         self.cache = cache
         super.init()
         loadCachedPropositions()
+        Messaging.shared = self
     }
 
     public func onRegistered() {
