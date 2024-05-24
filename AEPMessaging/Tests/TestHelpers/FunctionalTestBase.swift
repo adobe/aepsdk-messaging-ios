@@ -12,6 +12,7 @@
 
 @testable import AEPCore
 import AEPServices
+import AEPTestUtils
 import Foundation
 import XCTest
 

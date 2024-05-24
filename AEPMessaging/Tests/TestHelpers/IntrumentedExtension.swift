@@ -13,6 +13,7 @@
 import AEPCore
 import AEPServices
 import XCTest
+import AEPTestUtils
 
 /// Instrumented extension that registers a wildcard listener for intercepting events in current session. Use it along with `FunctionalTestBase`
 class InstrumentedExtension: NSObject, Extension {
