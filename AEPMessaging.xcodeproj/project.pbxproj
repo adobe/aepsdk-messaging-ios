@@ -30,7 +30,7 @@
 		091881E92A16BAE300615481 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881E82A16BAE300615481 /* HomeView.swift */; };
 		091881EB2A16BAE400615481 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 091881EA2A16BAE400615481 /* Assets.xcassets */; };
 		091881F42A16C2A200615481 /* InAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881F22A16C2A200615481 /* InAppView.swift */; };
-		091881F72A16C2D600615481 /* FeedsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881F52A16C2D600615481 /* FeedsView.swift */; };
+		091881F72A16C2D600615481 /* ContentCardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881F52A16C2D600615481 /* ContentCardsView.swift */; };
 		091881FB2A16D15100615481 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		091881FC2A16D15100615481 /* AEPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		091881FF2A16D7A200615481 /* PushView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091881FE2A16D7A200615481 /* PushView.swift */; };
@@ -39,14 +39,14 @@
 		09265D622B74497E0085D825 /* codeBasedPropositionJsonContent.json in Resources */ = {isa = PBXBuildFile; fileRef = 09265D5E2B74497E0085D825 /* codeBasedPropositionJsonContent.json */; };
 		09265D632B74497E0085D825 /* codeBasedPropositionJson.json in Resources */ = {isa = PBXBuildFile; fileRef = 09265D5F2B74497E0085D825 /* codeBasedPropositionJson.json */; };
 		092A77F22A757CB40026D325 /* CodeBasedOffersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092A77F12A757CB40026D325 /* CodeBasedOffersView.swift */; };
-		094C4E9E2A74FC4200D99C70 /* FeedItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094C4E9D2A74FC4200D99C70 /* FeedItemView.swift */; };
+		094C4E9E2A74FC4200D99C70 /* ContentCardListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094C4E9D2A74FC4200D99C70 /* ContentCardListView.swift */; };
 		0969D6342A75D55E00A00BF7 /* CustomImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D6332A75D55E00A00BF7 /* CustomImageView.swift */; };
 		0969D6362A760AF900A00BF7 /* CustomHtmlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D6352A760AF900A00BF7 /* CustomHtmlView.swift */; };
 		0969D6382A79BB3C00A00BF7 /* Messaging+State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D6372A79BB3C00A00BF7 /* Messaging+State.swift */; };
 		0969D63C2A7A0EF600A00BF7 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D63B2A7A0EF600A00BF7 /* CustomTextView.swift */; };
 		0969D6402A7A9DC600A00BF7 /* MessagingMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0969D63F2A7A9DC600A00BF7 /* MessagingMigrator.swift */; };
 		0969D6D12A7AFB3800A00BF7 /* Preview Content in Resources */ = {isa = PBXBuildFile; fileRef = 0969D6D02A7AFB3800A00BF7 /* Preview Content */; };
-		096E19922A758D1600D4EBCF /* FeedItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096E19912A758D1600D4EBCF /* FeedItemDetailView.swift */; };
+		096E19922A758D1600D4EBCF /* ContentCardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096E19912A758D1600D4EBCF /* ContentCardDetailView.swift */; };
 		09B071E62A64D3D900F259C1 /* Surface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071E52A64D3D900F259C1 /* Surface.swift */; };
 		09B071E82A64D80E00F259C1 /* Bundle+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */; };
 		09B071EC2A651C7800F259C1 /* Proposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B071EB2A651C7800F259C1 /* Proposition.swift */; };
@@ -398,7 +398,7 @@
 		091881E82A16BAE300615481 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		091881EA2A16BAE400615481 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		091881F22A16C2A200615481 /* InAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppView.swift; sourceTree = "<group>"; };
-		091881F52A16C2D600615481 /* FeedsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedsView.swift; sourceTree = "<group>"; };
+		091881F52A16C2D600615481 /* ContentCardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardsView.swift; sourceTree = "<group>"; };
 		091881FE2A16D7A200615481 /* PushView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushView.swift; sourceTree = "<group>"; };
 		09265D5C2B74497E0085D825 /* codeBasedPropositionHtml.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = codeBasedPropositionHtml.json; sourceTree = "<group>"; };
 		09265D5D2B74497E0085D825 /* codeBasedPropositionHtmlContent.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = codeBasedPropositionHtmlContent.json; sourceTree = "<group>"; };
@@ -407,14 +407,14 @@
 		092A77F12A757CB40026D325 /* CodeBasedOffersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeBasedOffersView.swift; sourceTree = "<group>"; };
 		09305F0B2AC2EAFF00406607 /* MessagingDemoAppSwiftUI-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "MessagingDemoAppSwiftUI-Info.plist"; sourceTree = SOURCE_ROOT; };
 		093DC9CB668BBA547B0C9306 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
-		094C4E9D2A74FC4200D99C70 /* FeedItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemView.swift; sourceTree = "<group>"; };
+		094C4E9D2A74FC4200D99C70 /* ContentCardListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardListView.swift; sourceTree = "<group>"; };
 		0969D6332A75D55E00A00BF7 /* CustomImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomImageView.swift; sourceTree = "<group>"; };
 		0969D6352A760AF900A00BF7 /* CustomHtmlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomHtmlView.swift; sourceTree = "<group>"; };
 		0969D6372A79BB3C00A00BF7 /* Messaging+State.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+State.swift"; sourceTree = "<group>"; };
 		0969D63B2A7A0EF600A00BF7 /* CustomTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
 		0969D63F2A7A9DC600A00BF7 /* MessagingMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingMigrator.swift; sourceTree = "<group>"; };
 		0969D6D02A7AFB3800A00BF7 /* Preview Content */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Preview Content"; sourceTree = "<group>"; };
-		096E19912A758D1600D4EBCF /* FeedItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemDetailView.swift; sourceTree = "<group>"; };
+		096E19912A758D1600D4EBCF /* ContentCardDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardDetailView.swift; sourceTree = "<group>"; };
 		09B071E52A64D3D900F259C1 /* Surface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Surface.swift; sourceTree = "<group>"; };
 		09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Messaging.swift"; sourceTree = "<group>"; };
 		09B071EB2A651C7800F259C1 /* Proposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Proposition.swift; sourceTree = "<group>"; };
@@ -710,12 +710,12 @@
 				09305F0B2AC2EAFF00406607 /* MessagingDemoAppSwiftUI-Info.plist */,
 				091881E62A16BAE300615481 /* MessagingDemoAppSwiftUIApp.swift */,
 				092A77F12A757CB40026D325 /* CodeBasedOffersView.swift */,
+				096E19912A758D1600D4EBCF /* ContentCardDetailView.swift */,
+				094C4E9D2A74FC4200D99C70 /* ContentCardListView.swift */,
+				091881F52A16C2D600615481 /* ContentCardsView.swift */,
 				0969D6352A760AF900A00BF7 /* CustomHtmlView.swift */,
 				0969D6332A75D55E00A00BF7 /* CustomImageView.swift */,
 				0969D63B2A7A0EF600A00BF7 /* CustomTextView.swift */,
-				091881F52A16C2D600615481 /* FeedsView.swift */,
-				094C4E9D2A74FC4200D99C70 /* FeedItemView.swift */,
-				096E19912A758D1600D4EBCF /* FeedItemDetailView.swift */,
 				091881E82A16BAE300615481 /* HomeView.swift */,
 				091881F22A16C2A200615481 /* InAppView.swift */,
 				091881FE2A16D7A200615481 /* PushView.swift */,
@@ -1840,13 +1840,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				091881F72A16C2D600615481 /* FeedsView.swift in Sources */,
+				091881F72A16C2D600615481 /* ContentCardsView.swift in Sources */,
 				0969D6342A75D55E00A00BF7 /* CustomImageView.swift in Sources */,
-				094C4E9E2A74FC4200D99C70 /* FeedItemView.swift in Sources */,
+				094C4E9E2A74FC4200D99C70 /* ContentCardListView.swift in Sources */,
 				091881E92A16BAE300615481 /* HomeView.swift in Sources */,
 				092A77F22A757CB40026D325 /* CodeBasedOffersView.swift in Sources */,
 				0969D63C2A7A0EF600A00BF7 /* CustomTextView.swift in Sources */,
-				096E19922A758D1600D4EBCF /* FeedItemDetailView.swift in Sources */,
+				096E19922A758D1600D4EBCF /* ContentCardDetailView.swift in Sources */,
 				091881FF2A16D7A200615481 /* PushView.swift in Sources */,
 				091881F42A16C2A200615481 /* InAppView.swift in Sources */,
 				0969D6362A760AF900A00BF7 /* CustomHtmlView.swift in Sources */,

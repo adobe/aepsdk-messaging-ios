@@ -173,6 +173,15 @@ public extension PropositionItem {
         return getTypedData(InAppSchemaData.self)
     }
 
+    var contentCardSchemaData: ContentCardSchemaData? {
+        guard (schema == .feed || schema == .contentCard), let contentCardSchemaData = getTypedData(ContentCardSchemaData.self) else {
+            return nil
+        }
+        contentCardSchemaData.parent = self
+        return contentCardSchemaData
+    }
+    
+    @available(*, deprecated, renamed: "contentCardSchemaData")
     var feedItemSchemaData: FeedItemSchemaData? {
         guard schema == .feed, let feedItemSchemaData = getTypedData(FeedItemSchemaData.self) else {
             return nil

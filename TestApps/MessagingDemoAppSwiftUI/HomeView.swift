@@ -30,7 +30,7 @@ struct HomeView: View {
                 .tabItem {
                     Label("Code Experiences", systemImage: "newspaper.fill")
                 }
-            FeedsView()
+            ContentCardsView()
                 .tabItem {
                     Label("Feeds", systemImage: "tray.and.arrow.down.fill")
                 }

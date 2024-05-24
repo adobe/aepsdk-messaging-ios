@@ -13,33 +13,33 @@ governing permissions and limitations under the License.
 import AEPMessaging
 import SwiftUI
 
-struct FeedItemDetailView: View {
-    @State var feedItem: FeedItem
+struct ContentCardDetailView: View {
+    @State var contentCard: ContentCard
     
     var body: some View {
         
         ScrollView {
             VStack {
-                Text(feedItem.title)
+                Text(contentCard.title)
                     .font(.title)
                     .padding(.top, 30)
-                CustomImageView(url: feedItem.imageUrl ?? "")
+                CustomImageView(url: contentCard.imageUrl ?? "")
                     .frame(width: 350, height: 170)
                     .frame(maxWidth: .infinity)
-                Text(feedItem.body)
+                Text(contentCard.body)
                     .multilineTextAlignment(.center)
                     .frame(height: 100)
                     .frame(maxWidth: .infinity)
                 Button(action: {                    
                     if
-                        let actionUrl = feedItem.actionUrl,
+                        let actionUrl = contentCard.actionUrl,
                         let url = URL(string: actionUrl) {                        
-                        feedItem.track("cta clicked", withEdgeEventType: .interact)
+                        contentCard.track("cta clicked", withEdgeEventType: .interact)
                         UIApplication.shared.open(url)
                     }
                 }) {
                     HStack {
-                        if let customTitle = feedItem.actionTitle, !customTitle.isEmpty {
+                        if let customTitle = contentCard.actionTitle, !customTitle.isEmpty {
                             Text(customTitle)
                                 .font(.title3)
                         } else {
@@ -59,9 +59,9 @@ struct FeedItemDetailView: View {
     }
 }
 
-struct FeedItemDetailView_Previews: PreviewProvider {
+struct ContentCardDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        FeedItemDetailView(feedItem: FeedItem(
+        ContentCardDetailView(contentCard: ContentCard(
                                 title: "Flash spring sale!",
                                 body: "All hiking gear is now up to 30% off at checkout.",
                                 imageUrl: "https://d14dq8eoa1si34.cloudfront.net/2a6ef2f0-1167-11eb-88c6-b512a5ef09a7/urn:aaid:aem:cd6f726b-ea5a-4308-b1ee-7a8dd1488020/oak:1.0::ci:4363a82474f25c79f2588786cd82e3b2/dd2c2c8e-bd5c-3116-8a7a-e85c2c54549f",
