@@ -98,6 +98,11 @@ public class Messaging: NSObject, Extension {
         MessagingConstants.PersonalizationSchemas.RULESET_ITEM
     ]
 
+    private static weak var shared: Messaging?
+    static func getInstance() -> Messaging? {
+        shared
+    }    
+    
     // MARK: - Extension protocol methods
 
     public required init?(runtime: ExtensionRuntime) {
@@ -108,6 +113,7 @@ public class Messaging: NSObject, Extension {
         super.init()
         self.feedRulesEngine.setParent(self)
         loadCachedPropositions()
+        Messaging.shared = self
     }
 
     /// INTERNAL ONLY
@@ -203,12 +209,15 @@ public class Messaging: NSObject, Extension {
         let qualifiedContentCardsBySurface = getPropositionsFromFeedRulesEngine(event)
         for (surface, propositions) in qualifiedContentCardsBySurface {
             addOrReplaceContentCards(propositions, forSurface: surface)
-            Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for one or more content cards for surface \(surface.uri). The user now has qualified for \(_contentCardsBySurface[surface]?.count ?? 0) content card(s) in this surface. \nQualifying event: \(event)")
+            Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for one or more content cards for surface \(surface.uri). The user now has qualified for \(contentCardsBySurface[surface]?.count ?? 0) content card(s) in this surface. \nQualifying event: \(event)")
         }
     }
     
+    /// Prevents multiple propositions from being in `contentCardsBySurface` at the same time
+    /// If an existing entry for a proposition is found, it is replaced with the value in `propositions`.
+    /// If no prior entry exists for a proposition, a `trigger` event will be sent (and written to event history).
     private func addOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface) {
-        if var existingPropositionsArray = _contentCardsBySurface[surface] {
+        if var existingPropositionsArray = contentCardsBySurface[surface] {
             for proposition in propositions {
                 if let index = existingPropositionsArray.firstIndex(of: proposition) {
                     existingPropositionsArray.remove(at: index)
@@ -218,9 +227,12 @@ public class Messaging: NSObject, Extension {
                 
                 existingPropositionsArray.append(proposition)
             }
-            _contentCardsBySurface[surface] = existingPropositionsArray
+            contentCardsBySurface[surface] = existingPropositionsArray
         } else {
-            _contentCardsBySurface[surface] = propositions
+            for proposition in propositions {
+                proposition.items.first?.track(withEdgeEventType: .trigger)
+            }
+            contentCardsBySurface[surface] = propositions
         }
     }
 
@@ -351,7 +363,7 @@ public class Messaging: NSObject, Extension {
                         scope: propositionInfo.scope,
                         scopeDetails: propositionInfo.scopeDetails,
                         items: [propositionItem]
-                    )
+                    )                    
 
                     // check to see if that proposition is already in the array (based on ID)
                     // if yes, append the propositionItem.  if not, create a new entry for the
@@ -477,7 +489,7 @@ public class Messaging: NSObject, Extension {
                 let genericEvent = Event(name: "Seed content cards", type: EventType.edge, source: EventSource.requestContent, data: nil)
                 let qualifiedContentCardsBySurface = getPropositionsFromFeedRulesEngine(genericEvent)
                 for (surface, propositions) in qualifiedContentCardsBySurface {
-                    _contentCardsBySurface.addArray(propositions, forKey: surface)
+                    addOrReplaceContentCards(propositions, forSurface: surface)
                 }
 
             default:
@@ -498,7 +510,7 @@ public class Messaging: NSObject, Extension {
         }
         
         // get proposition items from cache
-        let requestedPropositions = _contentCardsBySurface.filter { surfaces.contains($0.key)}
+        let requestedPropositions = contentCardsBySurface.filter { surfaces.contains($0.key)}
 
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
 

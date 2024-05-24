@@ -142,6 +142,7 @@
 		2469A60C2759999E00E56457 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60A2759999E00E56457 /* Main.storyboard */; };
 		2469A60E275999A000E56457 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60D275999A000E56457 /* Assets.xcassets */; };
 		2469A611275999A000E56457 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60F275999A000E56457 /* LaunchScreen.storyboard */; };
+		246EF0602BFFC6B5002A9B22 /* Messaging+EventHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF05F2BFFC6B5002A9B22 /* Messaging+EventHistory.swift */; };
 		246EFA1027973E7400C76A6B /* E2EFunctionalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EFA0F27973E7400C76A6B /* E2EFunctionalTests.swift */; };
 		246EFA1127973E7400C76A6B /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; platformFilter = ios; };
 		246EFA19279743EB00C76A6B /* ConfigurationLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5FA2759401900E56457 /* ConfigurationLoader.swift */; };
@@ -507,6 +508,7 @@
 		2469A60D275999A000E56457 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2469A610275999A000E56457 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2469A612275999A000E56457 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		246EF05F2BFFC6B5002A9B22 /* Messaging+EventHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+EventHistory.swift"; sourceTree = "<group>"; };
 		246EFA0D27973E7400C76A6B /* E2EFunctionalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = E2EFunctionalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		246EFA0F27973E7400C76A6B /* E2EFunctionalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = E2EFunctionalTests.swift; sourceTree = "<group>"; };
 		246FD07126B9F86F00FD130B /* FullscreenMessage+Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FullscreenMessage+Message.swift"; sourceTree = "<group>"; };
@@ -904,6 +906,7 @@
 				244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
 				244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */,
+				246EF05F2BFFC6B5002A9B22 /* Messaging+EventHistory.swift */,
 				92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */,
 				0969D6372A79BB3C00A00BF7 /* Messaging+State.swift */,
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
@@ -1916,6 +1919,7 @@
 				242920F12AD061F3000DB2CD /* FeedItemSchemaData.swift in Sources */,
 				09B071E62A64D3D900F259C1 /* Surface.swift in Sources */,
 				240FC42E2AA920D400AFEEEB /* ParsedPropositions.swift in Sources */,
+				246EF0602BFFC6B5002A9B22 /* Messaging+EventHistory.swift in Sources */,
 				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
 				09B071EE2A651CB200F259C1 /* PropositionItem.swift in Sources */,
 				246FD07226B9F86F00FD130B /* FullscreenMessage+Message.swift in Sources */,

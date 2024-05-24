@@ -34,7 +34,7 @@ public class Proposition: NSObject, Codable {
         }
         return propositionItems
     }()
-
+    
     enum CodingKeys: String, CodingKey {
         case id
         case scope
@@ -78,11 +78,17 @@ public class Proposition: NSObject, Codable {
 }
 
 extension Proposition {
+    /// scopeDetails is sometimes a `[String, Any]` and other times a `[String, AnyCodable]` - need to account for both
     var activityId: String {
-        guard let activityCodable = scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY] as? AnyCodable,
-              let activity = activityCodable.dictionaryValue else {
+        if let scopeDetails = scopeDetails as? [String: AnyCodable] {
+            guard let activity = scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY]?.dictionaryValue else {
+                return ""
+            }
+            return activity[MessagingConstants.Event.Data.Key.Personalization.ID] as? String ?? ""
+        } else if let activity = scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY] as? [String: Any] {
+            return activity[MessagingConstants.Event.Data.Key.Personalization.ID] as? String ?? ""
+        } else {
             return ""
         }
-        return activity[MessagingConstants.Event.Data.Key.Personalization.ID] as? String ?? ""
     }
 }

@@ -33,7 +33,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             Signal.self,
             Edge.self,
             Messaging.self,
-//            Assurance.self
+            Assurance.self
         ]
         
         MobileCore.registerExtensions(extensions) {
