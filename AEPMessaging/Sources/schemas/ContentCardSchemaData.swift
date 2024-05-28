@@ -98,7 +98,7 @@ public extension ContentCardSchemaData {
 
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let parent = parent else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track FeedItemSchemaData, parent proposition item is unavailable.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track ContentCardSchemaData, parent proposition item is unavailable.")
             return
         }
         parent.track(interaction, withEdgeEventType: eventType)
