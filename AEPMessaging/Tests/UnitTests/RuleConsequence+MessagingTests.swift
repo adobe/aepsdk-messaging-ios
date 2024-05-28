@@ -19,8 +19,10 @@ import XCTest
 class RuleConsequenceMessagingTests: XCTestCase {
     
     let SCHEMA_FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"
+    let SCHEMA_CONTENT_CARD = "https://ns.adobe.com/personalization/message/content-card"
     let SCHEMA_IAM = "https://ns.adobe.com/personalization/message/in-app"
-        
+    
+    @available(*, deprecated)
     func testIsFeedItemTrue() throws {
         // setup
         let consequence = RuleConsequence(id: "id", type: "type", details: [ "schema": SCHEMA_FEED_ITEM ])
@@ -29,12 +31,29 @@ class RuleConsequenceMessagingTests: XCTestCase {
         XCTAssertTrue(consequence.isFeedItem)
     }
     
+    @available(*, deprecated)
     func testIsFeedItemFalse() throws {
         // setup
         let consequence = RuleConsequence(id: "id", type: "type", details: [ "schema": "not a feed" ])
         
         // verify
         XCTAssertFalse(consequence.isFeedItem)
+    }
+    
+    func testIsContentCardTrue() throws {
+        // setup
+        let consequence = RuleConsequence(id: "id", type: "type", details: [ "schema": SCHEMA_CONTENT_CARD ])
+        
+        // verify
+        XCTAssertTrue(consequence.isContentCard)
+    }
+        
+    func testIsContentCardFalse() throws {
+        // setup
+        let consequence = RuleConsequence(id: "id", type: "type", details: [ "schema": "not a content card" ])
+        
+        // verify
+        XCTAssertFalse(consequence.isContentCard)
     }
     
     func testIsInAppTrueSchema() throws {
@@ -59,7 +78,7 @@ class RuleConsequenceMessagingTests: XCTestCase {
         
         // verify
         XCTAssertFalse(consequence.isInApp)
-        XCTAssertFalse(consequence.isFeedItem)
+        XCTAssertFalse(consequence.isContentCard)
     }
     
     func testWhenDetailsSchemaIsNotPresent() throws {
@@ -68,6 +87,6 @@ class RuleConsequenceMessagingTests: XCTestCase {
         
         // verify
         XCTAssertFalse(consequence.isInApp)
-        XCTAssertFalse(consequence.isFeedItem)
+        XCTAssertFalse(consequence.isContentCard)
     }
 }

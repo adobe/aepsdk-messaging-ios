@@ -74,6 +74,7 @@ public class FeedItemSchemaData: NSObject, Codable {
     }
 }
 
+@available(*, deprecated, renamed: "ContentCardSchemaData")
 extension FeedItemSchemaData {
     /// ONLY USED FOR TESTING
     static func getEmpty() -> FeedItemSchemaData {
@@ -81,6 +82,7 @@ extension FeedItemSchemaData {
     }
 }
 
+@available(*, deprecated, renamed: "ContentCardSchemaData")
 public extension FeedItemSchemaData {
     func getFeedItem() -> FeedItem? {
         guard contentType == .applicationJson,

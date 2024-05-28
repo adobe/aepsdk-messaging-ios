@@ -76,6 +76,7 @@ public class FeedItem: NSObject, Codable {
     }
 }
 
+@available(*, deprecated, renamed: "ContentCard")
 public extension FeedItem {
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let parent = parent else {
