@@ -18,7 +18,6 @@ import Foundation
 class ContentCardRulesEngine {
     let launchRulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
-    private weak var parent: Messaging?
 
     /// Initialize this class, creating a new rules engine with the provided name and runtime
     init(name: String, extensionRuntime: ExtensionRuntime) {
@@ -32,10 +31,6 @@ class ContentCardRulesEngine {
     init(extensionRuntime: ExtensionRuntime, launchRulesEngine: LaunchRulesEngine) {
         runtime = extensionRuntime
         self.launchRulesEngine = launchRulesEngine
-    }
-
-    func setParent(_ parent: Messaging?) {
-        self.parent = parent
     }
 
     /// if we have rules loaded, then we simply process the event.

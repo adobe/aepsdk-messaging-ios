@@ -111,7 +111,6 @@ public class Messaging: NSObject, Extension {
         rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
         contentCardRulesEngine = ContentCardRulesEngine(name: MessagingConstants.CONTENT_CARD_RULES_ENGINE_NAME, extensionRuntime: runtime)
         super.init()
-        contentCardRulesEngine.setParent(self)
         loadCachedPropositions()
         Messaging.shared = self
     }
