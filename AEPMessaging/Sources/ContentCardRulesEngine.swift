@@ -48,13 +48,13 @@ class ContentCardRulesEngine {
         var propositionItemsBySurface: [Surface: [PropositionItem]] = [:]
         for consequence in consequences {
             guard let propositionItem = PropositionItem.fromRuleConsequence(consequence),
-                  let propositionAsFeedItem = propositionItem.feedItemSchemaData
+                  let propositionAsContentCard = propositionItem.contentCardSchemaData
             else {
                 continue
             }
 
             // surface is automatically added to the metadata for content cards
-            let surfaceUri = propositionAsFeedItem.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
+            let surfaceUri = propositionAsContentCard.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
             let surface = Surface(uri: surfaceUri)
 
             if propositionItemsBySurface[surface] != nil {

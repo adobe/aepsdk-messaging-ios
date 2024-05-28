@@ -210,7 +210,6 @@ public class Messaging: NSObject, Extension {
         let qualifiedContentCardsBySurface = getPropositionsFromContentCardRulesEngine(event)
         for (surface, propositions) in qualifiedContentCardsBySurface {
             addOrReplaceContentCards(propositions, forSurface: surface)
-            Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for one or more content cards for surface \(surface.uri). The user now has qualified for \(contentCardsBySurface[surface]?.count ?? 0) content card(s) in this surface. \nQualifying event: \(event)")
         }
     }
     
@@ -218,6 +217,7 @@ public class Messaging: NSObject, Extension {
     /// If an existing entry for a proposition is found, it is replaced with the value in `propositions`.
     /// If no prior entry exists for a proposition, a `trigger` event will be sent (and written to event history).
     private func addOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface) {
+        let startingCount = contentCardsBySurface[surface]?.count ?? 0
         if var existingPropositionsArray = contentCardsBySurface[surface] {
             for proposition in propositions {
                 if let index = existingPropositionsArray.firstIndex(of: proposition) {
@@ -234,6 +234,15 @@ public class Messaging: NSObject, Extension {
                 proposition.items.first?.track(withEdgeEventType: .trigger)
             }
             contentCardsBySurface[surface] = propositions
+        }
+        
+        let cardCount = contentCardsBySurface[surface]?.count ?? 0
+        if startingCount != cardCount {
+            if cardCount > 0 {
+                Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for \(cardCount) content card(s) for surface \(surface.uri).")
+            } else {
+                Log.trace(label: MessagingConstants.LOG_TAG, "User has not qualified for any content cards for surface \(surface.uri).")
+            }
         }
     }
 
@@ -482,7 +491,7 @@ public class Messaging: NSObject, Extension {
                 for surface in surfacesToRemove {
                     contentCardRulesBySurface.removeValue(forKey: surface)
                 }
-
+                
                 // update rules in content card rules engine
                 contentCardRulesEngine.launchRulesEngine.replaceRules(with: contentCardRulesBySurface.flatMap { $0.value })
                 
@@ -545,6 +554,7 @@ public class Messaging: NSObject, Extension {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no requesting Event ID.")
             return
         }
+        
         guard let eventPropositions = event.payload else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no propositions.")
             return
