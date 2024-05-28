@@ -144,7 +144,7 @@ public class Message: NSObject {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to write event history event '\(eventType.propositionEventType)', proposition info is not available for message (\(id)).")
             return
         }
-        
+
         parent?.recordEventHistory(activityId: propInfo.activityId, eventType: eventType, interaction: interaction)
     }
 

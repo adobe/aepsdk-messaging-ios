@@ -34,7 +34,7 @@ public class Proposition: NSObject, Codable {
         }
         return propositionItems
     }()
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case scope
@@ -71,8 +71,8 @@ public class Proposition: NSObject, Codable {
         try container.encode(AnyCodable.from(dictionary: scopeDetails), forKey: .scopeDetails)
         try container.encode(items, forKey: .items)
     }
-    
-    public override func isEqual(_ object: Any?) -> Bool {
+
+    override public func isEqual(_ object: Any?) -> Bool {
         activityId == (object as? Proposition)?.activityId
     }
 }

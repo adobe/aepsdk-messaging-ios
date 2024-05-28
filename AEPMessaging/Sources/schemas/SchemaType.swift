@@ -23,7 +23,7 @@ public enum SchemaType: Int, Codable {
     case contentCard = 8
     case nativeAlert = 6
     case defaultContent = 7
-    
+
     @available(*, deprecated, renamed: "contentCard")
     case feed = 5
 
@@ -45,7 +45,7 @@ public enum SchemaType: Int, Codable {
 
         case MessagingConstants.PersonalizationSchemas.FEED_ITEM:
             self = .feed
-            
+
         case MessagingConstants.PersonalizationSchemas.CONTENT_CARD:
             self = .contentCard
 

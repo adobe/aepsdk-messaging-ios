@@ -33,7 +33,7 @@ class ContentCardRulesEngine {
         runtime = extensionRuntime
         self.launchRulesEngine = launchRulesEngine
     }
-    
+
     func setParent(_ parent: Messaging?) {
         self.parent = parent
     }

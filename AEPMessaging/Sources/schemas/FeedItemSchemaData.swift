@@ -25,7 +25,7 @@ public class FeedItemSchemaData: NSObject, Codable {
     public let meta: [String: Any]?
 
     var parent: PropositionItem?
-    
+
     enum CodingKeys: String, CodingKey {
         case content
         case contentType
@@ -88,7 +88,7 @@ public extension FeedItemSchemaData {
         else {
             return nil
         }
-        
+
         guard let feedItem = try? JSONDecoder().decode(FeedItem.self, from: contentAsJsonData) else {
             return nil
         }
@@ -96,7 +96,7 @@ public extension FeedItemSchemaData {
         feedItem.parent = self
         return feedItem
     }
-    
+
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let parent = parent else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track FeedItemSchemaData, parent proposition item is unavailable.")

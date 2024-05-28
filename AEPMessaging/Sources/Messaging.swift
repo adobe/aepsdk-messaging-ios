@@ -83,7 +83,7 @@ public class Messaging: NSObject, Extension {
         get { queue.sync { self._contentCardRulesBySurface } }
         set { queue.async { self._contentCardRulesBySurface = newValue } }
     }
-    
+
     /// holds content cards that the user has qualified for
     private var _contentCardsBySurface: [Surface: [Proposition]] = [:]
     private var contentCardsBySurface: [Surface: [Proposition]] {
@@ -98,20 +98,20 @@ public class Messaging: NSObject, Extension {
         MessagingConstants.PersonalizationSchemas.RULESET_ITEM
     ]
 
-    private static weak var shared: Messaging?
+    private weak static var shared: Messaging?
     static func getInstance() -> Messaging? {
         shared
-    }    
-    
+    }
+
     // MARK: - Extension protocol methods
 
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
         MessagingMigrator.migrate(cache: cache)
-        self.rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
-        self.contentCardRulesEngine = ContentCardRulesEngine(name: MessagingConstants.CONTENT_CARD_RULES_ENGINE_NAME, extensionRuntime: runtime)
+        rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
+        contentCardRulesEngine = ContentCardRulesEngine(name: MessagingConstants.CONTENT_CARD_RULES_ENGINE_NAME, extensionRuntime: runtime)
         super.init()
-        self.contentCardRulesEngine.setParent(self)
+        contentCardRulesEngine.setParent(self)
         loadCachedPropositions()
         Messaging.shared = self
     }
@@ -206,13 +206,13 @@ public class Messaging: NSObject, Extension {
     /// Called on every event, used to allow processing of the Messaging rules engine
     private func handleWildcardEvent(_ event: Event) {
         rulesEngine.process(event: event)
-        
+
         let qualifiedContentCardsBySurface = getPropositionsFromContentCardRulesEngine(event)
         for (surface, propositions) in qualifiedContentCardsBySurface {
             addOrReplaceContentCards(propositions, forSurface: surface)
         }
     }
-    
+
     /// Prevents multiple propositions from being in `contentCardsBySurface` at the same time
     /// If an existing entry for a proposition is found, it is replaced with the value in `propositions`.
     /// If no prior entry exists for a proposition, a `trigger` event will be sent (and written to event history).
@@ -225,7 +225,7 @@ public class Messaging: NSObject, Extension {
                 } else {
                     proposition.items.first?.track(withEdgeEventType: .trigger)
                 }
-                
+
                 existingPropositionsArray.append(proposition)
             }
             contentCardsBySurface[surface] = existingPropositionsArray
@@ -235,7 +235,7 @@ public class Messaging: NSObject, Extension {
             }
             contentCardsBySurface[surface] = propositions
         }
-        
+
         let cardCount = contentCardsBySurface[surface]?.count ?? 0
         if startingCount != cardCount {
             if cardCount > 0 {
@@ -373,7 +373,7 @@ public class Messaging: NSObject, Extension {
                         scope: propositionInfo.scope,
                         scopeDetails: propositionInfo.scopeDetails,
                         items: [propositionItem]
-                    )                    
+                    )
 
                     // check to see if that proposition is already in the array (based on ID)
                     // if yes, append the propositionItem.  if not, create a new entry for the
@@ -491,10 +491,10 @@ public class Messaging: NSObject, Extension {
                 for surface in surfacesToRemove {
                     contentCardRulesBySurface.removeValue(forKey: surface)
                 }
-                
+
                 // update rules in content card rules engine
                 contentCardRulesEngine.launchRulesEngine.replaceRules(with: contentCardRulesBySurface.flatMap { $0.value })
-                
+
                 // process a generic event to see if there are any content cards with no client-side qualification
                 let genericEvent = Event(name: "Seed content cards", type: EventType.edge, source: EventSource.requestContent, data: nil)
                 let qualifiedContentCardsBySurface = getPropositionsFromContentCardRulesEngine(genericEvent)
@@ -518,9 +518,9 @@ public class Messaging: NSObject, Extension {
             dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
             return
         }
-        
+
         // get proposition items from cache
-        let requestedPropositions = contentCardsBySurface.filter { surfaces.contains($0.key)}
+        let requestedPropositions = contentCardsBySurface.filter { surfaces.contains($0.key) }
 
         let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
 
@@ -554,7 +554,7 @@ public class Messaging: NSObject, Extension {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no requesting Event ID.")
             return
         }
-        
+
         guard let eventPropositions = event.payload else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no propositions.")
             return
@@ -602,7 +602,7 @@ public class Messaging: NSObject, Extension {
             return
         }
     }
-    
+
     // MARK: - Event Handers
 
     /// Processes the events in the event queue in the order they were received.

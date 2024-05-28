@@ -18,7 +18,7 @@ extension RuleConsequence {
     var isFeedItem: Bool {
         detailSchema == MessagingConstants.PersonalizationSchemas.FEED_ITEM
     }
-    
+
     var isContentCard: Bool {
         detailSchema == MessagingConstants.PersonalizationSchemas.CONTENT_CARD
     }

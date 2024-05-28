@@ -56,7 +56,7 @@ extension Messaging {
         ]
 
         dispatchTrackingResponseEvent(.trackingInitiated, forEvent: event)
-        
+
         // Creating xdm edge event with request content source type
         let trackingEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
                                                      type: EventType.edge,
@@ -77,7 +77,7 @@ extension Messaging {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the push token, App bundle identifier is invalid.")
             return
         }
-        
+
         let platform = getPushPlatform(forEvent: event)
 
         // Create the profile experience event to send the push notification details with push token to profile

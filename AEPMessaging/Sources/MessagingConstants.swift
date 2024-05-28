@@ -22,7 +22,7 @@ enum MessagingConstants {
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
-    
+
     @available(*, deprecated, renamed: "CONTENT_CARD_RULES_ENGINE_NAME")
     static let FEED_RULES_ENGINE_NAME = EXTENSION_NAME + "Feed" + ".rulesengine"
 
@@ -51,7 +51,7 @@ enum MessagingConstants {
         static let IN_APP = "https://ns.adobe.com/personalization/message/in-app"
         static let CONTENT_CARD = "https://ns.adobe.com/personalization/message/content-card"
         static let NATIVE_ALERT = "https://ns.adobe.com/personalization/message/native-alert"
-        
+
         @available(*, deprecated, renamed: "CONTENT_CARD")
         static let FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"
     }
