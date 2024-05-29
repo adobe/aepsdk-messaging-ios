@@ -14,7 +14,7 @@ import AEPCore
 import AEPServices
 import Foundation
 
-struct PropositionHistory {
+enum PropositionHistory {
     /// Dispatches an event to be recorded in Event History.
     ///
     /// If `activityId` is an empty string, calling this function results in a no-op
