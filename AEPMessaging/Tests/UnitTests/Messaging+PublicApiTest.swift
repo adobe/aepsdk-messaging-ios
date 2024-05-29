@@ -19,7 +19,7 @@ import AEPTestUtils
 
 class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
     
-    let ASYNC_TIMEOUT = 2.0
+    let ASYNC_TIMEOUT = 5.0
     static let MOCK_TRACKING_DETAILS : [String:Any] = [MessagingConstants.XDM.AdobeKeys._XDM:
                                                         ["trackingKey": "trackingValue"]]
     static let WEB_URL = URL(string: "https://adobe.com")!

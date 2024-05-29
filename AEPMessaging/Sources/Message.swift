@@ -145,7 +145,7 @@ public class Message: NSObject {
             return
         }
 
-        parent?.recordEventHistory(activityId: propInfo.activityId, eventType: eventType, interaction: interaction)
+        PropositionHistory.record(activityId: propInfo.activityId, eventType: eventType, interaction: interaction)
     }
 
     // MARK: - Private methods

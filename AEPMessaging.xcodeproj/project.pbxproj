@@ -141,7 +141,7 @@
 		2469A60C2759999E00E56457 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60A2759999E00E56457 /* Main.storyboard */; };
 		2469A60E275999A000E56457 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60D275999A000E56457 /* Assets.xcassets */; };
 		2469A611275999A000E56457 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60F275999A000E56457 /* LaunchScreen.storyboard */; };
-		246EF0602BFFC6B5002A9B22 /* Messaging+EventHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF05F2BFFC6B5002A9B22 /* Messaging+EventHistory.swift */; };
+		246EF0602BFFC6B5002A9B22 /* PropositionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF05F2BFFC6B5002A9B22 /* PropositionHistory.swift */; };
 		246EF0622C013D4A002A9B22 /* ContentCardSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF0612C013D4A002A9B22 /* ContentCardSchemaData.swift */; };
 		246EF0642C013DED002A9B22 /* ContentCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF0632C013DED002A9B22 /* ContentCard.swift */; };
 		246EF0662C06803B002A9B22 /* ContentCardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF0652C06803B002A9B22 /* ContentCardTests.swift */; };
@@ -504,7 +504,7 @@
 		2469A60D275999A000E56457 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2469A610275999A000E56457 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2469A612275999A000E56457 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		246EF05F2BFFC6B5002A9B22 /* Messaging+EventHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+EventHistory.swift"; sourceTree = "<group>"; };
+		246EF05F2BFFC6B5002A9B22 /* PropositionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionHistory.swift; sourceTree = "<group>"; };
 		246EF0612C013D4A002A9B22 /* ContentCardSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardSchemaData.swift; sourceTree = "<group>"; };
 		246EF0632C013DED002A9B22 /* ContentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCard.swift; sourceTree = "<group>"; };
 		246EF0652C06803B002A9B22 /* ContentCardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardTests.swift; sourceTree = "<group>"; };
@@ -907,19 +907,19 @@
 				244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
 				244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */,
-				246EF05F2BFFC6B5002A9B22 /* Messaging+EventHistory.swift */,
 				92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */,
 				0969D6372A79BB3C00A00BF7 /* Messaging+State.swift */,
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
 				244C2BD726B36480008F086A /* MessagingEdgeEventType.swift */,
 				0969D63F2A7A9DC600A00BF7 /* MessagingMigrator.swift */,
-				09B071EB2A651C7800F259C1 /* Proposition.swift */,
-				09B071ED2A651CB200F259C1 /* PropositionItem.swift */,
-				09F5D93F2B5CF35F00117437 /* PropositionInteraction.swift */,
 				2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */,
 				2469A5E2274863F600E56457 /* MessagingRulesEngine+Caching.swift */,
 				240FC42D2AA920D400AFEEEB /* ParsedPropositions.swift */,
+				09B071EB2A651C7800F259C1 /* Proposition.swift */,
+				246EF05F2BFFC6B5002A9B22 /* PropositionHistory.swift */,
 				243B1AFD28AEB1E60074327E /* PropositionInfo.swift */,
+				09F5D93F2B5CF35F00117437 /* PropositionInteraction.swift */,
+				09B071ED2A651CB200F259C1 /* PropositionItem.swift */,
 				243B1AFB28AD7FCE0074327E /* PropositionPayload.swift */,
 				B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */,
 				090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */,
@@ -966,14 +966,14 @@
 				242920E82AC4EE2D000DB2CD /* Messaging+StateTests.swift */,
 				243EA6D32733261E00195945 /* MessagingEdgeEventTypeTests.swift */,
 				24CA4BD82B6196DF00D16369 /* MessagingMigratorTests.swift */,
-				24CA4BDA2B61971000D16369 /* PropositionTests.swift */,
-				24CA4BDC2B61972500D16369 /* PropositionItemTests.swift */,
-				24CA4BDE2B61974300D16369 /* PropositionInteractionTests.swift */,
 				2450596B2673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift */,
 				2469A5E6274C0FA900E56457 /* MessagingRulesEngine+CachingTests.swift */,
 				240FC42F2AAFB08E00AFEEEB /* ParsedPropositionsTests.swift */,
 				248BD9C928BD56A200C49B94 /* PropositionInfoTests.swift */,
+				24CA4BDE2B61974300D16369 /* PropositionInteractionTests.swift */,
+				24CA4BDC2B61972500D16369 /* PropositionItemTests.swift */,
 				248BD9CB28BD56B300C49B94 /* PropositionPayloadTests.swift */,
+				24CA4BDA2B61971000D16369 /* PropositionTests.swift */,
 				B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */,
 				242920D92ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift */,
 				243EA6D52733263D00195945 /* SharedStateResult+MessagingTests.swift */,
@@ -1919,7 +1919,7 @@
 				09B071E62A64D3D900F259C1 /* Surface.swift in Sources */,
 				246EF0622C013D4A002A9B22 /* ContentCardSchemaData.swift in Sources */,
 				240FC42E2AA920D400AFEEEB /* ParsedPropositions.swift in Sources */,
-				246EF0602BFFC6B5002A9B22 /* Messaging+EventHistory.swift in Sources */,
+				246EF0602BFFC6B5002A9B22 /* PropositionHistory.swift in Sources */,
 				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
 				09B071EE2A651CB200F259C1 /* PropositionItem.swift in Sources */,
 				246FD07226B9F86F00FD130B /* FullscreenMessage+Message.swift in Sources */,

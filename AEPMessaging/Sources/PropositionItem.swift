@@ -79,13 +79,9 @@ public extension PropositionItem {
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType, forTokens tokens: [String]? = nil) {
         // record the event in event history
         if let activityId = proposition?.activityId, !activityId.isEmpty {
-            if let messaging = Messaging.getInstance() {
-                messaging.recordEventHistory(activityId: activityId, eventType: eventType, interaction: interaction)
-            } else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Unable to record event history for proposition interaction event - no access to parent 'Messaging' object.")
-            }
+            PropositionHistory.record(activityId: activityId, eventType: eventType, interaction: interaction)
         } else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to record event history for proposition interaction event - unable to activityId from 'Proposition' object.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to record event history for proposition interaction event - activityId is missing from 'Proposition' object or it is invalid.")
         }
 
         guard let propositionInteractionXdm = generateInteractionXdm(interaction, withEdgeEventType: eventType, forTokens: tokens) else {

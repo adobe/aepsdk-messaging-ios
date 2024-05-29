@@ -16,19 +16,19 @@ import Foundation
 @objc(AEPContentCard)
 @objcMembers
 public class ContentCard: NSObject, Codable {
-    /// Plain-text title for the feed item
+    /// Plain-text title for the content card
     public let title: String
 
-    /// Plain-text body representing the content for the feed item
+    /// Plain-text body representing the content for the content card
     public let body: String
 
-    /// String representing a URI that contains an image to be used for this feed item
+    /// String representing a URI that contains an image to be used for this content card
     public let imageUrl: String?
 
-    /// Contains a URL to be opened if the user interacts with the feed item
+    /// Contains a URL to be opened if the user interacts with the content card
     public let actionUrl: String?
 
-    /// Required if `actionUrl` is provided. Text to be used in title of button or link in feed item
+    /// Required if `actionUrl` is provided. Text to be used in title of button or link in content card
     public let actionTitle: String?
 
     /// Reference to parent ContentCardSchemaData instance
@@ -50,8 +50,8 @@ public class ContentCard: NSObject, Codable {
         self.actionTitle = actionTitle
     }
 
-    /// Decode FeedItem instance from the given decoder.
-    /// - Parameter decoder: The decoder to read feed item data from.
+    /// Decode ContentCard instance from the given decoder.
+    /// - Parameter decoder: The decoder to read content card data from.
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -62,8 +62,8 @@ public class ContentCard: NSObject, Codable {
         actionTitle = try? values.decode(String.self, forKey: .actionTitle)
     }
 
-    /// Encode FeedItem instance into the given encoder.
-    /// - Parameter encoder: The encoder to write feed item data to.
+    /// Encode ContentCard instance into the given encoder.
+    /// - Parameter encoder: The encoder to write content card data to.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
@@ -78,7 +78,7 @@ public class ContentCard: NSObject, Codable {
 public extension ContentCard {
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let parent = parent else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track FeedItem, parent schema object is unavailable.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track ContentCard, parent schema object is unavailable.")
             return
         }
         parent.track(interaction, withEdgeEventType: eventType)

@@ -1,5 +1,5 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
+ Copyright 2024 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -14,14 +14,21 @@ import AEPCore
 import AEPServices
 import Foundation
 
-extension Messaging {
+struct PropositionHistory {
     /// Dispatches an event to be recorded in Event History.
+    ///
+    /// If `activityId` is an empty string, calling this function results in a no-op
     ///
     /// - Parameters:
     ///  - activityId: activity id for this interaction
     ///  - eventType: `MessagingEdgeEventType` to be recorded
     ///  - interaction: if provided, adds a custom interaction to the hash
-    func recordEventHistory(activityId: String, eventType: MessagingEdgeEventType, interaction: String?) {
+    static func record(activityId: String, eventType: MessagingEdgeEventType, interaction: String?) {
+        guard !activityId.isEmpty else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring request to record PropositionHistory - activityId is empty.")
+            return
+        }
+
         // iam dictionary used for event history
         let iamHistory: [String: String] = [
             MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
@@ -51,6 +58,6 @@ extension Messaging {
                           source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE,
                           data: eventHistoryData,
                           mask: mask)
-        runtime.dispatch(event: event)
+        MobileCore.dispatch(event: event)
     }
 }

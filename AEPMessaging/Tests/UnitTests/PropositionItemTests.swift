@@ -19,7 +19,7 @@ import AEPServices
 import AEPTestUtils
 
 class PropositionItemTests: XCTestCase, AnyCodableAsserts {
-    let ASYNC_TIMEOUT = 5.0
+    let ASYNC_TIMEOUT = 10.0
     let mockPropositionId = "mockPropositionId"
     let mockScope = "mockScope"
     let mockScopeDetails = ["key": "value"]

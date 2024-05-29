@@ -20,12 +20,13 @@ public enum SchemaType: Int, Codable {
     case jsonContent = 2
     case ruleset = 3
     case inapp = 4
-    case contentCard = 8
-    case nativeAlert = 6
-    case defaultContent = 7
 
     @available(*, deprecated, renamed: "contentCard")
     case feed = 5
+
+    case nativeAlert = 6
+    case defaultContent = 7
+    case contentCard = 8
 
     /// Initializes SchemaType with the provided content schema string
     /// - Parameter schema: SchemaType content schema string
