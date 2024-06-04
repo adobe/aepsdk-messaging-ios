@@ -98,11 +98,6 @@ public class Messaging: NSObject, Extension {
         MessagingConstants.PersonalizationSchemas.RULESET_ITEM
     ]
 
-    private weak static var shared: Messaging?
-    static func getInstance() -> Messaging? {
-        shared
-    }
-
     // MARK: - Extension protocol methods
 
     public required init?(runtime: ExtensionRuntime) {
@@ -112,7 +107,6 @@ public class Messaging: NSObject, Extension {
         contentCardRulesEngine = ContentCardRulesEngine(name: MessagingConstants.CONTENT_CARD_RULES_ENGINE_NAME, extensionRuntime: runtime)
         super.init()
         loadCachedPropositions()
-        Messaging.shared = self
     }
 
     /// INTERNAL ONLY
@@ -124,7 +118,6 @@ public class Messaging: NSObject, Extension {
         self.cache = cache
         super.init()
         loadCachedPropositions()
-        Messaging.shared = self
     }
 
     public func onRegistered() {

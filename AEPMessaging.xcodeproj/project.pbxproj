@@ -214,11 +214,7 @@
 		B45151C97D7CC04168690FB8 /* Pods_MessagingDemoApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F23BE01498B5A36EEE4CDC /* Pods_MessagingDemoApp.framework */; };
 		B6165DA629A67ADA0031B84D /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6165DA529A67ADA0031B84D /* NotificationService.swift */; };
 		B6165DAA29A67ADA0031B84D /* NotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6165DA329A67AD90031B84D /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		B631AE132A6131BA00E8B82E /* FunctionalTestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE122A6131BA00E8B82E /* FunctionalTestBase.swift */; };
 		B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */; };
-		B631AE182A61374500E8B82E /* IntrumentedExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE172A61374500E8B82E /* IntrumentedExtension.swift */; };
-		B631AE1A2A6139CE00E8B82E /* UserDefaults+Test.swift .swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE192A6139CE00E8B82E /* UserDefaults+Test.swift .swift */; };
-		B631AE1C2A613A1E00E8B82E /* FileManager+Test.swift .swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE1B2A613A1E00E8B82E /* FileManager+Test.swift .swift */; };
 		B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */; };
 		B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
 		B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */; };
@@ -587,11 +583,7 @@
 		B6165DA329A67AD90031B84D /* NotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6165DA529A67ADA0031B84D /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		B6165DA729A67ADA0031B84D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B631AE122A6131BA00E8B82E /* FunctionalTestBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionalTestBase.swift; sourceTree = "<group>"; };
 		B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingNotificationTrackingTests.swift; sourceTree = "<group>"; };
-		B631AE172A61374500E8B82E /* IntrumentedExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntrumentedExtension.swift; sourceTree = "<group>"; };
-		B631AE192A6139CE00E8B82E /* UserDefaults+Test.swift .swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Test.swift .swift"; sourceTree = "<group>"; };
-		B631AE1B2A613A1E00E8B82E /* FileManager+Test.swift .swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+Test.swift .swift"; sourceTree = "<group>"; };
 		B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatus.swift; sourceTree = "<group>"; };
 		B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatusTests.swift; sourceTree = "<group>"; };
 		C003D7513651C8FD2BC84411 /* Pods-AEPMessaging.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AEPMessaging.debug.xcconfig"; path = "Target Support Files/Pods-AEPMessaging/Pods-AEPMessaging.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1001,10 +993,6 @@
 				92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */,
 				2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */,
 				243EA6DF2739D9D700195945 /* TestableMessagingMobileParameters.swift */,
-				B631AE122A6131BA00E8B82E /* FunctionalTestBase.swift */,
-				B631AE1B2A613A1E00E8B82E /* FileManager+Test.swift .swift */,
-				B631AE172A61374500E8B82E /* IntrumentedExtension.swift */,
-				B631AE192A6139CE00E8B82E /* UserDefaults+Test.swift .swift */,
 			);
 			path = TestHelpers;
 			sourceTree = "<group>";
@@ -2023,15 +2011,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				090290C329D4EA9F00388226 /* MockCache.swift in Sources */,
-				B631AE182A61374500E8B82E /* IntrumentedExtension.swift in Sources */,
-				B631AE132A6131BA00E8B82E /* FunctionalTestBase.swift in Sources */,
-				B631AE1A2A6139CE00E8B82E /* UserDefaults+Test.swift .swift in Sources */,
 				92FC594526372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */,
 				92FC587B2636840C005BAE02 /* MessagingPublicAPITests.swift in Sources */,
 				2469A5FB2759401900E56457 /* ConfigurationLoader.swift in Sources */,
 				92863A022637706F000AFA53 /* MessagingFunctionalTests.swift in Sources */,
 				B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */,
-				B631AE1C2A613A1E00E8B82E /* FileManager+Test.swift .swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
