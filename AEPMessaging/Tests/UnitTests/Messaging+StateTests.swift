@@ -117,7 +117,7 @@ class MessagingPlusStateTests: XCTestCase {
     
     func testUpdatePropositions() throws {
         // setup
-        messaging.propositions = [ mockIamSurface: [mockProposition] ]
+        messaging.cbePropositions = [ mockIamSurface: [mockProposition] ]
         let newProp = Proposition(uniqueId: "newId", scope: "newScope", scopeDetails: [:], items: [])
         let newPropositions = [Surface(uri: "newScope"): [newProp]]
         
@@ -125,12 +125,12 @@ class MessagingPlusStateTests: XCTestCase {
         messaging.updatePropositions(newPropositions)
         
         // verify
-        XCTAssertEqual(2, messaging.propositions.count)
+        XCTAssertEqual(2, messaging.cbePropositions.count)
     }
     
     func testUpdatePropositionsRemovingSurfaces() throws {
         // setup
-        messaging.propositions = [ mockIamSurface: [mockProposition] ]
+        messaging.cbePropositions = [ mockIamSurface: [mockProposition] ]
         let newProp = Proposition(uniqueId: "newId", scope: "newScope", scopeDetails: [:], items: [])
         let newPropositions = [Surface(uri: "newScope"): [newProp]]
         
@@ -138,7 +138,7 @@ class MessagingPlusStateTests: XCTestCase {
         messaging.updatePropositions(newPropositions, removing: [mockIamSurface])
         
         // verify
-        XCTAssertEqual(1, messaging.propositions.count)
-        XCTAssertNil(messaging.propositions[mockIamSurface])
+        XCTAssertEqual(1, messaging.cbePropositions.count)
+        XCTAssertNil(messaging.cbePropositions[mockIamSurface])
     }
 }

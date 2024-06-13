@@ -21,7 +21,13 @@ struct ContentCardsView: View {
     // staging feeds
 //    private let surface = Surface(path: "feeds/schema_feeditem_with_id_hack")
     // private let surface = Surface(path: "feeds/schema_feeditem_sale")
-    private let surface = Surface(path: "cards/ms")
+    
+    
+    // mobileapp://com.steveb.iamStagingTester/cards/ms
+//    private let surface = Surface(path: "cards/ms")
+    
+    // mobileapp://com.steveb.iamStagingTester/cards/613test
+    private let surface = Surface(path: "cards/613test")
     
     //
     struct ExecuteCode : View {
@@ -44,13 +50,16 @@ struct ContentCardsView: View {
                 List {
                     ForEach(propositionsDict?[surface]?.compactMap {
                         $0.items.first } ?? [], id: \.itemId ) { propositionItem in
-                            if let contentCardItemSchema = propositionItem.contentCardSchemaData, let contentCard = contentCardItemSchema.getContentCard() {
+                            if let contentCardSchema = propositionItem.contentCardSchemaData,
+                               let contentCard = contentCardSchema.getContentCard() {
+                                
                                 ExecuteCode {
                                     contentCard.track(withEdgeEventType: .display)
                                 }
                                 NavigationLink(destination: ContentCardDetailView(contentCard: contentCard)) {
                                     ContentCardListView(contentCard: contentCard)
                                 }
+                                
                             }
                         }
                 }

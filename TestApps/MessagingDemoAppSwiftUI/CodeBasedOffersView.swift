@@ -17,13 +17,17 @@ struct CodeBasedOffersView: View {
     @State var propositionsDict: [Surface: [Proposition]]? = nil
     @State private var viewDidLoad = false
     
-    // prod surfaces
-//    let testSurface = Surface(path: "codeBasedView#customHtmlOffer")
-    let testSurface = Surface(path: "sb/cbe-json-object")
-//    let testSurface = Surface(path: "sb/cbe-json")
-    
-    // staging surfaces
-//    let testSurface = Surface(path: "cbeoffers3")
+    let surfaces: [Surface] = [
+        // prod surfaces
+        // Surface(path: "codeBasedView#customHtmlOffer")
+        // Surface(path: "sb/cbe-json-object")
+        // Surface(path: "sb/cbe-json")
+        
+        // staging surfaces
+        // Surface(path: "cbeoffers3")
+        Surface(path: "cbeJsonArray"),
+        Surface(path: "cbeHtml")
+    ]
     
     var body: some View {
         VStack {
@@ -31,7 +35,7 @@ struct CodeBasedOffersView: View {
                 .font(Font.title)
                 .padding(.top, 30)
             List {
-                if let codePropositions: [Proposition] = propositionsDict?[testSurface], 
+                if let codePropositions: [Proposition] = propositionsDict?[surfaces.first!],
                     !codePropositions.isEmpty,
                 let propItems = codePropositions.first?.items as? [PropositionItem] {
                     ForEach(propItems, id:\.itemId) { item in
@@ -54,9 +58,9 @@ struct CodeBasedOffersView: View {
         .onAppear {
             if viewDidLoad == false {
                 viewDidLoad = true
-                Messaging.updatePropositionsForSurfaces([testSurface])
+                Messaging.updatePropositionsForSurfaces(surfaces)
             }
-            Messaging.getPropositionsForSurfaces([testSurface]) { propositionsDict, error in
+            Messaging.getPropositionsForSurfaces(surfaces) { propositionsDict, error in
                 guard error == nil else {
                     return
                 }

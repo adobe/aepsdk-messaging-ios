@@ -44,10 +44,10 @@ public class Messaging: NSObject, Extension {
     private let queue: DispatchQueue = .init(label: "com.adobe.messaging.containers.queue")
 
     /// stores CBE propositions (json-content, html-content, default-content)
-    private var _propositions: [Surface: [Proposition]] = [:]
-    var propositions: [Surface: [Proposition]] {
-        get { queue.sync { self._propositions } }
-        set { queue.async { self._propositions = newValue } }
+    private var _cbePropositions: [Surface: [Proposition]] = [:]
+    var cbePropositions: [Surface: [Proposition]] {
+        get { queue.sync { self._cbePropositions } }
+        set { queue.async { self._cbePropositions = newValue } }
     }
 
     /// propositionInfo stored by RuleConsequence.id
@@ -206,7 +206,7 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Prevents multiple propositions from being in `contentCardsBySurface` at the same time
-    /// If an existing entry for a proposition is found, it is replaced with the value in `propositions`.
+    /// If an existing entry for a proposition is found, it is replaced with the value in `cbePropositions`.
     /// If no prior entry exists for a proposition, a `trigger` event will be sent (and written to event history).
     private func addOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface) {
         let startingCount = contentCardsBySurface[surface]?.count ?? 0
@@ -511,10 +511,19 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // get proposition items from cache
-        let requestedPropositions = contentCardsBySurface.filter { surfaces.contains($0.key) }
-
-        let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
+        // get requested content cards from cache
+        let requestedContentCards = contentCardsBySurface.filter { surfaces.contains($0.key) }
+        
+        // get requested propositions (cbe) from cache
+        let requestedPropositions = retrieveCachedPropositions(for: requestedSurfaces)
+                
+        // merge the two maps
+        var mergedPropositions = requestedContentCards
+        for (surface, propositions) in requestedPropositions {
+            mergedPropositions.addArray(propositions, forKey: surface)
+        }
+        
+        let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: mergedPropositions.flatMap { $0.value }].asDictionary()
 
         let responseEvent = event.createResponseEvent(
             name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_RESPONSE,
@@ -559,9 +568,9 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    /// Returns propositions by surface from `propositions` matching the provided `surfaces`
+    /// Returns propositions by surface from `cbePropositions` matching the provided `surfaces`
     private func retrieveCachedPropositions(for surfaces: [Surface]) -> [Surface: [Proposition]] {
-        propositions.filter { surface, _ in
+        cbePropositions.filter { surface, _ in
             surfaces.contains(where: { $0.uri == surface.uri })
         }
     }
@@ -704,7 +713,7 @@ public class Messaging: NSObject, Extension {
 
         /// For testing purposes only
         func inMemoryPropositionsCount() -> Int {
-            propositions.count
+            cbePropositions.count
         }
 
         /// Used for testing only

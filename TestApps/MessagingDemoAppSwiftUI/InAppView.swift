@@ -21,16 +21,18 @@ struct InAppView: View {
     @State private var viewDidLoad = false
     @State private var messageHandler = MessageHandler()
     @State private var shouldShowMessages = true
+    @State private var customAction = ""
     var body: some View {
         VStack {
             VStack {
                 Text("In-app")
                     .font(Font.title2.weight(.bold))
                     .frame(height: 70)
-                    .padding(.top, 30)
-                Divider()
+                    .padding(.top, 10)
+                    .padding(.bottom, -15)
+                Divider().padding(.bottom, 5).padding(.top, 0)
             }
-            Grid(alignment: .leading, horizontalSpacing: 70, verticalSpacing: 30) {
+            Grid(alignment: .leading, horizontalSpacing: 70, verticalSpacing: 20) {
                 GridRow {
                     Button("fullscreen") {
                         MobileCore.track(action: "fullscreen_ss", data: ["testFullscreen": "true"])
@@ -54,10 +56,11 @@ struct InAppView: View {
                 Text("Content card qualification")
                     .font(Font.title2.weight(.bold))
                     .frame(height: 70)
-                    .padding(.top, 30)
-                Divider()
+                    .padding(.top, 10)
+                    .padding(.bottom, -15)
+                Divider().padding(.bottom, 5).padding(.top, 0)
             }
-            Grid(alignment: .leading, horizontalSpacing: 70, verticalSpacing: 30) {
+            Grid(alignment: .leading, horizontalSpacing: 70, verticalSpacing: 20) {
                 GridRow {
                     Button("qualify 1") {
                         MobileCore.track(action: "timestampz", data: nil)
@@ -68,14 +71,24 @@ struct InAppView: View {
                     }
                 }
                 GridRow {
+                    Button("qualify 3") {
+                        MobileCore.track(action: "sticky", data: nil)
+                    }
                     Button("request cards") {
                         let msContentCardsSurface = Surface(path: "cards/ms")
                         Messaging.updatePropositionsForSurfaces([msContentCardsSurface])
                     }
                 }
+                
             }
-            Spacer()
-                .frame(height: 80)
+            VStack {
+                Text("Messaging delegate")
+                    .font(Font.title2.weight(.bold))
+                    .frame(height: 70)
+                    .padding(.top, 10)
+                    .padding(.bottom, -15)
+                Divider().padding(.bottom, 5).padding(.top, 0)
+            }
             Grid(alignment: .center, horizontalSpacing: 30, verticalSpacing: 30) {
                 GridRow {
                     Button("refresh messages") {
@@ -93,6 +106,29 @@ struct InAppView: View {
                 }
                 .gridCellColumns(2)
                 .gridCellUnsizedAxes([.horizontal])
+            }
+            VStack {
+                Text("Custom action testing")
+                    .font(Font.title2.weight(.bold))
+                    .frame(height: 70)
+                    .padding(.top, 10)
+                    .padding(.bottom, -15)
+                Divider().padding(.bottom, 5).padding(.top, 0)
+            }
+            Grid(alignment: .leading, horizontalSpacing: 70, verticalSpacing: 30) {
+                GridRow {
+                    TextField("Enter custom action...", text: $customAction).padding(.leading, 25)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                }
+                GridRow {
+                    Button("track") {
+                        guard !customAction.isEmpty else {
+                            return
+                        }
+                        MobileCore.track(action: customAction, data: nil)
+                    }.padding(.leading, 25)
+                }
             }
             Spacer()
         }
