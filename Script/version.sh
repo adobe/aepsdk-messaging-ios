@@ -28,7 +28,7 @@ echo "------------------AEPMessaging-------------------"
 PODSPEC_VERSION_IN_AEPMessaging=$(pod ipc spec AEPMessaging.podspec | jq '.version' | tr -d '"')
 echo "Local podspec version - ${BLUE}${PODSPEC_VERSION_IN_AEPMessaging}${NC}"
 SOURCE_CODE_VERSION_IN_AEPMessaging=$(cat ./AEPMessaging/Sources/MessagingConstants.swift | egrep '\s*EXTENSION_VERSION\s*=\s*\"(.*)\"' | ruby -e "puts gets.scan(/\"(.*)\"/)[0] " | tr -d '"')
-echo "Souce code version - ${BLUE}${SOURCE_CODE_VERSION_IN_AEPMessaging}${NC}"
+echo "Source code version - ${BLUE}${SOURCE_CODE_VERSION_IN_AEPMessaging}${NC}"
 
 if [[ "$1" == "$PODSPEC_VERSION_IN_AEPMessaging" ]] && [[ "$1" == "$SOURCE_CODE_VERSION_IN_AEPMessaging" ]]; then
     echo "${GREEN}Pass!${NC}"

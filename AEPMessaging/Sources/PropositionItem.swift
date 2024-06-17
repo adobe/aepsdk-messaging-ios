@@ -77,6 +77,13 @@ public extension PropositionItem {
     ///     - eventType: an enum specifying event type for the interaction.
     ///     - tokens: an array containing the sub-item tokens for recording interaction.
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType, forTokens tokens: [String]? = nil) {
+        // record the event in event history
+        if let activityId = proposition?.activityId, !activityId.isEmpty {
+            PropositionHistory.record(activityId: activityId, eventType: eventType, interaction: interaction)
+        } else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to record event history for proposition interaction event - activityId is missing from 'Proposition' object or it is invalid.")
+        }
+
         guard let propositionInteractionXdm = generateInteractionXdm(interaction, withEdgeEventType: eventType, forTokens: tokens) else {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Cannot track proposition interaction for item \(itemId), could not generate interactions XDM.")
@@ -161,11 +168,21 @@ public extension PropositionItem {
         return getTypedData(InAppSchemaData.self)
     }
 
-    var feedItemSchemaData: FeedItemSchemaData? {
-        guard schema == .feed else {
+    var contentCardSchemaData: ContentCardSchemaData? {
+        guard schema == .feed || schema == .contentCard, let contentCardSchemaData = getTypedData(ContentCardSchemaData.self) else {
             return nil
         }
-        return getTypedData(FeedItemSchemaData.self)
+        contentCardSchemaData.parent = self
+        return contentCardSchemaData
+    }
+
+    @available(*, deprecated, renamed: "contentCardSchemaData")
+    var feedItemSchemaData: FeedItemSchemaData? {
+        guard schema == .feed, let feedItemSchemaData = getTypedData(FeedItemSchemaData.self) else {
+            return nil
+        }
+        feedItemSchemaData.parent = self
+        return feedItemSchemaData
     }
 
     private func getTypedData<T>(_ type: T.Type) -> T? where T: Decodable {

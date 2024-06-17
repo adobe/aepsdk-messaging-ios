@@ -1,5 +1,5 @@
 /*
- Copyright 2023 Adobe. All rights reserved.
+ Copyright 2024 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -16,8 +16,7 @@ import XCTest
 @testable import AEPMessaging
 import AEPServices
 
-@available(*, deprecated)
-class FeedItemTests: XCTestCase {
+class ContentCardTests: XCTestCase {
     let mockTitle = "mockTitle"
     let mockBody = "mockBody"
     let mockImageUrl = "mockImageUrl"
@@ -41,7 +40,7 @@ class FeedItemTests: XCTestCase {
     func testIsDecodable() throws {
         // setup
         let decoder = JSONDecoder()
-        let feedItemData = """
+        let contentCardData = """
 {
     "title": "\(mockTitle)",
     "body": "\(mockBody)",
@@ -52,24 +51,24 @@ class FeedItemTests: XCTestCase {
 """.data(using: .utf8)!
         
         // test
-        guard let feedItem = try? decoder.decode(FeedItem.self, from: feedItemData) else {
-            XCTFail("unable to decode FeedItem JSON")
+        guard let contentCard = try? decoder.decode(ContentCard.self, from: contentCardData) else {
+            XCTFail("unable to decode ContentCard JSON")
             return
         }
         
         // verify
-        XCTAssertNotNil(feedItem)
-        XCTAssertEqual(mockTitle, feedItem.title)
-        XCTAssertEqual(mockBody, feedItem.body)
-        XCTAssertEqual(mockImageUrl, feedItem.imageUrl)
-        XCTAssertEqual(mockActionUrl, feedItem.actionUrl)
-        XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
+        XCTAssertNotNil(contentCard)
+        XCTAssertEqual(mockTitle, contentCard.title)
+        XCTAssertEqual(mockBody, contentCard.body)
+        XCTAssertEqual(mockImageUrl, contentCard.imageUrl)
+        XCTAssertEqual(mockActionUrl, contentCard.actionUrl)
+        XCTAssertEqual(mockActionTitle, contentCard.actionTitle)
     }
     
     func testIsEncodable() throws {
         // setup
         let decoder = JSONDecoder()
-        let feedItemData = """
+        let contentCardData = """
 {
     "title": "\(mockTitle)",
     "body": "\(mockBody)",
@@ -80,29 +79,29 @@ class FeedItemTests: XCTestCase {
 """.data(using: .utf8)!
         
         // test
-        guard let feedItem = try? decoder.decode(FeedItem.self, from: feedItemData) else {
-            XCTFail("unable to decode FeedItem JSON")
+        guard let contentCard = try? decoder.decode(ContentCard.self, from: contentCardData) else {
+            XCTFail("unable to decode ContentCard JSON")
             return
         }
         
         let encoder = JSONEncoder()
 
         // test
-        guard let encodedFeedItem = try? encoder.encode(feedItem) else {
-            XCTFail("unable to encode the FeedItem")
+        guard let encodedContentCard = try? encoder.encode(contentCard) else {
+            XCTFail("unable to encode the ContentCard")
             return
         }
         
         // verify
-        guard let encodedFeedItemString = String(data: encodedFeedItem, encoding: .utf8) else {
-            XCTFail("unable to encode the FeedItem")
+        guard let encodedContentCardString = String(data: encodedContentCard, encoding: .utf8) else {
+            XCTFail("unable to encode the ContentCard")
             return
         }
-        XCTAssertTrue(encodedFeedItemString.contains("\"title\":\"\(mockTitle)\""))
-        XCTAssertTrue(encodedFeedItemString.contains("\"body\":\"\(mockBody)\""))
-        XCTAssertTrue(encodedFeedItemString.contains("\"imageUrl\":\"\(mockImageUrl)\""))
-        XCTAssertTrue(encodedFeedItemString.contains("\"actionUrl\":\"\(mockActionUrl)\""))
-        XCTAssertTrue(encodedFeedItemString.contains("\"actionTitle\":\"\(mockActionTitle)\""))
+        XCTAssertTrue(encodedContentCardString.contains("\"title\":\"\(mockTitle)\""))
+        XCTAssertTrue(encodedContentCardString.contains("\"body\":\"\(mockBody)\""))
+        XCTAssertTrue(encodedContentCardString.contains("\"imageUrl\":\"\(mockImageUrl)\""))
+        XCTAssertTrue(encodedContentCardString.contains("\"actionUrl\":\"\(mockActionUrl)\""))
+        XCTAssertTrue(encodedContentCardString.contains("\"actionTitle\":\"\(mockActionTitle)\""))
     }
     
 
@@ -111,7 +110,7 @@ class FeedItemTests: XCTestCase {
     func testTitleIsRequired() throws {
         // setup
         let decoder = JSONDecoder()
-        let feedItemData = """
+        let contentCardData = """
 {
     "body": "\(mockBody)",
     "imageUrl": "\(mockImageUrl)",
@@ -121,16 +120,16 @@ class FeedItemTests: XCTestCase {
 """.data(using: .utf8)!
         
         // test
-        let feedItem = try? decoder.decode(FeedItem.self, from: feedItemData)
+        let contentCard = try? decoder.decode(ContentCard.self, from: contentCardData)
         
         // verify
-        XCTAssertNil(feedItem)
+        XCTAssertNil(contentCard)
     }
     
     func testBodyIsRequired() throws {
         // setup
         let decoder = JSONDecoder()
-        let feedItemData = """
+        let contentCardData = """
 {
     "title": "\(mockTitle)",
     "imageUrl": "\(mockImageUrl)",
@@ -140,10 +139,10 @@ class FeedItemTests: XCTestCase {
 """.data(using: .utf8)!
         
         // test
-        let feedItem = try? decoder.decode(FeedItem.self, from: feedItemData)
+        let contentCard = try? decoder.decode(ContentCard.self, from: contentCardData)
         
         // verify
-        XCTAssertNil(feedItem)
+        XCTAssertNil(contentCard)
     }
     
     // MARK: - test optional properties
@@ -151,7 +150,7 @@ class FeedItemTests: XCTestCase {
     func testImageUrlIsNotRequired() throws {
         // setup
         let decoder = JSONDecoder()
-        let feedItemData = """
+        let contentCardData = """
 {
     "title": "\(mockTitle)",
     "body": "\(mockBody)",
@@ -161,24 +160,24 @@ class FeedItemTests: XCTestCase {
 """.data(using: .utf8)!
         
         // test
-        guard let feedItem = try? decoder.decode(FeedItem.self, from: feedItemData) else {
-            XCTFail("unable to decode FeedItem JSON")
+        guard let contentCard = try? decoder.decode(ContentCard.self, from: contentCardData) else {
+            XCTFail("unable to decode ContentCard JSON")
             return
         }
         
         // verify
-        XCTAssertNotNil(feedItem)
-        XCTAssertEqual(mockTitle, feedItem.title)
-        XCTAssertEqual(mockBody, feedItem.body)
-        XCTAssertNil(feedItem.imageUrl)
-        XCTAssertEqual(mockActionUrl, feedItem.actionUrl)
-        XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
+        XCTAssertNotNil(contentCard)
+        XCTAssertEqual(mockTitle, contentCard.title)
+        XCTAssertEqual(mockBody, contentCard.body)
+        XCTAssertNil(contentCard.imageUrl)
+        XCTAssertEqual(mockActionUrl, contentCard.actionUrl)
+        XCTAssertEqual(mockActionTitle, contentCard.actionTitle)
     }
     
     func testActionUrlIsNotRequired() throws {
         // setup
         let decoder = JSONDecoder()
-        let feedItemData = """
+        let contentCardData = """
 {
     "title": "\(mockTitle)",
     "body": "\(mockBody)",
@@ -188,24 +187,24 @@ class FeedItemTests: XCTestCase {
 """.data(using: .utf8)!
         
         // test
-        guard let feedItem = try? decoder.decode(FeedItem.self, from: feedItemData) else {
-            XCTFail("unable to decode FeedItem JSON")
+        guard let contentCard = try? decoder.decode(ContentCard.self, from: contentCardData) else {
+            XCTFail("unable to decode ContentCard JSON")
             return
         }
         
         // verify
-        XCTAssertNotNil(feedItem)
-        XCTAssertEqual(mockTitle, feedItem.title)
-        XCTAssertEqual(mockBody, feedItem.body)
-        XCTAssertEqual(mockImageUrl, feedItem.imageUrl)
-        XCTAssertNil(feedItem.actionUrl)
-        XCTAssertEqual(mockActionTitle, feedItem.actionTitle)
+        XCTAssertNotNil(contentCard)
+        XCTAssertEqual(mockTitle, contentCard.title)
+        XCTAssertEqual(mockBody, contentCard.body)
+        XCTAssertEqual(mockImageUrl, contentCard.imageUrl)
+        XCTAssertNil(contentCard.actionUrl)
+        XCTAssertEqual(mockActionTitle, contentCard.actionTitle)
     }
     
     func testActionTitleIsNotRequired() throws {
         // setup
         let decoder = JSONDecoder()
-        let feedItemData = """
+        let contentCardData = """
 {
     "title": "\(mockTitle)",
     "body": "\(mockBody)",
@@ -215,17 +214,17 @@ class FeedItemTests: XCTestCase {
 """.data(using: .utf8)!
         
         // test
-        guard let feedItem = try? decoder.decode(FeedItem.self, from: feedItemData) else {
-            XCTFail("unable to decode FeedItem JSON")
+        guard let contentCard = try? decoder.decode(ContentCard.self, from: contentCardData) else {
+            XCTFail("unable to decode ContentCard JSON")
             return
         }
         
         // verify
-        XCTAssertNotNil(feedItem)
-        XCTAssertEqual(mockTitle, feedItem.title)
-        XCTAssertEqual(mockBody, feedItem.body)
-        XCTAssertEqual(mockImageUrl, feedItem.imageUrl)
-        XCTAssertEqual(mockActionUrl, feedItem.actionUrl)
-        XCTAssertNil(feedItem.actionTitle)
+        XCTAssertNotNil(contentCard)
+        XCTAssertEqual(mockTitle, contentCard.title)
+        XCTAssertEqual(mockBody, contentCard.body)
+        XCTAssertEqual(mockImageUrl, contentCard.imageUrl)
+        XCTAssertEqual(mockActionUrl, contentCard.actionUrl)
+        XCTAssertNil(contentCard.actionTitle)
     }
 }

@@ -34,8 +34,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
     }
     
     override func tearDown() {
-        resetNotificationCategories()
-        MockExtension.reset()
+        resetNotificationCategories()        
         EventHub.reset()
     }
     

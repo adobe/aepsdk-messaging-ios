@@ -17,8 +17,7 @@ import XCTest
 import AEPServices
 import AEPTestUtils
 
-@available(*, deprecated)
-class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
+class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
     
     let mockExpiry = 1723163897
     let mockPublished = 1691541497
@@ -28,63 +27,63 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
     let mockMetaKey = "metaKey"
     let mockMetaValue = "value"
         
-    func getDecodedFeedItem(fromString: String) -> FeedItemSchemaData? {
+    func getDecodedContentCard(fromString: String) -> ContentCardSchemaData? {
         let decoder = JSONDecoder()
-        let feedItemData = fromString.data(using: .utf8)!
-        guard let feedItem = try? decoder.decode(FeedItemSchemaData.self, from: feedItemData) else {
+        let contentCardData = fromString.data(using: .utf8)!
+        guard let contentCard = try? decoder.decode(ContentCardSchemaData.self, from: contentCardData) else {
             return nil
         }
-        return feedItem
+        return contentCard
     }
     
     func testIsDecodable() throws {
         // test
         let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"\(mockContentKey)\":\"\(mockContentValue)\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}"
-        guard let feedItem = getDecodedFeedItem(fromString: feedJson) else {
+        guard let contentCard = getDecodedContentCard(fromString: feedJson) else {
             XCTFail("unable to decode feedJson")
             return
         }
         
         // verify
-        XCTAssertNotNil(feedItem)
-        XCTAssertEqual(mockExpiry, feedItem.expiryDate)
-        XCTAssertEqual(mockPublished, feedItem.publishedDate)
-        XCTAssertEqual(mockContentType, feedItem.contentType)
-        let content = feedItem.content as? [String: String]
+        XCTAssertNotNil(contentCard)
+        XCTAssertEqual(mockExpiry, contentCard.expiryDate)
+        XCTAssertEqual(mockPublished, contentCard.publishedDate)
+        XCTAssertEqual(mockContentType, contentCard.contentType)
+        let content = contentCard.content as? [String: String]
         XCTAssertEqual(mockContentValue, content?[mockContentKey])
-        XCTAssertEqual(mockMetaValue, feedItem.meta?[mockMetaKey] as? String)
+        XCTAssertEqual(mockMetaValue, contentCard.meta?[mockMetaKey] as? String)
     }
     
     func testIsDecodableStringContent() throws {
         // test
         let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":\"\(mockContentValue)\",\"contentType\":\"\(ContentType.textPlain.toString())\",\"publishedDate\":\(mockPublished)}"
-        guard let feedItem = getDecodedFeedItem(fromString: feedJson) else {
+        guard let contentCard = getDecodedContentCard(fromString: feedJson) else {
             XCTFail("unable to decode feedJson")
             return
         }
         
         // verify
-        XCTAssertNotNil(feedItem)
-        XCTAssertEqual(mockExpiry, feedItem.expiryDate)
-        XCTAssertEqual(mockPublished, feedItem.publishedDate)
-        XCTAssertEqual(.textPlain, feedItem.contentType)
-        XCTAssertEqual(mockContentValue, feedItem.content as? String)
-        XCTAssertEqual(mockMetaValue, feedItem.meta?[mockMetaKey] as? String)
+        XCTAssertNotNil(contentCard)
+        XCTAssertEqual(mockExpiry, contentCard.expiryDate)
+        XCTAssertEqual(mockPublished, contentCard.publishedDate)
+        XCTAssertEqual(.textPlain, contentCard.contentType)
+        XCTAssertEqual(mockContentValue, contentCard.content as? String)
+        XCTAssertEqual(mockMetaValue, contentCard.meta?[mockMetaKey] as? String)
     }
     
     func testIsDecodableBadJson() throws {
         // test
         let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":\"I AM NOT JSON\",\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}"
-        let feedItem = getDecodedFeedItem(fromString: feedJson)
+        let contentCard = getDecodedContentCard(fromString: feedJson)
         
         // verify
-        XCTAssertNil(feedItem)
+        XCTAssertNil(contentCard)
     }
     
     func testIsEncodable() throws {
         // setup
         let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"\(mockContentKey)\":\"\(mockContentValue)\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}"
-        guard let feedItem = getDecodedFeedItem(fromString: feedJson) else {
+        guard let contentCard = getDecodedContentCard(fromString: feedJson) else {
             XCTFail("unable to decode feedJson")
             return
         }
@@ -92,20 +91,20 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
         let expected = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"\(mockContentKey)\":\"\(mockContentValue)\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}".toAnyCodable() ?? "fail"
 
         // test
-        guard let encodedFeedItem = try? encoder.encode(feedItem) else {
-            XCTFail("unable to encode FeedItemSchemaData")
+        guard let encodedContentCard = try? encoder.encode(contentCard) else {
+            XCTFail("unable to encode ContentCardSchemaData")
             return
         }
 
         // verify
-        let actual = String(data: encodedFeedItem, encoding: .utf8)?.toAnyCodable() ?? ""
+        let actual = String(data: encodedContentCard, encoding: .utf8)?.toAnyCodable() ?? ""
         assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
     func testIsEncodableStringContent() throws {
         // setup
         let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":\"\(mockContentValue)\",\"contentType\":\"\(ContentType.textPlain.toString())\",\"publishedDate\":\(mockPublished)}"
-        guard let feedItem = getDecodedFeedItem(fromString: feedJson) else {
+        guard let contentCard = getDecodedContentCard(fromString: feedJson) else {
             XCTFail("unable to decode feedJson")
             return
         }
@@ -113,13 +112,13 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
         let expected = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":\"\(mockContentValue)\",\"contentType\":\"\(ContentType.textPlain.toString())\",\"publishedDate\":\(mockPublished)}".toAnyCodable() ?? "fail"
 
         // test
-        guard let encodedFeedItem = try? encoder.encode(feedItem) else {
-            XCTFail("unable to encode FeedItemSchemaData")
+        guard let encodedContentCard = try? encoder.encode(contentCard) else {
+            XCTFail("unable to encode ContentCardSchemaData")
             return
         }
 
         // verify
-        let actual = String(data: encodedFeedItem, encoding: .utf8)?.toAnyCodable() ?? ""
+        let actual = String(data: encodedContentCard, encoding: .utf8)?.toAnyCodable() ?? ""
         assertExactMatch(expected: expected, actual: actual, pathOptions: [])
     }
     
@@ -130,10 +129,10 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
         
         
         // test
-        let feedItem = getDecodedFeedItem(fromString: feedJson)
+        let contentCard = getDecodedContentCard(fromString: feedJson)
 
         // verify
-        XCTAssertNil(feedItem)
+        XCTAssertNil(contentCard)
     }
     
     func testContentTypeIsRequired() throws {
@@ -142,10 +141,10 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
         
         
         // test
-        let feedItem = getDecodedFeedItem(fromString: feedJson)
+        let contentCard = getDecodedContentCard(fromString: feedJson)
 
         // verify
-        XCTAssertNil(feedItem)
+        XCTAssertNil(contentCard)
     }
     
     func testPublishedDateExpiryDateMetaAreOptional() throws {
@@ -154,26 +153,26 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
         
         
         // test
-        let feedItem = getDecodedFeedItem(fromString: feedJson)
+        let contentCard = getDecodedContentCard(fromString: feedJson)
 
         // verify
-        XCTAssertNotNil(feedItem)
-        XCTAssertEqual(mockContentType, feedItem?.contentType)
-        let content = feedItem?.content as? [String: String]
+        XCTAssertNotNil(contentCard)
+        XCTAssertEqual(mockContentType, contentCard?.contentType)
+        let content = contentCard?.content as? [String: String]
         XCTAssertEqual(mockContentValue, content?[mockContentKey])
     }
     
-    // GetFeedItem
-    func testGetFeedItemHappy() throws {
+    // GetContentCard
+    func testGetContentCardHappy() throws {
         // setup
         let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"title\":\"fiTitle\",\"body\":\"fiBody\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}"
-        guard let feedItemSchemaData = getDecodedFeedItem(fromString: feedJson) else {
+        guard let contentCardSchemaData = getDecodedContentCard(fromString: feedJson) else {
             XCTFail("unable to decode feedJson")
             return
         }
         
         // test
-        let result = feedItemSchemaData.getFeedItem()
+        let result = contentCardSchemaData.getContentCard()
         
         // verify
         XCTAssertNotNil(result)
@@ -181,16 +180,16 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual("fiBody", result?.body)
     }
     
-    func testGetFeedItemNotApplicationJson() throws {
+    func testGetContentCardNotApplicationJson() throws {
         // setup
         let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":\"thisIsContent\",\"contentType\":\"\(ContentType.textPlain.toString())\",\"publishedDate\":\(mockPublished)}"
-        guard let feedItemSchemaData = getDecodedFeedItem(fromString: feedJson) else {
+        guard let contentCardSchemaData = getDecodedContentCard(fromString: feedJson) else {
             XCTFail("unable to decode feedJson")
             return
         }
         
         // test
-        let result = feedItemSchemaData.getFeedItem()
+        let result = contentCardSchemaData.getContentCard()
         
         // verify
         XCTAssertNil(result)
@@ -199,7 +198,7 @@ class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
     // TEST HELPER
     func testGetEmpty() throws {
         // test
-        let result = FeedItemSchemaData.getEmpty()
+        let result = ContentCardSchemaData.getEmpty()
         
         // verify
         XCTAssertNotNil(result)

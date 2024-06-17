@@ -13,28 +13,53 @@ governing permissions and limitations under the License.
 import AEPMessaging
 import SwiftUI
 
-struct FeedsView: View {
+struct ContentCardsView: View {
     @State var propositionsDict: [Surface: [Proposition]]? = nil
     @State private var propositionsHaveBeenFetched = false
-    @State private var feedName: String = "API feed"
+    @State private var pageTitle: String = "Content cards"
     
     // staging feeds
-    private let surface = Surface(path: "feeds/schema_feeditem_with_id_hack")
+//    private let surface = Surface(path: "feeds/schema_feeditem_with_id_hack")
     // private let surface = Surface(path: "feeds/schema_feeditem_sale")
+    
+    
+    // mobileapp://com.steveb.iamStagingTester/cards/ms
+//    private let surface = Surface(path: "cards/ms")
+    
+    // mobileapp://com.steveb.iamStagingTester/cards/613test
+    private let surface = Surface(path: "cards/613test")
+    
+    //
+    struct ExecuteCode : View {
+        init( _ codeToExec: () -> () ) {
+            codeToExec()
+        }
+        
+        var body: some View {
+            EmptyView()
+        }
+    }
+    //
     
     var body: some View {
         NavigationView {
             VStack {
-                Text(feedName)
+                Text(pageTitle)
                     .font(.title)
                     .padding(.top, 30)
                 List {
                     ForEach(propositionsDict?[surface]?.compactMap {
                         $0.items.first } ?? [], id: \.itemId ) { propositionItem in
-                            if let feedItemSchema = propositionItem.feedItemSchemaData, let feedItem = feedItemSchema.getFeedItem() {
-                                NavigationLink(destination: FeedItemDetailView(feedItem: feedItem)) {
-                                    FeedItemView(feedItem: feedItem)
+                            if let contentCardSchema = propositionItem.contentCardSchemaData,
+                               let contentCard = contentCardSchema.getContentCard() {
+                                
+                                ExecuteCode {
+                                    contentCard.track(withEdgeEventType: .display)
                                 }
+                                NavigationLink(destination: ContentCardDetailView(contentCard: contentCard)) {
+                                    ContentCardListView(contentCard: contentCard)
+                                }
+                                
                             }
                         }
                 }
@@ -59,8 +84,8 @@ struct FeedsView: View {
     }
 }
 
-struct FeedsView_Previews: PreviewProvider {
+struct ContentCardsView_Previews: PreviewProvider {
     static var previews: some View {
-        FeedsView()
+        ContentCardsView()
     }
 }

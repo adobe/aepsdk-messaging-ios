@@ -1,5 +1,5 @@
 /*
- Copyright 2023 Adobe. All rights reserved.
+ Copyright 2024 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,11 +13,10 @@
 import AEPServices
 import Foundation
 
-/// represents the schema data object for a feed item schema
-@available(*, deprecated, renamed: "ContentCardSchemaData")
-@objc(AEPFeedItemSchemaData)
+/// represents the schema data object for a content-card schema
+@objc(AEPContentCardSchemaData)
 @objcMembers
-public class FeedItemSchemaData: NSObject, Codable {
+public class ContentCardSchemaData: NSObject, Codable {
     public let content: Any
     public let contentType: ContentType
     public let publishedDate: Int?
@@ -74,34 +73,32 @@ public class FeedItemSchemaData: NSObject, Codable {
     }
 }
 
-@available(*, deprecated, renamed: "ContentCardSchemaData")
-extension FeedItemSchemaData {
+extension ContentCardSchemaData {
     /// ONLY USED FOR TESTING
-    static func getEmpty() -> FeedItemSchemaData {
-        FeedItemSchemaData()
+    static func getEmpty() -> ContentCardSchemaData {
+        ContentCardSchemaData()
     }
 }
 
-@available(*, deprecated, renamed: "ContentCardSchemaData")
-public extension FeedItemSchemaData {
-    func getFeedItem() -> FeedItem? {
+public extension ContentCardSchemaData {
+    func getContentCard() -> ContentCard? {
         guard contentType == .applicationJson,
               let contentAsJsonData = try? JSONSerialization.data(withJSONObject: content, options: .prettyPrinted)
         else {
             return nil
         }
 
-        guard let feedItem = try? JSONDecoder().decode(FeedItem.self, from: contentAsJsonData) else {
+        guard let contentCard = try? JSONDecoder().decode(ContentCard.self, from: contentAsJsonData) else {
             return nil
         }
 
-        feedItem.parent = self
-        return feedItem
+        contentCard.parent = self
+        return contentCard
     }
 
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let parent = parent else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track FeedItemSchemaData, parent proposition item is unavailable.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track ContentCardSchemaData, parent proposition item is unavailable.")
             return
         }
         parent.track(interaction, withEdgeEventType: eventType)

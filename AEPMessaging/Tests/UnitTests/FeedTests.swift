@@ -16,6 +16,7 @@ import XCTest
 @testable import AEPMessaging
 import AEPServices
 
+@available(*, deprecated)
 class FeedTests: XCTestCase {
     func testFeedIsCreatable() throws {
         // setup

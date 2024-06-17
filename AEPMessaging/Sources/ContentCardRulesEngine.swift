@@ -15,7 +15,7 @@ import AEPRulesEngine
 import AEPServices
 import Foundation
 
-class FeedRulesEngine {
+class ContentCardRulesEngine {
     let launchRulesEngine: LaunchRulesEngine
     let runtime: ExtensionRuntime
 
@@ -43,12 +43,13 @@ class FeedRulesEngine {
         var propositionItemsBySurface: [Surface: [PropositionItem]] = [:]
         for consequence in consequences {
             guard let propositionItem = PropositionItem.fromRuleConsequence(consequence),
-                  let propositionAsFeedItem = propositionItem.feedItemSchemaData
+                  let propositionAsContentCard = propositionItem.contentCardSchemaData
             else {
                 continue
             }
 
-            let surfaceUri = propositionAsFeedItem.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
+            // surface is automatically added to the metadata for content cards
+            let surfaceUri = propositionAsContentCard.meta?[MessagingConstants.Event.Data.Key.Feed.SURFACE] as? String ?? ""
             let surface = Surface(uri: surfaceUri)
 
             if propositionItemsBySurface[surface] != nil {

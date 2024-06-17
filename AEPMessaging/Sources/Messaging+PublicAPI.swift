@@ -231,6 +231,7 @@ import UserNotifications
             // notification by tapping "Clear" action button.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
             modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] = "Dismiss"
+
         default:
             // If actionIdentifier is none of the default values.
             // This indicates that a custom action on a notification is taken by the user. (i.e. The user has clicked on one of the notification action buttons.)
