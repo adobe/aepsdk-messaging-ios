@@ -20,7 +20,7 @@ extension Messaging {
         guard let cachedPropositions = cache.propositions else {
             return
         }
-        cbePropositions = cachedPropositions
+        inMemoryPropositions = cachedPropositions
         hydratePropositionsRulesEngine()
     }
 
@@ -39,13 +39,13 @@ extension Messaging {
     func updatePropositions(_ newPropositions: [Surface: [Proposition]], removing surfaces: [Surface]? = nil) {
         // add new surfaces or update replace existing surfaces
         for (surface, propositionsArray) in newPropositions {
-            cbePropositions.addArray(propositionsArray, forKey: surface)
+            inMemoryPropositions.addArray(propositionsArray, forKey: surface)
         }
 
         // remove any surfaces if necessary
         if let surfaces = surfaces {
             for surface in surfaces {
-                cbePropositions.removeValue(forKey: surface)
+                inMemoryPropositions.removeValue(forKey: surface)
             }
         }
     }
@@ -53,7 +53,7 @@ extension Messaging {
     // MARK: - private methods
 
     private func hydratePropositionsRulesEngine() {
-        let parsedPropositions = ParsedPropositions(with: cbePropositions, requestedSurfaces: cbePropositions.map { $0.key }, runtime: runtime)
+        let parsedPropositions = ParsedPropositions(with: inMemoryPropositions, requestedSurfaces: inMemoryPropositions.map { $0.key }, runtime: runtime)
         if let inAppRules = parsedPropositions.surfaceRulesBySchemaType[.inapp] {
             rulesEngine.launchRulesEngine.replaceRules(with: inAppRules.flatMap { $0.value })
         }
