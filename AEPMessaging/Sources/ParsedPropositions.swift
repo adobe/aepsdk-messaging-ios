@@ -78,7 +78,6 @@ struct ParsedPropositions {
                     default:
                         continue
                     }
-
                 // - handle json-content, html-content, and default-content schemas for code based experiences
                 //   a. code based schemas are cached for reporting
                 case .jsonContent, .htmlContent, .defaultContent:
