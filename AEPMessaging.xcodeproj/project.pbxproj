@@ -182,7 +182,7 @@
 		24CA4BCF2B617AA900D16369 /* Array+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BCE2B617AA900D16369 /* Array+MessagingTests.swift */; };
 		24CA4BD12B617AC800D16369 /* Bundle+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BD02B617AC800D16369 /* Bundle+MessagingTests.swift */; };
 		24CA4BD32B617AED00D16369 /* Cache+MessagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BD22B617AED00D16369 /* Cache+MessagingTests.swift */; };
-		24CA4BD52B6195A500D16369 /* FeedRulesEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BD42B6195A500D16369 /* FeedRulesEngineTests.swift */; };
+		24CA4BD52B6195A500D16369 /* ContentCardRulesEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BD42B6195A500D16369 /* ContentCardRulesEngineTests.swift */; };
 		24CA4BD92B6196DF00D16369 /* MessagingMigratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BD82B6196DF00D16369 /* MessagingMigratorTests.swift */; };
 		24CA4BDB2B61971000D16369 /* PropositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BDA2B61971000D16369 /* PropositionTests.swift */; };
 		24CA4BDD2B61972500D16369 /* PropositionItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BDC2B61972500D16369 /* PropositionItemTests.swift */; };
@@ -528,7 +528,7 @@
 		24CA4BCE2B617AA900D16369 /* Array+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+MessagingTests.swift"; sourceTree = "<group>"; };
 		24CA4BD02B617AC800D16369 /* Bundle+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+MessagingTests.swift"; sourceTree = "<group>"; };
 		24CA4BD22B617AED00D16369 /* Cache+MessagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Cache+MessagingTests.swift"; sourceTree = "<group>"; };
-		24CA4BD42B6195A500D16369 /* FeedRulesEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedRulesEngineTests.swift; sourceTree = "<group>"; };
+		24CA4BD42B6195A500D16369 /* ContentCardRulesEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardRulesEngineTests.swift; sourceTree = "<group>"; };
 		24CA4BD82B6196DF00D16369 /* MessagingMigratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingMigratorTests.swift; sourceTree = "<group>"; };
 		24CA4BDA2B61971000D16369 /* PropositionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionTests.swift; sourceTree = "<group>"; };
 		24CA4BDC2B61972500D16369 /* PropositionItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionItemTests.swift; sourceTree = "<group>"; };
@@ -944,11 +944,11 @@
 				24CA4BD02B617AC800D16369 /* Bundle+MessagingTests.swift */,
 				24CA4BD22B617AED00D16369 /* Cache+MessagingTests.swift */,
 				246EF0652C06803B002A9B22 /* ContentCardTests.swift */,
+				24CA4BD42B6195A500D16369 /* ContentCardRulesEngineTests.swift */,
 				243EA6C82733258600195945 /* Dictionary+MessagingTests.swift */,
 				245059622673DBFD00CC7CA0 /* Event+MessagingTests.swift */,
 				242920E22AC4D060000DB2CD /* FeedTests.swift */,
 				244FEA4529B6A5D30058FA1C /* FeedItemTests.swift */,
-				24CA4BD42B6195A500D16369 /* FeedRulesEngineTests.swift */,
 				243EA6CA273325A000195945 /* FullscreenMessage+MessageTests.swift */,
 				243EA6CC273325B700195945 /* MessageTests.swift */,
 				243EA6CE273325CC00195945 /* Message+FullscreenMessageDelegateTests.swift */,
@@ -1983,7 +1983,7 @@
 				24CA4BC92B617A3F00D16369 /* JsonContentSchemaDataTests.swift in Sources */,
 				24CA4BDD2B61972500D16369 /* PropositionItemTests.swift in Sources */,
 				245059762673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift in Sources */,
-				24CA4BD52B6195A500D16369 /* FeedRulesEngineTests.swift in Sources */,
+				24CA4BD52B6195A500D16369 /* ContentCardRulesEngineTests.swift in Sources */,
 				24CA4BE12B61977800D16369 /* SurfaceTests.swift in Sources */,
 				24CA4BD12B617AC800D16369 /* Bundle+MessagingTests.swift in Sources */,
 				243EA6E02739D9D700195945 /* TestableMessagingMobileParameters.swift in Sources */,

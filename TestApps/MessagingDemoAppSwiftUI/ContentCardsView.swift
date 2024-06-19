@@ -24,10 +24,10 @@ struct ContentCardsView: View {
     
     
     // mobileapp://com.steveb.iamStagingTester/cards/ms
-//    private let surface = Surface(path: "cards/ms")
+    private let surface = Surface(path: "cards/ms")
     
     // mobileapp://com.steveb.iamStagingTester/cards/613test
-    private let surface = Surface(path: "cards/613test")
+//    private let surface = Surface(path: "cards/613test")
     
     //
     struct ExecuteCode : View {

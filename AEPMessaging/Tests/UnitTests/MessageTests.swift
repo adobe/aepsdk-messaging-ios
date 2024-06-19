@@ -36,7 +36,7 @@ class MessageTests: XCTestCase {
     var onShowExpectation: XCTestExpectation?
     var onDismissExpectation: XCTestExpectation?
     var handleJavascriptMessageExpectation: XCTestExpectation?
-        
+            
     override func setUp() {
         mockInAppItemData = JSONFileLoader.getRulesJsonFromFile("mockPropositionItem")
         
@@ -282,12 +282,17 @@ class MessageTests: XCTestCase {
             return
         }
         message.propositionInfo = mockPropositionInfo
+        let historyExpectation = XCTestExpectation(description: "event history event dispatched")
+        MobileCore.registerEventListener(type: EventType.messaging, source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE) { event in
+            historyExpectation.fulfill()
+        }
 
         // test
         message.trigger()
 
         // verify
         // TODO: - event history event is now dispatched via MobileCore.dispatch
+//        wait(for: [historyExpectation], timeout: ASYNC_TIMEOUT)
 //        XCTAssertEqual(2, mockMessaging.testableRuntime.dispatchedEvents.count)
 //        let trackEvent = mockMessaging.testableRuntime.firstEvent
 //        XCTAssertEqual("Messaging interaction event", trackEvent?.name)

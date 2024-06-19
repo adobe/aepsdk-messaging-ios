@@ -16,7 +16,7 @@ import XCTest
 @testable import AEPMessaging
 import AEPServices
 
-class FeedRulesEngineTests: XCTestCase {
+class ContentCardRulesEngineTests: XCTestCase {
                 
     override func setUp() {
         
