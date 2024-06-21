@@ -60,7 +60,7 @@ public func track(_ interaction: String? = nil, withEdgeEventType eventType: Mes
 #### Parameters
 
 - _interaction_ - a custom `String` value to be recorded in the interaction
-- _eventType_ - the [`MessagingEdgeEventType`](./../../../shared/enums/enum-messaging-edge-event-type.md) to be used for the ensuing Edge Event
+- _eventType_ - the [`MessagingEdgeEventType`](./../../../../shared/enums/enum-messaging-edge-event-type.md) to be used for the ensuing Edge Event
 
 #### Example
 

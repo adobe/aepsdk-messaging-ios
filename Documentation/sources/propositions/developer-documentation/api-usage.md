@@ -9,7 +9,7 @@ This document details the Messaging SDK APIs that can be used to implement propo
 
 ---
 
-### getPropositionsForSurfaces(_:_:)
+### getPropositionsForSurfaces(\_:\_:)
 
 Retrieves previously fetched `Proposition`s from the SDK's in-memory propositions cache for the requested `Surface`s. The completion handler is invoked with the corresponding `Proposition`s or an `AEPError` if one occurs. 
 
