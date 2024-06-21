@@ -75,5 +75,6 @@ javascript body passed to native callback: native callbacks are cool!
 
 The test apps in this repository demonstrate calling native code from Javascript:
 
-- [Swift](./../../TestApps/MessagingDemoApp/)
-- [Objective-c](./../../TestApps/MessagingDemoAppObjC/)
+- [Swift](./../../../../TestApps/MessagingDemoApp/)
+- [SwiftUI](./../../../../TestApps/MessagingDemoAppSwiftUI/)
+- [Objective-c](./../../../../TestApps/MessagingDemoAppObjC/)

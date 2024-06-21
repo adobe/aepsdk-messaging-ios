@@ -16,7 +16,10 @@ import Foundation
 @objc(AEPHtmlContentSchemaData)
 @objcMembers
 public class HtmlContentSchemaData: NSObject, Codable {
+    /// Represents the content of the HtmlContentSchemaData object.  Its value's type is determined by `format`.
     public let content: String
+    
+    /// Determines the value type of `content`.  For now, this value is always `String`.
     public let format: ContentType?
 
     enum CodingKeys: String, CodingKey {

@@ -9,7 +9,7 @@ This guide will walk you through steps necessary to ensure your app is properly 
 
 ## Prerequisites
 
-- Your app must have the **AEPMessaging** SDK extension installed. Integrate **AEPMessaging** by following the [Getting started](./../getting-started.md) guide.
+- Your app must have the **AEPMessaging** SDK extension installed. Integrate **AEPMessaging** by following the [Getting started](./../../installation/getting-started.md) guide.
 
 - This troubleshooting guide uses validation provided by the **AEPAssurance** extension and the **Adobe Assurance UI**. Integrate **AEPAssurance** in your application by following the [Adobe Experience Platform Assurance installation guide](https://developer.adobe.com/client-sdks/documentation/platform-assurance/).
 
@@ -36,7 +36,7 @@ Ensure that your app has registered all necessary AEP SDK extensions by doing th
 
 Below is an example of what the view in Assurance UI may look like:
 
-![correct extensions registered](./../../assets/message_configuration.png)
+![correct extensions registered](./../../../assets/message_configuration.png)
 
 ## Validate the event requesting message definitions
 
@@ -50,7 +50,7 @@ Completing the following steps will validate that your app is making the necessa
 
 1. In the event list, select the event with type **Retrieve message definitions**
 
-    ![Retrieve message definitions](./../../assets/message_request.png)
+    ![Retrieve message definitions](./../../../assets/message_request.png)
 
 1. Expand the **Payload** section in the right window and ensure the correct **surface** is being used. The **surface** URI represents a collection of messages specific for your application and is identifiable based on its bundle identifier. The format for the URI will be `mobileapp://APP_BUNDLE_IDENTIFIER`.  From the screenshot above, the surface in use is `mobileapp://com.adobe.MessagingDemoApp`.
 
@@ -66,7 +66,7 @@ Complete the following steps to validate a response containing in-app messages:
 
 1. In the event list, select the event with type **AEP Response Event Handle**. There will likely be several events with this type - ensure the one selected has an **AEPExtensionEventSource** of `personalization:decisions`
 
-    ![AEP Response Event Handle](./../../assets/message_response.png)
+    ![AEP Response Event Handle](./../../../assets/message_response.png)
 
 1. Expand the **Payload** section in the right window. Each entry in the **payload** array contains the rule for a single in-app message that has been previously published in AJO and is now live. The full path to find a message definition is:
 
@@ -76,7 +76,7 @@ Complete the following steps to validate a response containing in-app messages:
 
     To find definitions for other live in-app messages, follow the above path for each object in the **payload** array.
     
-    ![AEP Response Event Handle Payload](./../../assets/message_response_payload.png)
+    ![AEP Response Event Handle Payload](./../../../assets/message_response_payload.png)
 
 ## Use the In-App Messaging Assurance UI plugin
 
@@ -92,7 +92,7 @@ Once all of the above validation sections are complete, you can use the **In-App
 
 1. Click the **Save** button
 
-    ![Install the In-App Messaging plugin](./../../assets/install_iam_plugin.png)
+    ![Install the In-App Messaging plugin](./../../../assets/install_iam_plugin.png)
 
 #### Inspecting a downloaded message
 
@@ -105,7 +105,7 @@ Using the IAM plugin you can do the following for each message downloaded by the
 - In the **Message Behavior** window - review message size and positioning properties
 - Clicking the **Simulate on Device** button - trigger the currently selected message, causing it to be displayed on the connected client
 
-    ![Inspecting a downloaded message](./../../assets/iam_simulation.png)
+    ![Inspecting a downloaded message](./../../../assets/iam_simulation.png)
 
 ## FAQs
 

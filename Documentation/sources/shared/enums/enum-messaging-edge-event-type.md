@@ -2,29 +2,34 @@
 
 Provides mapping to XDM EventType strings needed for Experience Event requests.
 
-This enum is used in conjunction with the [`track(_:withEdgeEventType:)`](./class-message.md#track_withedgeeventtype) method of a `Message` object.
+This enum is used in the following APIs: 
+
+  - [`track(_:withEdgeEventType:)`](./../../inapp-messaging/developer-documentation/message.md#track_withedgeeventtype) for `Message` objects.
+  - [`track(_:withEdgeEventType:forTokens:)`](./../../propositions/developer-documentation/classes/proposition-item.md#track_withedgeeventtypefortokens) for `PropositionItem` objects.
+  - [`track(_:withEdgeEventType:)`](./../../propositions/developer-documentation/classes/schemas/content-card-schema-data.md#track_withedgeeventtype) for `ContentCardSchemaData` objects.
+  - [`track(_:withEdgeEventType:)`](./../../propositions/developer-documentation/classes/content-card.md#track_withedgeeventtype) for `ContentCard` objects.
 
 ## Definition
 
 ```swift
 @objc(AEPMessagingEdgeEventType)
 public enum MessagingEdgeEventType: Int {
-    case inappDismiss = 0
-    case inappInteract = 1
-    case inappTrigger = 2
-    case inappDisplay = 3
     case pushApplicationOpened = 4
     case pushCustomAction = 5
+    case dismiss = 6
+    case interact = 7
+    case trigger = 8
+    case display = 9
 
     public func toString() -> String {
         switch self {
-        case .inappDismiss:
+        case .dismiss:
             return MessagingConstants.XDM.IAM.EventType.DISMISS
-        case .inappTrigger:
+        case .trigger:
             return MessagingConstants.XDM.IAM.EventType.TRIGGER
-        case .inappInteract:
+        case .interact:
             return MessagingConstants.XDM.IAM.EventType.INTERACT
-        case .inappDisplay:
+        case .display:
             return MessagingConstants.XDM.IAM.EventType.DISPLAY
         case .pushCustomAction:
             return MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
@@ -41,9 +46,9 @@ Below is the table of values returned by calling the `toString` method for each 
 
 | Case                  | String value                      |
 |-----------------------|-----------------------------------|
-| inappDismiss          | `decisioning.propositionDismiss`  |
-| inappInteract         | `decisioning.propositionInteract` |
-| inappTrigger          | `decisioning.propositionTrigger`  |
-| inappDisplay          | `decisioning.propositionDisplay`  |
+| dismiss               | `decisioning.propositionDismiss`  |
+| interact              | `decisioning.propositionInteract` |
+| trigger               | `decisioning.propositionTrigger`  |
+| display               | `decisioning.propositionDisplay`  |
 | pushApplicationOpened | `pushTracking.applicationOpened`  |
 | pushCustomAction      | `pushTracking.customAction`       |

@@ -69,7 +69,7 @@ public func track(_ interaction: String?, withEdgeEventType eventType: Messaging
 ###### Parameters
 
 - _interaction_ - a custom `String` value to be recorded in the interaction
-- _eventType_ - the [`MessagingEdgeEventType`](./enum-messaging-edge-event-type.md) to be used for the ensuing Edge Event
+- _eventType_ - the [`MessagingEdgeEventType`](./../../shared/enums/enum-messaging-edge-event-type.md) to be used for the ensuing Edge Event
 
 ## handleJavascriptMessage(_:withHandler:)
 
@@ -86,4 +86,4 @@ public func handleJavascriptMessage(_ name: String, withHandler handler: @escapi
 - _name_ - the name of the message that should be handled by `handler`
 - _handler_ - the method or closure to be called with the body of the message created in Message's Javascript
 
-For more information on how to use `handleJavascriptMessage`, read [Call native code from the Javascript of an in-app message](./how-to-call-native-from-javascript.md).
+For more information on how to use `handleJavascriptMessage`, read [Call native code from the Javascript of an in-app message](./../advanced-guides/how-to-call-native-from-javascript.md).

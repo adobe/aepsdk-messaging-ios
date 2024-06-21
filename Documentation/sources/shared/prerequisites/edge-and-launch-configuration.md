@@ -9,7 +9,7 @@
     * Ensure the *Edge Segmentation* box is checked.
     * Ensure the *Adobe Journey Optimizer* box is checked.
 
-![Datastream](./../../assets/edge-config.png)
+![Datastream](./../../../assets/edge-config.png)
 
 ### Setup mobile property in Adobe Data Collection
 
@@ -17,4 +17,4 @@
 - To configure AEP Edge Extension follow [this document](https://developer.adobe.com/client-sdks/documentation/edge-network/)
 - To configure AEP Messaging Extension follow [this document](https://developer.adobe.com/client-sdks/documentation/adobe-journey-optimizer/)
 
-#### Now that a mobile property is created, head over to the [instructions](./getting-started.md) to install the SDK.
+#### Now that a mobile property is created, head over to the [instructions](./../../installation/getting-started.md) to install the SDK.

@@ -1,37 +1,56 @@
 # AEPMessaging Documentation
 
-### Prerequisites
+### Installation
 
-- Code-based Experiences  
-  - [APIs usage](./sources/exd-cbe-beta/apis-usage.md)  
-- Push Messaging
-  - [Enable push notifications in your app](./sources/prerequisite/enable-push-notifications.md)  
-- Push and In-app Messaging
-  - [Configure Adobe Data Collection and Adobe Experience Platform](./sources/prerequisite/edge-and-launch-configuration.md)
+- [Installing AEPMesssaging extension](./sources/installation/getting-started.md)
 
+### Push messaging
 
-### Getting started
+- Prerequisites
+  - [Enable push notifications in your app](./sources/push-messaging/prerequisites/enable-push-notifications.md)
+  - [Configure Adobe Data Collection and Adobe Experience Platform](./sources/shared/prerequisites/edge-and-launch-configuration.md)
 
-- [Installing AEPMesssaging extension](./sources/getting-started.md)
+- Developer documentation
+  - [API usage](./sources/push-messaging/developer-documentation/api-usage.md)
+  - [PushTrackingStatus](./sources/push-messaging/developer-documentation/enum-push-tracking-status.md)
 
-### Push Notification
-- [API Usage](./sources/push_notification/api-usage.md)
-- [Displaying Rich Push Notification](./sources/push_notification/display-rich-push-notification.md)
+- Guides
+  - [Displaying Rich Push Notification](./sources/push-messaging/guides/display-rich-push-notification.md)
 
-### In-App Messaging
-- [API Usage](./sources/in_app_messaging/api-usage.md)
-- [Programmatically control the display of in-app messages](./sources/in_app_messaging/how-to-messaging-delegate.md)
-- [Call native code from the Javascript of an in-app message](./sources/in_app_messaging/how-to-call-native-from-javascript.md)
-- [Execute Javascript code in an in-app message from native code](./sources/in_app_messaging/how-to-call-javascript-from-native.md)
-- [Handle URL clicks from an in-app message](./sources/in_app_messaging/how-to-handle-url-clicks.md)
+### In-App messaging
 
+- Prerequisites
+  - [Configure Adobe Data Collection and Adobe Experience Platform](./sources/shared/prerequisites/edge-and-launch-configuration.md)
 
-### Other public classes, methods, and enums
+- Developer documentation
+  - [API usage](./sources/inapp-messaging/developer-documentation/api-usage.md)
+  - [Message](./sources/inapp-messaging/developer-documentation/message.md)
 
-- [Message](./sources/class-message.md)
-- [MessagingEdgeEventType](./sources/enum-messaging-edge-event-type.md)
-- [PushTrackingStatus](./sources/enum-push-tracking-status.md)
+- Advanced guides
+  - [Programmatically control the display of in-app messages](./sources/inapp-messaging/advanced-guides/how-to-messaging-delegate.md)
+  - [Call native code from the Javascript of an in-app message](./sources/inapp-messaging/advanced-guides/how-to-call-native-from-javascript.md)
+  - [Execute Javascript code in an in-app message from native code](./sources/inapp-messaging/advanced-guides/how-to-call-javascript-from-native.md)
+  - [Handle URL clicks from an in-app message](./sources/inapp-messaging/advanced-guides/how-to-handle-url-clicks.md)
 
-### Troubleshooting
+- Troubleshooting
+  - [Validate In-App Messaging using Assurance](./sources/inapp-messaging/troubleshooting/validate-messages-in-griffon.md)
 
-- [Validate In-App Messaging using Assurance](./sources/troubleshooting/validate-messages-in-griffon.md)
+### Code-based experiences and content cards
+
+- Developer documentation
+  - [API usage](./sources/propositions/developer-documentation/api-usage.md)
+  - Public classes
+    - [ContentCard](./sources/propositions/developer-documentation/classes/content-card.md)
+    - [Proposition](./sources/propositions/developer-documentation/classes/proposition.md)
+    - [PropositionItem](./sources/propositions/developer-documentation/classes/proposition-item.md)
+    - [Surface](./sources/propositions/developer-documentation/classes/surface.md)
+    - Schema classes
+      - [ContentCardSchemaData](./sources/propositions/developer-documentation/classes/schemas/content-card-schema-data.md)
+      - [HtmlContentSchemaData](./sources/propositions/developer-documentation/classes/schemas/html-content-schema-data.md)
+      - [InAppSchemaData](./sources/propositions/developer-documentation/classes/schemas/inapp-schema-data.md)
+      - [JsonContentSchemaData](./sources/propositions/developer-documentation/classes/schemas/json-content-schema-data.md)
+
+### Common public classes, methods, and enums
+
+- [MessagingEdgeEventType](./sources/shared/enums/enum-messaging-edge-event-type.md)
+
