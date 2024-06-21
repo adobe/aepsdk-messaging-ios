@@ -19,16 +19,16 @@ import Foundation
 public class ContentCardSchemaData: NSObject, Codable {
     /// Represents the content of the ContentCardSchemaData object.  Its value's type is determined by `contentType`.
     public let content: Any
-    
+
     /// Determines the value type of `content`.
     public let contentType: ContentType
-    
+
     /// Date and time this content card was published represented as epoch seconds
     public let publishedDate: Int?
-    
+
     /// Date and time this content card will expire represented as epoch seconds
     public let expiryDate: Int?
-    
+
     /// Dictionary containing any additional meta data for this content card
     public let meta: [String: Any]?
 

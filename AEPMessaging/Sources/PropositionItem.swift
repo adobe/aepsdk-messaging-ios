@@ -121,7 +121,7 @@ public extension PropositionItem {
 
         return PropositionInteraction(eventType: eventType, interaction: interaction, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId, tokens: tokens).xdm
     }
-    
+
     /// Tries to retrieve `content` from this `PropositionItem`'s `itemData` map as a `[String: Any]` dictionary
     /// Returns a dictionary if the schema for this `PropositionItem` is `.jsonContent` and it contains dictionary content - `nil` otherwise
     var jsonContentDictionary: [String: Any]? {
