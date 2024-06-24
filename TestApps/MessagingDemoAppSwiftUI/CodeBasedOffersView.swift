@@ -13,9 +13,13 @@ governing permissions and limitations under the License.
 import AEPMessaging
 import SwiftUI
 
+class Propositions: ObservableObject {
+    @Published var propositionsDict: [Surface: [Proposition]]? = nil
+}
+
 struct CodeBasedOffersView: View {
-    @State var propositionsDict: [Surface: [Proposition]]? = nil
-    @State private var viewDidLoad = false
+    @StateObject var propositions = Propositions()
+    @State private var isLoading = false
     
     let surfaces: [Surface] = [
         // prod surfaces
@@ -34,21 +38,30 @@ struct CodeBasedOffersView: View {
             Text("Code Based Experiences")
                 .font(Font.title)
                 .padding(.top, 30)
-            List {
-                if let codePropositions: [Proposition] = propositionsDict?[surfaces.first!],
-                    !codePropositions.isEmpty,
-                let propItems = codePropositions.first?.items as? [PropositionItem] {
-                    ForEach(propItems, id:\.itemId) { item in
-                        if item.schema == .htmlContent {
-                            CustomHtmlView(htmlString: item.htmlContent ?? "",
-                                           trackAction: item.track(_:withEdgeEventType:forTokens:))
-                        } else if item.schema == .jsonContent {
-                            if let jsonArray = item.jsonContentArray {
-                                CustomTextView(text: jsonArray.description,
-                                               trackAction: item.track(_:withEdgeEventType:forTokens:))
-                            } else {
-                                CustomTextView(text: item.jsonContentDictionary?.description ?? "",
-                                               trackAction: item.track(_:withEdgeEventType:forTokens:))
+            if isLoading {
+                // Display a loading indicator or some placeholder content
+                Text("Loading...")
+            } else {
+                List {
+                    if let propositionsDict = propositions.propositionsDict, !propositionsDict.isEmpty {
+                        let surfacesArray = Array(propositionsDict.keys)
+                        ForEach(surfacesArray, id: \.self) { surface in
+                            if let codePropositions: [Proposition] = propositions.propositionsDict?[surface], !codePropositions.isEmpty,
+                               let propItems = codePropositions.first?.items as? [PropositionItem] {
+                                ForEach(propItems, id:\.itemId) { item in
+                                    if item.schema == .htmlContent {
+                                        CustomHtmlView(htmlString: item.htmlContent ?? "",
+                                                       trackAction: item.track(_:withEdgeEventType:forTokens:))
+                                    } else if item.schema == .jsonContent {
+                                        if let jsonArray = item.jsonContentArray {
+                                            CustomTextView(text: jsonArray.description,
+                                                           trackAction: item.track(_:withEdgeEventType:forTokens:))
+                                        } else {
+                                            CustomTextView(text: item.jsonContentDictionary?.description ?? "",
+                                                           trackAction: item.track(_:withEdgeEventType:forTokens:))
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -56,15 +69,16 @@ struct CodeBasedOffersView: View {
             }
         }
         .onAppear {
-            if viewDidLoad == false {
-                viewDidLoad = true
-                Messaging.updatePropositionsForSurfaces(surfaces)
-            }
+            isLoading = true
+            Messaging.updatePropositionsForSurfaces(surfaces)
             Messaging.getPropositionsForSurfaces(surfaces) { propositionsDict, error in
-                guard error == nil else {
+                if let error = error {
                     return
                 }
-                self.propositionsDict = propositionsDict                
+                DispatchQueue.main.async {
+                    self.propositions.propositionsDict = propositionsDict
+                    self.isLoading = false
+                }
             }
         }
     }

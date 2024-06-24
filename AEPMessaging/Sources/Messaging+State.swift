@@ -39,7 +39,7 @@ extension Messaging {
     func updatePropositions(_ newPropositions: [Surface: [Proposition]], removing surfaces: [Surface]? = nil) {
         // add new surfaces or update replace existing surfaces
         for (surface, propositionsArray) in newPropositions {
-            inMemoryPropositions.addArray(propositionsArray, forKey: surface)
+            inMemoryPropositions[surface] = propositionsArray
         }
 
         // remove any surfaces if necessary
