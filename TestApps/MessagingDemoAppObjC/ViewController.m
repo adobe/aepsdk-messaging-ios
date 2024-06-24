@@ -47,7 +47,7 @@
     [aepMessage handleJavascriptMessage:@"buttonClicked" withHandler:^(NSString* content) {
         NSLog(@"handling content from JS! content is: %@", content ?: @"empty");
         if (aepMessage) {
-            [aepMessage trackInteraction:content withEdgeEventType:AEPMessagingEdgeEventTypeInappInteract];
+            [aepMessage trackInteraction:content withEdgeEventType:AEPMessagingEdgeEventTypeInteract];
         }
     }];
     
@@ -66,7 +66,7 @@
     // if we're not showing the message now, we can save it for later
     if (!_showMessages) {
         _currentMessage = aepMessage;
-        [_currentMessage trackInteraction:@"message suppressed" withEdgeEventType:AEPMessagingEdgeEventTypeInappInteract];
+        [_currentMessage trackInteraction:@"message suppressed" withEdgeEventType:AEPMessagingEdgeEventTypeInteract];
     }
     
     return _showMessages;
