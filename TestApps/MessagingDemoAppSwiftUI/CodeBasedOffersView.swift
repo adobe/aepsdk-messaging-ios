@@ -19,7 +19,7 @@ class Propositions: ObservableObject {
 
 struct CodeBasedOffersView: View {
     @StateObject var propositions = Propositions()
-    @State private var viewDidLoad = false
+    @State private var isLoading = false
     
     let surfaces: [Surface] = [
         // prod surfaces
@@ -38,7 +38,7 @@ struct CodeBasedOffersView: View {
             Text("Code Based Experiences")
                 .font(Font.title)
                 .padding(.top, 30)
-            if viewDidLoad {
+            if isLoading {
                 // Display a loading indicator or some placeholder content
                 Text("Loading...")
             } else {
@@ -69,7 +69,7 @@ struct CodeBasedOffersView: View {
             }
         }
         .onAppear {
-            viewDidLoad = true
+            isLoading = true
             Messaging.updatePropositionsForSurfaces(surfaces)
             Messaging.getPropositionsForSurfaces(surfaces) { propositionsDict, error in
                 if let error = error {
@@ -77,7 +77,7 @@ struct CodeBasedOffersView: View {
                 }
                 DispatchQueue.main.async {
                     self.propositions.propositionsDict = propositionsDict
-                    self.viewDidLoad = false
+                    self.isLoading = false
                 }
             }
         }
