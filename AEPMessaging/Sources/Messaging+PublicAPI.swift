@@ -129,7 +129,7 @@ import UserNotifications
                           source: EventSource.requestContent,
                           data: eventData)
 
-        MobileCore.dispatch(event: event, timeout: 1) { responseEvent in
+        MobileCore.dispatch(event: event, timeout: 5) { responseEvent in
             guard let responseEvent = responseEvent else {
                 completion(nil, AEPError.callbackTimeout)
                 return
