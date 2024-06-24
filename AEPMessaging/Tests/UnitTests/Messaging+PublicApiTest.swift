@@ -508,7 +508,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         }
         
         // verify
-        wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
+        wait(for: [expectation, eventExpectation], timeout: 6.0) // timeout for request is 5 seconds, need to wait longer than that
     }
     
     func testGetPropositionsForSurfacesErrorPopulated() throws {
