@@ -3,12 +3,12 @@
 ## Installation
 
 - [Installing AEPMesssaging extension](./sources/installation/getting-started.md)
+- [Configure Adobe Data Collection and Adobe Experience Platform](./sources/shared/prerequisites/edge-and-launch-configuration.md)
 
 ## Push messaging
 
 - Prerequisites
   - [Enable push notifications in your app](./sources/push-messaging/prerequisites/enable-push-notifications.md)
-  - [Configure Adobe Data Collection and Adobe Experience Platform](./sources/shared/prerequisites/edge-and-launch-configuration.md)
 
 - Developer documentation
   - [API usage](./sources/push-messaging/developer-documentation/api-usage.md)
@@ -18,9 +18,6 @@
   - [Displaying Rich Push Notification](./sources/push-messaging/guides/display-rich-push-notification.md)
 
 ## In-App messaging
-
-- Prerequisites
-  - [Configure Adobe Data Collection and Adobe Experience Platform](./sources/shared/prerequisites/edge-and-launch-configuration.md)
 
 - Developer documentation
   - [API usage](./sources/inapp-messaging/developer-documentation/api-usage.md)
@@ -53,4 +50,3 @@
 ## Common public classes, methods, and enums
 
 - [MessagingEdgeEventType](./sources/shared/enums/enum-messaging-edge-event-type.md)
-
