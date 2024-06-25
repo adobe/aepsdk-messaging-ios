@@ -37,7 +37,6 @@ public class JsonContentSchemaData: NSObject, Codable {
             format = .applicationJson
         }
 
-        // TODO: core team is adding support for converting [AnyCodable] to [Any]
         // we'll need to update this condition to be less awkward when that's released
         if let _ = try? values.decode([AnyCodable].self, forKey: .content) {
             let codableAny = try values.decode(AnyCodable.self, forKey: .content)

@@ -542,7 +542,6 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
                               source: "com.adobe.eventSource.requestContent",
                               data: testEventData)
         
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: testEvent.type, source: testEvent.source) { event in
             // verify
             XCTAssertEqual(testEvent.name, event.name)
@@ -606,7 +605,6 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
                               source: "com.adobe.eventSource.requestContent",
                               data: testEventData)
         
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: testEvent.type, source: testEvent.source) { event in
             // verify
             XCTAssertEqual(testEvent.name, event.name)
@@ -663,7 +661,6 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
                               source: "com.adobe.eventSource.requestContent",
                               data: testEventData)
         
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: testEvent.type, source: testEvent.source) { event in
             // verify
             expectation.fulfill()

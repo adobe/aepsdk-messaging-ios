@@ -295,7 +295,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         let expectation = XCTestExpectation(description: "Refresh In app messages event")
         expectation.assertForOverFulfill = true
         
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.requestContent) { event in
             XCTAssertEqual(MessagingConstants.Event.Name.REFRESH_MESSAGES, event.name)
             let expectedEventData = #"""
@@ -331,9 +330,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
                                     [ "uri": "promos/feed2" ]
                                 ]
                               ])
-        
-        
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
+                
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: testEvent.type, source: testEvent.source) { event in
             XCTAssertEqual(testEvent.name, event.name)
             XCTAssertNotNil(event.data)
@@ -375,7 +372,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
                                 ]
                               ])
         
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: testEvent.type, source: testEvent.source) { event in
             XCTAssertEqual(testEvent.name, event.name)
             XCTAssertNotNil(event.data)
@@ -416,7 +412,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
                                 ]
                               ])
         
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
             type: "com.adobe.eventType.messaging",
             source: "com.adobe.eventSource.requestContent") { event in
@@ -469,7 +464,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         let expectation = XCTestExpectation(description: "completion should be called with invalidRequest")
         let eventExpectation = XCTestExpectation(description: "event should be dispatched")
         eventExpectation.isInverted = true
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: EventType.messaging, source: EventSource.requestContent) { _ in
             eventExpectation.fulfill()
         }
@@ -492,7 +486,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         // setup
         let expectation = XCTestExpectation(description: "completion should be called with responseEvent")
         let eventExpectation = XCTestExpectation(description: "event should be dispatched")
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: EventType.messaging, source: EventSource.requestContent) { event in
             eventExpectation.fulfill()
             // don't send a response event
@@ -515,7 +508,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         // setup
         let expectation = XCTestExpectation(description: "completion should be called with responseEvent")
         let eventExpectation = XCTestExpectation(description: "event should be dispatched")
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: EventType.messaging, source: EventSource.requestContent) { event in
             eventExpectation.fulfill()
             
@@ -545,7 +537,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         // setup
         let expectation = XCTestExpectation(description: "completion should be called with responseEvent")
         let eventExpectation = XCTestExpectation(description: "event should be dispatched")
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: EventType.messaging, source: EventSource.requestContent) { event in
             eventExpectation.fulfill()
             
@@ -571,7 +562,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         // setup
         let expectation = XCTestExpectation(description: "completion should be called with responseEvent")
         let eventExpectation = XCTestExpectation(description: "event should be dispatched")
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.eventListeners.clear()
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: EventType.messaging, source: EventSource.requestContent) { event in
             // verify incoming request
             XCTAssertNotNil(event)

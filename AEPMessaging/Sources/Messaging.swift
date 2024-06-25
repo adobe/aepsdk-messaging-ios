@@ -152,9 +152,8 @@ public class Messaging: NSObject, Extension {
                          listener: handleProcessCompletedEvent(_:))
 
         // register listener for handling debug events
-        // TODO: - change event source to public static string in core once available
         registerListener(type: EventType.system,
-                         source: "com.adobe.eventSource.debug",
+                         source: EventSource.debug,
                          listener: handleDebugEvent)
 
         // Handler function called for each queued event. If the queued event is a get propositions event, process it
@@ -206,9 +205,7 @@ public class Messaging: NSObject, Extension {
     /// - Parameter event: the debug `Event` to be handled.
     private func handleDebugEvent(_ event: Event) {
         // handle rules consequence debug events
-        // TODO: - update with new version of core
-        // if event.debugEventType == EventType.rulesEngine, event.debugEventSource == EventSource.responseContent {
-        if getDebugType(event) == EventType.rulesEngine, getDebugSource(event) == EventSource.responseContent {
+        if event.debugEventType == EventType.rulesEngine, event.debugEventSource == EventSource.responseContent {
             // we can only handle schema consequences
             guard event.isSchemaConsequence, event.data != nil else {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. Either consequence is not of type 'schema' or 'eventData' is nil.")
@@ -231,26 +228,6 @@ public class Messaging: NSObject, Extension {
                 return
             }
         }
-    }
-
-    // TODO: - remove me when core is updated
-    private func getDebugType(_ event: Event) -> String? {
-        if let debugDictionary = event.data?["debug"] as? [String: Any],
-           let debugType = debugDictionary["eventType"] as? String {
-            return debugType
-        }
-
-        return nil
-    }
-
-    // TODO: - remove me when core is updated
-    private func getDebugSource(_ event: Event) -> String? {
-        if let debugDictionary = event.data?["debug"] as? [String: Any],
-           let debugType = debugDictionary["eventSource"] as? String {
-            return debugType
-        }
-
-        return nil
     }
 
     /// Called on every event, used to allow processing of the Messaging rules engine
@@ -546,7 +523,7 @@ public class Messaging: NSObject, Extension {
                 contentCardRulesEngine.launchRulesEngine.replaceRules(with: contentCardRulesBySurface.flatMap { $0.value })
 
                 // process a generic event to see if there are any content cards with no client-side qualification
-                let genericEvent = Event(name: "Seed content cards", type: EventType.edge, source: EventSource.requestContent, data: nil)
+                let genericEvent = Event(name: "Seed content cards", type: EventType.messaging, source: EventSource.requestContent, data: nil)
                 let qualifiedContentCardsBySurface = getPropositionsFromContentCardRulesEngine(genericEvent)
                 for (surface, propositions) in qualifiedContentCardsBySurface {
                     addOrReplaceContentCards(propositions, forSurface: surface)
