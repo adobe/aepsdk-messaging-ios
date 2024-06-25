@@ -37,11 +37,12 @@
 - Developer documentation
   - [API usage](./sources/propositions/developer-documentation/api-usage.md)
   - Public classes
-    - [ContentCard](./sources/propositions/developer-documentation/classes/content-card.md)
+    - [ContentCard](./sources/propositions/developer-documentation/classes/content-card.md)    
     - [Proposition](./sources/propositions/developer-documentation/classes/proposition.md)
     - [PropositionItem](./sources/propositions/developer-documentation/classes/proposition-item.md)
     - [Surface](./sources/propositions/developer-documentation/classes/surface.md)
     - Schema classes
+      - [ContentType](./sources/propositions/developer-documentation/classes/schemas/content-type.md)
       - [ContentCardSchemaData](./sources/propositions/developer-documentation/classes/schemas/content-card-schema-data.md)
       - [HtmlContentSchemaData](./sources/propositions/developer-documentation/classes/schemas/html-content-schema-data.md)
       - [InAppSchemaData](./sources/propositions/developer-documentation/classes/schemas/inapp-schema-data.md)
