@@ -65,5 +65,6 @@ func shouldShowMessage(message: Showable) -> Bool {
 
 The test apps in this repository demonstrate executing JavaScript code from an in-app message's webview:
 
-- [Swift](./../../TestApps/MessagingDemoApp/)
-- [Objective-c](./../../TestApps/MessagingDemoAppObjC/)
+- [Swift](./../../../../TestApps/MessagingDemoApp/)
+- [SwiftUI](./../../../../TestApps/MessagingDemoAppSwiftUI/)
+- [Objective-c](./../../../../TestApps/MessagingDemoAppObjC/)

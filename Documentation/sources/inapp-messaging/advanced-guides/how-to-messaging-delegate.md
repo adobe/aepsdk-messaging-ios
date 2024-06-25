@@ -62,7 +62,7 @@ public protocol MessagingDelegate {
 
 ## Using the Showable object in the protocol methods
 
-Each of the methods implemented in the `MessagingDelegate` will be passed a [`Showable`](https://github.com/adobe/aepsdk-core-ios/blob/main/AEPServices/Sources/ui/Showable.swift) object.  In the AEPMessaging SDK, the class implementing `Showable` is [`FullscreenMessage`](https://github.com/adobe/aepsdk-core-ios/blob/main/AEPServices/Sources/ui/fullscreen/FullscreenMessage.swift). A `FullscreenMessage` object is wrapped in the [`Message`](./class-message.md) class, which is the primary way for the developer to interact with the message.
+Each of the methods implemented in the `MessagingDelegate` will be passed a [`Showable`](https://github.com/adobe/aepsdk-core-ios/blob/main/AEPServices/Sources/ui/Showable.swift) object.  In the AEPMessaging SDK, the class implementing `Showable` is [`FullscreenMessage`](https://github.com/adobe/aepsdk-core-ios/blob/main/AEPServices/Sources/ui/fullscreen/FullscreenMessage.swift). A `FullscreenMessage` object is wrapped in the [`Message`](./../developer-documentation/message.md) class, which is the primary way for the developer to interact with the message.
 
 To get a reference to the `Message` object:
 
@@ -150,11 +150,12 @@ func shouldShowMessage(message: Showable) -> Bool {
 
 The test apps in this repository demonstrate using a `MessagingDelegate`:
 
-- [Swift](./../../TestApps/MessagingDemoApp/)
-- [Objective-c](./../../TestApps/MessagingDemoAppObjC/)
+- [Swift](./../../../../TestApps/MessagingDemoApp/)
+- [SwiftUI](./../../../../TestApps/MessagingDemoAppSwiftUI/)
+- [Objective-c](./../../../../TestApps/MessagingDemoAppObjC/)
 
 ## Further reading
 
-- [More information on how to use the Message object](./class-message.md)
+- [More information on how to use the Message object](./../developer-documentation/message.md)
 - [Call native code from the Javascript of an in-app message](./how-to-call-native-from-javascript.md)
 - [Execute Javascript code in an in-app message from native code](./how-to-call-javascript-from-native.md)

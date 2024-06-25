@@ -106,10 +106,10 @@ import UserNotifications
     /// Retrieves the previously fetched (and cached) feeds content from the SDK for the provided surfaces.
     /// If the feeds content for one or more surfaces isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
     /// - Parameters:
-    ///   - surfacePaths: An array of surface objects.
+    ///   - surfaces: An array of `Surface` objects.
     ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Proposition objects.
-    static func getPropositionsForSurfaces(_ surfacePaths: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
-        let validSurfaces = surfacePaths
+    static func getPropositionsForSurfaces(_ surfaces: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
+        let validSurfaces = surfaces
             .filter { $0.isValid }
 
         guard !validSurfaces.isEmpty else {
@@ -129,7 +129,7 @@ import UserNotifications
                           source: EventSource.requestContent,
                           data: eventData)
 
-        MobileCore.dispatch(event: event, timeout: 1) { responseEvent in
+        MobileCore.dispatch(event: event, timeout: 5) { responseEvent in
             guard let responseEvent = responseEvent else {
                 completion(nil, AEPError.callbackTimeout)
                 return

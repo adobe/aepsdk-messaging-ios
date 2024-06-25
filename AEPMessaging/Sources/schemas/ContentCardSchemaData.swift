@@ -17,10 +17,19 @@ import Foundation
 @objc(AEPContentCardSchemaData)
 @objcMembers
 public class ContentCardSchemaData: NSObject, Codable {
+    /// Represents the content of the ContentCardSchemaData object.  Its value's type is determined by `contentType`.
     public let content: Any
+
+    /// Determines the value type of `content`.
     public let contentType: ContentType
+
+    /// Date and time this content card was published represented as epoch seconds
     public let publishedDate: Int?
+
+    /// Date and time this content card will expire represented as epoch seconds
     public let expiryDate: Int?
+
+    /// Dictionary containing any additional meta data for this content card
     public let meta: [String: Any]?
 
     var parent: PropositionItem?
@@ -81,6 +90,8 @@ extension ContentCardSchemaData {
 }
 
 public extension ContentCardSchemaData {
+    /// Tries to convert the `content` of this `ContentCardSchemaData` into a `ContentCard` object.
+    /// Returns `nil` if the `contentType` is not equal to `.applicationJson` or the data in `content` is not decodable into a `ContentCard`.
     func getContentCard() -> ContentCard? {
         guard contentType == .applicationJson,
               let contentAsJsonData = try? JSONSerialization.data(withJSONObject: content, options: .prettyPrinted)

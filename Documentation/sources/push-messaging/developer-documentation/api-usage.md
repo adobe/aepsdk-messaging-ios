@@ -1,6 +1,6 @@
 # Push Messaging APIs
 
-This document details how to use the APIs provided by the AEPMessaging framework for tracking and displaying push notificaitons.
+This document details how to use the APIs provided by the AEPMessaging framework for tracking and displaying push notifications.
 
 For more in-depth information about the Messaging extension, visit the [official SDK documentation for Adobe Journey Optimizer Messaging extension](https://developer.adobe.com/client-sdks/documentation/adobe-journey-optimizer/).
 
@@ -33,13 +33,13 @@ func userNotificationCenter(_: UNUserNotificationCenter,
 }
 ```
 
-<b>Note:</b> This API method will automatically handle click behaviour defined for the push notification.
+<b>Note:</b> This API method will automatically handle click behavior defined for the push notification.
 
 ##### Reading push tracking status
 
-Implement the callback in `handleNotificationResponse` API to read [PushTrackingStatus](../enum-push-tracking-status.md) enum representing tracking status of the push notification.
+Implement the callback in `handleNotificationResponse` API to read [PushTrackingStatus](./enum-push-tracking-status.md) enum representing tracking status of the push notification.
 
-```
+```swift
 Messaging.handleNotificationResponse(response) { trackingStatus in
     // handle the different values of trackingStatus
 }

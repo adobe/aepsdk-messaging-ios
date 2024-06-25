@@ -1,6 +1,6 @@
 # Handle URL clicks from an in-app message
 
-When a link is clicked in an in-app message, the [`Message+FullscreenMessageDelegate`](https://github.com/adobe/aepsdk-messaging-ios/blob/staging/AEPMessaging/Sources/Message%2BFullscreenMessageDelegate.swift) extension is responsible for handling behavior.
+When a link is clicked in an in-app message, the [`Message+FullscreenMessageDelegate`](./../../../../AEPMessaging/Sources/Message+FullscreenMessageDelegate.swift) extension is responsible for handling behavior.
 
 If the scheme used in the link **is not** `adbinapp://`, the link will open in the WKWebView (default behavior).
 
