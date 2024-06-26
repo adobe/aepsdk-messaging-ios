@@ -20,6 +20,8 @@ import XCTest
 
 class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
     private let mockNetworkService: MockNetworkService = MockNetworkService()
+    
+    private let ASYNC_TIMEOUT: TimeInterval = 5
 
     static let mockUserInfo = ["_xdm" :
                                 ["cjm":
@@ -64,7 +66,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
             print("Extensions registration is complete")
             waitForRegistration.countDown()
         })
-        XCTAssertEqual(DispatchTimeoutResult.success, waitForRegistration.await(timeout: 2))
+        XCTAssertEqual(DispatchTimeoutResult.success, waitForRegistration.await(timeout: ASYNC_TIMEOUT))
         MobileCore.updateConfigurationWith(configDict: ["messaging.eventDataset": "mockDataset"])
 
         assertExpectedEvents(ignoreUnexpectedEvents: false)
@@ -93,7 +95,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         })
         
         // verify tracking status value
-        wait(for: [expectation], timeout: 2)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
         XCTAssertEqual(.trackingInitiated, actualStatus)
         
         // verify
@@ -239,7 +241,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         })
         
         // verify the tracking status
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
         XCTAssertEqual(PushTrackingStatus.noTrackingData, actualStatus)
                                              
         // verify no tracking event is dispatched
@@ -261,7 +263,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         })
         
         // verify the tracking status
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
         XCTAssertEqual(PushTrackingStatus.noTrackingData, actualStatus)
         
         // verify no tracking event is dispatched
@@ -400,7 +402,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         })
         
         // verify tracking status
-        wait(for: [expectation], timeout: 2)
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
         XCTAssertEqual(.noDatasetConfigured, actualStatus)
         
         // verify

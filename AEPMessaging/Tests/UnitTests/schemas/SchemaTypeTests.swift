@@ -102,6 +102,7 @@ class SchemaTypeTests: XCTestCase {
         XCTAssertEqual(.inapp, value)
     }
     
+    @available(*, deprecated)
     func testFeed() throws {
         // setup
         let value = SchemaType(rawValue: 5)
@@ -111,12 +112,30 @@ class SchemaTypeTests: XCTestCase {
         XCTAssertEqual(MessagingConstants.PersonalizationSchemas.FEED_ITEM, value?.toString())
     }
     
+    @available(*, deprecated)
     func testInitFromSchemaFeed() throws {
         // test
         let value = SchemaType(from: MessagingConstants.PersonalizationSchemas.FEED_ITEM)
         
         // verify
         XCTAssertEqual(.feed, value)
+    }
+    
+    func testContentCard() throws {
+        // setup
+        let value = SchemaType(rawValue: 8)
+
+        // verify
+        XCTAssertEqual(value, .contentCard)
+        XCTAssertEqual(MessagingConstants.PersonalizationSchemas.CONTENT_CARD, value?.toString())
+    }
+    
+    func testInitFromSchemaContentCard() throws {
+        // test
+        let value = SchemaType(from: MessagingConstants.PersonalizationSchemas.CONTENT_CARD)
+        
+        // verify
+        XCTAssertEqual(.contentCard, value)
     }
     
     func testNativeAlert() throws {

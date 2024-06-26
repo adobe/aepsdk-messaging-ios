@@ -140,41 +140,12 @@ public class Message: NSObject {
     ///  - eventType: `MessagingEdgeEventType` to be recorded
     ///  - interaction: if provided, adds a custom interaction to the hash
     func recordEventHistory(eventType: MessagingEdgeEventType, interaction: String?) {
-        guard let propInfo = propositionInfo else {
+        guard let propInfo = propositionInfo, !propInfo.activityId.isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to write event history event '\(eventType.propositionEventType)', proposition info is not available for message (\(id)).")
             return
         }
 
-        // iam dictionary used for event history
-        let iamHistory: [String: String] = [
-            MessagingConstants.Event.History.Keys.EVENT_TYPE: eventType.propositionEventType,
-            MessagingConstants.Event.History.Keys.MESSAGE_ID: propInfo.activityId,
-            MessagingConstants.Event.History.Keys.TRACKING_ACTION: interaction ?? ""
-        ]
-
-        // wrap history in an "iam" object
-        let eventHistoryData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.IAM_HISTORY: iamHistory
-        ]
-
-        let mask = [
-            MessagingConstants.Event.History.Mask.EVENT_TYPE,
-            MessagingConstants.Event.History.Mask.MESSAGE_ID,
-            MessagingConstants.Event.History.Mask.TRACKING_ACTION
-        ]
-
-        var interactionLog = ""
-        if let interaction = interaction {
-            interactionLog = " with value '\(interaction)'"
-        }
-        Log.trace(label: MessagingConstants.LOG_TAG, "Writing '\(eventType.propositionEventType)' event\(interactionLog) to EventHistory for in-app message with activityId '\(propInfo.activityId)'")
-
-        let event = Event(name: MessagingConstants.Event.Name.EVENT_HISTORY_WRITE,
-                          type: EventType.messaging,
-                          source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE,
-                          data: eventHistoryData,
-                          mask: mask)
-        parent?.runtime.dispatch(event: event)
+        PropositionHistory.record(activityId: propInfo.activityId, eventType: eventType, interaction: interaction)
     }
 
     // MARK: - Private methods

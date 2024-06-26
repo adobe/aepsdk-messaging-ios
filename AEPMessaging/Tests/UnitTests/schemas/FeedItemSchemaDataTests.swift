@@ -17,6 +17,7 @@ import XCTest
 import AEPServices
 import AEPTestUtils
 
+@available(*, deprecated)
 class FeedItemSchemaDataTests: XCTestCase, AnyCodableAsserts {
     
     let mockExpiry = 1723163897

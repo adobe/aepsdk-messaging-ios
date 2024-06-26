@@ -69,6 +69,7 @@ public class PropositionItem: NSObject, Codable {
     }
 }
 
+/// extension for public methods
 public extension PropositionItem {
     /// Tracks interaction with the given proposition item.
     ///
@@ -77,6 +78,13 @@ public extension PropositionItem {
     ///     - eventType: an enum specifying event type for the interaction.
     ///     - tokens: an array containing the sub-item tokens for recording interaction.
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType, forTokens tokens: [String]? = nil) {
+        // record the event in event history
+        if let activityId = proposition?.activityId, !activityId.isEmpty {
+            PropositionHistory.record(activityId: activityId, eventType: eventType, interaction: interaction)
+        } else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to record event history for proposition interaction event - activityId is missing from 'Proposition' object or it is invalid.")
+        }
+
         guard let propositionInteractionXdm = generateInteractionXdm(interaction, withEdgeEventType: eventType, forTokens: tokens) else {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Cannot track proposition interaction for item \(itemId), could not generate interactions XDM.")
@@ -115,6 +123,67 @@ public extension PropositionItem {
         return PropositionInteraction(eventType: eventType, interaction: interaction, propositionInfo: PropositionInfo.fromProposition(proposition), itemId: itemId, tokens: tokens).xdm
     }
 
+    /// Tries to retrieve `content` from this `PropositionItem`'s `itemData` map as a `[String: Any]` dictionary
+    /// Returns a dictionary if the schema for this `PropositionItem` is `.jsonContent` and it contains dictionary content - `nil` otherwise
+    var jsonContentDictionary: [String: Any]? {
+        guard schema == .jsonContent, let jsonItem = getTypedData(JsonContentSchemaData.self) else {
+            return nil
+        }
+
+        return jsonItem.getDictionaryValue
+    }
+
+    /// Tries to retrieve `content` from this `PropositionItem`'s `itemData` map as an `[Any]` array
+    /// Returns an array if the schema for this `PropositionItem` is `.jsonContent` and it contains array content - `nil` otherwise
+    var jsonContentArray: [Any]? {
+        guard schema == .jsonContent, let jsonItem = getTypedData(JsonContentSchemaData.self) else {
+            return nil
+        }
+
+        return jsonItem.getArrayValue
+    }
+
+    /// Tries to retrieve `content` from this `PropositionItem`'s `itemData` map as an html `String`
+    /// Returns a string if the schema for this `PropositionItem` is `.htmlContent` and it contains string content - `nil` otherwise
+    var htmlContent: String? {
+        guard schema == .htmlContent, let htmlItem = getTypedData(HtmlContentSchemaData.self) else {
+            return nil
+        }
+
+        return htmlItem.content
+    }
+
+    /// Tries to retrieve an `InAppSchemaData` object from this `PropositionItem`'s `content` property in `itemData`
+    /// Returns an `InAppSchemaData` object if the schema for this `PropositionItem` is `.inapp` and it is properly formed - `nil` otherwise
+    var inappSchemaData: InAppSchemaData? {
+        guard schema == .inapp else {
+            return nil
+        }
+        return getTypedData(InAppSchemaData.self)
+    }
+
+    /// Tries to retrieve a `ContentCardSchemaData` object from this `PropositionItem`'s `content` property in `itemData`
+    /// Returns a `ContentCardSchemaData` object if the schema for this `PropositionItem` is `.contentCard` or `.feed` and it is properly formed - `nil` otherwise
+    var contentCardSchemaData: ContentCardSchemaData? {
+        guard schema == .feed || schema == .contentCard, let contentCardSchemaData = getTypedData(ContentCardSchemaData.self) else {
+            return nil
+        }
+        contentCardSchemaData.parent = self
+        return contentCardSchemaData
+    }
+
+    @available(*, deprecated, renamed: "contentCardSchemaData")
+    var feedItemSchemaData: FeedItemSchemaData? {
+        guard schema == .feed, let feedItemSchemaData = getTypedData(FeedItemSchemaData.self) else {
+            return nil
+        }
+        feedItemSchemaData.parent = self
+        return feedItemSchemaData
+    }
+}
+
+/// extension for internal and private methods
+extension PropositionItem {
     static func fromRuleConsequence(_ consequence: RuleConsequence) -> PropositionItem? {
         guard let detailsData = try? JSONSerialization.data(withJSONObject: consequence.details, options: .prettyPrinted) else {
             return nil
@@ -128,44 +197,6 @@ public extension PropositionItem {
         }
 
         return PropositionItem(itemId: id, schema: schema, itemData: schemaData)
-    }
-
-    var jsonContentDictionary: [String: Any]? {
-        guard schema == .jsonContent, let jsonItem = getTypedData(JsonContentSchemaData.self) else {
-            return nil
-        }
-
-        return jsonItem.getDictionaryValue
-    }
-
-    var jsonContentArray: [Any]? {
-        guard schema == .jsonContent, let jsonItem = getTypedData(JsonContentSchemaData.self) else {
-            return nil
-        }
-
-        return jsonItem.getArrayValue
-    }
-
-    var htmlContent: String? {
-        guard schema == .htmlContent, let htmlItem = getTypedData(HtmlContentSchemaData.self) else {
-            return nil
-        }
-
-        return htmlItem.content
-    }
-
-    var inappSchemaData: InAppSchemaData? {
-        guard schema == .inapp else {
-            return nil
-        }
-        return getTypedData(InAppSchemaData.self)
-    }
-
-    var feedItemSchemaData: FeedItemSchemaData? {
-        guard schema == .feed else {
-            return nil
-        }
-        return getTypedData(FeedItemSchemaData.self)
     }
 
     private func getTypedData<T>(_ type: T.Type) -> T? where T: Decodable {
