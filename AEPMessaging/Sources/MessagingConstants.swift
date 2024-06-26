@@ -23,9 +23,6 @@ enum MessagingConstants {
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
 
-    @available(*, deprecated, renamed: "CONTENT_CARD_RULES_ENGINE_NAME")
-    static let FEED_RULES_ENGINE_NAME = EXTENSION_NAME + "Feed" + ".rulesengine"
-
     enum ContentTypes {
         static let APPLICATION_JSON = "application/json"
         static let TEXT_HTML = "text/html"

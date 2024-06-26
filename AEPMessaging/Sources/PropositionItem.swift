@@ -69,6 +69,7 @@ public class PropositionItem: NSObject, Codable {
     }
 }
 
+/// extension for public methods
 public extension PropositionItem {
     /// Tracks interaction with the given proposition item.
     ///
@@ -171,6 +172,18 @@ public extension PropositionItem {
         return contentCardSchemaData
     }
 
+    @available(*, deprecated, renamed: "contentCardSchemaData")
+    var feedItemSchemaData: FeedItemSchemaData? {
+        guard schema == .feed, let feedItemSchemaData = getTypedData(FeedItemSchemaData.self) else {
+            return nil
+        }
+        feedItemSchemaData.parent = self
+        return feedItemSchemaData
+    }
+}
+
+/// extension for internal and private methods
+extension PropositionItem {
     static func fromRuleConsequence(_ consequence: RuleConsequence) -> PropositionItem? {
         guard let detailsData = try? JSONSerialization.data(withJSONObject: consequence.details, options: .prettyPrinted) else {
             return nil
@@ -184,15 +197,6 @@ public extension PropositionItem {
         }
 
         return PropositionItem(itemId: id, schema: schema, itemData: schemaData)
-    }
-
-    @available(*, deprecated, renamed: "contentCardSchemaData")
-    var feedItemSchemaData: FeedItemSchemaData? {
-        guard schema == .feed, let feedItemSchemaData = getTypedData(FeedItemSchemaData.self) else {
-            return nil
-        }
-        feedItemSchemaData.parent = self
-        return feedItemSchemaData
     }
 
     private func getTypedData<T>(_ type: T.Type) -> T? where T: Decodable {
