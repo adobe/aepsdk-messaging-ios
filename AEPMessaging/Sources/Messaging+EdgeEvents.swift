@@ -58,11 +58,11 @@ extension Messaging {
         dispatchTrackingResponseEvent(.trackingInitiated, forEvent: event)
 
         // Creating xdm edge event with request content source type
-        let event = Event(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
-                          type: EventType.edge,
-                          source: EventSource.requestContent,
-                          data: xdmEventData)
-        dispatch(event: event)
+        let trackingEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
+                                                     type: EventType.edge,
+                                                     source: EventSource.requestContent,
+                                                     data: xdmEventData)
+        dispatch(event: trackingEvent)
     }
 
     /// Send an edge event to sync the push notification details with push token
@@ -70,13 +70,15 @@ extension Messaging {
     /// - Parameters:
     ///   - ecid: Experience cloud id
     ///   - token: Push token for the device
-    ///   - platform: `String` denoting the platform `apns` or `apnsSandbox`
-    func sendPushToken(ecid: String, token: String, platform: String) {
+    ///   - event: `Event` that triggered this request to sync a push token
+    func sendPushToken(ecid: String, token: String, event: Event) {
         // send the request
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the push token, App bundle identifier is invalid.")
             return
         }
+
+        let platform = getPushPlatform(forEvent: event)
 
         // Create the profile experience event to send the push notification details with push token to profile
         let profileEventData: [String: Any] = [
@@ -97,11 +99,11 @@ extension Messaging {
         // Creating xdm edge event data
         let xdmEventData: [String: Any] = [MessagingConstants.XDM.Key.DATA: profileEventData]
         // Creating xdm edge event with request content source type
-        let event = Event(name: MessagingConstants.Event.Name.PUSH_PROFILE_EDGE,
-                          type: EventType.edge,
-                          source: EventSource.requestContent,
-                          data: xdmEventData)
-        dispatch(event: event)
+        let pushTokenEdgeEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.PUSH_PROFILE_EDGE,
+                                                          type: EventType.edge,
+                                                          source: EventSource.requestContent,
+                                                          data: xdmEventData)
+        dispatch(event: pushTokenEdgeEvent)
     }
 
     // MARK: - private methods

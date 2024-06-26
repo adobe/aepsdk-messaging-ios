@@ -16,7 +16,7 @@
 import AEPTestUtils
 import Foundation
 
-class MockFeedRulesEngine: FeedRulesEngine {
+class MockFeedRulesEngine: ContentCardRulesEngine {
     let mockRuntime: TestableExtensionRuntime
     let mockRulesEngine: MockLaunchRulesEngine
 

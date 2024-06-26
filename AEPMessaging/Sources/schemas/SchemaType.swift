@@ -20,9 +20,13 @@ public enum SchemaType: Int, Codable {
     case jsonContent = 2
     case ruleset = 3
     case inapp = 4
+
+    @available(*, deprecated, renamed: "contentCard")
     case feed = 5
+
     case nativeAlert = 6
     case defaultContent = 7
+    case contentCard = 8
 
     /// Initializes SchemaType with the provided content schema string
     /// - Parameter schema: SchemaType content schema string
@@ -42,6 +46,9 @@ public enum SchemaType: Int, Codable {
 
         case MessagingConstants.PersonalizationSchemas.FEED_ITEM:
             self = .feed
+
+        case MessagingConstants.PersonalizationSchemas.CONTENT_CARD:
+            self = .contentCard
 
         case MessagingConstants.PersonalizationSchemas.NATIVE_ALERT:
             self = .nativeAlert
@@ -68,6 +75,8 @@ public enum SchemaType: Int, Codable {
             return MessagingConstants.PersonalizationSchemas.IN_APP
         case .feed:
             return MessagingConstants.PersonalizationSchemas.FEED_ITEM
+        case .contentCard:
+            return MessagingConstants.PersonalizationSchemas.CONTENT_CARD
         case .nativeAlert:
             return MessagingConstants.PersonalizationSchemas.NATIVE_ALERT
         case .defaultContent:

@@ -13,6 +13,7 @@
 import AEPServices
 import Foundation
 
+@available(*, deprecated, renamed: "ContentCard")
 @objc(AEPFeedItem)
 @objcMembers
 public class FeedItem: NSObject, Codable {
@@ -31,8 +32,8 @@ public class FeedItem: NSObject, Codable {
     /// Required if `actionUrl` is provided. Text to be used in title of button or link in feed item
     public let actionTitle: String?
 
-    /// Weak reference to parent feedItemSchemaData instance
-    weak var parent: FeedItemSchemaData?
+    /// Reference to parent feedItemSchemaData instance
+    var parent: FeedItemSchemaData?
 
     enum CodingKeys: String, CodingKey {
         case title
@@ -72,5 +73,16 @@ public class FeedItem: NSObject, Codable {
         try? container.encode(imageUrl, forKey: .imageUrl)
         try? container.encode(actionUrl, forKey: .actionUrl)
         try? container.encode(actionTitle, forKey: .actionTitle)
+    }
+}
+
+@available(*, deprecated, renamed: "ContentCard")
+public extension FeedItem {
+    func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
+        guard let parent = parent else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track FeedItem, parent schema object is unavailable.")
+            return
+        }
+        parent.track(interaction, withEdgeEventType: eventType)
     }
 }

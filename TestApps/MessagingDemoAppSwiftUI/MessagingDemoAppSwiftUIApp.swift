@@ -22,7 +22,7 @@ import SwiftUI
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
     
-    private let ENVIRONMENT_FILE_ID = ""
+    private let ENVIRONMENT_FILE_ID = "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development"
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         MobileCore.setLogLevel(.trace)
@@ -33,7 +33,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             Signal.self,
             Edge.self,
             Messaging.self,
-//            Assurance.self
+            Assurance.self
         ]
         
         MobileCore.registerExtensions(extensions) {
@@ -41,8 +41,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 
             // set `messaging.useSandbox` to "true"  to test push notifications in debug environment (Apps signed with Development Certificate)
         #if DEBUG
-//            let debugConfig = ["messaging.useSandbox": true, "edge.environment": "int"]
-//            MobileCore.updateConfigurationWith(configDict: debugConfig)
+            let debugConfig = [
+                //"messaging.useSandbox": true,
+                "edge.environment": "int"
+            ]
+            MobileCore.updateConfigurationWith(configDict: debugConfig)
         #endif
         }
         

@@ -44,7 +44,7 @@ class MessagingTests: XCTestCase {
         mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine, cache: mockCache)
         
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockFeedSurface.uri, cache: mockCache)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockFeedSurface.uri, cache: mockCache)
         messaging.onRegistered()
         
         mockNetworkService = MockNetworkService()
@@ -62,9 +62,9 @@ class MessagingTests: XCTestCase {
         XCTAssertNoThrow(MobileCore.registerExtensions([Messaging.self]))
     }
     
-    /// validate that 5 listeners are registered onRegister
-    func testOnRegistered_fiveListenersAreRegistered() {
-        XCTAssertEqual(mockRuntime.listeners.count, 6)
+    /// validate that 7 listeners are registered onRegister
+    func testOnRegistered_sevenListenersAreRegistered() {
+        XCTAssertEqual(mockRuntime.listeners.count, 7)
     }
     
     func testOnUnregisteredCallable() throws {

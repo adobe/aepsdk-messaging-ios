@@ -14,8 +14,13 @@ import AEPCore
 import Foundation
 
 extension RuleConsequence {
+    @available(*, deprecated, renamed: "isContentCard")
     var isFeedItem: Bool {
         detailSchema == MessagingConstants.PersonalizationSchemas.FEED_ITEM
+    }
+
+    var isContentCard: Bool {
+        detailSchema == MessagingConstants.PersonalizationSchemas.CONTENT_CARD
     }
 
     var isInApp: Bool {

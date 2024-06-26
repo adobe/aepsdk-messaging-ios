@@ -16,6 +16,7 @@ import XCTest
 @testable import AEPMessaging
 import AEPServices
 
+@available(*, deprecated)
 class FeedItemTests: XCTestCase {
     let mockTitle = "mockTitle"
     let mockBody = "mockBody"

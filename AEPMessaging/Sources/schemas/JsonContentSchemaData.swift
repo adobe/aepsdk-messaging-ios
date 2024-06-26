@@ -17,7 +17,10 @@ import Foundation
 @objc(AEPJsonContentSchemaData)
 @objcMembers
 public class JsonContentSchemaData: NSObject, Codable {
+    /// Represents the content of the JsonContentSchemaData object.  Its value's type is determined by `format`.
     public let content: Any
+
+    /// Determines the value type of `content`. For now, this value is always `.applicationJson`.
     public let format: ContentType?
 
     enum CodingKeys: String, CodingKey {
@@ -34,7 +37,6 @@ public class JsonContentSchemaData: NSObject, Codable {
             format = .applicationJson
         }
 
-        // TODO: core team is adding support for converting [AnyCodable] to [Any]
         // we'll need to update this condition to be less awkward when that's released
         if let _ = try? values.decode([AnyCodable].self, forKey: .content) {
             let codableAny = try values.decode(AnyCodable.self, forKey: .content)

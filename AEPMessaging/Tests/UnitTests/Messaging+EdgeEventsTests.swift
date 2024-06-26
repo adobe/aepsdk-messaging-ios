@@ -40,7 +40,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mcokLaunchRulesEngine", extensionRuntime: mockRuntime)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine, cache: mockCache)
         mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine)
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, feedRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface, cache: mockCache)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface, cache: mockCache)
     }
 
     // MARK: - helpers
@@ -292,8 +292,12 @@ class MessagingEdgeEventsTests: XCTestCase {
     }
 
     func testSendPushTokenHappy() throws {
+        // setup
+        setConfigSharedState(["messaging.useSandbox": "false"])
+        let mockEvent = Event(name: "mockName", type: "mockType", source: "mockSource", data: nil)
+        
         // test
-        messaging.sendPushToken(ecid: MOCK_ECID, token: MOCK_PUSH_TOKEN, platform: MOCK_PUSH_PLATFORM)
+        messaging.sendPushToken(ecid: MOCK_ECID, token: MOCK_PUSH_TOKEN, event: mockEvent)
 
         // verify
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -459,21 +463,20 @@ class MessagingEdgeEventsTests: XCTestCase {
         XCTAssertEqual(0, launchesData?[MessagingConstants.XDM.AdobeKeys.LAUNCHES_VALUE] as? Int)
     }
     
-    func testSendPropositionInteractionInteract() throws {
-        // setup
-        setConfigSharedState()
-        setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.interact
-        let mockInteraction = "swords"
-        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
-        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
-        
-        // test
-        messaging.sendPropositionInteraction(withXdm: [:])
-//        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
-        // verify
+//    func testSendPropositionInteractionInteract() throws {
+//        // setup
+//        setConfigSharedState()
+//        setIdentitySharedState()
+//        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+//        let mockEdgeEventType = MessagingEdgeEventType.interact
+//        let mockInteraction = "swords"
+//        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
+//        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
+//        
+//        // test
+//        messaging.sendPropositionInteraction(withXdm: [:])
+//        
+//        // verify
 //        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
 //        let dispatchedEvent = mockRuntime.firstEvent
 //        // validate type and source
@@ -504,23 +507,22 @@ class MessagingEdgeEventsTests: XCTestCase {
 //        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
 //        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
 //        XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
-    }
-    
-    func testSendPropositionInteractionDisplay() throws {
-        // setup
-        setConfigSharedState()
-        setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.display
-        let mockInteraction = "swords"
-        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
-        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
-        
-        // test
-        messaging.sendPropositionInteraction(withXdm: [:])
-//        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
-        // verify
+//    }
+//    
+//    func testSendPropositionInteractionDisplay() throws {
+//        // setup
+//        setConfigSharedState()
+//        setIdentitySharedState()
+//        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+//        let mockEdgeEventType = MessagingEdgeEventType.display
+//        let mockInteraction = "swords"
+//        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
+//        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
+//        
+//        // test
+//        messaging.sendPropositionInteraction(withXdm: [:])
+//        
+//        // verify
 //        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
 //        let dispatchedEvent = mockRuntime.firstEvent
 //        // validate type and source
@@ -549,23 +551,22 @@ class MessagingEdgeEventsTests: XCTestCase {
 //        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
 //        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
 //        XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
-    }
-    
-    func testSendPropositionInteractionDismiss() throws {
-        // setup
-        setConfigSharedState()
-        setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.dismiss
-        let mockInteraction = "swords"
-        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
-        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
-        
-        // test
-        messaging.sendPropositionInteraction(withXdm: [:])
-//        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
-        // verify
+//    }
+//    
+//    func testSendPropositionInteractionDismiss() throws {
+//        // setup
+//        setConfigSharedState()
+//        setIdentitySharedState()
+//        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+//        let mockEdgeEventType = MessagingEdgeEventType.dismiss
+//        let mockInteraction = "swords"
+//        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
+//        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
+//        
+//        // test
+//        messaging.sendPropositionInteraction(withXdm: [:])
+//        
+//        // verify
 //        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
 //        let dispatchedEvent = mockRuntime.firstEvent
 //        // validate type and source
@@ -594,24 +595,23 @@ class MessagingEdgeEventsTests: XCTestCase {
 //        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
 //        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
 //        XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
-    }
-    
-    func testSendPropositionInteractionTrigger() throws {
-        // setup
-        setConfigSharedState()
-        setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.trigger
-        let mockInteraction = "swords"
-        let mockMessageId = "SUCHMESSAGEVERYID"
-        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
-        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["activity":["id":mockMessageId], "correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
-        
-        // test
-        messaging.sendPropositionInteraction(withXdm: [:])
-//        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
-        // verify
+//    }
+//    
+//    func testSendPropositionInteractionTrigger() throws {
+//        // setup
+//        setConfigSharedState()
+//        setIdentitySharedState()
+//        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+//        let mockEdgeEventType = MessagingEdgeEventType.trigger
+//        let mockInteraction = "swords"
+//        let mockMessageId = "SUCHMESSAGEVERYID"
+//        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
+//        mockMessage.propositionInfo = PropositionInfo(id: "propId", scope: "propScope", scopeDetails: ["activity":["id":mockMessageId], "correlationID": "mockCorrelationID", "characteristics":["cjmEventToken":"abcd"]])
+//        
+//        // test
+//        messaging.sendPropositionInteraction(withXdm: [:])
+//        
+//        // verify
 //        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
 //        let dispatchedEvent = mockRuntime.firstEvent
 //        // validate type and source
@@ -644,22 +644,21 @@ class MessagingEdgeEventsTests: XCTestCase {
 //        XCTAssertEqual("mockCorrelationID", scopeDetails?["correlationID"] as? String)
 //        let characteristics = scopeDetails?["characteristics"] as? [String: Any]
 //        XCTAssertEqual("abcd", characteristics?["cjmEventToken"] as? String)
-    }
-    
-    func testSendPropositionInteractionNoScopeDetails() throws {
-        // setup
-        setConfigSharedState()
-        setIdentitySharedState()
-        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
-        let mockEdgeEventType = MessagingEdgeEventType.interact
-        let mockInteraction = "swords"
-        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
-                
-        // test
-        messaging.sendPropositionInteraction(withXdm: [:])
-//        messaging.sendPropositionInteraction(withEventType: mockEdgeEventType, andInteraction: mockInteraction, forMessage: mockMessage)
-        
-        // verify
+//    }
+//    
+//    func testSendPropositionInteractionNoScopeDetails() throws {
+//        // setup
+//        setConfigSharedState()
+//        setIdentitySharedState()
+//        let mockEvent = Event(name: "triggeringEvent", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+//        let mockEdgeEventType = MessagingEdgeEventType.interact
+//        let mockInteraction = "swords"
+//        let mockMessage = MockMessage(parent: messaging, triggeringEvent: mockEvent)
+//                
+//        // test
+//        messaging.sendPropositionInteraction(withXdm: [:])
+//        
+//        // verify
 //        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
-    }
+//    }
 }

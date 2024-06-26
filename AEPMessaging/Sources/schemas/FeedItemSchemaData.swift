@@ -14,6 +14,7 @@ import AEPServices
 import Foundation
 
 /// represents the schema data object for a feed item schema
+@available(*, deprecated, renamed: "ContentCardSchemaData")
 @objc(AEPFeedItemSchemaData)
 @objcMembers
 public class FeedItemSchemaData: NSObject, Codable {
@@ -22,6 +23,8 @@ public class FeedItemSchemaData: NSObject, Codable {
     public let publishedDate: Int?
     public let expiryDate: Int?
     public let meta: [String: Any]?
+
+    var parent: PropositionItem?
 
     enum CodingKeys: String, CodingKey {
         case content
@@ -71,19 +74,36 @@ public class FeedItemSchemaData: NSObject, Codable {
     }
 }
 
+@available(*, deprecated, renamed: "ContentCardSchemaData")
 extension FeedItemSchemaData {
     /// ONLY USED FOR TESTING
     static func getEmpty() -> FeedItemSchemaData {
         FeedItemSchemaData()
     }
+}
 
-    public func getFeedItem() -> FeedItem? {
+@available(*, deprecated, renamed: "ContentCardSchemaData")
+public extension FeedItemSchemaData {
+    func getFeedItem() -> FeedItem? {
         guard contentType == .applicationJson,
               let contentAsJsonData = try? JSONSerialization.data(withJSONObject: content, options: .prettyPrinted)
         else {
             return nil
         }
 
-        return try? JSONDecoder().decode(FeedItem.self, from: contentAsJsonData)
+        guard let feedItem = try? JSONDecoder().decode(FeedItem.self, from: contentAsJsonData) else {
+            return nil
+        }
+
+        feedItem.parent = self
+        return feedItem
+    }
+
+    func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
+        guard let parent = parent else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track FeedItemSchemaData, parent proposition item is unavailable.")
+            return
+        }
+        parent.track(interaction, withEdgeEventType: eventType)
     }
 }
