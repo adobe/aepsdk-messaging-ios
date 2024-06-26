@@ -49,7 +49,7 @@ struct ContentCardsView: View {
                     .padding(.top, 30)
                 List {
                     ForEach(propositionsDict?[surface]?.compactMap {
-                        $0.items.first } ?? [], id: \.itemId ) { propositionItem in
+                        $0.items.first } ?? [], id: \.itemId ) { propositionItem in                            
                             if let contentCardSchema = propositionItem.contentCardSchemaData,
                                let contentCard = contentCardSchema.getContentCard() {
                                 

@@ -76,6 +76,11 @@ public class ContentCard: NSObject, Codable {
 }
 
 public extension ContentCard {
+    /// Tracks interaction with the given content card.
+    ///
+    /// - Parameters
+    ///     - interaction: a custom string value describing the interaction.
+    ///     - eventType: an enum specifying event type for the interaction.
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let parent = parent else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track ContentCard, parent schema object is unavailable.")
