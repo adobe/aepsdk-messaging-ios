@@ -57,6 +57,7 @@ extension Messaging {
         if let inAppRules = parsedPropositions.surfaceRulesBySchemaType[.inapp] {
             rulesEngine.launchRulesEngine.replaceRules(with: inAppRules.flatMap { $0.value })
         }
+        updatePropositionInfo(parsedPropositions.propositionInfoToCache)
     }
 
     private func removeCachedPropositions(surfaces: [Surface]) {
