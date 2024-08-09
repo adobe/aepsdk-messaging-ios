@@ -37,6 +37,9 @@ jobs:
       with:
         ref: ${{ github.event.inputs.branch }}
 
+    - name: Update Cocoapods
+      run: make ci-pod-install
+
     # Update the plist file which controls the environment used by the e2e tests
     - name: Update environment
       run: make set-environment ENV=${{ github.event.inputs.environment }}
