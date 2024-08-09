@@ -28,29 +28,26 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.0.1'
     
-    - uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '15.0.1'
-    
-    - name: Install jq
-      run: brew install jq
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      
+      - name: Install cocoapods 
+        run: make ci-pod-install
 
-    - name: Install cocoapods 
-      run: gem install cocoapods
+      - name: ${{ github.event.inputs.id }}
+        run: echo Run Identifier is ${{ inputs.id }}
 
-    - name: ${{ github.event.inputs.id }}
-      run: echo Run Identifier is ${{ inputs.id }}
+      # Update the plist file which controls the environment used by the e2e tests
+      - name: Update environment
+        run: make set-environment ENV=${{ github.event.inputs.environment }}
 
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.inputs.branch }}
-
-    # Update the plist file which controls the environment used by the e2e tests
-    - name: Update environment
-      run: make set-environment ENV=${{ github.event.inputs.environment }}
-
-    # Runs a single command using the runners shell
-    - name: Execute E2E functional tests
-      run: make e2e-functional-test
+      # Runs a single command using the runners shell
+      - name: Execute E2E functional tests
+        run: make e2e-functional-test
