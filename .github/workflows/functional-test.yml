@@ -42,5 +42,5 @@ jobs:
       run: make set-environment ENV=${{ github.event.inputs.environment }}
 
     # Runs a single command using the runners shell
-    - name: Execute functional tests
-      run: make functional-test
+    - name: Execute E2E functional tests
+      run: make e2e-functional-test
