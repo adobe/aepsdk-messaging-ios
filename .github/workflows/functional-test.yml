@@ -28,17 +28,16 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '15.0.1'
     
       - name: Checkout
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.branch }}
       
-      - name: Install cocoapods 
+      - name: Install cocoapods
+        run: brew install cocoapods
+      
+      - name: Update cocoapods in Project 
         run: make ci-pod-install
 
       - name: ${{ github.event.inputs.id }}
