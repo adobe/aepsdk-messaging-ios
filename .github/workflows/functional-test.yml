@@ -34,14 +34,14 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Remove old cocoapods
-        run: rm /usr/local/bin/pod
+      # - name: Remove old cocoapods
+        # run: rm /usr/local/bin/pod
       
-      - name: Install cocoapods
-        run: brew install cocoapods
+      # - name: Install cocoapods
+        # run: brew install cocoapods
       
       - name: Update cocoapods in Project 
-        run: make ci-pod-install
+        run: make pod-install
 
       - name: ${{ github.event.inputs.id }}
         run: echo Run Identifier is ${{ inputs.id }}
