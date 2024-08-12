@@ -66,7 +66,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
        
         let extensions = [
             Consent.self,
-            Identity.self,
+            AEPEdgeIdentity.Identity.self,
             Messaging.self,
             Edge.self
         ]
@@ -127,6 +127,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
             // loop through the payload and verify the format for each object
             for payloadObject in payload {
                 self.validatePayloadObject(payloadObject)
+                self.validatePayloadContainsMatchingScope(payloadObject)
             }
             
             edgePersonalizationDecisionsExpectation.fulfill()
@@ -222,7 +223,8 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
             "scope": "string",
             "scopeDetails": {
                 "activity": {
-                    "id": "string"
+                    "id": "string",
+                    "matchedSurfaces": []
                 },
                 "characteristics": {
                     "eventToken": "string"
@@ -235,8 +237,13 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
                     "id": "string",
                     "schema": "string",
                     "data": {
-                        "content": "string",
-                        "id": "string"
+                        "rules" : [
+                            {
+                                "condition": {},
+                                "consequences": []
+                            }
+                        ],
+                        "version": 12.34
                     }
                 }
             ]
@@ -245,6 +252,17 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
 
         // validate required fields are in first payload item and their types are correct
         assertTypeMatch(expected: expectedPayloadJSON.toAnyCodable()!, actual: AnyCodable(payload), pathOptions: [])
+    }
+    
+    func validatePayloadContainsMatchingScope(_ payload: [String: Any]) {
+        let expectedPayloadJSON = #"""
+        {
+            "scope": "mobileapp://com.adobe.ajoinbounde2etestsonly"
+        }
+        """#
+        
+        // validate only the scope and that it has the correct value
+        assertExactMatch(expected: expectedPayloadJSON.toAnyCodable()!, actual: AnyCodable(payload))
     }
     
     func missingField(_ key: String) -> String {

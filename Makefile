@@ -75,6 +75,12 @@ functional-test: clean
 	@echo "######################################################################"
 	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme "FunctionalTests" -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
 
+e2e-functional-test: clean
+	@echo "######################################################################"
+	@echo "### End-to-end Functional Testing"
+	@echo "######################################################################"
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme "E2EFunctionalTests" -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
+
 install-githook:
 	./tools/git-hooks/setup.sh
 

@@ -24,23 +24,30 @@ jobs:
 
   functional-test:
     # The type of runner that the job will run on
-    runs-on: macos-latest
+    runs-on: macos-13
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+    
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.0.1'
 
-    - name: ${{ github.event.inputs.id }}
-      run: echo Run Identifier is ${{ inputs.id }}
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      
+      - name: Update cocoapods in Project 
+        run: make pod-install
 
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.inputs.branch }}
+      - name: ${{ github.event.inputs.id }}
+        run: echo Run Identifier is ${{ inputs.id }}
 
-    # Update the plist file which controls the environment used by the e2e tests
-    - name: Update environment
-      run: make set-environment ENV=${{ github.event.inputs.environment }}
+      # Update the plist file which controls the environment used by the e2e tests
+      - name: Update environment
+        run: make set-environment ENV=${{ github.event.inputs.environment }}
 
-    # Runs a single command using the runners shell
-    - name: Execute functional tests
-      run: make functional-test
+      # Runs a single command using the runners shell
+      - name: Execute E2E functional tests
+        run: make e2e-functional-test
