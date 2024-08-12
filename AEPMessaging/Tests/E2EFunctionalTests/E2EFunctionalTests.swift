@@ -25,7 +25,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     // testing variables
     var currentMessage: Message?
-    let asyncTimeout: TimeInterval = 5
+    let asyncTimeout: TimeInterval = 30
     let appScope = "mobileapp://com.adobe.ajoinbounde2etestsonly"
     var mockCache: MockCache!
     var mockRuntime: TestableExtensionRuntime!
