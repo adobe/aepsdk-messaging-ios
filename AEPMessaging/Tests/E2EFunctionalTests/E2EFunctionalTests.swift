@@ -72,7 +72,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
             MobileCore.configureWith(appId: environment.appId)
         }
         
-        // wait 5 seconds to allow configuration to download
+        // wait 2 seconds to allow configuration to download
         let semaphore = DispatchSemaphore(value: 0)
         DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(2)) {
             semaphore.signal()
