@@ -83,12 +83,12 @@ extension Environment {
         }
     }
     
-    var configurationUpdates: [String: Any]? {
+    var configurationUpdates: [String: Any] {
         guard isStaging else {
-            return nil
+            return [ "edge.environment": "" ]
         }
         
-        return ["edge.environment": "int"]
+        return [ "edge.environment": "int" ]
     }
     
     private var isStaging: Bool {

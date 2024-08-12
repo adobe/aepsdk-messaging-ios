@@ -59,19 +59,25 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         MobileCore.clearUpdatedConfiguration()
         
         let environment = Environment.get()
-        MobileCore.configureWith(appId: environment.appId)
-        if let configUpdates = environment.configurationUpdates {
-            MobileCore.updateConfigurationWith(configDict: configUpdates)
-        }
-       
+        MobileCore.updateConfigurationWith(configDict: environment.configurationUpdates)
+                
         let extensions = [
             Consent.self,
             AEPEdgeIdentity.Identity.self,
             Messaging.self,
             Edge.self
         ]
-
-        MobileCore.registerExtensions(extensions)
+        
+        MobileCore.registerExtensions(extensions) {
+            MobileCore.configureWith(appId: environment.appId)
+        }
+        
+        // wait 5 seconds to allow configuration to download
+        let semaphore = DispatchSemaphore(value: 0)
+        DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(2)) {
+            semaphore.signal()
+        }
+        semaphore.wait()
     }
 
     func registerMessagingRequestContentListener(_ listener: @escaping EventListener) {
