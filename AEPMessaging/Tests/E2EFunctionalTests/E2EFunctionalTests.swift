@@ -96,13 +96,17 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     func testRefreshInAppMessagesHappy() throws {
         // setup
+        var testCompleted = false
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
         registerMessagingRequestContentListener() { event in
-            XCTAssertNotNil(event)
-            let data = event.data
-            XCTAssertNotNil(data)
-            XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool)
-            messagingRequestContentExpectation.fulfill()
+            if (!testCompleted) {
+                XCTAssertNotNil(event)
+                let data = event.data
+                XCTAssertNotNil(data)
+                XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool)
+                testCompleted = true
+                messagingRequestContentExpectation.fulfill()
+            }
         }
         
         // test
@@ -111,36 +115,105 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         // verify
         wait(for: [messagingRequestContentExpectation], timeout: asyncTimeout)
     }
-
-    func testMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
+    
+    func testIAMMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
         // setup
+        var testCompleted = false
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
         registerEdgePersonalizationDecisionsListener() { event in
-            XCTAssertNotNil(event)
-            
-            // validate the payload exists
-            guard let payload = event.data?["payload"] as? [[String: Any]] else {
-                // no payload means this event is a request, not a response
-                return
+            if (!testCompleted) {
+                XCTAssertNotNil(event)
+                
+                // validate the payload exists
+                guard let payload = event.data?["payload"] as? [[String: Any]] else {
+                    // no payload means this event is a request, not a response
+                    return
+                }
+                
+                // validate the payload is not empty
+                guard !payload.isEmpty else {
+                    XCTFail("SDK TEST ERROR - expected a payload object, but payload is empty")
+                    return
+                }
+                
+                // loop through the payload and verify the format for each object
+                for payloadObject in payload {
+                    self.validateIAMPayloadObject(payloadObject)
+                    self.validateIAMPayloadContainsMatchingScope(payloadObject)
+                }
+                testCompleted = true
+                edgePersonalizationDecisionsExpectation.fulfill()
             }
-            
-            // validate the payload is not empty
-            guard !payload.isEmpty else {
-                XCTFail("SDK TEST ERROR - expected a payload object, but payload is empty")
-                return
-            }
-            
-            // loop through the payload and verify the format for each object
-            for payloadObject in payload {
-                self.validatePayloadObject(payloadObject)
-                self.validatePayloadContainsMatchingScope(payloadObject)
-            }
-            
-            edgePersonalizationDecisionsExpectation.fulfill()
         }
 
         // test
         Messaging.refreshInAppMessages()
+
+        // verify
+        wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
+    }
+    
+    func testUpdatePropositionsForSurfacesHappy() throws {
+        // setup
+        var testCompleted = false
+        let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
+        registerMessagingRequestContentListener() { event in
+            if(!testCompleted) {
+                XCTAssertNotNil(event)
+                let data = event.data
+                XCTAssertNotNil(data)
+                XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool)
+                testCompleted = true
+                messagingRequestContentExpectation.fulfill()
+            }
+        }
+        
+        // test
+        let surfaces: [Surface] = [
+            Surface(path: "cbeJson")
+        ]
+        Messaging.updatePropositionsForSurfaces(surfaces)
+        
+        // verify
+        wait(for: [messagingRequestContentExpectation], timeout: asyncTimeout)
+    }
+    
+    func testCBEMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
+        // setup
+        var testCompleted = false
+        let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
+        registerEdgePersonalizationDecisionsListener() { event in
+            if (!testCompleted) {
+                XCTAssertNotNil(event)
+                
+                // validate the payload exists
+                guard let payload = event.data?["payload"] as? [[String: Any]] else {
+                    // no payload means this event is a request, not a response
+                    return
+                }
+                
+                // validate the payload is not empty
+                guard !payload.isEmpty else {
+                    XCTFail("SDK TEST ERROR - expected a payload object, but payload is empty")
+                    return
+                }
+                
+                
+                // loop through the payload and verify the format for each object
+                for payloadObject in payload {
+                    self.validateCBEPayloadObject(payloadObject)
+                    self.validateCBEPayloadContainsMatchingScope(payloadObject)
+                }
+                testCompleted = true
+                edgePersonalizationDecisionsExpectation.fulfill()
+            }
+        }
+
+        // test
+        let surfaces: [Surface] = [
+            Surface(path: "cbeJson")
+        ]
+        Messaging.updatePropositionsForSurfaces(surfaces)
 
         // verify
         wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
@@ -152,13 +225,13 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
 //        // setup
 //        let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
 //        registerEdgePersonalizationDecisionsListener() { event in
-//            
+//
 //            // validate the content is a valid rule containing a valid message
 //            guard let propositions = event.payload else {
 //                // no payload means this event is a request, not a response
 //                return
 //            }
-//            
+//
 //            let messagingRulesEngine = MessagingRulesEngine(name: "testRulesEngine", extensionRuntime: self.mockRuntime, cache: self.mockCache)
 //            var rulesArray: [LaunchRule] = []
 //
@@ -170,10 +243,10 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
 //                    rulesArray.append(contentsOf: rule)
 //                }
 //            }
-//            
+//
 //            // load the parsed rules into the rules engine
 //            messagingRulesEngine.loadRules(rulesArray, clearExisting: true)
-//            
+//
 //            // rules load async - brief sleep to allow it to finish
 //            self.runAfter(seconds: 3) {
 //                XCTAssertTrue(messagingRulesEngine.rulesEngine.rulesEngine.rules.count > 0, "Message definition successfully loaded into the rules engine.")
@@ -207,7 +280,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
 //            }
 //        }
 //        MobileCore.messagingDelegate = self
-//        
+//
 //        // allow rules engine to be hydrated
 //        runAfter(seconds: 5) {
 //            MobileCore.track(action: "showModal", data: nil)
@@ -222,7 +295,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(seconds), execute: closure)
     }
     
-    func validatePayloadObject(_ payload: [String: Any]) {
+    func validateIAMPayloadObject(_ payload: [String: Any]) {
         let expectedPayloadJSON = #"""
         {
             "id": "string",
@@ -260,10 +333,53 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         assertTypeMatch(expected: expectedPayloadJSON.toAnyCodable()!, actual: AnyCodable(payload), pathOptions: [])
     }
     
-    func validatePayloadContainsMatchingScope(_ payload: [String: Any]) {
+    func validateCBEPayloadObject(_ payload: [String: Any]) {
+        let expectedPayloadJSON = #"""
+        {
+            "id": "string",
+            "scope": "string",
+            "scopeDetails": {
+                "activity": {
+                    "id": "string",
+                    "matchedSurfaces": []
+                },
+                "characteristics": {
+                    "eventToken": "string"
+                },
+                "correlationID": "string",
+                "decisionProvider": "string"
+            },
+            "items": [
+                {
+                    "id": "string",
+                    "schema": "string",
+                    "data": {
+                        "content" : {}
+                    }
+                }
+            ]
+        }
+        """#
+
+        // validate required fields are in first payload item and their types are correct
+        assertTypeMatch(expected: expectedPayloadJSON.toAnyCodable()!, actual: AnyCodable(payload), pathOptions: [])
+    }
+    
+    func validateIAMPayloadContainsMatchingScope(_ payload: [String: Any]) {
         let expectedPayloadJSON = #"""
         {
             "scope": "mobileapp://com.adobe.ajoinbounde2etestsonly"
+        }
+        """#
+        
+        // validate only the scope and that it has the correct value
+        assertExactMatch(expected: expectedPayloadJSON.toAnyCodable()!, actual: AnyCodable(payload))
+    }
+    
+    func validateCBEPayloadContainsMatchingScope(_ payload: [String: Any]) {
+        let expectedPayloadJSON = #"""
+        {
+            "scope": "mobileapp://com.adobe.ajoinbounde2etestsonly/cbeJson"
         }
         """#
         
@@ -308,3 +424,4 @@ extension Event {
         return propositionEventType.contains(where: { $0.key == type})
     }
 }
+
