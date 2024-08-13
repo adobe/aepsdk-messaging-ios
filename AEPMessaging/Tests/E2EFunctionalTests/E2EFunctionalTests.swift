@@ -153,7 +153,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
     }
     
-    func testUpdatePropositionsForSurfacesHappy() throws {
+    func testUpdatePropositionsForSurfacesCBEHappy() throws {
         // setup
         var testCompleted = false
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
@@ -212,6 +212,72 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         // test
         let surfaces: [Surface] = [
             Surface(path: "cbeJson")
+        ]
+        Messaging.updatePropositionsForSurfaces(surfaces)
+
+        // verify
+        wait(for: [edgePersonalizationDecisionsExpectation], timeout: asyncTimeout)
+    }
+    
+    func testUpdatePropositionsForSurfacesContentCardHappy() throws {
+        // setup
+        var testCompleted = false
+        let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
+        registerMessagingRequestContentListener() { event in
+            if(!testCompleted) {
+                XCTAssertNotNil(event)
+                let data = event.data
+                XCTAssertNotNil(data)
+                XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool)
+                testCompleted = true
+                messagingRequestContentExpectation.fulfill()
+            }
+        }
+        
+        // test
+        let surfaces: [Surface] = [
+            Surface(path: "cards/ms")
+        ]
+        Messaging.updatePropositionsForSurfaces(surfaces)
+        
+        // verify
+        wait(for: [messagingRequestContentExpectation], timeout: asyncTimeout)
+    }
+    
+    func testContentCardMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
+        // setup
+        var testCompleted = false
+        let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
+        registerEdgePersonalizationDecisionsListener() { event in
+            if (!testCompleted) {
+                XCTAssertNotNil(event)
+                
+                // validate the payload exists
+                guard let payload = event.data?["payload"] as? [[String: Any]] else {
+                    // no payload means this event is a request, not a response
+                    return
+                }
+                
+                // validate the payload is not empty
+                guard !payload.isEmpty else {
+                    XCTFail("SDK TEST ERROR - expected a payload object, but payload is empty")
+                    return
+                }
+                
+                
+                // loop through the payload and verify the format for each object
+                for payloadObject in payload {
+                    self.validateContentCardPayloadObject(payloadObject)
+                    self.validateContentCardPayloadContainsMatchingScope(payloadObject)
+                }
+                testCompleted = true
+                edgePersonalizationDecisionsExpectation.fulfill()
+            }
+        }
+
+        // test
+        let surfaces: [Surface] = [
+            Surface(path: "cards/ms")
         ]
         Messaging.updatePropositionsForSurfaces(surfaces)
 
@@ -365,6 +431,44 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         assertTypeMatch(expected: expectedPayloadJSON.toAnyCodable()!, actual: AnyCodable(payload), pathOptions: [])
     }
     
+    func validateContentCardPayloadObject(_ payload: [String: Any]) {
+        let expectedPayloadJSON = #"""
+        {
+            "id": "string",
+            "scope": "string",
+            "scopeDetails": {
+                "activity": {
+                    "id": "string",
+                    "matchedSurfaces": []
+                },
+                "characteristics": {
+                    "eventToken": "string"
+                },
+                "correlationID": "string",
+                "decisionProvider": "string"
+            },
+            "items": [
+                {
+                    "id": "string",
+                    "schema": "string",
+                    "data": {
+                        "rules" : [
+                            {
+                                "condition": {},
+                                "consequences": []
+                            }
+                        ],
+                        "version": 12.34
+                    }
+                }
+            ]
+        }
+        """#
+
+        // validate required fields are in first payload item and their types are correct
+        assertTypeMatch(expected: expectedPayloadJSON.toAnyCodable()!, actual: AnyCodable(payload), pathOptions: [])
+    }
+    
     func validateIAMPayloadContainsMatchingScope(_ payload: [String: Any]) {
         let expectedPayloadJSON = #"""
         {
@@ -380,6 +484,17 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         let expectedPayloadJSON = #"""
         {
             "scope": "mobileapp://com.adobe.ajoinbounde2etestsonly/cbeJson"
+        }
+        """#
+        
+        // validate only the scope and that it has the correct value
+        assertExactMatch(expected: expectedPayloadJSON.toAnyCodable()!, actual: AnyCodable(payload))
+    }
+    
+    func validateContentCardPayloadContainsMatchingScope(_ payload: [String: Any]) {
+        let expectedPayloadJSON = #"""
+        {
+            "scope": "mobileapp://com.adobe.ajoinbounde2etestsonly/cards/ms"
         }
         """#
         
