@@ -32,7 +32,8 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     var mockCache: MockCache!
     var mockRuntime: TestableExtensionRuntime!
             
-    class override func setUp() {
+    /// before all
+    override class func setUp() {
         configureSdk()
     }
     
