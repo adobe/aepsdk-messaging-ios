@@ -76,7 +76,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         }
         
         // wait 2 seconds to allow configuration to download
-        passTime(seconds: 2)
+        passTime(seconds: 5)
     }
 
     func registerMessagingRequestContentListener(_ listener: @escaping EventListener) {
