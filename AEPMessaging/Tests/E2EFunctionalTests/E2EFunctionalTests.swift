@@ -31,6 +31,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     let cardScope = "mobileapp://com.adobe.ajoinbounde2etestsonly/cards/ms"
     var mockCache: MockCache!
     var mockRuntime: TestableExtensionRuntime!
+    let lock = NSLock()
             
     /// before all
     override class func setUp() {
@@ -47,7 +48,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     /// after each
     override func tearDown() {
         currentMessage = nil
-        E2EFunctionalTests.passTime(seconds: 2)
+//        E2EFunctionalTests.passTime(seconds: 2)
     }
 
     // MARK: - helpers
@@ -74,7 +75,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         }
         
         // wait 2 seconds to allow configuration to download
-        passTime(seconds: 2)
+        passTime(seconds: 5)
     }
 
     func registerMessagingRequestContentListener(_ listener: @escaping EventListener) {
@@ -93,14 +94,17 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     func testRefreshInAppMessagesHappy() throws {
         // setup
+        lock.lock()
+        var processed = false
+        defer {
+            processed = true
+            lock.unlock()
+        }
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
-        var onceToken = false
         registerMessagingRequestContentListener() { event in
-            guard !onceToken else {
-                print("ignoring an event i wasn't meant to hear")
+            guard !processed else {
                 return
             }
-            onceToken = true
             XCTAssertNotNil(event)
             let data = event.data
             XCTAssertNotNil(data)
@@ -117,14 +121,17 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     func testIAMMessagesReturnedFromIDSHaveCorrectJsonFormat() throws {
         // setup
+        lock.lock()
+        var processed = false
+        defer {
+            processed = true
+            lock.unlock()
+        }
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
-        var onceToken = false
         registerEdgePersonalizationDecisionsListener() { event in
-            guard !onceToken else {
-                print("ignoring an event i wasn't meant to hear")
+            guard !processed else {
                 return
             }
-            onceToken = true
             XCTAssertNotNil(event)
             
             // validate the payload exists
@@ -155,14 +162,17 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     func testUpdatePropositionsForSurfacesCBEHappy() throws {
         // setup
+        lock.lock()
+        var processed = false
+        defer {
+            processed = true
+            lock.unlock()
+        }
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
-        var onceToken = false
         registerMessagingRequestContentListener() { event in
-            guard !onceToken else {
-                print("ignoring an event i wasn't meant to hear")
+            guard !processed else {
                 return
             }
-            onceToken = true
             XCTAssertNotNil(event)
             let data = event.data
             XCTAssertNotNil(data)
@@ -182,14 +192,17 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     func testCBEMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
         // setup
+        lock.lock()
+        var processed = false
+        defer {
+            processed = true
+            lock.unlock()
+        }
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
-        var onceToken = false
         registerEdgePersonalizationDecisionsListener() { event in
-            guard !onceToken else {
-                print("ignoring an event i wasn't meant to hear")
+            guard !processed else {
                 return
             }
-            onceToken = true
             XCTAssertNotNil(event)
             
             // validate the payload exists
@@ -226,14 +239,17 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     func testUpdatePropositionsForSurfacesContentCardHappy() throws {
         // setup
+        lock.lock()
+        var processed = false
+        defer {
+            processed = true
+            lock.unlock()
+        }
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
-        var onceToken = false
         registerMessagingRequestContentListener() { event in
-            guard !onceToken else {
-                print("ignoring an event i wasn't meant to hear")
+            guard !processed else {
                 return
             }
-            onceToken = true
             XCTAssertNotNil(event)
             let data = event.data
             XCTAssertNotNil(data)
@@ -254,14 +270,17 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     func testContentCardMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
         // setup
+        lock.lock()
+        var processed = false
+        defer {
+            processed = true
+            lock.unlock()
+        }
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
-        var onceToken = false
         registerEdgePersonalizationDecisionsListener() { event in
-            guard !onceToken else {
-                print("ignoring an event i wasn't meant to hear")
+            guard !processed else {
                 return
             }
-            onceToken = true
             XCTAssertNotNil(event)
             
             // validate the payload exists
