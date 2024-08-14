@@ -49,6 +49,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     override func tearDown() {
         currentMessage = nil
         EventHub.reset()
+        passTime(seconds: 2)
     }
 
     // MARK: - helpers
@@ -75,11 +76,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         }
         
         // wait 2 seconds to allow configuration to download
-        let semaphore = DispatchSemaphore(value: 0)
-        DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(2)) {
-            semaphore.signal()
-        }
-        semaphore.wait()
+        passTime(seconds: 2)
     }
 
     func registerMessagingRequestContentListener(_ listener: @escaping EventListener) {
@@ -340,6 +337,14 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     /// wait for `seconds` before running the code in the closure
     func runAfter(seconds: Int, closure: @escaping () -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(seconds), execute: closure)
+    }
+    
+    func passTime(seconds: Int) {
+        let semaphore = DispatchSemaphore(value: 0)
+        DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(seconds)) {
+            semaphore.signal()
+        }
+        semaphore.wait()
     }
     
     func validateIAMPayloadObject(_ payload: [String: Any]) {
