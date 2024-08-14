@@ -35,9 +35,6 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     /// before all
     override class func setUp() {
         configureSdk()
-        
-        // wait 10 seconds to allow initial configuration to be downloaded
-        passTime(seconds: 10)
     }
     
     /// before each
@@ -52,7 +49,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     override func tearDown() {
         currentMessage = nil
         EventHub.reset()
-        E2EFunctionalTests.passTime(seconds: 10)
+        passTime(seconds: 2)
     }
 
     // MARK: - helpers
@@ -77,6 +74,9 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         MobileCore.registerExtensions(extensions) {
             MobileCore.configureWith(appId: Environment.get().appId)
         }
+        
+        // wait 2 seconds to allow configuration to download
+        passTime(seconds: 2)
     }
 
     func registerMessagingRequestContentListener(_ listener: @escaping EventListener) {
@@ -339,7 +339,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(seconds), execute: closure)
     }
     
-    class func passTime(seconds: Int) {
+    func passTime(seconds: Int) {
         let semaphore = DispatchSemaphore(value: 0)
         DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(seconds)) {
             semaphore.signal()
