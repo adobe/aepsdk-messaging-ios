@@ -52,7 +52,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     override func tearDown() {
         currentMessage = nil
         EventHub.reset()
-        E2EFunctionalTests.passTime(seconds: 2)
+        E2EFunctionalTests.passTime(seconds: 10)
     }
 
     // MARK: - helpers
