@@ -35,4 +35,4 @@ In order for you to properly select the destination app of an in-app message in 
 | :---: |
 | **Set channel configuration values** |
 
-With the Channel configuration created, we can now move on to creating authoring the in-app message.
+With the Channel configuration created, we can now move on to creating and authoring the in-app message.
