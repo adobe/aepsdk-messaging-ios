@@ -6,7 +6,7 @@ name: E2E Functional Tests
 # or API.
 on:
   schedule:
-    - cron: '22 * * * *'    
+    - cron: '26 * * * *'    
   workflow_dispatch:
     inputs:
       branch:
