@@ -163,6 +163,7 @@ class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
     }
     
     // GetContentCard
+    @available(*, deprecated)
     func testGetContentCardHappy() throws {
         // setup
         let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"title\":\"fiTitle\",\"body\":\"fiBody\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}"
@@ -180,6 +181,7 @@ class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual("fiBody", result?.body)
     }
     
+    @available(*, deprecated)
     func testGetContentCardNotApplicationJson() throws {
         // setup
         let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":\"thisIsContent\",\"contentType\":\"\(ContentType.textPlain.toString())\",\"publishedDate\":\(mockPublished)}"

@@ -14,16 +14,16 @@ import AEPMessaging
 import SwiftUI
 
 struct ContentCardListView: View {
-    @State var contentCard: ContentCard
+    @State var contentCardSchemaData: ContentCardSchemaData
     
     var body: some View {
         HStack(spacing: 10) {
-            CustomImageView(url: contentCard.imageUrl ?? "")
+            CustomImageView(url: contentCardSchemaData.imageUrl ?? "")
                 .frame(width: 100, height: 100)
             VStack(alignment: .leading) {
-                Text(contentCard.title)
+                Text(contentCardSchemaData.title)
                     .font(.headline)
-                Text(contentCard.body)
+                Text(contentCardSchemaData.body)
                     .font(.body)
                     .lineLimit(1)
                     .truncationMode(.tail)
@@ -35,11 +35,6 @@ struct ContentCardListView: View {
 
 struct ContentCardListView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentCardListView(contentCard: ContentCard(
-                        title: "Flash spring sale!",
-                        body: "All hiking gear is now up to 30% off at checkout.",
-                        imageUrl: "https://d14dq8eoa1si34.cloudfront.net/2a6ef2f0-1167-11eb-88c6-b512a5ef09a7/urn:aaid:aem:cd6f726b-ea5a-4308-b1ee-7a8dd1488020/oak:1.0::ci:4363a82474f25c79f2588786cd82e3b2/dd2c2c8e-bd5c-3116-8a7a-e85c2c54549f",
-                        actionUrl: "https://luma.com/springsale",
-                        actionTitle: "Shop the sale!"))
+        ContentCardListView(contentCardSchemaData: ContentCardSchemaData.getDefaultContentCard()!)
     }
 }

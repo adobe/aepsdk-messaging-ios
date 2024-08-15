@@ -13,6 +13,7 @@
 import AEPServices
 import Foundation
 
+@available(*, deprecated, message: "'ContentCard' will be removed in the next major version of AEPMessaging. Use `ContentCardSchemaData` instead.")
 @objc(AEPContentCard)
 @objcMembers
 public class ContentCard: NSObject, Codable {
@@ -75,6 +76,7 @@ public class ContentCard: NSObject, Codable {
     }
 }
 
+@available(*, deprecated, message: "'ContentCard' will be removed in the next major version of AEPMessaging. Use `ContentCardSchemaData` instead.")
 public extension ContentCard {
     /// Tracks interaction with the given content card.
     ///
