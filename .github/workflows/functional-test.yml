@@ -5,6 +5,9 @@ name: E2E Functional Tests
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
+  schedule:
+    - cron: '0 11 * * *'
+    - cron: '0 23 * * *'
   workflow_dispatch:
     inputs:
       branch:
@@ -24,7 +27,7 @@ jobs:
 
   functional-test:
     # The type of runner that the job will run on
-    runs-on: macos-13
+    runs-on: macos-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -36,17 +39,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ github.event.inputs.branch || 'main' }}
       
       - name: Update cocoapods in Project 
         run: make pod-install
 
-      - name: ${{ github.event.inputs.id }}
-        run: echo Run Identifier is ${{ inputs.id }}
+      - name: ${{ github.event.inputs.id || 'scheduled' }}
+        run: echo Run Identifier is ${{ inputs.id || 'scheduled' }}
 
       # Update the plist file which controls the environment used by the e2e tests
       - name: Update environment
-        run: make set-environment ENV=${{ github.event.inputs.environment }}
+        run: make set-environment ENV=${{ github.event.inputs.environment || 'prodVA7' }}
 
       # Runs a single command using the runners shell
       - name: Execute E2E functional tests
