@@ -43,7 +43,7 @@ public enum SchemaType: Int, Codable {
 
         case MessagingConstants.PersonalizationSchemas.IN_APP:
             self = .inapp
-        
+
         // This case is left in for backwards compatibility - leave in until next major version
         case MessagingConstants.PersonalizationSchemas.FEED_ITEM:
             self = .feed
@@ -68,29 +68,29 @@ public enum SchemaType: Int, Codable {
         switch self {
         case .htmlContent:
             return MessagingConstants.PersonalizationSchemas.HTML_CONTENT
-            
+
         case .jsonContent:
             return MessagingConstants.PersonalizationSchemas.JSON_CONTENT
-            
+
         case .ruleset:
             return MessagingConstants.PersonalizationSchemas.RULESET_ITEM
-            
+
         case .inapp:
             return MessagingConstants.PersonalizationSchemas.IN_APP
-            
+
         // This case is left in for backwards compatibility - leave in until next major version
         case .feed:
             return MessagingConstants.PersonalizationSchemas.FEED_ITEM
-            
+
         case .contentCard:
             return MessagingConstants.PersonalizationSchemas.CONTENT_CARD
-            
+
         case .nativeAlert:
             return MessagingConstants.PersonalizationSchemas.NATIVE_ALERT
-            
+
         case .defaultContent:
             return MessagingConstants.PersonalizationSchemas.DEFAULT_CONTENT
-            
+
         default:
             return ""
         }
