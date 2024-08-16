@@ -24,9 +24,8 @@ In order for you to properly select the destination app of an in-app message in 
 
 5. Give the channel configuration an identifying name and description (**1**). 
 6. From the **Select channel** drop down, select **In-app messaging** (**2**).
-7. Under the In-app messaging settings section, select the checkbox for **iOS** (**3**) and enter the tutorial app's bundle identifier in the **App id** field under **iOS** (**4**).
-8. Under the In-app messaging settings section, select the checkbox for **Android** (**5**) and enter the tutorial app's bundle identifier in the **App id** field under **Android** (**6**).
-9. Hit the **Submit** (**7**) button.
+7. Under the In-app messaging settings section, select the platform you're targetting. For iOS, check **iOS** (**3**) and enter the tutorial app's bundle identifier in the **App id** field under **iOS** (**4**). For Android, check **Android** (**5**) and enter the tutorial app's app id in the **App id** field under **Android** (**6**).
+8. Hit the **Submit** (**7**) button.
 
 > [!NOTE]
 > The _tutorial app_ referenced in this section is an app created specifically for this tutorial. At this point in the tutorial it has not yet been introduced - it will be covered in a future section.
