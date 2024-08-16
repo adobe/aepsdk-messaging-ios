@@ -14,32 +14,32 @@ import AEPMessaging
 import SwiftUI
 
 struct ContentCardDetailView: View {
-    @State var contentCard: ContentCard
+    @State var contentCardSchemaData: ContentCardSchemaData
     
     var body: some View {
         
         ScrollView {
             VStack {
-                Text(contentCard.title)
+                Text(contentCardSchemaData.title)
                     .font(.title)
                     .padding(.top, 30)
-                CustomImageView(url: contentCard.imageUrl ?? "")
+                CustomImageView(url: contentCardSchemaData.imageUrl ?? "")
                     .frame(width: 350, height: 170)
                     .frame(maxWidth: .infinity)
-                Text(contentCard.body)
+                Text(contentCardSchemaData.body)
                     .multilineTextAlignment(.center)
                     .frame(height: 100)
                     .frame(maxWidth: .infinity)
                 Button(action: {                    
                     if
-                        let actionUrl = contentCard.actionUrl,
-                        let url = URL(string: actionUrl) {                        
-                        contentCard.track("cta clicked", withEdgeEventType: .interact)
+                        let actionUrl = contentCardSchemaData.actionUrl,
+                        let url = URL(string: actionUrl) {
+                        contentCardSchemaData.track("cta clicked", withEdgeEventType: .interact)
                         UIApplication.shared.open(url)
                     }
                 }) {
                     HStack {
-                        if let customTitle = contentCard.actionTitle, !customTitle.isEmpty {
+                        if let customTitle = contentCardSchemaData.actionTitle, !customTitle.isEmpty {
                             Text(customTitle)
                                 .font(.title3)
                         } else {
@@ -61,11 +61,6 @@ struct ContentCardDetailView: View {
 
 struct ContentCardDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentCardDetailView(contentCard: ContentCard(
-                                title: "Flash spring sale!",
-                                body: "All hiking gear is now up to 30% off at checkout.",
-                                imageUrl: "https://d14dq8eoa1si34.cloudfront.net/2a6ef2f0-1167-11eb-88c6-b512a5ef09a7/urn:aaid:aem:cd6f726b-ea5a-4308-b1ee-7a8dd1488020/oak:1.0::ci:4363a82474f25c79f2588786cd82e3b2/dd2c2c8e-bd5c-3116-8a7a-e85c2c54549f",
-                                actionUrl: "https://luma.com/springsale",
-                                actionTitle: "Shop the sale!"))
+        ContentCardDetailView(contentCardSchemaData: ContentCardSchemaData.getDefaultContentCard()!)
     }
 }

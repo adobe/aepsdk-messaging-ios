@@ -27,7 +27,9 @@ public class ContentCardSchemaData: NSObject, Codable {
 
 # Public functions
 
-## getContentCard
+## getContentCard - DEPRECATED
+
+> The `ContentCard` class is *DEPRECATED* as of `AEPMessaging v5.2.0`.
 
 Tries to convert the `content` of this `ContentCardSchemaData` into a [`ContentCard`](./../content-card.md) object.
 

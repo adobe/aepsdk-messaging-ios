@@ -50,14 +50,13 @@ struct ContentCardsView: View {
                 List {
                     ForEach(propositionsDict?[surface]?.compactMap {
                         $0.items.first } ?? [], id: \.itemId ) { propositionItem in                            
-                            if let contentCardSchema = propositionItem.contentCardSchemaData,
-                               let contentCard = contentCardSchema.getContentCard() {
+                            if let contentCardSchema = propositionItem.contentCardSchemaData {
                                 
                                 ExecuteCode {
-                                    contentCard.track(withEdgeEventType: .display)
+                                    contentCardSchema.track(withEdgeEventType: .display)
                                 }
-                                NavigationLink(destination: ContentCardDetailView(contentCard: contentCard)) {
-                                    ContentCardListView(contentCard: contentCard)
+                                NavigationLink(destination: ContentCardDetailView(contentCardSchemaData: contentCardSchema)) {
+                                    ContentCardListView(contentCardSchemaData: contentCardSchema)
                                 }
                                 
                             }

@@ -56,6 +56,7 @@
 		2402745C29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
 		2402745E29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */; };
 		240316B82A83DDD80016B0D9 /* Cache+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */; };
+		240436CA2C6EAB43008CCD6D /* ContentCardSchemaData+MyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240436C92C6EAB43008CCD6D /* ContentCardSchemaData+MyCard.swift */; };
 		240BDFF72B72F10000AE8547 /* mockPropositionItem.json in Resources */ = {isa = PBXBuildFile; fileRef = 240BDFF52B72E83E00AE8547 /* mockPropositionItem.json */; };
 		240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */; };
 		240FC42E2AA920D400AFEEEB /* ParsedPropositions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240FC42D2AA920D400AFEEEB /* ParsedPropositions.swift */; };
@@ -406,6 +407,7 @@
 		09F5D93F2B5CF35F00117437 /* PropositionInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionInteraction.swift; sourceTree = "<group>"; };
 		2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestableMessagingDelegate.swift; sourceTree = "<group>"; };
 		240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Cache+Messaging.swift"; sourceTree = "<group>"; };
+		240436C92C6EAB43008CCD6D /* ContentCardSchemaData+MyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentCardSchemaData+MyCard.swift"; sourceTree = "<group>"; };
 		240BDFF52B72E83E00AE8547 /* mockPropositionItem.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = mockPropositionItem.json; sourceTree = "<group>"; };
 		240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedStateResult+Messaging.swift"; sourceTree = "<group>"; };
 		240FC42D2AA920D400AFEEEB /* ParsedPropositions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsedPropositions.swift; sourceTree = "<group>"; };
@@ -691,6 +693,7 @@
 				092A77F12A757CB40026D325 /* CodeBasedOffersView.swift */,
 				096E19912A758D1600D4EBCF /* ContentCardDetailView.swift */,
 				094C4E9D2A74FC4200D99C70 /* ContentCardListView.swift */,
+				240436C92C6EAB43008CCD6D /* ContentCardSchemaData+MyCard.swift */,
 				091881F52A16C2D600615481 /* ContentCardsView.swift */,
 				0969D6352A760AF900A00BF7 /* CustomHtmlView.swift */,
 				0969D6332A75D55E00A00BF7 /* CustomImageView.swift */,
@@ -1818,6 +1821,7 @@
 				0969D6342A75D55E00A00BF7 /* CustomImageView.swift in Sources */,
 				094C4E9E2A74FC4200D99C70 /* ContentCardListView.swift in Sources */,
 				091881E92A16BAE300615481 /* HomeView.swift in Sources */,
+				240436CA2C6EAB43008CCD6D /* ContentCardSchemaData+MyCard.swift in Sources */,
 				092A77F22A757CB40026D325 /* CodeBasedOffersView.swift in Sources */,
 				0969D63C2A7A0EF600A00BF7 /* CustomTextView.swift in Sources */,
 				096E19922A758D1600D4EBCF /* ContentCardDetailView.swift in Sources */,
