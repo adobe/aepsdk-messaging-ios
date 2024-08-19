@@ -13,7 +13,7 @@
 import AEPServices
 import Foundation
 
-@available(*, deprecated, renamed: "ContentCard")
+@available(*, deprecated, message: "'FeedItem' will be removed in the next major version of AEPMessaging. Use `ContentCardSchemaData` instead.")
 @objc(AEPFeedItem)
 @objcMembers
 public class FeedItem: NSObject, Codable {
@@ -76,7 +76,7 @@ public class FeedItem: NSObject, Codable {
     }
 }
 
-@available(*, deprecated, renamed: "ContentCard")
+@available(*, deprecated, message: "'FeedItem' will be removed in the next major version of AEPMessaging. Use `ContentCardSchemaData` instead.")
 public extension FeedItem {
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let parent = parent else {
