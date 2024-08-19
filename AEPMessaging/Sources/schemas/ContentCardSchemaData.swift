@@ -92,6 +92,7 @@ extension ContentCardSchemaData {
 public extension ContentCardSchemaData {
     /// Tries to convert the `content` of this `ContentCardSchemaData` into a `ContentCard` object.
     /// Returns `nil` if the `contentType` is not equal to `.applicationJson` or the data in `content` is not decodable into a `ContentCard`.
+    @available(*, deprecated, message: "'ContentCard' will be removed in the next major version of AEPMessaging. Use `ContentCardSchemaData.content` instead.")
     func getContentCard() -> ContentCard? {
         guard contentType == .applicationJson,
               let contentAsJsonData = try? JSONSerialization.data(withJSONObject: content, options: .prettyPrinted)

@@ -34,7 +34,7 @@ import UserNotifications
 
         // Checking if the message has the _xdm key that contains tracking information
         guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "XDM specific fields are missing from push notification response. Ignoring to track push notification.")
+            Log.trace(label: MessagingConstants.LOG_TAG, "XDM fields containing tracking data are not present in the received push notification response. No push interaction tracking will be done for the notification.")
             closure?(.noTrackingData)
             return
         }
