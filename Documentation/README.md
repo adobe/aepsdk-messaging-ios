@@ -37,7 +37,7 @@
 - Developer documentation
   - [API usage](./sources/propositions/developer-documentation/api-usage.md)
   - Public classes
-    - [ContentCard](./sources/propositions/developer-documentation/classes/content-card.md)    
+    - [ContentCard - DEPRECATED](./sources/propositions/developer-documentation/classes/content-card.md)
     - [Proposition](./sources/propositions/developer-documentation/classes/proposition.md)
     - [PropositionItem](./sources/propositions/developer-documentation/classes/proposition-item.md)
     - [Surface](./sources/propositions/developer-documentation/classes/surface.md)
