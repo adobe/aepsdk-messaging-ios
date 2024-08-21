@@ -14,6 +14,7 @@ import Foundation
 import XCTest
 
 @testable import AEPMessaging
+@testable import AEPCore
 import AEPServices
 import AEPTestUtils
 
@@ -26,7 +27,14 @@ class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
     let mockContentValue = "value"
     let mockMetaKey = "metaKey"
     let mockMetaValue = "value"
+    let mockPropositionItem = MockPropositionItem(itemId: "itemId", schema: .contentCard, itemData: [:])
+    let mockProposition = MockProposition(uniqueId: "", scope: "", scopeDetails: [:], items: [])
+    let mockRuntime = TestableExtensionRuntime()
         
+    override func setUp() {
+        EventHub.shared.start()
+    }
+    
     func getDecodedContentCard(fromString: String) -> ContentCardSchemaData? {
         let decoder = JSONDecoder()
         let contentCardData = fromString.data(using: .utf8)!
@@ -195,6 +203,52 @@ class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
         
         // verify
         XCTAssertNil(result)
+    }
+    
+    func testTrackInteract() throws {
+        // setup
+        let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"title\":\"fiTitle\",\"body\":\"fiBody\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}"
+        guard let contentCardSchemaData = getDecodedContentCard(fromString: feedJson) else {
+            XCTFail("unable to decode feedJson")
+            return
+        }
+        contentCardSchemaData.parent = mockPropositionItem
+        
+        // test
+        contentCardSchemaData.track("myInteraction", withEdgeEventType: .interact)
+        
+        // verify
+        XCTAssertTrue(mockPropositionItem.trackCalled)
+        XCTAssertEqual("myInteraction", mockPropositionItem.paramTrackInteraction)
+        XCTAssertEqual(.interact, mockPropositionItem.paramTrackEventType)
+        XCTAssertNil(mockPropositionItem.paramTrackTokens)
+    }
+    
+    func testTrackDismiss() throws {
+        // setup
+        let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"title\":\"fiTitle\",\"body\":\"fiBody\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}"
+        guard let contentCardSchemaData = getDecodedContentCard(fromString: feedJson) else {
+            XCTFail("unable to decode feedJson")
+            return
+        }
+        contentCardSchemaData.parent = mockPropositionItem
+        mockPropositionItem.proposition = mockProposition
+        let eventHistoryWriteExpectation = XCTestExpectation(description: "eventHistory write event should be dispatched.")
+        MobileCore.registerEventListener(type: EventType.messaging,
+                                         source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE) { event in
+            eventHistoryWriteExpectation.fulfill()
+        }
+                        
+        // test
+        contentCardSchemaData.track(withEdgeEventType: .dismiss)
+        
+        
+        // verify
+        XCTAssertTrue(mockPropositionItem.trackCalled)
+        XCTAssertNil(mockPropositionItem.paramTrackInteraction)
+        XCTAssertEqual(.dismiss, mockPropositionItem.paramTrackEventType)
+        XCTAssertNil(mockPropositionItem.paramTrackTokens)
+        wait(for: [eventHistoryWriteExpectation], timeout: 2)
     }
     
     // TEST HELPER

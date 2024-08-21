@@ -119,5 +119,11 @@ public extension ContentCardSchemaData {
             return
         }
         parent.track(interaction, withEdgeEventType: eventType)
+
+        /// MOB-21626 - manually write a disqualify event to event history if the card is being dismissed
+        /// this code will be removed later when we have rule consequences to manage the event history write
+        if eventType == .dismiss, let activityId = parent.proposition?.activityId, !activityId.isEmpty {
+            PropositionHistory.record(activityId: activityId, eventType: .disqualify)
+        }
     }
 }
