@@ -23,7 +23,7 @@ enum PropositionHistory {
     ///  - activityId: activity id for this interaction
     ///  - eventType: `MessagingEdgeEventType` to be recorded
     ///  - interaction: if provided, adds a custom interaction to the hash
-    static func record(activityId: String, eventType: MessagingEdgeEventType, interaction: String?) {
+    static func record(activityId: String, eventType: MessagingEdgeEventType, interaction: String? = nil) {
         guard !activityId.isEmpty else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring request to record PropositionHistory - activityId is empty.")
             return
