@@ -224,7 +224,7 @@ class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
         XCTAssertNil(mockPropositionItem.paramTrackTokens)
     }
     
-    func testTrackDismiss() throws {
+    func testTrackDismissHappy() throws {
         // setup
         let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"title\":\"fiTitle\",\"body\":\"fiBody\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}"
         guard let contentCardSchemaData = getDecodedContentCard(fromString: feedJson) else {
@@ -241,7 +241,32 @@ class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
                         
         // test
         contentCardSchemaData.track(withEdgeEventType: .dismiss)
-        
+                
+        // verify
+        XCTAssertTrue(mockPropositionItem.trackCalled)
+        XCTAssertNil(mockPropositionItem.paramTrackInteraction)
+        XCTAssertEqual(.dismiss, mockPropositionItem.paramTrackEventType)
+        XCTAssertNil(mockPropositionItem.paramTrackTokens)
+        wait(for: [eventHistoryWriteExpectation], timeout: 2)
+    }
+    
+    func testTrackDismissNoActivityId() throws {
+        // setup
+        let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"title\":\"fiTitle\",\"body\":\"fiBody\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}"
+        guard let contentCardSchemaData = getDecodedContentCard(fromString: feedJson) else {
+            XCTFail("unable to decode feedJson")
+            return
+        }
+        contentCardSchemaData.parent = mockPropositionItem
+        let eventHistoryWriteExpectation = XCTestExpectation(description: "eventHistory write event should be dispatched.")
+        eventHistoryWriteExpectation.isInverted = true
+        MobileCore.registerEventListener(type: EventType.messaging,
+                                         source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE) { event in
+            eventHistoryWriteExpectation.fulfill()
+        }
+                        
+        // test
+        contentCardSchemaData.track(withEdgeEventType: .dismiss)        
         
         // verify
         XCTAssertTrue(mockPropositionItem.trackCalled)

@@ -24,6 +24,4 @@ class MockPropositionItem: PropositionItem {
         paramTrackEventType = eventType
         paramTrackTokens = tokens
     }
-    
-    
 }
