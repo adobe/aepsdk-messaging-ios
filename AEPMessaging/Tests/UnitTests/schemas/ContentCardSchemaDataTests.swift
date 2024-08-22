@@ -266,7 +266,7 @@ class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
         }
                         
         // test
-        contentCardSchemaData.track(withEdgeEventType: .dismiss)        
+        contentCardSchemaData.track(withEdgeEventType: .dismiss)
         
         // verify
         XCTAssertTrue(mockPropositionItem.trackCalled)

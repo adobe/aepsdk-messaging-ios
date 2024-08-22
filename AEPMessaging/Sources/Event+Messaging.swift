@@ -16,6 +16,31 @@ import CoreGraphics
 import Foundation
 
 extension Event {
+    // MARK: - Event History handling
+    var isDisqualifyEvent: Bool {
+        isMessagingType && isEventHistoryWriteSource && eventHistoryEventType == .disqualify
+    }
+    
+    var eventHistoryActivityId: String? {
+        iamHistoryMap?["id"]
+    }
+    
+    private var isEventHistoryWriteSource: Bool {
+        source == MessagingConstants.Event.Source.EVENT_HISTORY_WRITE
+    }
+    
+    private var eventHistoryEventType: MessagingEdgeEventType? {
+        guard let eventTypeString = iamHistoryMap?["eventType"] else {
+            return nil
+        }
+        
+        return MessagingEdgeEventType(fromType: eventTypeString)
+    }
+    
+    private var iamHistoryMap: [String: String]? {
+        data?["iam"] as? [String: String]
+    }
+    
     // MARK: - In-app Message Consequence Event Handling
 
     var isSchemaConsequence: Bool {

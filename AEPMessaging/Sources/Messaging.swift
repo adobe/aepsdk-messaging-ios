@@ -85,10 +85,10 @@ public class Messaging: NSObject, Extension {
     }
 
     /// holds content cards that the user has qualified for
-    private var _contentCardsBySurface: [Surface: [Proposition]] = [:]
-    private var contentCardsBySurface: [Surface: [Proposition]] {
-        get { queue.sync { self._contentCardsBySurface } }
-        set { queue.async { self._contentCardsBySurface = newValue } }
+    private var _qualifiedContentCardsBySurface: [Surface: [Proposition]] = [:]
+    private var qualifiedContentCardsBySurface: [Surface: [Proposition]] {
+        get { queue.sync { self._qualifiedContentCardsBySurface } }
+        set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
     }
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
@@ -155,6 +155,11 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.system,
                          source: EventSource.debug,
                          listener: handleDebugEvent)
+        
+        // register listener for handling event history write events
+        registerListener(type: EventType.messaging,
+                         source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE,
+                         listener: handleEventHistoryWrite)
 
         // Handler function called for each queued event. If the queued event is a get propositions event, process it
         // otherwise if it is an Edge event to update propositions, process it only if it is completed.
@@ -198,6 +203,113 @@ public class Messaging: NSObject, Extension {
         return true
     }
 
+    // MARK: - Event Handers
+
+    /// Processes the events in the event queue in the order they were received.
+    ///
+    /// A valid `Configuration` and `EdgeIdentity` shared state is required for processing events.
+    ///
+    /// - Parameters:
+    ///   - event: An `Event` to be processed
+    func handleProcessEvent(_ event: Event) {
+        guard event.data != nil else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Process event handling ignored as event does not have any data - `\(event.id)`.")
+            return
+        }
+
+        // hard dependency on configuration shared state
+        guard getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value != nil else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
+            return
+        }
+
+        // handle an event to request propositions from the remote
+        if event.isUpdatePropositionsEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update propositions from the remote.")
+            fetchPropositions(event, for: event.surfaces ?? [])
+            return
+        }
+
+        // handle an event to get cached propositions from the SDK
+        if event.isGetPropositionsEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
+            // Queue the get propositions event in internal events queue to ensure any prior update requests are completed
+            // before it is processed.
+            eventsQueue.add(event)
+            return
+        }
+
+        // handle an event to track propositions
+        if event.isTrackPropositionsEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to track propositions.")
+            trackMessages(event)
+            return
+        }
+
+        // handle an event for refreshing in-app messages from the remote
+        if event.isRefreshMessageEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing manual request to refresh In-App Message definitions from the remote.")
+            fetchPropositions(event)
+            return
+        }
+
+        // hard dependency on edge identity module for ecid
+        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event)?.value else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, for valid xdm shared state from edge identity - '\(event.id.uuidString)'.")
+            return
+        }
+
+        if event.isGenericIdentityRequestContentEvent {
+            guard let token = event.token, !token.isEmpty else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
+                return
+            }
+
+            // If the push token is valid update the shared state.
+            runtime.createSharedState(data: [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token], event: event)
+
+            // get identityMap from the edge identity xdm shared state
+            guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available" +
+                    "from edge identity xdm shared state - '\(event.id.uuidString)'.")
+                return
+            }
+
+            // get the ECID array from the identityMap
+            guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
+                  !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
+                  !ecid.isEmpty
+            else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
+                return
+            }
+
+            sendPushToken(ecid: ecid, token: token, event: event)
+        }
+
+        // Check if the event type is `MessagingConstants.Event.EventType.messaging` and
+        // eventSource is `EventSource.requestContent` handle processing of the tracking information
+        if event.isMessagingRequestContentEvent {
+            if let clickThroughUrl = event.pushClickThroughUrl {
+                DispatchQueue.main.async {
+                    ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
+                }
+            }
+            handleTrackingInfo(event: event)
+            return
+        }
+    }
+
+    /// Responds to event history write events.
+    /// Only current requirement is to remove cached content cards on a disqualify write
+    func handleEventHistoryWrite(_ event: Event) {
+        guard event.isDisqualifyEvent, let activityId = event.eventHistoryActivityId else {
+            return
+        }
+        
+        removePropositionFromQualifiedCards(for: activityId)
+    }
+    
     // MARK: - In-app Messaging methods
 
     /// Processes debug events triggered by the system.
@@ -240,12 +352,12 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    /// Prevents multiple propositions from being in `contentCardsBySurface` at the same time
+    /// Prevents multiple propositions from being in `qualifiedContentCardsBySurface` at the same time
     /// If an existing entry for a proposition is found, it is replaced with the value in `propositions`.
     /// If no prior entry exists for a proposition, a `trigger` event will be sent (and written to event history).
     private func addOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface) {
-        let startingCount = contentCardsBySurface[surface]?.count ?? 0
-        if var existingPropositionsArray = contentCardsBySurface[surface] {
+        let startingCount = qualifiedContentCardsBySurface[surface]?.count ?? 0
+        if var existingPropositionsArray = qualifiedContentCardsBySurface[surface] {
             for proposition in propositions {
                 if let index = existingPropositionsArray.firstIndex(of: proposition) {
                     existingPropositionsArray.remove(at: index)
@@ -255,20 +367,37 @@ public class Messaging: NSObject, Extension {
 
                 existingPropositionsArray.append(proposition)
             }
-            contentCardsBySurface[surface] = existingPropositionsArray
+            qualifiedContentCardsBySurface[surface] = existingPropositionsArray
         } else {
             for proposition in propositions {
                 proposition.items.first?.track(withEdgeEventType: .trigger)
             }
-            contentCardsBySurface[surface] = propositions
+            qualifiedContentCardsBySurface[surface] = propositions
         }
 
-        let cardCount = contentCardsBySurface[surface]?.count ?? 0
+        let cardCount = qualifiedContentCardsBySurface[surface]?.count ?? 0
         if startingCount != cardCount {
             if cardCount > 0 {
                 Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for \(cardCount) content card(s) for surface \(surface.uri).")
             } else {
                 Log.trace(label: MessagingConstants.LOG_TAG, "User has not qualified for any content cards for surface \(surface.uri).")
+            }
+        }
+    }
+    
+    /// Removes the `Proposition` from `qualifiedContentCardsBySurface` based on provided `activityId`.
+    ///
+    /// - Parameter activityId: the activityId of the `Proposition` to be removed from cache.
+    func removePropositionFromQualifiedCards(for activityId: String) {
+        // find the matching proposition in `qualifiedContentCardsBySurface`
+        for (surface, propositions) in qualifiedContentCardsBySurface {
+            if let matchedProposition = propositions.filter({ $0.activityId == activityId }).first,
+               let index = propositions.firstIndex(of: matchedProposition) {
+                // we found the matching proposition - remove it from our cache
+                var updatedPropositionsForSurface = propositions
+                updatedPropositionsForSurface.remove(at: index)
+                qualifiedContentCardsBySurface[surface] = updatedPropositionsForSurface
+                return
             }
         }
     }
@@ -547,7 +676,7 @@ public class Messaging: NSObject, Extension {
         }
 
         // get requested content cards from cache
-        let requestedContentCards = contentCardsBySurface.filter { surfaces.contains($0.key) }
+        let requestedContentCards = qualifiedContentCardsBySurface.filter { surfaces.contains($0.key) }
 
         // get requested propositions (cbe) from cache
         let requestedPropositions = retrieveCachedPropositions(for: requestedSurfaces)
@@ -638,104 +767,7 @@ public class Messaging: NSObject, Extension {
             return
         }
     }
-
-    // MARK: - Event Handers
-
-    /// Processes the events in the event queue in the order they were received.
-    ///
-    /// A valid `Configuration` and `EdgeIdentity` shared state is required for processing events.
-    ///
-    /// - Parameters:
-    ///   - event: An `Event` to be processed
-    func handleProcessEvent(_ event: Event) {
-        guard event.data != nil else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Process event handling ignored as event does not have any data - `\(event.id)`.")
-            return
-        }
-
-        // hard dependency on configuration shared state
-        guard getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value != nil else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
-            return
-        }
-
-        // handle an event to request propositions from the remote
-        if event.isUpdatePropositionsEvent {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update propositions from the remote.")
-            fetchPropositions(event, for: event.surfaces ?? [])
-            return
-        }
-
-        // handle an event to get cached propositions from the SDK
-        if event.isGetPropositionsEvent {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
-            // Queue the get propositions event in internal events queue to ensure any prior update requests are completed
-            // before it is processed.
-            eventsQueue.add(event)
-            return
-        }
-
-        // handle an event to track propositions
-        if event.isTrackPropositionsEvent {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to track propositions.")
-            trackMessages(event)
-            return
-        }
-
-        // handle an event for refreshing in-app messages from the remote
-        if event.isRefreshMessageEvent {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Processing manual request to refresh In-App Message definitions from the remote.")
-            fetchPropositions(event)
-            return
-        }
-
-        // hard dependency on edge identity module for ecid
-        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event)?.value else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, for valid xdm shared state from edge identity - '\(event.id.uuidString)'.")
-            return
-        }
-
-        if event.isGenericIdentityRequestContentEvent {
-            guard let token = event.token, !token.isEmpty else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
-                return
-            }
-
-            // If the push token is valid update the shared state.
-            runtime.createSharedState(data: [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token], event: event)
-
-            // get identityMap from the edge identity xdm shared state
-            guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available" +
-                    "from edge identity xdm shared state - '\(event.id.uuidString)'.")
-                return
-            }
-
-            // get the ECID array from the identityMap
-            guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
-                  !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
-                  !ecid.isEmpty
-            else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
-                return
-            }
-
-            sendPushToken(ecid: ecid, token: token, event: event)
-        }
-
-        // Check if the event type is `MessagingConstants.Event.EventType.messaging` and
-        // eventSource is `EventSource.requestContent` handle processing of the tracking information
-        if event.isMessagingRequestContentEvent {
-            if let clickThroughUrl = event.pushClickThroughUrl {
-                DispatchQueue.main.async {
-                    ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
-                }
-            }
-            handleTrackingInfo(event: event)
-            return
-        }
-    }
-
+ 
     func propositionInfoFor(messageId: String) -> PropositionInfo? {
         propositionInfo[messageId]
     }
