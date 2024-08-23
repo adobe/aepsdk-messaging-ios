@@ -86,7 +86,7 @@ public class Messaging: NSObject, Extension {
 
     /// holds content cards that the user has qualified for
     private var _qualifiedContentCardsBySurface: [Surface: [Proposition]] = [:]
-    private var qualifiedContentCardsBySurface: [Surface: [Proposition]] {
+    var qualifiedContentCardsBySurface: [Surface: [Proposition]] {
         get { queue.sync { self._qualifiedContentCardsBySurface } }
         set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
     }
@@ -388,15 +388,13 @@ public class Messaging: NSObject, Extension {
     /// Removes the `Proposition` from `qualifiedContentCardsBySurface` based on provided `activityId`.
     ///
     /// - Parameter activityId: the activityId of the `Proposition` to be removed from cache.
-    func removePropositionFromQualifiedCards(for activityId: String) {
+    private func removePropositionFromQualifiedCards(for activityId: String) {
         // find the matching proposition in `qualifiedContentCardsBySurface`
         for (surface, propositions) in qualifiedContentCardsBySurface {
             if let matchedProposition = propositions.filter({ $0.activityId == activityId }).first,
                let index = propositions.firstIndex(of: matchedProposition) {
                 // we found the matching proposition - remove it from our cache
-                var updatedPropositionsForSurface = propositions
-                updatedPropositionsForSurface.remove(at: index)
-                qualifiedContentCardsBySurface[surface] = updatedPropositionsForSurface
+                qualifiedContentCardsBySurface[surface]?.remove(at: index)
                 return
             }
         }

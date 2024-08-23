@@ -663,4 +663,117 @@ class EventPlusMessagingTests: XCTestCase {
         // verify
         XCTAssertTrue(result)
     }
+    
+    func testIsDisqualifyEventWrongType() throws {
+        // setup
+        let eventData: [String: Any] = [
+            "iam": [
+                "id": "abc",
+                "eventType": "disqualify"
+            ] as [String: String]
+        ]
+        let event = Event(name: "test",
+                          type: "wrong event type",
+                          source: "com.adobe.eventSource.eventHistoryWrite",
+                          data: eventData)
+        
+        // test
+        let result = event.isDisqualifyEvent
+        
+        // verify
+        XCTAssertFalse(result)
+    }
+    
+    func testIsDisqualifyEventWrongSource() throws {
+        // setup
+        let eventData: [String: Any] = [
+            "iam": [
+                "id": "abc",
+                "eventType": "disqualify"
+            ] as [String: String]
+        ]
+        let event = Event(name: "test",
+                          type: EventType.messaging,
+                          source: "wrong source",
+                          data: eventData)
+        
+        // test
+        let result = event.isDisqualifyEvent
+        
+        // verify
+        XCTAssertFalse(result)
+    }
+    
+    func testIsDisqualifyEventWrongEventTypeInData() throws {
+        // setup
+        let eventData: [String: Any] = [
+            "iam": [
+                "id": "abc",
+                "eventType": "not disqualify"
+            ] as [String: String]
+        ]
+        let event = Event(name: "test",
+                          type: EventType.messaging,
+                          source: "com.adobe.eventSource.eventHistoryWrite",
+                          data: eventData)
+        
+        // test
+        let result = event.isDisqualifyEvent
+        
+        // verify
+        XCTAssertFalse(result)
+    }
+    
+    func testEventHistoryActivityIdHappy() throws {
+        // setup
+        let eventData: [String: Any] = [
+            "iam": [
+                "id": "abc",
+                "eventType": "disqualify"
+            ] as [String: String]
+        ]
+        let event = Event(name: "test",
+                          type: EventType.messaging,
+                          source: "com.adobe.eventSource.eventHistoryWrite",
+                          data: eventData)
+        
+        // test
+        let result = event.eventHistoryActivityId
+        
+        // verify
+        XCTAssertEqual("abc", result)
+    }
+    
+    func testEventHistoryActivityIdNoIdInEventHistoryMap() throws {
+        // setup
+        let eventData: [String: Any] = [
+            "iam": [
+                "eventType": "disqualify"
+            ] as [String: String]
+        ]
+        let event = Event(name: "test",
+                          type: EventType.messaging,
+                          source: "com.adobe.eventSource.eventHistoryWrite",
+                          data: eventData)
+        
+        // test
+        let result = event.eventHistoryActivityId
+        
+        // verify
+        XCTAssertNil(result)
+    }
+    
+    func testEventHistoryActivityIdNoEventHistoryMap() throws {
+        // setup
+        let event = Event(name: "test",
+                          type: EventType.messaging,
+                          source: "com.adobe.eventSource.eventHistoryWrite",
+                          data: nil)
+        
+        // test
+        let result = event.eventHistoryActivityId
+        
+        // verify
+        XCTAssertNil(result)
+    }
 }

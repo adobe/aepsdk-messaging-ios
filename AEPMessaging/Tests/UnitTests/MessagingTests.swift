@@ -24,10 +24,11 @@ class MessagingTests: XCTestCase {
     var mockRuntime: TestableExtensionRuntime!
     var mockNetworkService: MockNetworkService?
     var mockMessagingRulesEngine: MockMessagingRulesEngine!
-    var mockFeedRulesEngine: MockFeedRulesEngine!
+    var mockContentCardRulesEngine: MockContentCardRulesEngine!
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
-    let mockFeedSurface = Surface(path: "promos/feed1")
+    let mockSurface = Surface(path: "promos/feed1")
+    var mockProposition: MockProposition!
 
     // Mock constants
     let MOCK_ECID = "mock_ecid"
@@ -35,6 +36,8 @@ class MessagingTests: XCTestCase {
     let MOCK_EXP_ORG_ID = "mock_exp_org_id"
     let MOCK_PUSH_TOKEN = "mock_pushToken"
     let EXPERIENCE_CLOUD_ORG = "experienceCloud.org"
+    let MOCK_PROPOSITION_ID = "mockPropId"
+    let MOCK_ACTIVITY_ID = "mockActivityId"
     
     // before each
     override func setUp() {
@@ -42,10 +45,15 @@ class MessagingTests: XCTestCase {
         mockRuntime = TestableExtensionRuntime()
         mockCache = MockCache(name: "mockCache")
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mockLaunchRulesEngine", extensionRuntime: mockRuntime)
-        mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine)
+        mockContentCardRulesEngine = MockContentCardRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine, cache: mockCache)
+        mockProposition = MockProposition(uniqueId: MOCK_PROPOSITION_ID, 
+                                          scope: mockSurface.uri,
+                                          scopeDetails: [
+                                            "activity": [ "id": MOCK_ACTIVITY_ID ]],
+                                          items: [])
         
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockFeedSurface.uri, cache: mockCache)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache)
         messaging.onRegistered()
         
         mockNetworkService = MockNetworkService()
@@ -156,7 +164,7 @@ class MessagingTests: XCTestCase {
 //                          data: [
 //                            "updatepropositions": true,
 //                            "surfaces": [
-//                                [ "uri": mockFeedSurface.uri ]
+//                                [ "uri": mockSurface.uri ]
 //                            ]
 //                          ])
 //        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
@@ -860,7 +868,7 @@ class MessagingTests: XCTestCase {
 //        let propositions: [Proposition] = []
 //        
 //        // test
-//        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockFeedSurface], clearExisting: false)
+//        let rules = messaging.parsePropositions(propositions, expectedSurfaces: [mockSurface], clearExisting: false)
 //
 //        // verify
 //        XCTAssertEqual(0, rules.count)
@@ -1000,7 +1008,91 @@ class MessagingTests: XCTestCase {
         XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
     }
     
+    func testHandleEventHistoryWriteHappy() throws {
+        // setup
+        let event = getGenericEventHistoryDisqualifyEvent()
+        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
+        XCTAssertEqual(1, propsForMockSurface?.count)
+        
+        // test
+        messaging.handleEventHistoryWrite(event)
+        
+        // verify
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
+        XCTAssertEqual(0, propsForMockSurfaceAfter?.count)
+    }
+    
+    func testHandleEventHistoryWriteNotDisqualifyEvent() throws {
+        // setup
+        let event = Event(name: "name", type: "type", source: "source", data: nil)
+        
+        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
+        XCTAssertEqual(1, propsForMockSurface?.count)
+        
+        // test
+        messaging.handleEventHistoryWrite(event)
+        
+        // verify
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
+        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
+    }
+    
+    func testHandleEventHistoryWriteNoActivityIdInEvent() throws {
+        // setup
+        let event = getGenericEventHistoryDisqualifyEvent(iamMap: ["eventType": "disqualify"])
+        
+        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
+        XCTAssertEqual(1, propsForMockSurface?.count)
+        
+        // test
+        messaging.handleEventHistoryWrite(event)
+        
+        // verify
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
+        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
+    }
+    
+    func testHandleEventHistoryWriteWrongActivityIdInEvent() throws {
+        // setup
+        let event = getGenericEventHistoryDisqualifyEvent(iamMap: ["eventType": "disqualify", "id": "non-matching-id"])
+        
+        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
+        XCTAssertEqual(1, propsForMockSurface?.count)
+        
+        // test
+        messaging.handleEventHistoryWrite(event)
+        
+        // verify
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
+        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
+    }
+            
     // MARK: - Helpers
+    
+    func getGenericEventHistoryDisqualifyEvent(iamMap: [String: String]? = nil) -> Event {
+        let eventData: [String: Any] = [
+            "iam": iamMap ?? [
+                "id": MOCK_ACTIVITY_ID,
+                "eventType": "disqualify"
+            ] as [String: String]
+        ]
+        return Event(name: "test",
+                     type: EventType.messaging,
+                     source: "com.adobe.eventSource.eventHistoryWrite",
+                     data: eventData)
+    }
     
     func readJSONFromFile(fileName: String) -> [String: Any]? {
         var json: Any?

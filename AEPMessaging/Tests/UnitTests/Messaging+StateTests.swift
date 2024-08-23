@@ -21,7 +21,7 @@ class MessagingPlusStateTests: XCTestCase {
     var messaging: Messaging!
     var mockMessagingRulesEngine: MockMessagingRulesEngine!
     var mockLaunchRulesEngineForIAM: MockLaunchRulesEngine!
-    var mockFeedRulesEngine: MockFeedRulesEngine!
+    var mockFeedRulesEngine: MockContentCardRulesEngine!
     var mockLaunchRulesEngineForFeeds: MockLaunchRulesEngine!
     var mockCache: MockCache!
     let mockIamSurface = Surface(uri: "mobileapp://com.apple.dt.xctest.tool")
@@ -42,7 +42,7 @@ class MessagingPlusStateTests: XCTestCase {
         mockLaunchRulesEngineForIAM = MockLaunchRulesEngine(name: "mockLaunchRulesEngineIAM", extensionRuntime: mockRuntime)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngineForIAM, cache: mockCache)
         mockLaunchRulesEngineForFeeds = MockLaunchRulesEngine(name: "mockLaunchRulesEngineFeeds", extensionRuntime: mockRuntime)
-        mockFeedRulesEngine = MockFeedRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngineForFeeds)
+        mockFeedRulesEngine = MockContentCardRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngineForFeeds)
         messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface.uri, cache: mockCache)
         
         mockPropositionItem = PropositionItem(itemId: "propItemId", schema: .defaultContent, itemData: [:])
