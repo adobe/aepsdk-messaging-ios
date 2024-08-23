@@ -17,30 +17,31 @@ import Foundation
 
 extension Event {
     // MARK: - Event History handling
+
     var isDisqualifyEvent: Bool {
         isMessagingType && isEventHistoryWriteSource && eventHistoryEventType == .disqualify
     }
-    
+
     var eventHistoryActivityId: String? {
         iamHistoryMap?[MessagingConstants.Event.History.Keys.MESSAGE_ID]
     }
-    
+
     private var isEventHistoryWriteSource: Bool {
         source == MessagingConstants.Event.Source.EVENT_HISTORY_WRITE
     }
-    
+
     private var eventHistoryEventType: MessagingEdgeEventType? {
         guard let eventTypeString = iamHistoryMap?[MessagingConstants.Event.History.Keys.EVENT_TYPE] else {
             return nil
         }
-        
+
         return MessagingEdgeEventType(fromPropositionEventType: eventTypeString)
     }
-    
+
     private var iamHistoryMap: [String: String]? {
         data?["iam"] as? [String: String]
     }
-    
+
     // MARK: - In-app Message Consequence Event Handling
 
     var isSchemaConsequence: Bool {

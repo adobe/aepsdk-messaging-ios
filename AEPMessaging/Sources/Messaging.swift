@@ -155,7 +155,7 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.system,
                          source: EventSource.debug,
                          listener: handleDebugEvent)
-        
+
         // register listener for handling event history write events
         registerListener(type: EventType.messaging,
                          source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE,
@@ -306,10 +306,10 @@ public class Messaging: NSObject, Extension {
         guard event.isDisqualifyEvent, let activityId = event.eventHistoryActivityId else {
             return
         }
-        
+
         removePropositionFromQualifiedCards(for: activityId)
     }
-    
+
     // MARK: - In-app Messaging methods
 
     /// Processes debug events triggered by the system.
@@ -384,7 +384,7 @@ public class Messaging: NSObject, Extension {
             }
         }
     }
-    
+
     /// Removes the `Proposition` from `qualifiedContentCardsBySurface` based on provided `activityId`.
     ///
     /// - Parameter activityId: the activityId of the `Proposition` to be removed from cache.
@@ -765,7 +765,7 @@ public class Messaging: NSObject, Extension {
             return
         }
     }
- 
+
     func propositionInfoFor(messageId: String) -> PropositionInfo? {
         propositionInfo[messageId]
     }

@@ -64,7 +64,7 @@ public enum MessagingEdgeEventType: Int {
             return nil
         }
     }
-    
+
     /// Initializes `MessagingEdgeEventType` with the provided `decisioning.propositionEventType` value
     /// - Parameter type: Event type string
     init?(fromPropositionEventType type: String) {

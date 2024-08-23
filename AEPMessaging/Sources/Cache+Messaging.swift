@@ -43,7 +43,7 @@ extension Cache {
     func updatePropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) {
         let existingPropositions = propositions ?? [:]
         var updatedPropositions = existingPropositions.merging(newPropositions ?? [:]) { _, new in new }
-        if let surfaces = surfaces {            
+        if let surfaces = surfaces {
             updatedPropositions = updatedPropositions.filter {
                 !surfaces.contains($0.key)
             }
