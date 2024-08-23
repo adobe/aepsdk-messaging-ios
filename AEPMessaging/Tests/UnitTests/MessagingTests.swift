@@ -10,7 +10,7 @@
 // governing permissions and limitations under the License.
 //
 
-import AEPCore
+@testable import AEPCore
 import AEPServices
 import AEPTestUtils
 import XCTest
@@ -38,6 +38,7 @@ class MessagingTests: XCTestCase {
     
     // before each
     override func setUp() {
+        EventHub.shared.start()
         mockRuntime = TestableExtensionRuntime()
         mockCache = MockCache(name: "mockCache")
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mockLaunchRulesEngine", extensionRuntime: mockRuntime)
@@ -62,9 +63,9 @@ class MessagingTests: XCTestCase {
         XCTAssertNoThrow(MobileCore.registerExtensions([Messaging.self]))
     }
     
-    /// validate that 7 listeners are registered onRegister
-    func testOnRegistered_sevenListenersAreRegistered() {
-        XCTAssertEqual(mockRuntime.listeners.count, 7)
+    /// validate that 8 listeners are registered onRegister
+    func testOnRegistered_eightListenersAreRegistered() {
+        XCTAssertEqual(mockRuntime.listeners.count, 8)
     }
     
     func testOnUnregisteredCallable() throws {

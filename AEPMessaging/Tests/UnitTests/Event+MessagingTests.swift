@@ -50,7 +50,7 @@ class EventPlusMessagingTests: XCTestCase {
     }
 
     // MARK: - Helpers
-
+    
     /// Gets an event to use for simulating a rules consequence
     private func getRulesResponseEvent(type: String? = MessagingConstants.ConsequenceTypes.SCHEMA,
                                triggeredConsequence: [String: Any]? = nil,
@@ -642,5 +642,25 @@ class EventPlusMessagingTests: XCTestCase {
        
         // verify
         XCTAssertEqual(.unknownError ,event.pushTrackingStatus)
+    }
+    
+    func testIsDisqualifyEventHappy() throws {
+        // setup
+        let eventData: [String: Any] = [
+            "iam": [
+                "id": "abc",
+                "eventType": "disqualify"
+            ] as [String: String]
+        ]
+        let event = Event(name: "test",
+                          type: EventType.messaging,
+                          source: "com.adobe.eventSource.eventHistoryWrite",
+                          data: eventData)
+        
+        // test
+        let result = event.isDisqualifyEvent
+        
+        // verify
+        XCTAssertTrue(result)
     }
 }

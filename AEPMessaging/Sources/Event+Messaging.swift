@@ -22,7 +22,7 @@ extension Event {
     }
     
     var eventHistoryActivityId: String? {
-        iamHistoryMap?["id"]
+        iamHistoryMap?[MessagingConstants.Event.History.Keys.MESSAGE_ID]
     }
     
     private var isEventHistoryWriteSource: Bool {
@@ -30,11 +30,11 @@ extension Event {
     }
     
     private var eventHistoryEventType: MessagingEdgeEventType? {
-        guard let eventTypeString = iamHistoryMap?["eventType"] else {
+        guard let eventTypeString = iamHistoryMap?[MessagingConstants.Event.History.Keys.EVENT_TYPE] else {
             return nil
         }
         
-        return MessagingEdgeEventType(fromType: eventTypeString)
+        return MessagingEdgeEventType(fromPropositionEventType: eventTypeString)
     }
     
     private var iamHistoryMap: [String: String]? {
