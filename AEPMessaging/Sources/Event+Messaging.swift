@@ -39,7 +39,7 @@ extension Event {
     }
 
     private var iamHistoryMap: [String: String]? {
-        data?["iam"] as? [String: String]
+        data?[MessagingConstants.Event.Data.Key.IAM_HISTORY] as? [String: String]
     }
 
     // MARK: - In-app Message Consequence Event Handling
