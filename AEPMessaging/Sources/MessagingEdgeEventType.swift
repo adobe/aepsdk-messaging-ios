@@ -64,6 +64,25 @@ public enum MessagingEdgeEventType: Int {
             return nil
         }
     }
+
+    /// Initializes `MessagingEdgeEventType` with the provided `decisioning.propositionEventType` value
+    /// - Parameter type: Event type string
+    init?(fromPropositionEventType type: String) {
+        switch type {
+        case MessagingConstants.XDM.Inbound.PropositionEventType.DISMISS:
+            self = .dismiss
+        case MessagingConstants.XDM.Inbound.PropositionEventType.TRIGGER:
+            self = .trigger
+        case MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT:
+            self = .interact
+        case MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY:
+            self = .display
+        case MessagingConstants.XDM.Inbound.PropositionEventType.DISQUALIFY:
+            self = .disqualify
+        default:
+            return nil
+        }
+    }
 }
 
 extension MessagingEdgeEventType {
