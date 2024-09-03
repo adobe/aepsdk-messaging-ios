@@ -50,6 +50,15 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         XCTAssertEqual(value, .display)
         XCTAssertEqual("decisioning.propositionDisplay", value?.toString())
     }
+    
+    func testDisqualify() throws {
+        // setup
+        let value = MessagingEdgeEventType(rawValue: 10)
+
+        // verify
+        XCTAssertEqual(value, .disqualify)
+        XCTAssertEqual("decisioning.propositionDisqualify", value?.toString())
+    }
 
     func testPushApplicationOpened() throws {
         // setup
@@ -93,6 +102,14 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         XCTAssertEqual(.display, value)
     }
     
+    func testInitFromStringDisqualify() throws {
+        // setup
+        let value = MessagingEdgeEventType(fromType: "decisioning.propositionDisqualify")
+        
+        // verify
+        XCTAssertEqual(.disqualify, value)
+    }
+    
     func testInitFromStringInteract() throws {
         // setup
         let value = MessagingEdgeEventType(fromType: "decisioning.propositionInteract")
@@ -125,8 +142,60 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         XCTAssertNil(value)
     }
     
+    func testInitFromPropositionEventTypeDismiss() throws {
+        // setup
+        let value = MessagingEdgeEventType(fromPropositionEventType: "dismiss")
+        
+        // verify
+        XCTAssertEqual(.dismiss, value)
+    }
+    
+    func testInitFromPropositionEventTypeTrigger() throws {
+        // setup
+        let value = MessagingEdgeEventType(fromPropositionEventType: "trigger")
+        
+        // verify
+        XCTAssertEqual(.trigger, value)
+    }
+    
+    func testInitFromPropositionEventTypeDisplay() throws {
+        // setup
+        let value = MessagingEdgeEventType(fromPropositionEventType: "display")
+        
+        // verify
+        XCTAssertEqual(.display, value)
+    }
+    
+    func testInitFromPropositionEventTypeInteract() throws {
+        // setup
+        let value = MessagingEdgeEventType(fromPropositionEventType: "interact")
+        
+        // verify
+        XCTAssertEqual(.interact, value)
+    }
+    
+    func testInitFromPropositionEventTypeDisqualify() throws {
+        // setup
+        let value = MessagingEdgeEventType(fromPropositionEventType: "disqualify")
+        
+        // verify
+        XCTAssertEqual(.disqualify, value)
+    }
+    
+    func testInitFromPropositionEventTypeDefault() throws {
+        // setup
+        let value = MessagingEdgeEventType(fromPropositionEventType: "nopenopenope")
+        
+        // verify
+        XCTAssertNil(value)
+    }
+    
     func testPropEventTypeDismiss() throws {
         XCTAssertEqual("dismiss", MessagingEdgeEventType.dismiss.propositionEventType)
+    }
+    
+    func testPropEventTypeDisqualify() throws {
+        XCTAssertEqual("disqualify", MessagingEdgeEventType.disqualify.propositionEventType)
     }
     
     func testPropEventTypeDisplay() throws {

@@ -16,13 +16,13 @@
 import AEPTestUtils
 import Foundation
 
-class MockFeedRulesEngine: ContentCardRulesEngine {
+class MockContentCardRulesEngine: ContentCardRulesEngine {
     let mockRuntime: TestableExtensionRuntime
     let mockRulesEngine: MockLaunchRulesEngine
 
     init(name _: String, runtime: ExtensionRuntime) {
         mockRuntime = TestableExtensionRuntime()
-        mockRulesEngine = MockLaunchRulesEngine(name: "mockFeedRulesEngine", extensionRuntime: runtime)
+        mockRulesEngine = MockLaunchRulesEngine(name: "mockContentCardRulesEngine", extensionRuntime: runtime)
         super.init(extensionRuntime: mockRuntime, launchRulesEngine: mockRulesEngine)
         //        super.init(name: name, extensionRuntime: runtime)
     }
