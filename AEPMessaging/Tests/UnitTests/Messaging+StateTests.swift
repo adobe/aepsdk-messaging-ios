@@ -60,6 +60,7 @@ class MessagingPlusStateTests: XCTestCase {
         
         // verify
         XCTAssertTrue(mockLaunchRulesEngineForIAM.replaceRulesCalled)
+        XCTAssertNotNil(mockLaunchRulesEngineForIAM.paramReplaceRulesRules)
     }
     
     func testLoadCachedPropositionsCacheDoesNotContainPropositions() throws {
