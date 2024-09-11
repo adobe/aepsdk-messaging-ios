@@ -61,6 +61,11 @@ class MessagingPlusStateTests: XCTestCase {
         // verify
         XCTAssertTrue(mockLaunchRulesEngineForIAM.replaceRulesCalled)
         XCTAssertNotNil(mockLaunchRulesEngineForIAM.paramReplaceRulesRules)
+        XCTAssertEqual(2, mockLaunchRulesEngineForIAM.paramReplaceRulesRules?.count)
+        let firstRule = mockLaunchRulesEngineForIAM.paramReplaceRulesRules?.first
+        XCTAssertEqual("6ac78390-84e3-4d35-b798-8e7080e69a68", firstRule?.consequences.first?.id, "last rule in the source json should be first in the array of rules.")
+        let lastRule = mockLaunchRulesEngineForIAM.paramReplaceRulesRules?.last
+        XCTAssertEqual("6ac78390-84e3-4d35-b798-8e7080e69a67", lastRule?.consequences.first?.id, "first rule in the source json should be last in the array of rules.")
     }
     
     func testLoadCachedPropositionsCacheDoesNotContainPropositions() throws {

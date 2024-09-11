@@ -778,20 +778,22 @@ public class Messaging: NSObject, Extension {
         propositionInfo[messageId]
     }
 
-    #if DEBUG
-        /// For testing purposes only
-        func propositionInfoCount() -> Int {
-            propositionInfo.count
-        }
+    // MARK: - debug methods below are used for testing purposes only
+#if DEBUG
+    func propositionInfoCount() -> Int {
+        propositionInfo.count
+    }
 
-        /// For testing purposes only
-        func inMemoryPropositionsCount() -> Int {
-            inMemoryPropositions.count
-        }
+    func inMemoryPropositionsCount() -> Int {
+        inMemoryPropositions.count
+    }
 
-        /// Used for testing only
-        func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
-            requestedSurfacesForEventId[eventId] = expectedSurfaces
-        }
-    #endif
+    func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
+        requestedSurfacesForEventId[eventId] = expectedSurfaces
+    }
+    
+    func callUpdateRulesEngines(with rules: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
+        updateRulesEngines(with: rules, requestedSurfaces: requestedSurfaces)
+    }
+#endif
 }
