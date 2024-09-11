@@ -624,7 +624,7 @@ public class Messaging: NSObject, Extension {
                 for (surface, surfaceRules) in newRules {
                     newRulesReordered[surface] = surfaceRules.reversed()
                 }
-                
+
                 // replace rules for each in-app surface we got back
                 inAppRulesBySurface.merge(newRulesReordered) { _, new in new }
 
@@ -779,21 +779,22 @@ public class Messaging: NSObject, Extension {
     }
 
     // MARK: - debug methods below are used for testing purposes only
-#if DEBUG
-    func propositionInfoCount() -> Int {
-        propositionInfo.count
-    }
 
-    func inMemoryPropositionsCount() -> Int {
-        inMemoryPropositions.count
-    }
+    #if DEBUG
+        func propositionInfoCount() -> Int {
+            propositionInfo.count
+        }
 
-    func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
-        requestedSurfacesForEventId[eventId] = expectedSurfaces
-    }
-    
-    func callUpdateRulesEngines(with rules: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
-        updateRulesEngines(with: rules, requestedSurfaces: requestedSurfaces)
-    }
-#endif
+        func inMemoryPropositionsCount() -> Int {
+            inMemoryPropositions.count
+        }
+
+        func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
+            requestedSurfacesForEventId[eventId] = expectedSurfaces
+        }
+
+        func callUpdateRulesEngines(with rules: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
+            updateRulesEngines(with: rules, requestedSurfaces: requestedSurfaces)
+        }
+    #endif
 }
