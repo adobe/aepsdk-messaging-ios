@@ -217,6 +217,7 @@ enum MessagingConstants {
                 static let INTERACT = "decisioning.propositionInteract"
                 static let DISMISS = "decisioning.propositionDismiss"
                 static let DISQUALIFY = "decisioning.propositionDisqualify"
+                static let SUPPRESSED = "decisioning.propositionSuppressDisplay"
                 static let PERSONALIZATION_REQUEST = "personalization.request"
             }
 
@@ -226,6 +227,11 @@ enum MessagingConstants {
                 static let INTERACT = "interact"
                 static let DISMISS = "dismiss"
                 static let DISQUALIFY = "disqualify"
+                static let SUPPRESSED = "suppressDisplay"
+            }
+            
+            enum SuppressionReason {
+                static let CONFLICT = "conflict"
             }
 
             enum Key {
