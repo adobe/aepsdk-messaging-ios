@@ -144,6 +144,7 @@
 		2469A60C2759999E00E56457 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60A2759999E00E56457 /* Main.storyboard */; };
 		2469A60E275999A000E56457 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60D275999A000E56457 /* Assets.xcassets */; };
 		2469A611275999A000E56457 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2469A60F275999A000E56457 /* LaunchScreen.storyboard */; };
+		246CF1442C923D23009CBE3A /* MockEvaluable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246CF1432C923D23009CBE3A /* MockEvaluable.swift */; };
 		246EF0602BFFC6B5002A9B22 /* PropositionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF05F2BFFC6B5002A9B22 /* PropositionHistory.swift */; };
 		246EF0622C013D4A002A9B22 /* ContentCardSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF0612C013D4A002A9B22 /* ContentCardSchemaData.swift */; };
 		246EF0642C013DED002A9B22 /* ContentCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246EF0632C013DED002A9B22 /* ContentCard.swift */; };
@@ -499,6 +500,7 @@
 		2469A60D275999A000E56457 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2469A610275999A000E56457 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2469A612275999A000E56457 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		246CF1432C923D23009CBE3A /* MockEvaluable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockEvaluable.swift; sourceTree = "<group>"; };
 		246EF05F2BFFC6B5002A9B22 /* PropositionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionHistory.swift; sourceTree = "<group>"; };
 		246EF0612C013D4A002A9B22 /* ContentCardSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardSchemaData.swift; sourceTree = "<group>"; };
 		246EF0632C013DED002A9B22 /* ContentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCard.swift; sourceTree = "<group>"; };
@@ -995,6 +997,7 @@
 				240436CB2C765C41008CCD6D /* MockPropositionItem.swift */,
 				2402745B29FC424000884DFE /* TestableMessagingDelegate.swift */,
 				243EA6DF2739D9D700195945 /* TestableMessagingMobileParameters.swift */,
+				246CF1432C923D23009CBE3A /* MockEvaluable.swift */,
 			);
 			path = TestHelpers;
 			sourceTree = "<group>";
@@ -1960,6 +1963,7 @@
 				246EF0682C068750002A9B22 /* ContentCardSchemaDataTests.swift in Sources */,
 				242920E92AC4EE2D000DB2CD /* Messaging+StateTests.swift in Sources */,
 				B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */,
+				246CF1442C923D23009CBE3A /* MockEvaluable.swift in Sources */,
 				2469A5E9274C107100E56457 /* MockCache.swift in Sources */,
 				242920DA2ABCF488000DB2CD /* RuleConsequence+MessagingTests.swift in Sources */,
 				92FC594626372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */,
@@ -2196,7 +2200,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.iamStagingTester;
+				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.priorityTester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -2229,7 +2233,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.iamStagingTester;
+				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.priorityTester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
