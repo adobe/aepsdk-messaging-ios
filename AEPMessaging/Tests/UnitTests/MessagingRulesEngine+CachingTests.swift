@@ -26,12 +26,6 @@ class MessagingRulesEngineCachingTests: XCTestCase {
     var mockCache: MockCache!
     let mockIamSurface = "mobileapp://com.apple.dt.xctest.tool"
 
-    struct MockEvaluable: Evaluable {
-        public func evaluate(in context: Context) -> Result<Bool, RulesFailure> {
-            return Result.success(true)
-        }
-    }
-
     override func setUp() {
         mockRuntime = TestableExtensionRuntime()
         mockRulesEngine = MockLaunchRulesEngine(name: "mockRulesEngine", extensionRuntime: mockRuntime)

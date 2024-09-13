@@ -617,8 +617,16 @@ public class Messaging: NSObject, Extension {
             case .inapp:
                 Log.trace(label: MessagingConstants.LOG_TAG, "Updating in-app message definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
 
+                /// MOB-21852 - iam items are returned in reverse priority order, so we need to flip the
+                /// order of the array prior to saving them and hydrating the rules engine.  this allows the
+                /// highest priority item to be shown first when rules engine evaluates top-down
+                var newRulesReordered: [Surface: [LaunchRule]] = [:]
+                for (surface, surfaceRules) in newRules {
+                    newRulesReordered[surface] = surfaceRules.reversed()
+                }
+
                 // replace rules for each in-app surface we got back
-                inAppRulesBySurface.merge(newRules) { _, new in new }
+                inAppRulesBySurface.merge(newRulesReordered) { _, new in new }
 
                 // remove any surfaces that were requested but had no in-app content returned
                 for surface in surfacesToRemove {
@@ -770,20 +778,23 @@ public class Messaging: NSObject, Extension {
         propositionInfo[messageId]
     }
 
+    // MARK: - debug methods below are used for testing purposes only
+
     #if DEBUG
-        /// For testing purposes only
         func propositionInfoCount() -> Int {
             propositionInfo.count
         }
 
-        /// For testing purposes only
         func inMemoryPropositionsCount() -> Int {
             inMemoryPropositions.count
         }
 
-        /// Used for testing only
         func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
             requestedSurfacesForEventId[eventId] = expectedSurfaces
+        }
+
+        func callUpdateRulesEngines(with rules: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
+            updateRulesEngines(with: rules, requestedSurfaces: requestedSurfaces)
         }
     #endif
 }
