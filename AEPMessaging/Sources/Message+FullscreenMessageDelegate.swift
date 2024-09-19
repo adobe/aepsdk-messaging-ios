@@ -27,6 +27,19 @@ extension Message: FullscreenMessageDelegate {
     }
 
     public func onShowFailure() {}
+    
+    public func onShowFailure(message: FullscreenMessage, error: PresentationError?) {
+        // record a message suppressDisplay event
+        guard let message = message.parent else {
+            return
+        }
+        
+        if message.autoTrack {
+            message.track(error?.getReason(), withEdgeEventType: .suppressDisplay)
+        }
+        message.recordEventHistory(eventType: .suppressDisplay, interaction: error?.getReason())
+    }
+    
     /// Informs the parent of the calling `message` that it has been dismissed.
     ///
     /// - Parameter message: the `FullscreenMessage` being dismissed

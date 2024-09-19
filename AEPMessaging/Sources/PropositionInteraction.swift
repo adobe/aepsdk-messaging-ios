@@ -66,17 +66,21 @@ struct PropositionInteraction: Codable {
             MessagingConstants.XDM.Inbound.Key.PROPOSITIONS: [propositionDetailsData]
         ]
 
-        // only add `propositionAction` data if this is an interact event
-        if
-            eventType == .interact,
-            let interaction = interaction {
-            let propositionAction: [String: String] = [
-                MessagingConstants.XDM.Inbound.Key.ID: interaction,
-                MessagingConstants.XDM.Inbound.Key.LABEL: interaction
-            ]
+        // two use cases for including `propositionAction`:
+        // 1. if this is an interact event, include `id` and `label`
+        // 2. if this is a suppressDisplay event, include `reason`
+        var propositionAction: [String: String] = [:]
+        if eventType == .interact, let interaction = interaction {
+            propositionAction[MessagingConstants.XDM.Inbound.Key.ID] = interaction
+            propositionAction[MessagingConstants.XDM.Inbound.Key.LABEL] = interaction
+        } else if eventType == .suppressDisplay {
+            propositionAction[MessagingConstants.XDM.Inbound.Key.REASON] = interaction ?? MessagingConstants.XDM.Inbound.SuppressionReason.CONFLICT
+        }
+        
+        if !propositionAction.isEmpty {
             decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_ACTION] = propositionAction
         }
-
+        
         let experience: [String: Any] = [
             MessagingConstants.XDM.Inbound.Key.DECISIONING: decisioning
         ]
