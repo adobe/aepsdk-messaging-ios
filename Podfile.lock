@@ -87,7 +87,7 @@ CHECKOUT OPTIONS:
     :commit: 686105a4d61287277418a1843225db2c819ed406
     :git: https://github.com/adobe/aepsdk-assurance-ios.git
   AEPCore:
-    :commit: 07772d2b6181cac84873359ee12456500ae616db
+    :commit: d123502251742eee2af2a2af89bf6a6cc3ca62d1
     :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
   AEPEdge:
     :commit: e6cac3ef8726e5323135361a7ca333336e770d02
@@ -99,16 +99,16 @@ CHECKOUT OPTIONS:
     :commit: 00c68d3a4586925b062fa3dddedfc585b0df1624
     :git: https://github.com/adobe/aepsdk-edgeidentity-ios.git
   AEPLifecycle:
-    :commit: 07772d2b6181cac84873359ee12456500ae616db
+    :commit: d123502251742eee2af2a2af89bf6a6cc3ca62d1
     :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
   AEPRulesEngine:
     :commit: 814672b136b6c71ab529a3f1366f3bf16cd9a532
     :git: https://github.com/adobe/aepsdk-rulesengine-ios.git
   AEPServices:
-    :commit: 07772d2b6181cac84873359ee12456500ae616db
+    :commit: d123502251742eee2af2a2af89bf6a6cc3ca62d1
     :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
   AEPSignal:
-    :commit: 07772d2b6181cac84873359ee12456500ae616db
+    :commit: d123502251742eee2af2a2af89bf6a6cc3ca62d1
     :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-testutils-ios.git

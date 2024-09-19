@@ -28,7 +28,7 @@ extension Message: FullscreenMessageDelegate {
 
     public func onShowFailure() {}
     
-    public func onShowFailure(message: FullscreenMessage, error: PresentationError?) {
+    public func onError(message: FullscreenMessage, error: PresentationError?) {
         // record a message suppressDisplay event
         guard let message = message.parent else {
             return
