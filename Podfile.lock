@@ -29,14 +29,14 @@ PODS:
 DEPENDENCIES:
   - AEPAnalytics (from `https://github.com/adobe/aepsdk-analytics-ios.git`, branch `staging`)
   - AEPAssurance (from `https://github.com/adobe/aepsdk-assurance-ios.git`, branch `staging`)
-  - AEPCore (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `dev-v5.3.0`)
+  - AEPCore (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v5.3.0`)
   - AEPEdge (from `https://github.com/adobe/aepsdk-edge-ios.git`, branch `staging`)
   - AEPEdgeConsent (from `https://github.com/adobe/aepsdk-edgeconsent-ios.git`, branch `staging`)
   - AEPEdgeIdentity (from `https://github.com/adobe/aepsdk-edgeidentity-ios.git`, branch `staging`)
-  - AEPLifecycle (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `dev-v5.3.0`)
+  - AEPLifecycle (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v5.3.0`)
   - AEPRulesEngine (from `https://github.com/adobe/aepsdk-rulesengine-ios.git`, branch `staging`)
-  - AEPServices (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `dev-v5.3.0`)
-  - AEPSignal (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `dev-v5.3.0`)
+  - AEPServices (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v5.3.0`)
+  - AEPSignal (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `dev-v5.3.0`)
   - AEPTestUtils (from `https://github.com/adobe/aepsdk-testutils-ios.git`, tag `5.0.1`)
   - SwiftLint (= 0.52.0)
 
@@ -53,7 +53,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/adobe/aepsdk-assurance-ios.git
   AEPCore:
     :branch: dev-v5.3.0
-    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPEdge:
     :branch: staging
     :git: https://github.com/adobe/aepsdk-edge-ios.git
@@ -65,16 +65,16 @@ EXTERNAL SOURCES:
     :git: https://github.com/adobe/aepsdk-edgeidentity-ios.git
   AEPLifecycle:
     :branch: dev-v5.3.0
-    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPRulesEngine:
     :branch: staging
     :git: https://github.com/adobe/aepsdk-rulesengine-ios.git
   AEPServices:
     :branch: dev-v5.3.0
-    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPSignal:
     :branch: dev-v5.3.0
-    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-testutils-ios.git
     :tag: 5.0.1
@@ -87,29 +87,29 @@ CHECKOUT OPTIONS:
     :commit: 686105a4d61287277418a1843225db2c819ed406
     :git: https://github.com/adobe/aepsdk-assurance-ios.git
   AEPCore:
-    :commit: d123502251742eee2af2a2af89bf6a6cc3ca62d1
-    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+    :commit: 9b6816595a0b2762b745c6d4b13ba9a8baa0175a
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPEdge:
     :commit: e6cac3ef8726e5323135361a7ca333336e770d02
     :git: https://github.com/adobe/aepsdk-edge-ios.git
   AEPEdgeConsent:
-    :commit: ef4f28ad50a1645c0a5faee5c257e1070bbb2cda
+    :commit: 911d686fed6525425658d2ed42d79ba53bf8807e
     :git: https://github.com/adobe/aepsdk-edgeconsent-ios.git
   AEPEdgeIdentity:
-    :commit: 00c68d3a4586925b062fa3dddedfc585b0df1624
+    :commit: bd0c26240c1b49bc81889a9049c9d99cb6cde1af
     :git: https://github.com/adobe/aepsdk-edgeidentity-ios.git
   AEPLifecycle:
-    :commit: d123502251742eee2af2a2af89bf6a6cc3ca62d1
-    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+    :commit: 9b6816595a0b2762b745c6d4b13ba9a8baa0175a
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPRulesEngine:
     :commit: 814672b136b6c71ab529a3f1366f3bf16cd9a532
     :git: https://github.com/adobe/aepsdk-rulesengine-ios.git
   AEPServices:
-    :commit: d123502251742eee2af2a2af89bf6a6cc3ca62d1
-    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+    :commit: 9b6816595a0b2762b745c6d4b13ba9a8baa0175a
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPSignal:
-    :commit: d123502251742eee2af2a2af89bf6a6cc3ca62d1
-    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+    :commit: 9b6816595a0b2762b745c6d4b13ba9a8baa0175a
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-testutils-ios.git
     :tag: 5.0.1
@@ -128,6 +128,6 @@ SPEC CHECKSUMS:
   AEPTestUtils: 6b043ef1de8fc7fb4067f7fa6e2dcdaf9ba4e54f
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: 7af034e94b0921be979e484919c371fce374deee
+PODFILE CHECKSUM: b831a35b1a6a85142d74c4610e4a602fcbc7ce29
 
 COCOAPODS: 1.15.0

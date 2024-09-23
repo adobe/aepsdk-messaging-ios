@@ -14,7 +14,7 @@ project 'AEPMessaging.xcodeproj'
 
 pod 'SwiftLint', '0.52.0'
 
-$dev_repo = 'https://github.com/sbenedicadb/aepsdk-core-ios.git'
+$dev_repo = 'https://github.com/adobe/aepsdk-core-ios.git'
 $dev_branch = 'dev-v5.3.0'
 
 # ==================
