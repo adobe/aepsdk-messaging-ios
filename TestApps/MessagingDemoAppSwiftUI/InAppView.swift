@@ -188,7 +188,7 @@ private class MessageHandler: MessagingDelegate {
         // if we're not showing the message now, we can save it for later
         if !showMessages {
             currentMessage = message
-            currentMessage?.track("message suppressed", withEdgeEventType: .trigger)
+//            currentMessage?.track("message suppressed", withEdgeEventType: .trigger)
         } else if autoDismiss {
             currentMessage = message
             let _ = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { timer in

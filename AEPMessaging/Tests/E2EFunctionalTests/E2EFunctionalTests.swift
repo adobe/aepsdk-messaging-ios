@@ -32,15 +32,12 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     var mockCache: MockCache!
     var mockRuntime: TestableExtensionRuntime!
     let lock = NSLock()
-            
-    /// before all
-    override class func setUp() {
-        configureSdk()
-        initializeSdk()
-    }
-    
+         
     /// before each
     override func setUp() {
+        EventHub.reset()
+        configureSdk()
+        initializeSdk()
         mockCache = MockCache(name: "mockCache")
         mockRuntime = TestableExtensionRuntime()
     }
@@ -48,12 +45,11 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     /// after each
     override func tearDown() {
         currentMessage = nil
-//        E2EFunctionalTests.passTime(seconds: 2)
     }
 
     // MARK: - helpers
 
-    class func configureSdk() {
+    func configureSdk() {
         MobileCore.setLogLevel(.trace)
         
         // clear out previous runs that may contain settings for connecting w/ staging environment
@@ -62,7 +58,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         MobileCore.updateConfigurationWith(configDict: Environment.get().configurationUpdates)
     }
     
-    class func initializeSdk() {
+    func initializeSdk() {
         let extensions = [
             Consent.self,
             AEPEdgeIdentity.Identity.self,
@@ -74,8 +70,8 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
             MobileCore.configureWith(appId: Environment.get().appId)
         }
         
-        // wait 2 seconds to allow configuration to download
-        passTime(seconds: 5)
+        // wait 5 seconds to allow configuration to download
+        E2EFunctionalTests.passTime(seconds: 5)
     }
 
     func registerMessagingRequestContentListener(_ listener: @escaping EventListener) {

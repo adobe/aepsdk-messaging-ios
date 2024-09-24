@@ -49,4 +49,13 @@ class MockMessage: Message {
         onShowCalled = true
         paramOnShow = message
     }
+    
+    var recordEventHistoryCalled = false
+    var paramRecordEventHistoryEventType: MessagingEdgeEventType?
+    var paramRecordEventHistoryInteraction: String?
+    override func recordEventHistory(eventType: MessagingEdgeEventType, interaction: String?) {
+        recordEventHistoryCalled = true
+        paramRecordEventHistoryEventType = eventType
+        paramRecordEventHistoryInteraction = interaction
+    }
 }

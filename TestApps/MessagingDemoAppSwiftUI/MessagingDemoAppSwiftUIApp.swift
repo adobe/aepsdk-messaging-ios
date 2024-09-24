@@ -39,6 +39,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         
         MobileCore.registerExtensions(extensions) {
             MobileCore.configureWith(appId: self.ENVIRONMENT_FILE_ID)
+            Assurance.startSession(url: URL(string: "sb://?adb_validation_sessionid=4055971e-13cb-4211-bfff-491e94567c33"))
 
             // set `messaging.useSandbox` to "true"  to test push notifications in debug environment (Apps signed with Development Certificate)
         #if DEBUG
