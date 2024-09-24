@@ -21,6 +21,7 @@ class PropositionInteractionTests: XCTestCase, AnyCodableAsserts {
 
     let mockDisplayEventType: MessagingEdgeEventType = .display
     let mockInteractEventType: MessagingEdgeEventType = .interact
+    let mockSuppressDisplayEventType: MessagingEdgeEventType = .suppressDisplay
     let mockItemId = "mockItemId"
     let mockTokens = ["token1"]
     var mockPropositionInfo: PropositionInfo!
@@ -212,5 +213,39 @@ class PropositionInteractionTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(mockItemId, items[0]["id"] as? String)
         
         XCTAssertNil(decisioning["propositionAction"])
+    }
+    
+    func testPropositionInteractionXdmForSuppressDisplay() throws {
+        // setup
+        let mockInteraction = "testSUPPRESSION"
+        let propositionInteraction = PropositionInteraction(eventType: mockSuppressDisplayEventType, interaction: mockInteraction, propositionInfo: mockPropositionInfo, itemId: mockItemId, tokens: mockTokens)
+        
+        // test
+        let xdm = propositionInteraction.xdm
+        
+        // verify
+        XCTAssertTrue(!xdm.isEmpty)
+        XCTAssertEqual(mockSuppressDisplayEventType.toString(), xdm["eventType"] as? String)
+        let experience = try XCTUnwrap(xdm["_experience"] as? [String: Any])
+        let decisioning = try XCTUnwrap(experience["decisioning"] as? [String: Any])
+        let propositionEventType = try XCTUnwrap(decisioning["propositionEventType"] as? [String: Any])
+        XCTAssertEqual(1, propositionEventType["suppressDisplay"] as? Int)
+        
+        let propositions = try XCTUnwrap(decisioning["propositions"] as? [[String: Any]])
+        XCTAssertEqual(1, propositions.count)
+        XCTAssertEqual(mockPropositionInfo.id, propositions[0]["id"] as? String)
+        XCTAssertEqual(mockPropositionInfo.scope, propositions[0]["scope"] as? String)
+        assertExactMatch(expected: AnyCodable(mockPropositionInfo.scopeDetails), actual: AnyCodable(propositions[0]["scopeDetails"]))
+
+        let items = try XCTUnwrap(propositions[0]["items"] as? [[String: Any]])
+        XCTAssertEqual(1, items.count)
+        XCTAssertEqual(mockItemId, items[0]["id"] as? String)
+        let itemCharacteristics = try XCTUnwrap(items[0]["characteristics"] as? [String: String])
+        XCTAssertEqual(1, itemCharacteristics.count)
+        XCTAssertEqual(mockTokens.joined(separator: ","), itemCharacteristics["tokens"])
+        
+        let propositionAction = try XCTUnwrap(decisioning["propositionAction"] as? [String: Any])
+        XCTAssertEqual(1, propositionAction.count)
+        XCTAssertEqual(mockInteraction, propositionAction["reason"] as? String)        
     }
 }

@@ -229,10 +229,6 @@ enum MessagingConstants {
                 static let DISQUALIFY = "disqualify"
                 static let SUPPRESSED_DISPLAY = "suppressDisplay"
             }
-            
-            enum SuppressionReason {
-                static let CONFLICT = "conflict"
-            }
 
             enum Key {
                 static let PERSONALIZATION = "personalization"

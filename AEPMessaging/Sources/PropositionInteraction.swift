@@ -73,14 +73,14 @@ struct PropositionInteraction: Codable {
         if eventType == .interact, let interaction = interaction {
             propositionAction[MessagingConstants.XDM.Inbound.Key.ID] = interaction
             propositionAction[MessagingConstants.XDM.Inbound.Key.LABEL] = interaction
-        } else if eventType == .suppressDisplay {
-            propositionAction[MessagingConstants.XDM.Inbound.Key.REASON] = interaction ?? MessagingConstants.XDM.Inbound.SuppressionReason.CONFLICT
+        } else if eventType == .suppressDisplay, let interaction = interaction {
+            propositionAction[MessagingConstants.XDM.Inbound.Key.REASON] = interaction
         }
-        
+
         if !propositionAction.isEmpty {
             decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_ACTION] = propositionAction
         }
-        
+
         let experience: [String: Any] = [
             MessagingConstants.XDM.Inbound.Key.DECISIONING: decisioning
         ]
