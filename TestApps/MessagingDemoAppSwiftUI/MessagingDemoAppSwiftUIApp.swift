@@ -121,12 +121,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
-extension Surface {
-    convenience init(myUri: String) {
-        self.init(uri:) self.uri = myUri
-    }
-}
-
 @main
 struct MessagingDemoAppSwiftUIApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
