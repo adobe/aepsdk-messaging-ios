@@ -51,3 +51,7 @@
 ## Common public classes, methods, and enums
 
 - [MessagingEdgeEventType](./sources/shared/enums/enum-messaging-edge-event-type.md)
+
+## Event tracking in Adobe Experience Platform
+
+- [How event tracking for propositions works](./sources/shared/event-tracking.md)

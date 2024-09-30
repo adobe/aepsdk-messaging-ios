@@ -54,49 +54,49 @@ def app_dev
 end
 
 def test_utils
-    pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.1'
+    pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'main'
 end
 
 # ==================
 # TARGET DEFINITIONS
 # ==================
 target 'AEPMessaging' do
-  lib_dev
+  lib_main
 end
 
 target 'MessagingDemoApp' do
-  app_dev
+  app_main
 end
 
 target 'MessagingDemoAppObjC' do
-  app_dev
+  app_main
 end
 
 target 'MessagingDemoAppSwiftUI' do
-  app_dev
+  app_main
 end
 
 target 'UnitTests' do
-  lib_dev
+  lib_main
   test_utils
 end
 
 target 'FunctionalTests' do
-  app_dev
+  app_main
   test_utils
 end
 
 target 'E2EFunctionalTests' do
-  app_dev
+  app_main
   test_utils
 end
 
 target 'FunctionalTestApp' do
-  app_dev
+  app_main
   test_utils
 end
 
 target 'E2EFunctionalTestApp' do
-  app_dev
+  app_main
   test_utils
 end
