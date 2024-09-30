@@ -15,7 +15,7 @@ import XCTest
 
 import AEPCore
 @testable import AEPMessaging
-import AEPServices
+@testable import AEPServices
 import AEPTestUtils
 
 class MessageFullscreenMessageDelegateTests: XCTestCase {
@@ -26,6 +26,7 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
     var mockFullscreenMessage: MockFullscreenMessage!
     var mockMessage: MockMessage!
     var mockPropositionItem: PropositionItem!
+    var mockPresentationError: PresentationError!
     let invalidUrlString = "-.98.3/~@!# oopsnotaurllol"
     let genericUrlString = "https://www.adobe.com/"
     let inAppUrlString = "adbinapp://dismiss?interaction=testing&link=https://www.adobe.com/"
@@ -44,6 +45,7 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
         mockMessage = MockMessage(parent: mockMessaging, triggeringEvent: mockEvent)
         mockFullscreenMessage = MockFullscreenMessage(parent: mockMessage)
         mockMessage.fullscreenMessage = mockFullscreenMessage
+        mockPresentationError = PresentationError.CONFLICT
     }
 
     func testOnDismiss() throws {
@@ -180,5 +182,29 @@ class MessageFullscreenMessageDelegateTests: XCTestCase {
 
     func testOnShowFailureCallable() throws {
         message.onShowFailure()
+    }
+    
+    func testOnErrorCallable() throws {
+        // test
+        message.onError(message: mockFullscreenMessage, error: mockPresentationError)
+
+        // verify
+        XCTAssertTrue(mockMessage.trackCalled)
+        XCTAssertTrue(mockMessage.recordEventHistoryCalled)
+        XCTAssertEqual(mockMessage.paramRecordEventHistoryEventType, .suppressDisplay)
+        XCTAssertEqual(mockMessage.paramRecordEventHistoryInteraction, mockPresentationError.getReason())
+    }
+    
+    func testOnErrorNoMessageParent() throws {
+        // setup
+        mockFullscreenMessage = MockFullscreenMessage()
+        mockMessage.fullscreenMessage = mockFullscreenMessage
+
+        // test
+        message.onError(message: mockFullscreenMessage, error: mockPresentationError)
+
+        // verify
+        XCTAssertFalse(mockMessage.trackCalled)
+        XCTAssertFalse(mockMessage.recordEventHistoryCalled)
     }
 }

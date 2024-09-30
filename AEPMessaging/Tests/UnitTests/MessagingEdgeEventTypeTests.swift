@@ -59,6 +59,15 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         XCTAssertEqual(value, .disqualify)
         XCTAssertEqual("decisioning.propositionDisqualify", value?.toString())
     }
+    
+    func testSuppressDisplay() throws {
+        // setup
+        let value = MessagingEdgeEventType(rawValue: 11)
+
+        // verify
+        XCTAssertEqual(value, .suppressDisplay)
+        XCTAssertEqual("decisioning.propositionSuppressDisplay", value?.toString())
+    }
 
     func testPushApplicationOpened() throws {
         // setup
@@ -108,6 +117,14 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         
         // verify
         XCTAssertEqual(.disqualify, value)
+    }
+    
+    func testInitFromStringSuppressDisplay() throws {
+        // setup
+        let value = MessagingEdgeEventType(fromType: "decisioning.propositionSuppressDisplay")
+        
+        // verify
+        XCTAssertEqual(.suppressDisplay, value)
     }
     
     func testInitFromStringInteract() throws {
@@ -182,6 +199,14 @@ class MessagingEdgeEventTypeTests: XCTestCase {
         XCTAssertEqual(.disqualify, value)
     }
     
+    func testInitFromPropositionEventTypeSuppressDisplay() throws {
+        // setup
+        let value = MessagingEdgeEventType(fromPropositionEventType: "suppressDisplay")
+        
+        // verify
+        XCTAssertEqual(.suppressDisplay, value)
+    }
+    
     func testInitFromPropositionEventTypeDefault() throws {
         // setup
         let value = MessagingEdgeEventType(fromPropositionEventType: "nopenopenope")
@@ -208,6 +233,10 @@ class MessagingEdgeEventTypeTests: XCTestCase {
     
     func testPropEventTypeTrigger() throws {
         XCTAssertEqual("trigger", MessagingEdgeEventType.trigger.propositionEventType)
+    }
+    
+    func testPropEventTypeSuppressDisplay() throws {
+        XCTAssertEqual("suppressDisplay", MessagingEdgeEventType.suppressDisplay.propositionEventType)
     }
     
     func testPropEventTypePushCases() throws {

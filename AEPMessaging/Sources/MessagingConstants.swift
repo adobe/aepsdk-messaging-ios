@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "5.3.0"
+    static let EXTENSION_VERSION = "5.4.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
@@ -217,6 +217,7 @@ enum MessagingConstants {
                 static let INTERACT = "decisioning.propositionInteract"
                 static let DISMISS = "decisioning.propositionDismiss"
                 static let DISQUALIFY = "decisioning.propositionDisqualify"
+                static let SUPPRESSED_DISPLAY = "decisioning.propositionSuppressDisplay"
                 static let PERSONALIZATION_REQUEST = "personalization.request"
             }
 
@@ -226,6 +227,7 @@ enum MessagingConstants {
                 static let INTERACT = "interact"
                 static let DISMISS = "dismiss"
                 static let DISQUALIFY = "disqualify"
+                static let SUPPRESSED_DISPLAY = "suppressDisplay"
             }
 
             enum Key {
@@ -236,9 +238,10 @@ enum MessagingConstants {
                 static let DECISIONING = "decisioning"
                 static let PROPOSITION_ACTION = "propositionAction"
                 static let LABEL = "label"
+                static let ID = "id"
+                static let REASON = "reason"
                 static let PROPOSITION_EVENT_TYPE = "propositionEventType"
                 static let PROPOSITIONS = "propositions"
-                static let ID = "id"
                 static let SCOPE = "scope"
                 static let SCOPE_DETAILS = "scopeDetails"
                 static let ITEMS = "items"
@@ -247,7 +250,7 @@ enum MessagingConstants {
             }
 
             enum Value {
-                /// enum (int) representing desired format returned by XAS for in-app message propositions
+                /// enum (int) representing desired format returned by IDS for in-app message propositions
                 static let IAM_RESPONSE_FORMAT = 2
             }
         }
