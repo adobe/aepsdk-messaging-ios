@@ -14,6 +14,9 @@ project 'AEPMessaging.xcodeproj'
 
 pod 'SwiftLint', '0.52.0'
 
+$dev_repo = 'https://github.com/adobe/aepsdk-core-ios.git'
+$dev_branch = 'dev-v5.3.0'
+
 # ==================
 # SHARED POD GROUPS
 # ==================
@@ -24,8 +27,8 @@ def lib_main
 end
 
 def lib_dev
-    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'staging'
-    pod 'AEPServices', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'staging'
+    pod 'AEPCore', :git => $dev_repo, :branch => $dev_branch
+    pod 'AEPServices', :git => $dev_repo, :branch => $dev_branch
     pod 'AEPRulesEngine', :git => 'https://github.com/adobe/aepsdk-rulesengine-ios.git', :branch => 'staging'
 end
 
@@ -41,8 +44,8 @@ end
 
 def app_dev
     lib_dev
-    pod 'AEPLifecycle', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'staging'
-    pod 'AEPSignal', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'staging'    
+    pod 'AEPLifecycle', :git => $dev_repo, :branch => $dev_branch
+    pod 'AEPSignal', :git => $dev_repo, :branch => $dev_branch
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'staging'
     pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'staging'
     pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'staging'
@@ -72,7 +75,6 @@ end
 target 'MessagingDemoAppSwiftUI' do
   app_main
 end
-
 
 target 'UnitTests' do
   lib_main

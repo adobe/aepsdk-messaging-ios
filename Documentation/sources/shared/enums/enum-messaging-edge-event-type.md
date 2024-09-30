@@ -20,6 +20,8 @@ public enum MessagingEdgeEventType: Int {
     case interact = 7
     case trigger = 8
     case display = 9
+    case disqualify = 10
+    case suppressDisplay = 11
 
     public func toString() -> String {
         switch self {
@@ -31,6 +33,10 @@ public enum MessagingEdgeEventType: Int {
             return MessagingConstants.XDM.IAM.EventType.INTERACT
         case .display:
             return MessagingConstants.XDM.IAM.EventType.DISPLAY
+        case .disqualify:
+            return MessagingConstants.XDM.Inbound.EventType.DISQUALIFY
+        case .suppressDisplay:
+            return MessagingConstants.XDM.Inbound.EventType.SUPPRESSED_DISPLAY
         case .pushCustomAction:
             return MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
         case .pushApplicationOpened:
@@ -44,11 +50,13 @@ public enum MessagingEdgeEventType: Int {
 
 Below is the table of values returned by calling the `toString` method for each case:
 
-| Case                  | String value                      |
-|-----------------------|-----------------------------------|
-| dismiss               | `decisioning.propositionDismiss`  |
-| interact              | `decisioning.propositionInteract` |
-| trigger               | `decisioning.propositionTrigger`  |
-| display               | `decisioning.propositionDisplay`  |
-| pushApplicationOpened | `pushTracking.applicationOpened`  |
-| pushCustomAction      | `pushTracking.customAction`       |
+| Case                  | String value                             |
+|-----------------------|------------------------------------------|
+| dismiss               | `decisioning.propositionDismiss`         |
+| interact              | `decisioning.propositionInteract`        |
+| trigger               | `decisioning.propositionTrigger`         |
+| display               | `decisioning.propositionDisplay`         |
+| disqualify            | `decisioning.propositionDisqualify`      |
+| suppressDisplay       | `decisioning.propositionSuppressDisplay` |
+| pushApplicationOpened | `pushTracking.applicationOpened`         |
+| pushCustomAction      | `pushTracking.customAction`              |

@@ -22,6 +22,7 @@ public enum MessagingEdgeEventType: Int {
     case trigger = 8
     case display = 9
     case disqualify = 10
+    case suppressDisplay = 11
 
     public func toString() -> String {
         switch self {
@@ -35,6 +36,8 @@ public enum MessagingEdgeEventType: Int {
             return MessagingConstants.XDM.Inbound.EventType.DISPLAY
         case .disqualify:
             return MessagingConstants.XDM.Inbound.EventType.DISQUALIFY
+        case .suppressDisplay:
+            return MessagingConstants.XDM.Inbound.EventType.SUPPRESSED_DISPLAY
         case .pushCustomAction:
             return MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
         case .pushApplicationOpened:
@@ -56,6 +59,8 @@ public enum MessagingEdgeEventType: Int {
             self = .display
         case MessagingConstants.XDM.Inbound.EventType.DISQUALIFY:
             self = .disqualify
+        case MessagingConstants.XDM.Inbound.EventType.SUPPRESSED_DISPLAY:
+            self = .suppressDisplay
         case MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION:
             self = .pushCustomAction
         case MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED:
@@ -79,6 +84,8 @@ public enum MessagingEdgeEventType: Int {
             self = .display
         case MessagingConstants.XDM.Inbound.PropositionEventType.DISQUALIFY:
             self = .disqualify
+        case MessagingConstants.XDM.Inbound.PropositionEventType.SUPPRESSED_DISPLAY:
+            self = .suppressDisplay
         default:
             return nil
         }
@@ -99,6 +106,8 @@ extension MessagingEdgeEventType {
             return MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY
         case .disqualify:
             return MessagingConstants.XDM.Inbound.PropositionEventType.DISQUALIFY
+        case .suppressDisplay:
+            return MessagingConstants.XDM.Inbound.PropositionEventType.SUPPRESSED_DISPLAY
         case .pushApplicationOpened, .pushCustomAction:
             return ""
         }
