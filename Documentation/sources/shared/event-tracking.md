@@ -63,7 +63,7 @@ An event similar to the following is emitted any time the SDK makes a request to
 
 ### Proposition is triggered - decisioning.propositionTrigger
 
-An event similar to the following is emitted any a user has met the client-side criteria that qualifies them for a proposition:
+An event similar to the following is emitted any time a user has met the client-side criteria that qualifies them for a proposition:
 
 ```
 {
