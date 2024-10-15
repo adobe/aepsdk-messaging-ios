@@ -41,7 +41,6 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
     
     public class override func setUp() {
         super.setUp()
-        TestBase.debugEnabled = true
     }
 
     override func setUp() {
