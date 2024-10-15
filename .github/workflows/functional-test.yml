@@ -6,8 +6,9 @@ name: E2E Functional Tests
 # or API.
 on:
   schedule:
-    - cron: '0 11 * * *'
-    - cron: '0 23 * * *'
+    - cron: '*/20 * * * *'
+    # - cron: '0 11 * * *'
+    # - cron: '0 23 * * *'
   workflow_dispatch:
     inputs:
       branch:
@@ -62,7 +63,7 @@ jobs:
           status: ${{ job.status }}            
           fields: repo,action,ref,workflow
           text: |
-            E2E Testing for Inbound Personalization has Failed :(
+            @sbenedic changes to E2E Testing for Inbound Personalization has Failed :(
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  
