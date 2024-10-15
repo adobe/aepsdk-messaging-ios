@@ -25,19 +25,19 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     // testing variables
     var currentMessage: Message?
-    let asyncTimeout: TimeInterval = 30
+    var mockCache: MockCache!
+    var mockRuntime: TestableExtensionRuntime!
+    
+    // testing constants
+    let asyncTimeout: TimeInterval = 15
     let appScope = "mobileapp://com.adobe.ajoinbounde2etestsonly"
     let cbeScope = "mobileapp://com.adobe.ajoinbounde2etestsonly/cbeJson"
     let cardScope = "mobileapp://com.adobe.ajoinbounde2etestsonly/cards/ms"
-    var mockCache: MockCache!
-    var mockRuntime: TestableExtensionRuntime!
     let lock = NSLock()
          
     /// before each
     override func setUp() {
-        EventHub.reset()
         configureSdk()
-        initializeSdk()
         mockCache = MockCache(name: "mockCache")
         mockRuntime = TestableExtensionRuntime()
     }
@@ -45,20 +45,17 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     /// after each
     override func tearDown() {
         currentMessage = nil
+        MobileCore.resetSDK()
     }
 
     // MARK: - helpers
 
     func configureSdk() {
-        MobileCore.setLogLevel(.trace)
+//        MobileCore.setLogLevel(.trace)
         
         // clear out previous runs that may contain settings for connecting w/ staging environment
         MobileCore.clearUpdatedConfiguration()
         
-        MobileCore.updateConfigurationWith(configDict: Environment.get().configurationUpdates)
-    }
-    
-    func initializeSdk() {
         let extensions = [
             Consent.self,
             AEPEdgeIdentity.Identity.self,
@@ -72,6 +69,8 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         
         // wait 5 seconds to allow configuration to download
         E2EFunctionalTests.passTime(seconds: 5)
+        
+        MobileCore.updateConfigurationWith(configDict: Environment.get().configurationUpdates)
     }
 
     func registerMessagingRequestContentListener(_ listener: @escaping EventListener) {
@@ -101,6 +100,8 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
             guard !processed else {
                 return
             }
+            
+            processed = true
             XCTAssertNotNil(event)
             let data = event.data
             XCTAssertNotNil(data)
@@ -128,6 +129,8 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
             guard !processed else {
                 return
             }
+            
+            processed = true
             XCTAssertNotNil(event)
             
             // validate the payload exists
@@ -169,6 +172,8 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
             guard !processed else {
                 return
             }
+            
+            processed = true
             XCTAssertNotNil(event)
             let data = event.data
             XCTAssertNotNil(data)
@@ -199,6 +204,8 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
             guard !processed else {
                 return
             }
+            
+            processed = true
             XCTAssertNotNil(event)
             
             // validate the payload exists
@@ -246,6 +253,8 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
             guard !processed else {
                 return
             }
+            
+            processed = true
             XCTAssertNotNil(event)
             let data = event.data
             XCTAssertNotNil(data)

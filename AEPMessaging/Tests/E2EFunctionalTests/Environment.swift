@@ -36,6 +36,14 @@ import Foundation
 /// Datastream: cjm-prod-nld2 (3e808bee-74f7-468f-be1d-99b498f36fa8)
 /// AppID for SDK configuration: bf7248f92b53/1d83dbc6cd95/launch-3102a655964f-development
 
+/// Environment: Production
+/// Org: AJO Ultimate Prod VA6 (1AF61E6466D9FBC90A495FD4@AdobeOrg)
+/// Sandbox: Prod (VA6_AEP1)
+/// AJO Channel: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
+/// Data Collection tag: AJO - IAM E2E Automated Tests
+/// Datastream: ajo-prod-va6 (f199137c-7b4e-481b-bab5-ffd54d45bbb8)
+/// AppID for SDK configuration: 1b765dadbfba/8e3a884124a9/launch-90f250494331-development
+
 /// Environment: Stage
 /// Org: CJM Stage (745F37C35E4B776E0A49421B@AdobeOrg)
 /// Sandbox: AJO Web (VA7)
@@ -48,6 +56,10 @@ enum Environment: String {
     case prodVA7 = "prodVA7"
     case prodAUS5 = "prodAUS5"
     case prodNLD2 = "prodNLD2"
+    case prodVA6 = "prodVA6"
+    case prodCAN2 = "prodCAN2"
+    case prodIND2 = "prodIND2"
+    case prodGBR9 = "prodGBR9"
     case stageVA7 = "stageVA7"
     
     /// Gets the current environment from the Info.plist file
@@ -78,6 +90,14 @@ extension Environment {
             return "3269cfd2f1f9/73343fae78b8/launch-b2d301f72010-development"
         case .prodNLD2:
             return "bf7248f92b53/1d83dbc6cd95/launch-3102a655964f-development"
+        case .prodVA6:
+            return "1b765dadbfba/8e3a884124a9/launch-90f250494331-development"
+        case .prodCAN2:
+            return ""
+        case .prodIND2:
+            return ""
+        case .prodGBR9:
+            return ""
         case .stageVA7:
             return "staging/1b50a869c4a2/8a2b5f4bc2f0/launch-302971d67c36-development"
         }
@@ -93,7 +113,7 @@ extension Environment {
     
     private var isStaging: Bool {
         switch self {
-        case .prodVA7, .prodAUS5, .prodNLD2:
+        case .prodVA7, .prodAUS5, .prodNLD2, .prodVA6, .prodCAN2, .prodIND2, .prodGBR9:
             return false
         case .stageVA7:
             return true        
