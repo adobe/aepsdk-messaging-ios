@@ -14,8 +14,8 @@ project 'AEPMessaging.xcodeproj'
 
 pod 'SwiftLint', '0.52.0'
 
-$dev_repo = 'https://github.com/adobe/aepsdk-core-ios.git'
-$dev_branch = 'dev-v5.3.0'
+$dev_repo = 'https://github.com/sbenedicadb/aepsdk-core-ios.git'
+$dev_branch = 'temp-utils'
 
 # ==================
 # SHARED POD GROUPS
@@ -49,7 +49,6 @@ def app_dev
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'staging'
     pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'staging'
     pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'staging'
-    pod 'AEPAnalytics', :git => 'https://github.com/adobe/aepsdk-analytics-ios.git', :branch => 'staging'
     pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'staging'
 end
 
@@ -62,42 +61,42 @@ end
 # TARGET DEFINITIONS
 # ==================
 target 'AEPMessaging' do
-  lib_main
+  lib_dev
 end
 
 target 'MessagingDemoApp' do
-  app_main
+  app_dev
 end
 
 target 'MessagingDemoAppObjC' do
-  app_main
+  app_dev
 end
 
 target 'MessagingDemoAppSwiftUI' do
-  app_main
+  app_dev
 end
 
 target 'UnitTests' do
-  lib_main
+  lib_dev
   test_utils
 end
 
 target 'FunctionalTests' do
-  app_main
+  app_dev
   test_utils
 end
 
 target 'E2EFunctionalTests' do
-  app_main
+  app_dev
   test_utils
 end
 
 target 'FunctionalTestApp' do
-  app_main
+  app_dev
   test_utils
 end
 
 target 'E2EFunctionalTestApp' do
-  app_main
+  app_dev
   test_utils
 end
