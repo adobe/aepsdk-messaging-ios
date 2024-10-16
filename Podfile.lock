@@ -25,37 +25,82 @@ PODS:
   - SwiftLint (0.52.0)
 
 DEPENDENCIES:
-  - AEPAssurance
-  - AEPCore
-  - AEPEdge
-  - AEPEdgeConsent
-  - AEPEdgeIdentity
-  - AEPLifecycle
-  - AEPRulesEngine
-  - AEPServices
-  - AEPSignal
+  - AEPAssurance (from `https://github.com/adobe/aepsdk-assurance-ios.git`, branch `staging`)
+  - AEPCore (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `temp-utils`)
+  - AEPEdge (from `https://github.com/adobe/aepsdk-edge-ios.git`, branch `staging`)
+  - AEPEdgeConsent (from `https://github.com/adobe/aepsdk-edgeconsent-ios.git`, branch `staging`)
+  - AEPEdgeIdentity (from `https://github.com/adobe/aepsdk-edgeidentity-ios.git`, branch `staging`)
+  - AEPLifecycle (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `temp-utils`)
+  - AEPRulesEngine (from `https://github.com/adobe/aepsdk-rulesengine-ios.git`, branch `staging`)
+  - AEPServices (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `temp-utils`)
+  - AEPSignal (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `temp-utils`)
   - AEPTestUtils (from `https://github.com/sbenedicadb/aepsdk-core-ios.git`, branch `temp-utils`)
   - SwiftLint (= 0.52.0)
 
 SPEC REPOS:
   trunk:
-    - AEPAssurance
-    - AEPCore
-    - AEPEdge
-    - AEPEdgeConsent
-    - AEPEdgeIdentity
-    - AEPLifecycle
-    - AEPRulesEngine
-    - AEPServices
-    - AEPSignal
     - SwiftLint
 
 EXTERNAL SOURCES:
+  AEPAssurance:
+    :branch: staging
+    :git: https://github.com/adobe/aepsdk-assurance-ios.git
+  AEPCore:
+    :branch: temp-utils
+    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+  AEPEdge:
+    :branch: staging
+    :git: https://github.com/adobe/aepsdk-edge-ios.git
+  AEPEdgeConsent:
+    :branch: staging
+    :git: https://github.com/adobe/aepsdk-edgeconsent-ios.git
+  AEPEdgeIdentity:
+    :branch: staging
+    :git: https://github.com/adobe/aepsdk-edgeidentity-ios.git
+  AEPLifecycle:
+    :branch: temp-utils
+    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+  AEPRulesEngine:
+    :branch: staging
+    :git: https://github.com/adobe/aepsdk-rulesengine-ios.git
+  AEPServices:
+    :branch: temp-utils
+    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+  AEPSignal:
+    :branch: temp-utils
+    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
   AEPTestUtils:
     :branch: temp-utils
     :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
 
 CHECKOUT OPTIONS:
+  AEPAssurance:
+    :commit: 686105a4d61287277418a1843225db2c819ed406
+    :git: https://github.com/adobe/aepsdk-assurance-ios.git
+  AEPCore:
+    :commit: 16f925de135e27a369958b2cfde153d6902bc39a
+    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+  AEPEdge:
+    :commit: 26fd316e79480a24bf1a195339a7523f6775b9b6
+    :git: https://github.com/adobe/aepsdk-edge-ios.git
+  AEPEdgeConsent:
+    :commit: 911d686fed6525425658d2ed42d79ba53bf8807e
+    :git: https://github.com/adobe/aepsdk-edgeconsent-ios.git
+  AEPEdgeIdentity:
+    :commit: bd0c26240c1b49bc81889a9049c9d99cb6cde1af
+    :git: https://github.com/adobe/aepsdk-edgeidentity-ios.git
+  AEPLifecycle:
+    :commit: 16f925de135e27a369958b2cfde153d6902bc39a
+    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+  AEPRulesEngine:
+    :commit: 814672b136b6c71ab529a3f1366f3bf16cd9a532
+    :git: https://github.com/adobe/aepsdk-rulesengine-ios.git
+  AEPServices:
+    :commit: 16f925de135e27a369958b2cfde153d6902bc39a
+    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
+  AEPSignal:
+    :commit: 16f925de135e27a369958b2cfde153d6902bc39a
+    :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
   AEPTestUtils:
     :commit: 16f925de135e27a369958b2cfde153d6902bc39a
     :git: https://github.com/sbenedicadb/aepsdk-core-ios.git
@@ -73,6 +118,6 @@ SPEC CHECKSUMS:
   AEPTestUtils: 95394464ba120b308bfdfa652b7584c8f91de6b1
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: bc22a27757125089ac3016c9bf3a057cc2548ad9
+PODFILE CHECKSUM: 0d3e0abc027c2560a3481ce30c0bde8f092221c0
 
 COCOAPODS: 1.15.2
