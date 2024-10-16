@@ -19,7 +19,8 @@ let package = Package(
     name: "AEPMessaging",
     platforms: [.iOS(.v12)],
     products: [
-        .library(name: "AEPMessaging", targets: ["AEPMessaging"])
+        .library(name: "AEPMessaging", targets: ["AEPMessaging"]),
+        .library(name: "AEPMessagingUI", targets: ["AEPMessagingUI"])
     ],
     dependencies: [
         .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "5.3.0")),
@@ -35,5 +36,8 @@ let package = Package(
                 .product(name: "AEPEdgeIdentity", package: "aepsdk-edgeidentity-ios")
             ],
             path: "AEPMessaging/Sources")
+        .target(name: "AEPMessagingUI",
+            dependencies: ["AEPMessaging"],
+                path: "AEPMessagingUI/Sources"),
     ]
 )
