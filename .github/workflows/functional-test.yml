@@ -5,8 +5,8 @@ name: E2E Functional Tests
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
-  #schedule:
-    #- cron: '*/20 * * * *'
+  schedule:
+    - cron: '*/20 * * * *'
     # - cron: '0 11 * * *'
     # - cron: '0 23 * * *'
   workflow_dispatch:
