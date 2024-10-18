@@ -30,14 +30,18 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     // testing constants
     let asyncTimeout: TimeInterval = 15
-    let appScope = "mobileapp://com.adobe.ajoinbounde2etestsonly"
+    let iamScope = "mobileapp://com.adobe.ajoinbounde2etestsonly"
     let cbeScope = "mobileapp://com.adobe.ajoinbounde2etestsonly/cbeJson"
     let cardScope = "mobileapp://com.adobe.ajoinbounde2etestsonly/cards/ms"
     let lock = NSLock()
          
+    /// before all
+    override class func setUp() {
+        configureSdk()
+    }
+    
     /// before each
     override func setUp() {
-        configureSdk()
         mockCache = MockCache(name: "mockCache")
         mockRuntime = TestableExtensionRuntime()
     }
@@ -45,13 +49,12 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     /// after each
     override func tearDown() {
         currentMessage = nil
-        MobileCore.resetSDK()
     }
 
     // MARK: - helpers
 
-    func configureSdk() {
-//        MobileCore.setLogLevel(.trace)
+    class func configureSdk() {
+        MobileCore.setLogLevel(.trace)
         
         // clear out previous runs that may contain settings for connecting w/ staging environment
         MobileCore.clearUpdatedConfiguration()
@@ -89,24 +92,11 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     func testRefreshInAppMessagesHappy() throws {
         // setup
-        lock.lock()
-        var processed = false
-        defer {
-            processed = true
-            lock.unlock()
-        }
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
         registerMessagingRequestContentListener() { event in
-            guard !processed else {
-                return
+            if event.data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool == true {
+                messagingRequestContentExpectation.fulfill()
             }
-            
-            processed = true
-            XCTAssertNotNil(event)
-            let data = event.data
-            XCTAssertNotNil(data)
-            XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.REFRESH_MESSAGES] as? Bool)
-            messagingRequestContentExpectation.fulfill()
         }
         
         // test
@@ -126,26 +116,18 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         }
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
         registerEdgePersonalizationDecisionsListener() { event in
-            guard !processed else {
+            guard !processed,
+                  event.propositionResponseScope == self.iamScope,
+                  let payload = event.data?["payload"] as? [[String: Any]],
+                  !payload.isEmpty else {
+                // this event is not for this test
                 return
             }
-            
+                        
             processed = true
-            XCTAssertNotNil(event)
-            
-            // validate the payload exists
-            guard let payload = event.data?["payload"] as? [[String: Any]],
-                !payload.isEmpty else {
-                // no payload means this event is a request, not a response
-                XCTFail("SDK TEST ERROR - expected a payload object, but payload is empty")
-                return
-            }
             
             // loop through the payload and verify the format for each object
             for payloadObject in payload {
-                guard payload.first?["scope"] as? String == self.appScope else {
-                    break
-                }
                 self.validateIAMPayloadObject(payloadObject)
                 self.validateIAMPayloadContainsMatchingScope(payloadObject)
             }
@@ -161,24 +143,12 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     func testUpdatePropositionsForSurfacesCBEHappy() throws {
         // setup
-        lock.lock()
-        var processed = false
-        defer {
-            processed = true
-            lock.unlock()
-        }
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
         registerMessagingRequestContentListener() { event in
-            guard !processed else {
-                return
+            if event.data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool == true,
+               event.propositionRequestedScope == self.cbeScope {
+                messagingRequestContentExpectation.fulfill()
             }
-            
-            processed = true
-            XCTAssertNotNil(event)
-            let data = event.data
-            XCTAssertNotNil(data)
-            XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool)
-            messagingRequestContentExpectation.fulfill()
         }
         
         // test
@@ -201,25 +171,14 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         }
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
         registerEdgePersonalizationDecisionsListener() { event in
-            guard !processed else {
+            guard !processed,
+                  event.propositionResponseScope == self.cbeScope,
+                  let payload = event.data?["payload"] as? [[String: Any]],
+                  !payload.isEmpty else {
                 return
             }
             
             processed = true
-            XCTAssertNotNil(event)
-            
-            // validate the payload exists
-            guard let payload = event.data?["payload"] as? [[String: Any]] else {
-                // no payload means this event is a request, not a response
-                return
-            }
-            
-            // validate the payload is not empty
-            guard !payload.isEmpty else {
-                XCTFail("SDK TEST ERROR - expected a payload object, but payload is empty")
-                return
-            }
-            
             
             // loop through the payload and verify the format for each object
             for payloadObject in payload {
@@ -242,25 +201,12 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     
     func testUpdatePropositionsForSurfacesContentCardHappy() throws {
         // setup
-        lock.lock()
-        var processed = false
-        defer {
-            processed = true
-            lock.unlock()
-        }
         let messagingRequestContentExpectation = XCTestExpectation(description: "messaging request content listener called")
         registerMessagingRequestContentListener() { event in
-            guard !processed else {
-                return
+            if event.data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool == true,
+               event.propositionRequestedScope == self.cardScope {
+                messagingRequestContentExpectation.fulfill()
             }
-            
-            processed = true
-            XCTAssertNotNil(event)
-            let data = event.data
-            XCTAssertNotNil(data)
-            XCTAssertEqual(true, data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool)
-        
-            messagingRequestContentExpectation.fulfill()
         }
         
         // test
@@ -283,23 +229,14 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         }
         let edgePersonalizationDecisionsExpectation = XCTestExpectation(description: "edge personalization decisions listener called")
         registerEdgePersonalizationDecisionsListener() { event in
-            guard !processed else {
-                return
-            }
-            XCTAssertNotNil(event)
-            
-            // validate the payload exists
-            guard let payload = event.data?["payload"] as? [[String: Any]] else {
-                // no payload means this event is a request, not a response
+            guard !processed,
+                  event.propositionResponseScope == self.cardScope,
+                  let payload = event.data?["payload"] as? [[String: Any]],
+                  !payload.isEmpty else {
                 return
             }
             
-            // validate the payload is not empty
-            guard !payload.isEmpty else {
-                XCTFail("SDK TEST ERROR - expected a payload object, but payload is empty")
-                return
-            }
-            
+            processed = true
             
             // loop through the payload and verify the format for each object
             for payloadObject in payload {
@@ -570,6 +507,26 @@ extension E2EFunctionalTests: MessagingDelegate {
 }
 
 extension Event {
+    var propositionRequestedScope: String? {
+        guard let surfaces = data?["surfaces"] as? [[String: Any]],
+              let firstSurface = surfaces.first,
+              let scope = firstSurface["uri"] as? String else {
+            return nil
+        }
+        
+        return scope
+    }
+    
+    var propositionResponseScope: String? {
+        guard let payload = data?["payload"] as? [[String: Any]],
+              let firstProposition = payload.first,
+              let scope = firstProposition["scope"] as? String else {
+            return nil
+        }
+        
+        return scope
+    }
+    
     func isPropositionEvent(withType type: String) -> Bool {
         guard let data = data,
               let xdm = data["xdm"] as? [String: Any],
