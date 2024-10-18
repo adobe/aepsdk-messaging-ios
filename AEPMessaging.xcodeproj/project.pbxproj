@@ -222,6 +222,40 @@
 		B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */; };
 		B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
 		B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */; };
+		B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA72CC2089A00C35C64 /* DismissButtonStyle.swift */; };
+		B6F7CBCA2CC2089A00C35C64 /* AEPImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA92CC2089A00C35C64 /* AEPImage.swift */; };
+		B6F7CBCB2CC2089A00C35C64 /* AEPVStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBB12CC2089A00C35C64 /* AEPVStackView.swift */; };
+		B6F7CBCC2CC2089A00C35C64 /* AEPVStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBB02CC2089A00C35C64 /* AEPVStack.swift */; };
+		B6F7CBCD2CC2089A00C35C64 /* TemplateBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CB9F2CC2089A00C35C64 /* TemplateBuilder.swift */; };
+		B6F7CBCE2CC2089A00C35C64 /* AEPDismissButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA52CC2089A00C35C64 /* AEPDismissButton.swift */; };
+		B6F7CBCF2CC2089A00C35C64 /* ContentCardUIEventListening.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBC42CC2089A00C35C64 /* ContentCardUIEventListening.swift */; };
+		B6F7CBD02CC2089A00C35C64 /* ContentCardUI+EventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBC22CC2089A00C35C64 /* ContentCardUI+EventHandler.swift */; };
+		B6F7CBD12CC2089A00C35C64 /* SmallImageTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CB9E2CC2089A00C35C64 /* SmallImageTemplate.swift */; };
+		B6F7CBD22CC2089A00C35C64 /* AEPTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBB82CC2089A00C35C64 /* AEPTextView.swift */; };
+		B6F7CBD32CC2089A00C35C64 /* View+CustomModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBBC2CC2089A00C35C64 /* View+CustomModifiers.swift */; };
+		B6F7CBD42CC2089A00C35C64 /* AEPHStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBAD2CC2089A00C35C64 /* AEPHStack.swift */; };
+		B6F7CBD52CC2089A00C35C64 /* AEPDismissButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA62CC2089A00C35C64 /* AEPDismissButtonView.swift */; };
+		B6F7CBD62CC2089A00C35C64 /* ContentCardUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBC12CC2089A00C35C64 /* ContentCardUI.swift */; };
+		B6F7CBD72CC2089A00C35C64 /* AEPButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA32CC2089A00C35C64 /* AEPButtonView.swift */; };
+		B6F7CBD82CC2089A00C35C64 /* AEPStackError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBB42CC2089A00C35C64 /* AEPStackError.swift */; };
+		B6F7CBD92CC2089A00C35C64 /* AEPViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBBA2CC2089A00C35C64 /* AEPViewModel.swift */; };
+		B6F7CBDA2CC2089A00C35C64 /* ImageSourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBAB2CC2089A00C35C64 /* ImageSourceType.swift */; };
+		B6F7CBDB2CC2089A00C35C64 /* ContentCardSchemaData+TemplateContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBBF2CC2089A00C35C64 /* ContentCardSchemaData+TemplateContent.swift */; };
+		B6F7CBDC2CC2089A00C35C64 /* AEPText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBB62CC2089A00C35C64 /* AEPText.swift */; };
+		B6F7CBDD2CC2089A00C35C64 /* ContentCardCustomizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBBE2CC2089A00C35C64 /* ContentCardCustomizing.swift */; };
+		B6F7CBDE2CC2089A00C35C64 /* ContentCardTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CB9D2CC2089A00C35C64 /* ContentCardTemplate.swift */; };
+		B6F7CBDF2CC2089A00C35C64 /* ContentCardTemplateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBC02CC2089A00C35C64 /* ContentCardTemplateType.swift */; };
+		B6F7CBE02CC2089A00C35C64 /* AEPTextType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBB72CC2089A00C35C64 /* AEPTextType.swift */; };
+		B6F7CBE12CC2089A00C35C64 /* BaseTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CB9C2CC2089A00C35C64 /* BaseTemplate.swift */; };
+		B6F7CBE22CC2089A00C35C64 /* Messaging+UIPublicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBC62CC2089A00C35C64 /* Messaging+UIPublicAPI.swift */; };
+		B6F7CBE32CC2089A00C35C64 /* UIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBC72CC2089A00C35C64 /* UIConstants.swift */; };
+		B6F7CBE42CC2089A00C35C64 /* AEPButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA22CC2089A00C35C64 /* AEPButton.swift */; };
+		B6F7CBE52CC2089A00C35C64 /* ContentCardUIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBC32CC2089A00C35C64 /* ContentCardUIError.swift */; };
+		B6F7CBE62CC2089A00C35C64 /* AEPViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBBB2CC2089A00C35C64 /* AEPViewModifier.swift */; };
+		B6F7CBE72CC2089A00C35C64 /* AEPHStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBAE2CC2089A00C35C64 /* AEPHStackView.swift */; };
+		B6F7CBE82CC2089A00C35C64 /* AEPImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBAA2CC2089A00C35C64 /* AEPImageView.swift */; };
+		B6F7CBE92CC2089A00C35C64 /* AEPStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBB32CC2089A00C35C64 /* AEPStack.swift */; };
+		B6F7CBEA2CC2089A00C35C64 /* TemplateEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA02CC2089A00C35C64 /* TemplateEventHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -587,6 +621,40 @@
 		B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingNotificationTrackingTests.swift; sourceTree = "<group>"; };
 		B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatus.swift; sourceTree = "<group>"; };
 		B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatusTests.swift; sourceTree = "<group>"; };
+		B6F7CB9C2CC2089A00C35C64 /* BaseTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTemplate.swift; sourceTree = "<group>"; };
+		B6F7CB9D2CC2089A00C35C64 /* ContentCardTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardTemplate.swift; sourceTree = "<group>"; };
+		B6F7CB9E2CC2089A00C35C64 /* SmallImageTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallImageTemplate.swift; sourceTree = "<group>"; };
+		B6F7CB9F2CC2089A00C35C64 /* TemplateBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateBuilder.swift; sourceTree = "<group>"; };
+		B6F7CBA02CC2089A00C35C64 /* TemplateEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateEventHandler.swift; sourceTree = "<group>"; };
+		B6F7CBA22CC2089A00C35C64 /* AEPButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPButton.swift; sourceTree = "<group>"; };
+		B6F7CBA32CC2089A00C35C64 /* AEPButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPButtonView.swift; sourceTree = "<group>"; };
+		B6F7CBA52CC2089A00C35C64 /* AEPDismissButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPDismissButton.swift; sourceTree = "<group>"; };
+		B6F7CBA62CC2089A00C35C64 /* AEPDismissButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPDismissButtonView.swift; sourceTree = "<group>"; };
+		B6F7CBA72CC2089A00C35C64 /* DismissButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissButtonStyle.swift; sourceTree = "<group>"; };
+		B6F7CBA92CC2089A00C35C64 /* AEPImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPImage.swift; sourceTree = "<group>"; };
+		B6F7CBAA2CC2089A00C35C64 /* AEPImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPImageView.swift; sourceTree = "<group>"; };
+		B6F7CBAB2CC2089A00C35C64 /* ImageSourceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSourceType.swift; sourceTree = "<group>"; };
+		B6F7CBAD2CC2089A00C35C64 /* AEPHStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPHStack.swift; sourceTree = "<group>"; };
+		B6F7CBAE2CC2089A00C35C64 /* AEPHStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPHStackView.swift; sourceTree = "<group>"; };
+		B6F7CBB02CC2089A00C35C64 /* AEPVStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPVStack.swift; sourceTree = "<group>"; };
+		B6F7CBB12CC2089A00C35C64 /* AEPVStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPVStackView.swift; sourceTree = "<group>"; };
+		B6F7CBB32CC2089A00C35C64 /* AEPStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPStack.swift; sourceTree = "<group>"; };
+		B6F7CBB42CC2089A00C35C64 /* AEPStackError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPStackError.swift; sourceTree = "<group>"; };
+		B6F7CBB62CC2089A00C35C64 /* AEPText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPText.swift; sourceTree = "<group>"; };
+		B6F7CBB72CC2089A00C35C64 /* AEPTextType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPTextType.swift; sourceTree = "<group>"; };
+		B6F7CBB82CC2089A00C35C64 /* AEPTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPTextView.swift; sourceTree = "<group>"; };
+		B6F7CBBA2CC2089A00C35C64 /* AEPViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPViewModel.swift; sourceTree = "<group>"; };
+		B6F7CBBB2CC2089A00C35C64 /* AEPViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPViewModifier.swift; sourceTree = "<group>"; };
+		B6F7CBBC2CC2089A00C35C64 /* View+CustomModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+CustomModifiers.swift"; sourceTree = "<group>"; };
+		B6F7CBBE2CC2089A00C35C64 /* ContentCardCustomizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardCustomizing.swift; sourceTree = "<group>"; };
+		B6F7CBBF2CC2089A00C35C64 /* ContentCardSchemaData+TemplateContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentCardSchemaData+TemplateContent.swift"; sourceTree = "<group>"; };
+		B6F7CBC02CC2089A00C35C64 /* ContentCardTemplateType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardTemplateType.swift; sourceTree = "<group>"; };
+		B6F7CBC12CC2089A00C35C64 /* ContentCardUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardUI.swift; sourceTree = "<group>"; };
+		B6F7CBC22CC2089A00C35C64 /* ContentCardUI+EventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentCardUI+EventHandler.swift"; sourceTree = "<group>"; };
+		B6F7CBC32CC2089A00C35C64 /* ContentCardUIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardUIError.swift; sourceTree = "<group>"; };
+		B6F7CBC42CC2089A00C35C64 /* ContentCardUIEventListening.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardUIEventListening.swift; sourceTree = "<group>"; };
+		B6F7CBC62CC2089A00C35C64 /* Messaging+UIPublicAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+UIPublicAPI.swift"; sourceTree = "<group>"; };
+		B6F7CBC72CC2089A00C35C64 /* UIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIConstants.swift; sourceTree = "<group>"; };
 		C003D7513651C8FD2BC84411 /* Pods-AEPMessaging.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AEPMessaging.debug.xcconfig"; path = "Target Support Files/Pods-AEPMessaging/Pods-AEPMessaging.debug.xcconfig"; sourceTree = "<group>"; };
 		CFBC956862FD1C6747587F09 /* Pods-E2EFunctionalTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTestApp.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp.debug.xcconfig"; sourceTree = "<group>"; };
 		CFC660CD22A375E0F809B475 /* Pods-E2EFunctionalTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTestApp.release.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp.release.xcconfig"; sourceTree = "<group>"; };
@@ -885,6 +953,7 @@
 		92315433261E3B36004AE7D3 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				B6F7CBC82CC2089A00C35C64 /* UI */,
 				242920F62AD0628B000DB2CD /* schemas */,
 				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
 				09B071F52A7318CB00F259C1 /* Array+Messaging.swift */,
@@ -1080,6 +1149,127 @@
 			);
 			name = NotificationService;
 			path = TestApps/MessagingDemoApp/NotificationService;
+			sourceTree = "<group>";
+		};
+		B6F7CBA12CC2089A00C35C64 /* Template */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CB9C2CC2089A00C35C64 /* BaseTemplate.swift */,
+				B6F7CB9D2CC2089A00C35C64 /* ContentCardTemplate.swift */,
+				B6F7CB9E2CC2089A00C35C64 /* SmallImageTemplate.swift */,
+				B6F7CB9F2CC2089A00C35C64 /* TemplateBuilder.swift */,
+				B6F7CBA02CC2089A00C35C64 /* TemplateEventHandler.swift */,
+			);
+			path = Template;
+			sourceTree = "<group>";
+		};
+		B6F7CBA42CC2089A00C35C64 /* AEPButton */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CBA22CC2089A00C35C64 /* AEPButton.swift */,
+				B6F7CBA32CC2089A00C35C64 /* AEPButtonView.swift */,
+			);
+			path = AEPButton;
+			sourceTree = "<group>";
+		};
+		B6F7CBA82CC2089A00C35C64 /* AEPDismissButton */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CBA52CC2089A00C35C64 /* AEPDismissButton.swift */,
+				B6F7CBA62CC2089A00C35C64 /* AEPDismissButtonView.swift */,
+				B6F7CBA72CC2089A00C35C64 /* DismissButtonStyle.swift */,
+			);
+			path = AEPDismissButton;
+			sourceTree = "<group>";
+		};
+		B6F7CBAC2CC2089A00C35C64 /* AEPImage */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CBA92CC2089A00C35C64 /* AEPImage.swift */,
+				B6F7CBAA2CC2089A00C35C64 /* AEPImageView.swift */,
+				B6F7CBAB2CC2089A00C35C64 /* ImageSourceType.swift */,
+			);
+			path = AEPImage;
+			sourceTree = "<group>";
+		};
+		B6F7CBAF2CC2089A00C35C64 /* HStack */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CBAD2CC2089A00C35C64 /* AEPHStack.swift */,
+				B6F7CBAE2CC2089A00C35C64 /* AEPHStackView.swift */,
+			);
+			path = HStack;
+			sourceTree = "<group>";
+		};
+		B6F7CBB22CC2089A00C35C64 /* VStack */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CBB02CC2089A00C35C64 /* AEPVStack.swift */,
+				B6F7CBB12CC2089A00C35C64 /* AEPVStackView.swift */,
+			);
+			path = VStack;
+			sourceTree = "<group>";
+		};
+		B6F7CBB52CC2089A00C35C64 /* AEPStack */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CBAF2CC2089A00C35C64 /* HStack */,
+				B6F7CBB22CC2089A00C35C64 /* VStack */,
+				B6F7CBB32CC2089A00C35C64 /* AEPStack.swift */,
+				B6F7CBB42CC2089A00C35C64 /* AEPStackError.swift */,
+			);
+			path = AEPStack;
+			sourceTree = "<group>";
+		};
+		B6F7CBB92CC2089A00C35C64 /* AEPText */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CBB62CC2089A00C35C64 /* AEPText.swift */,
+				B6F7CBB72CC2089A00C35C64 /* AEPTextType.swift */,
+				B6F7CBB82CC2089A00C35C64 /* AEPTextView.swift */,
+			);
+			path = AEPText;
+			sourceTree = "<group>";
+		};
+		B6F7CBBD2CC2089A00C35C64 /* UIElement */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CBA42CC2089A00C35C64 /* AEPButton */,
+				B6F7CBA82CC2089A00C35C64 /* AEPDismissButton */,
+				B6F7CBAC2CC2089A00C35C64 /* AEPImage */,
+				B6F7CBB52CC2089A00C35C64 /* AEPStack */,
+				B6F7CBB92CC2089A00C35C64 /* AEPText */,
+				B6F7CBBA2CC2089A00C35C64 /* AEPViewModel.swift */,
+				B6F7CBBB2CC2089A00C35C64 /* AEPViewModifier.swift */,
+				B6F7CBBC2CC2089A00C35C64 /* View+CustomModifiers.swift */,
+			);
+			path = UIElement;
+			sourceTree = "<group>";
+		};
+		B6F7CBC52CC2089A00C35C64 /* ContentCards */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CBA12CC2089A00C35C64 /* Template */,
+				B6F7CBBD2CC2089A00C35C64 /* UIElement */,
+				B6F7CBBE2CC2089A00C35C64 /* ContentCardCustomizing.swift */,
+				B6F7CBBF2CC2089A00C35C64 /* ContentCardSchemaData+TemplateContent.swift */,
+				B6F7CBC02CC2089A00C35C64 /* ContentCardTemplateType.swift */,
+				B6F7CBC12CC2089A00C35C64 /* ContentCardUI.swift */,
+				B6F7CBC22CC2089A00C35C64 /* ContentCardUI+EventHandler.swift */,
+				B6F7CBC32CC2089A00C35C64 /* ContentCardUIError.swift */,
+				B6F7CBC42CC2089A00C35C64 /* ContentCardUIEventListening.swift */,
+			);
+			path = ContentCards;
+			sourceTree = "<group>";
+		};
+		B6F7CBC82CC2089A00C35C64 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				B6F7CBC52CC2089A00C35C64 /* ContentCards */,
+				B6F7CBC62CC2089A00C35C64 /* Messaging+UIPublicAPI.swift */,
+				B6F7CBC72CC2089A00C35C64 /* UIConstants.swift */,
+			);
+			path = UI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1927,6 +2117,40 @@
 				090290C529DCED0B00388226 /* ContentCardRulesEngine.swift in Sources */,
 				242920F52AD06215000DB2CD /* HtmlContentSchemaData.swift in Sources */,
 				244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */,
+				B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */,
+				B6F7CBCA2CC2089A00C35C64 /* AEPImage.swift in Sources */,
+				B6F7CBCB2CC2089A00C35C64 /* AEPVStackView.swift in Sources */,
+				B6F7CBCC2CC2089A00C35C64 /* AEPVStack.swift in Sources */,
+				B6F7CBCD2CC2089A00C35C64 /* TemplateBuilder.swift in Sources */,
+				B6F7CBCE2CC2089A00C35C64 /* AEPDismissButton.swift in Sources */,
+				B6F7CBCF2CC2089A00C35C64 /* ContentCardUIEventListening.swift in Sources */,
+				B6F7CBD02CC2089A00C35C64 /* ContentCardUI+EventHandler.swift in Sources */,
+				B6F7CBD12CC2089A00C35C64 /* SmallImageTemplate.swift in Sources */,
+				B6F7CBD22CC2089A00C35C64 /* AEPTextView.swift in Sources */,
+				B6F7CBD32CC2089A00C35C64 /* View+CustomModifiers.swift in Sources */,
+				B6F7CBD42CC2089A00C35C64 /* AEPHStack.swift in Sources */,
+				B6F7CBD52CC2089A00C35C64 /* AEPDismissButtonView.swift in Sources */,
+				B6F7CBD62CC2089A00C35C64 /* ContentCardUI.swift in Sources */,
+				B6F7CBD72CC2089A00C35C64 /* AEPButtonView.swift in Sources */,
+				B6F7CBD82CC2089A00C35C64 /* AEPStackError.swift in Sources */,
+				B6F7CBD92CC2089A00C35C64 /* AEPViewModel.swift in Sources */,
+				B6F7CBDA2CC2089A00C35C64 /* ImageSourceType.swift in Sources */,
+				B6F7CBDB2CC2089A00C35C64 /* ContentCardSchemaData+TemplateContent.swift in Sources */,
+				B6F7CBDC2CC2089A00C35C64 /* AEPText.swift in Sources */,
+				B6F7CBDD2CC2089A00C35C64 /* ContentCardCustomizing.swift in Sources */,
+				B6F7CBDE2CC2089A00C35C64 /* ContentCardTemplate.swift in Sources */,
+				B6F7CBDF2CC2089A00C35C64 /* ContentCardTemplateType.swift in Sources */,
+				B6F7CBE02CC2089A00C35C64 /* AEPTextType.swift in Sources */,
+				B6F7CBE12CC2089A00C35C64 /* BaseTemplate.swift in Sources */,
+				B6F7CBE22CC2089A00C35C64 /* Messaging+UIPublicAPI.swift in Sources */,
+				B6F7CBE32CC2089A00C35C64 /* UIConstants.swift in Sources */,
+				B6F7CBE42CC2089A00C35C64 /* AEPButton.swift in Sources */,
+				B6F7CBE52CC2089A00C35C64 /* ContentCardUIError.swift in Sources */,
+				B6F7CBE62CC2089A00C35C64 /* AEPViewModifier.swift in Sources */,
+				B6F7CBE72CC2089A00C35C64 /* AEPHStackView.swift in Sources */,
+				B6F7CBE82CC2089A00C35C64 /* AEPImageView.swift in Sources */,
+				B6F7CBE92CC2089A00C35C64 /* AEPStack.swift in Sources */,
+				B6F7CBEA2CC2089A00C35C64 /* TemplateEventHandler.swift in Sources */,
 				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
 				09B071F62A7318CB00F259C1 /* Array+Messaging.swift in Sources */,
 				244FEA4829B8E2950058FA1C /* Feed.swift in Sources */,
