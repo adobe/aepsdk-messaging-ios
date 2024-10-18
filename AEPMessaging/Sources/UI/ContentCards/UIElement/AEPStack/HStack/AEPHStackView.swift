@@ -13,6 +13,7 @@
 #if canImport(SwiftUI)
     import SwiftUI
 #endif
+
 @available(iOS 15.0, *)
 struct AEPHStackView: View {
     /// The model containing the data about the button.

@@ -13,7 +13,6 @@
 #if canImport(SwiftUI)
     import SwiftUI
 #endif
-
 import Foundation
 
 /// A custom view modifier that wraps and applies other SwiftUI view modifiers.

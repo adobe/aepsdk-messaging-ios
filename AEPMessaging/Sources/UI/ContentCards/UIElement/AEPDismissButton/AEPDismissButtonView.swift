@@ -12,6 +12,7 @@
 #if canImport(SwiftUI)
     import SwiftUI
 #endif
+
 /// A view that displays an button based on the provided `AEPDismissButton` model.
 @available(iOS 15.0, *)
 struct AEPDismissButtonView: View {

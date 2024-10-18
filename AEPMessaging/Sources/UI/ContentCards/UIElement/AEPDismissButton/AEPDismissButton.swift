@@ -15,6 +15,7 @@
 #endif
 
 import AEPServices
+
 @available(iOS 15.0, *)
 public class AEPDismissButton: ObservableObject, AEPViewModel {
     /// custom view modifier that can be applied to the dismiss button view.

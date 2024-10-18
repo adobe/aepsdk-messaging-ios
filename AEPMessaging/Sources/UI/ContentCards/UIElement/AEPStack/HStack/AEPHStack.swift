@@ -15,6 +15,7 @@
     import SwiftUI
 #endif
 import Foundation
+
 /// A model class representing a horizontal stack used for Content Cards
 @available(iOS 15.0, *)
 public class AEPHStack: AEPStack, AEPViewModel {

@@ -11,7 +11,9 @@
  */
 
 import Foundation
-import SwiftUI
+#if canImport(SwiftUI)
+    import SwiftUI
+#endif
 
 @available(iOS 15.0, *)
 enum Constants {
