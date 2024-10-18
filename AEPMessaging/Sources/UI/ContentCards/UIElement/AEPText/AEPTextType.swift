@@ -12,36 +12,36 @@
 
 #if canImport(SwiftUI)
     import SwiftUI
+#endif
 
-    /// Defines the type of text and its default styling properties
-    @available(iOS 15.0, *)
-    enum AEPTextType {
-        case title
-        case body
-        case button
+/// Defines the type of text and its default styling properties
+@available(iOS 15.0, *)
+enum AEPTextType {
+    case title
+    case body
+    case button
 
-        /// The default font for the text type
-        var defaultFont: Font? {
-            switch self {
-            case .title:
-                return Constants.CardTemplate.DefaultStyle.Text.TITLE_FONT
-            case .body:
-                return Constants.CardTemplate.DefaultStyle.Text.BODY_FONT
-            case .button:
-                return Constants.CardTemplate.DefaultStyle.Text.BUTTON_FONT
-            }
-        }
-
-        /// The default color for the text type
-        var defaultColor: Color? {
-            switch self {
-            case .title:
-                return Constants.CardTemplate.DefaultStyle.Text.TITLE_COLOR
-            case .body:
-                return Constants.CardTemplate.DefaultStyle.Text.BODY_COLOR
-            case .button:
-                return Constants.CardTemplate.DefaultStyle.Text.BUTTON_COLOR
-            }
+    /// The default font for the text type
+    var defaultFont: Font? {
+        switch self {
+        case .title:
+            return Constants.CardTemplate.DefaultStyle.Text.TITLE_FONT
+        case .body:
+            return Constants.CardTemplate.DefaultStyle.Text.BODY_FONT
+        case .button:
+            return Constants.CardTemplate.DefaultStyle.Text.BUTTON_FONT
         }
     }
-#endif
+
+    /// The default color for the text type
+    var defaultColor: Color? {
+        switch self {
+        case .title:
+            return Constants.CardTemplate.DefaultStyle.Text.TITLE_COLOR
+        case .body:
+            return Constants.CardTemplate.DefaultStyle.Text.BODY_COLOR
+        case .button:
+            return Constants.CardTemplate.DefaultStyle.Text.BUTTON_COLOR
+        }
+    }
+}

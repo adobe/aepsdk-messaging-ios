@@ -12,19 +12,18 @@
 
 #if canImport(SwiftUI)
     import SwiftUI
-
-    @available(iOS 15.0, *)
-    struct AEPHStackView: View {
-        /// The model containing the data about the button.
-        @ObservedObject var model = AEPHStack()
-
-        /// The body of the view
-        var body: some View {
-            HStack(alignment: model.alignment, spacing: model.spacing) {
-                ForEach(Array(model.childModels.enumerated()), id: \.offset) { _, model in
-                    AnyView(model.view)
-                }
-            }.applyModifier(model.modifier)
-        }
-    }
 #endif
+@available(iOS 15.0, *)
+struct AEPHStackView: View {
+    /// The model containing the data about the button.
+    @ObservedObject var model = AEPHStack()
+
+    /// The body of the view
+    var body: some View {
+        HStack(alignment: model.alignment, spacing: model.spacing) {
+            ForEach(Array(model.childModels.enumerated()), id: \.offset) { _, model in
+                AnyView(model.view)
+            }
+        }.applyModifier(model.modifier)
+    }
+}

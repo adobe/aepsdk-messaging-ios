@@ -12,32 +12,32 @@
 
 #if canImport(SwiftUI)
     import SwiftUI
+#endif
 
-    @available(iOS 15.0, *)
-    extension View {
-        /// Applies an optional `AEPViewModifier` to the view.
-        /// - Parameter modifier: An optional `AEPViewModifier` to apply to the view.
-        /// - Returns: A view with the modifier applied if provided, otherwise the original view.
-        @ViewBuilder
-        func applyModifier(_ modifier: AEPViewModifier?) -> some View {
-            applyIf(modifier) { view, mod in
-                view.modifier(mod)
-            }
-        }
-
-        /// Conditionally applies a transformation to the view based on an optional value.
-        /// - Parameters:
-        ///   - value: An optional value that determines whether the transformation should be applied.
-        ///   - apply: A closure that takes the current view and the unwrapped value, and returns a modified view.
-        /// - Returns: A view that is either transformed by the `apply` closure if `value` is non-nil,
-        ///            or the original view if `value` is nil.
-        @ViewBuilder
-        private func applyIf<Value>(_ value: Value?, apply: (Self, Value) -> some View) -> some View {
-            if let value = value {
-                apply(self, value)
-            } else {
-                self
-            }
+@available(iOS 15.0, *)
+extension View {
+    /// Applies an optional `AEPViewModifier` to the view.
+    /// - Parameter modifier: An optional `AEPViewModifier` to apply to the view.
+    /// - Returns: A view with the modifier applied if provided, otherwise the original view.
+    @ViewBuilder
+    func applyModifier(_ modifier: AEPViewModifier?) -> some View {
+        applyIf(modifier) { view, mod in
+            view.modifier(mod)
         }
     }
-#endif
+
+    /// Conditionally applies a transformation to the view based on an optional value.
+    /// - Parameters:
+    ///   - value: An optional value that determines whether the transformation should be applied.
+    ///   - apply: A closure that takes the current view and the unwrapped value, and returns a modified view.
+    /// - Returns: A view that is either transformed by the `apply` closure if `value` is non-nil,
+    ///            or the original view if `value` is nil.
+    @ViewBuilder
+    private func applyIf<Value>(_ value: Value?, apply: (Self, Value) -> some View) -> some View {
+        if let value = value {
+            apply(self, value)
+        } else {
+            self
+        }
+    }
+}
