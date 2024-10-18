@@ -11,37 +11,37 @@
  */
 
 #if canImport(SwiftUI)
-import SwiftUI
+    import SwiftUI
 
-/// A protocol that defines a model capable of providing a SwiftUI view.
-///
-/// Types conforming to `AEPModel` must  provide a `view` property that returns an instance of `Content` that conforms to `View`
-///
-/// This protocol is useful for creating a uniform interface for different view models that can generate SwiftUI views.
-/// All the UI elements `AEPText`, `AEPButton`, `AEPImage`, `AEPHStack`, and `AEPVStack`
-/// must conform to the `AEPModel` protocol.
-@available(iOS 15.0, *)
-protocol AEPViewModel {
-    /// The type of view associated with this model.
-    associatedtype Content: View
+    /// A protocol that defines a model capable of providing a SwiftUI view.
+    ///
+    /// Types conforming to `AEPModel` must  provide a `view` property that returns an instance of `Content` that conforms to `View`
+    ///
+    /// This protocol is useful for creating a uniform interface for different view models that can generate SwiftUI views.
+    /// All the UI elements `AEPText`, `AEPButton`, `AEPImage`, `AEPHStack`, and `AEPVStack`
+    /// must conform to the `AEPModel` protocol.
+    @available(iOS 15.0, *)
+    protocol AEPViewModel {
+        /// The type of view associated with this model.
+        associatedtype Content: View
 
-    /// A SwiftUI view that represents the content of this model.
-    var view: Content { get }
-}
-
-/// Adapts any SwiftUI View to conform to the `AEPViewModel` protocol.
-///
-/// This struct acts as a bridge, allowing you to  integrate any existing SwiftUI view into a
-/// system that expects view models adhering to the `AEPViewModel` protocol.
-/// Used in AEPStack to accept SwiftUI view's from public API and store them as `AEPViewModel`
-@available(iOS 15.0, *)
-struct AnyViewModel<Content: View>: AEPViewModel {
-    /// The underlying SwiftUI view being adapted.
-    let wrappedView: Content
-
-    /// Provides the adapted view, fulfilling the `AEPViewModel` requirement
-    public var view: some View {
-        wrappedView
+        /// A SwiftUI view that represents the content of this model.
+        var view: Content { get }
     }
-}
+
+    /// Adapts any SwiftUI View to conform to the `AEPViewModel` protocol.
+    ///
+    /// This struct acts as a bridge, allowing you to  integrate any existing SwiftUI view into a
+    /// system that expects view models adhering to the `AEPViewModel` protocol.
+    /// Used in AEPStack to accept SwiftUI view's from public API and store them as `AEPViewModel`
+    @available(iOS 15.0, *)
+    struct AnyViewModel<Content: View>: AEPViewModel {
+        /// The underlying SwiftUI view being adapted.
+        let wrappedView: Content
+
+        /// Provides the adapted view, fulfilling the `AEPViewModel` requirement
+        public var view: some View {
+            wrappedView
+        }
+    }
 #endif

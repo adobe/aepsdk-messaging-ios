@@ -11,20 +11,20 @@
  */
 
 #if canImport(SwiftUI)
-import SwiftUI
+    import SwiftUI
 
-@available(iOS 15.0, *)
-struct AEPVStackView: View {
-    /// The model containing the vertical stacks data
-    @ObservedObject var model = AEPVStack()
+    @available(iOS 15.0, *)
+    struct AEPVStackView: View {
+        /// The model containing the vertical stacks data
+        @ObservedObject var model = AEPVStack()
 
-    /// The body of the view
-    var body: some View {
-        VStack(alignment: model.alignment, spacing: model.spacing) {
-            ForEach(Array(model.childModels.enumerated()), id: \.offset) { _, model in
-                AnyView(model.view)
-            }
-        }.applyModifier(model.modifier)
+        /// The body of the view
+        var body: some View {
+            VStack(alignment: model.alignment, spacing: model.spacing) {
+                ForEach(Array(model.childModels.enumerated()), id: \.offset) { _, model in
+                    AnyView(model.view)
+                }
+            }.applyModifier(model.modifier)
+        }
     }
-}
 #endif

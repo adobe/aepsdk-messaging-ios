@@ -10,27 +10,27 @@
  */
 
 #if canImport(SwiftUI)
-import SwiftUI
+    import SwiftUI
 
-/// A view that displays an button based on the provided `AEPDismissButton` model.
-@available(iOS 15.0, *)
-struct AEPDismissButtonView: View {
-    /// The model containing the data about the button.
-    @ObservedObject public var model: AEPDismissButton
+    /// A view that displays an button based on the provided `AEPDismissButton` model.
+    @available(iOS 15.0, *)
+    struct AEPDismissButtonView: View {
+        /// The model containing the data about the button.
+        @ObservedObject public var model: AEPDismissButton
 
-    /// Initializes a new instance of `AEPButtonView` with the provided model
-    init(model: AEPDismissButton) {
-        self.model = model
+        /// Initializes a new instance of `AEPButtonView` with the provided model
+        init(model: AEPDismissButton) {
+            self.model = model
+        }
+
+        /// The body of the view
+        var body: some View {
+            Button(action: {
+                model.parentTemplate?.eventHandler?.onDismiss()
+            }, label: {
+                model.image.view
+            })
+            .applyModifier(model.modifier)
+        }
     }
-
-    /// The body of the view
-    var body: some View {
-        Button(action: {
-            model.parentTemplate?.eventHandler?.onDismiss()
-        }, label: {
-            model.image.view
-        })
-        .applyModifier(model.modifier)
-    }
-}
 #endif

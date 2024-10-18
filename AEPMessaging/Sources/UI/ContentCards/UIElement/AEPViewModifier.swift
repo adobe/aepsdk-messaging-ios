@@ -11,28 +11,28 @@
  */
 
 #if canImport(SwiftUI)
-import Foundation
-import SwiftUI
+    import Foundation
+    import SwiftUI
 
-/// A custom view modifier that wraps and applies other SwiftUI view modifiers.
-///
-/// AEPViewModifier provides a way to encapsulate and store view modifiers,
-/// allowing for dynamic application of modifiers to views.
-@available(iOS 15.0, *)
-public struct AEPViewModifier: ViewModifier {
-    private let _body: (Content) -> any View
+    /// A custom view modifier that wraps and applies other SwiftUI view modifiers.
+    ///
+    /// AEPViewModifier provides a way to encapsulate and store view modifiers,
+    /// allowing for dynamic application of modifiers to views.
+    @available(iOS 15.0, *)
+    public struct AEPViewModifier: ViewModifier {
+        private let _body: (Content) -> any View
 
-    /// Initializes a new `AEPViewModifier` with the given SwiftUI view modifier.
-    public init<M: ViewModifier>(_ modifier: M) {
-        self._body = { content in
-            content.modifier(modifier)
+        /// Initializes a new `AEPViewModifier` with the given SwiftUI view modifier.
+        public init<M: ViewModifier>(_ modifier: M) {
+            _body = { content in
+                content.modifier(modifier)
+            }
+        }
+
+        /// Applies the wrapped modifier to the given content.
+        /// This method is called by SwiftUI when the modifier is applied to a view.
+        public func body(content: Content) -> some View {
+            AnyView(_body(content))
         }
     }
-
-    /// Applies the wrapped modifier to the given content.
-    /// This method is called by SwiftUI when the modifier is applied to a view.
-    public func body(content: Content) -> some View {
-        AnyView(_body(content))
-    }
-}
 #endif

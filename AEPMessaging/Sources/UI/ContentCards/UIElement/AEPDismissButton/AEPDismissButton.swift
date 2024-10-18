@@ -10,49 +10,49 @@
  */
 
 #if canImport(SwiftUI)
-import AEPServices
-import Combine
-import SwiftUI
+    import AEPServices
+    import Combine
+    import SwiftUI
 
-@available(iOS 15.0, *)
-public class AEPDismissButton: ObservableObject, AEPViewModel {
-    /// custom view modifier that can be applied to the dismiss button view.
-    @Published public var modifier: AEPViewModifier?
+    @available(iOS 15.0, *)
+    public class AEPDismissButton: ObservableObject, AEPViewModel {
+        /// custom view modifier that can be applied to the dismiss button view.
+        @Published public var modifier: AEPViewModifier?
 
-    /// The image for the dismiss button
-    @Published public var image: AEPImage
+        /// The image for the dismiss button
+        @Published public var image: AEPImage
 
-    /// Alignment for the dismiss button rendered as an overlay on the card's template
-    @Published public var alignment: Alignment = Constants.CardTemplate.DefaultStyle.DismissButton.ALIGNMENT
+        /// Alignment for the dismiss button rendered as an overlay on the card's template
+        @Published public var alignment: Alignment = Constants.CardTemplate.DefaultStyle.DismissButton.ALIGNMENT
 
-    /// The parent template that contains this button.
-    weak var parentTemplate: (any ContentCardTemplate)?
+        /// The parent template that contains this button.
+        weak var parentTemplate: (any ContentCardTemplate)?
 
-    lazy var view: some View = AEPDismissButtonView(model: self)
+        lazy var view: some View = AEPDismissButtonView(model: self)
 
-    init?(_ data: [String: Any], _ template: any ContentCardTemplate) {
-        // bail out, if we cannot create a dismiss button Image
-        guard let dismissImage = AEPDismissButton.createDismissImage(data) else {
-            return nil
+        init?(_ data: [String: Any], _ template: any ContentCardTemplate) {
+            // bail out, if we cannot create a dismiss button Image
+            guard let dismissImage = AEPDismissButton.createDismissImage(data) else {
+                return nil
+            }
+
+            parentTemplate = template
+            image = dismissImage
         }
 
-        self.parentTemplate = template
-        self.image = dismissImage
+        private static func createDismissImage(_ data: [String: Any]) -> AEPImage? {
+            guard let styleString = data[Constants.CardTemplate.DismissButton.STYLE] as? String,
+                  let style = DismissButtonStyle(rawValue: styleString.lowercased()) else {
+                Log.warning(label: Constants.LOG_TAG, "Dismiss button not created, invalid or missing style property.")
+                return nil
+            }
+
+            guard let iconName = style.iconName else {
+                Log.trace(label: Constants.LOG_TAG, "Dismiss button style set to 'none'. No button will be created.")
+                return nil
+            }
+
+            return AEPImage([Constants.CardTemplate.UIElement.Image.ICON: iconName])
+        }
     }
-
-    private static func createDismissImage(_ data: [String: Any]) -> AEPImage? {
-        guard let styleString = data[Constants.CardTemplate.DismissButton.STYLE] as? String,
-              let style = DismissButtonStyle(rawValue: styleString.lowercased()) else {
-            Log.warning(label: Constants.LOG_TAG, "Dismiss button not created, invalid or missing style property.")
-            return nil
-        }
-
-        guard let iconName = style.iconName else {
-            Log.trace(label: Constants.LOG_TAG, "Dismiss button style set to 'none'. No button will be created.")
-            return nil
-        }
-
-        return AEPImage([Constants.CardTemplate.UIElement.Image.ICON: iconName])
-    }
-}
 #endif

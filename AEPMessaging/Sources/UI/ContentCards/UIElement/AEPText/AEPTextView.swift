@@ -11,25 +11,25 @@
  */
 
 #if canImport(SwiftUI)
-import SwiftUI
+    import SwiftUI
 
-/// A view that displays an button based on the provided `AEPText` model.
-@available(iOS 15.0, *)
-struct AEPTextView: View {
-    /// The model containing the data about the text.
-    @ObservedObject var model: AEPText
+    /// A view that displays an button based on the provided `AEPText` model.
+    @available(iOS 15.0, *)
+    struct AEPTextView: View {
+        /// The model containing the data about the text.
+        @ObservedObject var model: AEPText
 
-    /// Initializes a new instance of `AEPTextView` with the provided model
-    init(model: AEPText) {
-        self.model = model
+        /// Initializes a new instance of `AEPTextView` with the provided model
+        init(model: AEPText) {
+            self.model = model
+        }
+
+        /// The body of the view
+        var body: some View {
+            Text(model.content)
+                .font(model.font)
+                .foregroundColor(model.textColor)
+                .applyModifier(model.modifier)
+        }
     }
-
-    /// The body of the view
-    var body: some View {
-        Text(model.content)
-            .font(model.font)
-            .foregroundColor(model.textColor)
-            .applyModifier(model.modifier)
-    }
-}
 #endif

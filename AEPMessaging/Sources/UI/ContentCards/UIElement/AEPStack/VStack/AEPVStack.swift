@@ -11,17 +11,17 @@
  */
 
 #if canImport(SwiftUI)
-import Combine
-import Foundation
-import SwiftUI
+    import Combine
+    import Foundation
+    import SwiftUI
 
-/// A model class representing a vertical stack used for Content Cards
-@available(iOS 15.0, *)
-public class AEPVStack: AEPStack, AEPViewModel {
-    /// The horizontal alignment of child views in the vertical stack.
-    @Published public var alignment: HorizontalAlignment = Constants.CardTemplate.DefaultStyle.Stack.HORIZONTAL_ALIGNMENT
+    /// A model class representing a vertical stack used for Content Cards
+    @available(iOS 15.0, *)
+    public class AEPVStack: AEPStack, AEPViewModel {
+        /// The horizontal alignment of child views in the vertical stack.
+        @Published public var alignment: HorizontalAlignment = Constants.CardTemplate.DefaultStyle.Stack.HORIZONTAL_ALIGNMENT
 
-    /// The SwiftUI view representing the vertical stack.
-    lazy var view: some View = AEPVStackView(model: self)
-}
+        /// The SwiftUI view representing the vertical stack.
+        lazy var view: some View = AEPVStackView(model: self)
+    }
 #endif

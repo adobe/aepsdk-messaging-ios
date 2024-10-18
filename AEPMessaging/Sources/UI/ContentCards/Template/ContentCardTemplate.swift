@@ -11,17 +11,17 @@
  */
 
 #if canImport(SwiftUI)
-import SwiftUI
+    import SwiftUI
 
-/// A protocol defining the requirements for content card templates.
-@available(iOS 15.0, *)
-public protocol ContentCardTemplate: BaseTemplate {
-    associatedtype Content: View
+    /// A protocol defining the requirements for content card templates.
+    @available(iOS 15.0, *)
+    public protocol ContentCardTemplate: BaseTemplate {
+        associatedtype Content: View
 
-    /// The type of the content card template.
-    var templateType: ContentCardTemplateType { get }
+        /// The type of the content card template.
+        var templateType: ContentCardTemplateType { get }
 
-    /// The SwiftUI view representing the content of the template.
-    var view: Self.Content { get }
-}
+        /// The SwiftUI view representing the content of the template.
+        var view: Self.Content { get }
+    }
 #endif

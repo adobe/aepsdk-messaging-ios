@@ -15,7 +15,6 @@ import Foundation
 
 @available(iOS 15.0, *)
 public extension Messaging {
-
     /// Retrieves the content cards UI for a given surface.
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the content cards.
@@ -25,9 +24,9 @@ public extension Messaging {
     ///     - success([ContentCardUI]):  An array of `ContentCardUI` objects if the operation is successful.
     ///     - failure(Error) : An error indicating the failure reason
     static func getContentCardsUI(for surface: Surface,
-                                         customizer: ContentCardCustomizing? = nil,
-                                         listener: ContentCardUIEventListening? = nil,
-                                         _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
+                                  customizer: ContentCardCustomizing? = nil,
+                                  listener: ContentCardUIEventListening? = nil,
+                                  _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
         // Request propositions for the specified surface from Messaging extension.
         Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
 
