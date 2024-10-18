@@ -40,7 +40,7 @@ public class AEPText: ObservableObject, AEPViewModel {
     ///    - data: The dictionary containing server side styling and content of the text
     ///    - type: The type of text (title or description), determining default styling. Defaults to .body
     init?(_ data: [String: Any], type: AEPTextType = .body) {
-        guard let content = data[Constants.CardTemplate.UIElement.Text.CONTENT] as? String, !content.isEmpty else {
+        guard let content = data[UIConstants.CardTemplate.UIElement.Text.CONTENT] as? String, !content.isEmpty else {
             return nil
         }
         self.content = content

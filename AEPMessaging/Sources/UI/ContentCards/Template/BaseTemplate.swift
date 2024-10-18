@@ -60,17 +60,17 @@ public class BaseTemplate: ObservableObject {
         content()
             .background(backgroundColor)
             .onTapGesture {
-                self.eventHandler?.onInteract(interactionId: Constants.CardTemplate.InteractionID.cardTapped, actionURL: self.actionURL)
+                self.eventHandler?.onInteract(interactionId: UIConstants.CardTemplate.InteractionID.cardTapped, actionURL: self.actionURL)
             }.onAppear(perform: {
                 if !self.isDisplayed {
                     self.isDisplayed = true
                     self.eventHandler?.onDisplay()
                 }
             }).overlay(alignment: dismissButton?.alignment ??
-                Constants.CardTemplate.DefaultStyle.DismissButton.ALIGNMENT, content: {
+                UIConstants.CardTemplate.DefaultStyle.DismissButton.ALIGNMENT, content: {
                     if dismissButton != nil {
                         dismissButton?.view
-                            .padding(Constants.CardTemplate.DefaultStyle.PADDING)
+                            .padding(UIConstants.CardTemplate.DefaultStyle.PADDING)
                     }
                 })
     }

@@ -25,7 +25,7 @@ public class AEPDismissButton: ObservableObject, AEPViewModel {
     @Published public var image: AEPImage
 
     /// Alignment for the dismiss button rendered as an overlay on the card's template
-    @Published public var alignment: Alignment = Constants.CardTemplate.DefaultStyle.DismissButton.ALIGNMENT
+    @Published public var alignment: Alignment = UIConstants.CardTemplate.DefaultStyle.DismissButton.ALIGNMENT
 
     /// The parent template that contains this button.
     weak var parentTemplate: (any ContentCardTemplate)?
@@ -43,17 +43,17 @@ public class AEPDismissButton: ObservableObject, AEPViewModel {
     }
 
     private static func createDismissImage(_ data: [String: Any]) -> AEPImage? {
-        guard let styleString = data[Constants.CardTemplate.DismissButton.STYLE] as? String,
+        guard let styleString = data[UIConstants.CardTemplate.DismissButton.STYLE] as? String,
               let style = DismissButtonStyle(rawValue: styleString.lowercased()) else {
-            Log.warning(label: Constants.LOG_TAG, "Dismiss button not created, invalid or missing style property.")
+            Log.warning(label: UIConstants.LOG_TAG, "Dismiss button not created, invalid or missing style property.")
             return nil
         }
 
         guard let iconName = style.iconName else {
-            Log.trace(label: Constants.LOG_TAG, "Dismiss button style set to 'none'. No button will be created.")
+            Log.trace(label: UIConstants.LOG_TAG, "Dismiss button style set to 'none'. No button will be created.")
             return nil
         }
 
-        return AEPImage([Constants.CardTemplate.UIElement.Image.ICON: iconName])
+        return AEPImage([UIConstants.CardTemplate.UIElement.Image.ICON: iconName])
     }
 }

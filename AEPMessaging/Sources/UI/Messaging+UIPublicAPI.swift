@@ -31,7 +31,7 @@ public extension Messaging {
         Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
 
             if let error = error {
-                Log.error(label: Constants.LOG_TAG,
+                Log.error(label: UIConstants.LOG_TAG,
                           "Error retrieving content cards UI for surface, \(surface.uri). Error \(error)")
                 completion(.failure(error))
                 return
@@ -50,7 +50,7 @@ public extension Messaging {
                 guard let contentCard = ContentCardUI.createInstance(with: proposition,
                                                                      customizer: customizer,
                                                                      listener: listener) else {
-                    Log.warning(label: Constants.LOG_TAG,
+                    Log.warning(label: UIConstants.LOG_TAG,
                                 "Failed to create ContentCardUI for proposition with ID: \(proposition.uniqueId)")
                     continue
                 }

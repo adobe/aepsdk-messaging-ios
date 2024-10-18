@@ -20,9 +20,9 @@ enum DismissButtonStyle: String {
     var iconName: String? {
         switch self {
         case .simple:
-            return Constants.CardTemplate.DismissButton.Icon.SIMPLE
+            return UIConstants.CardTemplate.DismissButton.Icon.SIMPLE
         case .circle:
-            return Constants.CardTemplate.DismissButton.Icon.CIRCLE
+            return UIConstants.CardTemplate.DismissButton.Icon.CIRCLE
         case .none:
             return nil
         }

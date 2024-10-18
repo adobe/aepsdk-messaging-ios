@@ -1,0 +1,36 @@
+{
+    "expiryDate": 1723163897,
+    "meta": {
+        "adobe" : {
+            "template": "SmallImage"
+        }
+    },
+    "content": {
+          "actionUrl": "https://actionUrl.com",
+          "body": {
+            "content": "Card Body"
+          },
+          "image": {
+            "url": "https://imagetoDownload.com/cardimage",
+            "darkUrl": "https://imagetoDownload.com/darkimage"
+          },
+          "buttons": [
+            {
+              "interactId": "purchaseID",
+              "text": {
+                "content": "Purchase Now"
+              },
+              "actionUrl": "https://adobe.com/offer"
+            },
+            {
+              "interactId": "cancelID",
+              "text": {
+                "content": "Cancel"
+              },
+              "actionUrl": "app://home"
+            }
+        ]
+    },
+    "contentType": "application/json",
+    "publishedDate": 1691541497
+}
