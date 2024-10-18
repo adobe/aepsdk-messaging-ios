@@ -24,7 +24,7 @@ public class AEPStack: ObservableObject {
     @Published var childModels: [any AEPViewModel] = []
 
     /// The spacing between child views in the stack.
-    @Published public var spacing: CGFloat = Constants.CardTemplate.DefaultStyle.Stack.SPACING
+    @Published public var spacing: CGFloat = UIConstants.CardTemplate.DefaultStyle.Stack.SPACING
 
     /// custom view modifier that can be applied to the stack view.
     @Published public var modifier: AEPViewModifier?
@@ -52,7 +52,7 @@ public class AEPStack: ObservableObject {
     ///   - `AEPStackError.indexOutOfBounds` if the specified index is out of the valid range.
     func insertView<V: View>(_ view: V, at index: Int) throws {
         guard index >= 0 && index <= childModels.count else {
-            Log.warning(label: Constants.LOG_TAG, "AEPStack: Cannot insert view at index \(index). Index out of bounds.")
+            Log.warning(label: UIConstants.LOG_TAG, "AEPStack: Cannot insert view at index \(index). Index out of bounds.")
             throw AEPStackError.indexOutOfBounds
         }
         let model = AnyViewModel(wrappedView: view)
@@ -65,7 +65,7 @@ public class AEPStack: ObservableObject {
     ///   - `AEPStackError.indexOutOfBounds` if the specified index is out of the valid range.
     func removeView(at index: Int) throws {
         guard childModels.indices.contains(index) else {
-            Log.warning(label: Constants.LOG_TAG, "AEPStack: Cannot remove view at index \(index). Index out of bounds.")
+            Log.warning(label: UIConstants.LOG_TAG, "AEPStack: Cannot remove view at index \(index). Index out of bounds.")
             throw AEPStackError.indexOutOfBounds
         }
         childModels.remove(at: index)

@@ -20,7 +20,7 @@ extension ContentCardSchemaData {
     /// This property extracts the template type from the Adobe-specific metadata and converts it to
     /// a `ContentCardTemplateType` value. If the template type cannot be determined, it defaults to `.unknown`.
     var templateType: ContentCardTemplateType {
-        guard let templateString = metaAdobeData?[Constants.CardTemplate.SchemaData.Meta.TEMPLATE] as? String else {
+        guard let templateString = metaAdobeData?[UIConstants.CardTemplate.SchemaData.Meta.TEMPLATE] as? String else {
             return .unknown
         }
         return ContentCardTemplateType(from: templateString)
@@ -29,7 +29,7 @@ extension ContentCardSchemaData {
     /// This property extracts the title data from the content dictionary and attempts to
     /// initialize an `AEPText` object with it. Returns `nil` if the title data is not available.
     var title: AEPText? {
-        guard let titleData = contentDict?[Constants.CardTemplate.SchemaData.TITLE] as? [String: Any] else {
+        guard let titleData = contentDict?[UIConstants.CardTemplate.SchemaData.TITLE] as? [String: Any] else {
             return nil
         }
 
@@ -39,7 +39,7 @@ extension ContentCardSchemaData {
     /// This property extracts the body data from the content dictionary and attempts to
     /// initialize an `AEPText` object with it. Returns `nil` if the body data is not available.
     var body: AEPText? {
-        guard let bodyData = contentDict?[Constants.CardTemplate.SchemaData.BODY] as? [String: Any] else {
+        guard let bodyData = contentDict?[UIConstants.CardTemplate.SchemaData.BODY] as? [String: Any] else {
             return nil
         }
         return AEPText(bodyData, type: .body)
@@ -48,7 +48,7 @@ extension ContentCardSchemaData {
     /// This property extracts the image data from the content dictionary and attempts to
     /// initialize an `AEPText` object with it. Returns `nil` if the image data is not available.
     var image: AEPImage? {
-        guard let imageData = contentDict?[Constants.CardTemplate.SchemaData.IMAGE] as? [String: Any] else {
+        guard let imageData = contentDict?[UIConstants.CardTemplate.SchemaData.IMAGE] as? [String: Any] else {
             return nil
         }
         return AEPImage(imageData)
@@ -58,7 +58,7 @@ extension ContentCardSchemaData {
     /// - Parameter template: The `ContentCardTemplate` instance for which the buttons are initialized.
     /// - Returns: An array of `AEPButton` objects, or `nil` if the buttons data is not available.
     func getButtons(forTemplate template: any ContentCardTemplate) -> [AEPButton]? {
-        guard let buttonsData = contentDict?[Constants.CardTemplate.SchemaData.BUTTONS] as? [[String: Any]] else {
+        guard let buttonsData = contentDict?[UIConstants.CardTemplate.SchemaData.BUTTONS] as? [[String: Any]] else {
             return nil
         }
 
@@ -71,7 +71,7 @@ extension ContentCardSchemaData {
     ///  - template: The `ContentCardTemplate` instance for which the dismiss button is initialized.
     /// - Returns: An AEPDismissButton instance, or nil if the data is not available.
     func getDismissButton(forTemplate template: any ContentCardTemplate) -> AEPDismissButton? {
-        guard let dismissButtonData = contentDict?[Constants.CardTemplate.SchemaData.DISMISS_BTN] as? [String: Any] else {
+        guard let dismissButtonData = contentDict?[UIConstants.CardTemplate.SchemaData.DISMISS_BTN] as? [String: Any] else {
             return nil
         }
 
@@ -81,7 +81,7 @@ extension ContentCardSchemaData {
     /// This property extracts the action URL from the content dictionary and returns it as a URL object.
     /// Returns `nil` if the action URL is not available or if it is not a valid URL.
     var actionUrl: URL? {
-        guard let actionUrl = contentDict?[Constants.CardTemplate.SchemaData.ACTION_URL] as? String else {
+        guard let actionUrl = contentDict?[UIConstants.CardTemplate.SchemaData.ACTION_URL] as? String else {
             return nil
         }
         return URL(string: actionUrl)
@@ -94,6 +94,6 @@ extension ContentCardSchemaData {
 
     /// A dictionary representing the Adobe-specific metadata of the content card.
     private var metaAdobeData: [String: Any]? {
-        meta?[Constants.CardTemplate.SchemaData.Meta.ADOBE_DATA] as? [String: Any]
+        meta?[UIConstants.CardTemplate.SchemaData.Meta.ADOBE_DATA] as? [String: Any]
     }
 }

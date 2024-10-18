@@ -15,9 +15,8 @@ import Foundation
     import SwiftUI
 #endif
 
-@available(iOS 15.0, *)
-enum Constants {
-    static let LOG_TAG = "AEPSwiftUI"
+enum UIConstants {
+    static let LOG_TAG = "MessagingUI"
     static let EXTENSION_VERSION = "5.1.0"
 
     enum CardTemplate {
@@ -25,6 +24,7 @@ enum Constants {
         static let LargeImage = "LargeImage"
         static let ImageOnly = "ImageOnly"
 
+        @available(iOS 15.0, *)
         enum DefaultStyle {
             static let PADDING = 8.0
             enum Text {

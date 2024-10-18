@@ -25,11 +25,11 @@ enum AEPTextType {
     var defaultFont: Font? {
         switch self {
         case .title:
-            return Constants.CardTemplate.DefaultStyle.Text.TITLE_FONT
+            return UIConstants.CardTemplate.DefaultStyle.Text.TITLE_FONT
         case .body:
-            return Constants.CardTemplate.DefaultStyle.Text.BODY_FONT
+            return UIConstants.CardTemplate.DefaultStyle.Text.BODY_FONT
         case .button:
-            return Constants.CardTemplate.DefaultStyle.Text.BUTTON_FONT
+            return UIConstants.CardTemplate.DefaultStyle.Text.BUTTON_FONT
         }
     }
 
@@ -37,11 +37,11 @@ enum AEPTextType {
     var defaultColor: Color? {
         switch self {
         case .title:
-            return Constants.CardTemplate.DefaultStyle.Text.TITLE_COLOR
+            return UIConstants.CardTemplate.DefaultStyle.Text.TITLE_COLOR
         case .body:
-            return Constants.CardTemplate.DefaultStyle.Text.BODY_COLOR
+            return UIConstants.CardTemplate.DefaultStyle.Text.BODY_COLOR
         case .button:
-            return Constants.CardTemplate.DefaultStyle.Text.BUTTON_COLOR
+            return UIConstants.CardTemplate.DefaultStyle.Text.BUTTON_COLOR
         }
     }
 }
