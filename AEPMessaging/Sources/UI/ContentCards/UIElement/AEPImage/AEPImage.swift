@@ -59,27 +59,27 @@ public class AEPImage: ObservableObject, AEPViewModel {
     /// Failable initializer, returns nil if the required fields are not present in the data
     /// - Parameter data: The dictionary containing server side styling and content of the Image
     init?(_ data: [String: Any]) {
-        altText = data[Constants.CardTemplate.UIElement.Image.ALTERNATE_TEXT] as? String
+        altText = data[UIConstants.CardTemplate.UIElement.Image.ALTERNATE_TEXT] as? String
 
         // Attempt to initialize from URL
-        if let urlString = data[Constants.CardTemplate.UIElement.Image.URL] as? String,
+        if let urlString = data[UIConstants.CardTemplate.UIElement.Image.URL] as? String,
            let url = URL(string: urlString) {
             imageSourceType = .url
             self.url = url
-            darkUrl = (data[Constants.CardTemplate.UIElement.Image.DARK_URL] as? String).flatMap { URL(string: $0) }
+            darkUrl = (data[UIConstants.CardTemplate.UIElement.Image.DARK_URL] as? String).flatMap { URL(string: $0) }
             return
         }
 
         // Attempt to initialize from bundle
-        if let bundle = data[Constants.CardTemplate.UIElement.Image.BUNDLE] as? String {
+        if let bundle = data[UIConstants.CardTemplate.UIElement.Image.BUNDLE] as? String {
             imageSourceType = .bundle
             self.bundle = bundle
-            darkBundle = data[Constants.CardTemplate.UIElement.Image.DARK_BUNDLE] as? String
+            darkBundle = data[UIConstants.CardTemplate.UIElement.Image.DARK_BUNDLE] as? String
             return
         }
 
         // Attempt to initialize from icon
-        if let icon = data[Constants.CardTemplate.UIElement.Image.ICON] as? String {
+        if let icon = data[UIConstants.CardTemplate.UIElement.Image.ICON] as? String {
             imageSourceType = .icon
             self.icon = icon
             return

@@ -44,20 +44,20 @@ public class AEPButton: ObservableObject, AEPViewModel {
     init?(_ schemaData: [String: Any], _ template: any ContentCardTemplate) {
         // Extract the button text
         // Bail out if the button text is not present
-        guard let buttonTextData = schemaData[Constants.CardTemplate.UIElement.Button.TEXT] as? [String: Any],
+        guard let buttonTextData = schemaData[UIConstants.CardTemplate.UIElement.Button.TEXT] as? [String: Any],
               let buttonText = AEPText(buttonTextData, type: .button) else {
             return nil
         }
 
         // Extract the interactId
         // Bail out if the interact Id is not present
-        guard let interactId = schemaData[Constants.CardTemplate.UIElement.Button.INTERACTION_ID] as? String else {
+        guard let interactId = schemaData[UIConstants.CardTemplate.UIElement.Button.INTERACTION_ID] as? String else {
             return nil
         }
 
         text = buttonText
         self.interactId = interactId
-        if let urlString = schemaData[Constants.CardTemplate.UIElement.Button.ACTION_URL] as? String,
+        if let urlString = schemaData[UIConstants.CardTemplate.UIElement.Button.ACTION_URL] as? String,
            let url = URL(string: urlString) {
             actionUrl = url
         }
