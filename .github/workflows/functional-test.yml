@@ -37,8 +37,15 @@ jobs:
         with:
           xcode-version: '15.0.1'
 
+      - name: Launch iOS Simulator
+        uses: futureware-tech/simulator-action@v3
+        with:
+          model: 'iPhone 14'
+          os: 'iOS'
+          os_version: '17.0'
+
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch || 'main' }}
       

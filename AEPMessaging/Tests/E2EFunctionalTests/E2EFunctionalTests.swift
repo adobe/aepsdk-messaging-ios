@@ -29,7 +29,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
     var mockRuntime: TestableExtensionRuntime!
     
     // testing constants
-    let asyncTimeout: TimeInterval = 15
+    let asyncTimeout: TimeInterval = 30
     let iamScope = "mobileapp://com.adobe.ajoinbounde2etestsonly"
     let cbeScope = "mobileapp://com.adobe.ajoinbounde2etestsonly/cbeJson"
     let cardScope = "mobileapp://com.adobe.ajoinbounde2etestsonly/cards/ms"
@@ -70,8 +70,8 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
             MobileCore.configureWith(appId: Environment.get().appId)
         }
         
-        // wait 5 seconds to allow configuration to download
-        E2EFunctionalTests.passTime(seconds: 5)
+        // wait 10 seconds to allow configuration to download
+        E2EFunctionalTests.passTime(seconds: 10)
         
         MobileCore.updateConfigurationWith(configDict: Environment.get().configurationUpdates)
     }
