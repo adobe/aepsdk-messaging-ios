@@ -6,7 +6,7 @@ name: E2E Functional Tests
 # or API.
 on:
   schedule:
-    - cron: '*/20 * * * *'
+    # - cron: '*/20 * * * *'
     # - cron: '0 11 * * *'
     # - cron: '0 23 * * *'
   workflow_dispatch:
@@ -40,12 +40,12 @@ jobs:
       - name: Launch iOS Simulator
         uses: futureware-tech/simulator-action@v3
         with:
-          model: 'iPhone 14'
+          model: 'iPhone 15'
           os: 'iOS'
           os_version: '17.0'
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.branch || 'main' }}
       
@@ -65,9 +65,9 @@ jobs:
 
       - name: Update Slack on failure
         if: failure()
-        uses: 8398a7/action-slack@28ba43ae48961b90635b50953d216767a6bea486      
-        with:        
-          status: ${{ job.status }}            
+        uses: 8398a7/action-slack@28ba43ae48961b90635b50953d216767a6bea486
+        with:
+          status: ${{ job.status }}
           fields: repo,action,ref,workflow
           text: |
             @sbenedic changes to E2E Testing for Inbound Personalization has Failed :(
