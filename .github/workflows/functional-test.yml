@@ -42,7 +42,9 @@ jobs:
         with:
           model: 'iPhone 15'
           os: 'iOS'
-          os_version: '17.0'
+          os_version: '17.1'
+          erase_before_boot: false
+          shutdown_after_job: false
 
       - name: Checkout
         uses: actions/checkout@v3
