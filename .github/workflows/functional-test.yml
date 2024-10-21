@@ -5,8 +5,8 @@ name: E2E Functional Tests
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
-  schedule:
-    - cron: '*/20 * * * *'
+  # schedule:
+    # - cron: '*/20 * * * *'
     # - cron: '0 11 * * *'
     # - cron: '0 23 * * *'
   workflow_dispatch:
@@ -40,9 +40,9 @@ jobs:
       - name: Launch iOS Simulator
         uses: futureware-tech/simulator-action@v3
         with:
-          model: 'iPhone 14'
-          os: 'iOS'
-          os_version: '17.0'
+          model: 'iPhone 15'
+          # os: 'iOS'
+          # os_version: '17.0'
 
       - name: Checkout
         uses: actions/checkout@v4
