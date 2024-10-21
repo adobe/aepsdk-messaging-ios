@@ -42,7 +42,7 @@ jobs:
         with:
           model: 'iPhone 15'
           os: 'iOS'
-          os_version: '17.0.1'
+          os_version: '17.5'
           erase_before_boot: false
           shutdown_after_job: false
 
