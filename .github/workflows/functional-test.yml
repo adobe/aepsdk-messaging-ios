@@ -70,7 +70,7 @@ jobs:
           status: ${{ job.status }}
           fields: repo,action,ref,workflow
           text: |
-            @sbenedic changes to E2E Testing for Inbound Personalization has Failed :(
+            E2E Testing for Inbound Personalization has Failed :(
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  
