@@ -6,9 +6,7 @@ name: E2E Functional Tests
 # or API.
 on:
   schedule:
-    - cron: '*/20 * * * *'
-    # - cron: '0 11 * * *'
-    # - cron: '0 23 * * *'
+    - cron: '0 23 * * *'
   workflow_dispatch:
     inputs:
       branch:
@@ -38,7 +36,7 @@ jobs:
           xcode-version: '15.0.1'
 
       - name: Launch iOS Simulator
-        uses: futureware-tech/simulator-action@v3
+        uses: futureware-tech/simulator-action@bfa03d93ec9de6dacb0c5553bbf8da8afc6c2ee9
         with:
           model: 'iPhone 15'
           os: 'iOS'
