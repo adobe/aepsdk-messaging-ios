@@ -67,6 +67,9 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         ]
         
         MobileCore.registerExtensions(extensions) {
+            MobileCore.resetIdentities()
+            
+            print("E2E TEST ENVIRONMENT - running tests in \(Environment.get().rawValue) with appId \(Environment.get().appId)")
             MobileCore.configureWith(appId: Environment.get().appId)
         }
         
@@ -161,7 +164,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         wait(for: [messagingRequestContentExpectation], timeout: asyncTimeout)
     }
     
-    func testCBEMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
+    func testCBEMessagesReturnedFromIDSHaveCorrectJsonFormat() throws {
         // setup
         lock.lock()
         var processed = false
@@ -219,7 +222,7 @@ class E2EFunctionalTests: XCTestCase, AnyCodableAsserts {
         wait(for: [messagingRequestContentExpectation], timeout: asyncTimeout)
     }
     
-    func testContentCardMessagesReturnedFromXASHaveCorrectJsonFormat() throws {
+    func testContentCardMessagesReturnedFromIDSHaveCorrectJsonFormat() throws {
         // setup
         lock.lock()
         var processed = false
