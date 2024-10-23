@@ -48,11 +48,6 @@ import Foundation
 ///     - CBE - DO-NOT-DELETE-AJO-E2E-CBE (cbeJson)
 ///     - Cards - DO-NOT-DELETE-AJO-E2E-CARDS (cards/ms)
 
-
-
-
-
-
 /// prodVA6
 /// Environment: Production
 /// Org: AJO Ultimate Prod VA6 (1AF61E6466D9FBC90A495FD4@AdobeOrg)
@@ -64,9 +59,6 @@ import Foundation
 ///     - IAM - DO-NOT-DELETE-AJO-E2E-IAM (com.adobe.ajoinbounde2etestsonly)
 ///     - CBE - DO-NOT-DELETE-AJO-E2E-CBE (cbeJson)
 ///     - Cards - DO-NOT-DELETE-AJO-E2E-CARDS (cards/ms)
-
-
-
 
 /// prodCAN2
 /// Environment: Production
@@ -80,10 +72,6 @@ import Foundation
 ///     - CBE - DO-NOT-DELETE-AJO-E2E-CBE (cbeJson)
 ///     - Cards - DO-NOT-DELETE-AJO-E2E-CARDS (cards/ms)
 
-
-
-// DO NOT DELETE - SDK E2E IAM test
-
 /// prodGBR9
 /// Environment: Production
 /// Org: GBR9 AJO Prime PAT (9AC11D6B65AEB6AB0A495E33@AdobeOrg)
@@ -96,9 +84,6 @@ import Foundation
 ///     - CBE - DO-NOT-DELETE-AJO-E2E-CBE (cbeJson)
 ///     - Cards - DO-NOT-DELETE-AJO-E2E-CARDS (cards/ms)
 
-
-
-
 /// prodIND2
 /// Environment: Production
 /// Org: IND2 AJO Prime PAT (1F0C1E576675A5B90A495E61@AdobeOrg)
@@ -106,17 +91,23 @@ import Foundation
 /// Data Collection tag: AJO - IAM E2E Automated Tests
 /// Datastream: ajo-prod-ind2 (4d092821-bc2d-4832-85b0-b0a00df68bc1)
 /// AppID for SDK configuration: 435e7e9c78c2/ea18afa99d5e/launch-7933e3884918-development
-/// AJO Channel: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
-
+/// AJO Channel Configurations:
+///     - IAM - DO-NOT-DELETE-AJO-E2E-IAM (com.adobe.ajoinbounde2etestsonly)
+///     - CBE - DO-NOT-DELETE-AJO-E2E-CBE (cbeJson)
+///     - Cards - DO-NOT-DELETE-AJO-E2E-CARDS (cards/ms)
 
 /// stageVA7
 /// Environment: Stage
 /// Org: CJM Stage (745F37C35E4B776E0A49421B@AdobeOrg)
 /// Sandbox: AJO Web (VA7)
 /// Data Collection tag: AJO - IAM E2E Automated Tests
-/// App Surface: AJO - IAM E2E Automated tests (com.adobe.ajoinbounde2etestsonly)
-/// Datastream: ajo-stage: Production Environment (19fc5fe9-37df-46da-8f5c-9eeff4f75ed9)
+/// Datastream: DO_NOT_DELETE_AJO_E2E_Automated_tests (1a76d715-4c54-4e45-9be7-51546fe848e5)
 /// AppID for SDK configuration: staging/1b50a869c4a2/8a2b5f4bc2f0/launch-302971d67c36-development
+/// AJO Channel Configurations:
+///     - IAM - DO-NOT-DELETE-AJO-E2E-IAM (com.adobe.ajoinbounde2etestsonly)
+///     - CBE - DO-NOT-DELETE-AJO-E2E-CBE (cbeJson)
+///     - Cards - DO-NOT-DELETE-AJO-E2E-CARDS (cards/ms)
+
 
 enum Environment: String {
     case prodVA7 = "prodVA7"
