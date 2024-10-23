@@ -26,11 +26,11 @@ struct HomeView: View {
                 .tabItem {
                     Label("Push", systemImage: "paperplane.fill")
                 }
-            CodeBasedOffersView()
+            CodeBasedView()
                 .tabItem {
                     Label("Code Experiences", systemImage: "newspaper.fill")
                 }
-            ContentCardsView()
+            CardsView()
                 .tabItem {
                     Label("Cards", systemImage: "tray.and.arrow.down.fill")
                 }

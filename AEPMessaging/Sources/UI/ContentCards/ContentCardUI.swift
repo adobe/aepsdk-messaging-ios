@@ -37,6 +37,8 @@ public class ContentCardUI: Identifiable {
     public var meta: [String: Any]? {
         proposition.items.first?.contentCardSchemaData?.meta
     }
+    
+    
 
     /// Factory method to create a `ContentCardUI` instance based on the provided schema data.
     /// - Parameters:
