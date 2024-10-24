@@ -111,20 +111,52 @@ class SmallImageTemplateTest : IntegrationTestBase {
         #expect(card.dismissButton?.modifier == nil)
     }
     
-    @Test("missing ui element", arguments: [
-        ("small image no title", false),
-        ("small image no body", true),
-        ("small image no image", true),
-        ("small image no buttons", true)
-    ])
-    func smallImageTemplateNoTitle(fileName: String, _ isCardCreated: Bool) async throws {
+    @Test("missing ui element - no title", .tags(.UITest))
+    func smallImageTemplateNoTitle() async throws {
         // setup
-        setContentCardResponse(fromFile: fileName)
+        setContentCardResponse(fromFile: "small image no title")
         
         // test
         let cards = try await getContentCardUI(homeSurface)
         
         // verify
-        #expect(!cards.isEmpty == isCardCreated)
+        #expect(cards.isEmpty == true)
     }
+    
+    @Test("missing ui element - no body", .tags(.UITest))
+    func smallImageTemplateNoBody() async throws {
+        // setup
+        setContentCardResponse(fromFile: "small image no body")
+        
+        // test
+        let cards = try await getContentCardUI(homeSurface)
+        
+        // verify
+        #expect(cards.isEmpty == false)
+    }
+    
+    @Test("missing ui element - no image", .tags(.UITest))
+    func smallImageTemplateNoImage() async throws {
+        // setup
+        setContentCardResponse(fromFile: "small image no image")
+        
+        // test
+        let cards = try await getContentCardUI(homeSurface)
+        
+        // verify
+        #expect(cards.isEmpty == false)
+    }
+    
+    @Test("missing ui element - no buttons", .tags(.UITest))
+    func smallImageTemplateNoButtons() async throws {
+        // setup
+        setContentCardResponse(fromFile: "small image no buttons")
+        
+        // test
+        let cards = try await getContentCardUI(homeSurface)
+        
+        // verify
+        #expect(cards.isEmpty == false)
+    }
+    
 }
