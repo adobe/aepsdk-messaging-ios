@@ -86,6 +86,11 @@ target 'FunctionalTests' do
   test_utils
 end
 
+target 'IntegrationTests' do
+  app_main
+  test_utils
+end
+
 target 'E2EFunctionalTests' do
   app_main
   test_utils
