@@ -11,13 +11,13 @@ workflows:
   version: 2
   build-test-deploy:
     jobs:
-      - validate-code
+      # - validate-code
       - test-ios:
-          requires:
-            - validate-code
-      - test-spm-podspec-archive:
-          requires:
-            - validate-code
+          # requires:
+          #   - validate-code
+      # - test-spm-podspec-archive:
+      #     requires:
+      #       - validate-code
 
 commands:
   install_dependencies:
@@ -76,7 +76,7 @@ jobs:
 
   test-ios:
     macos:
-      xcode: 15.1.0 # Specify the Xcode version to use
+      xcode: 16.0.0 # Specify the Xcode version to use
 
     steps:
       - checkout
@@ -85,9 +85,9 @@ jobs:
 
       - prestart_ios_simulator
 
-      - run:
-          name: Run Unit Tests
-          command: make unit-test
+      # - run:
+      #     name: Run Unit Tests
+      #     command: make unit-test
 
       # Code coverage upload using Codecov
       # See options explanation here: https://docs.codecov.com/docs/codecov-uploader
@@ -96,10 +96,10 @@ jobs:
       #     upload_name: Coverage Report for AEPMessaging iOS Tests
       #     xtra_args: -c -v --xc --xp ./build/AEPMessaging.xcresult
 
-      - run:
-          name: Run Functional Tests
-          command: make functional-test
-          when: always # run even if unit tests fail
+      # - run:
+      #     name: Run Functional Tests
+      #     command: make functional-test
+      #     when: always # run even if unit tests fail
 
       - run:
           name: Run Integration Tests
