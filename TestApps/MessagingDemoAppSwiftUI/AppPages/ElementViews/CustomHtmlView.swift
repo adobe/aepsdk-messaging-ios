@@ -20,7 +20,7 @@ struct CustomHtmlView: View {
     var body: some View {
         WebView(htmlString: self.$htmlString)
             .multilineTextAlignment(.center)
-            .frame(height: 150)
+            .frame(height: 450)
             .frame(maxWidth: .infinity)
             .onAppear {
                 self.trackAction?(nil, .display, nil)

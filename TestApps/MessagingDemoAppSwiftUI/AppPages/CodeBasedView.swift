@@ -17,31 +17,24 @@ class Propositions: ObservableObject {
     @Published var propositionsDict: [Surface: [Proposition]]? = nil
 }
 
-struct CodeBasedOffersView: View {
+struct CodeBasedView: View {
     @StateObject var propositions = Propositions()
-    @State private var isLoading = false
-    
-    let surfaces: [Surface] = [
-        // prod surfaces
-        // Surface(path: "codeBasedView#customHtmlOffer")
-        // Surface(path: "sb/cbe-json-object")
-        // Surface(path: "sb/cbe-json")
-        
-        // staging surfaces
-        // Surface(path: "cbeoffers3")
-        Surface(path: "cbeJsonArray"),
-        Surface(path: "cbeHtml")
+    @State private var showLoadingIndicator = false
+    @State private var viewLoaded = false
+    private let surfaces: [Surface] = [
+        Surface(path: Constants.SurfaceName.CBE_JSON),
+        Surface(path: Constants.SurfaceName.CBE_HTML)
     ]
     
     var body: some View {
         VStack {
-            Text("Code Based Experiences")
-                .font(Font.title)
-                .padding(.top, 30)
-            if isLoading {
-                // Display a loading indicator or some placeholder content
-                Text("Loading...")
-            } else {
+            TabHeader(title: "Code Based", refreshAction: {
+                fetchExperience()
+            }, redownloadAction: {
+                downloadExperience()
+                fetchExperience()
+            })
+            ZStack {
                 List {
                     if let propositionsDict = propositions.propositionsDict, !propositionsDict.isEmpty {
                         let surfacesArray = Array(propositionsDict.keys)
@@ -66,26 +59,43 @@ struct CodeBasedOffersView: View {
                         }
                     }
                 }
+                if showLoadingIndicator {
+                    ProgressView("Loading...")
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .padding()
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(10)
+                        .shadow(radius: 10)
+                }
             }
+            
         }
         .onAppear {
-            isLoading = true
-            Messaging.updatePropositionsForSurfaces(surfaces)
-            Messaging.getPropositionsForSurfaces(surfaces) { propositionsDict, error in
-                if let error = error {
-                    return
-                }
-                DispatchQueue.main.async {
-                    self.propositions.propositionsDict = propositionsDict
-                    self.isLoading = false
-                }
+            if !viewLoaded {
+                viewLoaded = true
+                fetchExperience()
+            }
+        }
+    }
+    
+    private func downloadExperience() {
+        showLoadingIndicator = true
+        Messaging.updatePropositionsForSurfaces(surfaces)
+    }
+            
+    private func fetchExperience() {
+        Messaging.getPropositionsForSurfaces(surfaces) { propositionsDict, error in
+            showLoadingIndicator = false
+            if error != nil {
+                return
+            }
+            DispatchQueue.main.async {
+                self.propositions.propositionsDict = propositionsDict
             }
         }
     }
 }
 
-struct CodeBasedOffersView_Previews: PreviewProvider {
-    static var previews: some View {
-        CodeBasedOffersView()
-    }
+#Preview {
+    CodeBasedView()
 }
