@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "DFFB434E-F287-4705-97B6-C6225F7F3837",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:AEPMessaging.xcodeproj",
+        "identifier" : "B6F7CCA32CCA165B00C35C64",
+        "name" : "IntegrationTests"
+      }
+    }
+  ],
+  "version" : 1
+}
