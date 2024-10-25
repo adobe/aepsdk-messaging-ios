@@ -41,7 +41,7 @@ class IntegrationTestBase {
         bootSDK()
     }
     
-    /// Wrapper on AEPSwiftUI's getContentCardUI API designed to be used with Swift's async/await syntax.
+    /// Wrapper on getContentCardUI API designed to be used with Swift's async/await syntax.
     func getContentCardUI(_ surface : Surface,
                           customizer: ContentCardCustomizing? = nil,
                           listener : ContentCardUIEventListening? = nil,
