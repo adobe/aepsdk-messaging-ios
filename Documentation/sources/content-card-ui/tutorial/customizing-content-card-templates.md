@@ -1,10 +1,10 @@
 # Customizing Content Card Templates
 
-This tutorial explains how to customize content card templates in your application using the Messaging framework.
+This tutorial explains how to customize the UI of content cards in your application.
 
 ## Overview
 
-Messaging provides a way to customize content card templates based on the template type. You can customize the content card templates using the [ContentCardCustomizing](../public-classes/contentcardcustomizing.md) protocol.
+Messaging extension provides a way to customize content cards based on the template type. You can customize the content card templates using the [ContentCardCustomizing](../public-classes/contentcardcustomizing.md) protocol.
 
 ## Implementing ContentCardCustomizing
 
@@ -58,7 +58,7 @@ class HomePageCardCustomizer: ContentCardCustomizing {
 
 ## Applying Customizations
 
-To apply the customizations to the content card templates, pass the customizer to the `getContentCardsUI` API. The customizer will be called for each content card template type that is recognized by the Messaging framework.
+To apply the customizations to the content card templates, pass the customizer to the `getContentCardsUI` API. The customizer will be called for each content card template type that is recognized by the Messaging extension.
 
 ```swift
 let homePageSurface = Surface(path: "homepage")

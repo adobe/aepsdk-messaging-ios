@@ -1,10 +1,10 @@
 # Listening to Content Card Events
 
-This tutorial explains how to listen to content card events in your application using the Messaging framework.
+This tutorial explains how to listen to content card events in your application.
 
 ## Overview
 
-The Messaging framework provides a way to listen to events from content cards displayed in your application. The following functions can be implemented in conformance with the `ContentCardUIEventListening` protocol:
+The Messaging extension provides a way to listen to events from content cards displayed in your application. The following functions can be implemented in conformance with the `ContentCardUIEventListening` protocol:
 
 - `onDisplay`
 - `onDismiss`

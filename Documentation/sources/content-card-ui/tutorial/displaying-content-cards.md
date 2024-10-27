@@ -1,6 +1,6 @@
 # Fetch and Display Content Cards
 
-This tutorial explains how to fetch and display content cards in your application using the Messaging framework.
+This tutorial explains how to fetch and display content cards in your application.
 
 ## Pre-requisites
 
@@ -17,9 +17,9 @@ Messaging.updatePropositionsForSurfaces([homePageSurface])
 
 ## Retrieve Content Cards
 
-To retrieve the content cards for a specific surface, call `getContentCardsUI`. This API returns an array of [ContentCardUI](../PublicClasses/contentcardui.md) objects representing content cards for which the user is qualified.
+To retrieve the content cards for a specific surface, call `getContentCardsUI`. This API returns an array of [ContentCardUI](../public-classes/contentcardui.md) objects representing content cards for which the user is qualified.
 
-`ContentCardUI` objects are created only for content cards with templates recognized by the Messaging framework. The array of `ContentCardUI` objects may contain multiple content card template types.
+`ContentCardUI` objects are created only for content cards with templates recognized by the Messaging extension. The array of `ContentCardUI` objects may contain multiple content card template types.
 
 ```swift
 let homePageSurface = Surface(path: "homepage")
@@ -144,4 +144,4 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
 }
 ```
 
-Refer to this [TestApp](../../../../../TestApps/AEPSwiftUITestAppUIKit/) for a complete example of how to display, customize and listen to UI events from content cards in a UIKit application.
+Refer to this [TestApp](../../../../TestApps/MessagingDemoAppObjC/) for a complete example of how to display, customize and listen to UI events from content cards in a UIKit application.
