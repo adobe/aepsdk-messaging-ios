@@ -55,10 +55,7 @@ extension Messaging {
     private func hydratePropositionsRulesEngine() {
         let parsedPropositions = ParsedPropositions(with: inMemoryPropositions, requestedSurfaces: inMemoryPropositions.map { $0.key }, runtime: runtime)
         if let inAppRules = parsedPropositions.surfaceRulesBySchemaType[.inapp] {
-            /// MOB-21852 - iam items are returned in reverse priority order, so we need to flip the
-            /// order of the array prior to saving them and hydrating the rules engine.  this allows the
-            /// highest priority item to be shown first when rules engine evaluates top-down
-            rulesEngine.launchRulesEngine.replaceRules(with: inAppRules.flatMap { $0.value.reversed() })
+            rulesEngine.launchRulesEngine.replaceRules(with: inAppRules.flatMap { $0.value })
         }
         updatePropositionInfo(parsedPropositions.propositionInfoToCache)
     }
