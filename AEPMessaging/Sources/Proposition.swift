@@ -25,6 +25,20 @@ public class Proposition: NSObject, Codable {
     /// Scope details dictionary
     var scopeDetails: [String: Any]
 
+    /// Priority of the `Proposition` entered in the AJO UI for the corresponding campaign
+    public var priority: Int {
+        if let scopeDetails = scopeDetails as? [String: AnyCodable] {
+            guard let activity = scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY]?.dictionaryValue else {
+                return 0
+            }
+            return activity[MessagingConstants.Event.Data.Key.Personalization.PRIORITY] as? Int ?? 0
+        } else if let activity = scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY] as? [String: Any] {
+            return activity[MessagingConstants.Event.Data.Key.Personalization.PRIORITY] as? Int ?? 0
+        } else {
+            return 0
+        }
+    }
+
     /// Array containing proposition decision items
     private let propositionItems: [PropositionItem]
 

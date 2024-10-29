@@ -112,4 +112,60 @@ class PropositionTests: XCTestCase, AnyCodableAsserts {
         // verify
         XCTAssertNil(proposition)
     }
+    
+    func testPriorityIsAccessible() throws {
+        let mockCodeBasedContent = "<html><body>My custom content</body></html>"
+        let mockHtmlFormat: ContentType = .textHtml
+        let mockScopeDetailsString = "{\"activity\":{\"priority\":50}}"
+        let propositionJsonString = "{\"id\":\"\(mockPropositionId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":\(mockScopeDetailsString),\"items\":[{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockHtmlSchema.toString())\",\"data\":{\"content\":\"\(mockCodeBasedContent)\",\"format\":\"\(mockHtmlFormat)\"}}]}"
+
+        // test
+       let proposition = getDecodedObject(fromString: propositionJsonString)
+        
+        // verify
+        XCTAssertNotNil(proposition)
+        XCTAssertEqual(50, proposition?.priority)
+    }
+    
+    func testPriorityDefaultValueZero() throws {
+        let mockCodeBasedContent = "<html><body>My custom content</body></html>"
+        let mockHtmlFormat: ContentType = .textHtml
+        let mockScopeDetailsString = "{\"key\":\"value\"}"
+        let propositionJsonString = "{\"id\":\"\(mockPropositionId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":\(mockScopeDetailsString),\"items\":[{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockHtmlSchema.toString())\",\"data\":{\"content\":\"\(mockCodeBasedContent)\",\"format\":\"\(mockHtmlFormat)\"}}]}"
+
+        // test
+       let proposition = getDecodedObject(fromString: propositionJsonString)
+        
+        // verify
+        XCTAssertNotNil(proposition)
+        XCTAssertEqual(0, proposition?.priority)
+    }
+    
+    func testRankIsAccessible() throws {
+        let mockCodeBasedContent = "<html><body>My custom content</body></html>"
+        let mockHtmlFormat: ContentType = .textHtml
+        let mockScopeDetailsString = "{\"rank\":1}"
+        let propositionJsonString = "{\"id\":\"\(mockPropositionId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":\(mockScopeDetailsString),\"items\":[{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockHtmlSchema.toString())\",\"data\":{\"content\":\"\(mockCodeBasedContent)\",\"format\":\"\(mockHtmlFormat)\"}}]}"
+
+        // test
+       let proposition = getDecodedObject(fromString: propositionJsonString)
+        
+        // verify
+        XCTAssertNotNil(proposition)
+        XCTAssertEqual(1, proposition?.rank)
+    }
+    
+    func testRankDefaultValueNegativeOne() throws {
+        let mockCodeBasedContent = "<html><body>My custom content</body></html>"
+        let mockHtmlFormat: ContentType = .textHtml
+        let mockScopeDetailsString = "{\"norank\":\"foundhere\"}"
+        let propositionJsonString = "{\"id\":\"\(mockPropositionId)\",\"scope\":\"\(mockScope)\",\"scopeDetails\":\(mockScopeDetailsString),\"items\":[{\"id\":\"\(mockItemId)\",\"schema\":\"\(mockHtmlSchema.toString())\",\"data\":{\"content\":\"\(mockCodeBasedContent)\",\"format\":\"\(mockHtmlFormat)\"}}]}"
+
+        // test
+       let proposition = getDecodedObject(fromString: propositionJsonString)
+        
+        // verify
+        XCTAssertNotNil(proposition)
+        XCTAssertEqual(-1, proposition?.rank)
+    }
 }
