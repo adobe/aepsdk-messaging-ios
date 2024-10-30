@@ -20,6 +20,8 @@ Customize content cards with [SmallImageTemplate](../public-classes/Template/sma
 
 - _template_ - The `SmallImageTemplate` instance to be customized.
 
+#### Syntax
+
 ``` swift
 func customize(template: SmallImageTemplate)
 ```
