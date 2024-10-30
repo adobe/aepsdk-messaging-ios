@@ -23,12 +23,16 @@ class ContentCardTestUtil {
         return contentCardSchemaData
     }
     
-    static func createProposition(fromFile file : String ) -> Proposition {
+    static func createProposition(fromFile file : String, priority: Int? = nil ) -> Proposition {
         let jsonString = FileReader.readFromFile(file)
         let data = jsonString.data(using: .utf8)
         let itemData = try! JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
         let propositionItem = PropositionItem(itemId: "mockItemId", schema: .contentCard, itemData: itemData!)
-        let proposition = Proposition(uniqueId: "mockID", scope: "mockScope", scopeDetails: [:], items: [propositionItem])
+        var scopeDetails: [String: Any] = [:]
+        if let prio = priority {
+            scopeDetails["activity"] = ["priority": prio]
+        }
+        let proposition = Proposition(uniqueId: "mockID", scope: "mockScope", scopeDetails: scopeDetails, items: [propositionItem])
         return proposition
     }
 }

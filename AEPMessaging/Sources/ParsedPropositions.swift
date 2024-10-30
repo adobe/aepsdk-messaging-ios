@@ -32,7 +32,11 @@ struct ParsedPropositions {
 
     init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime) {
         self.runtime = runtime
-        for propositionsArray in propositions.values {
+
+        // sort these propositions by ordinal rank before processing them
+        let sortedPropositionsBySurface = sortByRank(propositions)
+
+        for propositionsArray in sortedPropositionsBySurface.values {
             for proposition in propositionsArray {
                 guard let surface = requestedSurfaces.first(where: { $0.uri == proposition.scope }) else {
                     Log.debug(label: MessagingConstants.LOG_TAG,
@@ -105,5 +109,15 @@ struct ParsedPropositions {
 
         // apply up to surfaceRulesBySchemaType
         surfaceRulesBySchemaType[schemaType] = tempRulesBySchemaType
+    }
+
+    private func sortByRank(_ propositionsBySurface: [Surface: [Proposition]]) -> [Surface: [Proposition]] {
+        var propositionsSortedByRank: [Surface: [Proposition]] = [:]
+
+        for (surface, propositions) in propositionsBySurface {
+            propositionsSortedByRank[surface] = propositions.sorted { $0.rank < $1.rank }
+        }
+
+        return propositionsSortedByRank
     }
 }

@@ -23,6 +23,11 @@ public class ContentCardUI: Identifiable {
     /// The underlying data model for the content card.
     let proposition: Proposition
 
+    /// Priority of the `Proposition` entered in the AJO UI for the corresponding campaign
+    public var priority: Int {
+        proposition.priority
+    }
+
     /// The template that defines the content card
     public let template: any ContentCardTemplate
 

@@ -281,4 +281,126 @@ class ParsedPropositionTests: XCTestCase {
     func testInitPropositionRulesetConsequenceIsNotSchemaType() throws {
         
     }
+    
+    func testSortByRankSourceIsReverseOrder() throws {
+        // setup
+        let propRank1Priority100 = Proposition(uniqueId: "rank1", scope: "inapp2", scopeDetails: ["rank": 1, "activity": [ "priority": 100 ]], items: [ getPropItemFile("inAppMessagePriority100")])
+        let propRank2Priority60 = Proposition(uniqueId: "rank2", scope: "inapp2", scopeDetails: ["rank": 2, "activity": [ "priority": 60 ]], items: [getPropItemFile("inAppMessagePriority60")])
+        let propRank3Priority20 = Proposition(uniqueId: "rank3", scope: "inapp2", scopeDetails: ["rank": 3, "activity": [ "priority": 20 ]], items: [getPropItemFile("inAppMessagePriority20")])
+        let propsPerSurface = [mockInAppSurfacev2!: [propRank3Priority20, propRank2Priority60, propRank1Priority100]]
+        
+        // test
+        let result = ParsedPropositions(with: propsPerSurface, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
+        
+        // verify
+        XCTAssertNotNil(result)
+        
+        // surfaceRulesBySchemaType is sorted properly
+        guard let inAppRules = result.surfaceRulesBySchemaType[.inapp],
+              let inAppRulesForSurface = inAppRules[mockInAppSurfacev2] else {
+            XCTFail("Unable to get rules for the requested surface.")
+            return
+        }
+        let firstRule = inAppRulesForSurface[0]
+        XCTAssertEqual("priority100", firstRule.consequences.first?.id)
+        let secondRule = inAppRulesForSurface[1]
+        XCTAssertEqual("priority60", secondRule.consequences.first?.id)
+        let thirdRule = inAppRulesForSurface[2]
+        XCTAssertEqual("priority20", thirdRule.consequences.first?.id)
+        
+        // propositionsToPersist is sorted properly
+        guard let propsForSurface = result.propositionsToPersist[mockInAppSurfacev2] else {
+            XCTFail("Unable to get propositions to persist for the requested surface.")
+            return
+        }
+        let firstProp = propsForSurface[0]
+        XCTAssertEqual(1, firstProp.rank)
+        let secondProp = propsForSurface[1]
+        XCTAssertEqual(2, secondProp.rank)
+        let thirdProp = propsForSurface[2]
+        XCTAssertEqual(3, thirdProp.rank)
+    }
+    
+    func testSortByRankSourceIsCorrectOrder() throws {
+        // setup
+        let propRank1Priority100 = Proposition(uniqueId: "rank1", scope: "inapp2", scopeDetails: ["rank": 1, "activity": [ "priority": 100 ]], items: [ getPropItemFile("inAppMessagePriority100")])
+        let propRank2Priority60 = Proposition(uniqueId: "rank2", scope: "inapp2", scopeDetails: ["rank": 2, "activity": [ "priority": 60 ]], items: [getPropItemFile("inAppMessagePriority60")])
+        let propRank3Priority20 = Proposition(uniqueId: "rank3", scope: "inapp2", scopeDetails: ["rank": 3, "activity": [ "priority": 20 ]], items: [getPropItemFile("inAppMessagePriority20")])
+        let propsPerSurface = [mockInAppSurfacev2!: [propRank1Priority100, propRank2Priority60, propRank3Priority20]]
+        
+        // test
+        let result = ParsedPropositions(with: propsPerSurface, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
+        
+        // verify
+        XCTAssertNotNil(result)
+        
+        // surfaceRulesBySchemaType is sorted properly
+        guard let inAppRules = result.surfaceRulesBySchemaType[.inapp],
+              let inAppRulesForSurface = inAppRules[mockInAppSurfacev2] else {
+            XCTFail("Unable to get rules for the requested surface.")
+            return
+        }
+        let firstRule = inAppRulesForSurface[0]
+        XCTAssertEqual("priority100", firstRule.consequences.first?.id)
+        let secondRule = inAppRulesForSurface[1]
+        XCTAssertEqual("priority60", secondRule.consequences.first?.id)
+        let thirdRule = inAppRulesForSurface[2]
+        XCTAssertEqual("priority20", thirdRule.consequences.first?.id)
+        
+        // propositionsToPersist is sorted properly
+        guard let propsForSurface = result.propositionsToPersist[mockInAppSurfacev2] else {
+            XCTFail("Unable to get propositions to persist for the requested surface.")
+            return
+        }
+        let firstProp = propsForSurface[0]
+        XCTAssertEqual(1, firstProp.rank)
+        let secondProp = propsForSurface[1]
+        XCTAssertEqual(2, secondProp.rank)
+        let thirdProp = propsForSurface[2]
+        XCTAssertEqual(3, thirdProp.rank)
+    }
+    
+    func testSortByRankSourceIsRandomOrder() throws {
+        // setup
+        let propRank1Priority100 = Proposition(uniqueId: "rank1", scope: "inapp2", scopeDetails: ["rank": 1, "activity": [ "priority": 100 ]], items: [ getPropItemFile("inAppMessagePriority100")])
+        let propRank2Priority60 = Proposition(uniqueId: "rank2", scope: "inapp2", scopeDetails: ["rank": 2, "activity": [ "priority": 60 ]], items: [getPropItemFile("inAppMessagePriority60")])
+        let propRank3Priority20 = Proposition(uniqueId: "rank3", scope: "inapp2", scopeDetails: ["rank": 3, "activity": [ "priority": 20 ]], items: [getPropItemFile("inAppMessagePriority20")])
+        let propsPerSurface = [mockInAppSurfacev2!: [propRank2Priority60, propRank1Priority100, propRank3Priority20]]
+        
+        // test
+        let result = ParsedPropositions(with: propsPerSurface, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
+        
+        // verify
+        XCTAssertNotNil(result)
+        
+        // surfaceRulesBySchemaType is sorted properly
+        guard let inAppRules = result.surfaceRulesBySchemaType[.inapp],
+              let inAppRulesForSurface = inAppRules[mockInAppSurfacev2] else {
+            XCTFail("Unable to get rules for the requested surface.")
+            return
+        }
+        let firstRule = inAppRulesForSurface[0]
+        XCTAssertEqual("priority100", firstRule.consequences.first?.id)
+        let secondRule = inAppRulesForSurface[1]
+        XCTAssertEqual("priority60", secondRule.consequences.first?.id)
+        let thirdRule = inAppRulesForSurface[2]
+        XCTAssertEqual("priority20", thirdRule.consequences.first?.id)
+        
+        // propositionsToPersist is sorted properly
+        guard let propsForSurface = result.propositionsToPersist[mockInAppSurfacev2] else {
+            XCTFail("Unable to get propositions to persist for the requested surface.")
+            return
+        }
+        let firstProp = propsForSurface[0]
+        XCTAssertEqual(1, firstProp.rank)
+        let secondProp = propsForSurface[1]
+        XCTAssertEqual(2, secondProp.rank)
+        let thirdProp = propsForSurface[2]
+        XCTAssertEqual(3, thirdProp.rank)
+    }
+    
+    private func getPropItemFile(_ fileName: String) -> PropositionItem {
+        let itemData = JSONFileLoader.getRulesJsonFromFile(fileName)
+        return PropositionItem(itemId: "inapp2", schema: rulesetSchema, itemData: itemData)
+    }
 }
