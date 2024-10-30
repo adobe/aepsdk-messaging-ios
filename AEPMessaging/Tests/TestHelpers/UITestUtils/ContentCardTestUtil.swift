@@ -30,9 +30,9 @@ class ContentCardTestUtil {
         let propositionItem = PropositionItem(itemId: "mockItemId", schema: .contentCard, itemData: itemData!)
         var scopeDetails: [String: Any] = [:]
         if let prio = priority {
-            scopeDetails["activity"] = ["priority": 50] 
+            scopeDetails["activity"] = ["priority": prio]
         }
-        let proposition = Proposition(uniqueId: "mockID", scope: "mockScope", scopeDetails: [:], items: [propositionItem])
+        let proposition = Proposition(uniqueId: "mockID", scope: "mockScope", scopeDetails: scopeDetails, items: [propositionItem])
         return proposition
     }
 }

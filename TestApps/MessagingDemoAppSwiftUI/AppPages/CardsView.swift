@@ -72,7 +72,7 @@ struct CardsView: View, ContentCardUIEventListening {
             switch result {
             case .success(let cards):
                 // sort the cards by priority order and save them to our state property
-                savedCards = cards.sorted { $0.priority < $1.priority }
+                savedCards = cards.sorted { $0.priority > $1.priority }
             case .failure(let error):
                 print(error)
             }

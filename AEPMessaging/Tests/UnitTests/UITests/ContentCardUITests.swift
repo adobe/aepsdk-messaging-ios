@@ -38,6 +38,17 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         XCTAssertNil(contentCardUI?.listener)
     }
     
+    func test_contentCardUI_createInstance_priority() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate", priority: 37)
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify        
+        XCTAssertEqual(37, contentCardUI?.priority)
+    }
+    
     func test_contentCardUI_verifyMeta() throws {
         // setup
         let proposition =  ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate")
