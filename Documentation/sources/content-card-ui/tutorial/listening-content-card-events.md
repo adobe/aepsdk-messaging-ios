@@ -62,14 +62,18 @@ struct HomePage: View, ContentCardUIEventListening {
 
 ### Handling actionable URLs
 
-The `onInteract` method provides an optional `actionURL` parameter associated with the interaction event. To handle this URL in your application, return true from the `onInteract` method:
+The `onInteract` method provides an optional `actionURL` parameter associated with the interaction event. The return value of this method determines how the URL is handled.
+
+- Return `true` if your application has successfully handled the URL. This indicates to the SDK that no further action is needed.
+
+- Return `false` to allow the SDK to process the URL.
 
 ```swift
 func onInteract(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
     guard let url = actionURL else { return false }
     
-    // Handle the actionable URL in your application
-    return true
+    // Your application handles the actionable URL here
+    return true // Return true to indicate that the SDK need not process the URL
 }
 ```
 
