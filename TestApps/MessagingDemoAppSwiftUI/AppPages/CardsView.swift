@@ -71,7 +71,8 @@ struct CardsView: View, ContentCardUIEventListening {
             showLoadingIndicator = false
             switch result {
             case .success(let cards):
-                savedCards = cards
+                // sort the cards by priority order and save them to our state property
+                savedCards = cards.sorted { $0.priority > $1.priority }
             case .failure(let error):
                 print(error)
             }

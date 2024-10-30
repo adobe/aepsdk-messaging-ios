@@ -138,6 +138,8 @@ enum MessagingConstants {
                     static let PAYLOAD = "payload"
                     static let CORRELATION_ID = "correlationID"
                     static let ACTIVITY = "activity"
+                    static let RANK = "rank"
+                    static let PRIORITY = "priority"
                     static let ID = "id"
                 }
             }
