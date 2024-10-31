@@ -11,7 +11,7 @@
  */
 
 #if canImport(SwiftUI)
-import SwiftUI
+    import SwiftUI
 #endif
 
 /// `AEPAsyncImage` provides a convenient way to load images asynchronously with built-in support for caching
@@ -19,20 +19,19 @@ import SwiftUI
 /// and seamlessly handling dark/light mode updates.
 @available(iOS 15.0, *)
 struct AEPAsyncImage<Content>: View where Content: View {
-    
     /// The URL of the image to load in light mode.
     private let lightModeURL: URL
-    
+
     /// The URL of the image to load in dark mode.
     private let darkModeURL: URL?
-    
+
     /// A closure that takes an `AsyncImagePhase` and returns a SwiftUI `View` for each phase.
     /// This provides flexibility in displaying loading indicators, fallback images, or the downloaded image.
     private let content: (AsyncImagePhase) -> Content
-    
+
     /// The current loading phase of the image.
     @State private var phase: AsyncImagePhase = .empty
-    
+
     /// The color scheme environment variable to detect light/dark mode changes and reload the image if needed.
     @Environment(\.colorScheme) private var colorScheme
 
@@ -43,7 +42,7 @@ struct AEPAsyncImage<Content>: View where Content: View {
     ///   - content: A closure that defines the view to display for each image loading phase.
     init(lightModeURL: URL,
          darkModeURL: URL? = nil,
-        @ViewBuilder content: @escaping (AsyncImagePhase) -> Content) {
+         @ViewBuilder content: @escaping (AsyncImagePhase) -> Content) {
         self.lightModeURL = lightModeURL
         self.darkModeURL = darkModeURL
         self.content = content
@@ -60,7 +59,6 @@ struct AEPAsyncImage<Content>: View where Content: View {
                 loadImage(for: newColorScheme)
             }
     }
-
 
     /// Loads the image from cache if available, or initiates a download if the image is not cached.
     ///
@@ -79,7 +77,7 @@ struct AEPAsyncImage<Content>: View where Content: View {
     ///
     /// - Parameter url: The URL to download the image from.
     private func downloadImage(from url: URL) {
-        URLSession.shared.dataTask(with: url) { data, response, error in
+        URLSession.shared.dataTask(with: url) { data, _, error in
             if let error = error {
                 DispatchQueue.main.async {
                     phase = .failure(error)

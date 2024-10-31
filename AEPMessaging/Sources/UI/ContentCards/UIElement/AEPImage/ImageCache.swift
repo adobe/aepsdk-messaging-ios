@@ -11,15 +11,14 @@
  */
 
 #if canImport(SwiftUI)
+    import AEPServices
     import Foundation
     import SwiftUI
-    import AEPServices
 #endif
 
 /// A utility class that manages caching of images associated with specific URLs.
 @available(iOS 15.0, *)
-class ImageCache {
-    
+enum ImageCache {
     /// The underlying cache used for storing images.
     private static let cache = Cache(name: MessagingConstants.Caches.UI_CACHE_NAME)
 
