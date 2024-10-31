@@ -15,6 +15,9 @@ public class Proposition: NSObject, Codable {
     /// Array containing proposition decision items
     public lazy var items: [PropositionItem] = {...}()
 
+    /// Priority of the `Proposition` entered in the AJO UI for the corresponding campaign
+    public var priority: Int
+
     ...
 }
 ```
