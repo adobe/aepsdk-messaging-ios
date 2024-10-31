@@ -221,6 +221,8 @@
 		B6165DAA29A67ADA0031B84D /* NotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6165DA329A67AD90031B84D /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */; };
 		B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */; };
+		B67CCF772CD08D5500CF08D1 /* AEPAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF762CD08D4D00CF08D1 /* AEPAsyncImage.swift */; };
+		B67CCF792CD0BF8D00CF08D1 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF782CD0BF8700CF08D1 /* ImageCache.swift */; };
 		B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
 		B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */; };
 		B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA72CC2089A00C35C64 /* DismissButtonStyle.swift */; };
@@ -669,6 +671,8 @@
 		B6165DA729A67ADA0031B84D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingNotificationTrackingTests.swift; sourceTree = "<group>"; };
 		B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatus.swift; sourceTree = "<group>"; };
+		B67CCF762CD08D4D00CF08D1 /* AEPAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPAsyncImage.swift; sourceTree = "<group>"; };
+		B67CCF782CD0BF8700CF08D1 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatusTests.swift; sourceTree = "<group>"; };
 		B6F7CB9C2CC2089A00C35C64 /* BaseTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTemplate.swift; sourceTree = "<group>"; };
 		B6F7CB9D2CC2089A00C35C64 /* ContentCardTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardTemplate.swift; sourceTree = "<group>"; };
@@ -1279,6 +1283,8 @@
 		B6F7CBAC2CC2089A00C35C64 /* AEPImage */ = {
 			isa = PBXGroup;
 			children = (
+				B67CCF782CD0BF8700CF08D1 /* ImageCache.swift */,
+				B67CCF762CD08D4D00CF08D1 /* AEPAsyncImage.swift */,
 				B6F7CBA92CC2089A00C35C64 /* AEPImage.swift */,
 				B6F7CBAA2CC2089A00C35C64 /* AEPImageView.swift */,
 				B6F7CBAB2CC2089A00C35C64 /* ImageSourceType.swift */,
@@ -2446,6 +2452,7 @@
 				B6F7CBCB2CC2089A00C35C64 /* AEPVStackView.swift in Sources */,
 				B6F7CBCC2CC2089A00C35C64 /* AEPVStack.swift in Sources */,
 				B6F7CBCD2CC2089A00C35C64 /* TemplateBuilder.swift in Sources */,
+				B67CCF772CD08D5500CF08D1 /* AEPAsyncImage.swift in Sources */,
 				B6F7CBCE2CC2089A00C35C64 /* AEPDismissButton.swift in Sources */,
 				B6F7CBCF2CC2089A00C35C64 /* ContentCardUIEventListening.swift in Sources */,
 				B6F7CBD02CC2089A00C35C64 /* ContentCardUI+EventHandler.swift in Sources */,
@@ -2486,6 +2493,7 @@
 				09B071E82A64D80E00F259C1 /* Bundle+Messaging.swift in Sources */,
 				245059A72673FAC700CC7CA0 /* Event+Messaging.swift in Sources */,
 				244E9584268262C8001DC957 /* Message.swift in Sources */,
+				B67CCF792CD0BF8D00CF08D1 /* ImageCache.swift in Sources */,
 				244E955B267BB253001DC957 /* Dictionary+Messaging.swift in Sources */,
 				0969D6402A7A9DC600A00BF7 /* MessagingMigrator.swift in Sources */,
 				090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */,

@@ -37,7 +37,7 @@ struct AEPImageView: View {
         Group {
             switch model.imageSourceType {
             case .url:
-                AsyncImage(url: themeBasedURL()) { phase in
+                AEPAsyncImage(lightModeURL: model.url!, darkModeURL: model.darkUrl) { phase in
                     if let image = phase.image {
                         // the actual image on successful download
                         image.resizable()
