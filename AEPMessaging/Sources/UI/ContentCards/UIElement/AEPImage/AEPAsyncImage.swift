@@ -10,45 +10,75 @@
  governing permissions and limitations under the License.
  */
 
+#if canImport(SwiftUI)
 import SwiftUI
+#endif
 
+/// `AEPAsyncImage` provides a convenient way to load images asynchronously with built-in support for caching
+/// Use this view for displaying images from remote URLs, caching them to reduce redundant network requests,
+/// and seamlessly handling dark/light mode updates.
 @available(iOS 15.0, *)
 struct AEPAsyncImage<Content>: View where Content: View {
     
-    private let url: URL
+    /// The URL of the image to load in light mode.
+    private let lightModeURL: URL
+    
+    /// The URL of the image to load in dark mode.
+    private let darkModeURL: URL?
+    
+    /// A closure that takes an `AsyncImagePhase` and returns a SwiftUI `View` for each phase.
+    /// This provides flexibility in displaying loading indicators, fallback images, or the downloaded image.
     private let content: (AsyncImagePhase) -> Content
+    
+    /// The current loading phase of the image.
     @State private var phase: AsyncImagePhase = .empty
-    @Environment(\.colorScheme) private var colorScheme // Observe color scheme changes
+    
+    /// The color scheme environment variable to detect light/dark mode changes and reload the image if needed.
+    @Environment(\.colorScheme) private var colorScheme
 
-    init(
-        url: URL,
-        @ViewBuilder content: @escaping (AsyncImagePhase) -> Content
-    ) {
-        self.url = url
+    /// Initializes the `AEPAsyncImage` with a URL and content closure.
+    ///
+    /// - Parameters:
+    ///   - url: The URL of the image to load.
+    ///   - content: A closure that defines the view to display for each image loading phase.
+    init(lightModeURL: URL,
+         darkModeURL: URL? = nil,
+        @ViewBuilder content: @escaping (AsyncImagePhase) -> Content) {
+        self.lightModeURL = lightModeURL
+        self.darkModeURL = darkModeURL
         self.content = content
     }
 
+    /// The main view body of `AEPAsyncImage`, which uses the `content` closure to display the appropriate
+    /// UI based on the current image loading phase.
     var body: some View {
         content(phase)
             .onAppear {
-                loadImage()
+                loadImage(for: colorScheme)
             }
-            .onChange(of: colorScheme) { newColorSchema in
-                loadImage() // Reload the image when theme changes
+            .onChange(of: colorScheme) { newColorScheme in
+                loadImage(for: newColorScheme)
             }
     }
 
-    private func loadImage() {
-        if let cachedImage = ImageCache[url] {
-            // Use cached image
+
+    /// Loads the image from cache if available, or initiates a download if the image is not cached.
+    ///
+    /// - Parameter colorScheme: The `ColorScheme` that determines whether to use light or dark mode URL.
+    private func loadImage(for colorScheme: ColorScheme) {
+        // Determine the URL to use based on color scheme, defaulting to lightModeURL if darkModeURL is nil.
+        let currentURL = (colorScheme == .dark ? darkModeURL : lightModeURL) ?? lightModeURL
+        if let cachedImage = ImageCache[currentURL] {
             phase = .success(Image(uiImage: cachedImage))
         } else {
-            // Download the image
-            downloadImage()
+            downloadImage(from: currentURL)
         }
     }
 
-    private func downloadImage() {
+    /// Downloads the image from the provided URL, caching it upon successful retrieval.
+    ///
+    /// - Parameter url: The URL to download the image from.
+    private func downloadImage(from url: URL) {
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
                 DispatchQueue.main.async {
@@ -58,7 +88,6 @@ struct AEPAsyncImage<Content>: View where Content: View {
             }
 
             if let data = data, let image = UIImage(data: data) {
-                // Cache the downloaded image
                 ImageCache[url] = image
                 DispatchQueue.main.async {
                     phase = .success(Image(uiImage: image))

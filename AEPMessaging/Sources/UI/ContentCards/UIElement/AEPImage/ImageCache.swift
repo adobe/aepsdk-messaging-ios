@@ -10,13 +10,26 @@
  governing permissions and limitations under the License.
  */
 
-import AEPServices
-import SwiftUI
+#if canImport(SwiftUI)
+    import Foundation
+    import SwiftUI
+    import AEPServices
+#endif
 
+/// A utility class that manages caching of images associated with specific URLs.
 @available(iOS 15.0, *)
 class ImageCache {
+    
+    /// The underlying cache used for storing images.
     private static let cache = Cache(name: MessagingConstants.Caches.UI_CACHE_NAME)
 
+    /// Accessor to retrieve or store images in the cache by URL.
+    ///
+    /// Use this subscript to either fetch a cached image or store a new one for a specific URL.
+    /// When setting a new image, it is stored as PNG data with an expiry time of thirty days.
+    ///
+    /// - Parameter url: The URL key associated with the image.
+    /// - Returns: The cached `UIImage` for the specified URL, or `nil` if no image is found.
     static subscript(url: URL) -> UIImage? {
         get {
             guard let cacheEntry = cache.get(key: url.absoluteString) else { return nil }
