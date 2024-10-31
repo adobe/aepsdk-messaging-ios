@@ -20,7 +20,7 @@
 @available(iOS 15.0, *)
 enum ImageCache {
     /// The underlying cache used for storing images.
-    private static let cache = Cache(name: MessagingConstants.Caches.UI_CACHE_NAME)
+    private static let cache = Cache(name: MessagingConstants.Caches.CONTENT_CARD_CACHE)
 
     /// Accessor to retrieve or store images in the cache by URL.
     ///
