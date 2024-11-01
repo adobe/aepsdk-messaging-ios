@@ -11,6 +11,7 @@
  */
 
 #if canImport(SwiftUI)
+    import AEPServices
     import Foundation
     import SwiftUI
 #endif
@@ -39,9 +40,8 @@ struct AEPImageView: View {
                         // the actual image on successful download
                         image.resizable()
                             .aspectRatio(contentMode: model.contentMode)
-                    } else if phase.error != nil {
-                        // when error do not show imageView
-                        EmptyView()
+                    } else if let error = phase.error {
+                        handleImageLoadError(error)
                     } else {
                         // Placeholder view
                         ProgressView()
@@ -74,5 +74,14 @@ struct AEPImageView: View {
         } else {
             EmptyView()
         }
+    }
+
+    /// Handles the error encountered during image loading and logs a warning.
+    ///
+    /// - Parameter error: The error encountered while loading the image
+    /// - Returns: An `EmptyView` to use in place of the failed image.
+    private func handleImageLoadError(_ error: Error) -> some View {
+        Log.warning(label: UIConstants.LOG_TAG, "Error loading Content Card Image: \(error.localizedDescription)")
+        return EmptyView()
     }
 }
