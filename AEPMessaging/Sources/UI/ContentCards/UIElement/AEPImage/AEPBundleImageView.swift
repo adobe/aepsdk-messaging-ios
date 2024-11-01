@@ -19,7 +19,7 @@ struct AEPBundleImageView: View {
     /// The model containing the data about the image.
     private let model: AEPImage
 
-    /// The color scheme environment variable to detect light/dark mode changes and reload the image if needed.
+    /// The color scheme environment variable to detect light/dark mode changes and reload the bundled image if needed.
     @Environment(\.colorScheme) private var colorScheme
 
     init(_ model: AEPImage) {

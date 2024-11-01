@@ -32,7 +32,7 @@ struct AEPAsyncImageView<Content>: View where Content: View {
     /// The color scheme environment variable to detect light/dark mode changes and reload the image if needed.
     @Environment(\.colorScheme) private var colorScheme
 
-    /// Initializes the `AEPAsyncImage` with a URL and content closure.
+    /// Initializes the `AEPAsyncImage` with a AEPImage model class  and content closure.
     ///
     /// - Parameters:
     ///   - model: The AEPImage model class that contains data to populate the image
@@ -59,7 +59,7 @@ struct AEPAsyncImageView<Content>: View where Content: View {
     ///
     /// - Parameter colorScheme: The `ColorScheme` that determines whether to use light or dark mode URL.
     private func loadImage(for colorScheme: ColorScheme) {
-        // Determine the URL to use based on color scheme, defaulting to lightModeURL if darkModeURL is nil.
+        // Determine the URL to use based on color scheme
         let url = themeBasedURL(colorScheme)
         if let cachedImage = ContentCardImageCache[url] {
             phase = .success(Image(uiImage: cachedImage))
