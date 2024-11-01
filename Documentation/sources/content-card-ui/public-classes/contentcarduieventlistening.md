@@ -22,6 +22,8 @@ Called when the content card appears on the screen. Implementation of this metho
 
 - _card_ - The [ContentCardUI](./contentcardui.md) that is displayed.
 
+#### Syntax
+
 ```swift
 func onDisplay(_ card: ContentCardUI)
 ```
@@ -33,6 +35,8 @@ Called when the content card is dismissed. Implementation of this method is opti
 #### Parameters
 
 - _card_ - The [ContentCardUI](./contentcardui.md) that is dismissed.
+
+#### Syntax
 
 ```swift
 func onDismiss(_ card: ContentCardUI)
@@ -51,6 +55,8 @@ Called when the user interacts with the content card. Implementation of this met
 #### Returns
 
 A boolean value indicating whether the interaction event was handled. Return `true` if the client app has handled the `actionURL` associated with the interaction. Return `false` if the SDK should handle the `actionURL`.
+
+#### Syntax
 
 ```swift
 func onInteract(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool

@@ -23,4 +23,4 @@
 | buttonHStack  | [AEPHStack](../UIElements/aepstack.md)         | A horizontal stack for arranging buttons.                    |
 | textVStack    | [AEPVStack](../UIElements/aepstack.md)         | A vertical stack for arranging the title, body, and buttons. |
 | rootHStack    | [AEPHStack](../UIElements/aepstack.md)         | A horizontal stack for arranging the image and text stack.   |
-| dismissButton | [AEPButton](../UIElements/aepdismissbutton.md) | *Optional*<br>The dismiss button for the content card.       |
+| dismissButton | [AEPDismissButton](../UIElements/aepdismissbutton.md) | *Optional*<br>The dismiss button for the content card.       |

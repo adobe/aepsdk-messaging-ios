@@ -77,6 +77,22 @@ struct HomePage: View {
 
 Refer to this [TestApp](../../../../TestApps/MessagingDemoAppSwiftUI/) for a complete example of how to display, customize and listen to UI events from content cards in a SwiftUI application.
 
+#### Optional
+
+You may choose to order your Cards by the priority value entered in the AJO UI. To do this, sort the returned array:
+
+```swift
+Messaging.getContentCardsUI(for: homePageSurface) { result in
+    switch result {
+    case .success(let cards):
+        savedCards = cards.sorted { $0.priority > $1.priority }
+        
+    case .failure(let error):
+        // handle error here
+    }
+}
+```
+
 ### Display Content Cards in UIKit 
 
 Below is an example of how to display content cards in a UIKit application using a UITableView:
