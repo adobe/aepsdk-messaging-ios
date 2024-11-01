@@ -1078,37 +1078,6 @@ class MessagingTests: XCTestCase {
         let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
         XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
     }
-    
-    /// MOB-21456
-    func testUpdateRulesEnginesReversesOrderOfRulesBeforeHydratingRulesEngine() throws {
-        // setup
-        let assetString = "https://blog.adobe.com/en/publish/2020/05/28/media_1cc0fcc19cf0e64decbceb3a606707a3ad23f51dd.png"
-        let consequence = RuleConsequence(id: "552", type: "cjmiam", details: [
-            "remoteAssets": [assetString]
-        ])
-        let consequence2 = RuleConsequence(id: "553", type: "cjmiam", details: [
-            "remoteAssets": [assetString]
-        ])
-        let mockEvaluable = MockEvaluable()
-        let rule1 = LaunchRule(condition: mockEvaluable, consequences: [consequence])
-        let rule2 = LaunchRule(condition: mockEvaluable, consequences: [consequence2])
-        
-        var rules: [SchemaType: [Surface: [LaunchRule]]] = [:]
-        rules[.inapp] = [
-            mockSurface: [rule1, rule2]
-        ]
-        
-        // test
-        messaging.callUpdateRulesEngines(with: rules, requestedSurfaces: [mockSurface])
-        
-        // verify
-        XCTAssertTrue(mockLaunchRulesEngine.replaceRulesCalled)
-        XCTAssertEqual(2, mockLaunchRulesEngine.paramReplaceRulesRules?.count)
-        let firstRule = mockLaunchRulesEngine.paramReplaceRulesRules?.first
-        XCTAssertEqual("553", firstRule?.consequences.first?.id, "last rule in the source json should be first in the array of rules.")
-        let lastRule = mockLaunchRulesEngine.paramReplaceRulesRules?.last
-        XCTAssertEqual("552", lastRule?.consequences.first?.id, "first rule in the source json should be last in the array of rules.")
-    }
             
     // MARK: - Helpers
     

@@ -9,7 +9,8 @@ SIMULATOR_ARCHIVE_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive/Prod
 SIMULATOR_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive/dSYMs/
 IOS_ARCHIVE_PATH = $(CURRENT_DIRECTORY)/build/ios.xcarchive/Products/Library/Frameworks/
 IOS_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios.xcarchive/dSYMs/
-IOS_DESTINATION = 'platform=iOS Simulator,name=iPhone 15'
+IOS_DESTINATION = 'platform=iOS Simulator,name=iPhone 16'
+IOS_DESTINATION_E2E = 'platform=iOS Simulator,name=iPhone 15,OS=17.5'
 
 E2E_PROJECT_PLIST_FILE = $(CURRENT_DIRECTORY)/AEPMessaging/Tests/E2EFunctionalTests/E2EFunctionalTestApp/Info.plist
 
@@ -75,11 +76,17 @@ functional-test: clean
 	@echo "######################################################################"
 	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme "FunctionalTests" -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
 
+integration-test: clean
+	@echo "######################################################################"
+	@echo "### Integration Testing"
+	@echo "######################################################################"
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme "IntegrationTests" -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
+
 e2e-functional-test: clean
 	@echo "######################################################################"
 	@echo "### End-to-end Functional Testing"
 	@echo "######################################################################"
-	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme "E2EFunctionalTests" -destination $(IOS_DESTINATION) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
+	xcodebuild test -workspace $(PROJECT_NAME).xcworkspace -scheme "E2EFunctionalTests" -destination $(IOS_DESTINATION_E2E) -derivedDataPath build/out -resultBundlePath build/$(PROJECT_NAME).xcresult -enableCodeCoverage YES
 
 install-githook:
 	./tools/git-hooks/setup.sh

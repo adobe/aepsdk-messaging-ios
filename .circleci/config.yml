@@ -53,13 +53,13 @@ commands:
     steps:
       - macos/preboot-simulator:
           platform: "iOS"
-          version: "17.2"
-          device: "iPhone 15"
+          version: "18.0"
+          device: "iPhone 16"
 
 jobs:
   validate-code:
     macos:
-      xcode: 15.1.0 # Specify the Xcode version to use
+      xcode: 16.0.0 # Specify the Xcode version to use
 
     steps:
       - checkout
@@ -76,7 +76,7 @@ jobs:
 
   test-ios:
     macos:
-      xcode: 15.1.0 # Specify the Xcode version to use
+      xcode: 16.0.0 # Specify the Xcode version to use
 
     steps:
       - checkout
@@ -101,9 +101,14 @@ jobs:
           command: make functional-test
           when: always # run even if unit tests fail
 
+      - run:
+          name: Run Integration Tests
+          command: make integration-test
+          when: always # run even if unit tests fail
+
   test-spm-podspec-archive:  
     macos:
-      xcode: 15.0 # Specify the Xcode version to use
+      xcode: 16.0.0 # Specify the Xcode version to use
     
     steps:
       - checkout
