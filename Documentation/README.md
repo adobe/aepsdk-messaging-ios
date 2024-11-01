@@ -48,6 +48,37 @@
       - [InAppSchemaData](./sources/propositions/developer-documentation/classes/schemas/inapp-schema-data.md)
       - [JsonContentSchemaData](./sources/propositions/developer-documentation/classes/schemas/json-content-schema-data.md)
 
+## Content cards with UI
+
+- Developer documentation 
+
+    - [API Usage](./sources/content-card-ui/api-usage.md)
+
+- Public Classes, Enums, and Protocols
+
+    - [ContentCardUI](./sources/content-card-ui/public-classes/contentcardui.md)
+    - [ContentCardCustomizing](./sources/content-card-ui/public-classes/contentcardcustomizing.md)
+    - [ContentCardUIEventListening](./sources/content-card-ui/public-classes/contentcarduieventlistening.md)
+
+- Templates
+
+    - [SmallImageTemplate](./sources/content-card-ui/public-classes/Template/smallimage-template.md)
+
+- UI Elements
+
+    - [AEPText](./sources/content-card-ui/public-classes/UIElements/aeptext.md)
+    - [AEPButton](./sources/content-card-ui/public-classes/UIElements/aepbutton.md)
+    - [AEPImage](./sources/content-card-ui/public-classes/UIElements/aepimage.md)
+    - [AEPStack](./sources/content-card-ui/public-classes/UIElements/aepstack.md)
+    - [AEPDismissButton](./sources/content-card-ui/public-classes/UIElements/aepdismissbutton.md)
+ 
+- Tutorials
+
+    - [Fetch and Display Content Cards](./sources/content-card-ui/tutorial/displaying-content-cards.md) 
+    - [Customizing Content Card Templates](./sources/content-card-ui/tutorial/customizing-content-card-templates.md)
+    - [Listening to Content Card Events](./sources/content-card-ui/tutorial/listening-content-card-events.md)
+
+
 ## Common public classes, methods, and enums
 
 - [MessagingEdgeEventType](./sources/shared/enums/enum-messaging-edge-event-type.md)

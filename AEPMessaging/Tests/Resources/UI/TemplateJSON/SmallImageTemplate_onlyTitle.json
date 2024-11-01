@@ -1,0 +1,16 @@
+{
+    "expiryDate": 1723163897,
+    "meta": {
+        "adobe" : {
+            "template": "SmallImage"
+        }
+    },
+    "content": {
+          "actionUrl": "https://actionUrl.com",
+          "title": {
+            "content": "Card Title"
+          }
+    },
+    "contentType": "application/json",
+    "publishedDate": 1691541497
+}

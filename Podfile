@@ -14,8 +14,8 @@ project 'AEPMessaging.xcodeproj'
 
 pod 'SwiftLint', '0.52.0'
 
-$dev_repo = 'https://github.com/adobe/aepsdk-core-ios.git'
-$dev_branch = 'dev-v5.3.0'
+$dev_repo = 'https://github.com/sbenedicadb/aepsdk-core-ios.git'
+$dev_branch = 'temp-utils'
 
 # ==================
 # SHARED POD GROUPS
@@ -49,12 +49,12 @@ def app_dev
     pod 'AEPEdge', :git => 'https://github.com/adobe/aepsdk-edge-ios.git', :branch => 'staging'
     pod 'AEPEdgeIdentity', :git => 'https://github.com/adobe/aepsdk-edgeidentity-ios.git', :branch => 'staging'
     pod 'AEPEdgeConsent', :git => 'https://github.com/adobe/aepsdk-edgeconsent-ios.git', :branch => 'staging'
-    pod 'AEPAnalytics', :git => 'https://github.com/adobe/aepsdk-analytics-ios.git', :branch => 'staging'
     pod 'AEPAssurance', :git => 'https://github.com/adobe/aepsdk-assurance-ios.git', :branch => 'staging'
 end
 
 def test_utils
-    pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-testutils-ios.git', :tag => '5.0.1'
+     pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :tag => 'testutils-5.2.0'
+#    pod 'AEPTestUtils', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'temp-utils'
 end
 
 # ==================
@@ -82,6 +82,11 @@ target 'UnitTests' do
 end
 
 target 'FunctionalTests' do
+  app_main
+  test_utils
+end
+
+target 'IntegrationTests' do
   app_main
   test_utils
 end

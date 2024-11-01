@@ -25,6 +25,20 @@ public class Proposition: NSObject, Codable {
     /// Scope details dictionary
     var scopeDetails: [String: Any]
 
+    /// Priority of the `Proposition` entered in the AJO UI for the corresponding campaign
+    public var priority: Int {
+        if let scopeDetails = scopeDetails as? [String: AnyCodable] {
+            guard let activity = scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY]?.dictionaryValue else {
+                return 0
+            }
+            return activity[MessagingConstants.Event.Data.Key.Personalization.PRIORITY] as? Int ?? 0
+        } else if let activity = scopeDetails[MessagingConstants.Event.Data.Key.Personalization.ACTIVITY] as? [String: Any] {
+            return activity[MessagingConstants.Event.Data.Key.Personalization.PRIORITY] as? Int ?? 0
+        } else {
+            return 0
+        }
+    }
+
     /// Array containing proposition decision items
     private let propositionItems: [PropositionItem]
 
@@ -89,6 +103,17 @@ extension Proposition {
             return activity[MessagingConstants.Event.Data.Key.Personalization.ID] as? String ?? ""
         } else {
             return ""
+        }
+    }
+
+    /// rank is an ordinal value computed by IDS, used for prioritization
+    /// it is expected that IDS will always return a value for rank
+    /// a default value of -1 is used in the absense of rank in the IDS response and should be considered an error state
+    var rank: Int {
+        if let scopeDetails = scopeDetails as? [String: AnyCodable] {
+            return scopeDetails[MessagingConstants.Event.Data.Key.Personalization.RANK]?.intValue ?? -1
+        } else {
+            return scopeDetails[MessagingConstants.Event.Data.Key.Personalization.RANK] as? Int ?? -1
         }
     }
 }
