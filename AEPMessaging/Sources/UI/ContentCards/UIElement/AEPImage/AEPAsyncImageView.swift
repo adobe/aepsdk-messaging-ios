@@ -18,12 +18,9 @@
 /// Use this view for displaying images from remote URLs, caching them to reduce redundant network requests,
 /// and seamlessly handling dark/light mode updates.
 @available(iOS 15.0, *)
-struct AEPAsyncImage<Content>: View where Content: View {
-    /// The URL of the image to load in light mode.
-    private let lightModeURL: URL
-
-    /// The URL of the image to load in dark mode.
-    private let darkModeURL: URL?
+struct AEPAsyncImageView<Content>: View where Content: View {
+    /// The model containing the data about the image.
+    private let model: AEPImage
 
     /// A closure that takes an `AsyncImagePhase` and returns a SwiftUI `View` for each phase.
     /// This provides flexibility in displaying loading indicators, fallback images, or the downloaded image.
@@ -35,16 +32,14 @@ struct AEPAsyncImage<Content>: View where Content: View {
     /// The color scheme environment variable to detect light/dark mode changes and reload the image if needed.
     @Environment(\.colorScheme) private var colorScheme
 
-    /// Initializes the `AEPAsyncImage` with a URL and content closure.
+    /// Initializes the `AEPAsyncImage` with a AEPImage model class  and content closure.
     ///
     /// - Parameters:
-    ///   - url: The URL of the image to load.
+    ///   - model: The AEPImage model class that contains data to populate the image
     ///   - content: A closure that defines the view to display for each image loading phase.
-    init(lightModeURL: URL,
-         darkModeURL: URL? = nil,
+    init(_ model: AEPImage,
          @ViewBuilder content: @escaping (AsyncImagePhase) -> Content) {
-        self.lightModeURL = lightModeURL
-        self.darkModeURL = darkModeURL
+        self.model = model
         self.content = content
     }
 
@@ -64,12 +59,12 @@ struct AEPAsyncImage<Content>: View where Content: View {
     ///
     /// - Parameter colorScheme: The `ColorScheme` that determines whether to use light or dark mode URL.
     private func loadImage(for colorScheme: ColorScheme) {
-        // Determine the URL to use based on color scheme, defaulting to lightModeURL if darkModeURL is nil.
-        let currentURL = (colorScheme == .dark ? darkModeURL : lightModeURL) ?? lightModeURL
-        if let cachedImage = ImageCache[currentURL] {
+        // Determine the URL to use based on color scheme
+        let url = themeBasedURL(colorScheme)
+        if let cachedImage = ContentCardImageCache[url] {
             phase = .success(Image(uiImage: cachedImage))
         } else {
-            downloadImage(from: currentURL)
+            downloadImage(from: url)
         }
     }
 
@@ -86,7 +81,7 @@ struct AEPAsyncImage<Content>: View where Content: View {
             }
 
             if let data = data, let image = UIImage(data: data) {
-                ImageCache[url] = image
+                ContentCardImageCache[url] = image
                 DispatchQueue.main.async {
                     phase = .success(Image(uiImage: image))
                 }
@@ -96,5 +91,17 @@ struct AEPAsyncImage<Content>: View where Content: View {
                 }
             }
         }.resume()
+    }
+
+    /// Determines the appropriate URL for the image based on the device's color scheme.
+    /// - Parameter colorScheme: The `ColorScheme` that determines whether to use light or dark mode URL.
+    ///
+    /// - Returns: The URL to be used for the image.
+    private func themeBasedURL(_ colorScheme: ColorScheme) -> URL {
+        if colorScheme == .dark {
+            return model.darkUrl ?? model.url!
+        } else {
+            return model.url!
+        }
     }
 }

@@ -16,11 +16,11 @@
     import SwiftUI
 #endif
 
-/// A utility class that manages caching of images associated with specific URLs.
+/// A utility class that manages caching of content card images associated with specific URLs.
 @available(iOS 15.0, *)
-enum ImageCache {
+enum ContentCardImageCache {
     /// The underlying cache used for storing images.
-    private static let cache = Cache(name: MessagingConstants.Caches.UI_CACHE_NAME)
+    private static let cache = Cache(name: MessagingConstants.Caches.CONTENT_CARD_UI_CACHE_NAME)
 
     /// Accessor to retrieve or store images in the cache by URL.
     ///

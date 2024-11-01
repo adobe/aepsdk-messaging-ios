@@ -32,7 +32,7 @@ enum MessagingConstants {
 
     enum Caches {
         static let CACHE_NAME = "com.adobe.messaging.cache"
-        static let UI_CACHE_NAME = "com.adobe.messaging.ui.cache"
+        static let CONTENT_CARD_UI_CACHE_NAME = "com.adobe.messaging.contentcard.ui.cache"
         static let PROPOSITIONS = "propositions"
         static let PATH = "PATH"
     }
