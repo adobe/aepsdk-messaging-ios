@@ -11,9 +11,9 @@
  */
 
 #if canImport(SwiftUI)
+    import AEPServices
     import Foundation
     import SwiftUI
-    import AEPServices
 #endif
 
 /// A view that displays an image based on the provided `AEPImage` model.
@@ -75,7 +75,7 @@ struct AEPImageView: View {
             EmptyView()
         }
     }
-    
+
     /// Handles the error encountered during image loading and logs a warning.
     ///
     /// - Parameter error: The error encountered while loading the image
