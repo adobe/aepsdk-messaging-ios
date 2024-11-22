@@ -38,6 +38,31 @@ import UserNotifications
             closure?(.noTrackingData)
             return
         }
+        
+        // check for a deeplink to an in-app message
+        let pushToInappIdentifier = notificationRequest.content.userInfo[MessagingConstants.XDM.Key.PUSH_TO_INAPP] as? String
+        if let pushToInappIdentifier = pushToInappIdentifier {
+            // we found an in-app to trigger, make a call to refresh IAMs from the remote to make sure we have this message
+            DispatchQueue.global().async {
+                let iamSurface = Surface()
+                Messaging.updatePropositionsForSurfaces([iamSurface]) { success in
+                    if success {
+                        // send the event to trigger the in-app notification
+                        
+                        let event = Event(name: "Push to in-app",
+                                          type: EventType.edge,
+                                          source: EventSource.requestContent,
+                                          data: [
+                                              MessagingConstants.XDM.Key.XDM: [
+                                                  MessagingConstants.XDM.Key.PUSH_TO_INAPP: pushToInappIdentifier
+                                              ]
+                                          ])
+                        
+                        MobileCore.dispatch(event: event)
+                    }
+                }
+            }
+        }
 
         // Get off the main thread to process notification response
         DispatchQueue.global().async {
@@ -77,16 +102,20 @@ import UserNotifications
     }
 
     // MARK: Personalization via Surfaces
-
+    
     /// Dispatches an event to fetch propositions for the provided surfaces from remote.
-    /// - Parameter surfaces: An array of surface objects.
-    static func updatePropositionsForSurfaces(_ surfaces: [Surface]) {
+    /// If provided, `completion` will be called once the Messaging extension has fully processed the network response from Konductor.
+    /// - Parameters:
+    ///   - surfaces: An array of `Surface` objects.
+    ///   - completion: An optional completion handler to be called once the proposition response has been processed by the Messaging extension
+    static func updatePropositionsForSurfaces(_ surfaces: [Surface], _ completion: ((Bool) -> Void)? = nil) {
         let validSurfaces = surfaces
             .filter { $0.isValid }
 
         guard !validSurfaces.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Cannot update propositions as the provided surfaces array has no valid items.")
+            completion?(false)
             return
         }
 
@@ -100,6 +129,11 @@ import UserNotifications
                           source: EventSource.requestContent,
                           data: eventData)
 
+        // create a CompletionHandler if a callback was provided
+        if let completion = completion {
+            completionHandlers.append(CompletionHandler(originatingEvent: event, handler: completion))
+        }
+        
         MobileCore.dispatch(event: event)
     }
 
