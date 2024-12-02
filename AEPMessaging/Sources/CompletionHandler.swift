@@ -16,7 +16,7 @@ struct CompletionHandler {
     var originatingEventId: UUID?
     var edgeRequestEventId: UUID?
     var handle: ((Bool) -> Void)?
-    
+
     init(originatingEvent: Event, handler: @escaping ((Bool) -> Void)) {
         originatingEventId = originatingEvent.id
         handle = handler
