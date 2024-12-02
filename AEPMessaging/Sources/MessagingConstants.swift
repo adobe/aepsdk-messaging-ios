@@ -70,6 +70,7 @@ enum MessagingConstants {
             static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
             static let PUSH_TRACKING_STATUS = "Push tracking status event"
             static let EVENT_HISTORY_WRITE = "Write IAM event to history"
+            static let PUSH_TO_IN_APP = "Push to in-app"
         }
 
         enum Source {

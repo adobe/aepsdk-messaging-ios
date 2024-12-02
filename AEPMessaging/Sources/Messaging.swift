@@ -816,16 +816,6 @@ public class Messaging: NSObject, Extension {
         return nil
     }
     
-    private func updateHandlerFor(originatingEventId: UUID, with edgeRequestEventId: UUID) {
-        if var handler = completionHandlerFor(originatingEventId: originatingEventId) {
-            let index = Messaging.completionHandlers.firstIndex() { $0.originatingEventId == originatingEventId }
-            if let index = index {
-                Messaging.completionHandlers.remove(at: index)
-                handler.edgeRequestEventId = edgeRequestEventId
-            }
-        }
-    }
-    
     // MARK: - debug methods below are used for testing purposes only
 
     #if DEBUG

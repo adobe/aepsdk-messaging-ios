@@ -48,14 +48,11 @@ import UserNotifications
                 Messaging.updatePropositionsForSurfaces([iamSurface]) { success in
                     if success {
                         // send the event to trigger the in-app notification
-                        
-                        let event = Event(name: "Push to in-app",
-                                          type: EventType.edge,
+                        let event = Event(name: MessagingConstants.Event.Name.PUSH_TO_IN_APP,
+                                          type: EventType.rulesEngine,
                                           source: EventSource.requestContent,
                                           data: [
-                                              MessagingConstants.XDM.Key.XDM: [
-                                                  MessagingConstants.XDM.Key.PUSH_TO_INAPP: pushToInappIdentifier
-                                              ]
+                                              MessagingConstants.XDM.Key.PUSH_TO_INAPP: pushToInappIdentifier
                                           ])
                         
                         MobileCore.dispatch(event: event)
