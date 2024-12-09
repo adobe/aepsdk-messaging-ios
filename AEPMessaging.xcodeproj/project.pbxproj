@@ -115,6 +115,7 @@
 		244E9555267BB018001DC957 /* String+JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E9554267BB018001DC957 /* String+JSON.swift */; };
 		244E955B267BB253001DC957 /* Dictionary+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E955A267BB253001DC957 /* Dictionary+Messaging.swift */; };
 		244E9584268262C8001DC957 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244E9583268262C7001DC957 /* Message.swift */; };
+		244F19052D0106C2009F0209 /* CompletionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244F19042D0106BA009F0209 /* CompletionHandlerTests.swift */; };
 		244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244FEA4329B6A1060058FA1C /* FeedItem.swift */; };
 		244FEA4629B6A5D30058FA1C /* FeedItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244FEA4529B6A5D30058FA1C /* FeedItemTests.swift */; };
 		244FEA4829B8E2950058FA1C /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 244FEA4729B8E2950058FA1C /* Feed.swift */; };
@@ -558,6 +559,7 @@
 		244E9554267BB018001DC957 /* String+JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+JSON.swift"; sourceTree = "<group>"; };
 		244E955A267BB253001DC957 /* Dictionary+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+Messaging.swift"; sourceTree = "<group>"; };
 		244E9583268262C7001DC957 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		244F19042D0106BA009F0209 /* CompletionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionHandlerTests.swift; sourceTree = "<group>"; };
 		244FEA4329B6A1060058FA1C /* FeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItem.swift; sourceTree = "<group>"; };
 		244FEA4529B6A5D30058FA1C /* FeedItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemTests.swift; sourceTree = "<group>"; };
 		244FEA4729B8E2950058FA1C /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
@@ -1060,10 +1062,10 @@
 		92315433261E3B36004AE7D3 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				B6F7CC5F2CC7089200C35C64 /* Enum */,
 				B6F7CC5E2CC7081E00C35C64 /* ClassExtensions */,
-				B6F7CBC82CC2089A00C35C64 /* UI */,
+				B6F7CC5F2CC7089200C35C64 /* Enum */,
 				242920F62AD0628B000DB2CD /* Schemas */,
+				B6F7CBC82CC2089A00C35C64 /* UI */,
 				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
 				24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */,
 				246EF0632C013DED002A9B22 /* ContentCard.swift */,
@@ -1115,6 +1117,7 @@
 				24CA4BCE2B617AA900D16369 /* Array+MessagingTests.swift */,
 				24CA4BD02B617AC800D16369 /* Bundle+MessagingTests.swift */,
 				24CA4BD22B617AED00D16369 /* Cache+MessagingTests.swift */,
+				244F19042D0106BA009F0209 /* CompletionHandlerTests.swift */,
 				246EF0652C06803B002A9B22 /* ContentCardTests.swift */,
 				24CA4BD42B6195A500D16369 /* ContentCardRulesEngineTests.swift */,
 				243EA6C82733258600195945 /* Dictionary+MessagingTests.swift */,
@@ -1454,15 +1457,15 @@
 		B6F7CC5E2CC7081E00C35C64 /* ClassExtensions */ = {
 			isa = PBXGroup;
 			children = (
-				241B2DD32821C80C00E4FF67 /* URL+QueryParams.swift */,
-				240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */,
 				09B071F52A7318CB00F259C1 /* Array+Messaging.swift */,
 				09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */,
+				240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */,
 				244E955A267BB253001DC957 /* Dictionary+Messaging.swift */,
+				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
 				090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */,
 				240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */,
-				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
 				244E9554267BB018001DC957 /* String+JSON.swift */,
+				241B2DD32821C80C00E4FF67 /* URL+QueryParams.swift */,
 			);
 			path = ClassExtensions;
 			sourceTree = "<group>";
@@ -1470,8 +1473,8 @@
 		B6F7CC5F2CC7089200C35C64 /* Enum */ = {
 			isa = PBXGroup;
 			children = (
-				B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */,
 				244C2BD726B36480008F086A /* MessagingEdgeEventType.swift */,
+				B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */,
 			);
 			path = Enum;
 			sourceTree = "<group>";
@@ -2546,6 +2549,7 @@
 				240436CE2C76685C008CCD6D /* MockProposition.swift in Sources */,
 				243EA6D42733261E00195945 /* MessagingEdgeEventTypeTests.swift in Sources */,
 				24CA4BD32B617AED00D16369 /* Cache+MessagingTests.swift in Sources */,
+				244F19052D0106C2009F0209 /* CompletionHandlerTests.swift in Sources */,
 				2402745E29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */,
 				243EA6CF273325CC00195945 /* Message+FullscreenMessageDelegateTests.swift in Sources */,
 				245059712673DBFE00CC7CA0 /* MessagingTests.swift in Sources */,

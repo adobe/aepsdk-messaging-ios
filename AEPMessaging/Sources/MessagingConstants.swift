@@ -210,7 +210,6 @@ enum MessagingConstants {
             static let DATA = "data"
             static let REQUEST = "request"
             static let SEND_COMPLETION = "sendCompletion"
-            static let PUSH_TO_INAPP = "adb_iamId"
         }
 
         enum Inbound {
@@ -310,6 +309,7 @@ enum MessagingConstants {
     enum PushNotification {
         enum UserInfoKey {
             static let ACTION_URL = "adb_uri"
+            static let PUSH_TO_INAPP = "adb_iamId"
         }
     }
 }
