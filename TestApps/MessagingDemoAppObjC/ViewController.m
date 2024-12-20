@@ -73,7 +73,7 @@
 }
 
 - (void) urlLoaded:(NSURL *)url byMessage:(id<AEPShowable>)message {
-    NSLog(@"message loaded url: %@", url);
+    NSLog(@"message loaded url: %@", url);    
 }
 
 @end
