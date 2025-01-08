@@ -17,7 +17,6 @@ import Foundation
 
 enum UIConstants {
     static let LOG_TAG = "MessagingUI"
-    static let EXTENSION_VERSION = "5.1.0"
 
     enum CardTemplate {
         static let SmallImage = "SmallImage"
