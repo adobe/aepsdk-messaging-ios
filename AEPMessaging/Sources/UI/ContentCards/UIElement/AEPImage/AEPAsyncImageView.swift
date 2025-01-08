@@ -11,8 +11,8 @@
  */
 
 #if canImport(SwiftUI)
-    import SwiftUI
     import AEPServices
+    import SwiftUI
 #endif
 
 /// `AEPAsyncImage` provides a convenient way to load images asynchronously with built-in support for caching
@@ -122,4 +122,3 @@ struct AEPAsyncImageView<Content>: View where Content: View {
         }
     }
 }
-
