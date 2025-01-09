@@ -11,6 +11,7 @@
  */
 
 #if canImport(SwiftUI)
+    import AEPServices
     import SwiftUI
 #endif
 
@@ -74,7 +75,7 @@ struct AEPAsyncImageView<Content>: View where Content: View {
     private func downloadImage(from url: URL) {
         URLSession.shared.dataTask(with: url) { data, _, error in
             if let error = error {
-                DispatchQueue.main.async {
+                handleDownloadResult {
                     phase = .failure(error)
                 }
                 return
@@ -82,11 +83,11 @@ struct AEPAsyncImageView<Content>: View where Content: View {
 
             if let data = data, let image = UIImage(data: data) {
                 ContentCardImageCache[url] = image
-                DispatchQueue.main.async {
+                handleDownloadResult {
                     phase = .success(Image(uiImage: image))
                 }
             } else {
-                DispatchQueue.main.async {
+                handleDownloadResult {
                     phase = .empty
                 }
             }
@@ -102,6 +103,22 @@ struct AEPAsyncImageView<Content>: View where Content: View {
             return model.darkUrl ?? model.url!
         } else {
             return model.url!
+        }
+    }
+
+    /// Handles the result of a download operation.
+    /// This method ensures that UI updates occur only when the app is visible to the user.
+    /// It executes the provided closure on the main queue if the app is not in the background.
+    ///
+    /// - Parameter updatePhase: A closure that updates the UI depending on download result
+    private func handleDownloadResult(_ updatePhase: @escaping () -> Void) {
+        if !AppStateManager.shared.isAppInBackground {
+            Log.debug(label: UIConstants.LOG_TAG, "Updating downloaded image to content card.")
+            DispatchQueue.main.async {
+                updatePhase()
+            }
+        } else {
+            Log.debug(label: UIConstants.LOG_TAG, "Preventing to apply downloaded image in background")
         }
     }
 }
