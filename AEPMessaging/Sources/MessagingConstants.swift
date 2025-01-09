@@ -309,7 +309,7 @@ enum MessagingConstants {
     enum PushNotification {
         enum UserInfoKey {
             static let ACTION_URL = "adb_uri"
-            static let PUSH_TO_INAPP = "adb_iamId"
+            static let PUSH_TO_INAPP = "adb_iam_id"
         }
     }
 }
