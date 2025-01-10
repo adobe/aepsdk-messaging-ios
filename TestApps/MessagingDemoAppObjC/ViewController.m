@@ -74,17 +74,6 @@
 
 - (void) urlLoaded:(NSURL *)url byMessage:(id<AEPShowable>)message {
     NSLog(@"message loaded url: %@", url);
-    
-    AEPSurface* surface1 = [[AEPSurface alloc] initWithPath: @"myView#button"];
-    AEPSurface* surface2 = [[AEPSurface alloc] initWithPath: @"myViewAttributes"];
-    
-    [AEPMobileMessaging updatePropositionsForSurfaces:@[surface1, surface2] completion:^(BOOL success) {
-        if (success) {
-            // handle success scenario
-        } else {
-            // handle error scenario
-        }
-    }];
 }
 
 @end
