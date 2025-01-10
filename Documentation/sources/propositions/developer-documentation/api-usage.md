@@ -136,7 +136,8 @@ To retrieve previously cached decision `Proposition`s, use the `getPropositionsF
 
 ##### Syntax
 ```swift
-static func updatePropositionsForSurfaces(_ surfaces: [Surface], _ completion: ((Bool) -> Void)? = nil)
+static func updatePropositionsForSurfaces(_ surfaces: [Surface], 
+                                          _ completion: ((Bool) -> Void)? = nil)
 ```
 
 ##### Example
