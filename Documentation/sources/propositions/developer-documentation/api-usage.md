@@ -4,8 +4,9 @@ This document details the Messaging SDK APIs that can be used to implement propo
 
 ## Proposition based APIs
 
-- [getPropositionsForSurfaces](#getPropositionsForSurfaces)
-- [updatePropositionsForSurfaces](#updatePropositionsForSurfaces)
+- [getPropositionsForSurfaces(\_:\_:)](#getpropositionsforsurfaces__)
+- [updatePropositionsForSurfaces(\_:)](#updatepropositionsforsurfaces_)
+- [updatePropositionsForSurfaces(\_:\_:)](#updatepropositionsforsurfaces__)
 
 ---
 
@@ -119,4 +120,57 @@ AEPSurface* surface1 = [[AEPSurface alloc] initWithPath: @"myView#button"];
 AEPSurface* surface2 = [[AEPSurface alloc] initWithPath: @"myViewAttributes"];
 
 [AEPMobileMessaging updatePropositions: @[surface1, surface2]]; 
+```
+
+---
+
+### updatePropositionsForSurfaces(\_:\_:)
+
+Dispatches an event for the Edge network extension to fetch personalization decisions from the AJO campaigns for the provided `Surface`s array. The returned decision `Proposition`s are cached in-memory by the Messaging extension.
+
+If provided, `completion` will be called on the Messaging extension's background thread once the response has been fully processed. `true` will be passed to the `completion` method if a network response was returned and successfully processed.
+
+To retrieve previously cached decision `Proposition`s, use the `getPropositionsForSurfaces(_:_:)` API.
+
+#### Swift
+
+##### Syntax
+```swift
+static func updatePropositionsForSurfaces(_ surfaces: [Surface], _ completion: ((Bool) -> Void)? = nil)
+```
+
+##### Example
+```swift
+let surface1 = Surface(path: "myView#button")
+let surface2 = Surface(path: "myViewAttributes")
+
+Messaging.updatePropositionsForSurfaces([surface1, surface2]) { success in
+    if success {
+        // handle success scenario
+    } else {
+        // handle error scenario
+    }
+}
+```
+
+#### Objective-C
+
+##### Syntax
+```objc
++ (void) updatePropositionsForSurfaces: (NSArray<AEPSurface*>* _Nonnull) surfaces
+                            completion: (void (^)(BOOL)) completion;
+```
+
+##### Example
+```objc
+AEPSurface* surface1 = [[AEPSurface alloc] initWithPath: @"myView#button"];
+AEPSurface* surface2 = [[AEPSurface alloc] initWithPath: @"myViewAttributes"];
+
+[AEPMobileMessaging updatePropositionsForSurfaces:@[surface1, surface2] completion:^(BOOL success) {
+    if (success) {
+        // handle success scenario
+    } else {
+        // handle error scenario
+    }
+}];
 ```
