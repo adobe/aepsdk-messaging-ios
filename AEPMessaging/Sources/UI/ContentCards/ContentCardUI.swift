@@ -42,7 +42,7 @@ public class ContentCardUI: Identifiable {
     public var meta: [String: Any]? {
         proposition.items.first?.contentCardSchemaData?.meta
     }
-    
+
     /// Method to track custom interaction on the content card
     public func trackInteraction(_ interaction: String) {
         proposition.items.first?.contentCardSchemaData?.track(interaction, withEdgeEventType: .interact)
