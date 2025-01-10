@@ -293,7 +293,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         // setup
         let iamId = "mockIamId"
         var trackingData = MessagingPublicApiTest.MOCK_TRACKING_DETAILS
-        trackingData["adb_iamId"] = iamId
+        trackingData["adb_iam_id"] = iamId
         let notificationResponse = createNotificationResponse(trackingData: trackingData)
                 
         // register listener for update propositions call
