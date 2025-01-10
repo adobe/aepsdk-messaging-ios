@@ -29,6 +29,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             Lifecycle.self,
             Signal.self,
             Edge.self,
+            Consent.self,
             Messaging.self,
             Assurance.self
         ]

@@ -22,6 +22,7 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
     var displayExpectation: XCTestExpectation?
     var dismissExpectation: XCTestExpectation?
     var interactExpectation: XCTestExpectation?
+    var capturedInteractionID: String?
             
     func test_contentCardUI_createInstance_happy() throws {
         // setup
@@ -83,6 +84,7 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
     
     func onInteract(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
         interactExpectation?.fulfill()
+        capturedInteractionID = interactionId
         return false
     }
     
@@ -108,6 +110,26 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         }
         
         XCTAssertNotNil(templateHandler)
+    }
+    
+    func test_contentCardUI_customTracking() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate")
+        interactExpectation = expectation(description: "onInteract method called")
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: self)
+        contentCardUI?.onInteract(interactionId: "DoubleTapped", actionURL: nil)
+        
+        // verify
+        XCTAssertNotNil(contentCardUI)
+        waitForExpectations(timeout: 2.0) { error in
+            if let error = error {
+                XCTFail("Expectations were not fulfilled: \(error)")
+            }
+        }
+        XCTAssertEqual("DoubleTapped", capturedInteractionID)
+        
     }
 }
 
