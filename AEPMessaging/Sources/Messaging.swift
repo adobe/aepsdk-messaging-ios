@@ -16,13 +16,6 @@ import Foundation
 
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
-    private static let handlerLock = NSLock()
-    private static var _completionHandlers: [CompletionHandler] = []
-    static var completionHandlers: [CompletionHandler] {
-        get { handlerLock.withLock { _completionHandlers } }
-        set { handlerLock.withLock { _completionHandlers = newValue } }
-    }
-
     // MARK: - Class members
 
     public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
@@ -35,6 +28,14 @@ public class Messaging: NSObject, Extension {
     // It ensures any update propositions requests issued before a get propositions call are completed
     // and the get propositions request is fulfilled from the latest cached content.
     private let eventsQueue = OperationOrderer<Event>("MessagingEvents")
+
+    // Queue for completion handlers providing thread-safe read/writing of the `completionHandlers` array
+    private static let handlersQueue: DispatchQueue = .init(label: "com.adobe.messaging.completionHandlers.queue")
+    private static var _completionHandlers: [CompletionHandler] = []
+    static var completionHandlers: [CompletionHandler] {
+        get { handlersQueue.sync { self._completionHandlers } }
+        set { handlersQueue.async { self._completionHandlers = newValue } }
+    }
 
     // MARK: - Messaging State
 
