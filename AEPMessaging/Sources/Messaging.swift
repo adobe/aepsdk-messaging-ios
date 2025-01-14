@@ -36,7 +36,7 @@ public class Messaging: NSObject, Extension {
         get { handlersQueue.sync { self._completionHandlers } }
         set { handlersQueue.async { self._completionHandlers = newValue } }
     }
-    
+
     // MARK: - Messaging State
 
     var cache: Cache = .init(name: MessagingConstants.Caches.CACHE_NAME)
@@ -50,7 +50,7 @@ public class Messaging: NSObject, Extension {
 
     /// Dispatch queue used to protect against simultaneous access of our containers from multiple threads
     private let queue: DispatchQueue = .init(label: "com.adobe.messaging.containers.queue")
-    
+
     /// holds in-memory propositions for CBE (json-content, html-content, default-content) and IAM
     private var _inMemoryPropositions: [Surface: [Proposition]] = [:]
     var inMemoryPropositions: [Surface: [Proposition]] {
