@@ -111,6 +111,7 @@ import UserNotifications
 
     /// Dispatches an event to fetch propositions for the provided surfaces from remote.
     /// If provided, `completion` will be called on the Messaging extension's background thread once the response has been fully processed.
+    /// `true` will be passed to the `completion` method if a network response was returned and successfully processed.
     /// - Parameters:
     ///   - surfaces: An array of `Surface` objects.
     ///   - completion: An optional completion handler to be called once the proposition response has been processed by the Messaging extension
