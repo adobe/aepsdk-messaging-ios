@@ -11,6 +11,7 @@
  */
 
 import AEPCore
+import Foundation
 
 struct CompletionHandler {
     var originatingEventId: UUID?
