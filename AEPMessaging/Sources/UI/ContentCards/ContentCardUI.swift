@@ -43,6 +43,16 @@ public class ContentCardUI: Identifiable {
         proposition.items.first?.contentCardSchemaData?.meta
     }
 
+    /// Method to track custom interaction on the content card
+    public func trackInteraction(_ interaction: String) {
+        guard let contentCardSchemaData = proposition.items.first?.contentCardSchemaData else {
+            Log.warning(label: UIConstants.LOG_TAG, "Unable to track custom interaction \"\(interaction)\" on ContentCardUI. ContentCardSchemaData is nil.")
+            return
+        }
+
+        contentCardSchemaData.track(interaction, withEdgeEventType: .interact)
+    }
+
     /// Factory method to create a `ContentCardUI` instance based on the provided schema data.
     /// - Parameters:
     ///    - proposition: The `Proposition` containing content card template information

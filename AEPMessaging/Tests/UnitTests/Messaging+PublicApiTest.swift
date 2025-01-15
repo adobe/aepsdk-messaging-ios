@@ -34,8 +34,8 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
     }
     
     override func tearDown() {
-        resetNotificationCategories()        
-        EventHub.reset()
+        resetNotificationCategories()
+        MobileCore.resetSDK()
     }
     
     private func registerMockExtension<T: Extension>(_ type: T.Type) {
@@ -287,6 +287,28 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         
         // verify expectation
         wait(for: [eventExpectation], timeout: ASYNC_TIMEOUT)
+    }
+    
+    func testHandleNotificationResponse_when_userInfoHasPushToInapp_then_updatePropositionsCalled() throws {
+        // setup
+        let iamId = "mockIamId"
+        var trackingData = MessagingPublicApiTest.MOCK_TRACKING_DETAILS
+        trackingData["adb_iam_id"] = iamId
+        let notificationResponse = createNotificationResponse(trackingData: trackingData)
+                
+        // register listener for update propositions call
+        let updatePropositionsExpectation = XCTestExpectation(description: "UpdatePropositions should be called")
+        MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.requestContent) { event in
+            if event.name == "Update propositions" {
+                updatePropositionsExpectation.fulfill()
+            }
+        }
+        
+        // test
+        Messaging.handleNotificationResponse(notificationResponse)
+        
+        // verify
+        wait(for: [updatePropositionsExpectation], timeout: ASYNC_TIMEOUT)
     }
     
     
