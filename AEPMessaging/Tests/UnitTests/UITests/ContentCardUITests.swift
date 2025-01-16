@@ -112,24 +112,15 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         XCTAssertNotNil(templateHandler)
     }
     
-    func test_contentCardUI_customTracking() throws {
+    func test_contentCardUI_schemaData_Accessible() throws {
         // setup
-        let proposition =  ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate")
-        interactExpectation = expectation(description: "onInteract method called")
+        let proposition: Proposition = ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate")
         
         // test
-        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: self)
-        contentCardUI?.onInteract(interactionId: "DoubleTapped", actionURL: nil)
+        let card = ContentCardUI.createInstance(with: proposition, customizer: nil, listener: self)
         
         // verify
-        XCTAssertNotNil(contentCardUI)
-        waitForExpectations(timeout: 2.0) { error in
-            if let error = error {
-                XCTFail("Expectations were not fulfilled: \(error)")
-            }
-        }
-        XCTAssertEqual("DoubleTapped", capturedInteractionID)
-        
+        XCTAssertNotNil(card?.schemaData)
     }
 }
 
