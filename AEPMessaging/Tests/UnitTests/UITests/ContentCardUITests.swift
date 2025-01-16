@@ -22,6 +22,7 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
     var displayExpectation: XCTestExpectation?
     var dismissExpectation: XCTestExpectation?
     var interactExpectation: XCTestExpectation?
+    var capturedInteractionID: String?
             
     func test_contentCardUI_createInstance_happy() throws {
         // setup
@@ -83,6 +84,7 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
     
     func onInteract(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
         interactExpectation?.fulfill()
+        capturedInteractionID = interactionId
         return false
     }
     
@@ -108,6 +110,17 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         }
         
         XCTAssertNotNil(templateHandler)
+    }
+    
+    func test_contentCardUI_schemaData_Accessible() throws {
+        // setup
+        let proposition: Proposition = ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate")
+        
+        // test
+        let card = ContentCardUI.createInstance(with: proposition, customizer: nil, listener: self)
+        
+        // verify
+        XCTAssertNotNil(card?.schemaData)
     }
 }
 

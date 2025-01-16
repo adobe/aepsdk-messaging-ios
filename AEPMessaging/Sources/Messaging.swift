@@ -29,6 +29,14 @@ public class Messaging: NSObject, Extension {
     // and the get propositions request is fulfilled from the latest cached content.
     private let eventsQueue = OperationOrderer<Event>("MessagingEvents")
 
+    // Queue for completion handlers providing thread-safe read/writing of the `completionHandlers` array
+    private static let handlersQueue: DispatchQueue = .init(label: "com.adobe.messaging.completionHandlers.queue")
+    private static var _completionHandlers: [CompletionHandler] = []
+    static var completionHandlers: [CompletionHandler] {
+        get { handlersQueue.sync { self._completionHandlers } }
+        set { handlersQueue.async { self._completionHandlers = newValue } }
+    }
+
     // MARK: - Messaging State
 
     var cache: Cache = .init(name: MessagingConstants.Caches.CACHE_NAME)
@@ -409,6 +417,9 @@ public class Messaging: NSObject, Extension {
     ///   - event - parent event requesting that the messages be fetched. Used for event chaining to help with debugging.
     ///   - surfaces: an array of surface path strings for fetching propositions, if available.
     private func fetchPropositions(_ event: Event, for surfaces: [Surface]? = nil) {
+        // check for completion handler for requesting event
+        let handler = completionHandlerFor(originatingEventId: event.id)
+
         var requestedSurfaces: [Surface] = []
 
         // if surfaces are provided, use them - otherwise assume the request is for base surface (mobileapp://{bundle identifier})
@@ -417,11 +428,13 @@ public class Messaging: NSObject, Extension {
 
             guard !requestedSurfaces.isEmpty else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Unable to update messages, no valid surfaces found.")
+                handler?.handle?(false)
                 return
             }
         } else {
             guard appSurface != "unknown" else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to update messages, cannot read the bundle identifier.")
+                handler?.handle?(false)
                 return
             }
             requestedSurfaces = [Surface(uri: appSurface)]
@@ -465,6 +478,11 @@ public class Messaging: NSObject, Extension {
 
         // create entries in our local containers for managing streamed responses from edge
         beginRequestFor(newEvent, with: requestedSurfaces)
+
+        if var handler = handler {
+            handler.edgeRequestEventId = newEvent.id
+            Messaging.completionHandlers.append(handler)
+        }
 
         // dispatch the event and implement handler for the completion event
         MobileCore.dispatch(event: newEvent, timeout: 10.0) { responseEvent in
@@ -583,6 +601,11 @@ public class Messaging: NSObject, Extension {
 
         // clear pending propositions
         inProgressPropositions.removeAll()
+
+        // call the handler if we have one
+        if let handler = completionHandlerFor(edgeRequestEventId: UUID(uuidString: eventId)) {
+            handler.handle?(true)
+        }
     }
 
     private func applyPropositionChangeFor(eventId: String) {
@@ -768,6 +791,26 @@ public class Messaging: NSObject, Extension {
 
     func propositionInfoFor(messageId: String) -> PropositionInfo? {
         propositionInfo[messageId]
+    }
+
+    /// Removes and returns a `CompletionHandler` for the provided originatingEventId
+    private func completionHandlerFor(originatingEventId: UUID?) -> CompletionHandler? {
+        let handlerIndex = Messaging.completionHandlers.firstIndex { $0.originatingEventId == originatingEventId }
+        if let index = handlerIndex {
+            return Messaging.completionHandlers.remove(at: index)
+        }
+
+        return nil
+    }
+
+    /// Removes and returns a `CompletionHandler` for the provided edgeRequestEventId
+    private func completionHandlerFor(edgeRequestEventId: UUID?) -> CompletionHandler? {
+        let handlerIndex = Messaging.completionHandlers.firstIndex { $0.edgeRequestEventId == edgeRequestEventId }
+        if let index = handlerIndex {
+            return Messaging.completionHandlers.remove(at: index)
+        }
+
+        return nil
     }
 
     // MARK: - debug methods below are used for testing purposes only

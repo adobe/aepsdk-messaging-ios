@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "5.5.0"
+    static let EXTENSION_VERSION = "5.6.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
@@ -70,6 +70,7 @@ enum MessagingConstants {
             static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
             static let PUSH_TRACKING_STATUS = "Push tracking status event"
             static let EVENT_HISTORY_WRITE = "Write IAM event to history"
+            static let PUSH_TO_IN_APP = "Push to in-app"
         }
 
         enum Source {
@@ -308,6 +309,7 @@ enum MessagingConstants {
     enum PushNotification {
         enum UserInfoKey {
             static let ACTION_URL = "adb_uri"
+            static let PUSH_TO_INAPP = "adb_iam_id"
         }
     }
 }

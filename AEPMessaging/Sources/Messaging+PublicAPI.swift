@@ -39,6 +39,30 @@ import UserNotifications
             return
         }
 
+        // check for a deeplink to an in-app message
+        let pushToInappIdentifier = notificationRequest.content.userInfo[MessagingConstants.PushNotification.UserInfoKey.PUSH_TO_INAPP] as? String
+        if let pushToInappIdentifier = pushToInappIdentifier {
+            // we found an in-app to trigger, make a call to refresh IAMs from the remote to make sure we have this message
+            DispatchQueue.global().async {
+                Log.trace(label: MessagingConstants.LOG_TAG, "Found an in-app message to show based on user interaction with a push notification. Downloading updated message definitions to ensure availability of the desired in-app message.")
+                let iamSurface = Surface()
+                Messaging.updatePropositionsForSurfaces([iamSurface]) { success in
+                    if !success {
+                        Log.debug(label: MessagingConstants.LOG_TAG, "Failed to download updated in-app message definitions. Attempting to show the in-app message anyway.")
+                    }
+
+                    // send the event to trigger the in-app notification
+                    let event = Event(name: MessagingConstants.Event.Name.PUSH_TO_IN_APP,
+                                      type: EventType.rulesEngine,
+                                      source: EventSource.requestContent,
+                                      data: [
+                                          MessagingConstants.PushNotification.UserInfoKey.PUSH_TO_INAPP: pushToInappIdentifier
+                                      ])
+                    MobileCore.dispatch(event: event)
+                }
+            }
+        }
+
         // Get off the main thread to process notification response
         DispatchQueue.global().async {
             hasApplicationOpenedForResponse(response, completion: { isAppOpened in
@@ -79,14 +103,27 @@ import UserNotifications
     // MARK: Personalization via Surfaces
 
     /// Dispatches an event to fetch propositions for the provided surfaces from remote.
-    /// - Parameter surfaces: An array of surface objects.
+    /// - Parameters:
+    ///   - surfaces: An array of `Surface` objects.
     static func updatePropositionsForSurfaces(_ surfaces: [Surface]) {
+        updatePropositionsForSurfaces(surfaces, nil)
+    }
+
+    /// Dispatches an event to fetch propositions for the provided surfaces from remote.
+    /// If provided, `completion` will be called on the Messaging extension's background thread once the response has been fully processed.
+    /// `true` will be passed to the `completion` method if a network response was returned and successfully processed.
+    /// - Parameters:
+    ///   - surfaces: An array of `Surface` objects.
+    ///   - completion: An optional completion handler to be called once the proposition response has been processed by the Messaging extension
+    @objc(updatePropositionsForSurfaces:completion:)
+    static func updatePropositionsForSurfaces(_ surfaces: [Surface], _ completion: ((Bool) -> Void)? = nil) {
         let validSurfaces = surfaces
             .filter { $0.isValid }
 
         guard !validSurfaces.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Cannot update propositions as the provided surfaces array has no valid items.")
+            completion?(false)
             return
         }
 
@@ -99,6 +136,11 @@ import UserNotifications
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
+
+        // create a CompletionHandler if a callback was provided
+        if let completion = completion {
+            completionHandlers.append(CompletionHandler(originatingEvent: event, handler: completion))
+        }
 
         MobileCore.dispatch(event: event)
     }
