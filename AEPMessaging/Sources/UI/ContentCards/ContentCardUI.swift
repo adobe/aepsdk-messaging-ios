@@ -23,6 +23,9 @@ public class ContentCardUI: Identifiable {
     /// The underlying data model for the content card.
     let proposition: Proposition
 
+    /// The schema data associated with the content card.
+    public let schemaData: ContentCardSchemaData
+
     /// Priority of the `Proposition` entered in the AJO UI for the corresponding campaign
     public var priority: Int {
         proposition.priority
@@ -43,16 +46,6 @@ public class ContentCardUI: Identifiable {
         proposition.items.first?.contentCardSchemaData?.meta
     }
 
-    /// Method to track custom interaction on the content card
-    public func trackInteraction(_ interaction: String) {
-        guard let contentCardSchemaData = proposition.items.first?.contentCardSchemaData else {
-            Log.warning(label: UIConstants.LOG_TAG, "Unable to track custom interaction \"\(interaction)\" on ContentCardUI. ContentCardSchemaData is nil.")
-            return
-        }
-
-        contentCardSchemaData.track(interaction, withEdgeEventType: .interact)
-    }
-
     /// Factory method to create a `ContentCardUI` instance based on the provided schema data.
     /// - Parameters:
     ///    - proposition: The `Proposition` containing content card template information
@@ -71,7 +64,7 @@ public class ContentCardUI: Identifiable {
         }
 
         // Initialize the ContentCardUI with the proposition and template
-        let contentCardUI = ContentCardUI(proposition, template, listener)
+        let contentCardUI = ContentCardUI(proposition, schemaData, template, listener)
 
         // set the listener for the template
         template.eventHandler = contentCardUI
@@ -81,11 +74,16 @@ public class ContentCardUI: Identifiable {
     /// Initializes a new `ContentCardUI` instance with the given schema data and template.
     /// - Parameters:
     ///   - proposition: The `Proposition` containing the content card template's information
+    ///   - schemaData: The `ContentCardSchemaData` containing information about content card
     ///   - template: The template that defines the content card's layout and behavior.
+    ///   - listener: An optional listener conforming to the `ContentCardUIEventListening` protocol,
+    ///               allowing the host application to handle UI events triggered by the content card.
     /// - Note : This initializer is private to ensure that `ContentCardUI` instances are only created through the `createInstance` factory method.
-    private init(_ proposition: Proposition, _ template: any ContentCardTemplate, _ listener: ContentCardUIEventListening?) {
+    private init(_ proposition: Proposition, _ schemaData: ContentCardSchemaData,
+                 _ template: any ContentCardTemplate, _ listener: ContentCardUIEventListening?) {
         self.proposition = proposition
         self.template = template
         self.listener = listener
+        self.schemaData = schemaData
     }
 }
