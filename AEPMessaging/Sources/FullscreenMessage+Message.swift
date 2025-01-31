@@ -18,4 +18,9 @@ public extension FullscreenMessage {
     var parent: Message? {
         settings?.parent as? Message
     }
+    
+    func setHeightA(newHeight: Int) {
+        self.settings?.setHeight(newHeight)
+    }
+   
 }

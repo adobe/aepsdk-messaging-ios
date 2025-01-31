@@ -43,7 +43,7 @@ public class Message: NSObject {
     /// A map of assets used by the message, and a path to their cached location in the local file system.
     var assets: [String: String]?
 
-    /// The `Event` that triggered this `Message`.  Primarily used for getting the correct `Configuration` for
+    /// The `Event` that triggered this `Message`.  Primarily used for getting the correct `s` for
     /// access to the AEP Dataset ID.
     var triggeringEvent: Event
 
@@ -186,16 +186,75 @@ extension Message {
 
         let message = Message(parent: parent, triggeringEvent: event)
         message.id = propositionItem.itemId
+
+        // `getMessageSettings` is assumed to return a non-optional MessageSettings
         let messageSettings = iamSchemaData.getMessageSettings(with: message)
+
+        // Log the contents of messageSettings
+        print("MessageSettings: \(messageSettings)")
+        if let height = messageSettings.height {
+            print("Height (percentage): \(height)%")
+        } else {
+            print("Height is not set in MessageSettings.")
+        }
+
+        if let width = messageSettings.width {
+            print("Width (percentage): \(width)%")
+        } else {
+            print("Width is not set in MessageSettings.")
+        }
+
+
         let usingLocalAssets = message.generateAssetMap(iamSchemaData.remoteAssets)
-        message.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(payload: htmlContent,
-                                                                                              listener: message,
-                                                                                              isLocalImageUsed: usingLocalAssets,
-                                                                                              settings: messageSettings) as? FullscreenMessage
+        message.fullscreenMessage = ServiceProvider.shared.uiService.createFullscreenMessage?(
+            payload: htmlContent,
+            listener: message,
+            isLocalImageUsed: usingLocalAssets,
+            settings: messageSettings
+        ) as? FullscreenMessage
+        
+        // Log the contents of message.fullscreenMessage
+        if let fullscreenMessage = message.fullscreenMessage {
+            print("FullscreenMessage initialized successfully.")
+            
+            // Log the message settings used
+            if let settings = fullscreenMessage.settings {
+                print("FullscreenMessage Settings:")
+                if let height = settings.height {
+                    print("  Height (percentage): \(height)%")
+                } else {
+                    print("  Height: not set")
+                }
+
+                if let width = settings.width {
+                    print("  Width (percentage): \(width)%")
+                } else {
+                    print("  Width: not set")
+                }
+
+            } else {
+                print("FullscreenMessage Settings: nil")
+            }
+        } else {
+            print("FullscreenMessage failed to initialize.")
+        }
+
         if usingLocalAssets {
             message.fullscreenMessage?.setAssetMap(message.assets)
         }
+        
+        message.fullscreenMessage?.handleJavascriptMessage("myCallback") { data in
+                  // For example, parse a height or just log the data
+                  if let heightStr = data as? String,
+                     let heightVal = Double(heightStr) {
+                      print("Default JS Handler: received height = \(heightVal)")
+                  } else {
+                      print("Default JS Handler: received data = \(String(describing: data))")
+                  }
+              }
+
 
         return message
     }
 }
+
