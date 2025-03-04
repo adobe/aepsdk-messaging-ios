@@ -366,19 +366,31 @@ public class Messaging: NSObject, Extension {
     private func addOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface) {
         let startingCount = qualifiedContentCardsBySurface[surface]?.count ?? 0
         if var existingPropositionsArray = qualifiedContentCardsBySurface[surface] {
+            var newPropositionsToTrack: [PropositionItem] = []
+
             for proposition in propositions {
                 if let index = existingPropositionsArray.firstIndex(of: proposition) {
                     existingPropositionsArray.remove(at: index)
                 } else {
-                    proposition.items.first?.track(withEdgeEventType: .trigger)
+                    // Add to batch tracking array if it's a new proposition
+                    if let item = proposition.items.first {
+                        newPropositionsToTrack.append(item)
+                    }
                 }
-
                 existingPropositionsArray.append(proposition)
             }
+
+            // Batch track new propositions
+            if !newPropositionsToTrack.isEmpty {
+                newPropositionsToTrack.track(withEdgeEventType: .trigger)
+            }
+
             qualifiedContentCardsBySurface[surface] = existingPropositionsArray
         } else {
-            for proposition in propositions {
-                proposition.items.first?.track(withEdgeEventType: .trigger)
+            // If no existing propositions, batch track all new propositions
+            let propositionItems = propositions.compactMap { $0.items.first }
+            if !propositionItems.isEmpty {
+                propositionItems.track(withEdgeEventType: .trigger)
             }
             qualifiedContentCardsBySurface[surface] = propositions
         }
