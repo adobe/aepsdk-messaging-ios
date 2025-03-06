@@ -42,18 +42,24 @@ struct BatchedPropositionInteraction {
         ]
 
         if let interaction = interaction {
+            var propActionDict: [String: String]?
+
             switch eventType {
             case .interact:
-                decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_ACTION] = [
+                propActionDict = [
                     MessagingConstants.XDM.Inbound.Key.ID: interaction,
                     MessagingConstants.XDM.Inbound.Key.LABEL: interaction
                 ]
             case .suppressDisplay:
-                decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_ACTION] = [
+                propActionDict = [
                     MessagingConstants.XDM.Inbound.Key.REASON: interaction
                 ]
             default:
                 break
+            }
+
+            if let actionDict = propActionDict {
+                decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_ACTION] = actionDict
             }
         }
 
@@ -71,10 +77,16 @@ struct BatchedPropositionInteraction {
         propositionItems.compactMap { item -> [String: Any]? in
             guard let proposition = item.proposition else { return nil }
 
+            // If AnyCodable casting fails, skip this proposition item
+            guard let scopeDetailsAnyCodable = AnyCodable.from(dictionary: proposition.scopeDetails) else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Failed to convert proposition.scopeDetails to AnyCodable for proposition \(proposition.uniqueId). Ignoring to track this proposition.")
+                return nil
+            }
+
             let propositionInfo = PropositionInfo(
                 id: proposition.uniqueId,
                 scope: proposition.scope,
-                scopeDetails: AnyCodable.from(dictionary: proposition.scopeDetails) ?? [:]
+                scopeDetails: scopeDetailsAnyCodable
             )
 
             return [

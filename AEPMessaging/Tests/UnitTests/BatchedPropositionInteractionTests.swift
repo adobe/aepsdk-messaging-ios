@@ -15,15 +15,15 @@ import AEPCore
 @testable import AEPMessaging
 import AEPTestUtils
 
-class BatchedPropositionInteractionTests: XCTestCase {
+class BatchedPropositionInteractionTests: XCTestCase, AnyCodableAsserts {
     
     // Common test properties
     var scopeDetails1: [String: Any]!
     var scopeDetails2: [String: Any]!
     var proposition1: MockProposition!
     var proposition2: MockProposition!
-    var propositionItem1: PropositionItem!
-    var propositionItem2: PropositionItem!
+    var propositionItem1: PropositionItem = PropositionItem(itemId: "item1", schema: .contentCard, itemData: [:])
+    var propositionItem2: PropositionItem = PropositionItem(itemId: "item2", schema: .contentCard, itemData: [:])
 
     
     override func setUp() {
@@ -31,9 +31,7 @@ class BatchedPropositionInteractionTests: XCTestCase {
         
         // Setup common test data
         scopeDetails1 = ["key1": "value1"]
-        scopeDetails2 = ["key2": "value2"]
-        propositionItem1 = PropositionItem(itemId: "item1", schema: .contentCard, itemData: [:])
-        propositionItem2 = PropositionItem(itemId: "item2", schema: .contentCard, itemData: [:])        
+        scopeDetails2 = ["key2": "value2"]        
         proposition1 = MockProposition(uniqueId: "proposition1", scope: "scope1", scopeDetails: scopeDetails1, items: [propositionItem1])
         proposition2 = MockProposition(uniqueId: "proposition2", scope: "scope2", scopeDetails: scopeDetails2, items: [propositionItem2])
 
@@ -44,7 +42,7 @@ class BatchedPropositionInteractionTests: XCTestCase {
     
     func testBatchPropositionInteractionXDM_forDisplayEvent() {
         // setup
-        let propositionItems = [propositionItem1!, propositionItem2!]
+        let propositionItems = [propositionItem1, propositionItem2]
         
         // test
         let batchedInteraction = BatchedPropositionInteraction(
@@ -56,51 +54,52 @@ class BatchedPropositionInteractionTests: XCTestCase {
         let xdm = batchedInteraction.generateXDM()
         
         // Then
-        let expectedXdm: [String: Any] = [
-            "eventType": "decisioning.propositionDisplay",
-            "_experience": [
-                "decisioning": [
-                    "propositions": [
-                        [
-                            "id": "proposition1",
-                            "scope": "scope1",
-                            "scopeDetails": [
-                                "key1": "value1"
-                            ],
-                            "items": [
-                                [
-                                    "id": "item1"
-                                ]
-                            ]
-                        ],
-                        [
-                            "id": "proposition2",
-                            "scope": "scope2",
-                            "scopeDetails": [
-                                "key2": "value2"
-                            ],
-                            "items": [
-                                [
-                                    "id": "item2"
-                                ]
-                            ]
-                        ]
-                    ],
-                    "propositionEventType": [
-                        "display" : 1
-                    ]
-                ]
-            ]
-        ]
-        
-        // Using NSDictionary comparison as seen in other tests
-        XCTAssertTrue(NSDictionary(dictionary: xdm).isEqual(to: expectedXdm), 
-                      "XDM should match expected structure")
+        let expectedXdm = #"""
+        {
+          "eventType" : "decisioning.propositionDisplay",
+          "_experience" : {
+            "decisioning" : {
+              "propositions" : [
+                {
+                  "id" : "proposition1",
+                  "items" : [
+                    {
+                      "id" : "item1"
+                    }
+                  ],
+                  "scopeDetails" : {
+                    "key1" : "value1"
+                  },
+                  "scope" : "scope1"
+                },
+                {
+                  "id" : "proposition2",
+                  "items" : [
+                    {
+                      "id" : "item2"
+                    }
+                  ],
+                  "scopeDetails" : {
+                    "key2" : "value2"
+                  },
+                  "scope" : "scope2"
+                }
+              ],
+              "propositionEventType" : {
+                "display" : 1
+              }
+            }
+          }
+        }
+        """#.toAnyCodable()!
+
+        // Verify the XDM matches the expected structure
+        assertExactMatch(expected: expectedXdm, actual: xdm.toAnyCodable())
     }
     
     func testBatchPropositionInteractionXDM_forInteractEvent_whenOneProposition() {
         // setup
-        let propositionItems = [propositionItem1!]
+        let propositionItems = [propositionItem1]
         
         // test
         let batchedInteraction = BatchedPropositionInteraction(
@@ -111,38 +110,39 @@ class BatchedPropositionInteractionTests: XCTestCase {
         let xdm = batchedInteraction.generateXDM()
 
         // Then 
-        let expectedXdm: [String: Any] = [
-            "eventType": "decisioning.propositionInteract",
-            "_experience": [
-                "decisioning": [
-                    "propositionAction": [
-                        "id": "Clicked",
-                        "label": "Clicked"
-                    ],
-                    "propositions": [
-                        [
-                            "id": "proposition1",
-                            "items": [
-                                [
-                                    "id": "item1"
-                                ]
-                            ],
-                            "scopeDetails": [
-                                "key1": "value1"
-                            ],
-                            "scope": "scope1"
-                        ]
-                    ],
-                    "propositionEventType": [
-                        "interact": 1
-                    ]
-                ]
-            ]
-        ]   
+        let expectedXdm = #"""
+        {
+          "eventType" : "decisioning.propositionInteract",
+          "_experience" : {
+            "decisioning" : {
+              "propositionAction" : {
+                "id" : "Clicked",
+                "label" : "Clicked"
+              },
+              "propositions" : [
+                {
+                  "id" : "proposition1",
+                  "items" : [
+                    {
+                      "id" : "item1"
+                    }
+                  ],
+                  "scopeDetails" : {
+                    "key1" : "value1"
+                  },
+                  "scope" : "scope1"
+                }
+              ],
+              "propositionEventType" : {
+                "interact" : 1
+              }
+            }
+          }
+        }
+        """#.toAnyCodable()!
 
-        // Using NSDictionary comparison as seen in other tests
-        XCTAssertTrue(NSDictionary(dictionary: xdm).isEqual(to: expectedXdm), 
-                      "XDM should match expected structure")
+        // Verify the XDM matches the expected structure
+        assertExactMatch(expected: expectedXdm, actual: xdm.toAnyCodable())
     }
     
     func testBatchPropositionInteractionXDM_whenNoPropositions() {
@@ -165,7 +165,7 @@ class BatchedPropositionInteractionTests: XCTestCase {
 
     func testBatchPropositionInteractionXDM_whenSuppressDisplayEvent() {
         // setup
-        let propositionItems = [propositionItem1!, propositionItem2!]
+        let propositionItems = [propositionItem1, propositionItem2]
         
         // test
         let batchedInteraction = BatchedPropositionInteraction(
@@ -177,49 +177,50 @@ class BatchedPropositionInteractionTests: XCTestCase {
         let xdm = batchedInteraction.generateXDM()
         
         // then
-        let expectedXdm: [String: Any] = [
-            "eventType": "decisioning.propositionSuppressDisplay",
-            "_experience": [
-                "decisioning": [
-                    "propositionAction": [
-                        "reason": "Didnt want to display"
-                    ],
-                    "propositionEventType": [
-                        "suppressDisplay": 1
-                    ],
-                    "propositions": [
-                        [
-                            "id": "proposition1",
-                            "scope": "scope1",
-                            "scopeDetails": [
-                                "key1": "value1"
-                            ],
-                            "items": [
-                                [
-                                    "id": "item1"
-                                ]
-                            ]
-                        ],
-                        [
-                            "id": "proposition2",
-                            "scope": "scope2",
-                            "scopeDetails": [
-                                "key2": "value2"
-                            ],
-                            "items": [
-                                [
-                                    "id": "item2"
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ]
+        let expectedXdm = #"""
+        {
+          "eventType" : "decisioning.propositionSuppressDisplay",
+          "_experience" : {
+            "decisioning" : {
+              "propositionAction" : {
+                "reason" : "Didnt want to display"
+              },
+              "propositionEventType" : {
+                "suppressDisplay" : 1
+              },
+              "propositions" : [
+                {
+                  "id" : "proposition1",
+                  "items" : [
+                    {
+                      "id" : "item1"
+                    }
+                  ],
+                  "scopeDetails" : {
+                    "key1" : "value1"
+                  },
+                  "scope" : "scope1"
+                },
+                {
+                  "id" : "proposition2",
+                  "items" : [
+                    {
+                      "id" : "item2"
+                    }
+                  ],
+                  "scopeDetails" : {
+                    "key2" : "value2"
+                  },
+                  "scope" : "scope2"
+                }
+              ]
+            }
+          }
+        }
+        """#.toAnyCodable()!
         
-        // Using NSDictionary comparison as seen in other tests
-        XCTAssertTrue(NSDictionary(dictionary: xdm).isEqual(to: expectedXdm), 
-                      "XDM should match expected structure")    
+        // Verify the XDM matches the expected structure
+        assertExactMatch(expected: expectedXdm, actual: xdm.toAnyCodable())
     }
     
 } 

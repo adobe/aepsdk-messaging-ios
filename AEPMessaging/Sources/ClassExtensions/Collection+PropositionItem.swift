@@ -20,14 +20,11 @@ extension Collection where Element == PropositionItem {
     /// - Parameters
     ///     - interaction: a custom string value describing the interaction
     ///     - eventType: an enum specifying event type for the interaction
-    ///     - tokens: an array containing the sub-item tokens for recording interaction
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard !isEmpty else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Cannot track proposition interactions, proposition items are empty.")
             return
         }
-
-        recordPropositionHistory(interaction: interaction, eventType: eventType)
 
         let batchedInteraction = BatchedPropositionInteraction(
             eventType: eventType,
@@ -43,9 +40,17 @@ extension Collection where Element == PropositionItem {
             return
         }
 
+        // Record the proposition history for each proposition item in the collection.
+        recordPropositionHistory(interaction: interaction, eventType: eventType)
+
         dispatchEvent(with: xdmData)
     }
 
+    /// Records the proposition history for each proposition item in the collection.
+    ///
+    /// - Parameters:
+    ///     - interaction: a custom string value describing the interaction
+    ///     - eventType: an enum specifying event type for the interaction
     private func recordPropositionHistory(interaction: String?, eventType: MessagingEdgeEventType) {
         forEach { item in
             if let activityId = item.proposition?.activityId, !activityId.isEmpty {
@@ -54,6 +59,10 @@ extension Collection where Element == PropositionItem {
         }
     }
 
+    /// Dispatch the batched proposition interaction event.
+    ///
+    /// - Parameters:
+    ///     - xdmData: the XDM data for the batched proposition interaction
     private func dispatchEvent(with xdmData: [String: Any]) {
         let eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.TRACK_PROPOSITIONS: true,
