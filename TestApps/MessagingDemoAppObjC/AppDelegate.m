@@ -42,10 +42,10 @@
     ];
     
     [AEPMobileCore registerExtensions:extensions completion:^{
-        // [AEPMobileAssurance startSessionWithUrl:[NSURL URLWithString:@""]];
+        [AEPMobileAssurance startSessionWithUrl:[NSURL URLWithString:@"edgetutorialapp://?adb_validation_sessionid=6d2f49c1-630b-4ae3-9966-82b02c6961f3&env=stage"]];
     }];
     
-    [AEPMobileCore configureWithAppId:@""];
+    [AEPMobileCore configureWithAppId:@"staging/1b50a869c4a2/9590f35e2dc9/launch-752d0a90822f-development"];
     
     return YES;
 }

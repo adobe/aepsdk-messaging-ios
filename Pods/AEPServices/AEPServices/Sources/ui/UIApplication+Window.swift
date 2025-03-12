@@ -9,18 +9,13 @@
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
  */
+#if os(iOS)
+    import Foundation
+    import UIKit
 
-import AEPServices
-import Foundation
-
-public extension FullscreenMessage {
-    /// Retrieve the `Message` instance that owns the calling `FullscreenMessage`.
-    var parent: Message? {
-        settings?.parent as? Message
+    internal extension UIApplication {
+        func getKeyWindow() -> UIWindow? {
+            keyWindow ?? windows.first
+        }
     }
-    
-    func setHeightA(newHeight: Int) {
-        self.settings?.setHeight(newHeight)
-    }
-   
-}
+#endif

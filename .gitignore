@@ -93,6 +93,7 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 ## Cocoapods
-Pods/
+Pods/*
+!Pods/AEPServices/
 
 .vscode/

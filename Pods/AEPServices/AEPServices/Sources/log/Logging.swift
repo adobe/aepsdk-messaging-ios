@@ -1,5 +1,5 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
+ Copyright 2020 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -10,17 +10,14 @@
  governing permissions and limitations under the License.
  */
 
-import AEPServices
 import Foundation
 
-public extension FullscreenMessage {
-    /// Retrieve the `Message` instance that owns the calling `FullscreenMessage`.
-    var parent: Message? {
-        settings?.parent as? Message
-    }
-    
-    func setHeightA(newHeight: Int) {
-        self.settings?.setHeight(newHeight)
-    }
-   
+/// Represents the interface of the logging service
+@objc(AEPLogging) public protocol Logging {
+    /// Logs a message
+    /// - Parameters:
+    ///   - level: One of the message level identifiers, e.g., DEBUG
+    ///   - label: Name of a label to localize message
+    ///   - message: The string message
+    func log(level: LogLevel, label: String, message: String)
 }

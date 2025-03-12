@@ -9,18 +9,18 @@
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
  */
+#if os(iOS)
+    import Foundation
 
-import AEPServices
-import Foundation
+    ///
+    /// Represents a UI element which can be dismissed
+    ///
+    @objc(AEPDismissible)
+    public protocol Dismissible {
 
-public extension FullscreenMessage {
-    /// Retrieve the `Message` instance that owns the calling `FullscreenMessage`.
-    var parent: Message? {
-        settings?.parent as? Message
+        ///
+        /// Dismisses the UI element
+        ///
+        func dismiss()
     }
-    
-    func setHeightA(newHeight: Int) {
-        self.settings?.setHeight(newHeight)
-    }
-   
-}
+#endif

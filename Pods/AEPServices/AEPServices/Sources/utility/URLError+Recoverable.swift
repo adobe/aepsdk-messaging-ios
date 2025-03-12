@@ -1,5 +1,5 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
+ Copyright 2024 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -10,17 +10,12 @@
  governing permissions and limitations under the License.
  */
 
-import AEPServices
 import Foundation
 
-public extension FullscreenMessage {
-    /// Retrieve the `Message` instance that owns the calling `FullscreenMessage`.
-    var parent: Message? {
-        settings?.parent as? Message
+extension URLError {
+
+    /// Returns `true` if the URLError is recoverable, `false` otherwise.
+    public var isRecoverable: Bool {
+        NetworkServiceConstants.RECOVERABLE_URL_ERROR_CODES.contains(self.code)
     }
-    
-    func setHeightA(newHeight: Int) {
-        self.settings?.setHeight(newHeight)
-    }
-   
 }

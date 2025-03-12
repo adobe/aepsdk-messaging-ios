@@ -147,59 +147,145 @@ private class MessageHandler: MessagingDelegate {
     var currentMessage: Message?
     let autoDismiss = false
 
+
     func onShow(message: Showable) {
-        let fullscreenMessage = message as? FullscreenMessage
-        print("message was shown \(fullscreenMessage?.debugDescription ?? "undefined")")
+    
+        // Safely unwrap the FullscreenMessage and its parent
+        guard let fullscreenMessage = message as? FullscreenMessage,
+              let parentMessage = fullscreenMessage.parent else {
+            print("Unable to cast message to FullscreenMessage or parent not found")
+            return
+        }
     }
+
+
 
     func onDismiss(message: Showable) {
         let fullscreenMessage = message as? FullscreenMessage
         print("message was dismissed \(fullscreenMessage?.debugDescription ?? "undefined")")
     }
-
-    func shouldShowMessage(message: Showable) -> Bool {
-        
-        // access to the whole message from the parent
-        let fullscreenMessage = message as? FullscreenMessage
-        let message = fullscreenMessage?.parent
-
-        // in-line handling of javascript calls
-        // see Assets/nativeMethodCallingSample.html for an example of how to call this method
-        message?.handleJavascriptMessage("buttonClicked") { content in
-            print("magical handling of our content from js! content is: \(content ?? "empty")")
-            message?.track(content as? String, withEdgeEventType: .interact)
-        }
-
-        // if using the webview for something, make sure to dispatch back to the main thread
-        DispatchQueue.main.async {
-            // access the WKWebView containing the message's UI
-            let messageWebView = message?.view as? WKWebView
-            // execute JavaScript inside of the message's WKWebView
-            messageWebView?.evaluateJavaScript("startTimer();") { result, error in
-                if error != nil {
-                    // handle error
-                }
-                if result != nil {
-                    // do something with the result
-                }
+    
+    func getSafeAreaHeight() -> CGFloat {
+        if #available(iOS 16.0, *) {
+            if let window = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first?.keyWindow,
+               let fullscreen = window.windowScene?.isFullScreen, fullscreen {
+                return 0
             }
         }
         
-        // if we're not showing the message now, we can save it for later
+        if #available(iOS 13.0, *) {
+            return UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first?.keyWindow?
+                .windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+        } else {
+            return UIApplication.shared.statusBarFrame.height
+        }
+    }
+
+    
+    func convertWebViewPixelToIOS(_ webViewPixelValue: CGFloat, for dimension: String) -> (logicalPixels: CGFloat, percentage: CGFloat) {
+        // Get the device pixel ratio (DPR) from JavaScript or assume default for iOS WebView
+        let devicePixelRatio: CGFloat = UIScreen.main.scale // Matches the DPR in WebView
+
+        // Convert WebView pixels to iOS logical pixels
+//        let iosLogicalPixels = webViewPixelValue / devicePixelRatio
+               let iosLogicalPixels = webViewPixelValue
+
+        // Calculate the percentage relative to the screen dimension
+        let screenSize = UIScreen.main.bounds
+        
+        var screenDimension: CGFloat
+           
+        if dimension == "width" {
+            screenDimension = screenSize.width
+        } else if dimension == "height" {
+            let safeAreaHeight = getSafeAreaHeight()
+            screenDimension = screenSize.height - safeAreaHeight
+        } else {
+            fatalError("Invalid dimension parameter. Use 'width' or 'height'.")
+        }
+
+        
+        
+        let percentage = (iosLogicalPixels / screenDimension) * 100
+
+        print("Conversion Details for \(dimension):")
+        print("WebView Pixel Value: \(webViewPixelValue)")
+        print("iOS Logical Pixels: \(iosLogicalPixels)")
+        print("Percentage of Screen \(dimension.capitalized): \(percentage)%")
+
+        return (logicalPixels: iosLogicalPixels, percentage: percentage)
+    }
+
+    func stringToCGFloat(_ stringValue: Any?) -> CGFloat? {
+        // Safely unwrap the value and check if it's a string
+        if let stringValue = stringValue as? String, let doubleValue = Double(stringValue) {
+            return CGFloat(doubleValue)
+        }
+        return nil
+    }
+  
+
+    func shouldShowMessage(message: Showable) -> Bool {
+        print("I am in this show message function always")
+
+        // Access the FullscreenMessage instance
+        guard let fullscreenMessage = message as? FullscreenMessage,
+              let parentMessage = fullscreenMessage.parent else {
+            print("Unable to cast message to FullscreenMessage or parent not found")
+            return false
+        }
+        
+        
+        // if i am setting height here then its working fine...
+        //fullscreenMessage.setHeightA(newHeight: 10);
+       
+
+        // Inline handling of JavaScript calls
+//        parentMessage.handleJavascriptMessage("myCallback") { [weak self] content in
+//            guard let self = self else { return }
+//
+//            print("Magical handling of our content from JS! Content is: \(content ?? "empty")")
+//
+//            // Extract the content and convert it to CGFloat for height
+//            let webViewWidthInPixels: CGFloat = 900 // Example width value from JavaScript
+//            guard let webViewHeightInPixels = self.stringToCGFloat(content) else {
+//                print("Invalid or nil content. Could not convert to CGFloat")
+//                return
+//            }
+//
+//            // Perform width and height conversion
+//            let widthConversion = self.convertWebViewPixelToIOS(webViewWidthInPixels, for: "width")
+//            let heightConversion = self.convertWebViewPixelToIOS(webViewHeightInPixels, for: "height")
+//        
+//            // Log the conversion results
+//            print("Width: \(widthConversion.logicalPixels) logical pixels, \(widthConversion.percentage)% of screen width")
+//            print("Height: \(heightConversion.logicalPixels) logical pixels, \(heightConversion.percentage)% of screen height")
+//    
+//
+//            // Track the interaction with the extracted content
+//            parentMessage.track(content as? String, withEdgeEventType: .interact)
+//        }
+
+        // Handle scenarios where the message should not be shown immediately
         if !showMessages {
-            currentMessage = message
-//            currentMessage?.track("message suppressed", withEdgeEventType: .trigger)
+            currentMessage = parentMessage
+            print("Message suppressed and stored for later use.")
         } else if autoDismiss {
-            currentMessage = message
+            currentMessage = parentMessage
             let _ = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { timer in
                 timer.invalidate()
-                self.currentMessage?.track("test for reporting", withEdgeEventType: .interact)
+                self.currentMessage?.track("Auto-dismiss triggered", withEdgeEventType: .interact)
                 self.currentMessage?.dismiss()
             }
         }
 
         return showMessages
     }
+
 
     func urlLoaded(_ url: URL) {
         print("fullscreen message loaded url: \(url)")
