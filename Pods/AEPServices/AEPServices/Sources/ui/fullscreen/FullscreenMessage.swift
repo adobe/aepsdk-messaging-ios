@@ -262,8 +262,6 @@
                 if let webView = self.webView as? WKWebView {
                     webView.configuration.userContentController.add(self, name: name)
                 }
-                
-            
 
                 self.scriptHandlers[name] = handler
             }
@@ -325,7 +323,7 @@
             }
 
             // add gesture recognizers
-            if let gestures = settings?.gestures {
+            if let gestures = settings?.gestures, !gestures.isEmpty {
                 // if gestures are supported, we need to disable scrolling in the webview
                 wkWebView.scrollView.isScrollEnabled = false
                 // loop through and add gesture recognizers

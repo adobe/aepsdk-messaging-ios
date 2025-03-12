@@ -245,6 +245,8 @@ extension Message {
         
         message.fullscreenMessage?.handleJavascriptMessage("myCallback") { data in
                   // For example, parse a height or just log the data
+            print("Default JS Handler: received height NAMAN=")
+
                   if let heightStr = data as? String,
                      let heightVal = Double(heightStr) {
                       print("Default JS Handler: received height = \(heightVal)")
