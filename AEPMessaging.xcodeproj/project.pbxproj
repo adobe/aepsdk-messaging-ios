@@ -222,16 +222,12 @@
 		B6165DA629A67ADA0031B84D /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6165DA529A67ADA0031B84D /* NotificationService.swift */; };
 		B6165DAA29A67ADA0031B84D /* NotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6165DA329A67AD90031B84D /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */; };
-		B63278652D64160F00CE6815 /* Collection+PropositionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63278642D64160F00CE6815 /* Collection+PropositionItem.swift */; };
-		B63278672D6428A300CE6815 /* BatchedPropositionInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63278662D6428A300CE6815 /* BatchedPropositionInteraction.swift */; };
 		B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */; };
 		B67CCF772CD08D5500CF08D1 /* AEPAsyncImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF762CD08D4D00CF08D1 /* AEPAsyncImageView.swift */; };
 		B67CCF792CD0BF8D00CF08D1 /* ContentCardImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */; };
 		B69573C82CD4447F0027E376 /* AEPBundleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69573C72CD444790027E376 /* AEPBundleImageView.swift */; };
-		B6989E8F2D6E8F54007F071E /* Collection+PropositionItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6989E8E2D6E8F40007F071E /* Collection+PropositionItemTests.swift */; };
 		B6D035E22D2F23E900031170 /* AppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D035E12D2F23E900031170 /* AppStateManager.swift */; };
 		B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
-		B6E4E8D22D725AB400C3AF89 /* BatchedPropositionInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E4E8D12D725AB400C3AF89 /* BatchedPropositionInteractionTests.swift */; };
 		B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */; };
 		B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA72CC2089A00C35C64 /* DismissButtonStyle.swift */; };
 		B6F7CBCA2CC2089A00C35C64 /* AEPImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA92CC2089A00C35C64 /* AEPImage.swift */; };
@@ -680,15 +676,11 @@
 		B6165DA529A67ADA0031B84D /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		B6165DA729A67ADA0031B84D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingNotificationTrackingTests.swift; sourceTree = "<group>"; };
-		B63278642D64160F00CE6815 /* Collection+PropositionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+PropositionItem.swift"; sourceTree = "<group>"; };
-		B63278662D6428A300CE6815 /* BatchedPropositionInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchedPropositionInteraction.swift; sourceTree = "<group>"; };
 		B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatus.swift; sourceTree = "<group>"; };
 		B67CCF762CD08D4D00CF08D1 /* AEPAsyncImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPAsyncImageView.swift; sourceTree = "<group>"; };
 		B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardImageCache.swift; sourceTree = "<group>"; };
 		B69573C72CD444790027E376 /* AEPBundleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPBundleImageView.swift; sourceTree = "<group>"; };
-		B6989E8E2D6E8F40007F071E /* Collection+PropositionItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+PropositionItemTests.swift"; sourceTree = "<group>"; };
 		B6D035E12D2F23E900031170 /* AppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManager.swift; sourceTree = "<group>"; };
-		B6E4E8D12D725AB400C3AF89 /* BatchedPropositionInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchedPropositionInteractionTests.swift; sourceTree = "<group>"; };
 		B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatusTests.swift; sourceTree = "<group>"; };
 		B6F7CB9C2CC2089A00C35C64 /* BaseTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTemplate.swift; sourceTree = "<group>"; };
 		B6F7CB9D2CC2089A00C35C64 /* ContentCardTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardTemplate.swift; sourceTree = "<group>"; };
@@ -1098,7 +1090,6 @@
 				246EF05F2BFFC6B5002A9B22 /* PropositionHistory.swift */,
 				243B1AFD28AEB1E60074327E /* PropositionInfo.swift */,
 				09F5D93F2B5CF35F00117437 /* PropositionInteraction.swift */,
-				B63278662D6428A300CE6815 /* BatchedPropositionInteraction.swift */,
 				09B071ED2A651CB200F259C1 /* PropositionItem.swift */,
 				243B1AFB28AD7FCE0074327E /* PropositionPayload.swift */,
 				09B071E52A64D3D900F259C1 /* Surface.swift */,
@@ -1126,8 +1117,6 @@
 				B6F7CBEB2CC2EA8500C35C64 /* UITests */,
 				24CA4BBF2B6178B700D16369 /* schemas */,
 				24CA4BCE2B617AA900D16369 /* Array+MessagingTests.swift */,
-				B6E4E8D12D725AB400C3AF89 /* BatchedPropositionInteractionTests.swift */,
-				B6989E8E2D6E8F40007F071E /* Collection+PropositionItemTests.swift */,
 				24CA4BD02B617AC800D16369 /* Bundle+MessagingTests.swift */,
 				24CA4BD22B617AED00D16369 /* Cache+MessagingTests.swift */,
 				244F19042D0106BA009F0209 /* CompletionHandlerTests.swift */,
@@ -1471,7 +1460,6 @@
 		B6F7CC5E2CC7081E00C35C64 /* ClassExtensions */ = {
 			isa = PBXGroup;
 			children = (
-				B63278642D64160F00CE6815 /* Collection+PropositionItem.swift */,
 				09B071F52A7318CB00F259C1 /* Array+Messaging.swift */,
 				09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */,
 				240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */,
@@ -2479,7 +2467,6 @@
 				B67CCF772CD08D5500CF08D1 /* AEPAsyncImageView.swift in Sources */,
 				B6F7CBCE2CC2089A00C35C64 /* AEPDismissButton.swift in Sources */,
 				B6F7CBCF2CC2089A00C35C64 /* ContentCardUIEventListening.swift in Sources */,
-				B63278652D64160F00CE6815 /* Collection+PropositionItem.swift in Sources */,
 				B6F7CBD02CC2089A00C35C64 /* ContentCardUI+EventHandler.swift in Sources */,
 				B6F7CBD12CC2089A00C35C64 /* SmallImageTemplate.swift in Sources */,
 				B6F7CBD22CC2089A00C35C64 /* AEPTextView.swift in Sources */,
@@ -2526,7 +2513,6 @@
 				090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */,
 				242920EF2AD05AFA000DB2CD /* InAppSchemaData.swift in Sources */,
 				244C2BDE26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift in Sources */,
-				B63278672D6428A300CE6815 /* BatchedPropositionInteraction.swift in Sources */,
 				0969D6382A79BB3C00A00BF7 /* Messaging+State.swift in Sources */,
 				242920F82AD06791000DB2CD /* RulesetSchemaData.swift in Sources */,
 				241B2DD42821C80C00E4FF67 /* URL+QueryParams.swift in Sources */,
@@ -2561,7 +2547,6 @@
 				24CA4BC12B6178EE00D16369 /* InAppSchemaDataTests.swift in Sources */,
 				24CA4BC72B617A2500D16369 /* HtmlContentSchemaDataTests.swift in Sources */,
 				B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */,
-				B6989E8F2D6E8F54007F071E /* Collection+PropositionItemTests.swift in Sources */,
 				243EA6C92733258600195945 /* Dictionary+MessagingTests.swift in Sources */,
 				2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */,
 				243EA6DA2739D47500195945 /* MockMessaging.swift in Sources */,
@@ -2590,7 +2575,6 @@
 				243EA6DE2739D4A400195945 /* MockFullscreenMessage.swift in Sources */,
 				24CA4BCF2B617AA900D16369 /* Array+MessagingTests.swift in Sources */,
 				B6F7CBF92CC2EAF500C35C64 /* AEPStackTests.swift in Sources */,
-				B6E4E8D22D725AB400C3AF89 /* BatchedPropositionInteractionTests.swift in Sources */,
 				B6F7CBFA2CC2EAF500C35C64 /* ContentCardTemplateTypeTests.swift in Sources */,
 				B6F7CC0C2CC2ED4100C35C64 /* EmptyCustomizer.swift in Sources */,
 				B6F7CC0D2CC2ED4100C35C64 /* ContentCardTestUtil.swift in Sources */,
