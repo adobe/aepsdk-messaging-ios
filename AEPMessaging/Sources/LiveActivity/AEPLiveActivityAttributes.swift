@@ -12,7 +12,10 @@
 
 import ActivityKit
 
+/// Protocol defining the attributes for a Live Activity.
+/// This protocol extends `ActivityAttributes` and must be implemented by the registering Live Activity attributes.
 @available(iOS 16.1, *)
 public protocol AEPLiveActivityAttributes: ActivityAttributes {
+    /// The AEP data associated with the Live Activity.
     var liveActivityData: AEPLiveActivityData { get }
 }

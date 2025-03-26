@@ -12,12 +12,18 @@
 
 import Foundation
 
+/// AEPLiveActivityData is a struct that contains the necessary AEP data to track a Live Activity.
+/// - Note: This struct is available on iOS 16.1 and above.
 @available(iOS 16.1, *)
 public struct AEPLiveActivityData: Codable {
-    
+    /// Unique identifier for identifying the Live Activity in the Adobe Experience Platform.
     var liveActivityID: String?
-    
+
+    /// Creates an AEPLiveActivityData instance with the given live activity ID.
+    ///
+    /// - Parameter liveActivityID: The unique identifier for the Live Activity.
+    /// - Returns: An AEPLiveActivityData instance.
     static func create(liveActivityID: String) -> AEPLiveActivityData {
-        return AEPLiveActivityData(liveActivityID: liveActivityID)
+        AEPLiveActivityData(liveActivityID: liveActivityID)
     }
 }
