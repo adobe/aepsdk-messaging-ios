@@ -223,6 +223,9 @@
 		B6165DAA29A67ADA0031B84D /* NotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6165DA329A67AD90031B84D /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */; };
 		B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */; };
+		B64256B92D93B08900EDCAC5 /* Messaging+LiveActivityPublicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */; };
+		B64256BB2D93B40600EDCAC5 /* AEPLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64256BA2D93B40600EDCAC5 /* AEPLiveActivityAttributes.swift */; };
+		B64256BD2D93B42A00EDCAC5 /* AEPLiveActivityData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64256BC2D93B42A00EDCAC5 /* AEPLiveActivityData.swift */; };
 		B67CCF772CD08D5500CF08D1 /* AEPAsyncImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF762CD08D4D00CF08D1 /* AEPAsyncImageView.swift */; };
 		B67CCF792CD0BF8D00CF08D1 /* ContentCardImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */; };
 		B69573C82CD4447F0027E376 /* AEPBundleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69573C72CD444790027E376 /* AEPBundleImageView.swift */; };
@@ -677,6 +680,9 @@
 		B6165DA729A67ADA0031B84D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingNotificationTrackingTests.swift; sourceTree = "<group>"; };
 		B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatus.swift; sourceTree = "<group>"; };
+		B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+LiveActivityPublicAPI.swift"; sourceTree = "<group>"; };
+		B64256BA2D93B40600EDCAC5 /* AEPLiveActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPLiveActivityAttributes.swift; sourceTree = "<group>"; };
+		B64256BC2D93B42A00EDCAC5 /* AEPLiveActivityData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPLiveActivityData.swift; sourceTree = "<group>"; };
 		B67CCF762CD08D4D00CF08D1 /* AEPAsyncImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPAsyncImageView.swift; sourceTree = "<group>"; };
 		B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardImageCache.swift; sourceTree = "<group>"; };
 		B69573C72CD444790027E376 /* AEPBundleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPBundleImageView.swift; sourceTree = "<group>"; };
@@ -1064,6 +1070,7 @@
 		92315433261E3B36004AE7D3 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				B64256B72D93B06F00EDCAC5 /* LiveActivity */,
 				B6F7CC5E2CC7081E00C35C64 /* ClassExtensions */,
 				B6F7CC5F2CC7089200C35C64 /* Enum */,
 				242920F62AD0628B000DB2CD /* Schemas */,
@@ -1257,6 +1264,16 @@
 			);
 			name = NotificationService;
 			path = TestApps/MessagingDemoApp/NotificationService;
+			sourceTree = "<group>";
+		};
+		B64256B72D93B06F00EDCAC5 /* LiveActivity */ = {
+			isa = PBXGroup;
+			children = (
+				B64256BC2D93B42A00EDCAC5 /* AEPLiveActivityData.swift */,
+				B64256BA2D93B40600EDCAC5 /* AEPLiveActivityAttributes.swift */,
+				B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */,
+			);
+			path = LiveActivity;
 			sourceTree = "<group>";
 		};
 		B6F7CBA12CC2089A00C35C64 /* Template */ = {
@@ -2456,6 +2473,7 @@
 				240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */,
 				2469A5E3274863F600E56457 /* MessagingRulesEngine+Caching.swift in Sources */,
 				242920F32AD06207000DB2CD /* JsonContentSchemaData.swift in Sources */,
+				B64256B92D93B08900EDCAC5 /* Messaging+LiveActivityPublicAPI.swift in Sources */,
 				090290C529DCED0B00388226 /* ContentCardRulesEngine.swift in Sources */,
 				242920F52AD06215000DB2CD /* HtmlContentSchemaData.swift in Sources */,
 				244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */,
@@ -2511,6 +2529,7 @@
 				244E955B267BB253001DC957 /* Dictionary+Messaging.swift in Sources */,
 				0969D6402A7A9DC600A00BF7 /* MessagingMigrator.swift in Sources */,
 				090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */,
+				B64256BD2D93B42A00EDCAC5 /* AEPLiveActivityData.swift in Sources */,
 				242920EF2AD05AFA000DB2CD /* InAppSchemaData.swift in Sources */,
 				244C2BDE26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift in Sources */,
 				0969D6382A79BB3C00A00BF7 /* Messaging+State.swift in Sources */,
@@ -2520,6 +2539,7 @@
 				B69573C82CD4447F0027E376 /* AEPBundleImageView.swift in Sources */,
 				B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */,
 				09F5D9402B5CF35F00117437 /* PropositionInteraction.swift in Sources */,
+				B64256BB2D93B40600EDCAC5 /* AEPLiveActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
