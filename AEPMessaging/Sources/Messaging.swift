@@ -405,7 +405,6 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-
     /// Removes the `Proposition` from `qualifiedContentCardsBySurface` based on provided `activityId`.
     ///
     /// - Parameter activityId: the activityId of the `Proposition` to be removed from cache.
