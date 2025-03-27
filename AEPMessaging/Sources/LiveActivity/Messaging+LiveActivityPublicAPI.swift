@@ -16,10 +16,10 @@ public extension Messaging {
     /// Registers a Live Activity type with the Adobe Experience Platform SDK.
     ///
     /// When called, this method enables the SDK to:
-    /// - Track push-to-start tokens automatically for devices running iOS 17.2 or later
-    /// - Monitor the complete lifecycle of Live Activities including:
-    ///   - Activity token generation
-    ///   - State transitions (start, update, end)
+    /// - Automatically collect push-to-start tokens for devices running iOS 17.2 or later
+    /// - Manage the complete lifecycle of Live Activities including:
+    ///   - Automatically collect the generated Live Activity update token
+    ///   - Monitor state transitions (start, update, end)
     ///   - Event tracking for the registered activity type
     ///
     /// - Parameter type: The Live Activity type that conforms to the `AEPLiveActivityAttributes` protocol.

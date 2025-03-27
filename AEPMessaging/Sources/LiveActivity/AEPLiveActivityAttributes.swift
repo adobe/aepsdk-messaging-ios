@@ -12,10 +12,13 @@
 
 import ActivityKit
 
-/// Protocol defining the attributes for a Live Activity.
-/// This protocol extends `ActivityAttributes` and must be implemented by the registering Live Activity attributes.
+/// A protocol that enables Live Activities to integrate with Adobe Experience Platform.
+///
+/// Conforming types can associate required Adobe Experience Platform data with iOS Live Activities.
+/// Any custom `ActivityAttributes` struct must implement this protocol when registering
+/// a Live Activity with the SDK.
 @available(iOS 16.1, *)
 public protocol AEPLiveActivityAttributes: ActivityAttributes {
-    /// The AEP data associated with the Live Activity.
+    /// The Adobe Experience Platform data associated with the Live Activity.
     var liveActivityData: AEPLiveActivityData { get }
 }
