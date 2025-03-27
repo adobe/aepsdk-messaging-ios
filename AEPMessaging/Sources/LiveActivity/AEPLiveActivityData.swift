@@ -1,5 +1,5 @@
 /*
- Copyright 2024 Adobe. All rights reserved.
+ Copyright 2025 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -12,18 +12,32 @@
 
 import Foundation
 
-/// AEPLiveActivityData is a struct that contains the necessary AEP data to track a Live Activity.
-/// - Note: This struct is available on iOS 16.1 and above.
+/// A structure containing the data necessary to track a Live Activity in the Adobe Experience Platform.
 @available(iOS 16.1, *)
 public struct AEPLiveActivityData: Codable {
-    /// Unique identifier for identifying the Live Activity in the Adobe Experience Platform.
-    var liveActivityID: String?
-
-    /// Creates an AEPLiveActivityData instance with the given live activity ID.
+    
+    /// Unique identifier for identifying an on going Live Activity in the Adobe Experience Platform.
+    public var liveActivityID: String?
+    
+    /// A unique identifier for a broadcast channel.
+    public var channelID: String?
+    
+    /// Creates an `AEPLiveActivityData` instance with the specified Live Activity ID.
+    /// You will use this method for 1:1 Live Activity use cases.
     ///
     /// - Parameter liveActivityID: The unique identifier for the Live Activity.
-    /// - Returns: An AEPLiveActivityData instance.
-    static func create(liveActivityID: String) -> AEPLiveActivityData {
+    /// - Returns: A new `AEPLiveActivityData` instance populated with the provided `liveActivityID`.
+    public static func create(liveActivityID: String) -> AEPLiveActivityData {
         AEPLiveActivityData(liveActivityID: liveActivityID)
     }
+    
+    /// Creates an `AEPLiveActivityData` instance with the specified channel ID.
+    /// You will use this method for broadcast live activity use cases.
+    ///
+    /// - Parameter channelID: The unique identifier for the channel, used for broadcast push notifications.
+    /// - Returns: A new `AEPLiveActivityData` instance populated with the provided `channelID`.
+    public static func create(channelID: String) -> AEPLiveActivityData {
+        AEPLiveActivityData(channelID: channelID)
+    }
 }
+
