@@ -15,13 +15,12 @@ import Foundation
 /// A structure containing the data necessary to track a Live Activity in the Adobe Experience Platform.
 @available(iOS 16.1, *)
 public struct AEPLiveActivityData: Codable {
-    
     /// Unique identifier for identifying an on going Live Activity in the Adobe Experience Platform.
     public var liveActivityID: String?
-    
+
     /// A unique identifier for a broadcast channel.
     public var channelID: String?
-    
+
     /// Creates an `AEPLiveActivityData` instance with the specified Live Activity ID.
     /// You will use this method for 1:1 Live Activity use cases.
     ///
@@ -30,7 +29,7 @@ public struct AEPLiveActivityData: Codable {
     public static func create(liveActivityID: String) -> AEPLiveActivityData {
         AEPLiveActivityData(liveActivityID: liveActivityID)
     }
-    
+
     /// Creates an `AEPLiveActivityData` instance with the specified channel ID.
     /// You will use this method for broadcast live activity use cases.
     ///
@@ -40,4 +39,3 @@ public struct AEPLiveActivityData: Codable {
         AEPLiveActivityData(channelID: channelID)
     }
 }
-
