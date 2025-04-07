@@ -22,9 +22,9 @@ public extension Messaging {
     ///   - Monitor state transitions (start, update, end)
     ///   - Event tracking for the registered activity type
     ///
-    /// - Parameter type: The Live Activity type that conforms to the `AEPLiveActivityAttributes` protocol.
+    /// - Parameter type: The Live Activity type that conforms to the `LiveActivityAttributes` protocol.
     ///                   This type defines the structure and content of your Live Activity.
-    static func registerLiveActivity<T: AEPLiveActivityAttributes>(_: T.Type) {
+    static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
         if #available(iOS 17.2, *) {
             // register to track push-to-start token
         }

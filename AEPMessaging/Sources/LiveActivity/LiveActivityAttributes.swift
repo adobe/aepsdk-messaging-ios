@@ -18,7 +18,7 @@ import ActivityKit
 /// Any custom `ActivityAttributes` struct must implement this protocol when registering
 /// a Live Activity with the SDK.
 @available(iOS 16.1, *)
-public protocol AEPLiveActivityAttributes: ActivityAttributes {
+public protocol LiveActivityAttributes: ActivityAttributes {
     /// The Adobe Experience Platform data associated with the Live Activity.
-    var liveActivityData: AEPLiveActivityData { get }
+    var liveActivityData: LiveActivityData { get }
 }

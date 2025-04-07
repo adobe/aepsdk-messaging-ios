@@ -16,30 +16,30 @@ import Foundation
 ///
 /// This struct provides the necessary identifiers and data for both managing and tracking Live
 /// Activities through Adobe Experience Platform. Use this struct when implementing the
-/// `AEPLiveActivityAttributes` protocol.
+/// `LiveActivityAttributes` protocol.
 @available(iOS 16.1, *)
-public struct AEPLiveActivityData: Codable {
+public struct LiveActivityData: Codable {
     /// Unique identifier for managing and tracking an individual Live Activity in Adobe Experience Platform.
     var liveActivityID: String?
 
     /// Unique identifier for managing and tracking a broadcast Live Activity channel in Adobe Experience Platform.
     var channelID: String?
 
-    /// Creates an `AEPLiveActivityData` instance with the specified Live Activity ID.
+    /// Creates an `LiveActivityData` instance with the specified Live Activity ID.
     /// Use this method for Live Activities for an individual person.
     ///
     /// - Parameter liveActivityID: The unique identifier for the Live Activity.
-    /// - Returns: A new `AEPLiveActivityData` instance populated with the provided `liveActivityID`.
-    static func create(liveActivityID: String) -> AEPLiveActivityData {
-        AEPLiveActivityData(liveActivityID: liveActivityID)
+    /// - Returns: A new `LiveActivityData` instance populated with the provided `liveActivityID`.
+    static func create(liveActivityID: String) -> LiveActivityData {
+        LiveActivityData(liveActivityID: liveActivityID)
     }
 
-    /// Creates an `AEPLiveActivityData` instance with the specified Live Activity channel ID.
+    /// Creates an `LiveActivityData` instance with the specified Live Activity channel ID.
     /// Use this method for Live Activities broadcast to subscribers of a channel.
     ///
     /// - Parameter channelID: The unique identifier for the Live Activity channel, used for broadcast push notifications.
-    /// - Returns: A new `AEPLiveActivityData` instance populated with the provided `channelID`.
-    static func create(channelID: String) -> AEPLiveActivityData {
-        AEPLiveActivityData(channelID: channelID)
+    /// - Returns: A new `LiveActivityData` instance populated with the provided `channelID`.
+    static func create(channelID: String) -> LiveActivityData {
+        LiveActivityData(channelID: channelID)
     }
 }
