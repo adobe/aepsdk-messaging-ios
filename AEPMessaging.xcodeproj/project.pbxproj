@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -221,6 +221,21 @@
 		B45151C97D7CC04168690FB8 /* Pods_MessagingDemoApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F23BE01498B5A36EEE4CDC /* Pods_MessagingDemoApp.framework */; };
 		B6165DA629A67ADA0031B84D /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6165DA529A67ADA0031B84D /* NotificationService.swift */; };
 		B6165DAA29A67ADA0031B84D /* NotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6165DA329A67AD90031B84D /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B61BD8AA2DA4656A007FE12E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B61BD8A92DA4656A007FE12E /* WidgetKit.framework */; };
+		B61BD8AC2DA4656A007FE12E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B61BD8AB2DA4656A007FE12E /* SwiftUI.framework */; };
+		B61BD8B92DA4656B007FE12E /* WidgetMessagingDemoAppSwiftUIExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B61BD8A82DA4656A007FE12E /* WidgetMessagingDemoAppSwiftUIExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B61BD8E02DA466F9007FE12E /* GameScoreLiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8DE2DA466F9007FE12E /* GameScoreLiveActivityView.swift */; };
+		B61BD8E12DA466F9007FE12E /* GameScoreLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D92DA466F9007FE12E /* GameScoreLiveActivityAttributes.swift */; };
+		B61BD8E22DA466F9007FE12E /* FoodDeliveryLiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8DD2DA466F9007FE12E /* FoodDeliveryLiveActivityView.swift */; };
+		B61BD8E32DA466F9007FE12E /* CommonLiveActivityViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8DC2DA466F9007FE12E /* CommonLiveActivityViews.swift */; };
+		B61BD8E42DA466F9007FE12E /* AirplaneTrackingLiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8DB2DA466F9007FE12E /* AirplaneTrackingLiveActivityView.swift */; };
+		B61BD8E52DA466F9007FE12E /* FoodDeliveryLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D82DA466F9007FE12E /* FoodDeliveryLiveActivityAttributes.swift */; };
+		B61BD8E62DA466F9007FE12E /* AirplaneTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D72DA466F9007FE12E /* AirplaneTrackingAttributes.swift */; };
+		B61BD8E72DA4670C007FE12E /* FoodDeliveryLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D82DA466F9007FE12E /* FoodDeliveryLiveActivityAttributes.swift */; };
+		B61BD8E82DA4670C007FE12E /* GameScoreLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D92DA466F9007FE12E /* GameScoreLiveActivityAttributes.swift */; };
+		B61BD8E92DA4670C007FE12E /* AirplaneTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D72DA466F9007FE12E /* AirplaneTrackingAttributes.swift */; };
+		B61BD8EA2DA4680C007FE12E /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
+		B61BD8EB2DA4680C007FE12E /* AEPMessaging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */; };
 		B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */; };
 		B64256B92D93B08900EDCAC5 /* Messaging+LiveActivityPublicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */; };
@@ -393,6 +408,20 @@
 			remoteGlobalIDString = B6165DA229A67AD90031B84D;
 			remoteInfo = NotificationService;
 		};
+		B61BD8B72DA4656B007FE12E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B61BD8A72DA4656A007FE12E;
+			remoteInfo = WidgetMessagingDemoAppSwiftUIExtension;
+		};
+		B61BD8EC2DA4680C007FE12E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 925DF4A425227C4700A5DE31;
+			remoteInfo = AEPMessaging;
+		};
 		B6D6AE912BA8C48100F0E975 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
@@ -463,6 +492,28 @@
 				B6165DAA29A67ADA0031B84D /* NotificationService.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B61BD8BE2DA4656B007FE12E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B61BD8B92DA4656B007FE12E /* WidgetMessagingDemoAppSwiftUIExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B61BD8EE2DA4680C007FE12E /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				B61BD8EB2DA4680C007FE12E /* AEPMessaging.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -678,6 +729,16 @@
 		B6165DA329A67AD90031B84D /* NotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6165DA529A67ADA0031B84D /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		B6165DA729A67ADA0031B84D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B61BD8A82DA4656A007FE12E /* WidgetMessagingDemoAppSwiftUIExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetMessagingDemoAppSwiftUIExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B61BD8A92DA4656A007FE12E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		B61BD8AB2DA4656A007FE12E /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		B61BD8D72DA466F9007FE12E /* AirplaneTrackingAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirplaneTrackingAttributes.swift; sourceTree = "<group>"; };
+		B61BD8D82DA466F9007FE12E /* FoodDeliveryLiveActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodDeliveryLiveActivityAttributes.swift; sourceTree = "<group>"; };
+		B61BD8D92DA466F9007FE12E /* GameScoreLiveActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScoreLiveActivityAttributes.swift; sourceTree = "<group>"; };
+		B61BD8DB2DA466F9007FE12E /* AirplaneTrackingLiveActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirplaneTrackingLiveActivityView.swift; sourceTree = "<group>"; };
+		B61BD8DC2DA466F9007FE12E /* CommonLiveActivityViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonLiveActivityViews.swift; sourceTree = "<group>"; };
+		B61BD8DD2DA466F9007FE12E /* FoodDeliveryLiveActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodDeliveryLiveActivityView.swift; sourceTree = "<group>"; };
+		B61BD8DE2DA466F9007FE12E /* GameScoreLiveActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScoreLiveActivityView.swift; sourceTree = "<group>"; };
 		B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingNotificationTrackingTests.swift; sourceTree = "<group>"; };
 		B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatus.swift; sourceTree = "<group>"; };
 		B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+LiveActivityPublicAPI.swift"; sourceTree = "<group>"; };
@@ -777,6 +838,10 @@
 		FF12209B1A62AAB46BE0E834 /* Pods-MessagingDemoAppSwiftUI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoAppSwiftUI.release.xcconfig"; path = "Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B61BD8AD2DA4656A007FE12E /* WidgetMessagingDemoAppSwiftUI */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = WidgetMessagingDemoAppSwiftUI; path = TestApps/WidgetMessagingDemoAppSwiftUI; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		091881E12A16BAE200615481 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -862,6 +927,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B61BD8A52DA4656A007FE12E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B61BD8AC2DA4656A007FE12E /* SwiftUI.framework in Frameworks */,
+				B61BD8AA2DA4656A007FE12E /* WidgetKit.framework in Frameworks */,
+				B61BD8EA2DA4680C007FE12E /* AEPMessaging.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1043,6 +1118,7 @@
 				2414ED802899BA080036D505 /* MessagingDemoAppObjC */,
 				B6165DA429A67ADA0031B84D /* NotificationService */,
 				091881E52A16BAE300615481 /* MessagingDemoAppSwiftUI */,
+				B61BD8AD2DA4656A007FE12E /* WidgetMessagingDemoAppSwiftUI */,
 				922FFCF0251B2BBA00BCE010 /* Products */,
 				92BD7B0B251C0B7700C758CB /* Frameworks */,
 				2A4D31945863BC9FEBE21FE1 /* Pods */,
@@ -1063,6 +1139,7 @@
 				B6165DA329A67AD90031B84D /* NotificationService.appex */,
 				091881E42A16BAE200615481 /* MessagingDemoAppSwiftUI.app */,
 				B6F7CCA42CCA165B00C35C64 /* IntegrationTests.xctest */,
+				B61BD8A82DA4656A007FE12E /* WidgetMessagingDemoAppSwiftUIExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1239,6 +1316,8 @@
 				A44BD44CB3A7DA5EBB972652 /* Pods_E2EFunctionalTestApp.framework */,
 				91A11E37A49E14EB847FB2DF /* Pods_MessagingDemoAppSwiftUI.framework */,
 				CA09063EA0248339C5B2C535 /* Pods_IntegrationTests.framework */,
+				B61BD8A92DA4656A007FE12E /* WidgetKit.framework */,
+				B61BD8AB2DA4656A007FE12E /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1264,6 +1343,36 @@
 			);
 			name = NotificationService;
 			path = TestApps/MessagingDemoApp/NotificationService;
+			sourceTree = "<group>";
+		};
+		B61BD8D62DA466BB007FE12E /* LiveActivity */ = {
+			isa = PBXGroup;
+			children = (
+				B61BD8DA2DA466F9007FE12E /* Attributes */,
+				B61BD8DF2DA466F9007FE12E /* Pages */,
+			);
+			path = LiveActivity;
+			sourceTree = "<group>";
+		};
+		B61BD8DA2DA466F9007FE12E /* Attributes */ = {
+			isa = PBXGroup;
+			children = (
+				B61BD8D72DA466F9007FE12E /* AirplaneTrackingAttributes.swift */,
+				B61BD8D82DA466F9007FE12E /* FoodDeliveryLiveActivityAttributes.swift */,
+				B61BD8D92DA466F9007FE12E /* GameScoreLiveActivityAttributes.swift */,
+			);
+			path = Attributes;
+			sourceTree = "<group>";
+		};
+		B61BD8DF2DA466F9007FE12E /* Pages */ = {
+			isa = PBXGroup;
+			children = (
+				B61BD8DB2DA466F9007FE12E /* AirplaneTrackingLiveActivityView.swift */,
+				B61BD8DC2DA466F9007FE12E /* CommonLiveActivityViews.swift */,
+				B61BD8DD2DA466F9007FE12E /* FoodDeliveryLiveActivityView.swift */,
+				B61BD8DE2DA466F9007FE12E /* GameScoreLiveActivityView.swift */,
+			);
+			path = Pages;
 			sourceTree = "<group>";
 		};
 		B64256B72D93B06F00EDCAC5 /* LiveActivity */ = {
@@ -1513,6 +1622,7 @@
 		B6F7CC932CC80E2800C35C64 /* AppPages */ = {
 			isa = PBXGroup;
 			children = (
+				B61BD8D62DA466BB007FE12E /* LiveActivity */,
 				B6F7CC922CC80DE500C35C64 /* ElementViews */,
 				091881E82A16BAE300615481 /* HomeView.swift */,
 				091881FE2A16D7A200615481 /* PushView.swift */,
@@ -1570,11 +1680,13 @@
 				091881E22A16BAE200615481 /* Resources */,
 				B013C88BF0218262FBD0CDB5 /* [CP] Embed Pods Frameworks */,
 				091881FD2A16D15100615481 /* Embed Frameworks */,
+				B61BD8BE2DA4656B007FE12E /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				091881F92A16D12E00615481 /* PBXTargetDependency */,
+				B61BD8B82DA4656B007FE12E /* PBXTargetDependency */,
 			);
 			name = MessagingDemoAppSwiftUI;
 			productName = MessagingDemoAppSwiftUI;
@@ -1765,6 +1877,30 @@
 			productReference = B6165DA329A67AD90031B84D /* NotificationService.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		B61BD8A72DA4656A007FE12E /* WidgetMessagingDemoAppSwiftUIExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B61BD8BB2DA4656B007FE12E /* Build configuration list for PBXNativeTarget "WidgetMessagingDemoAppSwiftUIExtension" */;
+			buildPhases = (
+				B61BD8A42DA4656A007FE12E /* Sources */,
+				B61BD8A52DA4656A007FE12E /* Frameworks */,
+				B61BD8A62DA4656A007FE12E /* Resources */,
+				B61BD8EE2DA4680C007FE12E /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B61BD8ED2DA4680C007FE12E /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B61BD8AD2DA4656A007FE12E /* WidgetMessagingDemoAppSwiftUI */,
+			);
+			name = WidgetMessagingDemoAppSwiftUIExtension;
+			packageProductDependencies = (
+			);
+			productName = WidgetMessagingDemoAppSwiftUIExtension;
+			productReference = B61BD8A82DA4656A007FE12E /* WidgetMessagingDemoAppSwiftUIExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		B6F7CCA32CCA165B00C35C64 /* IntegrationTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B6F7CCAB2CCA165B00C35C64 /* Build configuration list for PBXNativeTarget "IntegrationTests" */;
@@ -1830,6 +1966,9 @@
 					B6165DA229A67AD90031B84D = {
 						CreatedOnToolsVersion = 14.2;
 					};
+					B61BD8A72DA4656A007FE12E = {
+						CreatedOnToolsVersion = 16.0;
+					};
 					B6F7CCA32CCA165B00C35C64 = {
 						CreatedOnToolsVersion = 16.0;
 					};
@@ -1860,6 +1999,7 @@
 				B6165DA229A67AD90031B84D /* NotificationService */,
 				2469A6012759999E00E56457 /* FunctionalTestApp */,
 				24B071A429072E9800F4B18A /* E2EFunctionalTestApp */,
+				B61BD8A72DA4656A007FE12E /* WidgetMessagingDemoAppSwiftUIExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -1972,6 +2112,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B6165DA129A67AD90031B84D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B61BD8A62DA4656A007FE12E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -2385,6 +2532,13 @@
 				B6F7CC952CC80F4800C35C64 /* Constants.swift in Sources */,
 				091881FF2A16D7A200615481 /* PushView.swift in Sources */,
 				091881F42A16C2A200615481 /* InAppView.swift in Sources */,
+				B61BD8E02DA466F9007FE12E /* GameScoreLiveActivityView.swift in Sources */,
+				B61BD8E12DA466F9007FE12E /* GameScoreLiveActivityAttributes.swift in Sources */,
+				B61BD8E22DA466F9007FE12E /* FoodDeliveryLiveActivityView.swift in Sources */,
+				B61BD8E32DA466F9007FE12E /* CommonLiveActivityViews.swift in Sources */,
+				B61BD8E42DA466F9007FE12E /* AirplaneTrackingLiveActivityView.swift in Sources */,
+				B61BD8E52DA466F9007FE12E /* FoodDeliveryLiveActivityAttributes.swift in Sources */,
+				B61BD8E62DA466F9007FE12E /* AirplaneTrackingAttributes.swift in Sources */,
 				0969D6362A760AF900A00BF7 /* CustomHtmlView.swift in Sources */,
 				091881E72A16BAE300615481 /* MessagingDemoAppSwiftUIApp.swift in Sources */,
 			);
@@ -2643,6 +2797,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B61BD8A42DA4656A007FE12E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B61BD8E72DA4670C007FE12E /* FoodDeliveryLiveActivityAttributes.swift in Sources */,
+				B61BD8E82DA4670C007FE12E /* GameScoreLiveActivityAttributes.swift in Sources */,
+				B61BD8E92DA4670C007FE12E /* AirplaneTrackingAttributes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B6F7CCA02CCA165B00C35C64 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2722,6 +2886,16 @@
 			isa = PBXTargetDependency;
 			target = B6165DA229A67AD90031B84D /* NotificationService */;
 			targetProxy = B6165DA829A67ADA0031B84D /* PBXContainerItemProxy */;
+		};
+		B61BD8B82DA4656B007FE12E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B61BD8A72DA4656A007FE12E /* WidgetMessagingDemoAppSwiftUIExtension */;
+			targetProxy = B61BD8B72DA4656B007FE12E /* PBXContainerItemProxy */;
+		};
+		B61BD8ED2DA4680C007FE12E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 925DF4A425227C4700A5DE31 /* AEPMessaging */;
+			targetProxy = B61BD8EC2DA4680C007FE12E /* PBXContainerItemProxy */;
 		};
 		B6D6AE922BA8C48100F0E975 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2829,7 +3003,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.priorityTester;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoAppSwiftUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -2862,7 +3036,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.steveb.priorityTester;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoAppSwiftUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -3572,6 +3746,73 @@
 			};
 			name = Release;
 		};
+		B61BD8BC2DA4656B007FE12E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FKGEE875K4;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WidgetMessagingDemoAppSwiftUI/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WidgetMessagingDemoAppSwiftUI;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoAppSwiftUI.WidgetMessagingDemoAppSwiftUI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B61BD8BD2DA4656B007FE12E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FKGEE875K4;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WidgetMessagingDemoAppSwiftUI/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WidgetMessagingDemoAppSwiftUI;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.MessagingDemoAppSwiftUI.WidgetMessagingDemoAppSwiftUI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		B6F7CCAC2CCA165B00C35C64 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = ACD6F3099D795F3ACFB3F1DC /* Pods-IntegrationTests.debug.xcconfig */;
@@ -3726,6 +3967,15 @@
 			buildConfigurations = (
 				B6165DAC29A67ADA0031B84D /* Debug */,
 				B6165DAD29A67ADA0031B84D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B61BD8BB2DA4656B007FE12E /* Build configuration list for PBXNativeTarget "WidgetMessagingDemoAppSwiftUIExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B61BD8BC2DA4656B007FE12E /* Debug */,
+				B61BD8BD2DA4656B007FE12E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

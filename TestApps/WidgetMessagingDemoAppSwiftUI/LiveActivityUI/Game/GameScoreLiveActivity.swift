@@ -1,0 +1,250 @@
+//
+//  GameScoreLiveActivity.swift
+//  MobileTestApp
+//
+//  Created by Pravin Prakash Kumar on 1/3/25.
+//
+import ActivityKit
+import WidgetKit
+import SwiftUI
+
+// MARK: - GameScoreLiveActivity
+struct GameScoreLiveActivity: Widget {
+    
+    // Helper to get quarter string based on total score
+    func quarterString(from totalScore: Int) -> String {
+        switch totalScore {
+        case 0...15:   return "Q1"
+        case 16...30:  return "Q2"
+        case 31...45:  return "Q3"
+        default:       return "Q4"
+        }
+    }
+    
+    // Helper to generate a random time between 00:00 and 15:00
+    func randomTimeString() -> String {
+        let randomSeconds = Int.random(in: 0...900) // 0 to 900
+        let minutes = randomSeconds / 60
+        let seconds = randomSeconds % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+    
+    public var body: some WidgetConfiguration {
+        ActivityConfiguration(for: GameScoreLiveActivityAttributes.self) { context in
+            
+            let totalScore = context.state.ninersScore + context.state.lionsScore
+            let quarter = quarterString(from: totalScore)
+            let timeString = randomTimeString()
+            
+            VStack(spacing: 4) {
+                // Top row: Logos, Team Names, and Scores
+                HStack(alignment: .center) {
+                    Spacer()
+                    // Left Team
+                    VStack {
+                        Image("NinersLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 55, height: 55)   // Larger logo
+                        Text("49ers")
+                            .font(.caption)
+                    }
+                    
+                    Spacer()
+                    
+                    // Scores in the middle
+                    HStack(spacing: 10) {
+                        Text("\(context.state.ninersScore)")
+                            .font(.system(size: 38, weight: .bold))
+                        
+                        Text("-")
+                            .font(.system(size: 28, weight: .medium))
+                            .foregroundColor(.secondary)
+                        
+                        Text("\(context.state.lionsScore)")
+                            .font(.system(size: 38, weight: .bold))
+                    }
+                    
+                    Spacer()
+                    
+                    // Right Team
+                    VStack {
+                        Image("LionsLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)   // Larger logo
+                        Text("Lions")
+                            .font(.caption)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                
+                // Quarter & Time (centered below the scores)
+                HStack(spacing: 6) {
+                    Text("\(quarter)")
+                        .font(.system(size: 14, weight: .semibold))
+                    Text("—")
+                        .font(.system(size: 14))
+                    Text("\(timeString)")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+                
+                // Game status text with a small red bar on the left
+                HStack(alignment: .center, spacing: 6) {
+                    Rectangle()
+                        .fill(Color.red)
+                        .frame(width: 3, height: 20) // Thin vertical bar
+
+                    Text(context.state.statusText)
+                        .font(.system(size: 14))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        // Make sure it's at least 22 points tall to look bigger
+                        .frame(minHeight: 22)
+                }
+            }
+            .padding(.vertical, 8)
+            
+        } dynamicIsland: { context in
+            DynamicIsland {
+                // MARK: - Expanded Island Regions
+                DynamicIslandExpandedRegion(.leading) { }
+                DynamicIslandExpandedRegion(.trailing) { }
+                DynamicIslandExpandedRegion(.bottom) {
+                    let totalScore = context.state.ninersScore + context.state.lionsScore
+                    let quarter = quarterString(from: totalScore)
+                    let timeString = randomTimeString()
+                    
+                    VStack {
+                        // Top row: Teams & Scores
+                        HStack(alignment: .center) {
+                            // Left team
+                            Spacer()
+                            VStack {
+                                Image("NinersLogo")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 60, height: 60)
+                                Text("49ers")
+                                    .font(.caption2)
+                            }
+                            
+                            Spacer()
+                            
+                            // Scores
+                            HStack(spacing: 8) {
+                                Text("\(context.state.ninersScore)")
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                
+                                Text("-")
+                                    .font(.largeTitle)
+                                Text("\(context.state.lionsScore)")
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                            }
+                            
+                            Spacer()
+                            
+                            // Right team
+                            VStack {
+                                Image("LionsLogo")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 60, height: 60)
+                                Text("Lions")
+                                    .font(.caption2)
+                            }
+                            
+                            Spacer()
+                        }
+                        
+                        // Quarter & Time
+                        HStack(spacing: 6) {
+                            Text("\(quarter)")
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                            Text("—")
+                                .font(.caption2)
+                            Text("\(timeString)")
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                        }
+                        
+                        // Status text with a small red bar on the left
+                        HStack(alignment: .center, spacing: 6) {
+                            Rectangle()
+                                .fill(Color.red)
+                                .frame(width: 3, height: 20)
+                            
+                            Text(context.state.statusText)
+                                .font(.subheadline)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                                .frame(minHeight: 22)
+                        }
+                    }
+                }
+            } compactLeading: {
+                // Compact leading region
+                HStack(spacing: 2) {
+                    Image("NinersLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                    Text("\(context.state.ninersScore)")
+                        .font(.caption2)
+                }
+            } compactTrailing: {
+                // Compact trailing region
+                HStack(spacing: 2) {
+                    Image("LionsLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                    Text("\(context.state.lionsScore)")
+                        .font(.caption2)
+                }
+            } minimal: {
+                // Minimal region — combined score
+                Text("\(context.state.ninersScore)-\(context.state.lionsScore)")
+                    .font(.caption2)
+            }
+        }
+    }
+}
+
+// MARK: - Preview States
+
+extension GameScoreLiveActivityAttributes.ContentState {
+    static let startOfGame = Self(
+        ninersScore: 0,
+        lionsScore: 0,
+        statusText: "Kickoff!"
+    )
+    
+    static let midGame = Self(
+        ninersScore: 14,
+        lionsScore: 10,
+        statusText: "2nd Quarter, 5:43 left"
+    )
+    
+    static let finalScore = Self(
+        ninersScore: 27,
+        lionsScore: 24,
+        statusText: "Final Score"
+    )
+}
+
+// MARK: - Preview
+
+#Preview("Notification", as: .content,
+         using: GameScoreLiveActivityAttributes(liveActivityData: AEPLiveActivityData.create(liveActivityID: "sf_vs_lions_12_sep_2024"))
+) {
+    GameScoreLiveActivity()
+} contentStates: {
+    GameScoreLiveActivityAttributes.ContentState.startOfGame
+    GameScoreLiveActivityAttributes.ContentState.midGame
+    GameScoreLiveActivityAttributes.ContentState.finalScore
+}
