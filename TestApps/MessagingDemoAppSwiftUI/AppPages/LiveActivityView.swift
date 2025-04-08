@@ -64,7 +64,7 @@ struct LiveActivityView: View {
                 // Card 3: Airplane Tracking Live Activity
                 NavigationLink(destination: AirplaneTrackingLiveActivityView()) {
                     CardView(
-                        imageName: "Airplane",
+                        imageName: "AirplaneLogo",
                         title: "Airplane Tracking \n Live Activity"
                     )
                 }
