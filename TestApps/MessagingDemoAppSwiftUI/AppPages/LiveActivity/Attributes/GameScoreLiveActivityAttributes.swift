@@ -20,8 +20,8 @@ struct GameScoreLiveActivityAttributes: ActivityAttributes {
     
     // Dynamic Attributes
     struct ContentState: Codable, Hashable {
-        var ninersScore: Int
-        var lionsScore: Int
+        var homeTeamScore: Int
+        var awayTeamScore: Int
         var statusText: String
     }
 }

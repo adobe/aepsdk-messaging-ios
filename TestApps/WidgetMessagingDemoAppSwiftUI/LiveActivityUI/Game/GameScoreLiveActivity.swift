@@ -38,7 +38,7 @@ struct GameScoreLiveActivity: Widget {
     public var body: some WidgetConfiguration {
         ActivityConfiguration(for: GameScoreLiveActivityAttributes.self) { context in
             
-            let totalScore = context.state.ninersScore + context.state.lionsScore
+            let totalScore = context.state.homeTeamScore + context.state.awayTeamScore
             let quarter = quarterString(from: totalScore)
             let timeString = randomTimeString()
             
@@ -48,11 +48,11 @@ struct GameScoreLiveActivity: Widget {
                     Spacer()
                     // Left Team
                     VStack {
-                        Image("NinersLogo")
+                        Image("wingdomLogo")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 55, height: 55)   // Larger logo
-                        Text("49ers")
+                        Text("Wingdom")
                             .font(.caption)
                     }
                     
@@ -60,14 +60,14 @@ struct GameScoreLiveActivity: Widget {
                     
                     // Scores in the middle
                     HStack(spacing: 10) {
-                        Text("\(context.state.ninersScore)")
+                        Text("\(context.state.homeTeamScore)")
                             .font(.system(size: 38, weight: .bold))
                         
                         Text("-")
                             .font(.system(size: 28, weight: .medium))
                             .foregroundColor(.secondary)
                         
-                        Text("\(context.state.lionsScore)")
+                        Text("\(context.state.awayTeamScore)")
                             .font(.system(size: 38, weight: .bold))
                     }
                     
@@ -75,11 +75,11 @@ struct GameScoreLiveActivity: Widget {
                     
                     // Right Team
                     VStack {
-                        Image("LionsLogo")
+                        Image("clawsLogo")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 50, height: 50)   // Larger logo
-                        Text("Lions")
+                        Text("Claws")
                             .font(.caption)
                     }
                     Spacer()
@@ -118,7 +118,7 @@ struct GameScoreLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.leading) { }
                 DynamicIslandExpandedRegion(.trailing) { }
                 DynamicIslandExpandedRegion(.bottom) {
-                    let totalScore = context.state.ninersScore + context.state.lionsScore
+                    let totalScore = context.state.homeTeamScore + context.state.awayTeamScore
                     let quarter = quarterString(from: totalScore)
                     let timeString = randomTimeString()
                     
@@ -128,11 +128,11 @@ struct GameScoreLiveActivity: Widget {
                             // Left team
                             Spacer()
                             VStack {
-                                Image("NinersLogo")
+                                Image("wingdomLogo")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 60, height: 60)
-                                Text("49ers")
+                                Text("Wingdom")
                                     .font(.caption2)
                             }
                             
@@ -140,13 +140,13 @@ struct GameScoreLiveActivity: Widget {
                             
                             // Scores
                             HStack(spacing: 8) {
-                                Text("\(context.state.ninersScore)")
+                                Text("\(context.state.homeTeamScore)")
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
                                 
                                 Text("-")
                                     .font(.largeTitle)
-                                Text("\(context.state.lionsScore)")
+                                Text("\(context.state.awayTeamScore)")
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
                             }
@@ -155,11 +155,11 @@ struct GameScoreLiveActivity: Widget {
                             
                             // Right team
                             VStack {
-                                Image("LionsLogo")
+                                Image("clawsLogo")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 60, height: 60)
-                                Text("Lions")
+                                Text("Claws")
                                     .font(.caption2)
                             }
                             
@@ -195,26 +195,26 @@ struct GameScoreLiveActivity: Widget {
             } compactLeading: {
                 // Compact leading region
                 HStack(spacing: 2) {
-                    Image("NinersLogo")
+                    Image("wingdomLogo")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 16, height: 16)
-                    Text("\(context.state.ninersScore)")
+                    Text("\(context.state.homeTeamScore)")
                         .font(.caption2)
                 }
             } compactTrailing: {
                 // Compact trailing region
                 HStack(spacing: 2) {
-                    Image("LionsLogo")
+                    Image("clawsLogo")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 16, height: 16)
-                    Text("\(context.state.lionsScore)")
+                    Text("\(context.state.awayTeamScore)")
                         .font(.caption2)
                 }
             } minimal: {
                 // Minimal region — combined score
-                Text("\(context.state.ninersScore)-\(context.state.lionsScore)")
+                Text("\(context.state.homeTeamScore)-\(context.state.awayTeamScore)")
                     .font(.caption2)
             }
         }
@@ -225,20 +225,20 @@ struct GameScoreLiveActivity: Widget {
 
 extension GameScoreLiveActivityAttributes.ContentState {
     static let startOfGame = Self(
-        ninersScore: 0,
-        lionsScore: 0,
+        homeTeamScore: 0,
+        awayTeamScore: 0,
         statusText: "Kickoff!"
     )
     
     static let midGame = Self(
-        ninersScore: 14,
-        lionsScore: 10,
+        homeTeamScore: 14,
+        awayTeamScore: 10,
         statusText: "2nd Quarter, 5:43 left"
     )
     
     static let finalScore = Self(
-        ninersScore: 27,
-        lionsScore: 24,
+        homeTeamScore: 27,
+        awayTeamScore: 24,
         statusText: "Final Score"
     )
 }

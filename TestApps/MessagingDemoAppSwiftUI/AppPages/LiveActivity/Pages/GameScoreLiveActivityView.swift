@@ -31,7 +31,7 @@ struct GameScoreLiveActivityView: View {
     @State private var endImmediateToggles: [String: Bool] = [:]
     
     /// Per-activity Score & Status, initially populated from contentState
-    @State private var activityValues: [String: (ninersScore: Int, lionsScore: Int, statusText: String)] = [:]
+    @State private var activityValues: [String: (homeTeamScore: Int, awayTeamScore: Int, statusText: String)] = [:]
     
     // MARK: - Body
     
@@ -165,7 +165,7 @@ private extension GameScoreLiveActivityView {
             
             // Content state summary
             let contentState = activity.contentState
-            Text("Niners: \(contentState.ninersScore), Lions: \(contentState.lionsScore), Status: \(contentState.statusText)")
+            Text("Wingdom: \(contentState.homeTeamScore), Claws: \(contentState.awayTeamScore), Status: \(contentState.statusText)")
                 .font(.caption)
                 .foregroundColor(.secondary)
             
@@ -192,13 +192,13 @@ private extension GameScoreLiveActivityView {
                     
                     // Score & Status fields
                     ActivityUpdateView(
-                        ninersScore: Binding(
-                            get: { activityValues[activity.id]?.ninersScore ?? 0 },
-                            set: { activityValues[activity.id]?.ninersScore = $0 }
+                        homeTeamScore: Binding(
+                            get: { activityValues[activity.id]?.homeTeamScore ?? 0 },
+                            set: { activityValues[activity.id]?.homeTeamScore = $0 }
                         ),
-                        lionsScore: Binding(
-                            get: { activityValues[activity.id]?.lionsScore ?? 0 },
-                            set: { activityValues[activity.id]?.lionsScore = $0 }
+                        awayTeamScore: Binding(
+                            get: { activityValues[activity.id]?.awayTeamScore ?? 0 },
+                            set: { activityValues[activity.id]?.awayTeamScore = $0 }
                         ),
                         gameStatus: Binding(
                             get: { activityValues[activity.id]?.statusText ?? "" },
@@ -252,7 +252,7 @@ private extension GameScoreLiveActivityView {
             if activityValues[activity.id] == nil {
                 // Pull the current content state to start
                 let cs = activity.contentState
-                activityValues[activity.id] = (cs.ninersScore, cs.lionsScore, cs.statusText)
+                activityValues[activity.id] = (cs.homeTeamScore, cs.awayTeamScore, cs.statusText)
             }
         }
     }
@@ -267,7 +267,7 @@ private extension GameScoreLiveActivityView {
         // Also refresh the content states in `activityValues`
         for activity in current {
             let cs = activity.contentState
-            activityValues[activity.id] = (cs.ninersScore, cs.lionsScore, cs.statusText)
+            activityValues[activity.id] = (cs.homeTeamScore, cs.awayTeamScore, cs.statusText)
         }
     }
     
@@ -281,9 +281,9 @@ private extension GameScoreLiveActivityView {
 //        let attributes = GameScoreLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "sf_vs_lions_12_sep_2024"))
         let attributes = GameScoreLiveActivityAttributes()
         let initialContentState = GameScoreLiveActivityAttributes.ContentState(
-            ninersScore: 0,
-            lionsScore: 0,
-            statusText: "Niners won the toss and choose to receive the ball")
+            homeTeamScore: 0,
+            awayTeamScore: 0,
+            statusText: "Wingdom won the toss and choose to receive the ball")
         
         do {
             let newActivity = try Activity<GameScoreLiveActivityAttributes>.request(
@@ -307,8 +307,8 @@ private extension GameScoreLiveActivityView {
         
         Task {
             let updatedState = GameScoreLiveActivityAttributes.ContentState(
-                ninersScore: newScores.ninersScore,
-                lionsScore: newScores.lionsScore,
+                homeTeamScore: newScores.homeTeamScore,
+                awayTeamScore: newScores.awayTeamScore,
                 statusText: newScores.statusText
             )
             
@@ -338,8 +338,8 @@ private extension GameScoreLiveActivityView {
 
 @available(iOS 16.1, *)
 struct ActivityUpdateView: View {
-    @Binding var ninersScore: Int
-    @Binding var lionsScore: Int
+    @Binding var homeTeamScore: Int
+    @Binding var awayTeamScore: Int
     @Binding var gameStatus: String
     
     let onUpdate: () -> Void
@@ -349,12 +349,12 @@ struct ActivityUpdateView: View {
             // Scores side by side
             HStack {
                 Spacer()
-                Image("NinersLogo")
+                Image("wingdomLogo")
                     .resizable()
                     .frame(width: 50, height: 50)
                 VStack {
-                    Text("Niners").font(.footnote).foregroundColor(.secondary)
-                    TextField("0", value: $ninersScore, format: .number)
+                    Text("Wingdom").font(.footnote).foregroundColor(.secondary)
+                    TextField("0", value: $homeTeamScore, format: .number)
                         .multilineTextAlignment(.center)
                         .keyboardType(.numberPad)
                         .textFieldStyle(.roundedBorder)
@@ -362,14 +362,14 @@ struct ActivityUpdateView: View {
                 }
                 Spacer()
                 VStack {
-                    Text("Lions").font(.footnote).foregroundColor(.secondary)
-                    TextField("0", value: $lionsScore, format: .number)
+                    Text("Claws").font(.footnote).foregroundColor(.secondary)
+                    TextField("0", value: $awayTeamScore, format: .number)
                         .multilineTextAlignment(.center)
                         .keyboardType(.numberPad)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 50)
                 }
-                Image("LionsLogo")
+                Image("clawsLogo")
                     .resizable()
                     .frame(width: 45, height: 45)
                 Spacer()
