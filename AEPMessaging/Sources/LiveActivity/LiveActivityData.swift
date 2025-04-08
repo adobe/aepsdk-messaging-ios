@@ -30,7 +30,7 @@ public struct LiveActivityData: Codable {
     ///
     /// - Parameter liveActivityID: The unique identifier for the Live Activity.
     /// - Returns: A new `LiveActivityData` instance populated with the provided `liveActivityID`.
-    static func create(liveActivityID: String) -> LiveActivityData {
+    public static func create(liveActivityID: String) -> LiveActivityData {
         LiveActivityData(liveActivityID: liveActivityID)
     }
 
@@ -39,7 +39,7 @@ public struct LiveActivityData: Codable {
     ///
     /// - Parameter channelID: The unique identifier for the Live Activity channel, used for broadcast push notifications.
     /// - Returns: A new `LiveActivityData` instance populated with the provided `channelID`.
-    static func create(channelID: String) -> LiveActivityData {
+    public static func create(channelID: String) -> LiveActivityData {
         LiveActivityData(channelID: channelID)
     }
 }
