@@ -247,7 +247,7 @@ extension GameScoreLiveActivityAttributes.ContentState {
 // MARK: - Preview
 
 #Preview("Notification", as: .content,
-         using: GameScoreLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "GameID_345"))
+         using: GameScoreLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "<UNIQUE_GAME_ID>"))
 ) {
     GameScoreLiveActivity()
 } contentStates: {

@@ -174,8 +174,8 @@ extension FoodDeliveryLiveActivityAttributes.ContentState {
 
 // MARK: - Preview
 #Preview("Notification", as: .content,
-         using: FoodDeliveryLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "orderID_234"),
-            restaurantName: "Habit Burger")) {
+         using: FoodDeliveryLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "<UNIQUE_ORDER_ID>"),
+            restaurantName: "Burger Boss")) {
     FoodDeliveryLiveActivity()
 } contentStates: {
     FoodDeliveryLiveActivityAttributes.ContentState.ordered
