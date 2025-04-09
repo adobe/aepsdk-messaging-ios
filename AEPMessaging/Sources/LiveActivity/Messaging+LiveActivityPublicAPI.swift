@@ -11,6 +11,8 @@
  */
 
 // Extension for Messaging class for Live Activity public APIs
+import AEPMessagingLiveActivity
+
 @available(iOS 16.1, *)
 public extension Messaging {
     /// Registers a Live Activity type with the Adobe Experience Platform SDK.
