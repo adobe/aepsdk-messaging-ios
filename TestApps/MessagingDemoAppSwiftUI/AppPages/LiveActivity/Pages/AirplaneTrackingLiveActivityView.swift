@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 import SwiftUI
 import ActivityKit
-import AEPMessaging
+import AEPMessagingLiveActivity
 
 // MARK: - AirplaneTrackingLiveActivityView
 
@@ -307,7 +307,7 @@ private extension AirplaneTrackingLiveActivityView {
         }
         
         // Example attribute + initial content state
-        let attributes = AirplaneTrackingAttributes(arrivalAirport: "SFO", departureAirport: "MIA", arrivalTerminal: "Terminal 2")
+        let attributes = AirplaneTrackingAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "<unique_ID_for_airplane_tracking>"), arrivalAirport: "SFO", departureAirport: "MIA", arrivalTerminal: "Terminal 2")
         let initialContentState = AirplaneTrackingAttributes.ContentState(journeyProgress: 0)
         
         do {
@@ -334,7 +334,7 @@ private extension AirplaneTrackingLiveActivityView {
          }
          
          // Example attribute + initial content state
-         let attributes = AirplaneTrackingAttributes(arrivalAirport: "SFO", departureAirport: "MIA", arrivalTerminal: "Terminal 2")
+         let attributes = AirplaneTrackingAttributes(liveActivityData: LiveActivityData.create(channelID: "<Apple Push Channel ID>"), arrivalAirport: "SFO", departureAirport: "MIA", arrivalTerminal: "Terminal 2")
          let initialContentState = AirplaneTrackingAttributes.ContentState(journeyProgress: 0)
          
          // The channelID is taken from the text field

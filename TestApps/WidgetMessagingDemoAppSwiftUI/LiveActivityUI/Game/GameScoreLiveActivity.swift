@@ -13,6 +13,7 @@ governing permissions and limitations under the License.
 import ActivityKit
 import WidgetKit
 import SwiftUI
+import AEPMessagingLiveActivity
 
 // MARK: - GameScoreLiveActivity
 struct GameScoreLiveActivity: Widget {
@@ -246,7 +247,7 @@ extension GameScoreLiveActivityAttributes.ContentState {
 // MARK: - Preview
 
 #Preview("Notification", as: .content,
-         using: GameScoreLiveActivityAttributes()
+         using: GameScoreLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "GameID_345"))
 ) {
     GameScoreLiveActivity()
 } contentStates: {

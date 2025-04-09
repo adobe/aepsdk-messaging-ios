@@ -11,11 +11,13 @@ governing permissions and limitations under the License.
 */
 
 import ActivityKit
+import AEPMessagingLiveActivity
 
 @available(iOS 16.1, *)
-struct FoodDeliveryLiveActivityAttributes: ActivityAttributes {
-      
+struct FoodDeliveryLiveActivityAttributes: LiveActivityAttributes {
+
     // Static Attributes
+    var liveActivityData: LiveActivityData
     var restaurantName: String
     
     // Dynamic Attributes

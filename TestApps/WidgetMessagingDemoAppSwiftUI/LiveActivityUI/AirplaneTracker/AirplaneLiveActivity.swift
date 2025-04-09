@@ -13,6 +13,7 @@ governing permissions and limitations under the License.
 import WidgetKit
 import ActivityKit
 import SwiftUI
+import AEPMessagingLiveActivity
 
 // MARK: - AirplaneLiveActivity
 
@@ -270,9 +271,10 @@ extension AirplaneTrackingAttributes.ContentState {
 // MARK: - Preview
 
 #Preview("Notification", as: .content,
-         using: AirplaneTrackingAttributes(arrivalAirport: "MIA",
-            departureAirport: "SFO",
-            arrivalTerminal: "Terminal C")
+         using: AirplaneTrackingAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "AA112_Feb112025"),
+                                           arrivalAirport: "MIA",
+                                           departureAirport: "SFO",
+                                           arrivalTerminal: "Terminal C")
 ) {
     AirplaneLiveActivity()
 } contentStates: {

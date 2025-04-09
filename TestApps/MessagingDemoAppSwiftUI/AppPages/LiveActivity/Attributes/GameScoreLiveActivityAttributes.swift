@@ -11,12 +11,13 @@ governing permissions and limitations under the License.
 */
 
 import ActivityKit
+import AEPMessagingLiveActivity
 
 @available(iOS 16.1, *)
-struct GameScoreLiveActivityAttributes: ActivityAttributes {
+struct GameScoreLiveActivityAttributes: LiveActivityAttributes {
     
-//    // static attribute
-//    var liveActivityData: LiveActivityData // Adobe attributes
+    // static attribute
+    var liveActivityData: LiveActivityData
     
     // Dynamic Attributes
     struct ContentState: Codable, Hashable {

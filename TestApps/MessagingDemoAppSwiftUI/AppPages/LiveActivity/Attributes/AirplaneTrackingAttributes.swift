@@ -12,9 +12,12 @@ governing permissions and limitations under the License.
 
 import ActivityKit
 import Foundation
+import AEPMessagingLiveActivity
 
 @available(iOS 16.1, *)
-struct AirplaneTrackingAttributes: ActivityAttributes {
+struct AirplaneTrackingAttributes: LiveActivityAttributes {
+    
+    var liveActivityData: LiveActivityData
     
     // static attributes
     let arrivalAirport: String
