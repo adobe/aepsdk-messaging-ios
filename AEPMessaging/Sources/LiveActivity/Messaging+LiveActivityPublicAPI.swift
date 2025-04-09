@@ -10,9 +10,9 @@
  governing permissions and limitations under the License.
  */
 
-// Extension for Messaging class for Live Activity public APIs
 import AEPMessagingLiveActivity
 
+// Extension for Messaging class for Live Activity public APIs
 @available(iOS 16.1, *)
 public extension Messaging {
     /// Registers a Live Activity type with the Adobe Experience Platform SDK.
