@@ -266,6 +266,7 @@ public class Messaging: NSObject, Extension {
 
     func handleEdgeIdentityDependentEvents(_ event: Event) {
         // MARK: Hard dependency on Edge Identity module for all logic below
+
         guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event)?.value else {
             Log.debug(label: MessagingConstants.LOG_TAG, "Event (\(event.id.uuidString)) processing is paused. Waiting for valid XDM shared state from Edge Identity.")
             return
@@ -284,6 +285,7 @@ public class Messaging: NSObject, Extension {
         }
 
         // MARK: Hard dependency on ECID from Edge Identity for all logic below
+
         guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
             return

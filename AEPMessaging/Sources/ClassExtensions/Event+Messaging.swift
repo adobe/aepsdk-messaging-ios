@@ -288,6 +288,7 @@ extension Event {
     }
 
     // MARK: - Live Activity events
+
     var isLiveActivityUpdateTokenEvent: Bool {
         isMessagingType && isRequestContentSource && liveActivityUpdateTokenFlag
     }
@@ -321,10 +322,10 @@ extension Event {
     }
 
     var liveActivityPushToStartToken: String? {
-        return data?[MessagingConstants.XDM.Push.TOKEN] as? String
+        data?[MessagingConstants.XDM.Push.TOKEN] as? String
     }
 
     var liveActivityAttributeType: String? {
-        return data?[MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE] as? String
+        data?[MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE] as? String
     }
 }

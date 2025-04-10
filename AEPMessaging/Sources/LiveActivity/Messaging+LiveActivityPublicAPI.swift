@@ -119,8 +119,8 @@ public extension Messaging {
             Log.debug(
                 label: MessagingConstants.LOG_TAG,
                 "Not creating a Live Activity push-to-start token handler task for " +
-                "LiveActivityAttributes type \(typeKey). " +
-                "iOS 17.2 or later is required to start a Live Activity with a push-to-start token."
+                    "LiveActivityAttributes type \(typeKey). " +
+                    "iOS 17.2 or later is required to start a Live Activity with a push-to-start token."
             )
         }
 
@@ -143,7 +143,7 @@ public extension Messaging {
     /// - Returns: A `Task` that runs indefinitely, monitoring and responding to incoming push-to-start tokens.
     ///            The task completes only if the underlying sequence ends or the task is explicitly cancelled.
     @available(iOS 17.2, *)
-    private static func createPushToStartTokenTask<T: LiveActivityAttributes>(type: T.Type) -> Task<Void, Never> {
+    private static func createPushToStartTokenTask<T: LiveActivityAttributes>(type _: T.Type) -> Task<Void, Never> {
         Task {
             let typeKey = T.typeKey
 
@@ -176,7 +176,7 @@ public extension Messaging {
     /// - Returns: A `Task` that runs indefinitely, listening for new Live Activities and setting up listeners
     ///            for their state changes and push token updates. The task completes only if the underlying sequence ends
     ///            or the task is explicitly cancelled.
-    private static func createActivityUpdatesTask<T: LiveActivityAttributes>(type: T.Type) -> Task<Void, Never> {
+    private static func createActivityUpdatesTask<T: LiveActivityAttributes>(type _: T.Type) -> Task<Void, Never> {
         Task {
             let typeKey = T.typeKey
 
@@ -234,7 +234,7 @@ public extension Messaging {
     private static func dispatchPushToStartTokenEvent(typeKey: String, token: String) {
         Log.debug(label: MessagingConstants.LOG_TAG,
                   "Dispatching Live Activity push-to-start token event for type (\(typeKey)) " +
-                  "with token (\(token))")
+                      "with token (\(token))")
 
         dispatchEvent(name: "Live Activity push-to-start token for type (\(typeKey))", data: [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN: true,
@@ -255,7 +255,7 @@ public extension Messaging {
         let typeKey = T.typeKey
         Log.debug(label: MessagingConstants.LOG_TAG,
                   "Dispatching Live Activity update token event for type (\(typeKey)) " +
-                  "with token (\(token))")
+                      "with token (\(token))")
 
         dispatchEvent(name: "Live Activity update token for type (\(typeKey))", data: [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
@@ -275,8 +275,8 @@ public extension Messaging {
         let typeKey = T.typeKey
         Log.debug(label: MessagingConstants.LOG_TAG,
                   "Dispatching start Live Activity event for type (\(typeKey)) " +
-                  "with Apple Live Activity ID (\(activity.id)) " +
-                  "and Live Activity ID (\(activity.attributes.liveActivityData.liveActivityID ?? "unavailable"))")
+                      "with Apple Live Activity ID (\(activity.id)) " +
+                      "and Live Activity ID (\(activity.attributes.liveActivityData.liveActivityID ?? "unavailable"))")
 
         dispatchEvent(name: "Live Activity started (\(typeKey))", data: [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
@@ -309,21 +309,21 @@ public extension Messaging {
     }
 }
 
-fileprivate extension Data {
+private extension Data {
     /// A computed property that returns a hexadecimal string representation of the data.
     var hexEncodedString: String {
-        self.map { String(format: "%02x", $0) }.joined()
+        map { String(format: "%02x", $0) }.joined()
     }
 }
 
 @available(iOS 16.1, *)
-fileprivate extension LiveActivityAttributes {
+private extension LiveActivityAttributes {
     /// A unique string identifier representing the `LiveActivityAttributes` type.
     ///
     /// This value is derived from the type's name and is used as a key when
     /// registering or dispatching events associated with a specific Live Activity type.
     /// It provides a consistent way to reference the type across token and task management, logging, and event data.
     static var typeKey: String {
-        return String(describing: Self.self)
+        String(describing: Self.self)
     }
 }
