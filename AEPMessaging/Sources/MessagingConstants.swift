@@ -71,6 +71,8 @@ enum MessagingConstants {
             static let PUSH_TRACKING_STATUS = "Push tracking status event"
             static let EVENT_HISTORY_WRITE = "Write IAM event to history"
             static let PUSH_TO_IN_APP = "Push to in-app"
+            static let LIVE_ACTIVITY_PUSH_TO_START = "Push-to-start token Event"
+            static let LIVE_ACTIVITY_UPDATE_TOKEN = "Update token Event"
         }
 
         enum Source {
@@ -112,6 +114,18 @@ enum MessagingConstants {
                 static let SCHEMA = "schema"
                 static let DATA = "data"
 
+                // MARK: Live Activity
+                static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveactivityupdatetoken"
+                static let LIVE_ACTIVITY_PUSH_TO_START_TOKEN = "liveactivitypushtostarttoken"
+                static let LIVE_ACTIVITY_TRACK_START = "liveactivitytrackstart"
+                static let LIVE_ACTIVITY_TRACK_STATE = "liveactivitytrackstate"
+                static let APPLE_LIVE_ACTIVITY_ID = "appleLiveActivityId"
+                static let LIVE_ACTIVITY_ID = "liveActivityID"
+                static let CHANNEL_ID = "channelID"
+                /// The key for Live Activity Attribute type name. For example, "FoodDeliveryLiveActivityAttributes"
+                static let ATTRIBUTE_TYPE = "attributeType"
+                static let STATE = "state"
+
                 enum Feed {
                     static let SURFACE = "surface"
                 }
@@ -144,6 +158,10 @@ enum MessagingConstants {
                     static let PRIORITY = "priority"
                     static let ID = "id"
                 }
+            }
+
+            enum Value {
+                static let UNAVAILABLE = "unavailable"
             }
         }
 
@@ -210,6 +228,7 @@ enum MessagingConstants {
             static let DATA = "data"
             static let REQUEST = "request"
             static let SEND_COMPLETION = "sendCompletion"
+            static let LIVE_ACTIVITY = "liveActivity"
         }
 
         enum Inbound {
@@ -273,6 +292,9 @@ enum MessagingConstants {
             enum EventType {
                 static let APPLICATION_OPENED = "pushTracking.applicationOpened"
                 static let CUSTOM_ACTION = "pushTracking.customAction"
+                static let LIVE_ACTIVITY_PUSH_TO_START = "liveActivity.pushToStart"
+                static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveActivity.updateToken"
+                static let LIVE_ACTIVITY_START = "liveActivity.start"
             }
 
             enum Value {
