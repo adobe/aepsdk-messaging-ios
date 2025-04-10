@@ -164,7 +164,7 @@ public extension Messaging {
             }
         }
     }
-    
+
     /// Creates and returns a Task that listens for activity updates.
     ///
     /// This task observes the `activityUpdates` asynchronous sequence from `ActivityKit` for the given Live Activity type.
