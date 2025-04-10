@@ -10,17 +10,9 @@
  governing permissions and limitations under the License.
  */
 
-#if canImport(ActivityKit)
-import ActivityKit
-#endif
-
-/// A protocol that enables Live Activities to integrate with Adobe Experience Platform.
-///
-/// Conforming types can associate required Adobe Experience Platform data with iOS Live Activities.
-/// Any custom `ActivityAttributes` struct must implement this protocol when registering
-/// a Live Activity with the SDK.
-@available(iOS 16.1, *)
-public protocol LiveActivityAttributes: ActivityAttributes {
-    /// The Adobe Experience Platform data associated with the Live Activity.
-    var liveActivityData: LiveActivityData { get }
+extension Data {
+    /// A computed property that returns a hexadecimal string representation of the data.
+    var hexEncodedString: String {
+        map { String(format: "%02x", $0) }.joined()
+    }
 }

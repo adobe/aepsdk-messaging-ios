@@ -10,8 +10,6 @@
  governing permissions and limitations under the License.
  */
 
-import Foundation
-
 /// Encapsulates data for Adobe Experience Platform integration with iOS Live Activities.
 ///
 /// This struct provides the necessary identifiers and data for both managing and tracking Live
