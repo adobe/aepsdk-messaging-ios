@@ -309,11 +309,11 @@ public class Messaging: NSObject, Extension {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event.")
                 return
             }
-            guard let typeKey = event.liveActivityAttributeType else {
+            guard let attributeTypeName = event.liveActivityAttributeType else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
                 return
             }
-            sendLiveActivityPushToStartToken(ecid: ecid, typeKey: typeKey, token: token, event: event)
+            sendLiveActivityPushToStartToken(ecid: ecid, attributeTypeName: attributeTypeName, token: token, event: event)
         }
     }
 

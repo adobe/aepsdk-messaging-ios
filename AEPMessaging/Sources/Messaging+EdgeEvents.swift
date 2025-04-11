@@ -111,17 +111,17 @@ extension Messaging {
     ///
     /// - Parameters:
     ///   - ecid: The Experience Cloud ID associated with the device.
-    ///   - typeKey: A unique string representing the `LiveActivityAttributes` type used to namespace the platform.
+    ///   - attributeTypeName: A unique string representing the `LiveActivityAttributes` type used to namespace the platform.
     ///   - token: The push-to-start token generated for the Live Activity.
     ///   - event: The original `Event` that triggered the synchronization request.
-    func sendLiveActivityPushToStartToken(ecid: String, typeKey: String, token: String, event: Event) {
+    func sendLiveActivityPushToStartToken(ecid: String, attributeTypeName: String, token: String, event: Event) {
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the Live Activity push-to-start token, App bundle identifier is invalid.")
             return
         }
 
         // Example: "<apnsSandbox/apns>.liveActivity.<attributeType>"
-        let platform = getPushPlatform(forEvent: event) + ".liveActivity." + typeKey
+        let platform = getPushPlatform(forEvent: event) + ".liveActivity." + attributeTypeName
 
         // Create the profile event to send the push notification details with push-to-start token to profile
         let profileEventData: [String: Any] = [
