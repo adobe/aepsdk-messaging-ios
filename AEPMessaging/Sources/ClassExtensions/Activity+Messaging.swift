@@ -11,13 +11,12 @@
  */
 
 #if canImport(ActivityKit)
-import ActivityKit
+    import ActivityKit
 #endif
 
 // Extension on Activity where the Attributes conform to LiveActivityAttributes
 @available(iOS 16.1, *)
 extension Activity where Attributes: LiveActivityAttributes {
-
     /// Returns a concise string describing the key details of this `Activity` and its attributes.
     ///
     /// - Parameter includeLiveActivityData: A Boolean value indicating whether to include the

@@ -11,7 +11,7 @@
  */
 
 #if canImport(ActivityKit)
-import ActivityKit
+    import ActivityKit
 #endif
 
 /// A protocol that enables Live Activities to integrate with Adobe Experience Platform.

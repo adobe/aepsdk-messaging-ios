@@ -11,7 +11,7 @@
  */
 
 #if canImport(ActivityKit)
-import ActivityKit
+    import ActivityKit
 #endif
 
 import AEPCore
@@ -239,7 +239,7 @@ public extension Messaging {
     private static func dispatchPushToStartTokenEvent(attributeTypeName: String, token: String) {
         Log.debug(label: MessagingConstants.LOG_TAG,
                   "Dispatching Live Activity push-to-start token event. " +
-                  "Token: \(token), Type: \(attributeTypeName)")
+                      "Token: \(token), Type: \(attributeTypeName)")
 
         let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeTypeName))"
         dispatchEvent(name: eventName, data: [
@@ -269,7 +269,7 @@ public extension Messaging {
             return
         }
         Log.debug(label: MessagingConstants.LOG_TAG,
-                "Dispatching update token event for Live Activity ID: \(liveActivityID)")
+                  "Dispatching update token event for Live Activity ID: \(liveActivityID)")
 
         let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeTypeName))"
         dispatchEvent(name: eventName, data: [
