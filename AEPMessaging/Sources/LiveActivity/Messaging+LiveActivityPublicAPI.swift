@@ -218,13 +218,16 @@ public extension Messaging {
         }
     }
 
-    /// Dispatches a generic event.
+    /// Dispatches a generic Messaging event.
+    ///
+    /// - Parameters:
+    ///   - name: A `String` representing the name of the event.
+    ///   - data: A `[String: Any]` dictionary containing key-value pairs of data to be included in the event payload.
     private static func dispatchEvent(name: String, data: [String: Any]) {
         let event = Event(name: name, type: EventType.messaging, source: EventSource.requestContent, data: data)
         MobileCore.dispatch(event: event)
     }
 
-    /// Dispatches an event when a push-to-start token is received.
     /// Dispatches an event indicating that a Live Activity push-to-start token has been received.
     ///
     /// This method constructs and dispatches an event to Messaging extension that represents

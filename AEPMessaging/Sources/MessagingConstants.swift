@@ -58,7 +58,7 @@ enum MessagingConstants {
         enum Name {
             static let MESSAGE_INTERACTION = "Messaging interaction event"
             static let PUSH_NOTIFICATION_INTERACTION = "Push notification interaction event"
-            static let PUSH_PROFILE_EDGE = "Push notification profile edge event"
+            static let PUSH_PROFILE_EDGE = "Push notification token profile Edge event"
             static let PUSH_TRACKING_EDGE = "Push tracking edge event"
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
@@ -71,8 +71,8 @@ enum MessagingConstants {
             static let PUSH_TRACKING_STATUS = "Push tracking status event"
             static let EVENT_HISTORY_WRITE = "Write IAM event to history"
             static let PUSH_TO_IN_APP = "Push to in-app"
-            static let LIVE_ACTIVITY_PUSH_TO_START = "Push-to-start token Event"
-            static let LIVE_ACTIVITY_UPDATE_TOKEN = "Update token Event"
+            static let LIVE_ACTIVITY_PUSH_TO_START = "Live Activity push-to-start token Edge event"
+            static let LIVE_ACTIVITY_UPDATE_TOKEN = "Live Activity update token Edge event"
         }
 
         enum Source {
