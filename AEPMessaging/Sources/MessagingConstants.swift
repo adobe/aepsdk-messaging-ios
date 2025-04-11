@@ -71,8 +71,12 @@ enum MessagingConstants {
             static let PUSH_TRACKING_STATUS = "Push tracking status event"
             static let EVENT_HISTORY_WRITE = "Write IAM event to history"
             static let PUSH_TO_IN_APP = "Push to in-app"
-            static let LIVE_ACTIVITY_PUSH_TO_START = "Live Activity push-to-start token Edge event"
-            static let LIVE_ACTIVITY_UPDATE_TOKEN = "Live Activity update token Edge event"
+            static let LIVE_ACTIVITY_PUSH_TO_START = "Live Activity push-to-start token event"
+            static let LIVE_ACTIVITY_UPDATE_TOKEN = "Live Activity update token event"
+            static let LIVE_ACTIVITY_START = "Live Activity start event"
+            static let LIVE_ACTIVITY_STATE = "Live Activity state event"
+            static let LIVE_ACTIVITY_PUSH_TO_START_EDGE = "Live Activity push-to-start token Edge event"
+            static let LIVE_ACTIVITY_UPDATE_TOKEN_EDGE = "Live Activity update token Edge event"
         }
 
         enum Source {

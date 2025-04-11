@@ -238,10 +238,11 @@ public extension Messaging {
     ///   - token: A `String` representing the push-to-start token for the Live Activity.
     private static func dispatchPushToStartTokenEvent(attributeTypeName: String, token: String) {
         Log.debug(label: MessagingConstants.LOG_TAG,
-                  "Dispatching Live Activity push-to-start token event for type (\(attributeTypeName)) " +
-                      "with token (\(token))")
+                  "Dispatching Live Activity push-to-start token event. " +
+                  "Token: \(token), Type: \(attributeTypeName)")
 
-        dispatchEvent(name: "Live Activity push-to-start token for type (\(attributeTypeName))", data: [
+        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeTypeName))"
+        dispatchEvent(name: eventName, data: [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN: true,
             MessagingConstants.XDM.Push.TOKEN: token,
             MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName
@@ -258,16 +259,25 @@ public extension Messaging {
     ///   - token: A `String` representing the update push token for the Live Activity.
     private static func dispatchUpdateTokenEvent<T: LiveActivityAttributes>(activity: Activity<T>, token: String) {
         let attributeTypeName = T.attributeTypeName
+        let liveActivityData = activity.attributes.liveActivityData
         Log.debug(label: MessagingConstants.LOG_TAG,
-                  "Dispatching Live Activity update token event for type (\(attributeTypeName)) " +
-                      "with token (\(token))")
+                  "Processing Live Activity update token event. Token: \(token), \(activity.debugDescription(includeLiveActivityData: true))")
 
-        dispatchEvent(name: "Live Activity update token for type (\(attributeTypeName))", data: [
+        guard let liveActivityID = liveActivityData.liveActivityID else {
+            Log.error(label: MessagingConstants.LOG_TAG,
+                      "Missing required '\(MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID)'. Update token event will not be sent.")
+            return
+        }
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                "Dispatching update token event for Live Activity ID: \(liveActivityID)")
+
+        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeTypeName))"
+        dispatchEvent(name: eventName, data: [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
             MessagingConstants.XDM.Push.TOKEN: token,
             MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
             MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: activity.attributes.liveActivityData.liveActivityID ?? MessagingConstants.Event.Data.Value.UNAVAILABLE
+            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
         ])
     }
 
@@ -278,16 +288,16 @@ public extension Messaging {
     /// - Parameter activity: The newly started `Activity` instance. The activity must conform to ``LiveActivityAttributes``.
     private static func dispatchStartEvent<T: LiveActivityAttributes>(activity: Activity<T>) {
         let attributeTypeName = T.attributeTypeName
-        Log.debug(label: MessagingConstants.LOG_TAG,
-                  "Dispatching start Live Activity event for type (\(attributeTypeName)) " +
-                      "with Apple Live Activity ID (\(activity.id)) " +
-                      "and Live Activity ID (\(activity.attributes.liveActivityData.liveActivityID ?? "unavailable"))")
+        let liveActivityID = activity.attributes.liveActivityData.liveActivityID ?? MessagingConstants.Event.Data.Value.UNAVAILABLE
 
-        dispatchEvent(name: "Live Activity started (\(attributeTypeName))", data: [
+        Log.debug(label: MessagingConstants.LOG_TAG, "Dispatching Live Activity start event. \(activity.debugDescription())")
+
+        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_START) for type (\(attributeTypeName))"
+        dispatchEvent(name: eventName, data: [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
             MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
             MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: activity.attributes.liveActivityData.liveActivityID ?? MessagingConstants.Event.Data.Value.UNAVAILABLE
+            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
         ])
     }
 
@@ -304,12 +314,17 @@ public extension Messaging {
         state: ActivityState
     ) {
         let attributeTypeName = T.attributeTypeName
-        Log.debug(label: MessagingConstants.LOG_TAG, "State update for activity \(activity.id) (\(attributeTypeName)): \(state)")
-        dispatchEvent(name: "Live Activity \(state) (\(attributeTypeName))", data: [
+        let liveActivityID = activity.attributes.liveActivityData.liveActivityID ?? MessagingConstants.Event.Data.Value.UNAVAILABLE
+
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  "Dispatching Live Activity \(state) state update event. \(activity.debugDescription())")
+
+        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE): \(state) for type (\(attributeTypeName))"
+        dispatchEvent(name: eventName, data: [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
             MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
             MessagingConstants.Event.Data.Key.STATE: "\(state)",
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: activity.attributes.liveActivityData.liveActivityID ?? MessagingConstants.Event.Data.Value.UNAVAILABLE
+            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
         ])
     }
 }
