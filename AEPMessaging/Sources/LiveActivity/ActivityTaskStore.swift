@@ -10,8 +10,8 @@
  governing permissions and limitations under the License.
  */
 
-@available(iOS 13.0, *)
 /// An actor that stores and manages `Task`s associated with Live Activity types in a thread-safe way.
+@available(iOS 13.0, *)
 public actor ActivityTaskStore<Key: Hashable> {
     private var tasks: [Key: Task<Void, Never>] = [:]
 

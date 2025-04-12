@@ -10,8 +10,8 @@
  governing permissions and limitations under the License.
  */
 
-@available(iOS 13.0, *)
 /// Actor that manages and stores Live Activity push-to-start tokens in a thread-safe way.
+@available(iOS 13.0, *)
 public actor LiveActivityTokenStore {
     /// A dictionary storing push-to-start tokens associated with their corresponding ``LiveActivityAttributes`` type name.
     private var tokens: [String: String] = [:]
@@ -27,7 +27,6 @@ public actor LiveActivityTokenStore {
         tokens[attributeTypeName] = token
         return true
     }
-
 
     /// Retrieves the push token associated with the given ``LiveActivityAttributes`` type name.
     ///

@@ -14,12 +14,12 @@
     import ActivityKit
 #endif
 
-@available(iOS 16.1, *)
 /// A protocol that enables Live Activities to integrate with Adobe Experience Platform.
 ///
 /// Conforming types can associate required Adobe Experience Platform data with iOS Live Activities.
 /// Any custom `ActivityAttributes` struct must implement this protocol when registering
 /// a Live Activity with the SDK.
+@available(iOS 16.1, *)
 public protocol LiveActivityAttributes: ActivityAttributes {
     /// The Adobe Experience Platform data associated with the Live Activity.
     var liveActivityData: LiveActivityData { get }

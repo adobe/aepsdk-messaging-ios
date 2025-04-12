@@ -21,6 +21,7 @@ import AEPServices
 @available(iOS 16.1, *)
 public extension Messaging {
     // MARK: - Shared Storage
+
     /// A shared store used to manage push tokens across the application.
     private static let liveActivityTokenStore = LiveActivityTokenStore()
 
