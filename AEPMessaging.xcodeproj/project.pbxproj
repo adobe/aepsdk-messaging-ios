@@ -199,6 +199,8 @@
 		4C30C1C72DA88B700079B065 /* Data+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C30C1C62DA88B700079B065 /* Data+Messaging.swift */; };
 		4C30C1C92DA88C8C0079B065 /* LiveActivityAttributes+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C30C1C82DA88C8C0079B065 /* LiveActivityAttributes+Messaging.swift */; };
 		4C30C1CB2DA8A6790079B065 /* Activity+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C30C1CA2DA8A6790079B065 /* Activity+Messaging.swift */; };
+		4C30C1CD2DA9EEA20079B065 /* LiveActivityTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C30C1CC2DA9EEA20079B065 /* LiveActivityTokenStore.swift */; };
+		4C30C1CF2DA9EEC00079B065 /* ActivityTaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C30C1CE2DA9EEC00079B065 /* ActivityTaskStore.swift */; };
 		6C2343E8785E6B47C8D961F7 /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D55E83254139642A1CAA76E /* Pods_FunctionalTests.framework */; };
 		8306057F6EE4683383660BD8 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BDCBFF342013F2FF0CE1472 /* Pods_MessagingDemoAppObjC.framework */; };
 		846794A21245172CEE3FF1CA /* Pods_E2EFunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B18970846882D9DC0CD1C50 /* Pods_E2EFunctionalTestApp.framework */; };
@@ -685,6 +687,8 @@
 		4C30C1C62DA88B700079B065 /* Data+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Messaging.swift"; sourceTree = "<group>"; };
 		4C30C1C82DA88C8C0079B065 /* LiveActivityAttributes+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveActivityAttributes+Messaging.swift"; sourceTree = "<group>"; };
 		4C30C1CA2DA8A6790079B065 /* Activity+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Activity+Messaging.swift"; sourceTree = "<group>"; };
+		4C30C1CC2DA9EEA20079B065 /* LiveActivityTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityTokenStore.swift; sourceTree = "<group>"; };
+		4C30C1CE2DA9EEC00079B065 /* ActivityTaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityTaskStore.swift; sourceTree = "<group>"; };
 		4C3B9F882AE3385B00A7D395 /* AEPTestUtils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPTestUtils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6346827F4BC239DF7DDFD044 /* Pods-MessagingDemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.debug.xcconfig"; sourceTree = "<group>"; };
 		6912F64FC8C8BFAF5ACD8EF0 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -1427,6 +1431,8 @@
 			isa = PBXGroup;
 			children = (
 				B64256BC2D93B42A00EDCAC5 /* LiveActivityData.swift */,
+				4C30C1CE2DA9EEC00079B065 /* ActivityTaskStore.swift */,
+				4C30C1CC2DA9EEA20079B065 /* LiveActivityTokenStore.swift */,
 				B64256BA2D93B40600EDCAC5 /* LiveActivityAttributes.swift */,
 				B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */,
 			);
@@ -2727,6 +2733,7 @@
 				B6F7CBCE2CC2089A00C35C64 /* AEPDismissButton.swift in Sources */,
 				B6F7CBCF2CC2089A00C35C64 /* ContentCardUIEventListening.swift in Sources */,
 				B6F7CBD02CC2089A00C35C64 /* ContentCardUI+EventHandler.swift in Sources */,
+				4C30C1CF2DA9EEC00079B065 /* ActivityTaskStore.swift in Sources */,
 				B6F7CBD12CC2089A00C35C64 /* SmallImageTemplate.swift in Sources */,
 				B6F7CBD22CC2089A00C35C64 /* AEPTextView.swift in Sources */,
 				B6F7CBD32CC2089A00C35C64 /* View+CustomModifiers.swift in Sources */,
@@ -2744,6 +2751,7 @@
 				B6F7CBDE2CC2089A00C35C64 /* ContentCardTemplate.swift in Sources */,
 				B6F7CBDF2CC2089A00C35C64 /* ContentCardTemplateType.swift in Sources */,
 				B6F7CBE02CC2089A00C35C64 /* AEPTextType.swift in Sources */,
+				4C30C1CD2DA9EEA20079B065 /* LiveActivityTokenStore.swift in Sources */,
 				B6F7CBE12CC2089A00C35C64 /* BaseTemplate.swift in Sources */,
 				B6F7CBE22CC2089A00C35C64 /* Messaging+UIPublicAPI.swift in Sources */,
 				B6F7CBE32CC2089A00C35C64 /* UIConstants.swift in Sources */,

@@ -15,7 +15,6 @@
 /// This struct provides the necessary identifiers and data for both managing and tracking Live
 /// Activities through Adobe Experience Platform. Use this struct when implementing the
 /// `LiveActivityAttributes` protocol.
-@available(iOS 16.1, *)
 public struct LiveActivityData: Codable {
     /// Unique identifier for managing and tracking an individual Live Activity in Adobe Experience Platform.
     var liveActivityID: String?

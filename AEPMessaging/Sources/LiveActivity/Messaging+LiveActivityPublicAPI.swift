@@ -21,76 +21,8 @@ import AEPServices
 @available(iOS 16.1, *)
 public extension Messaging {
     // MARK: - Shared Storage
-
-    /// Actor that manages and stores Live Activity push-to-start tokens in a thread-safe way.
-    private actor LiveActivityStore {
-        /// A dictionary storing push tokens associated with their corresponding keys.
-        private var tokens: [String: String] = [:]
-
-        /// Updates the token for the given key.
-        ///
-        /// - Parameters:
-        ///   - key: The key associated with the token.
-        ///   - token: The new push token to store.
-        /// - Returns: `true` if the token was updated, `false` if the token was already set to the given value.
-        func updatePushToken(for key: String, token: String) -> Bool {
-            if tokens[key] == token { return false }
-            tokens[key] = token
-            return true
-        }
-
-        /// Retrieves the push token associated with the given key.
-        ///
-        /// - Parameter key: The key associated with the desired token.
-        /// - Returns: The push token if it exists, or `nil` if not found.
-        func pushToken(for key: String) -> String? {
-            tokens[key]
-        }
-
-        /// Clears all stored push tokens.
-        func clear() {
-            tokens.removeAll()
-        }
-    }
-
-    /// An actor that stores and manages `Task`s associated with Live Activity types in a thread-safe way.
-    private actor ActivityTaskStore<Key: Hashable> {
-        private var tasks: [Key: Task<Void, Never>] = [:]
-
-        /// Sets or replaces the task for the given key.
-        ///
-        /// If `task` is `nil`, any existing task for the key will be removed.
-        ///
-        /// - Parameters:
-        ///   - key: A `Hashable` key representing the Live Activity type or instance.
-        ///   - task: The `Task` to associate with the key, or `nil` to remove the task.
-        func setTask(for key: Key, task: Task<Void, Never>?) {
-            tasks[key] = task
-        }
-
-        /// Retrieves the task associated with the given key.
-        ///
-        /// - Parameter key: The key identifying the task.
-        /// - Returns: The associated `Task` if one exists, or `nil` if not found.
-        func task(for key: Key) -> Task<Void, Never>? {
-            tasks[key]
-        }
-
-        /// Removes the task associated with the given key.
-        ///
-        /// - Parameter key: The key representing the task to be removed.
-        func removeTask(for key: Key) {
-            tasks[key] = nil
-        }
-
-        /// Clears all stored tasks.
-        func clear() {
-            tasks.removeAll()
-        }
-    }
-
     /// A shared store used to manage push tokens across the application.
-    private static let liveActivityStore = LiveActivityStore()
+    private static let liveActivityTokenStore = LiveActivityTokenStore()
 
     /// A shared task store for tasks that handle push-to-start token updates.
     private static let pushToStartTaskStore = ActivityTaskStore<String>()
@@ -107,7 +39,7 @@ public extension Messaging {
     ///   - Monitor state transitions (start, update, end)
     ///   - Event tracking for the registered activity type
     ///
-    /// - Parameter type: The Live Activity type that conforms to the `LiveActivityAttributes` protocol.
+    /// - Parameter type: The Live Activity type that conforms to the ``LiveActivityAttributes`` protocol.
     ///                   This type defines the structure and content of your Live Activity.
     static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
         let attributeTypeName = T.attributeTypeName
@@ -134,14 +66,14 @@ public extension Messaging {
 
     // MARK: - Private Helper Functions
 
-    /// Creates and returns a Task that listens for push-to-start token updates.
+    /// Creates and returns a `Task` that listens for push-to-start token updates.
     ///
     /// This task observes the `pushToStartTokenUpdates` asynchronous sequence from `ActivityKit`
     /// and converts each received token into a hexadecimal string. If the token is new (not previously stored),
     /// it dispatches a push-to-start event to notify the system. Duplicate tokens are ignored to avoid redundant processing.
     ///
     /// - Parameters:
-    ///   - type: The concrete type conforming to `LiveActivityAttributes` used to access the associated `Activity`.
+    ///   - type: The concrete type conforming to ``LiveActivityAttributes`` used to access the associated `Activity`.
     /// - Returns: A `Task` that runs indefinitely, monitoring and responding to incoming push-to-start tokens.
     ///            The task completes only if the underlying sequence ends or the task is explicitly cancelled.
     @available(iOS 17.2, *)
@@ -157,8 +89,8 @@ public extension Messaging {
             }
 
             for await tokenData in Activity<T>.pushToStartTokenUpdates {
-                let tokenHex = tokenData.map { String(format: "%02x", $0) }.joined()
-                if await liveActivityStore.updatePushToken(for: attributeTypeName, token: tokenHex) {
+                let tokenHex = tokenData.hexEncodedString
+                if await liveActivityTokenStore.updatePushToken(for: attributeTypeName, token: tokenHex) {
                     dispatchPushToStartTokenEvent(attributeTypeName: attributeTypeName, token: tokenHex)
                 } else {
                     Log.debug(label: MessagingConstants.LOG_TAG, "Duplicate push-to-start token for \(attributeTypeName); skipping event.")
@@ -167,14 +99,14 @@ public extension Messaging {
         }
     }
 
-    /// Creates and returns a Task that listens for activity updates.
+    /// Creates and returns a `Task` that listens for activity updates.
     ///
     /// This task observes the `activityUpdates` asynchronous sequence from `ActivityKit` for the given Live Activity type.
     /// When a new activity starts, it dispatches a start event and creates child tasks to monitor state transitions
     /// and push token updates specific to that activity.
     ///
     /// - Parameters:
-    ///   - type: The concrete type conforming to `LiveActivityAttributes` used to observe Live Activity lifecycle updates.
+    ///   - type: The concrete type conforming to ``LiveActivityAttributes`` used to observe Live Activity lifecycle and token updates.
     /// - Returns: A `Task` that runs indefinitely, listening for new Live Activities and setting up listeners
     ///            for their state changes and push token updates. The task completes only if the underlying sequence ends
     ///            or the task is explicitly cancelled.
@@ -234,7 +166,7 @@ public extension Messaging {
     /// the push-to-start token and associated details for a specific Live Activity type.
     ///
     /// - Parameters:
-    ///   - attributeTypeName: A unique string identifier representing the `LiveActivityAttributes` type associated with the Live Activity.
+    ///   - attributeTypeName: A unique string identifier representing the ``LiveActivityAttributes`` type associated with the Live Activity.
     ///   - token: A `String` representing the push-to-start token for the Live Activity.
     private static func dispatchPushToStartTokenEvent(attributeTypeName: String, token: String) {
         Log.debug(label: MessagingConstants.LOG_TAG,
