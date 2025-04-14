@@ -13,7 +13,7 @@ governing permissions and limitations under the License.
 
 import SwiftUI
 import ActivityKit
-import AEPMessaging
+import AEPMessagingLiveActivity
 
 @available(iOS 16.1, *)
 struct GameScoreLiveActivityView: View {
@@ -278,8 +278,7 @@ private extension GameScoreLiveActivityView {
             return
         }
         
-//        let attributes = GameScoreLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "sf_vs_lions_12_sep_2024"))
-        let attributes = GameScoreLiveActivityAttributes()
+        let attributes = GameScoreLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "<Unique_Game_ID>"))
         let initialContentState = GameScoreLiveActivityAttributes.ContentState(
             homeTeamScore: 0,
             awayTeamScore: 0,

@@ -10,6 +10,8 @@
  governing permissions and limitations under the License.
  */
 
+import AEPMessagingLiveActivity
+
 // Extension for Messaging class for Live Activity public APIs
 @available(iOS 16.1, *)
 public extension Messaging {

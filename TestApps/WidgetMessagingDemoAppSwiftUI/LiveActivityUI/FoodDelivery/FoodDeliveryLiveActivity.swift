@@ -13,6 +13,7 @@ governing permissions and limitations under the License.
 import WidgetKit
 import ActivityKit
 import SwiftUI
+import AEPMessagingLiveActivity
 
 struct FoodDeliveryLiveActivity: Widget {
     var body: some WidgetConfiguration {
@@ -173,7 +174,8 @@ extension FoodDeliveryLiveActivityAttributes.ContentState {
 
 // MARK: - Preview
 #Preview("Notification", as: .content,
-         using: FoodDeliveryLiveActivityAttributes(restaurantName: "Habit Burger")) {
+         using: FoodDeliveryLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "<UNIQUE_ORDER_ID>"),
+            restaurantName: "Burger Boss")) {
     FoodDeliveryLiveActivity()
 } contentStates: {
     FoodDeliveryLiveActivityAttributes.ContentState.ordered

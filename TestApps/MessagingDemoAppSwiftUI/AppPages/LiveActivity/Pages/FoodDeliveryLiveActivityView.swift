@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 import SwiftUI
 import ActivityKit
-import AEPMessaging
+import AEPMessagingLiveActivity
 
 @available(iOS 16.1, *)
 struct FoodDeliveryLiveActivityView: View {
@@ -276,7 +276,8 @@ private extension FoodDeliveryLiveActivityView {
         }
         
         // Create attributes using the entered restaurant name
-        let attributes = FoodDeliveryLiveActivityAttributes(restaurantName: restaurantName)
+        let attributes = FoodDeliveryLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "orderID_234"),
+                                                            restaurantName: restaurantName)
         let initialContentState = FoodDeliveryLiveActivityAttributes.ContentState(
             orderStatus: "Ordered"
         )
