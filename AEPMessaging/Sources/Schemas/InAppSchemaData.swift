@@ -148,6 +148,7 @@ extension InAppSchemaData {
             .setHorizontalAlign(MessageAlignment.fromString(hAlign ?? "center"))
             .setHorizontalInset(mobileParameters[MessagingConstants.Event.Data.Key.IAM.HORIZONTAL_INSET] as? Int)
             .setUiTakeover(mobileParameters[MessagingConstants.Event.Data.Key.IAM.UI_TAKEOVER] as? Bool ?? true)
+            .setFitToContent(mobileParameters[MessagingConstants.Event.Data.Key.IAM.FIT_TO_CONTENT] as? Bool ?? false)
             .setBackdropColor(mobileParameters[MessagingConstants.Event.Data.Key.IAM.BACKDROP_COLOR] as? String)
             .setBackdropOpacity(opacity)
             .setCornerRadius(cornerRadius)

@@ -128,6 +128,7 @@ enum MessagingConstants {
                     static let HORIZONTAL_ALIGN = "horizontalAlign"
                     static let HORIZONTAL_INSET = "horizontalInset"
                     static let UI_TAKEOVER = "uiTakeover"
+                    static let FIT_TO_CONTENT = "fitToContent"
                     static let DISPLAY_ANIMATION = "displayAnimation"
                     static let DISMISS_ANIMATION = "dismissAnimation"
                     static let GESTURES = "gestures"
