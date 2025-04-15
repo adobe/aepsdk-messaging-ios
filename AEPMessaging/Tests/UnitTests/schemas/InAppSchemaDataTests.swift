@@ -249,7 +249,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
     
     func testGetMessageSettingsHappy() throws {
         // setup
-        let testMobileParameters = "{\"schemaVersion\":\"1.0\",\"width\":80,\"height\":50,\"verticalAlign\":\"center\",\"verticalInset\":0,\"horizontalAlign\":\"center\",\"horizontalInset\":0,\"uiTakeover\":true,\"fitToContent\":true,\"displayAnimation\":\"top\",\"dismissAnimation\":\"top\",\"backdropColor\":\"000000\",\"backdropOpacity\":0.3,\"cornerRadius\":15,\"gestures\":{\"swipeUp\":\"adbinapp://dismiss?interaction=swipeUp\",\"swipeDown\":\"adbinapp://dismiss?interaction=swipeDown\",\"swipeLeft\":\"adbinapp://dismiss?interaction=swipeLeft\",\"swipeRight\":\"adbinapp://dismiss?interaction=swipeRight\",\"tapBackground\":\"adbinapp://dismiss?interaction=tapBackground\"}}"
+        let testMobileParameters = "{\"schemaVersion\":\"1.0\",\"width\":80,\"maxWidth\":552,\"height\":50,\"verticalAlign\":\"center\",\"verticalInset\":0,\"horizontalAlign\":\"center\",\"horizontalInset\":0,\"uiTakeover\":true,\"fitToContent\":true,\"displayAnimation\":\"top\",\"dismissAnimation\":\"top\",\"backdropColor\":\"000000\",\"backdropOpacity\":0.3,\"cornerRadius\":15,\"gestures\":{\"swipeUp\":\"adbinapp://dismiss?interaction=swipeUp\",\"swipeDown\":\"adbinapp://dismiss?interaction=swipeDown\",\"swipeLeft\":\"adbinapp://dismiss?interaction=swipeLeft\",\"swipeRight\":\"adbinapp://dismiss?interaction=swipeRight\",\"tapBackground\":\"adbinapp://dismiss?interaction=tapBackground\"}}"
         
         let json = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"mobileParameters\":\(testMobileParameters)}"
         guard let decodedObject = getDecodedObject(fromString: json) else {
@@ -263,6 +263,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
         // verify
         XCTAssertEqual(self, result.parent as? InAppSchemaDataTests)
         XCTAssertEqual(80, result.width)
+        XCTAssertEqual(552, result.maxWidth)
         XCTAssertEqual(50, result.height)
         XCTAssertEqual(.center, result.verticalAlign)
         XCTAssertEqual(0, result.verticalInset)
@@ -294,7 +295,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
         // verify
         XCTAssertEqual(self, result.parent as? InAppSchemaDataTests)
         XCTAssertNil(result.width)
-        XCTAssertNil(result.width)
+        XCTAssertNil(result.maxWidth)
         XCTAssertNil(result.height)
         XCTAssertNil(result.verticalAlign)
         XCTAssertNil(result.verticalInset)
