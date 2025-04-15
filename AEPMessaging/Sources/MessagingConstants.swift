@@ -122,6 +122,7 @@ enum MessagingConstants {
 
                     // layout keys
                     static let WIDTH = "width"
+                    static let MAX_WIDTH = "maxWidth"
                     static let HEIGHT = "height"
                     static let VERTICAL_ALIGN = "verticalAlign"
                     static let VERTICAL_INSET = "verticalInset"

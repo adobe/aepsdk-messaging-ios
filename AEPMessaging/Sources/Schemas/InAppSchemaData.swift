@@ -142,6 +142,7 @@ extension InAppSchemaData {
 
         let settings = MessageSettings(parent: parent)
             .setWidth(mobileParameters[MessagingConstants.Event.Data.Key.IAM.WIDTH] as? Int)
+            .setMaxWidth(mobileParameters[MessagingConstants.Event.Data.Key.IAM.MAX_WIDTH] as? Int)
             .setHeight(mobileParameters[MessagingConstants.Event.Data.Key.IAM.HEIGHT] as? Int)
             .setVerticalAlign(MessageAlignment.fromString(vAlign ?? "center"))
             .setVerticalInset(mobileParameters[MessagingConstants.Event.Data.Key.IAM.VERTICAL_INSET] as? Int)
