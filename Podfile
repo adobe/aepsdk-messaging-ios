@@ -15,7 +15,7 @@ project 'AEPMessaging.xcodeproj'
 pod 'SwiftLint', '0.52.0'
 
 $dev_repo = 'https://github.com/sbenedicadb/aepsdk-core-ios.git'
-$dev_branch = 'temp-utils'
+$dev_branch = 'dev-v5.4.1'
 
 # ==================
 # SHARED POD GROUPS
@@ -61,47 +61,47 @@ end
 # TARGET DEFINITIONS
 # ==================
 target 'AEPMessaging' do
-  lib_main
+  lib_dev
 end
 
 target 'MessagingDemoApp' do
-  app_main
+  app_dev
 end
 
 target 'MessagingDemoAppObjC' do
-  app_main
+  app_dev
 end
 
 target 'MessagingDemoAppSwiftUI' do
-  app_main
+  app_dev
 end
 
 target 'UnitTests' do
-  lib_main
+  lib_dev
   test_utils
 end
 
 target 'FunctionalTests' do
-  app_main
+  app_dev
   test_utils
 end
 
 target 'IntegrationTests' do
-  app_main
+  app_dev
   test_utils
 end
 
 target 'E2EFunctionalTests' do
-  app_main
+  app_dev
   test_utils
 end
 
 target 'FunctionalTestApp' do
-  app_main
+  app_dev
   test_utils
 end
 
 target 'E2EFunctionalTestApp' do
-  app_main
+  app_dev
   test_utils
 end
