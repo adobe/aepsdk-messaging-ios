@@ -284,13 +284,6 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // MARK: Hard dependency on ECID from Edge Identity for all logic below
-
-        guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
-            return
-        }
-
         if event.isGenericIdentityRequestContentEvent {
             guard let token = event.token, !token.isEmpty else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
@@ -300,7 +293,18 @@ public class Messaging: NSObject, Extension {
             // If the push token is valid update the shared state.
             runtime.createSharedState(data: [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token], event: event)
 
+            guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
+                return
+            }
             sendPushToken(ecid: ecid, token: token, event: event)
+        }
+
+        // MARK: Hard dependency on ECID from Edge Identity for all logic below
+
+        guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
+            return
         }
 
         if event.isLiveActivityPushToStartTokenEvent {
