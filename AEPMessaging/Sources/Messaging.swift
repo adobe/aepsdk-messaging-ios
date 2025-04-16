@@ -272,7 +272,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // Check if the event type is `MessagingConstants.Event.EventType.messaging` and
+        // Check if the event type is `EventType.messaging` and
         // eventSource is `EventSource.requestContent` handle processing of the tracking information
         if event.isMessagingRequestContentEvent {
             if let clickThroughUrl = event.pushClickThroughUrl {

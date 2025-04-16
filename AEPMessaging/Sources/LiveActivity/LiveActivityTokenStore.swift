@@ -12,7 +12,7 @@
 
 /// Actor that manages and stores Live Activity push-to-start tokens in a thread-safe way.
 @available(iOS 13.0, *)
-public actor LiveActivityTokenStore {
+actor LiveActivityTokenStore {
     /// A dictionary storing push-to-start tokens associated with their corresponding ``LiveActivityAttributes`` type name.
     private var tokens: [String: String] = [:]
 
@@ -23,9 +23,7 @@ public actor LiveActivityTokenStore {
     ///   - token: The new push-to-start token to store.
     /// - Returns: `true` if the token was updated, `false` if the token was already set to the given value.
     func updatePushToken(for attributeTypeName: String, token: String) -> Bool {
-        if tokens[attributeTypeName] == token { return false }
-        tokens[attributeTypeName] = token
-        return true
+        tokens.updateValue(token, forKey: attributeTypeName) != token
     }
 
     /// Retrieves the push token associated with the given ``LiveActivityAttributes`` type name.

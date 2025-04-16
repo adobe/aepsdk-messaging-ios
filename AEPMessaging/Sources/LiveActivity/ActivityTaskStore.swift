@@ -12,7 +12,7 @@
 
 /// An actor that stores and manages `Task`s associated with Live Activity types in a thread-safe way.
 @available(iOS 13.0, *)
-public actor ActivityTaskStore<Key: Hashable> {
+actor ActivityTaskStore<Key: Hashable> {
     private var tasks: [Key: Task<Void, Never>] = [:]
 
     /// Sets or replaces the `Task` for the given key.

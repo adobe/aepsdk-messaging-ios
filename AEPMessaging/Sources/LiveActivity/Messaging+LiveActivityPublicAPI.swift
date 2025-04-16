@@ -151,16 +151,6 @@ public extension Messaging {
         }
     }
 
-    /// Dispatches a generic Messaging event.
-    ///
-    /// - Parameters:
-    ///   - name: A `String` representing the name of the event.
-    ///   - data: A `[String: Any]` dictionary containing key-value pairs of data to be included in the event payload.
-    private static func dispatchEvent(name: String, data: [String: Any]) {
-        let event = Event(name: name, type: EventType.messaging, source: EventSource.requestContent, data: data)
-        MobileCore.dispatch(event: event)
-    }
-
     /// Dispatches an event indicating that a Live Activity push-to-start token has been received.
     ///
     /// This method constructs and dispatches an event to Messaging extension that represents
@@ -171,15 +161,22 @@ public extension Messaging {
     ///   - token: A `String` representing the push-to-start token for the Live Activity.
     private static func dispatchPushToStartTokenEvent(attributeTypeName: String, token: String) {
         Log.debug(label: MessagingConstants.LOG_TAG,
-                  "Dispatching Live Activity push-to-start token event. " +
-                      "Token: \(token), Type: \(attributeTypeName)")
+                  """
+                  Dispatching Live Activity push-to-start token event.
+                  Token: \(token)
+                  Type: \(attributeTypeName)
+                  """)
 
         let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeTypeName))"
-        dispatchEvent(name: eventName, data: [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN: true,
-            MessagingConstants.XDM.Push.TOKEN: token,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName
-        ])
+        let event = Event(name: eventName,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: [
+                              MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN: true,
+                              MessagingConstants.XDM.Push.TOKEN: token,
+                              MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName
+                          ])
+        MobileCore.dispatch(event: event)
     }
 
     /// Dispatches an event indicating that a Live Activity's push token has been updated.
@@ -193,25 +190,38 @@ public extension Messaging {
     private static func dispatchUpdateTokenEvent<T: LiveActivityAttributes>(activity: Activity<T>, token: String) {
         let attributeTypeName = T.attributeTypeName
         let liveActivityData = activity.attributes.liveActivityData
-        Log.debug(label: MessagingConstants.LOG_TAG,
-                  "Processing Live Activity update token event. Token: \(token), \(activity.debugDescription(includeLiveActivityData: true))")
-
         guard let liveActivityID = liveActivityData.liveActivityID else {
             Log.error(label: MessagingConstants.LOG_TAG,
-                      "Missing required '\(MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID)'. Update token event will not be sent.")
+                      """
+                      Missing required '\(MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID)'. Update token event will not be sent.
+                      Type: \(attributeTypeName)
+                      Apple Live Activity ID: \(activity.id)
+                      """)
             return
         }
+
         Log.debug(label: MessagingConstants.LOG_TAG,
-                  "Dispatching update token event for Live Activity ID: \(liveActivityID)")
+                  """
+                  Dispatching Live Activity update token event.
+                  Type: \(attributeTypeName)
+                  Apple Live Activity ID: \(activity.id)
+                  LiveActivityID: \(liveActivityID))
+                  Token: \(token)
+                  """)
 
         let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeTypeName))"
-        dispatchEvent(name: eventName, data: [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
-            MessagingConstants.XDM.Push.TOKEN: token,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
-        ])
+
+        let event = Event(name: eventName,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: [
+                            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
+                            MessagingConstants.XDM.Push.TOKEN: token,
+                            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
+                            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
+                            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
+                          ])
+        MobileCore.dispatch(event: event)
     }
 
     /// Dispatches an event indicating that a Live Activity has started.
@@ -223,15 +233,25 @@ public extension Messaging {
         let attributeTypeName = T.attributeTypeName
         let liveActivityID = activity.attributes.liveActivityData.liveActivityID ?? MessagingConstants.Event.Data.Value.UNAVAILABLE
 
-        Log.debug(label: MessagingConstants.LOG_TAG, "Dispatching Live Activity start event. \(activity.debugDescription())")
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  """
+                  Dispatching Live Activity start event.
+                  Type: \(attributeTypeName)
+                  Apple Live Activity ID: \(activity.id)
+                  LiveActivityID: \(liveActivityID)
+                  """)
 
         let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_START) for type (\(attributeTypeName))"
-        dispatchEvent(name: eventName, data: [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
-        ])
+        let event = Event(name: eventName,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: [
+                            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
+                            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
+                            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
+                            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
+                          ])
+        MobileCore.dispatch(event: event)
     }
 
     /// Dispatches an event to track a Live Activity state update.
@@ -250,14 +270,23 @@ public extension Messaging {
         let liveActivityID = activity.attributes.liveActivityData.liveActivityID ?? MessagingConstants.Event.Data.Value.UNAVAILABLE
 
         Log.debug(label: MessagingConstants.LOG_TAG,
-                  "Dispatching Live Activity \(state) state update event. \(activity.debugDescription())")
+                  """
+                  Dispatching Live Activity \(state) state update event.
+                  Type: \(attributeTypeName)
+                  Apple Live Activity ID: \(activity.id)
+                  LiveActivityID: \(liveActivityID)
+                  """)
 
         let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE): \(state) for type (\(attributeTypeName))"
-        dispatchEvent(name: eventName, data: [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-            MessagingConstants.Event.Data.Key.STATE: "\(state)",
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
-        ])
+        let event = Event(name: eventName,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: [
+                            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
+                            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
+                            MessagingConstants.Event.Data.Key.STATE: "\(state)",
+                            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
+                          ])
+        MobileCore.dispatch(event: event)
     }
 }

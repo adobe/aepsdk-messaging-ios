@@ -120,10 +120,10 @@ enum MessagingConstants {
 
                 // MARK: Live Activity
 
-                static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveactivityupdatetoken"
-                static let LIVE_ACTIVITY_PUSH_TO_START_TOKEN = "liveactivitypushtostarttoken"
-                static let LIVE_ACTIVITY_TRACK_START = "liveactivitytrackstart"
-                static let LIVE_ACTIVITY_TRACK_STATE = "liveactivitytrackstate"
+                static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveActivityUpdateToken"
+                static let LIVE_ACTIVITY_PUSH_TO_START_TOKEN = "liveActivityPushToStartToken"
+                static let LIVE_ACTIVITY_TRACK_START = "liveActivityTrackStart"
+                static let LIVE_ACTIVITY_TRACK_STATE = "liveActivityTrackState"
                 static let APPLE_LIVE_ACTIVITY_ID = "appleLiveActivityId"
                 static let LIVE_ACTIVITY_ID = "liveActivityID"
                 static let CHANNEL_ID = "channelID"
