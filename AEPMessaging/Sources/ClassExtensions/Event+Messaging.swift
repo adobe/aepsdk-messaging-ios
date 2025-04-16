@@ -286,4 +286,46 @@ extension Event {
     var schemaData: [String: Any]? {
         details?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
     }
+
+    // MARK: - Live Activity events
+
+    var isLiveActivityUpdateTokenEvent: Bool {
+        isMessagingType && isRequestContentSource && liveActivityUpdateTokenFlag
+    }
+
+    var isLiveActivityPushToStartTokenEvent: Bool {
+        isMessagingType && isRequestContentSource && liveActivityPushToStartTokenFlag
+    }
+
+    var isLiveActivityStartEvent: Bool {
+        isMessagingType && isRequestContentSource && liveActivityTrackStartFlag
+    }
+
+    var isLiveActivityStateEvent: Bool {
+        isMessagingType && isRequestContentSource && liveActivityTrackStateFlag
+    }
+
+    private var liveActivityUpdateTokenFlag: Bool {
+        data?[MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN] as? Bool ?? false
+    }
+
+    private var liveActivityPushToStartTokenFlag: Bool {
+        data?[MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN] as? Bool ?? false
+    }
+
+    private var liveActivityTrackStartFlag: Bool {
+        data?[MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START] as? Bool ?? false
+    }
+
+    private var liveActivityTrackStateFlag: Bool {
+        data?[MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE] as? Bool ?? false
+    }
+
+    var liveActivityPushToStartToken: String? {
+        data?[MessagingConstants.XDM.Push.TOKEN] as? String
+    }
+
+    var liveActivityAttributeType: String? {
+        data?[MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE] as? String
+    }
 }

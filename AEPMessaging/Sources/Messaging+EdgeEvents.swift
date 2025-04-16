@@ -106,6 +106,56 @@ extension Messaging {
         dispatch(event: pushTokenEdgeEvent)
     }
 
+    /// Sends an Edge event to synchronize a Live Activity push-to-start token and associated details with Adobe
+    /// Experience Platform profile.
+    ///
+    /// - Parameters:
+    ///   - ecid: The Experience Cloud ID associated with the device.
+    ///   - attributeTypeName: A unique string representing the `LiveActivityAttributes` type used to namespace the platform.
+    ///   - token: The push-to-start token generated for the Live Activity.
+    ///   - event: The original `Event` that triggered the synchronization request.
+    func sendLiveActivityPushToStartToken(ecid: String, attributeTypeName: String, token: String, event: Event) {
+        guard let appId: String = Bundle.main.bundleIdentifier else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the Live Activity push-to-start token, App bundle identifier is invalid.")
+            return
+        }
+
+        // Example: "<apnsSandbox/apns>.liveActivity.<attributeType>"
+        let platform = getPushPlatform(forEvent: event) + ".liveActivity." + attributeTypeName
+
+        // Create the profile event to send the push notification details with push-to-start token to profile
+        let profileEventData: [String: Any] = [
+            MessagingConstants.XDM.Push.PUSH_NOTIFICATION_DETAILS: [
+                [
+                    MessagingConstants.XDM.Push.APP_ID: appId,
+                    MessagingConstants.XDM.Push.TOKEN: token,
+                    MessagingConstants.XDM.Push.PLATFORM: platform,
+                    MessagingConstants.XDM.Push.DENYLISTED: false,
+                    MessagingConstants.XDM.Push.IDENTITY: [
+                        MessagingConstants.XDM.Push.NAMESPACE: [MessagingConstants.XDM.Push.CODE: MessagingConstants.XDM.Push.Value.ECID],
+                        MessagingConstants.XDM.Push.ID: ecid
+                    ]
+                ]
+            ]
+        ]
+
+        // Creating XDM Edge event data
+        let xdmEventData: [String: Any] = [
+            MessagingConstants.XDM.Key.XDM: [
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.LIVE_ACTIVITY_PUSH_TO_START
+            ],
+            MessagingConstants.XDM.Key.DATA: profileEventData
+        ]
+
+        let pushTokenEdgeEvent = event.createChainedEvent(
+            name: MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START_EDGE,
+            type: EventType.edge,
+            source: EventSource.requestContent,
+            data: xdmEventData
+        )
+        dispatch(event: pushTokenEdgeEvent)
+    }
+
     // MARK: - private methods
 
     /// Adding Adobe/AJO specific data to tracking information map.

@@ -261,9 +261,26 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // hard dependency on edge identity module for ecid
+        handleEdgeIdentityDependentEvents(event)
+    }
+
+    func handleEdgeIdentityDependentEvents(_ event: Event) {
+        // MARK: Hard dependency on Edge Identity module for all logic below
+
         guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event)?.value else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, for valid xdm shared state from edge identity - '\(event.id.uuidString)'.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Event (\(event.id.uuidString)) processing is paused. Waiting for valid XDM shared state from Edge Identity.")
+            return
+        }
+
+        // Check if the event type is `EventType.messaging` and
+        // eventSource is `EventSource.requestContent` handle processing of the tracking information
+        if event.isMessagingRequestContentEvent {
+            if let clickThroughUrl = event.pushClickThroughUrl {
+                DispatchQueue.main.async {
+                    ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
+                }
+            }
+            handleTrackingInfo(event: event)
             return
         }
 
@@ -276,35 +293,31 @@ public class Messaging: NSObject, Extension {
             // If the push token is valid update the shared state.
             runtime.createSharedState(data: [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token], event: event)
 
-            // get identityMap from the edge identity xdm shared state
-            guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available" +
-                    "from edge identity xdm shared state - '\(event.id.uuidString)'.")
+            guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
                 return
             }
-
-            // get the ECID array from the identityMap
-            guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
-                  !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
-                  !ecid.isEmpty
-            else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
-                return
-            }
-
             sendPushToken(ecid: ecid, token: token, event: event)
         }
 
-        // Check if the event type is `MessagingConstants.Event.EventType.messaging` and
-        // eventSource is `EventSource.requestContent` handle processing of the tracking information
-        if event.isMessagingRequestContentEvent {
-            if let clickThroughUrl = event.pushClickThroughUrl {
-                DispatchQueue.main.async {
-                    ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
-                }
-            }
-            handleTrackingInfo(event: event)
+        // MARK: Hard dependency on ECID from Edge Identity for all logic below
+
+        guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
             return
+        }
+
+        if event.isLiveActivityPushToStartTokenEvent {
+            // Extract token from event
+            guard let token = event.liveActivityPushToStartToken else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event.")
+                return
+            }
+            guard let attributeTypeName = event.liveActivityAttributeType else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
+                return
+            }
+            sendLiveActivityPushToStartToken(ecid: ecid, attributeTypeName: attributeTypeName, token: token, event: event)
         }
     }
 
@@ -316,6 +329,31 @@ public class Messaging: NSObject, Extension {
         }
 
         removePropositionFromQualifiedCards(for: activityId)
+    }
+
+    // MARK: - Private helper methods
+
+    /// Retrieves the ECID from the Edge Identity shared state.
+    /// - Parameters:
+    ///   - edgeIdentitySharedState: The shared state dictionary from the Edge Identity module.
+    /// - Returns: The ECID string if available; otherwise, nil.
+    private func retrieveECID(from edgeIdentitySharedState: [AnyHashable: Any]) -> String? {
+        // Retrieve the identity map from the shared state.
+        guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve ECID. Identity map not found in Edge Identity shared state.")
+            return nil
+        }
+
+        // Retrieve the ECID array from the identity map.
+        guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
+              !ecidArray.isEmpty,
+              let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
+              !ecid.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve ECID: ECID not found or invalid in identity map.")
+            return nil
+        }
+
+        return ecid
     }
 
     // MARK: - In-app Messaging methods
