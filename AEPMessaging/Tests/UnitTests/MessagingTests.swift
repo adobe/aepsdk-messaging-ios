@@ -502,7 +502,7 @@ class MessagingTests: XCTestCase {
             XCTFail()
             return
         }
-        XCTAssertEqual("Push notification profile edge event", edgeEvent.name)
+        XCTAssertEqual("Push notification token profile Edge event", edgeEvent.name)
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
         
