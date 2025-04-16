@@ -288,7 +288,7 @@ extension Event {
     }
 
     // MARK: - Live Activity events
-    
+
     var isLiveActivityUpdateTokenEvent: Bool {
         isMessagingType && isRequestContentSource && liveActivityUpdateTokenFlag
     }
