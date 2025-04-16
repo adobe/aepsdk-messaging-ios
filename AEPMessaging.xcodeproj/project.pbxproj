@@ -196,6 +196,10 @@
 		24CA4BDF2B61974300D16369 /* PropositionInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BDE2B61974300D16369 /* PropositionInteractionTests.swift */; };
 		24CA4BE12B61977800D16369 /* SurfaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BE02B61977800D16369 /* SurfaceTests.swift */; };
 		24FD5F752CEEA50F00AE4567 /* CompletionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */; };
+		4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */; };
+		4C9BE8D62DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */; };
+		4C9BE8D82DAF5A6900EF41A3 /* ActivityTaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */; };
+		4C9BE8DA2DAF5A9C00EF41A3 /* LiveActivityTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D92DAF5A9C00EF41A3 /* LiveActivityTokenStore.swift */; };
 		6C2343E8785E6B47C8D961F7 /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D55E83254139642A1CAA76E /* Pods_FunctionalTests.framework */; };
 		8306057F6EE4683383660BD8 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BDCBFF342013F2FF0CE1472 /* Pods_MessagingDemoAppObjC.framework */; };
 		846794A21245172CEE3FF1CA /* Pods_E2EFunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B18970846882D9DC0CD1C50 /* Pods_E2EFunctionalTestApp.framework */; };
@@ -688,6 +692,10 @@
 		3D55E83254139642A1CAA76E /* Pods_FunctionalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FunctionalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		43204BBDCB8D5720A0D56E52 /* Pods-IntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegrationTests.release.xcconfig"; path = "Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
 		4C3B9F882AE3385B00A7D395 /* AEPTestUtils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPTestUtils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Messaging.swift"; sourceTree = "<group>"; };
+		4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveActivityAttributes+Messaging.swift"; sourceTree = "<group>"; };
+		4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityTaskStore.swift; sourceTree = "<group>"; };
+		4C9BE8D92DAF5A9C00EF41A3 /* LiveActivityTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityTokenStore.swift; sourceTree = "<group>"; };
 		6346827F4BC239DF7DDFD044 /* Pods-MessagingDemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.debug.xcconfig"; sourceTree = "<group>"; };
 		6912F64FC8C8BFAF5ACD8EF0 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		71895CC75A7A5B934C60718F /* Pods-E2EFunctionalTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTestApp.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1468,6 +1476,8 @@
 		B64256B72D93B06F00EDCAC5 /* LiveActivity */ = {
 			isa = PBXGroup;
 			children = (
+				4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */,
+				4C9BE8D92DAF5A9C00EF41A3 /* LiveActivityTokenStore.swift */,
 				B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */,
 			);
 			path = LiveActivity;
@@ -1677,8 +1687,10 @@
 				09B071F52A7318CB00F259C1 /* Array+Messaging.swift */,
 				09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */,
 				240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */,
+				4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */,
 				244E955A267BB253001DC957 /* Dictionary+Messaging.swift */,
 				923155762620FC53004AE7D3 /* Event+Messaging.swift */,
+				4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */,
 				090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */,
 				240F71FA26868F7100846587 /* SharedStateResult+Messaging.swift */,
 				244E9554267BB018001DC957 /* String+JSON.swift */,
@@ -2005,8 +2017,6 @@
 			dependencies = (
 			);
 			name = AEPMessagingLiveActivityTests;
-			packageProductDependencies = (
-			);
 			productName = AEPMessagingLiveActivityTests;
 			productReference = B61BDAB52DA5E826007FE12E /* AEPMessagingLiveActivityTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -2025,8 +2035,6 @@
 			dependencies = (
 			);
 			name = AEPMessagingLiveActivity;
-			packageProductDependencies = (
-			);
 			productName = AEPMessagingLiveActivity;
 			productReference = B61BDACE2DA5E861007FE12E /* AEPMessagingLiveActivity.framework */;
 			productType = "com.apple.product-type.framework";
@@ -2786,6 +2794,7 @@
 				090290C529DCED0B00388226 /* ContentCardRulesEngine.swift in Sources */,
 				242920F52AD06215000DB2CD /* HtmlContentSchemaData.swift in Sources */,
 				244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */,
+				4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */,
 				B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */,
 				B6F7CBCA2CC2089A00C35C64 /* AEPImage.swift in Sources */,
 				B6F7CBCB2CC2089A00C35C64 /* AEPVStackView.swift in Sources */,
@@ -2796,8 +2805,10 @@
 				B6F7CBCF2CC2089A00C35C64 /* ContentCardUIEventListening.swift in Sources */,
 				B6F7CBD02CC2089A00C35C64 /* ContentCardUI+EventHandler.swift in Sources */,
 				B6F7CBD12CC2089A00C35C64 /* SmallImageTemplate.swift in Sources */,
+				4C9BE8D82DAF5A6900EF41A3 /* ActivityTaskStore.swift in Sources */,
 				B6F7CBD22CC2089A00C35C64 /* AEPTextView.swift in Sources */,
 				B6F7CBD32CC2089A00C35C64 /* View+CustomModifiers.swift in Sources */,
+				4C9BE8D62DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift in Sources */,
 				B6F7CBD42CC2089A00C35C64 /* AEPHStack.swift in Sources */,
 				B6F7CBD52CC2089A00C35C64 /* AEPDismissButtonView.swift in Sources */,
 				B6F7CBD62CC2089A00C35C64 /* ContentCardUI.swift in Sources */,
@@ -2814,6 +2825,7 @@
 				B6F7CBE02CC2089A00C35C64 /* AEPTextType.swift in Sources */,
 				B6F7CBE12CC2089A00C35C64 /* BaseTemplate.swift in Sources */,
 				B6F7CBE22CC2089A00C35C64 /* Messaging+UIPublicAPI.swift in Sources */,
+				4C9BE8DA2DAF5A9C00EF41A3 /* LiveActivityTokenStore.swift in Sources */,
 				B6F7CBE32CC2089A00C35C64 /* UIConstants.swift in Sources */,
 				B6F7CBE42CC2089A00C35C64 /* AEPButton.swift in Sources */,
 				B6F7CBE52CC2089A00C35C64 /* ContentCardUIError.swift in Sources */,

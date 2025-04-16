@@ -20,10 +20,10 @@ import Foundation
 @available(iOS 16.1, *)
 public struct LiveActivityData: Codable {
     /// Unique identifier for managing and tracking an individual Live Activity in Adobe Experience Platform.
-    var liveActivityID: String?
+    public var liveActivityID: String?
 
     /// Unique identifier for managing and tracking a broadcast Live Activity channel in Adobe Experience Platform.
-    var channelID: String?
+    public var channelID: String?
 
     /// Creates an `LiveActivityData` instance with the specified Live Activity ID.
     /// Use this method for Live Activities for an individual person.
