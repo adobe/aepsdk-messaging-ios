@@ -10,9 +10,7 @@
  governing permissions and limitations under the License.
  */
 
-#if canImport(AEPMessagingLiveActivity)
-    import AEPMessagingLiveActivity
-#endif
+import AEPMessagingLiveActivity
 
 @available(iOS 16.1, *)
 extension LiveActivityAttributes {

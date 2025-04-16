@@ -15,9 +15,7 @@
 #endif
 
 import AEPCore
-#if canImport(AEPMessagingLiveActivity)
-    import AEPMessagingLiveActivity
-#endif
+import AEPMessagingLiveActivity
 import AEPServices
 
 // Extension for Messaging class for Live Activity public APIs
