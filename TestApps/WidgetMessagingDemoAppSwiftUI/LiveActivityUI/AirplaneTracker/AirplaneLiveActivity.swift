@@ -271,7 +271,7 @@ extension AirplaneTrackingAttributes.ContentState {
 // MARK: - Preview
 
 #Preview("Notification", as: .content,
-         using: AirplaneTrackingAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "<FLIGHT_ID>"),
+         using: AirplaneTrackingAttributes(liveActivityData: LiveActivityData(liveActivityID: "<FLIGHT_ID>"),
                                            arrivalAirport: "MIA",
                                            departureAirport: "SFO",
                                            arrivalTerminal: "Terminal C")

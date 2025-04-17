@@ -19,27 +19,27 @@ import Foundation
 /// `LiveActivityAttributes` protocol.
 @available(iOS 16.1, *)
 public struct LiveActivityData: Codable {
-    /// Unique identifier for managing and tracking an individual Live Activity in Adobe Experience Platform.
-    public var liveActivityID: String?
-
     /// Unique identifier for managing and tracking a broadcast Live Activity channel in Adobe Experience Platform.
-    public var channelID: String?
+    public let channelID: String?
 
-    /// Creates an `LiveActivityData` instance with the specified Live Activity ID.
-    /// Use this method for Live Activities for an individual person.
+    /// Unique identifier for managing and tracking an individual Live Activity in Adobe Experience Platform.
+    public let liveActivityID: String?
+
+    /// Initializes a `LiveActivityData` instance with the specified broadcast channel ID.
+    /// Use this initializer for Live Activities broadcast to subscribers of a channel.
     ///
-    /// - Parameter liveActivityID: The unique identifier for the Live Activity.
-    /// - Returns: A new `LiveActivityData` instance populated with the provided `liveActivityID`.
-    public static func create(liveActivityID: String) -> LiveActivityData {
-        LiveActivityData(liveActivityID: liveActivityID)
+    /// - Parameter channelID: The unique identifier for the Live Activity broadcast channel.
+    public init(channelID: String) {
+        self.channelID = channelID
+        self.liveActivityID = nil
     }
 
-    /// Creates an `LiveActivityData` instance with the specified Live Activity channel ID.
-    /// Use this method for Live Activities broadcast to subscribers of a channel.
+    /// Initializes a `LiveActivityData` instance with the specified Live Activity ID.
+    /// Use this initializer for Live Activities targeted at an individual user.
     ///
-    /// - Parameter channelID: The unique identifier for the Live Activity channel, used for broadcast push notifications.
-    /// - Returns: A new `LiveActivityData` instance populated with the provided `channelID`.
-    public static func create(channelID: String) -> LiveActivityData {
-        LiveActivityData(channelID: channelID)
+    /// - Parameter liveActivityID: The unique identifier for the Live Activity.
+    public init(liveActivityID: String) {
+        self.channelID = nil
+        self.liveActivityID = liveActivityID
     }
 }
