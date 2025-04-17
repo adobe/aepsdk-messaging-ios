@@ -281,7 +281,7 @@ public extension Messaging {
                   Apple Live Activity ID: \(activity.id)
                   Identifier: \(liveActivityIdentifierData)
                   """)
-        
+
         var data: [String: Any] = [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
             MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,

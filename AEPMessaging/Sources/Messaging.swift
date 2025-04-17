@@ -294,8 +294,7 @@ public class Messaging: NSObject, Extension {
             }
 
             Log.warning(label: MessagingConstants.LOG_TAG,
-                "Unable to process Live Activity start event (\(event.id.uuidString)) because the event must contain either a liveActivityID or a channelID."
-            )
+                        "Unable to process Live Activity start event (\(event.id.uuidString)) because the event must contain either a liveActivityID or a channelID.")
             return
         }
 
@@ -357,8 +356,6 @@ public class Messaging: NSObject, Extension {
             }
             sendLiveActivityPushToStartToken(ecid: ecid, attributeTypeName: attributeTypeName, token: token, event: event)
         }
-
-
     }
 
     /// Responds to event history write events.
