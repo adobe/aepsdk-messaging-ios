@@ -277,13 +277,19 @@ public class Messaging: NSObject, Extension {
         }
 
         if event.isLiveActivityStartEvent {
+            // Should not fail, since `origin` is a non-optional property on `LiveActivityData`
+            guard let origin = event.liveActivityOrigin else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity start event (\(event.id.uuidString)) because a valid Live Activity 'origin' could not be found in the event.")
+                return
+            }
+
             if let liveActivityID = event.liveActivityID {
-                sendLiveActivityStart(liveActivityID: liveActivityID, event: event)
+                sendLiveActivityStart(liveActivityID: liveActivityID, origin: origin, event: event)
                 return
             }
 
             if let channelID = event.liveActivityChannelID {
-                sendLiveActivityStart(channelID: channelID, event: event)
+                sendLiveActivityStart(channelID: channelID, origin: origin, event: event)
                 return
             }
 

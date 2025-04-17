@@ -19,11 +19,25 @@ import Foundation
 /// `LiveActivityAttributes` protocol.
 @available(iOS 16.1, *)
 public struct LiveActivityData: Codable {
+    /// Indicates the source of the Live Activity's creation.
+    ///
+    /// Use this enum to distinguish whether a Live Activity was started locally by the app
+    /// or remotely via push-to-start delivered by the server.
+    public enum Origin: String, Codable {
+        /// The Live Activity was initiated locally on the device.
+        case local
+        /// The Live Activity was initiated remotely via a push-to-start token.
+        case remote
+    }
+
     /// Unique identifier for managing and tracking a broadcast Live Activity channel in Adobe Experience Platform.
     public let channelID: String?
 
     /// Unique identifier for managing and tracking an individual Live Activity in Adobe Experience Platform.
     public let liveActivityID: String?
+
+    /// Defines whether the Live Activity was started locally by the app or remotely via a push-to-start notification.
+    public let origin: Origin
 
     /// Initializes a `LiveActivityData` instance with the specified broadcast channel ID.
     /// Use this initializer for Live Activities broadcast to subscribers of a channel.
@@ -32,6 +46,7 @@ public struct LiveActivityData: Codable {
     public init(channelID: String) {
         self.channelID = channelID
         self.liveActivityID = nil
+        self.origin = .local
     }
 
     /// Initializes a `LiveActivityData` instance with the specified Live Activity ID.
@@ -41,5 +56,6 @@ public struct LiveActivityData: Codable {
     public init(liveActivityID: String) {
         self.channelID = nil
         self.liveActivityID = liveActivityID
+        self.origin = .local
     }
 }

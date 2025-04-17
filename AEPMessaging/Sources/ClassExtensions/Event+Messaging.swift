@@ -340,4 +340,8 @@ extension Event {
     var liveActivityChannelID: String? {
         data?[MessagingConstants.XDM.Push.CHANNEL_ID] as? String
     }
+
+    var liveActivityOrigin: String? {
+        data?[MessagingConstants.XDM.Push.ORIGIN] as? String
+    }
 }

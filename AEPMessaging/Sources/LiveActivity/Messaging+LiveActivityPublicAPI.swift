@@ -244,7 +244,8 @@ public extension Messaging {
         var data: [String: Any] = [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
             MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id
+            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
+            MessagingConstants.XDM.Push.ORIGIN: activity.attributes.liveActivityData.origin
         ]
 
         // Merge in the single identifier (liveActivityID or channelID)

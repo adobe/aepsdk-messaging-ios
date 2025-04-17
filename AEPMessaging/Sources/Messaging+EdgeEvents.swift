@@ -190,8 +190,8 @@ extension Messaging {
     /// - Parameters:
     ///   - channelID: The unique identifier for the Live Activity broadcast channel.
     ///   - event: The original `Event` that requested tracking the start of the Live Activity.
-    func sendLiveActivityStart(channelID: String?, event: Event) {
-        sendLiveActivityStart(channelID: channelID, liveActivityID: nil, event: event)
+    func sendLiveActivityStart(channelID: String?, origin: String, event: Event) {
+        sendLiveActivityStart(channelID: channelID, liveActivityID: nil, origin: origin, event: event)
     }
 
     /// Sends an Edge request event containing a Live Activity start event using a Live Activity ID.
@@ -199,8 +199,8 @@ extension Messaging {
     /// - Parameters:
     ///   - liveActivityID: The unique identifier for the Live Activity.
     ///   - event: The original `Event` that requested tracking the start of the Live Activity.
-    func sendLiveActivityStart(liveActivityID: String?, event: Event) {
-        sendLiveActivityStart(channelID: nil, liveActivityID: liveActivityID, event: event)
+    func sendLiveActivityStart(liveActivityID: String?, origin: String, event: Event) {
+        sendLiveActivityStart(channelID: nil, liveActivityID: liveActivityID, origin: origin, event: event)
     }
 
     // MARK: - private methods
@@ -212,7 +212,7 @@ extension Messaging {
     ///   - channelID: The unique identifier for the Live Activity broadcast channel.
     ///   - liveActivityID: The unique identifier for the Live Activity.
     ///   - event: The original `Event` that requested tracking the start of the Live Activity.
-    private func sendLiveActivityStart(channelID: String?, liveActivityID: String?, event: Event) {
+    private func sendLiveActivityStart(channelID: String?, liveActivityID: String?, origin: String, event: Event) {
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track Live Activity start for event (\(event.id.uuidString)), App bundle identifier is invalid.")
             return
@@ -221,7 +221,8 @@ extension Messaging {
         let liveActivityData: [String: Any?] = [
             MessagingConstants.XDM.Push.LIVE_ACTIVITY_ID: liveActivityID,
             MessagingConstants.XDM.Push.CHANNEL_ID: channelID,
-            MessagingConstants.XDM.Push.APP_ID: appId
+            MessagingConstants.XDM.Push.APP_ID: appId,
+            MessagingConstants.XDM.Push.ORIGIN: origin
         ]
 
         let cleanedLiveActivityData = liveActivityData.compactMapValues { $0 }

@@ -293,6 +293,8 @@ enum MessagingConstants {
             static let ID = "id"
             static let LIVE_ACTIVITY_ID = "liveActivityID"
             static let CHANNEL_ID = "channelID"
+            /// For Live Activities, represents whether the Live Activity was started remotely or locally.
+            static let ORIGIN = "origin"
 
             enum EventType {
                 static let APPLICATION_OPENED = "pushTracking.applicationOpened"
