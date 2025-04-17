@@ -261,6 +261,38 @@ public class Messaging: NSObject, Extension {
             return
         }
 
+        if event.isLiveActivityUpdateTokenEvent {
+            // Extract token and liveActivityID
+            guard let token = event.liveActivityUpdateToken else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid token could not be found in the event.")
+                return
+            }
+
+            guard let liveActivityID = event.liveActivityID else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid Live Activity ID could not be found in the event.")
+                return
+            }
+            sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
+            return
+        }
+
+        if event.isLiveActivityStartEvent {
+            if let liveActivityID = event.liveActivityID {
+                sendLiveActivityStart(liveActivityID: liveActivityID, event: event)
+                return
+            }
+
+            if let channelID = event.liveActivityChannelID {
+                sendLiveActivityStart(channelID: channelID, event: event)
+                return
+            }
+
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                "Unable to process Live Activity start event (\(event.id.uuidString)) because the event must contain either a liveActivityID or a channelID."
+            )
+            return
+        }
+
         handleEdgeIdentityDependentEvents(event)
     }
 
@@ -319,6 +351,8 @@ public class Messaging: NSObject, Extension {
             }
             sendLiveActivityPushToStartToken(ecid: ecid, attributeTypeName: attributeTypeName, token: token, event: event)
         }
+
+
     }
 
     /// Responds to event history write events.

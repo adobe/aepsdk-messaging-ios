@@ -110,10 +110,10 @@ extension Messaging {
     /// Experience Platform profile.
     ///
     /// - Parameters:
-    ///   - ecid: The Experience Cloud ID associated with the device.
-    ///   - attributeTypeName: A unique string representing the `LiveActivityAttributes` type used to namespace the platform.
-    ///   - token: The push-to-start token generated for the Live Activity.
-    ///   - event: The original `Event` that triggered the synchronization request.
+    ///   - ecid: The Experience Cloud ID associated with the token.
+    ///   - attributeTypeName: A unique string representing the `LiveActivityAttributes` type.
+    ///   - token: The push-to-start token for the Live Activity.
+    ///   - event: The original `Event` that triggered the sync request.
     func sendLiveActivityPushToStartToken(ecid: String, attributeTypeName: String, token: String, event: Event) {
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the Live Activity push-to-start token, App bundle identifier is invalid.")
@@ -139,8 +139,8 @@ extension Messaging {
             ]
         ]
 
-        // Creating XDM Edge event data
-        let xdmEventData: [String: Any] = [
+        // Creating Edge event data with XDM and data payloads
+        let eventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: [
                 MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.LIVE_ACTIVITY_PUSH_TO_START
             ],
@@ -151,12 +151,97 @@ extension Messaging {
             name: MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START_EDGE,
             type: EventType.edge,
             source: EventSource.requestContent,
+            data: eventData
+        )
+        dispatch(event: pushTokenEdgeEvent)
+    }
+
+    /// Sends an Edge request event containing a Live Activity update token tied to a Live Activity ID.
+    ///
+    /// - Parameters:
+    ///   - liveActivityID: The unique identifier for the Live Activity instance associated with the update token.
+    ///   - token: The Live Activity push update token.
+    ///   - event: The original `Event` that triggered the request to send the update token.
+    func sendLiveActivityUpdateToken(liveActivityID: String, token: String, event: Event) {
+        let liveActivityData: [String: Any?] = [
+            MessagingConstants.XDM.Push.LIVE_ACTIVITY_ID: liveActivityID,
+            MessagingConstants.XDM.Push.TOKEN: token
+        ]
+
+        // Creating Edge event data with XDM and data payloads
+        let xdmEventData: [String: Any] = [
+            MessagingConstants.XDM.Key.XDM: [
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.LIVE_ACTIVITY_UPDATE_TOKEN
+            ],
+            MessagingConstants.XDM.Key.DATA: liveActivityData
+        ]
+
+        let pushTokenEdgeEvent = event.createChainedEvent(
+            name: MessagingConstants.Event.Name.LIVE_ACTIVITY_UPDATE_TOKEN_EDGE,
+            type: EventType.edge,
+            source: EventSource.requestContent,
             data: xdmEventData
         )
         dispatch(event: pushTokenEdgeEvent)
     }
 
+    /// Sends an Edge request event containing a Live Activity start event using a broadcast channel ID.
+    ///
+    /// - Parameters:
+    ///   - channelID: The unique identifier for the Live Activity broadcast channel.
+    ///   - event: The original `Event` that requested tracking the start of the Live Activity.
+    func sendLiveActivityStart(channelID: String?, event: Event) {
+        sendLiveActivityStart(channelID: channelID, liveActivityID: nil, event: event)
+    }
+
+    /// Sends an Edge request event containing a Live Activity start event using a Live Activity ID.
+    ///
+    /// - Parameters:
+    ///   - liveActivityID: The unique identifier for the Live Activity.
+    ///   - event: The original `Event` that requested tracking the start of the Live Activity.
+    func sendLiveActivityStart(liveActivityID: String?, event: Event) {
+        sendLiveActivityStart(channelID: nil, liveActivityID: liveActivityID, event: event)
+    }
+
     // MARK: - private methods
+
+    /// Sends an Edge request event containing a Live Activity start event using the provided broadcast channel ID or Live Activity ID.
+    /// The channel ID and Live Activity ID are mutually exclusive. Only one should be provided per call.
+    ///
+    /// - Parameters:
+    ///   - channelID: The unique identifier for the Live Activity broadcast channel.
+    ///   - liveActivityID: The unique identifier for the Live Activity.
+    ///   - event: The original `Event` that requested tracking the start of the Live Activity.
+    private func sendLiveActivityStart(channelID: String?, liveActivityID: String?, event: Event) {
+        guard let appId: String = Bundle.main.bundleIdentifier else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track Live Activity start for event (\(event.id.uuidString)), App bundle identifier is invalid.")
+            return
+        }
+
+        let liveActivityData: [String: Any?] = [
+            MessagingConstants.XDM.Push.LIVE_ACTIVITY_ID: liveActivityID,
+            MessagingConstants.XDM.Push.CHANNEL_ID: channelID,
+            MessagingConstants.XDM.Push.APP_ID: appId
+        ]
+
+        let cleanedLiveActivityData = liveActivityData.compactMapValues { $0 }
+
+        // Creating XDM Edge event data
+        let xdmEventData: [String: Any] = [
+            MessagingConstants.XDM.Key.XDM: [
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.LIVE_ACTIVITY_START,
+                MessagingConstants.XDM.Key.LIVE_ACTIVITY: cleanedLiveActivityData
+            ]
+        ]
+
+        let pushTokenEdgeEvent = event.createChainedEvent(
+            name: MessagingConstants.Event.Name.LIVE_ACTIVITY_START,
+            type: EventType.edge,
+            source: EventSource.requestContent,
+            data: xdmEventData
+        )
+        dispatch(event: pushTokenEdgeEvent)
+    }
 
     /// Adding Adobe/AJO specific data to tracking information map.
     ///

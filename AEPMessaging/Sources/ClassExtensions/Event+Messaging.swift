@@ -325,7 +325,19 @@ extension Event {
         data?[MessagingConstants.XDM.Push.TOKEN] as? String
     }
 
+    var liveActivityUpdateToken: String? {
+        data?[MessagingConstants.XDM.Push.TOKEN] as? String
+    }
+
     var liveActivityAttributeType: String? {
         data?[MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE] as? String
+    }
+
+    var liveActivityID: String? {
+        data?[MessagingConstants.XDM.Push.LIVE_ACTIVITY_ID] as? String
+    }
+
+    var liveActivityChannelID: String? {
+        data?[MessagingConstants.XDM.Push.CHANNEL_ID] as? String
     }
 }

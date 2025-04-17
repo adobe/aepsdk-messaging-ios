@@ -125,8 +125,6 @@ enum MessagingConstants {
                 static let LIVE_ACTIVITY_TRACK_START = "liveActivityTrackStart"
                 static let LIVE_ACTIVITY_TRACK_STATE = "liveActivityTrackState"
                 static let APPLE_LIVE_ACTIVITY_ID = "appleLiveActivityId"
-                static let LIVE_ACTIVITY_ID = "liveActivityID"
-                static let CHANNEL_ID = "channelID"
                 /// The key for Live Activity Attribute type name. For example, "FoodDeliveryLiveActivityAttributes"
                 static let ATTRIBUTE_TYPE = "attributeType"
                 static let STATE = "state"
@@ -293,6 +291,8 @@ enum MessagingConstants {
             static let NAMESPACE = "namespace"
             static let CODE = "code"
             static let ID = "id"
+            static let LIVE_ACTIVITY_ID = "liveActivityID"
+            static let CHANNEL_ID = "channelID"
 
             enum EventType {
                 static let APPLICATION_OPENED = "pushTracking.applicationOpened"
