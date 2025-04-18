@@ -142,7 +142,7 @@ extension Messaging {
         // Creating Edge event data with XDM and data payloads
         let eventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: [
-                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.LIVE_ACTIVITY_PUSH_TO_START
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.LIVE_ACTIVITY_PUSH_TO_START
             ],
             MessagingConstants.XDM.Key.DATA: profileEventData
         ]
@@ -164,14 +164,14 @@ extension Messaging {
     ///   - event: The original `Event` that triggered the request to send the update token.
     func sendLiveActivityUpdateToken(liveActivityID: String, token: String, event: Event) {
         let liveActivityData: [String: Any?] = [
-            MessagingConstants.XDM.Push.LIVE_ACTIVITY_ID: liveActivityID,
+            MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID: liveActivityID,
             MessagingConstants.XDM.Push.TOKEN: token
         ]
 
         // Creating Edge event data with XDM and data payloads
         let xdmEventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: [
-                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.LIVE_ACTIVITY_UPDATE_TOKEN
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.LIVE_ACTIVITY_UPDATE_TOKEN
             ],
             MessagingConstants.XDM.Key.DATA: liveActivityData
         ]
@@ -219,10 +219,10 @@ extension Messaging {
         }
 
         let liveActivityData: [String: Any?] = [
-            MessagingConstants.XDM.Push.LIVE_ACTIVITY_ID: liveActivityID,
-            MessagingConstants.XDM.Push.CHANNEL_ID: channelID,
+            MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID: liveActivityID,
+            MessagingConstants.XDM.LiveActivity.CHANNEL_ID: channelID,
             MessagingConstants.XDM.Push.APP_ID: appId,
-            MessagingConstants.XDM.Push.ORIGIN: origin
+            MessagingConstants.XDM.LiveActivity.ORIGIN: origin
         ]
 
         let cleanedLiveActivityData = liveActivityData.compactMapValues { $0 }
@@ -230,7 +230,7 @@ extension Messaging {
         // Creating XDM Edge event data
         let xdmEventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: [
-                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.LIVE_ACTIVITY_START,
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.LIVE_ACTIVITY_START,
                 MessagingConstants.XDM.Key.LIVE_ACTIVITY: cleanedLiveActivityData
             ]
         ]

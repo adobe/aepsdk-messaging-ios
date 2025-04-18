@@ -119,7 +119,6 @@ enum MessagingConstants {
                 static let DATA = "data"
 
                 // MARK: Live Activity
-
                 static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveActivityUpdateToken"
                 static let LIVE_ACTIVITY_PUSH_TO_START_TOKEN = "liveActivityPushToStartToken"
                 static let LIVE_ACTIVITY_TRACK_START = "liveActivityTrackStart"
@@ -291,23 +290,29 @@ enum MessagingConstants {
             static let NAMESPACE = "namespace"
             static let CODE = "code"
             static let ID = "id"
-            static let LIVE_ACTIVITY_ID = "liveActivityID"
-            static let CHANNEL_ID = "channelID"
-            /// For Live Activities, represents whether the Live Activity was started remotely or locally.
-            static let ORIGIN = "origin"
 
             enum EventType {
                 static let APPLICATION_OPENED = "pushTracking.applicationOpened"
                 static let CUSTOM_ACTION = "pushTracking.customAction"
-                static let LIVE_ACTIVITY_PUSH_TO_START = "liveActivity.pushToStart"
-                static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveActivity.updateToken"
-                static let LIVE_ACTIVITY_START = "liveActivity.start"
             }
 
             enum Value {
                 static let ECID = "ECID"
                 static let APNS = "apns"
                 static let APNS_SANDBOX = "apnsSandbox"
+            }
+        }
+
+        enum LiveActivity {
+            static let CHANNEL_ID = "channelID"
+            static let LIVE_ACTIVITY_ID = "liveActivityID"
+            /// Represents whether the Live Activity was started remotely or locally.
+            static let ORIGIN = "origin"
+
+            enum EventType {
+                static let LIVE_ACTIVITY_PUSH_TO_START = "liveActivity.pushToStart"
+                static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveActivity.updateToken"
+                static let LIVE_ACTIVITY_START = "liveActivity.start"
             }
         }
     }

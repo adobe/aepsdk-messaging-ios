@@ -27,8 +27,8 @@ extension LiveActivityAttributes {
     /// If both are nil, returns an empty dictionary.
     var liveActivityIdentifierData: [String: String] {
         let data = [
-            MessagingConstants.XDM.Push.LIVE_ACTIVITY_ID: liveActivityData.liveActivityID,
-            MessagingConstants.XDM.Push.CHANNEL_ID: liveActivityData.channelID
+            MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID: liveActivityData.liveActivityID,
+            MessagingConstants.XDM.LiveActivity.CHANNEL_ID: liveActivityData.channelID
         ]
         return data.compactMapValues { $0 }
     }

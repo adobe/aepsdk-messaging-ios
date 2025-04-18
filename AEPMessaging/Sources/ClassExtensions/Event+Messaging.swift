@@ -334,14 +334,14 @@ extension Event {
     }
 
     var liveActivityID: String? {
-        data?[MessagingConstants.XDM.Push.LIVE_ACTIVITY_ID] as? String
+        data?[MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID] as? String
     }
 
     var liveActivityChannelID: String? {
-        data?[MessagingConstants.XDM.Push.CHANNEL_ID] as? String
+        data?[MessagingConstants.XDM.LiveActivity.CHANNEL_ID] as? String
     }
 
     var liveActivityOrigin: String? {
-        data?[MessagingConstants.XDM.Push.ORIGIN] as? String
+        data?[MessagingConstants.XDM.LiveActivity.ORIGIN] as? String
     }
 }

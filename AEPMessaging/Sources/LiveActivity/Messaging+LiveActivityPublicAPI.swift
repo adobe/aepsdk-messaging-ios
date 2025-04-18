@@ -193,7 +193,7 @@ public extension Messaging {
         guard let liveActivityID = activity.attributes.liveActivityData.liveActivityID else {
             Log.error(label: MessagingConstants.LOG_TAG,
                       """
-                      Missing required '\(MessagingConstants.XDM.Push.LIVE_ACTIVITY_ID)'. Update token event will not be sent.
+                      Missing required '\(MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID)'. Update token event will not be sent.
                       Type: \(attributeTypeName)
                       Apple Live Activity ID: \(activity.id)
                       """)
@@ -219,7 +219,7 @@ public extension Messaging {
                               MessagingConstants.XDM.Push.TOKEN: token,
                               MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
                               MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-                              MessagingConstants.XDM.Push.LIVE_ACTIVITY_ID: liveActivityID
+                              MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID: liveActivityID
                           ])
         MobileCore.dispatch(event: event)
     }
@@ -245,7 +245,7 @@ public extension Messaging {
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
             MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
             MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-            MessagingConstants.XDM.Push.ORIGIN: activity.attributes.liveActivityData.origin
+            MessagingConstants.XDM.LiveActivity.ORIGIN: activity.attributes.liveActivityData.origin
         ]
 
         // Merge in the single identifier (liveActivityID or channelID)
