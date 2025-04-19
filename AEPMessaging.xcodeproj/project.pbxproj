@@ -196,6 +196,7 @@
 		24CA4BDF2B61974300D16369 /* PropositionInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BDE2B61974300D16369 /* PropositionInteractionTests.swift */; };
 		24CA4BE12B61977800D16369 /* SurfaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BE02B61977800D16369 /* SurfaceTests.swift */; };
 		24FD5F752CEEA50F00AE4567 /* CompletionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */; };
+		4C0111D72DB30FD900996757 /* LiveActivityOrigin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0111D62DB30FD900996757 /* LiveActivityOrigin.swift */; };
 		4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */; };
 		4C9BE8D62DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */; };
 		4C9BE8D82DAF5A6900EF41A3 /* ActivityTaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */; };
@@ -691,6 +692,7 @@
 		36D3F6949A279969C6766FF5 /* Pods_E2EFunctionalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_E2EFunctionalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D55E83254139642A1CAA76E /* Pods_FunctionalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FunctionalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		43204BBDCB8D5720A0D56E52 /* Pods-IntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegrationTests.release.xcconfig"; path = "Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
+		4C0111D62DB30FD900996757 /* LiveActivityOrigin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityOrigin.swift; sourceTree = "<group>"; };
 		4C3B9F882AE3385B00A7D395 /* AEPTestUtils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPTestUtils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Messaging.swift"; sourceTree = "<group>"; };
 		4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveActivityAttributes+Messaging.swift"; sourceTree = "<group>"; };
@@ -1461,6 +1463,7 @@
 				B61BDAE22DA5EA43007FE12E /* Info.plist */,
 				B61BDAE32DA5EA43007FE12E /* LiveActivityAttributes.swift */,
 				B61BDAE42DA5EA43007FE12E /* LiveActivityData.swift */,
+				4C0111D62DB30FD900996757 /* LiveActivityOrigin.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -2311,9 +2314,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2416,9 +2423,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2455,9 +2466,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2538,9 +2553,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2555,9 +2574,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2572,9 +2595,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2589,9 +2616,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2628,9 +2659,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2645,9 +2680,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2990,6 +3029,7 @@
 			files = (
 				B61BDAE92DA5EA43007FE12E /* LiveActivityAttributes.swift in Sources */,
 				B61BDAEA2DA5EA43007FE12E /* LiveActivityData.swift in Sources */,
+				4C0111D72DB30FD900996757 /* LiveActivityOrigin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
