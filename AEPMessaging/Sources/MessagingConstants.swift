@@ -119,6 +119,7 @@ enum MessagingConstants {
                 static let DATA = "data"
 
                 // MARK: Live Activity
+
                 static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveActivityUpdateToken"
                 static let LIVE_ACTIVITY_PUSH_TO_START_TOKEN = "liveActivityPushToStartToken"
                 static let LIVE_ACTIVITY_TRACK_START = "liveActivityTrackStart"

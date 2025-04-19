@@ -199,7 +199,7 @@ extension Messaging {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track Live Activity start for event (\(event.id.uuidString)), App bundle identifier is invalid.")
             return
         }
-        if channelID == nil && liveActivityID == nil {
+        if channelID == nil, liveActivityID == nil {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Unable to process Live Activity start event (\(event.id.uuidString)) because the event must contain either a liveActivityID or a channelID.")
             return
@@ -230,6 +230,7 @@ extension Messaging {
     }
 
     // MARK: - private methods
+
     /// Adding Adobe/AJO specific data to tracking information map.
     ///
     /// - Parameters:
