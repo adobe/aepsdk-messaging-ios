@@ -23,7 +23,7 @@ extension LiveActivityAttributes {
         String(describing: Self.self)
     }
 
-    /// Returns a dictionary containing either the liveActivityID or the channelID, whichever is non-nil.
+    /// Returns a dictionary with the non-nil `liveActivityID` and/or `channelID`.
     /// If both are nil, returns an empty dictionary.
     var liveActivityIdentifierData: [String: String] {
         let data = [

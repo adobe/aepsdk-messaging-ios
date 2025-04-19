@@ -161,10 +161,6 @@ enum MessagingConstants {
                     static let ID = "id"
                 }
             }
-
-            enum Value {
-                static let UNAVAILABLE = "unavailable"
-            }
         }
 
         enum History {

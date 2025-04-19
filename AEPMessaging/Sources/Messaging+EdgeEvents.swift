@@ -185,36 +185,23 @@ extension Messaging {
         dispatch(event: pushTokenEdgeEvent)
     }
 
-    /// Sends an Edge request event containing a Live Activity start event using a broadcast channel ID.
+    /// Sends an Edge request event to track the start of a Live Activity.
+    /// This method constructs a Live Activity start event using either a broadcast channel ID or a Live Activity ID.
+    /// If both identifiers are missing, the event will not be sent.
     ///
     /// - Parameters:
-    ///   - channelID: The unique identifier for the Live Activity broadcast channel.
+    ///   - channelID: An optional unique identifier for the Live Activity broadcast channel.
+    ///   - liveActivityID: An optional unique identifier for the Live Activity instance.
+    ///   - origin: A string describing the source of the Live Activity's creation.
     ///   - event: The original `Event` that requested tracking the start of the Live Activity.
-    func sendLiveActivityStart(channelID: String?, origin: String, event: Event) {
-        sendLiveActivityStart(channelID: channelID, liveActivityID: nil, origin: origin, event: event)
-    }
-
-    /// Sends an Edge request event containing a Live Activity start event using a Live Activity ID.
-    ///
-    /// - Parameters:
-    ///   - liveActivityID: The unique identifier for the Live Activity.
-    ///   - event: The original `Event` that requested tracking the start of the Live Activity.
-    func sendLiveActivityStart(liveActivityID: String?, origin: String, event: Event) {
-        sendLiveActivityStart(channelID: nil, liveActivityID: liveActivityID, origin: origin, event: event)
-    }
-
-    // MARK: - private methods
-
-    /// Sends an Edge request event containing a Live Activity start event using the provided broadcast channel ID or Live Activity ID.
-    /// The channel ID and Live Activity ID are mutually exclusive. Only one should be provided per call.
-    ///
-    /// - Parameters:
-    ///   - channelID: The unique identifier for the Live Activity broadcast channel.
-    ///   - liveActivityID: The unique identifier for the Live Activity.
-    ///   - event: The original `Event` that requested tracking the start of the Live Activity.
-    private func sendLiveActivityStart(channelID: String?, liveActivityID: String?, origin: String, event: Event) {
+    func sendLiveActivityStart(channelID: String? = nil, liveActivityID: String? = nil, origin: String, event: Event) {
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track Live Activity start for event (\(event.id.uuidString)), App bundle identifier is invalid.")
+            return
+        }
+        if channelID == nil && liveActivityID == nil {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Unable to process Live Activity start event (\(event.id.uuidString)) because the event must contain either a liveActivityID or a channelID.")
             return
         }
 
@@ -223,15 +210,13 @@ extension Messaging {
             MessagingConstants.XDM.LiveActivity.CHANNEL_ID: channelID,
             MessagingConstants.XDM.Push.APP_ID: appId,
             MessagingConstants.XDM.LiveActivity.ORIGIN: origin
-        ]
-
-        let cleanedLiveActivityData = liveActivityData.compactMapValues { $0 }
+        ].compactMapValues { $0 }
 
         // Creating XDM Edge event data
         let xdmEventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: [
                 MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.LIVE_ACTIVITY_START,
-                MessagingConstants.XDM.Key.LIVE_ACTIVITY: cleanedLiveActivityData
+                MessagingConstants.XDM.Key.LIVE_ACTIVITY: liveActivityData
             ]
         ]
 
@@ -244,6 +229,7 @@ extension Messaging {
         dispatch(event: pushTokenEdgeEvent)
     }
 
+    // MARK: - private methods
     /// Adding Adobe/AJO specific data to tracking information map.
     ///
     /// - Parameters:
