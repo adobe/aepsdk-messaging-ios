@@ -15,8 +15,8 @@ Pod::Spec.new do |s|
   s.swift_version = '5.1'
 
   s.pod_target_xcconfig = { 'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES' }
-  s.dependency 'AEPCore', '>= 5.4.1', '< 6.0.0'
-  s.dependency 'AEPServices', '>= 5.4.1', '< 6.0.0'
+  s.dependency 'AEPCore', '>= 5.5.0', '< 6.0.0'
+  s.dependency 'AEPServices', '>= 5.5.0', '< 6.0.0'
   s.dependency 'AEPEdge', '>= 5.0.2', '< 6.0.0'
   s.dependency 'AEPEdgeIdentity', '>= 5.0.0', '< 6.0.0'
 
