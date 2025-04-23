@@ -13,7 +13,7 @@ governing permissions and limitations under the License.
 import AEPAssurance
 import AEPCore
 import AEPEdge
-import AEPEdgeConsent
+//import AEPEdgeConsent
 import AEPEdgeIdentity
 import AEPLifecycle
 import AEPSignal
@@ -29,7 +29,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             Lifecycle.self,
             Signal.self,
             Edge.self,
-            Consent.self,
+//            Consent.self,
             Messaging.self,
             Assurance.self
         ]
