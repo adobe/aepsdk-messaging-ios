@@ -55,8 +55,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             let cbeSurface2 = Surface(path: Constants.SurfaceName.CBE_JSON)
             Messaging.updatePropositionsForSurfaces([cardSurface,cbeSurface1, cbeSurface2])
         }
-        
+        test()
         return true
+    }
+    
+    func test(blah: String = "blah") {
+        
     }
     
     // MARK: - Push Notification registration methods

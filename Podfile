@@ -15,7 +15,7 @@ project 'AEPMessaging.xcodeproj'
 pod 'SwiftLint', '0.52.0'
 
 $dev_repo = 'https://github.com/sbenedicadb/aepsdk-core-ios.git'
-$dev_branch = 'dev-v5.4.1'
+$dev_branch = 'dev-v5.5.0'
 
 # ==================
 # SHARED POD GROUPS
