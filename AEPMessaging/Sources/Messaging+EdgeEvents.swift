@@ -110,10 +110,10 @@ extension Messaging {
     /// Experience Platform profile.
     ///
     /// - Parameters:
-    ///   - ecid: The Experience Cloud ID associated with the device.
-    ///   - attributeTypeName: A unique string representing the `LiveActivityAttributes` type used to namespace the platform.
-    ///   - token: The push-to-start token generated for the Live Activity.
-    ///   - event: The original `Event` that triggered the synchronization request.
+    ///   - ecid: The Experience Cloud ID associated with the token.
+    ///   - attributeTypeName: A unique string representing the `LiveActivityAttributes` type.
+    ///   - token: The push-to-start token for the Live Activity.
+    ///   - event: The original `Event` that triggered the sync request.
     func sendLiveActivityPushToStartToken(ecid: String, attributeTypeName: String, token: String, event: Event) {
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the Live Activity push-to-start token, App bundle identifier is invalid.")
@@ -139,16 +139,89 @@ extension Messaging {
             ]
         ]
 
-        // Creating XDM Edge event data
-        let xdmEventData: [String: Any] = [
+        // Creating Edge event data with XDM and data payloads
+        let eventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: [
-                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.LIVE_ACTIVITY_PUSH_TO_START
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.LIVE_ACTIVITY_PUSH_TO_START
             ],
             MessagingConstants.XDM.Key.DATA: profileEventData
         ]
 
         let pushTokenEdgeEvent = event.createChainedEvent(
             name: MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START_EDGE,
+            type: EventType.edge,
+            source: EventSource.requestContent,
+            data: eventData
+        )
+        dispatch(event: pushTokenEdgeEvent)
+    }
+
+    /// Sends an Edge request event containing a Live Activity update token tied to a Live Activity ID.
+    ///
+    /// - Parameters:
+    ///   - liveActivityID: The unique identifier for the Live Activity instance associated with the update token.
+    ///   - token: The Live Activity push update token.
+    ///   - event: The original `Event` that triggered the request to send the update token.
+    func sendLiveActivityUpdateToken(liveActivityID: String, token: String, event: Event) {
+        let liveActivityData: [String: Any?] = [
+            MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID: liveActivityID,
+            MessagingConstants.XDM.Push.TOKEN: token
+        ]
+
+        // Creating Edge event data with XDM and data payloads
+        let xdmEventData: [String: Any] = [
+            MessagingConstants.XDM.Key.XDM: [
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.LIVE_ACTIVITY_UPDATE_TOKEN
+            ],
+            MessagingConstants.XDM.Key.DATA: liveActivityData
+        ]
+
+        let pushTokenEdgeEvent = event.createChainedEvent(
+            name: MessagingConstants.Event.Name.LIVE_ACTIVITY_UPDATE_TOKEN_EDGE,
+            type: EventType.edge,
+            source: EventSource.requestContent,
+            data: xdmEventData
+        )
+        dispatch(event: pushTokenEdgeEvent)
+    }
+
+    /// Sends an Edge request event to track the start of a Live Activity.
+    /// This method constructs a Live Activity start event using either a broadcast channel ID or a Live Activity ID.
+    /// If both identifiers are missing, the event will not be sent.
+    ///
+    /// - Parameters:
+    ///   - channelID: An optional unique identifier for the Live Activity broadcast channel.
+    ///   - liveActivityID: An optional unique identifier for the Live Activity instance.
+    ///   - origin: A string describing the source of the Live Activity's creation.
+    ///   - event: The original `Event` that requested tracking the start of the Live Activity.
+    func sendLiveActivityStart(channelID: String? = nil, liveActivityID: String? = nil, origin: String, event: Event) {
+        guard let appId: String = Bundle.main.bundleIdentifier else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track Live Activity start for event (\(event.id.uuidString)), App bundle identifier is invalid.")
+            return
+        }
+        if channelID == nil, liveActivityID == nil {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Unable to process Live Activity start event (\(event.id.uuidString)) because the event must contain either a liveActivityID or a channelID.")
+            return
+        }
+
+        let liveActivityData: [String: Any?] = [
+            MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID: liveActivityID,
+            MessagingConstants.XDM.LiveActivity.CHANNEL_ID: channelID,
+            MessagingConstants.XDM.Push.APP_ID: appId,
+            MessagingConstants.XDM.LiveActivity.ORIGIN: origin
+        ].compactMapValues { $0 }
+
+        // Creating XDM Edge event data
+        let xdmEventData: [String: Any] = [
+            MessagingConstants.XDM.Key.XDM: [
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.LIVE_ACTIVITY_START,
+                MessagingConstants.XDM.Key.LIVE_ACTIVITY: liveActivityData
+            ]
+        ]
+
+        let pushTokenEdgeEvent = event.createChainedEvent(
+            name: MessagingConstants.Event.Name.LIVE_ACTIVITY_START,
             type: EventType.edge,
             source: EventSource.requestContent,
             data: xdmEventData

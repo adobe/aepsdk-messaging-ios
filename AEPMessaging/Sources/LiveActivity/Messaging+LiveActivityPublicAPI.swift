@@ -190,11 +190,10 @@ public extension Messaging {
     ///   - token: A `String` representing the update push token for the Live Activity.
     private static func dispatchUpdateTokenEvent<T: LiveActivityAttributes>(activity: Activity<T>, token: String) {
         let attributeTypeName = T.attributeTypeName
-        let liveActivityData = activity.attributes.liveActivityData
-        guard let liveActivityID = liveActivityData.liveActivityID else {
+        guard let liveActivityID = activity.attributes.liveActivityData.liveActivityID else {
             Log.error(label: MessagingConstants.LOG_TAG,
                       """
-                      Missing required '\(MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID)'. Update token event will not be sent.
+                      Missing required '\(MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID)'. Update token event will not be sent.
                       Type: \(attributeTypeName)
                       Apple Live Activity ID: \(activity.id)
                       """)
@@ -220,7 +219,7 @@ public extension Messaging {
                               MessagingConstants.XDM.Push.TOKEN: token,
                               MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
                               MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-                              MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
+                              MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID: liveActivityID
                           ])
         MobileCore.dispatch(event: event)
     }
@@ -232,26 +231,31 @@ public extension Messaging {
     /// - Parameter activity: The newly started `Activity` instance. The activity must conform to ``LiveActivityAttributes``.
     private static func dispatchStartEvent<T: LiveActivityAttributes>(activity: Activity<T>) {
         let attributeTypeName = T.attributeTypeName
-        let liveActivityID = activity.attributes.liveActivityData.liveActivityID ?? MessagingConstants.Event.Data.Value.UNAVAILABLE
+        let liveActivityIdentifierData = activity.attributes.liveActivityIdentifierData
 
         Log.debug(label: MessagingConstants.LOG_TAG,
                   """
                   Dispatching Live Activity start event.
                   Type: \(attributeTypeName)
                   Apple Live Activity ID: \(activity.id)
-                  LiveActivityID: \(liveActivityID)
+                  Identifier: \(liveActivityIdentifierData)
                   """)
+
+        var data: [String: Any] = [
+            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
+            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
+            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
+            MessagingConstants.XDM.LiveActivity.ORIGIN: activity.attributes.liveActivityData.origin
+        ]
+
+        // Merge in the single identifier (liveActivityID or channelID)
+        data.merge(liveActivityIdentifierData) { current, _ in current }
 
         let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_START) for type (\(attributeTypeName))"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
-                          data: [
-                              MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
-                              MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
-                              MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-                              MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
-                          ])
+                          data: data)
         MobileCore.dispatch(event: event)
     }
 
@@ -268,26 +272,30 @@ public extension Messaging {
         state: ActivityState
     ) {
         let attributeTypeName = T.attributeTypeName
-        let liveActivityID = activity.attributes.liveActivityData.liveActivityID ?? MessagingConstants.Event.Data.Value.UNAVAILABLE
+        let liveActivityIdentifierData = activity.attributes.liveActivityIdentifierData
 
         Log.debug(label: MessagingConstants.LOG_TAG,
                   """
                   Dispatching Live Activity \(state) state update event.
                   Type: \(attributeTypeName)
                   Apple Live Activity ID: \(activity.id)
-                  LiveActivityID: \(liveActivityID)
+                  Identifier: \(liveActivityIdentifierData)
                   """)
+
+        var data: [String: Any] = [
+            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
+            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
+            MessagingConstants.Event.Data.Key.STATE: "\(state)"
+        ]
+
+        // Merge in the single identifier (liveActivityID or channelID)
+        data.merge(liveActivityIdentifierData) { current, _ in current }
 
         let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE): \(state) for type (\(attributeTypeName))"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
-                          data: [
-                              MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
-                              MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-                              MessagingConstants.Event.Data.Key.STATE: "\(state)",
-                              MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_ID: liveActivityID
-                          ])
+                          data: data)
         MobileCore.dispatch(event: event)
     }
 }

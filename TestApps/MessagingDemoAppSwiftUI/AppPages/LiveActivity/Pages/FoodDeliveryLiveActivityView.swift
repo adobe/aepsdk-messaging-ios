@@ -276,7 +276,7 @@ private extension FoodDeliveryLiveActivityView {
         }
         
         // Create attributes using the entered restaurant name
-        let attributes = FoodDeliveryLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "orderID_234"),
+        let attributes = FoodDeliveryLiveActivityAttributes(liveActivityData: LiveActivityData(liveActivityID: "orderID_234"),
                                                             restaurantName: restaurantName)
         let initialContentState = FoodDeliveryLiveActivityAttributes.ContentState(
             orderStatus: "Ordered"

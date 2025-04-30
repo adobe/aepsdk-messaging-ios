@@ -125,8 +125,6 @@ enum MessagingConstants {
                 static let LIVE_ACTIVITY_TRACK_START = "liveActivityTrackStart"
                 static let LIVE_ACTIVITY_TRACK_STATE = "liveActivityTrackState"
                 static let APPLE_LIVE_ACTIVITY_ID = "appleLiveActivityId"
-                static let LIVE_ACTIVITY_ID = "liveActivityID"
-                static let CHANNEL_ID = "channelID"
                 /// The key for Live Activity Attribute type name. For example, "FoodDeliveryLiveActivityAttributes"
                 static let ATTRIBUTE_TYPE = "attributeType"
                 static let STATE = "state"
@@ -163,10 +161,6 @@ enum MessagingConstants {
                     static let PRIORITY = "priority"
                     static let ID = "id"
                 }
-            }
-
-            enum Value {
-                static let UNAVAILABLE = "unavailable"
             }
         }
 
@@ -297,15 +291,25 @@ enum MessagingConstants {
             enum EventType {
                 static let APPLICATION_OPENED = "pushTracking.applicationOpened"
                 static let CUSTOM_ACTION = "pushTracking.customAction"
-                static let LIVE_ACTIVITY_PUSH_TO_START = "liveActivity.pushToStart"
-                static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveActivity.updateToken"
-                static let LIVE_ACTIVITY_START = "liveActivity.start"
             }
 
             enum Value {
                 static let ECID = "ECID"
                 static let APNS = "apns"
                 static let APNS_SANDBOX = "apnsSandbox"
+            }
+        }
+
+        enum LiveActivity {
+            static let CHANNEL_ID = "channelID"
+            static let LIVE_ACTIVITY_ID = "liveActivityID"
+            /// Represents whether the Live Activity was started remotely or locally.
+            static let ORIGIN = "origin"
+
+            enum EventType {
+                static let LIVE_ACTIVITY_PUSH_TO_START = "liveActivity.pushToStart"
+                static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveActivity.updateToken"
+                static let LIVE_ACTIVITY_START = "liveActivity.start"
             }
         }
     }

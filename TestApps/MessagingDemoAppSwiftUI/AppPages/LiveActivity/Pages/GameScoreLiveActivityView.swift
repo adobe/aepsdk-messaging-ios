@@ -278,7 +278,7 @@ private extension GameScoreLiveActivityView {
             return
         }
         
-        let attributes = GameScoreLiveActivityAttributes(liveActivityData: LiveActivityData.create(liveActivityID: "<Unique_Game_ID>"))
+        let attributes = GameScoreLiveActivityAttributes(liveActivityData: LiveActivityData(liveActivityID: "<Unique_Game_ID>"))
         let initialContentState = GameScoreLiveActivityAttributes.ContentState(
             homeTeamScore: 0,
             awayTeamScore: 0,

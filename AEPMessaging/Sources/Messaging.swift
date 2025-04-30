@@ -261,6 +261,31 @@ public class Messaging: NSObject, Extension {
             return
         }
 
+        if event.isLiveActivityUpdateTokenEvent {
+            // Extract token and liveActivityID
+            guard let token = event.liveActivityUpdateToken else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid token could not be found in the event.")
+                return
+            }
+
+            guard let liveActivityID = event.liveActivityID else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid Live Activity ID could not be found in the event.")
+                return
+            }
+            sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
+            return
+        }
+
+        if event.isLiveActivityStartEvent {
+            guard let origin = event.liveActivityOrigin else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity start event (\(event.id.uuidString)) because a valid Live Activity 'origin' could not be found in the event.")
+                return
+            }
+
+            sendLiveActivityStart(channelID: event.liveActivityChannelID, liveActivityID: event.liveActivityID, origin: origin, event: event)
+            return
+        }
+
         handleEdgeIdentityDependentEvents(event)
     }
 
