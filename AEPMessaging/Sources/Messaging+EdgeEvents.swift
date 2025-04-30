@@ -176,13 +176,13 @@ extension Messaging {
             MessagingConstants.XDM.Key.DATA: liveActivityData
         ]
 
-        let pushTokenEdgeEvent = event.createChainedEvent(
+        let updateTokenEdgeEvent = event.createChainedEvent(
             name: MessagingConstants.Event.Name.LIVE_ACTIVITY_UPDATE_TOKEN_EDGE,
             type: EventType.edge,
             source: EventSource.requestContent,
             data: xdmEventData
         )
-        dispatch(event: pushTokenEdgeEvent)
+        dispatch(event: updateTokenEdgeEvent)
     }
 
     /// Sends an Edge request event to track the start of a Live Activity.
@@ -221,13 +221,13 @@ extension Messaging {
             ]
         ]
 
-        let pushTokenEdgeEvent = event.createChainedEvent(
+        let liveActivityStartEdgeEvent = event.createChainedEvent(
             name: MessagingConstants.Event.Name.LIVE_ACTIVITY_START,
             type: EventType.edge,
             source: EventSource.requestContent,
             data: xdmEventData
         )
-        dispatch(event: pushTokenEdgeEvent)
+        dispatch(event: liveActivityStartEdgeEvent)
     }
 
     // MARK: - private methods
