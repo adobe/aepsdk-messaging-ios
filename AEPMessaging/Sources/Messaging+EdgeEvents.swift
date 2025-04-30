@@ -199,7 +199,8 @@ extension Messaging {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track Live Activity start for event (\(event.id.uuidString)), App bundle identifier is invalid.")
             return
         }
-        if channelID == nil, liveActivityID == nil {
+        // Must have either a channelID or a liveActivityID
+        guard channelID != nil || liveActivityID != nil else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Unable to process Live Activity start event (\(event.id.uuidString)) because the event must contain either a liveActivityID or a channelID.")
             return
