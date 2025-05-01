@@ -1,9 +1,12 @@
 export EXTENSION_NAME = AEPMessaging
+PROJECT_NAME = $(EXTENSION_NAME)
 export APP_NAME = MessagingDemoApp
 CURRENT_DIRECTORY := ${CURDIR}
-PROJECT_NAME = $(EXTENSION_NAME)
-TARGET_NAME_XCFRAMEWORK = $(EXTENSION_NAME).xcframework
-SCHEME_NAME_XCFRAMEWORK = AEPMessagingXCF
+AEPMESSAGING_XCFRAMEWORK = $(EXTENSION_NAME).xcframework
+AEPMESSAGING_XCFRAMEWORK_SCHEME_NAME = AEPMessagingXCF
+
+export AEPMESSAGINGLIVEACTIVITY_TARGET_NAME = AEPMessagingLiveActivity
+AEPMESSAGINGLIVEACTIVITY_XCFRAMEWORK = $(AEPMESSAGINGLIVEACTIVITY_TARGET_NAME).xcframework
 
 SIMULATOR_ARCHIVE_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive/Products/Library/Frameworks/
 SIMULATOR_ARCHIVE_DSYM_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive/dSYMs/
@@ -54,15 +57,21 @@ _archive: clean build
 	xcodebuild -create-xcframework \
 		-framework $(SIMULATOR_ARCHIVE_PATH)$(EXTENSION_NAME).framework -debug-symbols $(SIMULATOR_ARCHIVE_DSYM_PATH)$(EXTENSION_NAME).framework.dSYM \
 		-framework $(IOS_ARCHIVE_PATH)$(EXTENSION_NAME).framework -debug-symbols $(IOS_ARCHIVE_DSYM_PATH)$(EXTENSION_NAME).framework.dSYM \
-		-output ./build/$(TARGET_NAME_XCFRAMEWORK)
+		-output ./build/$(AEPMESSAGING_XCFRAMEWORK)
+	xcodebuild -create-xcframework \
+		-framework $(SIMULATOR_ARCHIVE_PATH)$(AEPMESSAGINGLIVEACTIVITY_TARGET_NAME).framework -debug-symbols $(SIMULATOR_ARCHIVE_DSYM_PATH)$(AEPMESSAGINGLIVEACTIVITY_TARGET_NAME).framework.dSYM \
+		-framework $(IOS_ARCHIVE_PATH)$(AEPMESSAGINGLIVEACTIVITY_TARGET_NAME).framework -debug-symbols $(IOS_ARCHIVE_DSYM_PATH)$(AEPMESSAGINGLIVEACTIVITY_TARGET_NAME).framework.dSYM \
+		-output ./build/$(AEPMESSAGINGLIVEACTIVITY_XCFRAMEWORK)
 
 build:
-	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(SCHEME_NAME_XCFRAMEWORK) -archivePath "./build/ios.xcarchive" -sdk iphoneos -destination="iOS" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
-	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(SCHEME_NAME_XCFRAMEWORK) -archivePath "./build/ios_simulator.xcarchive" -sdk iphonesimulator -destination="iOS Simulator" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(AEPMESSAGING_XCFRAMEWORK_SCHEME_NAME) -archivePath "./build/ios.xcarchive" -sdk iphoneos -destination="iOS" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(AEPMESSAGING_XCFRAMEWORK_SCHEME_NAME) -archivePath "./build/ios_simulator.xcarchive" -sdk iphonesimulator -destination="iOS Simulator" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
 
 zip:
 	cd build && zip -r -X $(PROJECT_NAME).xcframework.zip $(PROJECT_NAME).xcframework/
+	cd build && zip -r -X $(AEPMESSAGINGLIVEACTIVITY_TARGET_NAME).xcframework.zip $(AEPMESSAGINGLIVEACTIVITY_TARGET_NAME).xcframework/
 	swift package compute-checksum build/$(PROJECT_NAME).xcframework.zip
+	swift package compute-checksum build/$(AEPMESSAGINGLIVEACTIVITY_TARGET_NAME).xcframework.zip
 
 unit-test: clean
 	@echo "######################################################################"
