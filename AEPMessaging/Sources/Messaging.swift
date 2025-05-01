@@ -99,6 +99,13 @@ public class Messaging: NSObject, Extension {
         set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
     }
 
+    /// Messaging properties to hold the persisted push identifier
+    private var messagingProperties: MessagingProperties = MessagingProperties()
+
+    /// the timestamp of the last push token sync
+    private var lastPushTokenSyncTimestamp: Date?
+
+
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -273,6 +280,10 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
+            if !shouldSyncPushToken(event) {
+                return
+            }
+
             // If the push token is valid update the shared state.
             runtime.createSharedState(data: [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token], event: event)
 
@@ -306,6 +317,48 @@ public class Messaging: NSObject, Extension {
             handleTrackingInfo(event: event)
             return
         }
+    }
+
+    /// Checks if the push identifier can be synced
+    /// - Parameter event: the generic request identity`event` containing the push identifier
+    /// - Returns: `true` if the push identifier can be synced, `false` otherwise
+    private func shouldSyncPushToken(_ event: Event) -> Bool {
+        // check if the push token will be synced regardless if it has changed.
+        // if the value is not present, it will default to false
+        let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
+        let pushForceSync = configSharedState?.value?[MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC] as? Bool ?? false
+        let existingPushToken = messagingProperties.pushIdentifier
+        let pushTokensMatch = existingPushToken == event.token
+
+        if pushTokensMatch && !pushForceSync {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                        "Existing push token matches the new push token, push token will not be synced.")
+                   return false
+        } else if pushTokensMatch && !isPushTokenSyncTimeoutExpired(event.timestamp) {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push token sync is within the previous push sync timeout window, push token will not be synced.")
+            return false
+        }
+
+        Log.debug(label: MessagingConstants.LOG_TAG, pushForceSync ? MessagingConstants.FORCE_SYNC_MESSAGE : MessagingConstants.NEW_PUSH_TOKEN_MESSAGE);
+
+        // persist the push token in the messaging named collection
+        messagingProperties.pushIdentifier = event.token
+
+        // store the event timestamp of the last push token sync in-memory
+        lastPushTokenSyncTimestamp = event.timestamp
+
+        return true
+    }
+
+    /// Checks if the push token sync timeout has expired
+    /// - Parameter eventTimestamp: the timestamp of the event
+    /// - Returns: `true` if the timeout has expired, `false` otherwise
+    private func isPushTokenSyncTimeoutExpired(_ eventTimestamp: Date) -> Bool {
+        guard let lastPushTokenSyncTimestamp = lastPushTokenSyncTimestamp else {
+            return true
+        }
+        return eventTimestamp.timeIntervalSince(lastPushTokenSyncTimestamp) > MessagingConstants.IGNORE_PUSH_SYNC_TIMEOUT_SECONDS
     }
 
     /// Responds to event history write events.

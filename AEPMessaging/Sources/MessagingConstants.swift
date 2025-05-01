@@ -22,6 +22,10 @@ enum MessagingConstants {
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
+    static let DATA_STORE_NAME = EXTENSION_NAME
+    static let IGNORE_PUSH_SYNC_TIMEOUT_SECONDS = TimeInterval(1) // 1 second
+    static let FORCE_SYNC_MESSAGE = "Push registration force sync is enabled. The push token will be synced."
+    static let NEW_PUSH_TOKEN_MESSAGE = "Push token is new or changed. The push token will be synced."
 
     enum ContentTypes {
         static let APPLICATION_JSON = "application/json"
@@ -298,6 +302,9 @@ enum MessagingConstants {
 
             // config for whether to useSandbox or not
             static let USE_SANDBOX = "messaging.useSandbox"
+
+            // config for whether to force the push identifier sync to be sent
+            static let PUSH_FORCE_SYNC = "messaging.pushForceSync"
         }
 
         enum EdgeIdentity {
@@ -313,5 +320,9 @@ enum MessagingConstants {
             static let ACTION_URL = "adb_uri"
             static let PUSH_TO_INAPP = "adb_iam_id"
         }
+    }
+
+    enum NamedCollectionKeys {
+        static let PUSH_IDENTIFIER = "pushidentifier"
     }
 }
