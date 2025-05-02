@@ -100,7 +100,7 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Messaging properties
-    private var messagingProperties: MessagingProperties = MessagingProperties()
+    private var messagingProperties: MessagingProperties = .init()
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [

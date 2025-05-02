@@ -17,6 +17,7 @@ class MessagingProperties {
     let pushToStartTokenStore = LiveActivityPushToStartTokenStore()
 
     // MARK: - Messaging shared state
+
     func buildMessagingSharedState() -> [String: Any] {
         var sharedStateData: [String: Any] = [:]
 

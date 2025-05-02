@@ -8,12 +8,11 @@
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
-*/
+ */
 
 import AEPServices
 
 final class LiveActivityPushToStartTokenStore {
-
     init() {
         load()
     }
@@ -67,15 +66,17 @@ final class LiveActivityPushToStartTokenStore {
                 collectionName: MessagingConstants.DATA_STORE_NAME,
                 key: MessagingConstants.NamedCollectionKeys
                     .LIVE_ACTIVITY_PUSH_TO_START_TOKENS,
-                value: dict)
+                value: dict
+            )
         }
     }
 
     private static func readFromDisk() -> LiveActivity.PushToStartTokenMap? {
         guard let dict = ServiceProvider.shared.namedKeyValueService.get(
-                collectionName: MessagingConstants.DATA_STORE_NAME,
-                key: MessagingConstants.NamedCollectionKeys
-                    .LIVE_ACTIVITY_PUSH_TO_START_TOKENS) as? [String: Any]
+            collectionName: MessagingConstants.DATA_STORE_NAME,
+            key: MessagingConstants.NamedCollectionKeys
+                .LIVE_ACTIVITY_PUSH_TO_START_TOKENS
+        ) as? [String: Any]
         else {
             return nil
         }

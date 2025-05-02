@@ -8,17 +8,17 @@
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
-*/
+ */
 
 import Foundation
 
-extension Decodable {
+public extension Decodable {
     /// Attempts to decode `Self` from a `[String: Any]` dictionary.
     /// - Parameters:
     ///   - dictionary: the JSON‐like dictionary to decode from
     ///   - dateDecodingStrategy: how to decode `Date` values (default: `.deferredToDate`)
     /// - Returns: an instance of `Self` if decoding succeeds, or `nil`
-    public static func from(
+    static func from(
         _ dictionary: [String: Any],
         dateDecodingStrategy: JSONDecoder.DateDecodingStrategy = .deferredToDate
     ) -> Self? {
