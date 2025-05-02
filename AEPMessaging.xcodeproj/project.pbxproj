@@ -201,6 +201,7 @@
 		4C2157F52DC444EA0055C8C9 /* LiveActivityUpdateTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F42DC444EA0055C8C9 /* LiveActivityUpdateTokenStore.swift */; };
 		4C2157F72DC444FF0055C8C9 /* LiveActivityPushToStartTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F62DC444FF0055C8C9 /* LiveActivityPushToStartTokenStore.swift */; };
 		4C2157F92DC445560055C8C9 /* LiveActivityTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F82DC445560055C8C9 /* LiveActivityTypes.swift */; };
+		4C2157FD2DC44C070055C8C9 /* Decodable+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157FC2DC44C070055C8C9 /* Decodable+Messaging.swift */; };
 		4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */; };
 		4C9BE8D62DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */; };
 		4C9BE8D82DAF5A6900EF41A3 /* ActivityTaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */; };
@@ -701,6 +702,7 @@
 		4C2157F42DC444EA0055C8C9 /* LiveActivityUpdateTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityUpdateTokenStore.swift; sourceTree = "<group>"; };
 		4C2157F62DC444FF0055C8C9 /* LiveActivityPushToStartTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityPushToStartTokenStore.swift; sourceTree = "<group>"; };
 		4C2157F82DC445560055C8C9 /* LiveActivityTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityTypes.swift; sourceTree = "<group>"; };
+		4C2157FC2DC44C070055C8C9 /* Decodable+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decodable+Messaging.swift"; sourceTree = "<group>"; };
 		4C3B9F882AE3385B00A7D395 /* AEPTestUtils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPTestUtils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Messaging.swift"; sourceTree = "<group>"; };
 		4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveActivityAttributes+Messaging.swift"; sourceTree = "<group>"; };
@@ -1701,6 +1703,7 @@
 			children = (
 				09B071F52A7318CB00F259C1 /* Array+Messaging.swift */,
 				09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */,
+				4C2157FC2DC44C070055C8C9 /* Decodable+Messaging.swift */,
 				240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */,
 				4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */,
 				244E955A267BB253001DC957 /* Dictionary+Messaging.swift */,
@@ -2869,6 +2872,7 @@
 				B6F7CBD72CC2089A00C35C64 /* AEPButtonView.swift in Sources */,
 				B6F7CBD82CC2089A00C35C64 /* AEPStackError.swift in Sources */,
 				B6D035E22D2F23E900031170 /* AppStateManager.swift in Sources */,
+				4C2157FD2DC44C070055C8C9 /* Decodable+Messaging.swift in Sources */,
 				B6F7CBD92CC2089A00C35C64 /* AEPViewModel.swift in Sources */,
 				B6F7CBDA2CC2089A00C35C64 /* ImageSourceType.swift in Sources */,
 				B6F7CBDB2CC2089A00C35C64 /* ContentCardSchemaData+TemplateContent.swift in Sources */,
