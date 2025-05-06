@@ -15,7 +15,7 @@ import Foundation
 public extension Decodable {
     /// Attempts to decode `Self` from a `[String: Any]` dictionary.
     /// - Parameters:
-    ///   - dictionary: the JSON‐like dictionary to decode from
+    ///   - dictionary: the dictionary to decode from
     ///   - dateDecodingStrategy: how to decode `Date` values (default: `.deferredToDate`)
     /// - Returns: an instance of `Self` if decoding succeeds, or `nil`
     static func from(
