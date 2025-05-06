@@ -176,13 +176,13 @@ extension Messaging {
             MessagingConstants.XDM.Key.DATA: liveActivityData
         ]
 
-        let pushTokenEdgeEvent = event.createChainedEvent(
+        let updateTokenEdgeEvent = event.createChainedEvent(
             name: MessagingConstants.Event.Name.LIVE_ACTIVITY_UPDATE_TOKEN_EDGE,
             type: EventType.edge,
             source: EventSource.requestContent,
             data: xdmEventData
         )
-        dispatch(event: pushTokenEdgeEvent)
+        dispatch(event: updateTokenEdgeEvent)
     }
 
     /// Sends an Edge request event to track the start of a Live Activity.
@@ -199,7 +199,8 @@ extension Messaging {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track Live Activity start for event (\(event.id.uuidString)), App bundle identifier is invalid.")
             return
         }
-        if channelID == nil, liveActivityID == nil {
+        // Must have either a channelID or a liveActivityID
+        guard channelID != nil || liveActivityID != nil else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Unable to process Live Activity start event (\(event.id.uuidString)) because the event must contain either a liveActivityID or a channelID.")
             return
@@ -220,13 +221,13 @@ extension Messaging {
             ]
         ]
 
-        let pushTokenEdgeEvent = event.createChainedEvent(
+        let liveActivityStartEdgeEvent = event.createChainedEvent(
             name: MessagingConstants.Event.Name.LIVE_ACTIVITY_START,
             type: EventType.edge,
             source: EventSource.requestContent,
             data: xdmEventData
         )
-        dispatch(event: pushTokenEdgeEvent)
+        dispatch(event: liveActivityStartEdgeEvent)
     }
 
     // MARK: - private methods

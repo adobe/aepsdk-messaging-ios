@@ -16,6 +16,7 @@ import Foundation
 ///
 /// Use this enum to distinguish whether a Live Activity was started locally by the app
 /// or remotely via push-to-start delivered by the server.
+@available(iOS 16.1, *)
 public enum LiveActivityOrigin: String, Codable {
     /// The Live Activity was initiated locally on the device.
     case local
