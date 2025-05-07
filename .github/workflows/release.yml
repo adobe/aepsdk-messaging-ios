@@ -46,7 +46,7 @@ jobs:
     - name: Check version in Podspec
       run: |
         set -eo pipefail
-        echo AEPMessaging version: ${{ github.event.inputs.tag }}
+        echo Verifying AEPMessaging and AEPMessagingLiveActivity version is: ${{ github.event.inputs.tag }}
         make check-version VERSION=${{ github.event.inputs.tag }}
     
     - name: Pod repo update
@@ -109,5 +109,13 @@ jobs:
       run: |
         set -eo pipefail
         pod trunk push AEPMessaging.podspec --allow-warnings --synchronous
+      env:
+        COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+
+    - name: Publish Pods - AEPMessagingLiveActivity
+      if: ${{ github.event.inputs.release_AEPMessagingLiveActivity == 'yes' }}
+      run: |
+        set -eo pipefail
+        pod trunk push AEPMessagingLiveActivity.podspec --allow-warnings --synchronous
       env:
         COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
