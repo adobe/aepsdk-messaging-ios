@@ -7,15 +7,16 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		928D8364254225A700FD0E6D /* AEPMessagingXCF */ = {
+		928D8364254225A700FD0E6D /* AEPMessagingAll */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 928D8365254225A700FD0E6D /* Build configuration list for PBXAggregateTarget "AEPMessagingXCF" */;
+			buildConfigurationList = 928D8365254225A700FD0E6D /* Build configuration list for PBXAggregateTarget "AEPMessagingAll" */;
 			buildPhases = (
 			);
 			dependencies = (
+				B64B9F9B2DCBB43700F77359 /* PBXTargetDependency */,
 				928D836F254226A000FD0E6D /* PBXTargetDependency */,
 			);
-			name = AEPMessagingXCF;
+			name = AEPMessagingAll;
 			productName = AEPMessagingXCF;
 		};
 /* End PBXAggregateTarget section */
@@ -428,6 +429,13 @@
 			remoteInfo = WidgetMessagingDemoAppSwiftUIExtension;
 		};
 		B61BDAF22DA5F632007FE12E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B61BDACD2DA5E861007FE12E;
+			remoteInfo = AEPMessagingLiveActivity;
+		};
+		B64B9F9A2DCBB43700F77359 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
 			proxyType = 1;
@@ -2136,7 +2144,7 @@
 			targets = (
 				925DF4A425227C4700A5DE31 /* AEPMessaging */,
 				B61BDACD2DA5E861007FE12E /* AEPMessagingLiveActivity */,
-				928D8364254225A700FD0E6D /* AEPMessagingXCF */,
+				928D8364254225A700FD0E6D /* AEPMessagingAll */,
 				9296BA802537BFC0002C88F7 /* UnitTests */,
 				92FC58772636840C005BAE02 /* FunctionalTests */,
 				B6F7CCA32CCA165B00C35C64 /* IntegrationTests */,
@@ -3122,6 +3130,11 @@
 			isa = PBXTargetDependency;
 			target = B61BDACD2DA5E861007FE12E /* AEPMessagingLiveActivity */;
 			targetProxy = B61BDAF22DA5F632007FE12E /* PBXContainerItemProxy */;
+		};
+		B64B9F9B2DCBB43700F77359 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B61BDACD2DA5E861007FE12E /* AEPMessagingLiveActivity */;
+			targetProxy = B64B9F9A2DCBB43700F77359 /* PBXContainerItemProxy */;
 		};
 		B6D6AE922BA8C48100F0E975 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -4297,7 +4310,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		928D8365254225A700FD0E6D /* Build configuration list for PBXAggregateTarget "AEPMessagingXCF" */ = {
+		928D8365254225A700FD0E6D /* Build configuration list for PBXAggregateTarget "AEPMessagingAll" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				928D8366254225A700FD0E6D /* Debug */,
