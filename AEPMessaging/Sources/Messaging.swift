@@ -100,7 +100,7 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Messaging properties
-    private var messagingProperties = MessagingStateManager()
+    private var stateManager = MessagingStateManager()
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
@@ -279,8 +279,8 @@ public class Messaging: NSObject, Extension {
             // If the Live Activity ID, attribute type, and update token are valid, update the shared state.
             if let attributeTypeName = event.liveActivityAttributeType {
                 let liveActivityToken = LiveActivity.Token(tokenFirstIssued: Date(), token: token)
-                messagingProperties.updateTokenStore.set(liveActivityToken, attribute: attributeTypeName, id: liveActivityID)
-                runtime.createSharedState(data: messagingProperties.buildMessagingSharedState(), event: event)
+                stateManager.updateTokenStore.set(liveActivityToken, attribute: attributeTypeName, id: liveActivityID)
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
             }
 
             sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
@@ -358,8 +358,8 @@ public class Messaging: NSObject, Extension {
             // If the Live Activity attribute type and update token are valid, update the shared state.
             if let attributeTypeName = event.liveActivityAttributeType {
                 let liveActivityToken = LiveActivity.Token(tokenFirstIssued: Date(), token: token)
-                messagingProperties.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
-                runtime.createSharedState(data: messagingProperties.buildMessagingSharedState(), event: event)
+                stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
             }
 
             sendLiveActivityPushToStartToken(ecid: ecid, attributeTypeName: attributeTypeName, token: token, event: event)
