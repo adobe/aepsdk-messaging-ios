@@ -60,7 +60,7 @@ enum LiveActivity {
         var tokens: [AttributeTypeName: [ID: Token]]
 
         init() {
-            self.tokens = [:]
+            tokens = [:]
         }
     }
 
@@ -93,7 +93,7 @@ enum LiveActivity {
         var tokens: [AttributeTypeName: Token]
 
         init() {
-            self.tokens = [:]
+            tokens = [:]
         }
     }
 }
