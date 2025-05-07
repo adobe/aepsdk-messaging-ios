@@ -12,7 +12,7 @@
 
 import AEPServices
 
-final class PushToStartTokenStore: PersistedMapStoreBase<LiveActivity.PushToStartTokenMap> {
+final class PushToStartTokenStore: TokenStoreBase<LiveActivity.PushToStartTokenMap> {
     init() {
         super.init(storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_PUSH_TO_START_TOKENS)
     }

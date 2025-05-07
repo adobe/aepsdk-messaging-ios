@@ -100,7 +100,7 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Messaging properties
-    private var messagingProperties: MessagingProperties = .init()
+    private var messagingProperties = MessagingStateManager()
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
@@ -280,10 +280,7 @@ public class Messaging: NSObject, Extension {
             if let attributeTypeName = event.liveActivityAttributeType {
                 let liveActivityToken = LiveActivity.Token(tokenFirstIssued: Date(), token: token)
                 messagingProperties.updateTokenStore.set(liveActivityToken, attribute: attributeTypeName, id: liveActivityID)
-                let sharedStateData = messagingProperties.buildMessagingSharedState()
-                if !sharedStateData.isEmpty {
-                    runtime.createSharedState(data: sharedStateData, event: event)
-                }
+                runtime.createSharedState(data: messagingProperties.buildMessagingSharedState(), event: event)
             }
 
             sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)

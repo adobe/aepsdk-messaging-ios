@@ -12,9 +12,9 @@
 
 import AEPServices
 
-class MessagingProperties {
-    let updateTokenStore = LiveActivityUpdateTokenStore()
-    let pushToStartTokenStore = LiveActivityPushToStartTokenStore()
+class MessagingStateManager {
+    let updateTokenStore = UpdateTokenStore()
+    let pushToStartTokenStore = PushToStartTokenStore()
 
     // MARK: - Messaging shared state
 

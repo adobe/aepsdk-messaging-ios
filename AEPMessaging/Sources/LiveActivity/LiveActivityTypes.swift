@@ -32,24 +32,28 @@ enum LiveActivity {
     /// The structure of this dictionary is:
     /// ```json
     /// {
-    ///     "<LiveActivityAttributeType>": {
-    ///         "<LiveActivityID>": {
-    ///             "tokenFirstIssued": "<Date or null>",
-    ///             "token": "<String>"
-    ///         }
+    ///   "<LiveActivityAttributeType>": {
+    ///     "<LiveActivityID>": {
+    ///       "tokenFirstIssued": "<Date or null>",
+    ///       "token": "<String>"
     ///     }
+    ///   }
     /// }
     /// ```
     ///
     /// Example:
     /// ```json
     /// {
-    ///     "DrinkOrderTrackerActivity": {
-    ///         "order123": {
-    ///             "tokenFirstIssued": "2025-04-30T10:00:00Z",
-    ///             "token": "abc123"
-    ///         }
+    ///   "DrinkOrderTrackerActivity": {
+    ///     "order123": {
+    ///       "tokenFirstIssued": "2025-04-30T10:00:00Z",
+    ///       "token": "abc123"
+    ///     },
+    ///     "order456": {
+    ///       "tokenFirstIssued": "2025-04-30T11:00:00Z",
+    ///       "token": "def456"
     ///     }
+    ///   }
     /// }
     /// ```
     struct UpdateTokenMap: Codable, DefaultInitializable {
@@ -65,15 +69,24 @@ enum LiveActivity {
     /// The structure of this dictionary is:
     /// ```json
     /// {
-    ///     "<LiveActivityAttributeType>": "<token>"
+    ///   "<LiveActivityAttributeType>": {
+    ///     "tokenFirstIssued": "<Date or null>",
+    ///     "token": "<token>"
+    ///   }
     /// }
     /// ```
     ///
     /// Example:
     /// ```json
     /// {
-    ///     "DrinkOrderTrackerActivity": "abc123",
-    ///     "FoodOrderTrackerActivity": "def456"
+    ///   "DrinkOrderTrackerActivity": {
+    ///     "tokenFirstIssued": "2025-04-30T10:00:00Z",
+    ///     "token": "abc123"
+    ///   },
+    ///   "FoodOrderTrackerActivity": {
+    ///     "tokenFirstIssued": "2025-04-30T10:00:00Z",
+    ///     "token": "def456"
+    ///   }
     /// }
     /// ```
     struct PushToStartTokenMap: Codable, DefaultInitializable {
