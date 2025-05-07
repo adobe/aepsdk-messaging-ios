@@ -355,14 +355,11 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
-            // If the Live Activity ttribute type and update token are valid, update the shared state.
+            // If the Live Activity attribute type and update token are valid, update the shared state.
             if let attributeTypeName = event.liveActivityAttributeType {
                 let liveActivityToken = LiveActivity.Token(tokenFirstIssued: Date(), token: token)
                 messagingProperties.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
-                let sharedStateData = messagingProperties.buildMessagingSharedState()
-                if !sharedStateData.isEmpty {
-                    runtime.createSharedState(data: sharedStateData, event: event)
-                }
+                runtime.createSharedState(data: messagingProperties.buildMessagingSharedState(), event: event)
             }
 
             sendLiveActivityPushToStartToken(ecid: ecid, attributeTypeName: attributeTypeName, token: token, event: event)
