@@ -278,7 +278,7 @@ public class Messaging: NSObject, Extension {
 
             // If the Live Activity ID, attribute type, and update token are valid, update the shared state.
             if let attributeTypeName = event.liveActivityAttributeType {
-                let liveActivityToken = LiveActivity.Token(tokenFirstIssued: Date(), token: token)
+                let liveActivityToken = LiveActivity.Token(tokenFirstIssued: event.timestamp, token: token)
                 stateManager.updateTokenStore.set(liveActivityToken, attribute: attributeTypeName, id: liveActivityID)
                 runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
             }
@@ -355,14 +355,14 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
-            // If the Live Activity attribute type and update token are valid, update the shared state.
-            if let attributeTypeName = event.liveActivityAttributeType {
-                let liveActivityToken = LiveActivity.Token(tokenFirstIssued: Date(), token: token)
-                stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
-                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
-            }
+            // Update the push to start token store and update the Messaging shared state.
+            let liveActivityToken = LiveActivity.Token(tokenFirstIssued: event.timestamp, token: token)
+            stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
+            runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
-            sendLiveActivityPushToStartToken(ecid: ecid, attributeTypeName: attributeTypeName, token: token, event: event)
+            // Get all current push to start tokens to send to profile
+            let tokenMap = stateManager.pushToStartTokenStore.all()
+            sendLiveActivityPushToStartTokens(ecid: ecid, tokensMap: tokenMap, event: event)
         }
     }
 

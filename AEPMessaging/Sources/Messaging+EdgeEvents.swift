@@ -106,45 +106,53 @@ extension Messaging {
         dispatch(event: pushTokenEdgeEvent)
     }
 
-    /// Sends an Edge event to synchronize a Live Activity push-to-start token and associated details with Adobe
-    /// Experience Platform profile.
+    /// Sends an Edge event to synchronize Live Activity push-to-start tokens
+    /// and associated details with Adobe Experience Platform profile.
     ///
     /// - Parameters:
-    ///   - ecid: The Experience Cloud ID associated with the token.
-    ///   - attributeTypeName: A unique string representing the `LiveActivityAttributes` type.
-    ///   - token: The push-to-start token for the Live Activity.
+    ///   - ecid: The Experience Cloud ID associated with the tokens.
+    ///   - tokensMap: A map of Live Activity attribute types to their push-to-start tokens.
     ///   - event: The original `Event` that triggered the sync request.
-    func sendLiveActivityPushToStartToken(ecid: String, attributeTypeName: String, token: String, event: Event) {
+    func sendLiveActivityPushToStartTokens(ecid: String, tokensMap: LiveActivity.PushToStartTokenMap, event: Event) {
         guard let appId: String = Bundle.main.bundleIdentifier else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the Live Activity push-to-start token, App bundle identifier is invalid.")
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Failed to sync the Live Activity push-to-start token, App bundle identifier is invalid.")
             return
         }
 
-        // Example: "<apnsSandbox/apns>.liveActivity.<attributeType>"
-        let platform = getPushPlatform(forEvent: event) + ".liveActivity." + attributeTypeName
+        // "apnsSandbox" or "apns"
+        let platform = getPushPlatform(forEvent: event)
 
-        // Create the profile event to send the push notification details with push-to-start token to profile
-        let profileEventData: [String: Any] = [
-            MessagingConstants.XDM.Push.PUSH_NOTIFICATION_DETAILS: [
-                [
-                    MessagingConstants.XDM.Push.APP_ID: appId,
-                    MessagingConstants.XDM.Push.TOKEN: token,
-                    MessagingConstants.XDM.Push.PLATFORM: platform,
-                    MessagingConstants.XDM.Push.DENYLISTED: false,
-                    MessagingConstants.XDM.Push.IDENTITY: [
-                        MessagingConstants.XDM.Push.NAMESPACE: [MessagingConstants.XDM.Push.CODE: MessagingConstants.XDM.Push.Value.ECID],
-                        MessagingConstants.XDM.Push.ID: ecid
-                    ]
+        // Build one entry per attribute/token pair
+        let detailsArray: [[String: Any]] = tokensMap.tokens.map { attributeType, tokenStruct in
+            return [
+                // Standard push fields
+                MessagingConstants.XDM.Push.APP_ID: appId,
+                MessagingConstants.XDM.Push.DENYLISTED: false,
+                MessagingConstants.XDM.Push.PLATFORM: platform,
+                MessagingConstants.XDM.Push.TOKEN: tokenStruct.token,
+
+                // Live Activity attribute type
+                MessagingConstants.XDM.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+
+                // Identity
+                MessagingConstants.XDM.Push.IDENTITY: [
+                    MessagingConstants.XDM.Push.NAMESPACE: [
+                        MessagingConstants.XDM.Push.CODE: MessagingConstants.XDM.Push.Value.ECID
+                    ],
+                    MessagingConstants.XDM.Push.ID: ecid
                 ]
             ]
-        ]
+        }
 
         // Creating Edge event data with XDM and data payloads
         let eventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: [
-                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.LIVE_ACTIVITY_PUSH_TO_START
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.PUSH_TO_START
             ],
-            MessagingConstants.XDM.Key.DATA: profileEventData
+            MessagingConstants.XDM.Key.DATA: [
+                MessagingConstants.XDM.LiveActivity.PUSH_NOTIFICATION_DETAILS: detailsArray
+            ]
         ]
 
         let pushTokenEdgeEvent = event.createChainedEvent(
@@ -164,14 +172,14 @@ extension Messaging {
     ///   - event: The original `Event` that triggered the request to send the update token.
     func sendLiveActivityUpdateToken(liveActivityID: String, token: String, event: Event) {
         let liveActivityData: [String: Any?] = [
-            MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID: liveActivityID,
+            MessagingConstants.XDM.LiveActivity.ID: liveActivityID,
             MessagingConstants.XDM.Push.TOKEN: token
         ]
 
         // Creating Edge event data with XDM and data payloads
         let xdmEventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: [
-                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.LIVE_ACTIVITY_UPDATE_TOKEN
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.UPDATE_TOKEN
             ],
             MessagingConstants.XDM.Key.DATA: liveActivityData
         ]
@@ -206,7 +214,7 @@ extension Messaging {
         }
 
         let liveActivityData: [String: Any?] = [
-            MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID: liveActivityID,
+            MessagingConstants.XDM.LiveActivity.ID: liveActivityID,
             MessagingConstants.XDM.LiveActivity.CHANNEL_ID: channelID,
             MessagingConstants.XDM.Push.APP_ID: appId,
             MessagingConstants.XDM.LiveActivity.ORIGIN: origin
@@ -215,7 +223,7 @@ extension Messaging {
         // Creating XDM Edge event data
         let xdmEventData: [String: Any] = [
             MessagingConstants.XDM.Key.XDM: [
-                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.LIVE_ACTIVITY_START,
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.START,
                 MessagingConstants.XDM.Key.LIVE_ACTIVITY: liveActivityData
             ]
         ]

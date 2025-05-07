@@ -303,14 +303,16 @@ enum MessagingConstants {
 
         enum LiveActivity {
             static let CHANNEL_ID = "channelID"
-            static let LIVE_ACTIVITY_ID = "liveActivityID"
+            static let ATTRIBUTE_TYPE = "liveActivityAttributeType"
+            static let ID = "liveActivityID"
             /// Represents whether the Live Activity was started remotely or locally.
             static let ORIGIN = "origin"
+            static let PUSH_NOTIFICATION_DETAILS = "liveActivityPushNotificationDetails"
 
             enum EventType {
-                static let LIVE_ACTIVITY_PUSH_TO_START = "liveActivity.pushToStart"
-                static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveActivity.updateToken"
-                static let LIVE_ACTIVITY_START = "liveActivity.start"
+                static let PUSH_TO_START = "liveActivity.pushToStart"
+                static let UPDATE_TOKEN = "liveActivity.updateToken"
+                static let START = "liveActivity.start"
             }
         }
     }
@@ -350,5 +352,13 @@ enum MessagingConstants {
     enum NamedCollectionKeys {
         static let LIVE_ACTIVITY_PUSH_TO_START_TOKENS = "liveActivity.pushToStartTokens"
         static let LIVE_ACTIVITY_UPDATE_TOKENS = "liveActivity.updateTokens"
+    }
+
+    enum LiveActivity {
+        /// The maximum allowed lifetime for a Live Activity update token, in seconds.
+        ///
+        /// Tokens older than this duration (12 hours) are considered expired and may be
+        /// automatically removed during initialization or cleanup.
+        static let UPDATE_TOKEN_MAX_TTL = TimeInterval(60 * 60 * 12)
     }
 }
