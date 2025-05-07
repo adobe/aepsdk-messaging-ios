@@ -25,7 +25,7 @@ final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
     ///   - id: The Live Activity ID associated with the token.
     /// - Returns: The associated ``LiveActivity.Token`` if one exists; otherwise, `nil`.
     func token(for attribute: LiveActivity.AttributeTypeName, id: LiveActivity.ID) -> LiveActivity.Token? {
-        _persistedMap?.tokens[attribute]?[id]
+        _persistedMap.tokens[attribute]?[id]
     }
 
     /// Sets or updates the token for the specified Live Activity attribute and Live Activity ID.
@@ -45,7 +45,7 @@ final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
         attribute: LiveActivity.AttributeTypeName,
         id: LiveActivity.ID
     ) -> Bool {
-        var workingMap = _persistedMap ?? LiveActivity.UpdateTokenMap(tokens: [:])
+        var workingMap = _persistedMap
         var attributeTokens = workingMap.tokens[attribute, default: [:]]
         let previousToken = attributeTokens.updateValue(token, forKey: id)
         let didChange = previousToken != token
