@@ -18,6 +18,11 @@ on:
         required: true
         default: 'yes'
 
+      release_AEPMessagingLiveActivity:
+        description: 'release AEPMessagingLiveActivity pod? ("no" to skip)'
+        required: true
+        default: 'yes'
+
 jobs:
   release_messaging:
     runs-on: macos-13
@@ -87,6 +92,17 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
         asset_path: ./build/AEPMessaging.xcframework.zip
         asset_name: AEPMessaging-${{ github.event.inputs.tag }}.xcframework.zip
+        asset_content_type: application/zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload - AEPMessagingLiveActivity
+      uses: actions/upload-release-asset@v1
+      if: ${{ github.event.inputs.action_tag == 'yes' }}  
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./build/AEPMessagingLiveActivity.xcframework.zip
+        asset_name: AEPMessagingLiveActivity-${{ github.event.inputs.tag }}.xcframework.zip
         asset_content_type: application/zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
