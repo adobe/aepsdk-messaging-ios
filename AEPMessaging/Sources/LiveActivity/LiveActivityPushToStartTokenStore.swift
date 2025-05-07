@@ -8,79 +8,57 @@
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
- */
+*/
 
 import AEPServices
 
-final class LiveActivityPushToStartTokenStore {
+final class LiveActivityPushToStartTokenStore: PersistedMapStoreBase<LiveActivity.PushToStartTokenMap> {
     init() {
-        load()
+        super.init(storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_PUSH_TO_START_TOKENS)
     }
 
-    /// Returns the token for the given attribute type, if it exists.
-    func token(for attribute: LiveActivity.AttributeTypeName) -> LiveActivity.Token? {
-        cache.tokens[attribute]
-    }
-
-    /// Sets the token for the given attribute type and persists if the value changed.
+    /// Retrieves the token associated with a specific Live Activity attribute.
     ///
     /// - Parameters:
-    ///   - token: The new `LiveActivityToken` to store.
-    ///   - attribute: The `AttributeType` key under which to store the token.
-    /// - Returns: `true` if the value was changed (new or updated), `false` if unchanged.
+    ///   - attribute: The Live Activity attribute type associated with the token.
+    /// - Returns: The associated ``LiveActivity.Token`` if one exists; otherwise, `nil`.
+    func token(for attribute: LiveActivity.AttributeTypeName) -> LiveActivity.Token? {
+        _persistedMap.tokens[attribute]
+    }
+
+    /// Sets or updates the token for the specified Live Activity attribute.
+    ///
+    /// If the given `token` is new or different from the existing one for the specified
+    /// `attribute`, it is stored in the token map and the change is persisted.
+    /// If the token is unchanged, no persistence occurs.
+    ///
+    /// - Parameters:
+    ///   - token: The ``LiveActivity.Token`` to store.
+    ///   - attribute: The Live Activity attribute type associated with the token.
+    /// - Returns: `true` if the token was new or different and was stored; `false` if the token was unchanged.
     @discardableResult
-    func set(_ token: LiveActivity.Token,
-             attribute: LiveActivity.AttributeTypeName) -> Bool {
-        let previous = cache.tokens.updateValue(token, forKey: attribute)
-        let didChange = previous != token
+    func set(_ token: LiveActivity.Token, attribute: LiveActivity.AttributeTypeName) -> Bool {
+        var workingMap = _persistedMap
+        let previousToken = workingMap.tokens.updateValue(token, forKey: attribute)
+        let didChange = previousToken != token
         if didChange {
-            persist()
+            _persistedMap = workingMap
         }
         return didChange
     }
 
-    /// Removes the token for the given attribute type.
-    func remove(attribute: LiveActivity.AttributeTypeName) {
-        cache.tokens.removeValue(forKey: attribute)
-        persist()
-    }
-
-    /// Returns the full push-to-start token map.
-    func all() -> LiveActivity.PushToStartTokenMap {
-        cache
-    }
-
-    // MARK: - Private helpers
-
-    private var cache = LiveActivity.PushToStartTokenMap(tokens: [:])
-
-    private func load() {
-        if let map = Self.readFromDisk() {
-            cache = map
+    /// Removes the token associated with the given attribute, if it exists.
+    ///
+    /// - Parameters:
+    ///   - attribute: The Live Activity attribute type associated with the token.
+    /// - Returns: `true` if a token was found and removed; `false` if no such token existed.
+    @discardableResult
+    func remove(attribute: LiveActivity.AttributeTypeName) -> Bool {
+        var workingMap = _persistedMap
+        let wasRemoved = workingMap.tokens.removeValue(forKey: attribute) != nil
+        if wasRemoved {
+            _persistedMap = workingMap
         }
-    }
-
-    private func persist() {
-        if let dict = cache.asDictionary() {
-            ServiceProvider.shared.namedKeyValueService.set(
-                collectionName: MessagingConstants.DATA_STORE_NAME,
-                key: MessagingConstants.NamedCollectionKeys
-                    .LIVE_ACTIVITY_PUSH_TO_START_TOKENS,
-                value: dict
-            )
-        }
-    }
-
-    private static func readFromDisk() -> LiveActivity.PushToStartTokenMap? {
-        guard let dict = ServiceProvider.shared.namedKeyValueService.get(
-            collectionName: MessagingConstants.DATA_STORE_NAME,
-            key: MessagingConstants.NamedCollectionKeys
-                .LIVE_ACTIVITY_PUSH_TO_START_TOKENS
-        ) as? [String: Any]
-        else {
-            return nil
-        }
-
-        return LiveActivity.PushToStartTokenMap.from(dict)
+        return wasRemoved
     }
 }

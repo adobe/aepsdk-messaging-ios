@@ -13,6 +13,11 @@
 import Foundation
 
 enum LiveActivity {
+    /// A type that can be initialized with no arguments.
+    protocol DefaultInitializable {
+        init()
+    }
+
     typealias AttributeTypeName = String
     typealias ID = String
 
@@ -47,8 +52,12 @@ enum LiveActivity {
     ///     }
     /// }
     /// ```
-    struct UpdateTokenMap: Codable {
+    struct UpdateTokenMap: Codable, DefaultInitializable {
         var tokens: [AttributeTypeName: [ID: Token]]
+
+        init() {
+            self.tokens = [:]
+        }
     }
 
     /// Represents a mapping from Live Activity attribute types to their corresponding push-to-start tokens.
@@ -67,7 +76,11 @@ enum LiveActivity {
     ///     "FoodOrderTrackerActivity": "def456"
     /// }
     /// ```
-    struct PushToStartTokenMap: Codable {
+    struct PushToStartTokenMap: Codable, DefaultInitializable {
         var tokens: [AttributeTypeName: Token]
+
+        init() {
+            self.tokens = [:]
+        }
     }
 }

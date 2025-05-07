@@ -12,94 +12,73 @@
 
 import AEPServices
 
-final class LiveActivityUpdateTokenStore {
+final class LiveActivityUpdateTokenStore: PersistedMapStoreBase<LiveActivity.UpdateTokenMap> {
     init() {
-        load()
+        super.init(storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_UPDATE_TOKENS)
     }
 
-    /// Returns the token for the given attribute and live activity ID.
-    func token(for attribute: LiveActivity.AttributeTypeName,
-               id: LiveActivity.ID) -> LiveActivity.Token? {
-        cache.tokens[attribute]?[id]
-    }
-
-    /// Sets the token for the given attribute and live activity ID, and persists if changed.
+    /// Retrieves the token associated with a specific Live Activity attribute and ID.
     ///
-    /// - Returns: `true` if the token was new or different and was updated, `false` if unchanged.
+    /// - Parameters:
+    ///   - attribute: The Live Activity attribute type associated with the token.
+    ///   - id: The Live Activity ID associated with the token.
+    /// - Returns: The associated ``LiveActivity.Token`` if one exists; otherwise, `nil`.
+    func token(for attribute: LiveActivity.AttributeTypeName, id: LiveActivity.ID) -> LiveActivity.Token? {
+        _persistedMap.tokens[attribute]?[id]
+    }
+
+    /// Sets or updates the token for the specified Live Activity attribute and Live Activity ID.
+    ///
+    /// If the given `token` is new or different from the existing one for the specified
+    /// `attribute` and `id`, it is stored in the token map and the change is persisted.
+    /// If the token is unchanged, no persistence occurs.
+    ///
+    /// - Parameters:
+    ///   - token: The ``LiveActivity.Token`` to store.
+    ///   - attribute: The Live Activity attribute type associated with the token.
+    ///   - id: The Live Activity ID associated with the token.
+    /// - Returns: `true` if the token was new or different and was stored; `false` if the token was unchanged.
     @discardableResult
-    func set(_ token: LiveActivity.Token,
-             attribute: LiveActivity.AttributeTypeName,
-             id: LiveActivity.ID) -> Bool {
-        var didChange = false
-
-        // Safely get or create inner dictionary
-        var inner = cache.tokens[attribute, default: [:]]
-        let previous = inner.updateValue(token, forKey: id)
-        if previous != token {
-            cache.tokens[attribute] = inner
-            persist()
-            didChange = true
+    func set(
+        _ token: LiveActivity.Token,
+        attribute: LiveActivity.AttributeTypeName,
+        id: LiveActivity.ID
+    ) -> Bool {
+        var workingMap = _persistedMap
+        var attributeTokens = workingMap.tokens[attribute, default: [:]]
+        let previousToken = attributeTokens.updateValue(token, forKey: id)
+        let didChange = previousToken != token
+        if didChange {
+            workingMap.tokens[attribute] = attributeTokens
+            _persistedMap = workingMap
         }
-
         return didChange
     }
 
-    /// Removes the token at the given attribute + activity ID, if it exists.
+    /// Removes the token associated with the given attribute and Live Activity ID, if it exists.
     ///
-    /// - Returns: `true` if a value was removed, `false` if not found.
+    /// If a token exists for the specified `attribute` and `id`, it is removed. If the resulting
+    /// token map for the attribute becomes empty, the entire attribute entry is removed from the map.
+    ///
+    /// - Parameters:
+    ///   - attribute: The Live Activity attribute type associated with the token.
+    ///   - id: The Live Activity ID associated with the token.
+    /// - Returns: `true` if a token was found and removed; `false` if no such token existed.
     @discardableResult
-    func remove(attribute: LiveActivity.AttributeTypeName,
-                id: LiveActivity.ID) -> Bool {
-        guard var inner = cache.tokens[attribute] else { return false }
-        let removed = inner.removeValue(forKey: id)
-        if removed != nil {
-            if inner.isEmpty {
-                cache.tokens.removeValue(forKey: attribute)
-            } else {
-                cache.tokens[attribute] = inner
-            }
-            persist()
-            return true
-        }
-        return false
-    }
-
-    /// Returns the entire update token map.
-    func all() -> LiveActivity.UpdateTokenMap {
-        cache
-    }
-
-    // MARK: - Private helpers
-
-    private var cache = LiveActivity.UpdateTokenMap(tokens: [:])
-
-    private func load() {
-        if let map = Self.readFromDisk() {
-            cache = map
-        }
-    }
-
-    private func persist() {
-        if let dict = cache.asDictionary() {
-            ServiceProvider.shared.namedKeyValueService.set(
-                collectionName: MessagingConstants.DATA_STORE_NAME,
-                key: MessagingConstants.NamedCollectionKeys
-                    .LIVE_ACTIVITY_UPDATE_TOKENS,
-                value: dict
-            )
-        }
-    }
-
-    private static func readFromDisk() -> LiveActivity.UpdateTokenMap? {
-        guard let dict = ServiceProvider.shared.namedKeyValueService.get(
-            collectionName: MessagingConstants.DATA_STORE_NAME,
-            key: MessagingConstants.NamedCollectionKeys
-                .LIVE_ACTIVITY_UPDATE_TOKENS
-        ) as? [String: Any]
+    func remove(attribute: LiveActivity.AttributeTypeName, id: LiveActivity.ID) -> Bool {
+        var workingMap = _persistedMap
+        guard var attributeTokens = workingMap.tokens[attribute],
+              attributeTokens.removeValue(forKey: id) != nil
         else {
-            return nil
+            return false
         }
-
-        return LiveActivity.UpdateTokenMap.from(dict)
+        // Cleans up the map by removing the attribute key if no tokens exist for it.
+        if attributeTokens.isEmpty {
+            workingMap.tokens.removeValue(forKey: attribute)
+        } else {
+            workingMap.tokens[attribute] = attributeTokens
+        }
+        _persistedMap = workingMap
+        return true
     }
 }

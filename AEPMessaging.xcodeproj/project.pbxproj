@@ -202,6 +202,7 @@
 		4C2157F72DC444FF0055C8C9 /* LiveActivityPushToStartTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F62DC444FF0055C8C9 /* LiveActivityPushToStartTokenStore.swift */; };
 		4C2157F92DC445560055C8C9 /* LiveActivityTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F82DC445560055C8C9 /* LiveActivityTypes.swift */; };
 		4C2157FD2DC44C070055C8C9 /* Decodable+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157FC2DC44C070055C8C9 /* Decodable+Messaging.swift */; };
+		4C2157FF2DCAD5530055C8C9 /* PersistedMapStoreBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157FE2DCAD5530055C8C9 /* PersistedMapStoreBase.swift */; };
 		4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */; };
 		4C9BE8D62DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */; };
 		4C9BE8D82DAF5A6900EF41A3 /* ActivityTaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */; };
@@ -703,6 +704,7 @@
 		4C2157F62DC444FF0055C8C9 /* LiveActivityPushToStartTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityPushToStartTokenStore.swift; sourceTree = "<group>"; };
 		4C2157F82DC445560055C8C9 /* LiveActivityTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityTypes.swift; sourceTree = "<group>"; };
 		4C2157FC2DC44C070055C8C9 /* Decodable+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decodable+Messaging.swift"; sourceTree = "<group>"; };
+		4C2157FE2DCAD5530055C8C9 /* PersistedMapStoreBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistedMapStoreBase.swift; sourceTree = "<group>"; };
 		4C3B9F882AE3385B00A7D395 /* AEPTestUtils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPTestUtils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Messaging.swift"; sourceTree = "<group>"; };
 		4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveActivityAttributes+Messaging.swift"; sourceTree = "<group>"; };
@@ -1492,10 +1494,11 @@
 			children = (
 				4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */,
 				4C2157F62DC444FF0055C8C9 /* LiveActivityPushToStartTokenStore.swift */,
-				4C2157F42DC444EA0055C8C9 /* LiveActivityUpdateTokenStore.swift */,
-				4C2157F82DC445560055C8C9 /* LiveActivityTypes.swift */,
 				4C9BE8D92DAF5A9C00EF41A3 /* LiveActivityTokenStore.swift */,
+				4C2157F82DC445560055C8C9 /* LiveActivityTypes.swift */,
+				4C2157F42DC444EA0055C8C9 /* LiveActivityUpdateTokenStore.swift */,
 				B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */,
+				4C2157FE2DCAD5530055C8C9 /* PersistedMapStoreBase.swift */,
 			);
 			path = LiveActivity;
 			sourceTree = "<group>";
@@ -2849,6 +2852,7 @@
 				242920F32AD06207000DB2CD /* JsonContentSchemaData.swift in Sources */,
 				B64256B92D93B08900EDCAC5 /* Messaging+LiveActivityPublicAPI.swift in Sources */,
 				090290C529DCED0B00388226 /* ContentCardRulesEngine.swift in Sources */,
+				4C2157FF2DCAD5530055C8C9 /* PersistedMapStoreBase.swift in Sources */,
 				242920F52AD06215000DB2CD /* HtmlContentSchemaData.swift in Sources */,
 				244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */,
 				4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */,
