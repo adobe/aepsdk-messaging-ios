@@ -87,7 +87,7 @@ final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
 
     // MARK: - Private helpers
 
-    /// Checks the entire update token map and removes any tokens whose `tokenFirstIssued`date
+    /// Checks the entire update token map and removes any tokens whose `tokenFirstIssued` date
     /// is older than the configured TTL in `MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL`.
     private func removeExpiredTokens() {
         let ttl = MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL
