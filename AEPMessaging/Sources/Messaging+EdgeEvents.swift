@@ -125,7 +125,7 @@ extension Messaging {
 
         // Build one entry per attribute/token pair
         let detailsArray: [[String: Any]] = tokensMap.tokens.map { attributeType, tokenStruct in
-            return [
+            [
                 // Standard push fields
                 MessagingConstants.XDM.Push.APP_ID: appId,
                 MessagingConstants.XDM.Push.DENYLISTED: false,

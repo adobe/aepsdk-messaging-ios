@@ -96,9 +96,9 @@ final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
         var anyTokenDidExpire = false
 
         for (attribute, attributeTokens) in workingMap.tokens {
-            let stillValidTokens = attributeTokens.filter { id, token in
+            let stillValidTokens = attributeTokens.filter { _, token in
                 // Keep only tokens newer than TTL
-                return now.timeIntervalSince(token.tokenFirstIssued) <= ttl
+                now.timeIntervalSince(token.tokenFirstIssued) <= ttl
             }
             if stillValidTokens.count != attributeTokens.count {
                 anyTokenDidExpire = true
