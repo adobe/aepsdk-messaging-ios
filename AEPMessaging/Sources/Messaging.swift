@@ -281,6 +281,8 @@ public class Messaging: NSObject, Extension {
                 let liveActivityToken = LiveActivity.Token(tokenFirstIssued: event.timestamp, token: token)
                 stateManager.updateTokenStore.set(liveActivityToken, attribute: attributeTypeName, id: liveActivityID)
                 runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+            } else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to create a shared state for Live Activity update event (\(event.id.uuidString)) because a valid Live Activity attribute type could not be found in the event.")
             }
 
             sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
