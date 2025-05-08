@@ -23,9 +23,6 @@ import AEPServices
 public extension Messaging {
     // MARK: - Shared Storage
 
-    /// A shared store used to manage push tokens across the application.
-    private static let liveActivityTokenStore = LiveActivityTokenStore()
-
     /// A shared task store for tasks that handle push-to-start token updates.
     private static let pushToStartTaskStore = ActivityTaskStore<String>()
 
@@ -92,11 +89,7 @@ public extension Messaging {
 
             for await tokenData in Activity<T>.pushToStartTokenUpdates {
                 let tokenHex = tokenData.hexEncodedString
-                if await liveActivityTokenStore.updatePushToken(for: attributeTypeName, token: tokenHex) {
-                    dispatchPushToStartTokenEvent(attributeTypeName: attributeTypeName, token: tokenHex)
-                } else {
-                    Log.debug(label: MessagingConstants.LOG_TAG, "Duplicate push-to-start token for \(attributeTypeName); skipping event.")
-                }
+                dispatchPushToStartTokenEvent(attributeTypeName: attributeTypeName, token: tokenHex)
             }
         }
     }
