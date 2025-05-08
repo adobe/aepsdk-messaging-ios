@@ -344,4 +344,8 @@ extension Event {
     var liveActivityOrigin: String? {
         data?[MessagingConstants.XDM.LiveActivity.ORIGIN] as? String
     }
+
+    var liveActivityState: String? {
+        data?[MessagingConstants.Event.Data.Key.STATE] as? String
+    }
 }
