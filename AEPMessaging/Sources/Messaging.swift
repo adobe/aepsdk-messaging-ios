@@ -297,6 +297,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
+        // Handles removal of Live Activity update tokens when the activity reaches an ended or dismissed state
         if event.isLiveActivityStateEvent {
             guard let activityState = event.liveActivityState else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity state event (\(event.id.uuidString)) because a valid 'state' could not be found in the event.")

@@ -12,7 +12,7 @@
 
 import Foundation
 
-// TODO: remove this once the Core version is available
+// TODO: Replace this with the Core implementation once it is available
 public extension Decodable {
     /// Attempts to decode `Self` from a `[String: Any]` dictionary.
     /// - Parameters:
