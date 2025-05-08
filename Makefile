@@ -63,8 +63,8 @@ _archive: clean build
 		-output ./build/$(AEPMESSAGINGLIVEACTIVITY).xcframework
 
 build:
-	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(AEPMESSAGING_AGGREGATE) -archivePath "./build/ios.xcarchive" -sdk iphoneos -destination="iOS" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
-	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(AEPMESSAGING_AGGREGATE) -archivePath "./build/ios_simulator.xcarchive" -sdk iphonesimulator -destination="iOS Simulator" SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(AEPMESSAGING_AGGREGATE) -archivePath "./build/ios.xcarchive" -sdk iphoneos -destination="iOS" SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(AEPMESSAGING_AGGREGATE) -archivePath "./build/ios_simulator.xcarchive" -sdk iphonesimulator -destination="iOS Simulator" SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
 
 zip:
 	cd build && zip -r -X $(AEPMESSAGING).xcframework.zip $(AEPMESSAGING).xcframework/
