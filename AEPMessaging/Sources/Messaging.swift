@@ -308,7 +308,7 @@ public class Messaging: NSObject, Extension {
                 return
             }
             guard activityState == MessagingConstants.LiveActivity.States.ENDED
-                    || activityState == MessagingConstants.LiveActivity.States.DISMISSED else {
+                || activityState == MessagingConstants.LiveActivity.States.DISMISSED else {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity state event (\(event.id.uuidString)) is not 'ended' or 'dismissed'. Skipping.")
                 return
             }
