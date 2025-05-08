@@ -99,6 +99,9 @@ public class Messaging: NSObject, Extension {
         set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
     }
 
+    /// Messaging properties
+    private var stateManager = MessagingStateManager()
+
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -272,6 +275,14 @@ public class Messaging: NSObject, Extension {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid Live Activity ID could not be found in the event.")
                 return
             }
+
+            // If the Live Activity ID, attribute type, and update token are valid, update the shared state.
+            if let attributeTypeName = event.liveActivityAttributeType {
+                let liveActivityToken = LiveActivity.Token(tokenFirstIssued: Date(), token: token)
+                stateManager.updateTokenStore.set(liveActivityToken, attribute: attributeTypeName, id: liveActivityID)
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+            }
+
             sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
             return
         }
@@ -315,6 +326,7 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
+            // TODO: update when push token implementation is in MessagingProperties
             // If the push token is valid update the shared state.
             runtime.createSharedState(data: [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token], event: event)
 
@@ -342,6 +354,14 @@ public class Messaging: NSObject, Extension {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
                 return
             }
+
+            // If the Live Activity attribute type and update token are valid, update the shared state.
+            if let attributeTypeName = event.liveActivityAttributeType {
+                let liveActivityToken = LiveActivity.Token(tokenFirstIssued: Date(), token: token)
+                stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+            }
+
             sendLiveActivityPushToStartToken(ecid: ecid, attributeTypeName: attributeTypeName, token: token, event: event)
         }
     }

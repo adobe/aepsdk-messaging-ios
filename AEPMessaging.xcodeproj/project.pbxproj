@@ -197,6 +197,12 @@
 		24CA4BE12B61977800D16369 /* SurfaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BE02B61977800D16369 /* SurfaceTests.swift */; };
 		24FD5F752CEEA50F00AE4567 /* CompletionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */; };
 		4C0111D72DB30FD900996757 /* LiveActivityOrigin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0111D62DB30FD900996757 /* LiveActivityOrigin.swift */; };
+		4C2157F32DC4441F0055C8C9 /* MessagingStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F22DC4441F0055C8C9 /* MessagingStateManager.swift */; };
+		4C2157F52DC444EA0055C8C9 /* UpdateTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F42DC444EA0055C8C9 /* UpdateTokenStore.swift */; };
+		4C2157F72DC444FF0055C8C9 /* PushToStartTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F62DC444FF0055C8C9 /* PushToStartTokenStore.swift */; };
+		4C2157F92DC445560055C8C9 /* LiveActivityTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F82DC445560055C8C9 /* LiveActivityTypes.swift */; };
+		4C2157FD2DC44C070055C8C9 /* Decodable+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157FC2DC44C070055C8C9 /* Decodable+Messaging.swift */; };
+		4C2157FF2DCAD5530055C8C9 /* TokenStoreBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157FE2DCAD5530055C8C9 /* TokenStoreBase.swift */; };
 		4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */; };
 		4C9BE8D62DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */; };
 		4C9BE8D82DAF5A6900EF41A3 /* ActivityTaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */; };
@@ -693,6 +699,12 @@
 		3D55E83254139642A1CAA76E /* Pods_FunctionalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FunctionalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		43204BBDCB8D5720A0D56E52 /* Pods-IntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegrationTests.release.xcconfig"; path = "Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
 		4C0111D62DB30FD900996757 /* LiveActivityOrigin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityOrigin.swift; sourceTree = "<group>"; };
+		4C2157F22DC4441F0055C8C9 /* MessagingStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingStateManager.swift; sourceTree = "<group>"; };
+		4C2157F42DC444EA0055C8C9 /* UpdateTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTokenStore.swift; sourceTree = "<group>"; };
+		4C2157F62DC444FF0055C8C9 /* PushToStartTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushToStartTokenStore.swift; sourceTree = "<group>"; };
+		4C2157F82DC445560055C8C9 /* LiveActivityTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityTypes.swift; sourceTree = "<group>"; };
+		4C2157FC2DC44C070055C8C9 /* Decodable+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decodable+Messaging.swift"; sourceTree = "<group>"; };
+		4C2157FE2DCAD5530055C8C9 /* TokenStoreBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreBase.swift; sourceTree = "<group>"; };
 		4C3B9F882AE3385B00A7D395 /* AEPTestUtils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPTestUtils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Messaging.swift"; sourceTree = "<group>"; };
 		4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveActivityAttributes+Messaging.swift"; sourceTree = "<group>"; };
@@ -1180,12 +1192,11 @@
 		92315433261E3B36004AE7D3 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				B64256B72D93B06F00EDCAC5 /* LiveActivity */,
 				B6F7CC5E2CC7081E00C35C64 /* ClassExtensions */,
 				B6F7CC5F2CC7089200C35C64 /* Enum */,
+				B64256B72D93B06F00EDCAC5 /* LiveActivity */,
 				242920F62AD0628B000DB2CD /* Schemas */,
 				B6F7CBC82CC2089A00C35C64 /* UI */,
-				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
 				24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */,
 				246EF0632C013DED002A9B22 /* ContentCard.swift */,
 				090290C429DCED0B00388226 /* ContentCardRulesEngine.swift */,
@@ -1202,6 +1213,7 @@
 				0969D63F2A7A9DC600A00BF7 /* MessagingMigrator.swift */,
 				2450594D2671283F00CC7CA0 /* MessagingRulesEngine.swift */,
 				2469A5E2274863F600E56457 /* MessagingRulesEngine+Caching.swift */,
+				4C2157F22DC4441F0055C8C9 /* MessagingStateManager.swift */,
 				240FC42D2AA920D400AFEEEB /* ParsedPropositions.swift */,
 				09B071EB2A651C7800F259C1 /* Proposition.swift */,
 				246EF05F2BFFC6B5002A9B22 /* PropositionHistory.swift */,
@@ -1210,6 +1222,7 @@
 				09B071ED2A651CB200F259C1 /* PropositionItem.swift */,
 				243B1AFB28AD7FCE0074327E /* PropositionPayload.swift */,
 				09B071E52A64D3D900F259C1 /* Surface.swift */,
+				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
 				92315438261E3B36004AE7D3 /* Info.plist */,
 			);
 			path = Sources;
@@ -1481,7 +1494,11 @@
 			children = (
 				4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */,
 				4C9BE8D92DAF5A9C00EF41A3 /* LiveActivityTokenStore.swift */,
+				4C2157F82DC445560055C8C9 /* LiveActivityTypes.swift */,
 				B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */,
+				4C2157F62DC444FF0055C8C9 /* PushToStartTokenStore.swift */,
+				4C2157FE2DCAD5530055C8C9 /* TokenStoreBase.swift */,
+				4C2157F42DC444EA0055C8C9 /* UpdateTokenStore.swift */,
 			);
 			path = LiveActivity;
 			sourceTree = "<group>";
@@ -1689,6 +1706,7 @@
 			children = (
 				09B071F52A7318CB00F259C1 /* Array+Messaging.swift */,
 				09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */,
+				4C2157FC2DC44C070055C8C9 /* Decodable+Messaging.swift */,
 				240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */,
 				4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */,
 				244E955A267BB253001DC957 /* Dictionary+Messaging.swift */,
@@ -2819,18 +2837,22 @@
 				240FC42E2AA920D400AFEEEB /* ParsedPropositions.swift in Sources */,
 				246EF0602BFFC6B5002A9B22 /* PropositionHistory.swift in Sources */,
 				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
+				4C2157F32DC4441F0055C8C9 /* MessagingStateManager.swift in Sources */,
 				09B071EE2A651CB200F259C1 /* PropositionItem.swift in Sources */,
 				246FD07226B9F86F00FD130B /* FullscreenMessage+Message.swift in Sources */,
+				4C2157F72DC444FF0055C8C9 /* PushToStartTokenStore.swift in Sources */,
 				242920ED2ACF7760000DB2CD /* SchemaType.swift in Sources */,
 				09B071EC2A651C7800F259C1 /* Proposition.swift in Sources */,
 				243B1AFC28AD7FCE0074327E /* PropositionPayload.swift in Sources */,
 				24569A8F2AE2CD6E00FC356F /* ContentType.swift in Sources */,
 				243B1AFE28AEB1E60074327E /* PropositionInfo.swift in Sources */,
+				4C2157F92DC445560055C8C9 /* LiveActivityTypes.swift in Sources */,
 				240F71FB26868F7100846587 /* SharedStateResult+Messaging.swift in Sources */,
 				2469A5E3274863F600E56457 /* MessagingRulesEngine+Caching.swift in Sources */,
 				242920F32AD06207000DB2CD /* JsonContentSchemaData.swift in Sources */,
 				B64256B92D93B08900EDCAC5 /* Messaging+LiveActivityPublicAPI.swift in Sources */,
 				090290C529DCED0B00388226 /* ContentCardRulesEngine.swift in Sources */,
+				4C2157FF2DCAD5530055C8C9 /* TokenStoreBase.swift in Sources */,
 				242920F52AD06215000DB2CD /* HtmlContentSchemaData.swift in Sources */,
 				244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */,
 				4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */,
@@ -2854,6 +2876,7 @@
 				B6F7CBD72CC2089A00C35C64 /* AEPButtonView.swift in Sources */,
 				B6F7CBD82CC2089A00C35C64 /* AEPStackError.swift in Sources */,
 				B6D035E22D2F23E900031170 /* AppStateManager.swift in Sources */,
+				4C2157FD2DC44C070055C8C9 /* Decodable+Messaging.swift in Sources */,
 				B6F7CBD92CC2089A00C35C64 /* AEPViewModel.swift in Sources */,
 				B6F7CBDA2CC2089A00C35C64 /* ImageSourceType.swift in Sources */,
 				B6F7CBDB2CC2089A00C35C64 /* ContentCardSchemaData+TemplateContent.swift in Sources */,
@@ -2874,6 +2897,7 @@
 				B6F7CBE92CC2089A00C35C64 /* AEPStack.swift in Sources */,
 				B6F7CBEA2CC2089A00C35C64 /* TemplateEventHandler.swift in Sources */,
 				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
+				4C2157F52DC444EA0055C8C9 /* UpdateTokenStore.swift in Sources */,
 				09B071F62A7318CB00F259C1 /* Array+Messaging.swift in Sources */,
 				244FEA4829B8E2950058FA1C /* Feed.swift in Sources */,
 				24FD5F752CEEA50F00AE4567 /* CompletionHandler.swift in Sources */,

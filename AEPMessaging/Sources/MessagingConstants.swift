@@ -22,6 +22,7 @@ enum MessagingConstants {
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
+    static let DATA_STORE_NAME = EXTENSION_NAME
 
     enum ContentTypes {
         static let APPLICATION_JSON = "application/json"
@@ -317,6 +318,8 @@ enum MessagingConstants {
     enum SharedState {
         enum Messaging {
             static let PUSH_IDENTIFIER = "pushidentifier"
+            static let LIVE_ACTIVITY_PUSH_TO_START_TOKENS = "liveActivity.pushToStartTokens"
+            static let LIVE_ACTIVITY_UPDATE_TOKENS = "liveActivity.updateTokens"
         }
 
         enum Configuration {
@@ -342,5 +345,10 @@ enum MessagingConstants {
             static let ACTION_URL = "adb_uri"
             static let PUSH_TO_INAPP = "adb_iam_id"
         }
+    }
+
+    enum NamedCollectionKeys {
+        static let LIVE_ACTIVITY_PUSH_TO_START_TOKENS = "liveActivity.pushToStartTokens"
+        static let LIVE_ACTIVITY_UPDATE_TOKENS = "liveActivity.updateTokens"
     }
 }
