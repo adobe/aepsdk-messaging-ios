@@ -22,7 +22,7 @@ enum LiveActivity {
     typealias ID = String
 
     struct Token: Codable, Equatable {
-        var tokenFirstIssued: Date?
+        var tokenFirstIssued: Date
         var token: String
     }
 

@@ -13,9 +13,11 @@
 import AEPServices
 
 final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
-    // TODO: During initializing we might want to discard the expired tokens. (Live Activity update tokens can expire after every 12 hours)
     init() {
         super.init(storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_UPDATE_TOKENS)
+        // This always triggers a lazy load from persisted storage.
+        // If any tokens are expired, they will be removed and the updated map will be written back.
+        removeExpiredTokens()
     }
 
     /// Retrieves the token associated with a specific Live Activity attribute and ID.
@@ -81,5 +83,35 @@ final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
         }
         _persistedMap = workingMap
         return true
+    }
+
+    // MARK: - Private helpers
+
+    /// Checks the entire update token map and removes any tokens whose `tokenFirstIssued` date
+    /// is older than the configured TTL in `MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL`.
+    private func removeExpiredTokens() {
+        let ttl = MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL
+        let now = Date()
+        var workingMap = _persistedMap
+        var anyTokenDidExpire = false
+
+        for (attribute, attributeTokens) in workingMap.tokens {
+            let stillValidTokens = attributeTokens.filter { _, token in
+                // Keep only tokens newer than TTL
+                now.timeIntervalSince(token.tokenFirstIssued) <= ttl
+            }
+            if stillValidTokens.count != attributeTokens.count {
+                anyTokenDidExpire = true
+            }
+            if stillValidTokens.isEmpty {
+                workingMap.tokens.removeValue(forKey: attribute)
+            } else {
+                workingMap.tokens[attribute] = stillValidTokens
+            }
+        }
+
+        if anyTokenDidExpire {
+            _persistedMap = workingMap
+        }
     }
 }

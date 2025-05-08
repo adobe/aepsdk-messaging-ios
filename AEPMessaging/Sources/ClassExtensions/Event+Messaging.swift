@@ -334,7 +334,7 @@ extension Event {
     }
 
     var liveActivityID: String? {
-        data?[MessagingConstants.XDM.LiveActivity.LIVE_ACTIVITY_ID] as? String
+        data?[MessagingConstants.XDM.LiveActivity.ID] as? String
     }
 
     var liveActivityChannelID: String? {
