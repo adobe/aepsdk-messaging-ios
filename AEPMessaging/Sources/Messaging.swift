@@ -281,6 +281,8 @@ public class Messaging: NSObject, Extension {
                 let liveActivityToken = LiveActivity.Token(tokenFirstIssued: event.timestamp, token: token)
                 stateManager.updateTokenStore.set(liveActivityToken, attribute: attributeTypeName, id: liveActivityID)
                 runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+            } else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to create a shared state for Live Activity update event (\(event.id.uuidString)) because a valid Live Activity attribute type could not be found in the event.")
             }
 
             sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
@@ -334,6 +336,34 @@ public class Messaging: NSObject, Extension {
             return
         }
 
+        // This must come before isMessagingRequestContentEvent handler, as push-to-start token event uses same signature
+        if event.isLiveActivityPushToStartTokenEvent {
+            // Extract token from event
+            guard let token = event.liveActivityPushToStartToken else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event.")
+                return
+            }
+            guard let attributeTypeName = event.liveActivityAttributeType else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
+                return
+            }
+
+            // Update the push to start token store and update the Messaging shared state.
+            let liveActivityToken = LiveActivity.Token(tokenFirstIssued: event.timestamp, token: token)
+            stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
+            runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+
+            // Get all current push to start tokens to send to profile
+            let tokenMap = stateManager.pushToStartTokenStore.all()
+
+            // Don't block shared state from being published because of ECID; check after
+            guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
+                return
+            }
+            sendLiveActivityPushToStartTokens(ecid: ecid, tokensMap: tokenMap, event: event)
+        }
+
         // Check if the event type is `EventType.messaging` and
         // eventSource is `EventSource.requestContent` handle processing of the tracking information
         if event.isMessagingRequestContentEvent {
@@ -361,34 +391,6 @@ public class Messaging: NSObject, Extension {
                 return
             }
             sendPushToken(ecid: ecid, token: token, event: event)
-        }
-
-        // MARK: Hard dependency on ECID from Edge Identity for all logic below
-
-        guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
-            return
-        }
-
-        if event.isLiveActivityPushToStartTokenEvent {
-            // Extract token from event
-            guard let token = event.liveActivityPushToStartToken else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event.")
-                return
-            }
-            guard let attributeTypeName = event.liveActivityAttributeType else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
-                return
-            }
-
-            // Update the push to start token store and update the Messaging shared state.
-            let liveActivityToken = LiveActivity.Token(tokenFirstIssued: event.timestamp, token: token)
-            stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
-            runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
-
-            // Get all current push to start tokens to send to profile
-            let tokenMap = stateManager.pushToStartTokenStore.all()
-            sendLiveActivityPushToStartTokens(ecid: ecid, tokensMap: tokenMap, event: event)
         }
     }
 
