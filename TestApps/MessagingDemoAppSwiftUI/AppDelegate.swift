@@ -56,6 +56,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             Messaging.updatePropositionsForSurfaces([cardSurface,cbeSurface1, cbeSurface2])
         }
         
+        if #available(iOS 16.1, *) {
+            Messaging.registerLiveActivity(AirplaneTrackingAttributes.self)
+            Messaging.registerLiveActivity(FoodDeliveryLiveActivityAttributes.self)
+            Messaging.registerLiveActivity(GameScoreLiveActivityAttributes.self)
+        }
+        
         return true
     }
     
