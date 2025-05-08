@@ -284,6 +284,7 @@ public extension Messaging {
 
         var data: [String: Any] = [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
+            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
             MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
             MessagingConstants.Event.Data.Key.STATE: "\(state)"
         ]

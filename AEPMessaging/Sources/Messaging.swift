@@ -289,12 +289,38 @@ public class Messaging: NSObject, Extension {
 
         if event.isLiveActivityStartEvent {
             guard let origin = event.liveActivityOrigin else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity start event (\(event.id.uuidString)) because a valid Live Activity 'origin' could not be found in the event.")
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity start event (\(event.id.uuidString)) because a valid 'origin' could not be found in the event.")
                 return
             }
 
             sendLiveActivityStart(channelID: event.liveActivityChannelID, liveActivityID: event.liveActivityID, origin: origin, event: event)
             return
+        }
+
+        // Handles removal of Live Activity update tokens when the activity reaches an ended or dismissed state
+        if event.isLiveActivityStateEvent {
+            guard let activityState = event.liveActivityState else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity state event (\(event.id.uuidString)) because a valid 'state' could not be found in the event.")
+                return
+            }
+            guard let attributeTypeName = event.liveActivityAttributeType else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity state event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
+                return
+            }
+            guard activityState == MessagingConstants.LiveActivity.States.ENDED
+                || activityState == MessagingConstants.LiveActivity.States.DISMISSED else {
+                Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity state event (\(event.id.uuidString)) is not 'ended' or 'dismissed'. Skipping.")
+                return
+            }
+            guard let liveActivityID = event.liveActivityID else {
+                Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity state event (\(event.id.uuidString)) does not have a Live Activity ID. Skipping.")
+                return
+            }
+
+            // At this point the Live Activity has reached a terminal state (.ended or .dismissed)
+            // Remove its update token and publish a refreshed shared state
+            stateManager.updateTokenStore.remove(attribute: attributeTypeName, id: liveActivityID)
+            runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
         }
 
         handleEdgeIdentityDependentEvents(event)
