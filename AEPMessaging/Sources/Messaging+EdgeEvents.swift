@@ -15,13 +15,13 @@ import AEPServices
 import Foundation
 
 extension Messaging {
-    // MARK: - internal methods
+    // MARK: - Push Notification Edge Events
 
-    /// Sends an experience event to the platform SDK for tracking the notification click-throughs
+    /// Sends an experience event to the platform SDK for tracking push interactions
     ///
     /// - Parameters:
-    ///   - event: The triggering event with the click through data
-    func handleTrackingInfo(event: Event) {
+    ///   - event: The triggering event with push interaction data
+    func sendPushInteraction(event: Event) {
         guard let datasetId = getDatasetId(forEvent: event) else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to handle tracking information for push notification: " +
@@ -57,12 +57,12 @@ extension Messaging {
 
         dispatchTrackingResponseEvent(.trackingInitiated, forEvent: event)
 
-        // Creating xdm edge event with request content source type
-        let trackingEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
-                                                     type: EventType.edge,
-                                                     source: EventSource.requestContent,
-                                                     data: xdmEventData)
-        dispatch(event: trackingEvent)
+        // create edge event
+        let pushInteractionEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
+                                                            type: EventType.edge,
+                                                            source: EventSource.requestContent,
+                                                            data: xdmEventData)
+        dispatch(event: pushInteractionEvent)
     }
 
     /// Send an edge event to sync the push notification details with push token
@@ -105,6 +105,27 @@ extension Messaging {
                                                           data: xdmEventData)
         dispatch(event: pushTokenEdgeEvent)
     }
+
+    // MARK: - InApp Messages, Content Cards, and Code-Based Experiences Tracking Event
+
+    /// Sends a proposition interaction to the customer's experience event dataset.
+    ///
+    /// - Parameters:
+    ///   - xdm: a dictionary containing the proposition interaction XDM.
+    func sendPropositionInteraction(withXdm xdm: [String: Any]) {
+        var eventData: [String: Any] = [:]
+
+        eventData[MessagingConstants.XDM.Key.XDM] = xdm
+
+        // Creating xdm edge event with request content source type
+        let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
+                          type: EventType.edge,
+                          source: EventSource.requestContent,
+                          data: eventData)
+        dispatch(event: event)
+    }
+
+    // MARK: - Live Activity Edge Event
 
     /// Sends an Edge event to synchronize Live Activity push-to-start tokens
     /// and associated details with Adobe Experience Platform profile.
@@ -382,18 +403,6 @@ extension Messaging {
         return configuration.pushPlatform
     }
 
-    /// Generates and dispatches an event prompting the Edge extension to send a proposition interactions tracking event.
-    ///
-    /// - Parameter event: request event containing proposition interaction XDM data
-    func trackMessages(_ event: Event) {
-        guard let propositionInteractionXdm = event.propositionInteractionXdm else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Cannot track proposition item, proposition interaction XDM is not available.")
-            return
-        }
-
-        sendPropositionInteraction(withXdm: propositionInteractionXdm)
-    }
-
     /// {
     ///     "xdm": {
     ///         "eventType": "decisioning.propositionInteract",
@@ -426,23 +435,6 @@ extension Messaging {
     ///         }
     ///     }
     /// }
-
-    /// Sends a proposition interaction to the customer's experience event dataset.
-    ///
-    /// - Parameters:
-    ///   - xdm: a dictionary containing the proposition interaction XDM.
-    func sendPropositionInteraction(withXdm xdm: [String: Any]) {
-        var eventData: [String: Any] = [:]
-
-        eventData[MessagingConstants.XDM.Key.XDM] = xdm
-
-        // Creating xdm edge event with request content source type
-        let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
-                          type: EventType.edge,
-                          source: EventSource.requestContent,
-                          data: eventData)
-        dispatch(event: event)
-    }
 
     private func dispatchTrackingResponseEvent(_ status: PushTrackingStatus, forEvent event: Event) {
         let responseEvent = event.createResponseEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_STATUS,

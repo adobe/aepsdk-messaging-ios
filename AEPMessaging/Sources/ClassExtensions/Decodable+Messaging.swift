@@ -32,6 +32,6 @@ public extension Decodable {
         // Decode into type
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = dateDecodingStrategy
-        return try? decoder.decode(Self.self, from: data)
+        return try? decoder.decode(self, from: data)
     }
 }

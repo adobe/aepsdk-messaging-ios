@@ -41,25 +41,25 @@ public extension Messaging {
     /// - Parameter type: The Live Activity type that conforms to the ``LiveActivityAttributes`` protocol.
     ///                   This type defines the structure and content of your Live Activity.
     static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
-        let attributeTypeName = T.attributeTypeName
+        let attributeType = T.attributeType
 
         if #available(iOS 17.2, *) {
             let newPushTask = createPushToStartTokenTask(type: T.self)
             Task {
-                await pushToStartTaskStore.setTask(for: attributeTypeName, task: newPushTask)
+                await pushToStartTaskStore.setTask(for: attributeType, task: newPushTask)
             }
         } else {
             Log.debug(
                 label: MessagingConstants.LOG_TAG,
                 "Not creating a Live Activity push-to-start token handler task for " +
-                    "LiveActivityAttributes type \(attributeTypeName). " +
+                    "LiveActivityAttributes type \(attributeType). " +
                     "iOS 17.2 or later is required to start a Live Activity with a push-to-start token."
             )
         }
 
         let newActivityUpdatesTask = createActivityUpdatesTask(type: T.self)
         Task {
-            await activityUpdateTaskStore.setTask(for: attributeTypeName, task: newActivityUpdatesTask)
+            await activityUpdateTaskStore.setTask(for: attributeType, task: newActivityUpdatesTask)
         }
     }
 
@@ -78,18 +78,18 @@ public extension Messaging {
     @available(iOS 17.2, *)
     private static func createPushToStartTokenTask<T: LiveActivityAttributes>(type _: T.Type) -> Task<Void, Never> {
         Task {
-            let attributeTypeName = T.attributeTypeName
+            let attributeType = T.attributeType
 
             // Remove this task from storage when the sequence ends.
             defer {
                 Task {
-                    await pushToStartTaskStore.removeTask(for: attributeTypeName)
+                    await pushToStartTaskStore.removeTask(for: attributeType)
                 }
             }
 
             for await tokenData in Activity<T>.pushToStartTokenUpdates {
                 let tokenHex = tokenData.hexEncodedString
-                dispatchPushToStartTokenEvent(attributeTypeName: attributeTypeName, token: tokenHex)
+                dispatchPushToStartTokenEvent(attributeType: attributeType, token: tokenHex)
             }
         }
     }
@@ -107,12 +107,12 @@ public extension Messaging {
     ///            or the task is explicitly cancelled.
     private static func createActivityUpdatesTask<T: LiveActivityAttributes>(type _: T.Type) -> Task<Void, Never> {
         Task {
-            let attributeTypeName = T.attributeTypeName
+            let attributeType = T.attributeType
 
             // Remove this task from storage when the sequence ends.
             defer {
                 Task {
-                    await activityUpdateTaskStore.removeTask(for: attributeTypeName)
+                    await activityUpdateTaskStore.removeTask(for: attributeType)
                 }
             }
 
@@ -136,7 +136,7 @@ public extension Messaging {
                     group.addTask {
                         for await newTokenData in activity.pushTokenUpdates {
                             let newTokenHex = newTokenData.hexEncodedString
-                            Log.debug(label: MessagingConstants.LOG_TAG, "Update token received for activity \(activity.id) (\(attributeTypeName)): \(newTokenHex)")
+                            Log.debug(label: MessagingConstants.LOG_TAG, "Update token received for activity \(activity.id) (\(attributeType)): \(newTokenHex)")
                             dispatchUpdateTokenEvent(activity: activity, token: newTokenHex)
                         }
                     }
@@ -151,24 +151,24 @@ public extension Messaging {
     /// the push-to-start token and associated details for a specific Live Activity type.
     ///
     /// - Parameters:
-    ///   - attributeTypeName: A unique string identifier representing the ``LiveActivityAttributes`` type associated with the Live Activity.
+    ///   - attributeType: A unique string identifier representing the ``LiveActivityAttributes`` type associated with the Live Activity.
     ///   - token: A `String` representing the push-to-start token for the Live Activity.
-    private static func dispatchPushToStartTokenEvent(attributeTypeName: String, token: String) {
+    private static func dispatchPushToStartTokenEvent(attributeType: String, token: String) {
         Log.debug(label: MessagingConstants.LOG_TAG,
                   """
                   Dispatching Live Activity push-to-start token event.
                   Token: \(token)
-                  Type: \(attributeTypeName)
+                  Type: \(attributeType)
                   """)
 
-        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeTypeName))"
+        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeType))"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: [
                               MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN: true,
                               MessagingConstants.XDM.Push.TOKEN: token,
-                              MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName
+                              MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeType
                           ])
         MobileCore.dispatch(event: event)
     }
@@ -181,13 +181,14 @@ public extension Messaging {
     /// - Parameters:
     ///   - activity: The `Activity` instance whose push token was updated. The activity must conform to ``LiveActivityAttributes``.
     ///   - token: A `String` representing the update push token for the Live Activity.
+    /// - Note: This method will not dispatch an event if the Live Activity ID is missing.
     private static func dispatchUpdateTokenEvent<T: LiveActivityAttributes>(activity: Activity<T>, token: String) {
-        let attributeTypeName = T.attributeTypeName
+        let attributeType = T.attributeType
         guard let liveActivityID = activity.attributes.liveActivityData.liveActivityID else {
             Log.error(label: MessagingConstants.LOG_TAG,
                       """
                       Missing required '\(MessagingConstants.XDM.LiveActivity.ID)'. Update token event will not be sent.
-                      Type: \(attributeTypeName)
+                      Type: \(attributeType)
                       Apple Live Activity ID: \(activity.id)
                       """)
             return
@@ -196,13 +197,13 @@ public extension Messaging {
         Log.debug(label: MessagingConstants.LOG_TAG,
                   """
                   Dispatching Live Activity update token event.
-                  Type: \(attributeTypeName)
+                  Type: \(attributeType)
                   Apple Live Activity ID: \(activity.id)
                   LiveActivityID: \(liveActivityID))
                   Token: \(token)
                   """)
 
-        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeTypeName))"
+        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeType))"
 
         let event = Event(name: eventName,
                           type: EventType.messaging,
@@ -210,7 +211,7 @@ public extension Messaging {
                           data: [
                               MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
                               MessagingConstants.XDM.Push.TOKEN: token,
-                              MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
+                              MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeType,
                               MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
                               MessagingConstants.XDM.LiveActivity.ID: liveActivityID
                           ])
@@ -219,24 +220,25 @@ public extension Messaging {
 
     /// Dispatches an event indicating that a Live Activity has started.
     ///
-    /// This method is used to send an event indicating the start of a Live Activity,
+    /// This method is used to send an event indicating the start of a Live Activity.
     ///
     /// - Parameter activity: The newly started `Activity` instance. The activity must conform to ``LiveActivityAttributes``.
+    /// - Note: This method includes the Live Activity's origin and identifier data in the event.
     private static func dispatchStartEvent<T: LiveActivityAttributes>(activity: Activity<T>) {
-        let attributeTypeName = T.attributeTypeName
+        let attributeType = T.attributeType
         let liveActivityIdentifierData = activity.attributes.liveActivityIdentifierData
 
         Log.debug(label: MessagingConstants.LOG_TAG,
                   """
                   Dispatching Live Activity start event.
-                  Type: \(attributeTypeName)
+                  Type: \(attributeType)
                   Apple Live Activity ID: \(activity.id)
                   Identifier: \(liveActivityIdentifierData)
                   """)
 
         var data: [String: Any] = [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
+            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeType,
             MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
             MessagingConstants.XDM.LiveActivity.ORIGIN: activity.attributes.liveActivityData.origin
         ]
@@ -244,7 +246,7 @@ public extension Messaging {
         // Merge in the single identifier (liveActivityID or channelID)
         data.merge(liveActivityIdentifierData) { current, _ in current }
 
-        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_START) for type (\(attributeTypeName))"
+        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_START) for type (\(attributeType))"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
@@ -260,24 +262,25 @@ public extension Messaging {
     /// - Parameters:
     ///   - activity: The Live Activity instance whose state has changed. The activity must conform to ``LiveActivityAttributes``.
     ///   - state: The new `ActivityState` representing the current lifecycle state of the activity.
+    /// - Note: This method includes the Live Activity's identifier data in the event.
     private static func dispatchStateUpdateEvent<T: LiveActivityAttributes>(
         activity: Activity<T>,
         state: ActivityState
     ) {
-        let attributeTypeName = T.attributeTypeName
+        let attributeType = T.attributeType
         let liveActivityIdentifierData = activity.attributes.liveActivityIdentifierData
 
         Log.debug(label: MessagingConstants.LOG_TAG,
                   """
-                  Dispatching Live Activity \(state) state update event.
-                  Type: \(attributeTypeName)
+                  Dispatching Live Activity \(state) event.
+                  Type: \(attributeType)
                   Apple Live Activity ID: \(activity.id)
                   Identifier: \(liveActivityIdentifierData)
                   """)
 
         var data: [String: Any] = [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeTypeName,
+            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeType,
             MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
             MessagingConstants.Event.Data.Key.STATE: "\(state)"
         ]
@@ -285,7 +288,7 @@ public extension Messaging {
         // Merge in the single identifier (liveActivityID or channelID)
         data.merge(liveActivityIdentifierData) { current, _ in current }
 
-        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE): \(state) for type (\(attributeTypeName))"
+        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE): \(state) for type (\(attributeType))"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,

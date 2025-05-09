@@ -19,8 +19,8 @@ extension LiveActivityAttributes {
     /// This value is derived from the type's name and is used as a key when
     /// registering or dispatching events associated with a specific Live Activity type.
     /// It provides a consistent way to reference the type across token and task management, logging, and event data.
-    static var attributeTypeName: String {
-        String(describing: Self.self)
+    static var attributeType: String {
+        String(describing: self)
     }
 
     /// Returns a dictionary with the non-nil `liveActivityID` and/or `channelID`.
