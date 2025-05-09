@@ -1,0 +1,232 @@
+/*
+ Copyright 2025 Adobe. All rights reserved.
+ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License. You may obtain a copy
+ of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software distributed under
+ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ OF ANY KIND, either express or implied. See the License for the specific language
+ governing permissions and limitations under the License.
+ */
+
+import XCTest
+
+import AEPServices
+import AEPTestUtils
+
+@testable import AEPMessaging
+
+class UpdateTokenStoreTests: XCTestCase {
+    var mockDataStore: MockDataStore!
+    var store: UpdateTokenStore!
+
+    let TTL = MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL
+    let TEST_ATTRIBUTE = "testAttribute"
+    let TEST_ID_1 = "test_id_1"
+    let TEST_ID_2 = "test_id_2"
+
+    override func setUp() {
+        super.setUp()
+        mockDataStore = MockDataStore()
+        ServiceProvider.shared.namedKeyValueService = mockDataStore
+        store = UpdateTokenStore()
+    }
+
+    func testSet_storesTokenAtAttributeAndId() {
+        // Given: A new token to store for a unique (attribute, id) pair
+        let tokenToStore = token("token")
+
+        // When: The token is set
+        let success = store.set(tokenToStore, attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // Then: It should return true, and the token should be stored at the correct location
+        XCTAssertTrue(success)
+        let allTokens = store.all().tokens
+        XCTAssertEqual(1, allTokens.count)
+        XCTAssertEqual(1, allTokens[TEST_ATTRIBUTE]?.count)
+        XCTAssertEqual("token", allTokens[TEST_ATTRIBUTE]?[TEST_ID_1]?.token)
+    }
+
+
+    func testSet_sameTokenReturnsFalseAndNoop() {
+        // Given: A token is already set at (attribute, id)
+        store.set(token("token"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // When: The same token is set again
+        let changed = store.set(token("token"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // Then: It should return false, and no changes should be made to the store
+        XCTAssertFalse(changed)
+        XCTAssertEqual(1, store.all().tokens[TEST_ATTRIBUTE]?.count)
+        XCTAssertEqual("token", store.token(for: TEST_ATTRIBUTE, id: TEST_ID_1)?.token)
+    }
+
+
+    func testGet_returnsPreviouslySetToken() {
+        // Given: A token was previously set for (attribute, id)
+        store.set(token("token"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // When: Retrieving the token using the same (attribute, id)
+        let retrieved = store.token(for: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // Then: The correct token should be returned
+        XCTAssertEqual("token", retrieved?.token)
+    }
+
+    func testSet_overwritesExistingTokenAndReturnsTrueIfChanged() {
+        // Given: A token is already stored at (attribute, id)
+        store.set(token("token1"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // When: A different token is set at the same (attribute, id)
+        let changed = store.set(token("token2"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // Then: It should return true, update the value, and preserve the token count
+        XCTAssertTrue(changed)
+        XCTAssertEqual("token2", store.token(for: TEST_ATTRIBUTE, id: TEST_ID_1)?.token)
+        XCTAssertEqual(1, store.all().tokens[TEST_ATTRIBUTE]?.count)
+    }
+
+
+    func testSet_multipleIdsCreatesSingleAttributeEntry() {
+        // Given: Two tokens for the same attribute, but different IDs
+        store.set(token("token1"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+        store.set(token("token2"), attribute: TEST_ATTRIBUTE, id: TEST_ID_2)
+
+        // When: Fetching the internal token map
+        let allTokens = store.all().tokens
+
+        // Then: One attribute entry should exist with two token entries
+        XCTAssertNotNil(allTokens[TEST_ATTRIBUTE])
+        XCTAssertEqual(2, allTokens[TEST_ATTRIBUTE]?.count)
+    }
+
+    func testSet_createsSeparateEntriesForDifferentAttributes() {
+        // Given: Two tokens with different attribute names
+        let secondAttribute = "different_attribute"
+        store.set(token("token1"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+        store.set(token("token2"), attribute: secondAttribute, id: TEST_ID_2)
+
+        // When: Fetching the internal token map
+        let allTokens = store.all().tokens
+
+        // Then: Two separate attribute entries should exist, each with one token
+        XCTAssertEqual(2, allTokens.count)
+        XCTAssertEqual(1, allTokens[TEST_ATTRIBUTE]?.count)
+        XCTAssertEqual(1, allTokens[secondAttribute]?.count)
+
+        XCTAssertEqual("token1", allTokens[TEST_ATTRIBUTE]?[TEST_ID_1]?.token)
+        XCTAssertEqual("token2", allTokens[secondAttribute]?[TEST_ID_2]?.token)
+    }
+
+    func testRemove_deletesTokenAndReturnsTrue() {
+        // Given: A token is stored at a known (attribute, id) pair
+        store.set(token("token"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // When: The token is removed
+        let removed = store.remove(attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // Then: The method returns true, and both the token and attribute are removed
+        XCTAssertTrue(removed)
+        XCTAssertNil(store.token(for: TEST_ATTRIBUTE, id: TEST_ID_1))
+        XCTAssertNil(store.all().tokens[TEST_ATTRIBUTE])
+    }
+
+    func testRemove_fromNonExistingAttribute_returnsFalse() {
+        // Given: The store is empty and no tokens have been set
+
+        // When: Attempting to remove a token from a non-existent attribute
+        let removed = store.remove(attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // Then: The method returns false and the store remains empty
+        XCTAssertFalse(removed)
+        XCTAssertTrue(store.all().tokens.isEmpty)
+    }
+
+    func testRemove_fromExistingAttributeWithUnknownId_returnsFalse() {
+        // Given: A token is stored under an attribute for TEST_ID_1
+        store.set(token("token"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // When: Attempting to remove a different ID under the same attribute
+        let removed = store.remove(attribute: TEST_ATTRIBUTE, id: TEST_ID_2)
+
+        // Then: The removal returns false, and the original token remains
+        XCTAssertFalse(removed)
+        XCTAssertEqual(1, store.all().tokens[TEST_ATTRIBUTE]?.count)
+        XCTAssertEqual("token", store.token(for: TEST_ATTRIBUTE, id: TEST_ID_1)?.token)
+    }
+
+    func testRemove_oneOfMultipleIds_keepsAttributeAndOtherToken() {
+        // Given: Two tokens stored under the same attribute with different IDs
+        store.set(token("token1"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+        store.set(token("token2"), attribute: TEST_ATTRIBUTE, id: TEST_ID_2)
+
+        // When: Removing only one of the IDs
+        store.remove(attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // Then: The attribute remains, and the other token is still present
+        let tokens = store.all().tokens
+        XCTAssertNotNil(tokens[TEST_ATTRIBUTE])
+        XCTAssertEqual(1, tokens[TEST_ATTRIBUTE]?.count)
+        XCTAssertEqual("token2", tokens[TEST_ATTRIBUTE]?[TEST_ID_2]?.token)
+    }
+
+    func testRemoveCleansUpEmptyAttribute() {
+        // Given: Two tokens under the same attribute
+        store.set(token("token1"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+        store.set(token("token2"), attribute: TEST_ATTRIBUTE, id: TEST_ID_2)
+
+        // When: Both tokens are removed
+        store.remove(attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+        store.remove(attribute: TEST_ATTRIBUTE, id: TEST_ID_2)
+
+        // Then: The attribute itself should also be removed from the map
+        XCTAssertNil(store.all().tokens[TEST_ATTRIBUTE])
+    }
+
+    func testTTLExpiry_removesExpiredTokensOnInit() {
+        // Given: A token issued beyond the TTL is stored
+        let oldToken = token("expired_token", issued: -(TTL + 10))
+        store.set(oldToken, attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // When: A new UpdateTokenStore instance is initialized (triggers expiry check)
+        let second = UpdateTokenStore()
+
+        // Then: The expired token should be removed during initialization
+        XCTAssertNil(second.token(for: TEST_ATTRIBUTE, id: TEST_ID_1))
+    }
+
+    func testTTLExpiry_removesOnlyExpiredTokensAndKeepsValidOnes() {
+        // Given: One expired and one valid token stored under the same attribute
+        let expired = token("expired_token", issued: -(TTL + 10))
+        store.set(expired, attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        let valid = token("valid_token", issued: -(TTL - 10))
+        store.set(valid, attribute: TEST_ATTRIBUTE, id: TEST_ID_2)
+
+        // When: A new UpdateTokenStore instance is initialized (triggers expiry check)
+        let second = UpdateTokenStore()
+
+        // Then: The expired token should be removed, and the valid token should remain
+        XCTAssertNil(second.token(for: TEST_ATTRIBUTE, id: TEST_ID_1))
+        XCTAssertEqual("valid_token", second.token(for: TEST_ATTRIBUTE, id: TEST_ID_2)?.token)
+        XCTAssertEqual(1, second.all().tokens[TEST_ATTRIBUTE]?.count)
+    }
+
+
+    func testPersistenceAcrossInstances() {
+        // Given: A token is stored under an attribute and ID
+        store.set(token("token"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
+
+        // When: A new UpdateTokenStore instance is initialized
+        let second = UpdateTokenStore()
+
+        // Then: The token should persist and be retrievable
+        XCTAssertEqual("token", second.token(for: TEST_ATTRIBUTE, id: TEST_ID_1)?.token)
+    }
+
+    // MARK: Private helpers
+    private func token(_ s: String, issued: TimeInterval = 0) -> LiveActivity.Token {
+        LiveActivity.Token(token: s, tokenFirstIssued: Date(timeIntervalSinceNow: issued))
+    }
+}
