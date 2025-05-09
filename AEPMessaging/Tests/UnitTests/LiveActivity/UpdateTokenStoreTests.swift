@@ -48,7 +48,6 @@ class UpdateTokenStoreTests: XCTestCase {
         XCTAssertEqual("token", allTokens[TEST_ATTRIBUTE]?[TEST_ID_1]?.token)
     }
 
-
     func testSet_sameTokenReturnsFalseAndNoop() {
         // Given: A token is already set at (attribute, id)
         store.set(token("token"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
@@ -61,7 +60,6 @@ class UpdateTokenStoreTests: XCTestCase {
         XCTAssertEqual(1, store.all().tokens[TEST_ATTRIBUTE]?.count)
         XCTAssertEqual("token", store.token(for: TEST_ATTRIBUTE, id: TEST_ID_1)?.token)
     }
-
 
     func testGet_returnsPreviouslySetToken() {
         // Given: A token was previously set for (attribute, id)
@@ -86,7 +84,6 @@ class UpdateTokenStoreTests: XCTestCase {
         XCTAssertEqual("token2", store.token(for: TEST_ATTRIBUTE, id: TEST_ID_1)?.token)
         XCTAssertEqual(1, store.all().tokens[TEST_ATTRIBUTE]?.count)
     }
-
 
     func testSet_multipleIdsCreatesSingleAttributeEntry() {
         // Given: Two tokens for the same attribute, but different IDs
@@ -213,7 +210,6 @@ class UpdateTokenStoreTests: XCTestCase {
         XCTAssertEqual(1, second.all().tokens[TEST_ATTRIBUTE]?.count)
     }
 
-
     func testPersistenceAcrossInstances() {
         // Given: A token is stored under an attribute and ID
         store.set(token("token"), attribute: TEST_ATTRIBUTE, id: TEST_ID_1)
@@ -226,6 +222,7 @@ class UpdateTokenStoreTests: XCTestCase {
     }
 
     // MARK: Private helpers
+
     private func token(_ s: String, issued: TimeInterval = 0) -> LiveActivity.Token {
         LiveActivity.Token(token: s, tokenFirstIssued: Date(timeIntervalSinceNow: issued))
     }
