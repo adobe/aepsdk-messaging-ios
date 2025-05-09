@@ -199,8 +199,9 @@ extension Event {
 
     // MARK: - SetPushIdentifier Event
 
-    var isGenericIdentityRequestContentEvent: Bool {
-        type == EventType.genericIdentity && source == EventSource.requestContent
+    var isPushTokenEvent: Bool {
+        type == EventType.genericIdentity && source == EventSource.requestContent &&
+            data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String != nil
     }
 
     var token: String? {
@@ -208,6 +209,10 @@ extension Event {
     }
 
     // MARK: - Push tracking
+
+    var isPushInteractionEvent: Bool {
+        data?[MessagingConstants.Event.Data.Key.PUSH_INTERACTION] as? Bool ?? false
+    }
 
     var pushTrackingStatus: PushTrackingStatus? {
         guard let statusInt = data?[MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS] as? Int else {

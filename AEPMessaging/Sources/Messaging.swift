@@ -336,7 +336,7 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // This must come before isMessagingRequestContentEvent handler, as push-to-start token event uses same signature
+        // handle live activity push-to-start token event
         if event.isLiveActivityPushToStartTokenEvent {
             // Extract token from event
             guard let token = event.liveActivityPushToStartToken else {
@@ -364,9 +364,8 @@ public class Messaging: NSObject, Extension {
             sendLiveActivityPushToStartTokens(ecid: ecid, tokensMap: tokenMap, event: event)
         }
 
-        // Check if the event type is `EventType.messaging` and
-        // eventSource is `EventSource.requestContent` handle processing of the tracking information
-        if event.isMessagingRequestContentEvent {
+        // handle push interaction event
+        if event.isPushInteractionEvent {
             if let clickThroughUrl = event.pushClickThroughUrl {
                 DispatchQueue.main.async {
                     ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
@@ -376,7 +375,8 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        if event.isGenericIdentityRequestContentEvent {
+        // handle push token event
+        if event.isPushTokenEvent {
             guard let token = event.token, !token.isEmpty else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
                 return

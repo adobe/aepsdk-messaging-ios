@@ -93,13 +93,7 @@ enum MessagingConstants {
             }
 
             enum Key {
-                static let PUSH_IDENTIFIER = "pushidentifier"
-                static let EVENT_TYPE = "eventType"
-                static let APPLICATION_OPENED = "applicationOpened"
-                static let ACTION_ID = "actionId"
                 static let REFRESH_MESSAGES = "refreshmessages"
-                static let PUSH_CLICK_THROUGH_URL = "clickThroughUrl"
-                static let ADOBE_XDM = "adobe_xdm"
                 static let REQUEST_EVENT_ID = "requestEventId"
                 static let IAM_HISTORY = "iam"
                 static let UPDATE_PROPOSITIONS = "updatepropositions"
@@ -110,8 +104,6 @@ enum MessagingConstants {
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
                 static let ENDING_EVENT_ID = "endingEventId"
-                static let PUSH_NOTIFICATION_TRACKING_STATUS = "pushTrackingStatus"
-                static let PUSH_NOTIFICATION_TRACKING_MESSAGE = "pushTrackingStatusMessage"
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
                 static let DETAIL = "detail"
@@ -119,12 +111,24 @@ enum MessagingConstants {
                 static let SCHEMA = "schema"
                 static let DATA = "data"
 
-                // MARK: Live Activity
+                // MARK: Push Notification event keys
 
-                static let LIVE_ACTIVITY_UPDATE_TOKEN = "liveActivityUpdateToken"
-                static let LIVE_ACTIVITY_PUSH_TO_START_TOKEN = "liveActivityPushToStartToken"
-                static let LIVE_ACTIVITY_TRACK_START = "liveActivityTrackStart"
-                static let LIVE_ACTIVITY_TRACK_STATE = "liveActivityTrackState"
+                static let PUSH_INTERACTION = "isPushInteractionEvent"
+                static let PUSH_IDENTIFIER = "pushidentifier"
+                static let EVENT_TYPE = "eventType"
+                static let APPLICATION_OPENED = "applicationOpened"
+                static let ACTION_ID = "actionId"
+                static let PUSH_CLICK_THROUGH_URL = "clickThroughUrl"
+                static let ADOBE_XDM = "adobe_xdm"
+                static let PUSH_NOTIFICATION_TRACKING_STATUS = "pushTrackingStatus"
+                static let PUSH_NOTIFICATION_TRACKING_MESSAGE = "pushTrackingStatusMessage"
+
+                // MARK: Live Activity event keys
+
+                static let LIVE_ACTIVITY_UPDATE_TOKEN = "isLiveActivityUpdateTokenEvent"
+                static let LIVE_ACTIVITY_PUSH_TO_START_TOKEN = "isLiveActivityPushToStartTokenEvent"
+                static let LIVE_ACTIVITY_TRACK_START = "isLiveActivityTrackStartEvent"
+                static let LIVE_ACTIVITY_TRACK_STATE = "isLiveActivityTrackStateEvent"
                 static let APPLE_LIVE_ACTIVITY_ID = "appleLiveActivityId"
                 /// The key for Live Activity Attribute type name. For example, "FoodDeliveryLiveActivityAttributes"
                 static let ATTRIBUTE_TYPE = "attributeType"

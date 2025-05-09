@@ -71,8 +71,8 @@ import UserNotifications
                                                 MessagingConstants.Event.Data.Key.APPLICATION_OPENED: isAppOpened,
                                                 MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm]
 
-                let modifiedEventData = addNotificationActionToEventData(eventData, response, urlHandler)
-
+                var modifiedEventData = addNotificationActionToEventData(eventData, response, urlHandler)
+                modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_INTERACTION] = true
                 let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
                                   type: EventType.messaging,
                                   source: EventSource.requestContent,
