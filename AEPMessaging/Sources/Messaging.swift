@@ -253,7 +253,13 @@ public class Messaging: NSObject, Extension {
         // handle an event to track propositions
         if event.isTrackPropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to track propositions.")
-            trackMessages(event)
+
+            guard let propositionInteractionXdm = event.propositionInteractionXdm else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Cannot track proposition item, proposition interaction XDM is not available.")
+                return
+            }
+
+            sendPropositionInteraction(withXdm: propositionInteractionXdm)
             return
         }
 
@@ -265,21 +271,22 @@ public class Messaging: NSObject, Extension {
         }
 
         if event.isLiveActivityUpdateTokenEvent {
-            // Extract token and liveActivityID
+            // extract token
             guard let token = event.liveActivityUpdateToken else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid token could not be found in the event.")
                 return
             }
 
+            // extract liveActivityId
             guard let liveActivityID = event.liveActivityID else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid Live Activity ID could not be found in the event.")
                 return
             }
 
             // If the Live Activity ID, attribute type, and update token are valid, update the shared state.
-            if let attributeTypeName = event.liveActivityAttributeType {
+            if let attributeType = event.liveActivityAttributeType {
                 let liveActivityToken = LiveActivity.Token(tokenFirstIssued: event.timestamp, token: token)
-                stateManager.updateTokenStore.set(liveActivityToken, attribute: attributeTypeName, id: liveActivityID)
+                stateManager.updateTokenStore.set(liveActivityToken, attribute: attributeType, id: liveActivityID)
                 runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
             } else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to create a shared state for Live Activity update event (\(event.id.uuidString)) because a valid Live Activity attribute type could not be found in the event.")
@@ -305,7 +312,7 @@ public class Messaging: NSObject, Extension {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity state event (\(event.id.uuidString)) because a valid 'state' could not be found in the event.")
                 return
             }
-            guard let attributeTypeName = event.liveActivityAttributeType else {
+            guard let attributeType = event.liveActivityAttributeType else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity state event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
                 return
             }
@@ -321,7 +328,7 @@ public class Messaging: NSObject, Extension {
 
             // At this point the Live Activity has reached a terminal state (.ended or .dismissed)
             // Remove its update token and publish a refreshed shared state
-            stateManager.updateTokenStore.remove(attribute: attributeTypeName, id: liveActivityID)
+            stateManager.updateTokenStore.remove(attribute: attributeType, id: liveActivityID)
             runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
         }
 
@@ -343,14 +350,14 @@ public class Messaging: NSObject, Extension {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event.")
                 return
             }
-            guard let attributeTypeName = event.liveActivityAttributeType else {
+            guard let attributeType = event.liveActivityAttributeType else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
                 return
             }
 
             // Update the push to start token store and update the Messaging shared state.
             let liveActivityToken = LiveActivity.Token(tokenFirstIssued: event.timestamp, token: token)
-            stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
+            stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeType)
             runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
             // Get all current push to start tokens to send to profile
@@ -371,7 +378,7 @@ public class Messaging: NSObject, Extension {
                     ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
                 }
             }
-            handleTrackingInfo(event: event)
+            sendPushInteraction(event: event)
             return
         }
 

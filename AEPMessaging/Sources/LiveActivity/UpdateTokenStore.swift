@@ -26,7 +26,7 @@ final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
     ///   - attribute: The Live Activity attribute type associated with the token.
     ///   - id: The Live Activity ID associated with the token.
     /// - Returns: The associated ``LiveActivity.Token`` if one exists; otherwise, `nil`.
-    func token(for attribute: LiveActivity.AttributeTypeName, id: LiveActivity.ID) -> LiveActivity.Token? {
+    func token(for attribute: LiveActivity.AttributeType, id: LiveActivity.ID) -> LiveActivity.Token? {
         _persistedMap.tokens[attribute]?[id]
     }
 
@@ -44,7 +44,7 @@ final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
     @discardableResult
     func set(
         _ token: LiveActivity.Token,
-        attribute: LiveActivity.AttributeTypeName,
+        attribute: LiveActivity.AttributeType,
         id: LiveActivity.ID
     ) -> Bool {
         var workingMap = _persistedMap
@@ -68,7 +68,7 @@ final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
     ///   - id: The Live Activity ID associated with the token.
     /// - Returns: `true` if a token was found and removed; `false` if no such token existed.
     @discardableResult
-    func remove(attribute: LiveActivity.AttributeTypeName, id: LiveActivity.ID) -> Bool {
+    func remove(attribute: LiveActivity.AttributeType, id: LiveActivity.ID) -> Bool {
         var workingMap = _persistedMap
         guard var attributeTokens = workingMap.tokens[attribute],
               attributeTokens.removeValue(forKey: id) != nil

@@ -22,7 +22,7 @@ final class PushToStartTokenStore: TokenStoreBase<LiveActivity.PushToStartTokenM
     /// - Parameters:
     ///   - attribute: The Live Activity attribute type associated with the token.
     /// - Returns: The associated ``LiveActivity.Token`` if one exists; otherwise, `nil`.
-    func token(for attribute: LiveActivity.AttributeTypeName) -> LiveActivity.Token? {
+    func token(for attribute: LiveActivity.AttributeType) -> LiveActivity.Token? {
         _persistedMap.tokens[attribute]
     }
 
@@ -37,7 +37,7 @@ final class PushToStartTokenStore: TokenStoreBase<LiveActivity.PushToStartTokenM
     ///   - attribute: The Live Activity attribute type associated with the token.
     /// - Returns: `true` if the token was new or different and was stored; `false` if the token was unchanged.
     @discardableResult
-    func set(_ token: LiveActivity.Token, attribute: LiveActivity.AttributeTypeName) -> Bool {
+    func set(_ token: LiveActivity.Token, attribute: LiveActivity.AttributeType) -> Bool {
         var workingMap = _persistedMap
         let previousToken = workingMap.tokens.updateValue(token, forKey: attribute)
         let didChange = previousToken != token
@@ -53,7 +53,7 @@ final class PushToStartTokenStore: TokenStoreBase<LiveActivity.PushToStartTokenM
     ///   - attribute: The Live Activity attribute type associated with the token.
     /// - Returns: `true` if a token was found and removed; `false` if no such token existed.
     @discardableResult
-    func remove(attribute: LiveActivity.AttributeTypeName) -> Bool {
+    func remove(attribute: LiveActivity.AttributeType) -> Bool {
         var workingMap = _persistedMap
         let wasRemoved = workingMap.tokens.removeValue(forKey: attribute) != nil
         if wasRemoved {

@@ -18,7 +18,7 @@ enum LiveActivity {
         init()
     }
 
-    typealias AttributeTypeName = String
+    typealias AttributeType = String
     typealias ID = String
 
     struct Token: Codable, Equatable {
@@ -34,7 +34,7 @@ enum LiveActivity {
     /// {
     ///   "<LiveActivityAttributeType>": {
     ///     "<LiveActivityID>": {
-    ///       "tokenFirstIssued": "<Date or null>",
+    ///       "tokenFirstIssued": "2025-04-30T10:00:00Z",
     ///       "token": "<String>"
     ///     }
     ///   }
@@ -57,7 +57,7 @@ enum LiveActivity {
     /// }
     /// ```
     struct UpdateTokenMap: Codable, DefaultInitializable {
-        var tokens: [AttributeTypeName: [ID: Token]]
+        var tokens: [AttributeType: [ID: Token]]
 
         init() {
             tokens = [:]
@@ -90,7 +90,7 @@ enum LiveActivity {
     /// }
     /// ```
     struct PushToStartTokenMap: Codable, DefaultInitializable {
-        var tokens: [AttributeTypeName: Token]
+        var tokens: [AttributeType: Token]
 
         init() {
             tokens = [:]

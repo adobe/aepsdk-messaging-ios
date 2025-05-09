@@ -112,7 +112,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify tracking status event
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
@@ -190,7 +190,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
@@ -213,7 +213,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify tracking status event
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -230,7 +230,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: getMessageTrackingEventData())
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify tracking status event
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -247,7 +247,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: [:])
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify tracking status event
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -264,7 +264,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType"])
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify tracking status event
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -281,7 +281,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType", MessagingConstants.Event.Data.Key.ID: ""])
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify tracking status event
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -335,7 +335,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
@@ -368,7 +368,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
@@ -388,7 +388,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
@@ -409,7 +409,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
@@ -429,7 +429,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
@@ -450,7 +450,7 @@ class MessagingEdgeEventsTests: XCTestCase {
         let event = Event(name: "trackingInfo", type: EventType.messaging, source: EventSource.requestContent, data: eventData)
 
         // test
-        messaging.handleTrackingInfo(event: event)
+        messaging.sendPushInteraction(event: event)
 
         // verify
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
