@@ -110,8 +110,9 @@ enum MessagingConstants {
                 static let TYPE = "type"
                 static let SCHEMA = "schema"
                 static let DATA = "data"
-                
+
                 // MARK: Push Notification event keys
+
                 static let PUSH_INTERACTION = "isPushInteractionEvent"
                 static let PUSH_IDENTIFIER = "pushidentifier"
                 static let EVENT_TYPE = "eventType"
@@ -123,6 +124,7 @@ enum MessagingConstants {
                 static let PUSH_NOTIFICATION_TRACKING_MESSAGE = "pushTrackingStatusMessage"
 
                 // MARK: Live Activity event keys
+
                 static let LIVE_ACTIVITY_UPDATE_TOKEN = "isLiveActivityUpdateTokenEvent"
                 static let LIVE_ACTIVITY_PUSH_TO_START_TOKEN = "isLiveActivityPushToStartTokenEvent"
                 static let LIVE_ACTIVITY_TRACK_START = "isLiveActivityTrackStartEvent"

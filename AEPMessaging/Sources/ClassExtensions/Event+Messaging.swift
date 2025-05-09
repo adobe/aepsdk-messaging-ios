@@ -201,7 +201,7 @@ extension Event {
 
     var isPushTokenEvent: Bool {
         type == EventType.genericIdentity && source == EventSource.requestContent &&
-        data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String != nil
+            data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String != nil
     }
 
     var token: String? {
