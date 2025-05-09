@@ -20,8 +20,6 @@ import AEPMessagingLiveActivity
 struct AirplaneTrackingLiveActivityView: View {
     // MARK: - Observed / State Properties
     
-    @ObservedObject var pushTokenManager = PushTokenCollectionManager.shared
-    
     /// Keep track of all running AirplaneTracking activities so we can refresh easily
     @State private var runningActivities: [Activity<AirplaneTrackingAttributes>] = []
     
@@ -36,6 +34,12 @@ struct AirplaneTrackingLiveActivityView: View {
     
     @State private var channelID: String = ""
     
+    /// State to hold the liveActivityID input
+    @State private var liveActivityID: String = ""
+    
+    /// State to control alert visibility
+    @State private var showAlert: Bool = false
+    
     // MARK: - Body
     
     var body: some View {
@@ -48,7 +52,7 @@ struct AirplaneTrackingLiveActivityView: View {
                 // 1) Push-to-start (iOS 17.2+)
                 if #available(iOS 17.2, *) {
                     PushToStartSection<AirplaneTrackingAttributes>(
-                        pushToStartToken: $pushTokenManager.airplaneTrackingPushToStartToken
+                        pushToStartToken: TokenCollector.gameScorePushToStartToken
                     )
                 } else {
                     Text("Push-to-start not available on < iOS 17.2")
@@ -94,6 +98,11 @@ struct AirplaneTrackingLiveActivityView: View {
             }
             .navigationTitle("✈️ Airplane Live Activity")
             .padding(.horizontal, 10)
+            .alert("Live Activity ID Required", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Please enter a Live Activity ID to start the activity.")
+            }
         }
         .onAppear {
             // Refresh on first load
@@ -111,11 +120,16 @@ private extension AirplaneTrackingLiveActivityView {
     var startActivitySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                SectionHeader(title: "Using Application")
+                SectionHeader(title: "Local")
                 Spacer()
                 SectionSubHeader(title: "iOS 16.1+")
             }
             SectionDescription(text: "Manually start an AirplaneTracking Live Activity from the app. After starting, a unique push token is generated. Use it to send push-based updates to this Live Activity.")
+            
+            // Text field for liveActivityID
+            TextField("Enter Live Activity ID", text: $liveActivityID)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.vertical, 4)
             
             // Button to start the Live Activity
             Button(action: startLiveActivity) {
@@ -289,7 +303,7 @@ private extension AirplaneTrackingLiveActivityView {
     
     /// Refresh the running activities list
     func refreshActivities() {
-        let current = pushTokenManager.getRunningAirplaneTrackingActivities()
+        let current = Activity<AirplaneTrackingAttributes>.activities
         runningActivities = current
         
         // Also refresh the content states in `activityValues`
@@ -306,8 +320,15 @@ private extension AirplaneTrackingLiveActivityView {
             return
         }
         
+        // Validate liveActivityID
+        let trimmedLiveActivityID = liveActivityID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedLiveActivityID.isEmpty else {
+            showAlert = true
+            return
+        }
+        
         // Example attribute + initial content state
-        let attributes = AirplaneTrackingAttributes(liveActivityData: LiveActivityData(liveActivityID: "<unique_ID_for_airplane_tracking>"), arrivalAirport: "SFO", departureAirport: "MIA", arrivalTerminal: "Terminal 2")
+        let attributes = AirplaneTrackingAttributes(liveActivityData: LiveActivityData(liveActivityID: trimmedLiveActivityID), arrivalAirport: "SFO", departureAirport: "MIA", arrivalTerminal: "Terminal 2")
         let initialContentState = AirplaneTrackingAttributes.ContentState(journeyProgress: 0)
         
         do {
@@ -333,25 +354,25 @@ private extension AirplaneTrackingLiveActivityView {
              return
          }
          
-         // Example attribute + initial content state
-         let attributes = AirplaneTrackingAttributes(liveActivityData: LiveActivityData(channelID: "<Apple Push Channel ID>"), arrivalAirport: "SFO", departureAirport: "MIA", arrivalTerminal: "Terminal 2")
-         let initialContentState = AirplaneTrackingAttributes.ContentState(journeyProgress: 0)
-         
          // The channelID is taken from the text field
-         let id = channelID.trimmingCharacters(in: .whitespacesAndNewlines)
-         guard !id.isEmpty else {
+         let trimmedChannelID = channelID.trimmingCharacters(in: .whitespacesAndNewlines)
+         guard !trimmedChannelID.isEmpty else {
              print("Channel ID cannot be empty.")
              return
          }
+         
+         // Example attribute + initial content state
+         let attributes = AirplaneTrackingAttributes(liveActivityData: LiveActivityData(channelID: trimmedChannelID), arrivalAirport: "SFO", departureAirport: "MIA", arrivalTerminal: "Terminal 2")
+         let initialContentState = AirplaneTrackingAttributes.ContentState(journeyProgress: 0)
          
          do {
              if #available(iOS 18.0, *) {
                  let newActivity = try Activity<AirplaneTrackingAttributes>.request(
                     attributes: attributes,
                     contentState: initialContentState,
-                    pushType: .channel(id)
+                    pushType: .channel(trimmedChannelID)
                  )
-                 print("AirplaneTracking Live Activity (CHANNEL: \(id)) requested. ID: \(newActivity.id)")
+                 print("AirplaneTracking Live Activity (CHANNEL: \(trimmedChannelID)) requested. ID: \(newActivity.id)")
              } else {
                  // Fallback on earlier versions
              }
@@ -440,5 +461,3 @@ struct AirplaneTrackingActivityUpdateView: View {
         Text("Requires iOS 16.1 or later")
     }
 }
-
-// MARK: - Helpers

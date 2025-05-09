@@ -31,7 +31,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             Edge.self,
             Consent.self,
             Messaging.self,
-            Assurance.self
+            Assurance.self,
+            TokenCollector.self
         ]
         
         MobileCore.registerExtensions(extensions) {

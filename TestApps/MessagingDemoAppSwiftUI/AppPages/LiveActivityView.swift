@@ -15,9 +15,7 @@ import SwiftUI
 // MARK: - LiveActivityView
 
 struct LiveActivityView: View {
-    // Use the PushTokenCollectionManager directly for banner management
-    @ObservedObject private var tokenManager = PushTokenCollectionManager.shared
-
+    
     var body: some View {
         if #available(iOS 16.1, *) {
             // Structure the view to ensure banner only shows on the main page
