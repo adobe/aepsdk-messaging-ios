@@ -66,7 +66,6 @@ import UserNotifications
         // Get off the main thread to process notification response
         DispatchQueue.global().async {
             hasApplicationOpenedForResponse(response, completion: { isAppOpened in
-
                 let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.ID: notificationRequest.identifier,
                                                 MessagingConstants.Event.Data.Key.APPLICATION_OPENED: isAppOpened,
                                                 MessagingConstants.Event.Data.Key.ADOBE_XDM: xdm]
