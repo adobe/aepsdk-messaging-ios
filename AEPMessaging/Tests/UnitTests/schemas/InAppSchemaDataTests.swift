@@ -225,12 +225,14 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
     ///     "mobileParameters": {
     ///         "schemaVersion": "1.0",
     ///         "width": 80,
+    ///         "maxWidth": 552,  // << added in AEPMessaging 5.6.1, compatible with AEPServices 5.5.0
     ///         "height": 50,
     ///         "verticalAlign": "center",
     ///         "verticalInset": 0,
     ///         "horizontalAlign": "center",
     ///         "horizontalInset": 0,
     ///         "uiTakeover": true,
+    ///         "fitToContent": true,  // << added in AEPMessaging 5.6.1, compatible with AEPServices 5.5.0
     ///         "displayAnimation": "top",
     ///         "dismissAnimation": "top",
     ///         "backdropColor": "000000",    // RRGGBB
@@ -248,7 +250,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
     
     func testGetMessageSettingsHappy() throws {
         // setup
-        let testMobileParameters = "{\"schemaVersion\":\"1.0\",\"width\":80,\"height\":50,\"verticalAlign\":\"center\",\"verticalInset\":0,\"horizontalAlign\":\"center\",\"horizontalInset\":0,\"uiTakeover\":true,\"displayAnimation\":\"top\",\"dismissAnimation\":\"top\",\"backdropColor\":\"000000\",\"backdropOpacity\":0.3,\"cornerRadius\":15,\"gestures\":{\"swipeUp\":\"adbinapp://dismiss?interaction=swipeUp\",\"swipeDown\":\"adbinapp://dismiss?interaction=swipeDown\",\"swipeLeft\":\"adbinapp://dismiss?interaction=swipeLeft\",\"swipeRight\":\"adbinapp://dismiss?interaction=swipeRight\",\"tapBackground\":\"adbinapp://dismiss?interaction=tapBackground\"}}"
+        let testMobileParameters = "{\"schemaVersion\":\"1.0\",\"width\":80,\"maxWidth\":552,\"height\":50,\"verticalAlign\":\"center\",\"verticalInset\":0,\"horizontalAlign\":\"center\",\"horizontalInset\":0,\"uiTakeover\":true,\"fitToContent\":true,\"displayAnimation\":\"top\",\"dismissAnimation\":\"top\",\"backdropColor\":\"000000\",\"backdropOpacity\":0.3,\"cornerRadius\":15,\"gestures\":{\"swipeUp\":\"adbinapp://dismiss?interaction=swipeUp\",\"swipeDown\":\"adbinapp://dismiss?interaction=swipeDown\",\"swipeLeft\":\"adbinapp://dismiss?interaction=swipeLeft\",\"swipeRight\":\"adbinapp://dismiss?interaction=swipeRight\",\"tapBackground\":\"adbinapp://dismiss?interaction=tapBackground\"}}"
         
         let json = "{\"content\":\(mockContentJson),\"contentType\":\"\(ContentType.applicationJson.toString())\",\"mobileParameters\":\(testMobileParameters)}"
         guard let decodedObject = getDecodedObject(fromString: json) else {
@@ -262,12 +264,14 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
         // verify
         XCTAssertEqual(self, result.parent as? InAppSchemaDataTests)
         XCTAssertEqual(80, result.width)
+        XCTAssertEqual(552, result.maxWidth)
         XCTAssertEqual(50, result.height)
         XCTAssertEqual(.center, result.verticalAlign)
         XCTAssertEqual(0, result.verticalInset)
         XCTAssertEqual(.center, result.horizontalAlign)
         XCTAssertEqual(0, result.horizontalInset)
         XCTAssertEqual(true, result.uiTakeover)
+        XCTAssertEqual(true, result.fitToContent)
         XCTAssertEqual(.top, result.displayAnimation)
         XCTAssertEqual(.top, result.dismissAnimation)
         XCTAssertEqual(UIColor(hue: 0, saturation: 0, brightness: 0, alpha: 0.3), result.getBackgroundColor()) // 000000 color and 0.3 opacity
@@ -292,13 +296,14 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
         // verify
         XCTAssertEqual(self, result.parent as? InAppSchemaDataTests)
         XCTAssertNil(result.width)
-        XCTAssertNil(result.width)
+        XCTAssertNil(result.maxWidth)
         XCTAssertNil(result.height)
         XCTAssertNil(result.verticalAlign)
         XCTAssertNil(result.verticalInset)
         XCTAssertNil(result.horizontalAlign)
         XCTAssertNil(result.horizontalInset)
         XCTAssertNil(result.uiTakeover)
+        XCTAssertNil(result.fitToContent)
         XCTAssertNil(result.displayAnimation)
         XCTAssertNil(result.dismissAnimation)
         XCTAssertEqual(UIColor(red: 1, green: 1, blue: 1, alpha: 0), result.getBackgroundColor()) // default color
@@ -327,6 +332,7 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(.center, result.horizontalAlign)
         XCTAssertEqual(0, result.horizontalInset)
         XCTAssertEqual(true, result.uiTakeover)
+        XCTAssertEqual(false, result.fitToContent)
         XCTAssertEqual(MessageAnimation.none, result.displayAnimation)
         XCTAssertEqual(MessageAnimation.none, result.dismissAnimation)
         XCTAssertEqual(UIColor(hue: 0, saturation: 0, brightness: 0, alpha: 0.3), result.getBackgroundColor()) // 000000 color and 0.3 opacity

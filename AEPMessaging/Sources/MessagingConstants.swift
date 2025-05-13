@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "5.6.0"
+    static let EXTENSION_VERSION = "5.6.1"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
@@ -122,12 +122,14 @@ enum MessagingConstants {
 
                     // layout keys
                     static let WIDTH = "width"
+                    static let MAX_WIDTH = "maxWidth"
                     static let HEIGHT = "height"
                     static let VERTICAL_ALIGN = "verticalAlign"
                     static let VERTICAL_INSET = "verticalInset"
                     static let HORIZONTAL_ALIGN = "horizontalAlign"
                     static let HORIZONTAL_INSET = "horizontalInset"
                     static let UI_TAKEOVER = "uiTakeover"
+                    static let FIT_TO_CONTENT = "fitToContent"
                     static let DISPLAY_ANIMATION = "displayAnimation"
                     static let DISMISS_ANIMATION = "dismissAnimation"
                     static let GESTURES = "gestures"
