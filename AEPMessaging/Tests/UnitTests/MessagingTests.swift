@@ -29,6 +29,8 @@ class MessagingTests: XCTestCase {
     var mockCache: MockCache!
     let mockSurface = Surface(path: "promos/feed1")
     var mockProposition: MockProposition!
+    var messagingProperties: MessagingProperties!
+
 
     // Mock constants
     let MOCK_ECID = "mock_ecid"
@@ -52,8 +54,9 @@ class MessagingTests: XCTestCase {
                                           scopeDetails: [
                                             "activity": [ "id": MOCK_ACTIVITY_ID ]],
                                           items: [])
-        
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache)
+        messagingProperties = MessagingProperties()
+
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
         messaging.onRegistered()
         
         mockNetworkService = MockNetworkService()
@@ -64,6 +67,7 @@ class MessagingTests: XCTestCase {
     
     override func tearDown() {
         MobileCore.messagingDelegate = nil
+        messagingProperties.pushIdentifier = nil
     }
     
     /// validate the extension is registered without any error
@@ -1079,6 +1083,114 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
     }
             
+    // MARK: - Push Token Tests
+    
+    func testPushTokenSync_whenTokenMatchesAndForceSyncFalse() {
+        // setup
+        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        messaging.onRegistered()
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: false] as [String : Any]
+
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+    
+    func testPushTokenSync_whenTokenMatchesAndForceSyncTrue() {
+        // setup
+        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        messaging.onRegistered()
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: true] as [String : Any]
+
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNotNil(mockRuntime.dispatchedEvents)
+        let pushTokenEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
+        XCTAssertEqual(MOCK_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
+    }
+    
+    func testPushTokenSync_whenNewTokenIsDifferent() {
+        // setup
+        let NEW_PUSH_TOKEN = "different push token"
+        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        messaging.onRegistered()
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: false] as [String : Any]
+
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: NEW_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNotNil(mockRuntime.dispatchedEvents)
+        let pushTokenEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
+        XCTAssertEqual(NEW_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
+    }
+    
+    func testPushTokenSync_whenNoExistingPushToken() {
+        // setup
+        let NEW_PUSH_TOKEN = "new push token"
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: false] as [String : Any]
+
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: NEW_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNotNil(mockRuntime.dispatchedEvents)
+        let pushTokenEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
+        XCTAssertEqual(NEW_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
+    }
+    
+    func testMultiplePushTokenSync_whenTokenMatchesAndWithinSyncTimeout_forceSyncTrue() {
+        // setup
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: true] as [String : Any]
+
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNotNil(mockRuntime.dispatchedEvents)
+        // verify only one sync event is dispatched when three generic identity events are received and force sync is true
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let pushTokenEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
+        XCTAssertEqual(MOCK_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
+    }
+
     // MARK: - Helpers
     
     func getGenericEventHistoryDisqualifyEvent(iamMap: [String: String]? = nil) -> Event {
@@ -1199,5 +1311,11 @@ class MessagingTests: XCTestCase {
 
     private var SampleEdgeIdentityState: [String: Any] {
         [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
+    }
+
+    private func getDispatchedEventPushToken(event: Event?) -> String? {
+        let pushTokenEventData = event?.data?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
+        let pushNotificationDetails = pushTokenEventData?[MessagingConstants.XDM.Push.PUSH_NOTIFICATION_DETAILS] as? [[String: Any]]
+        return pushNotificationDetails?.first?[MessagingConstants.XDM.Push.TOKEN] as? String
     }
 }

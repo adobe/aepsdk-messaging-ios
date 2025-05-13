@@ -100,11 +100,10 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Messaging properties to hold the persisted push identifier
-    private var messagingProperties: MessagingProperties = MessagingProperties()
+    private var messagingProperties: MessagingProperties = .init()
 
     /// the timestamp of the last push token sync
     private var lastPushTokenSyncTimestamp: Date?
-
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
@@ -126,11 +125,12 @@ public class Messaging: NSObject, Extension {
 
     /// INTERNAL ONLY
     /// used for testing
-    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, contentCardRulesEngine: ContentCardRulesEngine, expectedSurfaceUri _: String, cache: Cache) {
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, contentCardRulesEngine: ContentCardRulesEngine, expectedSurfaceUri _: String, cache: Cache, messagingProperties: MessagingProperties) {
         self.runtime = runtime
         self.rulesEngine = rulesEngine
         self.contentCardRulesEngine = contentCardRulesEngine
         self.cache = cache
+        self.messagingProperties = messagingProperties
         super.init()
         loadCachedPropositions()
     }
@@ -332,15 +332,15 @@ public class Messaging: NSObject, Extension {
 
         if pushTokensMatch && !pushForceSync {
             Log.debug(label: MessagingConstants.LOG_TAG,
-                        "Existing push token matches the new push token, push token will not be synced.")
-                   return false
+                      "Existing push token matches the new push token, push token will not be synced.")
+            return false
         } else if pushTokensMatch && !isPushTokenSyncTimeoutExpired(event.timestamp) {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Push token sync is within the previous push sync timeout window, push token will not be synced.")
             return false
         }
 
-        Log.debug(label: MessagingConstants.LOG_TAG, pushForceSync ? MessagingConstants.FORCE_SYNC_MESSAGE : MessagingConstants.NEW_PUSH_TOKEN_MESSAGE);
+        Log.debug(label: MessagingConstants.LOG_TAG, pushForceSync ? MessagingConstants.FORCE_SYNC_MESSAGE : MessagingConstants.NEW_PUSH_TOKEN_MESSAGE)
 
         // persist the push token in the messaging named collection
         messagingProperties.pushIdentifier = event.token

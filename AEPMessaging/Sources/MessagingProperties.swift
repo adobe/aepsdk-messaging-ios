@@ -19,7 +19,7 @@ class MessagingProperties {
         get {
             /// Check if we have a push identifier set. if not, retrieve it from the named key-value service
             if _pushIdentifier == nil {
-                _pushIdentifier =  ServiceProvider.shared.namedKeyValueService.get(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER) as? String
+                _pushIdentifier = ServiceProvider.shared.namedKeyValueService.get(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER) as? String
             }
             return _pushIdentifier
         }
