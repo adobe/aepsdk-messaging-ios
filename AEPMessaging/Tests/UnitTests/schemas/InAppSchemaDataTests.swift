@@ -225,13 +225,14 @@ class InAppSchemaDataTests: XCTestCase, AnyCodableAsserts {
     ///     "mobileParameters": {
     ///         "schemaVersion": "1.0",
     ///         "width": 80,
+    ///         "maxWidth": 552,  // << added in AEPMessaging 5.6.1, compatible with AEPServices 5.5.0
     ///         "height": 50,
     ///         "verticalAlign": "center",
     ///         "verticalInset": 0,
     ///         "horizontalAlign": "center",
     ///         "horizontalInset": 0,
     ///         "uiTakeover": true,
-    ///         "fitToContent": true,  // << added in AEPMessaging 5.6.1, compatible with AEPServices 5.4.1
+    ///         "fitToContent": true,  // << added in AEPMessaging 5.6.1, compatible with AEPServices 5.5.0
     ///         "displayAnimation": "top",
     ///         "dismissAnimation": "top",
     ///         "backdropColor": "000000",    // RRGGBB
