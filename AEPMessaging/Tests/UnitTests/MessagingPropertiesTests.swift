@@ -30,7 +30,7 @@ class MessagingPropertiesTests: XCTestCase {
         mockNamedKeyValueService = nil
         super.tearDown()
     }
-    
+
     // MARK: - Push Identifier Tests
     func testGetPushIdentifierWhenNotSet() {
         // Test

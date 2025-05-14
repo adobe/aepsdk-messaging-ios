@@ -25,13 +25,15 @@ class MessagingProperties {
         }
 
         set {
-            if let _pushIdentifier = newValue, !_pushIdentifier.isEmpty {
-                /// Save valid values to the named key-value service
-                ServiceProvider.shared.namedKeyValueService.set(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER, value: _pushIdentifier)
-            } else {
-                /// Otherwise remove the existing push identifier value from the named key-value service
+            /// Remove the existing push identifier value from the named key-value service if the new value is nil or empty
+            guard let newValue = newValue, !newValue.isEmpty else {
+                _pushIdentifier = nil
                 ServiceProvider.shared.namedKeyValueService.remove(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER)
+                return
             }
+            /// Otherwsie save valid values to the named key-value service
+            _pushIdentifier = newValue
+            ServiceProvider.shared.namedKeyValueService.set(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER, value: _pushIdentifier)
         }
     }
 }
