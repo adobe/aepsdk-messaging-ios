@@ -40,7 +40,8 @@ final class PushToStartTokenStore: TokenStoreBase<LiveActivity.PushToStartTokenM
     func set(_ token: LiveActivity.Token, attribute: LiveActivity.AttributeType) -> Bool {
         var workingMap = _persistedMap
         let previousToken = workingMap.tokens.updateValue(token, forKey: attribute)
-        let didChange = previousToken != token
+        // Compare the actual token values excluding date
+        let didChange = previousToken?.token != token.token
         if didChange {
             _persistedMap = workingMap
         }
