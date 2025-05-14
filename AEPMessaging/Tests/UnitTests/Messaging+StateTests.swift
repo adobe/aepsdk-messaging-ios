@@ -28,6 +28,7 @@ class MessagingPlusStateTests: XCTestCase {
     var mockProposition: Proposition!
     var mockPropositionItem: PropositionItem!
     var mockPropositionInfo: PropositionInfo!
+    var messagingProperties: MessagingProperties!
 
     // Mock constants
     let MOCK_ECID = "mock_ecid"
@@ -43,8 +44,9 @@ class MessagingPlusStateTests: XCTestCase {
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngineForIAM, cache: mockCache)
         mockLaunchRulesEngineForFeeds = MockLaunchRulesEngine(name: "mockLaunchRulesEngineFeeds", extensionRuntime: mockRuntime)
         mockFeedRulesEngine = MockContentCardRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngineForFeeds)
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface.uri, cache: mockCache)
-        
+        messagingProperties = MessagingProperties()
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+
         mockPropositionItem = PropositionItem(itemId: "propItemId", schema: .defaultContent, itemData: [:])
         mockProposition = Proposition(uniqueId: "propId", scope: mockIamSurface.uri, scopeDetails: [:], items: [mockPropositionItem])
         mockPropositionInfo = PropositionInfo(id: "propInfoId", scope: mockIamSurface.uri, scopeDetails: [:])
