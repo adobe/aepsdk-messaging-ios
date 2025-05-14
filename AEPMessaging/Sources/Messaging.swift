@@ -357,7 +357,7 @@ public class Messaging: NSObject, Extension {
 
             // Update the push to start token store and update the Messaging shared state.
             let liveActivityToken = LiveActivity.Token(token: token, tokenFirstIssued: event.timestamp)
-            stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
+            stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeType)
             runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
             // Get all current push to start tokens to send to profile
