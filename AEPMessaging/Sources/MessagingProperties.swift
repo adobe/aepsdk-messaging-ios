@@ -25,10 +25,13 @@ class MessagingProperties {
         }
 
         set {
-            /// Set the push identifier value to the local variable
-            _pushIdentifier = newValue
-            /// Save the new value to the named key-value service
-            ServiceProvider.shared.namedKeyValueService.set(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER, value: newValue)
+            if let _pushIdentifier = newValue, !_pushIdentifier.isEmpty {
+                /// Save valid values to the named key-value service
+                ServiceProvider.shared.namedKeyValueService.set(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER, value: _pushIdentifier)
+            } else {
+                /// Otherwise remove the existing push identifier value from the named key-value service
+                ServiceProvider.shared.namedKeyValueService.remove(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER)
+            }
         }
     }
 }
