@@ -262,6 +262,8 @@
 		B6D035E22D2F23E900031170 /* AppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D035E12D2F23E900031170 /* AppStateManager.swift */; };
 		B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
 		B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */; };
+		B6F796552DD41330004478B4 /* AEPMessagingLiveActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B61BDACE2DA5E861007FE12E /* AEPMessagingLiveActivity.framework */; };
+		B6F796562DD41330004478B4 /* AEPMessagingLiveActivity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B61BDACE2DA5E861007FE12E /* AEPMessagingLiveActivity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA72CC2089A00C35C64 /* DismissButtonStyle.swift */; };
 		B6F7CBCA2CC2089A00C35C64 /* AEPImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA92CC2089A00C35C64 /* AEPImage.swift */; };
 		B6F7CBCB2CC2089A00C35C64 /* AEPVStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBB12CC2089A00C35C64 /* AEPVStackView.swift */; };
@@ -446,6 +448,13 @@
 			remoteGlobalIDString = 2469A6012759999E00E56457;
 			remoteInfo = FunctionalTestApp;
 		};
+		B6F796572DD41330004478B4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B61BDACD2DA5E861007FE12E;
+			remoteInfo = AEPMessagingLiveActivity;
+		};
 		B6F7CCA92CCA165B00C35C64 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
@@ -520,6 +529,17 @@
 				B61BD8B92DA4656B007FE12E /* WidgetMessagingDemoAppSwiftUI.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6F796592DD41330004478B4 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				B6F796562DD41330004478B4 /* AEPMessagingLiveActivity.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -961,6 +981,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B61BD8AC2DA4656A007FE12E /* SwiftUI.framework in Frameworks */,
+				B6F796552DD41330004478B4 /* AEPMessagingLiveActivity.framework in Frameworks */,
 				B61BD8AA2DA4656A007FE12E /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2012,10 +2033,12 @@
 				B61BD8A42DA4656A007FE12E /* Sources */,
 				B61BD8A52DA4656A007FE12E /* Frameworks */,
 				B61BD8A62DA4656A007FE12E /* Resources */,
+				B6F796592DD41330004478B4 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B6F796582DD41330004478B4 /* PBXTargetDependency */,
 			);
 			name = WidgetMessagingDemoAppSwiftUI;
 			productName = WidgetMessagingDemoAppSwiftUIExtension;
@@ -3147,6 +3170,11 @@
 			isa = PBXTargetDependency;
 			target = 2469A6012759999E00E56457 /* FunctionalTestApp */;
 			targetProxy = B6D6AE912BA8C48100F0E975 /* PBXContainerItemProxy */;
+		};
+		B6F796582DD41330004478B4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B61BDACD2DA5E861007FE12E /* AEPMessagingLiveActivity */;
+			targetProxy = B6F796572DD41330004478B4 /* PBXContainerItemProxy */;
 		};
 		B6F7CCAA2CCA165B00C35C64 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
