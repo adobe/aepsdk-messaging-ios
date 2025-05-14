@@ -22,8 +22,8 @@ enum LiveActivity {
     typealias ID = String
 
     struct Token: Codable, Equatable {
-        var tokenFirstIssued: Date
         var token: String
+        var tokenFirstIssued: Date
     }
 
     /// A data structure representing a mapping of Live Activity update tokens,

@@ -50,7 +50,8 @@ final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
         var workingMap = _persistedMap
         var attributeTokens = workingMap.tokens[attribute, default: [:]]
         let previousToken = attributeTokens.updateValue(token, forKey: id)
-        let didChange = previousToken != token
+        // Compare the actual token values excluding date
+        let didChange = previousToken?.token != token.token
         if didChange {
             workingMap.tokens[attribute] = attributeTokens
             _persistedMap = workingMap
