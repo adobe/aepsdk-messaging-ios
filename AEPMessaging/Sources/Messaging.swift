@@ -284,9 +284,9 @@ public class Messaging: NSObject, Extension {
             }
 
             // If the Live Activity ID, attribute type, and update token are valid, update the shared state.
-            if let attributeType = event.liveActivityAttributeType {
-                let liveActivityToken = LiveActivity.Token(tokenFirstIssued: event.timestamp, token: token)
-                stateManager.updateTokenStore.set(liveActivityToken, attribute: attributeType, id: liveActivityID)
+            if let attributeTypeName = event.liveActivityAttributeType {
+                let liveActivityToken = LiveActivity.Token(token: token, tokenFirstIssued: event.timestamp)
+                stateManager.updateTokenStore.set(liveActivityToken, attribute: attributeTypeName, id: liveActivityID)
                 runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
             } else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to create a shared state for Live Activity update event (\(event.id.uuidString)) because a valid Live Activity attribute type could not be found in the event.")
@@ -356,8 +356,8 @@ public class Messaging: NSObject, Extension {
             }
 
             // Update the push to start token store and update the Messaging shared state.
-            let liveActivityToken = LiveActivity.Token(tokenFirstIssued: event.timestamp, token: token)
-            stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeType)
+            let liveActivityToken = LiveActivity.Token(token: token, tokenFirstIssued: event.timestamp)
+            stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeTypeName)
             runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
             // Get all current push to start tokens to send to profile
