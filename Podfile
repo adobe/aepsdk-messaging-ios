@@ -15,7 +15,7 @@ project 'AEPMessaging.xcodeproj'
 pod 'SwiftLint', '0.52.0'
 
 $dev_repo = 'https://github.com/sbenedicadb/aepsdk-core-ios.git'
-$dev_branch = 'temp-utils'
+$dev_branch = 'dev-v5.5.0'
 
 # ==================
 # SHARED POD GROUPS
@@ -54,7 +54,6 @@ end
 
 def test_utils
      pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :tag => 'testutils-5.2.0'
-#    pod 'AEPTestUtils', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'temp-utils'
 end
 
 # ==================
