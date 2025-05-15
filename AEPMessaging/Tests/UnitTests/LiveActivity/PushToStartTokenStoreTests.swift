@@ -21,8 +21,8 @@ final class PushToStartTokenStoreTests: XCTestCase {
     private var mockDataStore: MockDataStore!
     private var store: PushToStartTokenStore!
 
-    private let TEST_ATTRIBUTE = "testAttribute1"
-    private let TEST_ATTRIBUTE_2 = "testAttribute2"
+    private let ATTRIBUTE = "testAttribute1"
+    private let ATTRIBUTE_2 = "testAttribute2"
 
     override func setUp() {
         super.setUp()
@@ -32,103 +32,119 @@ final class PushToStartTokenStoreTests: XCTestCase {
     }
 
     func testSet_storesTokenAtAttribute() {
+        // Given: A new token to store for an attribute
         let issuedDate = Date()
         let tokenToStore = token("token", date: issuedDate)
-        let changed = store.set(tokenToStore, attribute: TEST_ATTRIBUTE)
 
+        // When: The token is set
+        let changed = store.set(tokenToStore, attribute: ATTRIBUTE)
+
+        // Then: It should return true, and the token should be stored correctly
         XCTAssertTrue(changed)
         let allTokens = store.all().tokens
         XCTAssertEqual(1, allTokens.count)
-        XCTAssertEqual("token", allTokens[TEST_ATTRIBUTE]?.token)
-        XCTAssertEqual(issuedDate, allTokens[TEST_ATTRIBUTE]?.tokenFirstIssued)
+        XCTAssertEqual("token", allTokens[ATTRIBUTE]?.token)
+        XCTAssertEqual(issuedDate, allTokens[ATTRIBUTE]?.tokenFirstIssued)
     }
 
     func testSet_sameTokenReturnsFalseAndNoop() {
-        // Given
+        // Given: A token is already set at an attribute
         let initialDate = Date()
         let originalToken = token("token", date: initialDate)
-        store.set(originalToken, attribute: TEST_ATTRIBUTE)
+        store.set(originalToken, attribute: ATTRIBUTE)
 
-        // When
+        // When: The same token is set again with a later timestamp
         let laterDate = initialDate.addingTimeInterval(10)
-        let changed = store.set(token("token", date: laterDate), attribute: TEST_ATTRIBUTE)
+        let changed = store.set(token("token", date: laterDate), attribute: ATTRIBUTE)
 
-        // Then
+        // Then: It should return false, and no changes should be made to the store
         XCTAssertFalse(changed)
         let allTokens = store.all().tokens
         XCTAssertEqual(1, allTokens.count)
-        XCTAssertEqual("token", allTokens[TEST_ATTRIBUTE]?.token)
-        XCTAssertEqual(initialDate, allTokens[TEST_ATTRIBUTE]?.tokenFirstIssued)
+        XCTAssertEqual("token", allTokens[ATTRIBUTE]?.token)
+        XCTAssertEqual(initialDate, allTokens[ATTRIBUTE]?.tokenFirstIssued)
     }
 
     func testGet_returnsPreviouslySetToken() {
-        // Given
+        // Given: A token stored at an attribute
         let issuedDate = Date()
         let expectedToken = token("token", date: issuedDate)
-        store.set(expectedToken, attribute: TEST_ATTRIBUTE)
+        store.set(expectedToken, attribute: ATTRIBUTE)
 
-        // When
-        let retrieved = store.token(for: TEST_ATTRIBUTE)
+        // When: Retrieving the token for that attribute
+        let retrieved = store.token(for: ATTRIBUTE)
 
-        // Then
+        // Then: The token and issue date should match what was stored
         XCTAssertEqual("token", retrieved?.token)
         XCTAssertEqual(issuedDate, retrieved?.tokenFirstIssued)
     }
 
     func testSet_overwritesExistingTokenAndReturnsTrueIfChanged() {
-        // Given
+        // Given: A token is already set for a specific attribute
         let initialDate = Date()
         let firstToken = token("token1", date: initialDate)
-        store.set(firstToken, attribute: TEST_ATTRIBUTE)
+        store.set(firstToken, attribute: ATTRIBUTE)
 
-        // When
+        // When: A different token is set for the same attribute
         let newDate = initialDate.addingTimeInterval(10)
-        let changed = store.set(token("token2", date: newDate), attribute: TEST_ATTRIBUTE)
+        let changed = store.set(token("token2", date: newDate), attribute: ATTRIBUTE)
 
-        // Then
+        // Then: It should return true, and the new token should overwrite the previous one
         XCTAssertTrue(changed)
         let allTokens = store.all().tokens
         XCTAssertEqual(1, allTokens.count)
-        XCTAssertEqual("token2", allTokens[TEST_ATTRIBUTE]?.token)
-        XCTAssertEqual(newDate, allTokens[TEST_ATTRIBUTE]?.tokenFirstIssued)
+        XCTAssertEqual("token2", allTokens[ATTRIBUTE]?.token)
+        XCTAssertEqual(newDate, allTokens[ATTRIBUTE]?.tokenFirstIssued)
     }
 
     func testSet_createsSeparateEntriesForDifferentAttributes() {
-        store.set(token("token1"), attribute: TEST_ATTRIBUTE)
-        store.set(token("token2"), attribute: TEST_ATTRIBUTE_2)
+        // Given: Two different tokens to be stored under different attributes
+        store.set(token("token1"), attribute: ATTRIBUTE)
+        store.set(token("token2"), attribute: ATTRIBUTE_2)
 
+        // When: Retrieving all stored tokens
         let allTokens = store.all().tokens
 
+        // Then: Each token should be stored under its respective attribute
         XCTAssertEqual(2, allTokens.count)
-        XCTAssertEqual("token1", allTokens[TEST_ATTRIBUTE]?.token)
-        XCTAssertEqual("token2", allTokens[TEST_ATTRIBUTE_2]?.token)
+        XCTAssertEqual("token1", allTokens[ATTRIBUTE]?.token)
+        XCTAssertEqual("token2", allTokens[ATTRIBUTE_2]?.token)
     }
 
     func testRemove_deletesTokenAndReturnsTrue() {
-        store.set(token("token"), attribute: TEST_ATTRIBUTE)
+        // Given: A token stored under a specific attribute
+        store.set(token("token"), attribute: ATTRIBUTE)
 
-        let removed = store.remove(attribute: TEST_ATTRIBUTE)
+        // When: The token is removed
+        let removed = store.remove(attribute: ATTRIBUTE)
 
+        // Then: It should return true, and the token should no longer exist in the store
         XCTAssertTrue(removed)
-        XCTAssertNil(store.token(for: TEST_ATTRIBUTE))
+        XCTAssertNil(store.token(for: ATTRIBUTE))
         XCTAssertTrue(store.all().tokens.isEmpty)
     }
 
     func testRemove_nonExistingAttribute_returnsFalse() {
-        let removed = store.remove(attribute: TEST_ATTRIBUTE)
+        // Given: No token exists for the attribute (store is empty)
+        // When: Attempting to remove a token for the non-existent attribute
+        let removed = store.remove(attribute: ATTRIBUTE)
 
+        // Then: It should return false, and the store should remain empty
         XCTAssertFalse(removed)
         XCTAssertTrue(store.all().tokens.isEmpty)
     }
 
     func testPersistenceAcrossInstances() {
+        // Given: A token is stored in one instance of the store
         let issuedDate = Date()
-        store.set(token("token", date: issuedDate), attribute: TEST_ATTRIBUTE)
+        store.set(token("token", date: issuedDate), attribute: ATTRIBUTE)
 
+        // When: A new store instance is created
         let second = PushToStartTokenStore()
 
-        XCTAssertEqual("token", second.token(for: TEST_ATTRIBUTE)?.token)
-        XCTAssertEqual(issuedDate, second.token(for: TEST_ATTRIBUTE)?.tokenFirstIssued)
+        // Then: The new instance should still have access to the original token
+        XCTAssertEqual("token", second.token(for: ATTRIBUTE)?.token)
+        XCTAssertEqual(issuedDate, second.token(for: ATTRIBUTE)?.tokenFirstIssued)
     }
 
     // MARK: - Private helpers
