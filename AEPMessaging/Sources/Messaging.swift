@@ -272,13 +272,13 @@ public class Messaging: NSObject, Extension {
 
         if event.isLiveActivityUpdateTokenEvent {
             // extract token
-            guard let token = event.liveActivityUpdateToken else {
+            guard let token = event.liveActivityUpdateToken, !token.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid token could not be found in the event.")
                 return
             }
 
             // extract liveActivityId
-            guard let liveActivityID = event.liveActivityID else {
+            guard let liveActivityID = event.liveActivityID, !liveActivityID.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid Live Activity ID could not be found in the event.")
                 return
             }
@@ -346,12 +346,12 @@ public class Messaging: NSObject, Extension {
         // handle live activity push-to-start token event
         if event.isLiveActivityPushToStartTokenEvent {
             // Extract token from event
-            guard let token = event.liveActivityPushToStartToken else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event.")
+            guard let token = event.liveActivityPushToStartToken, !token.isEmpty else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event or token is empty.")
                 return
             }
-            guard let attributeType = event.liveActivityAttributeType else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
+            guard let attributeType = event.liveActivityAttributeType, !attributeType.isEmpty else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event or was empty.")
                 return
             }
 
