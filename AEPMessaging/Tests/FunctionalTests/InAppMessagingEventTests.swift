@@ -202,34 +202,30 @@ class InAppMessagingEventTests: XCTestCase, AnyCodableAsserts {
     }
     
     func validatePayloadObject(_ payload: [String: Any]) {
-        let expectedJSON = #"""
+        let expectedJSON = """
         {
-          "id": "string",
+          "id": "mockMessageId",
           "items": [
             {
+              "id": "mockItemId",
+              "schema": "https://ns.adobe.com/personalization/json-content-item",
               "data": {
-                "content": "string",
-                "id": "string"
-              },
-              "id": "string",
-              "schema": "string"
+                "id": "mockItemId",
+                "content": "mockContent"
+              }
             }
           ],
-          "scope": "string",
+          "scope": "mockScope",
           "scopeDetails": {
+            "decisionProvider": "TGT",
             "activity": {
-              "id": "string"
-            },
-            "characteristics": {
-              "eventToken": "string"
-            },
-            "correlationID": "string",
-            "decisionProvider": "string"
+              "id": "mockActivityId"
+            }
           }
         }
-        """#
+        """
         
-        assertTypeMatch(expected: expectedJSON.toAnyCodable()!, actual: AnyCodable.from(dictionary: (payload)), pathOptions: [])
+        assertTypeMatch(expected: expectedJSON, actual: payload)
     }
     
     func missingField(_ key: String) -> String {
