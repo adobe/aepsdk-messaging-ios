@@ -45,6 +45,7 @@ platform :ios, '12.0'
 target '$PROJECT_NAME' do
   use_frameworks!
   pod 'AEPMessaging', :path => '../AEPMessaging.podspec'
+  pod 'AEPMessagingLiveActivity', :path => '../AEPMessagingLiveActivity.podspec'
 end
 " >>Podfile
 

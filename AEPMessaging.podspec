@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.dependency 'AEPServices', '>= 5.3.0', '< 6.0.0'
   s.dependency 'AEPEdge', '>= 5.0.2', '< 6.0.0'
   s.dependency 'AEPEdgeIdentity', '>= 5.0.0', '< 6.0.0'
-  s.dependency 'AEPMessagingLiveActivity', '>= 5.0.0', '< 6.0.0'
+  s.dependency 'AEPMessagingLiveActivity', '>= 5.7.0', '< 6.0.0'
 
   s.source_files = 'AEPMessaging/Sources/**/*.swift'
 
