@@ -44,7 +44,7 @@ final class TokenStoreBaseTests: XCTestCase {
         store.set(key: "key", value: "value")
 
         // Then: The serialized dictionary should be written to the data store under the correct key
-        let actual = mockDataStore.get(collectionName: MessagingConstants.DATA_STORE_NAME, key: "unit-test") as? [String: Any]
+        let actual = mockDataStore.get(collectionName: MessagingConstants.DATA_STORE_NAME, key: STORE_KEY) as? [String: Any]
         XCTAssertEqual(["values": ["key": "value"]] as NSDictionary, actual as NSDictionary?)
     }
 
