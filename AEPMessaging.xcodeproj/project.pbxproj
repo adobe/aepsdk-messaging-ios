@@ -208,6 +208,13 @@
 		4C9BE8D82DAF5A6900EF41A3 /* ActivityTaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */; };
 		4CE3F8062DCD73F000812544 /* UpdateTokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8052DCD73F000812544 /* UpdateTokenStoreTests.swift */; };
 		4CE3F8082DD5439A00812544 /* PushToStartTokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8072DD5439A00812544 /* PushToStartTokenStoreTests.swift */; };
+		4CE3F80C2DD6AB8A00812544 /* TokenStoreBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F80B2DD6AB8900812544 /* TokenStoreBaseTests.swift */; };
+		4CE3F80F2DD6AD2200812544 /* MockTokenMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F80E2DD6AD2200812544 /* MockTokenMap.swift */; };
+		4CE3F8102DD6AD2200812544 /* MockTokenMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F80E2DD6AD2200812544 /* MockTokenMap.swift */; };
+		4CE3F8122DD6AD9C00812544 /* MockTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8112DD6AD9C00812544 /* MockTokenStore.swift */; };
+		4CE3F8132DD6AD9C00812544 /* MockTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8112DD6AD9C00812544 /* MockTokenStore.swift */; };
+		4CE3F8152DD6AE0600812544 /* CountingDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8142DD6AE0600812544 /* CountingDataStore.swift */; };
+		4CE3F8162DD6AE0600812544 /* CountingDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8142DD6AE0600812544 /* CountingDataStore.swift */; };
 		6C2343E8785E6B47C8D961F7 /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D55E83254139642A1CAA76E /* Pods_FunctionalTests.framework */; };
 		8306057F6EE4683383660BD8 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BDCBFF342013F2FF0CE1472 /* Pods_MessagingDemoAppObjC.framework */; };
 		846794A21245172CEE3FF1CA /* Pods_E2EFunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B18970846882D9DC0CD1C50 /* Pods_E2EFunctionalTestApp.framework */; };
@@ -712,6 +719,10 @@
 		4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityTaskStore.swift; sourceTree = "<group>"; };
 		4CE3F8052DCD73F000812544 /* UpdateTokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTokenStoreTests.swift; sourceTree = "<group>"; };
 		4CE3F8072DD5439A00812544 /* PushToStartTokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushToStartTokenStoreTests.swift; sourceTree = "<group>"; };
+		4CE3F80B2DD6AB8900812544 /* TokenStoreBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreBaseTests.swift; sourceTree = "<group>"; };
+		4CE3F80E2DD6AD2200812544 /* MockTokenMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTokenMap.swift; sourceTree = "<group>"; };
+		4CE3F8112DD6AD9C00812544 /* MockTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTokenStore.swift; sourceTree = "<group>"; };
+		4CE3F8142DD6AE0600812544 /* CountingDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountingDataStore.swift; sourceTree = "<group>"; };
 		6346827F4BC239DF7DDFD044 /* Pods-MessagingDemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.debug.xcconfig"; sourceTree = "<group>"; };
 		6912F64FC8C8BFAF5ACD8EF0 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		71895CC75A7A5B934C60718F /* Pods-E2EFunctionalTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTestApp.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1157,8 +1168,19 @@
 		4CE3F7FD2DCD689500812544 /* LiveActivity */ = {
 			isa = PBXGroup;
 			children = (
-				4CE3F8052DCD73F000812544 /* UpdateTokenStoreTests.swift */,
 				4CE3F8072DD5439A00812544 /* PushToStartTokenStoreTests.swift */,
+				4CE3F80B2DD6AB8900812544 /* TokenStoreBaseTests.swift */,
+				4CE3F8052DCD73F000812544 /* UpdateTokenStoreTests.swift */,
+			);
+			path = LiveActivity;
+			sourceTree = "<group>";
+		};
+		4CE3F80D2DD6AD0400812544 /* LiveActivity */ = {
+			isa = PBXGroup;
+			children = (
+				4CE3F8142DD6AE0600812544 /* CountingDataStore.swift */,
+				4CE3F80E2DD6AD2200812544 /* MockTokenMap.swift */,
+				4CE3F8112DD6AD9C00812544 /* MockTokenStore.swift */,
 			);
 			path = LiveActivity;
 			sourceTree = "<group>";
@@ -1299,6 +1321,7 @@
 		9231543C261E3B36004AE7D3 /* TestHelpers */ = {
 			isa = PBXGroup;
 			children = (
+				4CE3F80D2DD6AD0400812544 /* LiveActivity */,
 				B6F7CC0B2CC2ED4100C35C64 /* UITestUtils */,
 				2469A5FA2759401900E56457 /* ConfigurationLoader.swift */,
 				928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */,
@@ -2807,12 +2830,15 @@
 				246EFA202797441600C76A6B /* MockLaunchRulesEngine.swift in Sources */,
 				246EFA212797441600C76A6B /* MockMessage.swift in Sources */,
 				246EFA222797441600C76A6B /* MockMessaging.swift in Sources */,
+				4CE3F8122DD6AD9C00812544 /* MockTokenStore.swift in Sources */,
 				2402745C29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */,
 				246EFA232797441600C76A6B /* MockMessagingRulesEngine.swift in Sources */,
 				246EFA252797441600C76A6B /* MockNotificationResponseCoder.swift in Sources */,
 				24552E69291F08CF000744AD /* Environment.swift in Sources */,
 				246EFA272797441600C76A6B /* TestableMessagingMobileParameters.swift in Sources */,
 				246EFA1027973E7400C76A6B /* E2EFunctionalTests.swift in Sources */,
+				4CE3F8102DD6AD2200812544 /* MockTokenMap.swift in Sources */,
+				4CE3F8162DD6AE0600812544 /* CountingDataStore.swift in Sources */,
 				246EFA19279743EB00C76A6B /* ConfigurationLoader.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2961,6 +2987,7 @@
 				B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */,
 				243EA6C92733258600195945 /* Dictionary+MessagingTests.swift in Sources */,
 				2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */,
+				4CE3F80F2DD6AD2200812544 /* MockTokenMap.swift in Sources */,
 				243EA6DA2739D47500195945 /* MockMessaging.swift in Sources */,
 				240436CE2C76685C008CCD6D /* MockProposition.swift in Sources */,
 				243EA6D42733261E00195945 /* MessagingEdgeEventTypeTests.swift in Sources */,
@@ -2972,9 +2999,11 @@
 				2469A5EB274D49B100E56457 /* JSONFileLoader.swift in Sources */,
 				24CA4BDB2B61971000D16369 /* PropositionTests.swift in Sources */,
 				24CA4BDF2B61974300D16369 /* PropositionInteractionTests.swift in Sources */,
+				4CE3F8152DD6AE0600812544 /* CountingDataStore.swift in Sources */,
 				24CA4BC92B617A3F00D16369 /* JsonContentSchemaDataTests.swift in Sources */,
 				24CA4BDD2B61972500D16369 /* PropositionItemTests.swift in Sources */,
 				245059762673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift in Sources */,
+				4CE3F8132DD6AD9C00812544 /* MockTokenStore.swift in Sources */,
 				24CA4BD52B6195A500D16369 /* ContentCardRulesEngineTests.swift in Sources */,
 				24CA4BE12B61977800D16369 /* SurfaceTests.swift in Sources */,
 				4CE3F8082DD5439A00812544 /* PushToStartTokenStoreTests.swift in Sources */,
@@ -2984,6 +3013,7 @@
 				242920E42AC4D060000DB2CD /* FeedTests.swift in Sources */,
 				243EA6D22733260000195945 /* Messaging+EdgeEventsTests.swift in Sources */,
 				243EA6D62733263D00195945 /* SharedStateResult+MessagingTests.swift in Sources */,
+				4CE3F80C2DD6AB8A00812544 /* TokenStoreBaseTests.swift in Sources */,
 				24CA4BC52B617A1000D16369 /* FeedItemSchemaDataTests.swift in Sources */,
 				243EA6DE2739D4A400195945 /* MockFullscreenMessage.swift in Sources */,
 				24CA4BCF2B617AA900D16369 /* Array+MessagingTests.swift in Sources */,
