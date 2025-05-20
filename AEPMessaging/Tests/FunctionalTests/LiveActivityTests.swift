@@ -56,17 +56,17 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         let attributeType1 = ATTRIBUTE_TYPE
         let attributeType2 = "TestLiveActivityAttributes2"
         
-        // Step 1: Dispatch event with token 1 and attributeType1
+        // dispatch event with token 1 and attributeType1
         let event1 = createPushToStartEvent(token: token1, attributeType: attributeType1)
         mockSharedStates(for: event1)
         mockRuntime.simulateComingEvents(event1)
         
-        // Step 2: Dispatch event with token 2 and attributeType2
+        // dispatch event with token 2 and attributeType2
         let event2 = createPushToStartEvent(token: token2, attributeType: attributeType2)
         mockSharedStates(for: event2)
         mockRuntime.simulateComingEvents(event2)
         
-        // There should be two edge events dispatched
+        // there should be two edge events dispatched
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         let edgeEvent2 = mockRuntime.dispatchedEvents[1]
         XCTAssertEqual(EventType.edge, edgeEvent2.type)
@@ -100,7 +100,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         
         assertLiveActivityPushNotificationDetailsContains(details ?? [], expected: [expected1, expected2])
         
-        // Step 3: Verify the final shared state contains both tokens under their respective attribute types
+        // verify the final shared state contains both tokens under their respective attribute types
         XCTAssertEqual(2, mockRuntime.createdSharedStates.count)
         let finalSharedState = mockRuntime.createdSharedStates[1]
         XCTAssertNotNil(finalSharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_PUSH_TO_START_TOKENS])
@@ -121,9 +121,9 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         let event1 = createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
         mockSharedStates(for: event1)
         mockRuntime.simulateComingEvents(event1)
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
         
         // create and dispatch event with token 2
-        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
         let event2 = createPushToStartEvent(token: NEW_TOKEN, attributeType: ATTRIBUTE_TYPE)
         mockSharedStates(for: event2)
         mockRuntime.simulateComingEvents(event2)
@@ -203,7 +203,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     }
     
     func test_LiveActivity_PushToStart_PausedForPendingEdgeIdentity() {
-        let event = createPushToStartEvent(token: "token1", attributeType: ATTRIBUTE_TYPE)
+        let event = createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
         
         // Simulate NO Edge Identity shared state
         mockRuntime.simulateSharedState(
@@ -271,7 +271,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
             source: EventSource.requestContent,
             data: [
                 MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
-                MessagingConstants.XDM.Push.TOKEN: "tok",
+                MessagingConstants.XDM.Push.TOKEN: PUSH_TO_START_TOKEN,
                 // Attribute type intentionally omitted
                 MessagingConstants.XDM.LiveActivity.ID: "LID"
             ])
@@ -386,14 +386,14 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         verifyTokenRemovedFromSharedState()
     }
     
-    func test_LiveActivity_ActiveState() {
+    func test_LiveActivity_ActiveStateEvent() {
         // Setup initial token state
         setupInitialTokenState()
         
-        // Create and dispatch ended event
-        let endedEvent = createStateEvent(state: "Active", liveActivityID: LIVE_ACTIVITY_ID)
-        mockSharedStates(for: endedEvent)
-        mockRuntime.simulateComingEvents(endedEvent)
+        // Create and dispatch active state event
+        let activeEvent = createStateEvent(state: "Active", liveActivityID: LIVE_ACTIVITY_ID)
+        mockSharedStates(for: activeEvent)
+        mockRuntime.simulateComingEvents(activeEvent)
 
         // verify token is still in shared state
         verifyUpdateTokenSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID)
