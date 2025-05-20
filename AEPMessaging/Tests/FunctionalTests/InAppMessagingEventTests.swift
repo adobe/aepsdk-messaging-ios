@@ -35,7 +35,6 @@ class InAppMessagingEventTests: XCTestCase, AnyCodableAsserts {
         initializeSdk()
     }
     
-    
     override class func tearDown() {
         // after all
     }
