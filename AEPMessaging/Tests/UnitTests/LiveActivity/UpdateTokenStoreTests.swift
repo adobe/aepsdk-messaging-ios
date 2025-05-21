@@ -43,7 +43,7 @@ class UpdateTokenStoreTests: XCTestCase {
 
         // Then: It should return true, and the token should be stored at the correct location
         XCTAssertTrue(success)
-        let allTokens = store.all().tokens
+        let allTokens = store.all().map
         XCTAssertEqual(1, allTokens.count)
         XCTAssertEqual(1, allTokens[ATTRIBUTE]?.count)
         XCTAssertEqual("token", allTokens[ATTRIBUTE]?[ID]?.token)
@@ -61,7 +61,7 @@ class UpdateTokenStoreTests: XCTestCase {
 
         // Then: It should return false, and no changes should be made to the store
         XCTAssertFalse(changed)
-        let allTokens = store.all().tokens
+        let allTokens = store.all().map
         XCTAssertEqual(1, allTokens[ATTRIBUTE]?.count)
         XCTAssertEqual("token", allTokens[ATTRIBUTE]?[ID]?.token)
         XCTAssertEqual(initialDate, allTokens[ATTRIBUTE]?[ID]?.tokenFirstIssued)
@@ -105,7 +105,7 @@ class UpdateTokenStoreTests: XCTestCase {
         store.set(token("token2", date: date2), attribute: ATTRIBUTE, id: ID_2)
 
         // When: Fetching the internal token map
-        let allTokens = store.all().tokens
+        let allTokens = store.all().map
 
         // Then: One attribute entry should exist with two token entries
         XCTAssertNotNil(allTokens[ATTRIBUTE])
@@ -123,7 +123,7 @@ class UpdateTokenStoreTests: XCTestCase {
         store.set(token("token2", date: date2), attribute: secondAttribute, id: ID_2)
 
         // When: Fetching the internal token map
-        let allTokens = store.all().tokens
+        let allTokens = store.all().map
 
         // Then: Two separate attribute entries should exist, each with one token
         XCTAssertEqual(2, allTokens.count)
@@ -144,7 +144,7 @@ class UpdateTokenStoreTests: XCTestCase {
         // Then: The method returns true, and both the token and attribute are removed
         XCTAssertTrue(removed)
         XCTAssertNil(store.token(for: ATTRIBUTE, id: ID))
-        XCTAssertNil(store.all().tokens[ATTRIBUTE])
+        XCTAssertNil(store.all().map[ATTRIBUTE])
     }
 
     func testRemove_fromNonExistingAttribute_returnsFalse() {
@@ -155,7 +155,7 @@ class UpdateTokenStoreTests: XCTestCase {
 
         // Then: The method returns false and the store remains empty
         XCTAssertFalse(removed)
-        XCTAssertTrue(store.all().tokens.isEmpty)
+        XCTAssertTrue(store.all().map.isEmpty)
     }
 
     func testRemove_fromExistingAttributeWithUnknownId_returnsFalse() {
@@ -180,7 +180,7 @@ class UpdateTokenStoreTests: XCTestCase {
         store.remove(attribute: ATTRIBUTE, id: ID)
 
         // Then: The attribute remains, and the other token is still present
-        let tokens = store.all().tokens
+        let tokens = store.all().map
         XCTAssertNotNil(tokens[ATTRIBUTE])
         XCTAssertEqual(1, tokens[ATTRIBUTE]?.count)
         XCTAssertEqual("token2", tokens[ATTRIBUTE]?[ID_2]?.token)
@@ -196,7 +196,7 @@ class UpdateTokenStoreTests: XCTestCase {
         store.remove(attribute: ATTRIBUTE, id: ID_2)
 
         // Then: The attribute itself should also be removed from the map
-        XCTAssertNil(store.all().tokens[ATTRIBUTE])
+        XCTAssertNil(store.all().map[ATTRIBUTE])
     }
 
     func testTTLExpiry_removesExpiredTokensOnInit() {
@@ -246,7 +246,7 @@ class UpdateTokenStoreTests: XCTestCase {
 
     // MARK: Private helpers
 
-    private func token(_ s: String, date: Date = Date()) -> LiveActivity.Token {
-        LiveActivity.Token(token: s, tokenFirstIssued: date)
+    private func token(_ s: String, date: Date = Date()) -> LiveActivity.TokenDetails {
+        LiveActivity.TokenDetails(token: s, tokenFirstIssued: date)
     }
 }

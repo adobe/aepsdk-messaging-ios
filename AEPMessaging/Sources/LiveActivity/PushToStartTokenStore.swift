@@ -12,7 +12,7 @@
 
 import AEPServices
 
-final class PushToStartTokenStore: TokenStoreBase<LiveActivity.PushToStartTokenMap> {
+final class PushToStartTokenStore: PersistenceStoreBase<LiveActivity.PushToStartTokenMap> {
     init() {
         super.init(storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_PUSH_TO_START_TOKENS)
     }
@@ -22,7 +22,7 @@ final class PushToStartTokenStore: TokenStoreBase<LiveActivity.PushToStartTokenM
     /// - Parameters:
     ///   - attribute: The Live Activity attribute type associated with the token.
     /// - Returns: The associated ``LiveActivity.Token`` if one exists; otherwise, `nil`.
-    func token(for attribute: LiveActivity.AttributeType) -> LiveActivity.Token? {
+    func token(for attribute: LiveActivity.AttributeType) -> LiveActivity.PushToStartToken? {
         _persistedMap.tokens[attribute]
     }
 
@@ -37,11 +37,11 @@ final class PushToStartTokenStore: TokenStoreBase<LiveActivity.PushToStartTokenM
     ///   - attribute: The Live Activity attribute type associated with the token.
     /// - Returns: `true` if the token was new or different and was stored; `false` if the token was unchanged.
     @discardableResult
-    func set(_ token: LiveActivity.Token, attribute: LiveActivity.AttributeType) -> Bool {
+    func set(_ token: LiveActivity.PushToStartToken, attribute: LiveActivity.AttributeType) -> Bool {
         var workingMap = _persistedMap
         let previousToken = workingMap.tokens.updateValue(token, forKey: attribute)
         // Compare the actual token values excluding date
-        let didChange = previousToken?.token != token.token
+        let didChange = previousToken?.value != token.value
         if didChange {
             _persistedMap = workingMap
         }

@@ -122,6 +122,11 @@ public extension Messaging {
 
                 // Use task group to manage state and push token updates concurrently.
                 await withTaskGroup(of: Void.self) { group in
+                    // TODO: implement contentUpdates events being dispatched in DEBUG mode
+//                    activity.contentUpdates {
+//                        // if origin == assurance
+//                        // then send to event hub
+//                    }
                     // Listen for state updates.
                     group.addTask {
                         for await newState in activity.activityStateUpdates {

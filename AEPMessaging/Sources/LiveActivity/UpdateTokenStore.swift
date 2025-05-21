@@ -12,75 +12,75 @@
 
 import AEPServices
 
-final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
+final class UpdateTokenStore: PersistenceStoreBase<LiveActivity.UpdateTokenMap> {
     init() {
         super.init(storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_UPDATE_TOKENS)
         // This always triggers a lazy load from persisted storage.
         // If any tokens are expired, they will be removed and the updated map will be written back.
-        removeExpiredTokens()
+        removeExpiredEntries()
     }
 
-    /// Retrieves the token associated with a specific Live Activity attribute and ID.
+    /// Returns the current update token map after removing any expired tokens.
     ///
-    /// - Parameters:
-    ///   - attribute: The Live Activity attribute type associated with the token.
-    ///   - id: The Live Activity ID associated with the token.
-    /// - Returns: The associated ``LiveActivity.Token`` if one exists; otherwise, `nil`.
-    func token(for attribute: LiveActivity.AttributeType, id: LiveActivity.ID) -> LiveActivity.Token? {
-        _persistedMap.tokens[attribute]?[id]
+    /// - Returns: A ``UpdateTokenMap`` containing only non-expired update tokens.
+    /// - SeeAlso: ``removeExpiredEntries()``
+    override func all() -> LiveActivity.UpdateTokenMap {
+        removeExpiredEntries()
+        return _persistedMap
     }
 
-    /// Sets or updates the token for the specified Live Activity attribute and Live Activity ID.
+    /// Retrieves the token associated with a specific Live Activity ID, if it exists and has not expired.
     ///
-    /// If the given `token` is new or different from the existing one for the specified
-    /// `attribute` and `id`, it is stored in the token map and the change is persisted.
-    /// If the token is unchanged, no persistence occurs.
+    /// If the associated entry is expired, it is opportunistically removed from the store.
+    ///
+    /// - Parameter id: The Live Activity ID associated with the token.
+    /// - Returns: The associated ``LiveActivity.UpdateToken`` if it exists and is not expired; `nil` otherwise.
+    func token(id: LiveActivity.ID) -> LiveActivity.UpdateToken? {
+        guard let token = _persistedMap.tokens[id] else {
+            return nil
+        }
+        guard !isExpired(token) else {
+            _persistedMap.tokens.removeValue(forKey: id)
+            return nil
+        }
+        return token
+    }
+
+    /// Sets or updates the token for the specified Live Activity ID.
+    ///
+    /// If the given `token` is new, or if its value or attribute type differ from an existing
+    /// token for the specified `id`, it is stored in the token map and the change is persisted.
+    /// If the token is unchanged or is already expired, no persistence occurs.
     ///
     /// - Parameters:
-    ///   - token: The ``LiveActivity.Token`` to store.
-    ///   - attribute: The Live Activity attribute type associated with the token.
+    ///   - token: The ``LiveActivity.UpdateToken`` to store.
     ///   - id: The Live Activity ID associated with the token.
-    /// - Returns: `true` if the token was new or different and was stored; `false` if the token was unchanged.
+    /// - Returns: `true` if the token was new or different and was stored; `false` otherwise.
     @discardableResult
-    func set(
-        _ token: LiveActivity.Token,
-        attribute: LiveActivity.AttributeType,
-        id: LiveActivity.ID
-    ) -> Bool {
+    func set(_ token: LiveActivity.UpdateToken, id: LiveActivity.ID) -> Bool {
+        guard !isExpired(token) else {
+            return false
+        }
+
         var workingMap = _persistedMap
-        var attributeTokens = workingMap.tokens[attribute, default: [:]]
-        let previousToken = attributeTokens.updateValue(token, forKey: id)
+        let previousToken = workingMap.tokens.updateValue(token, forKey: id)
         // Compare the actual token values excluding date
-        let didChange = previousToken?.token != token.token
+        let didChange = previousToken?.value != token.value || previousToken?.attributeType != token.attributeType
         if didChange {
-            workingMap.tokens[attribute] = attributeTokens
             _persistedMap = workingMap
         }
         return didChange
     }
 
-    /// Removes the token associated with the given attribute and Live Activity ID, if it exists.
+    /// Removes the token associated with the specified Live Activity ID, if it exists.
     ///
-    /// If a token exists for the specified `attribute` and `id`, it is removed. If the resulting
-    /// token map for the attribute becomes empty, the entire attribute entry is removed from the map.
-    ///
-    /// - Parameters:
-    ///   - attribute: The Live Activity attribute type associated with the token.
-    ///   - id: The Live Activity ID associated with the token.
-    /// - Returns: `true` if a token was found and removed; `false` if no such token existed.
+    /// - Parameter id: The Live Activity ID associated with the token to remove.
+    /// - Returns: `true` if a token was removed; `false` otherwise.
     @discardableResult
-    func remove(attribute: LiveActivity.AttributeType, id: LiveActivity.ID) -> Bool {
+    func remove(id: LiveActivity.ID) -> Bool {
         var workingMap = _persistedMap
-        guard var attributeTokens = workingMap.tokens[attribute],
-              attributeTokens.removeValue(forKey: id) != nil
-        else {
+        guard workingMap.tokens.removeValue(forKey: id) != nil else {
             return false
-        }
-        // Cleans up the map by removing the attribute key if no tokens exist for it.
-        if attributeTokens.isEmpty {
-            workingMap.tokens.removeValue(forKey: attribute)
-        } else {
-            workingMap.tokens[attribute] = attributeTokens
         }
         _persistedMap = workingMap
         return true
@@ -88,31 +88,32 @@ final class UpdateTokenStore: TokenStoreBase<LiveActivity.UpdateTokenMap> {
 
     // MARK: - Private helpers
 
-    /// Checks the entire update token map and removes any tokens whose `tokenFirstIssued` date
-    /// is older than the configured TTL in `MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL`.
-    private func removeExpiredTokens() {
+    /// Returns whether the given update token is expired based on the configured TTL and reference time.
+    ///
+    /// - Parameters:
+    ///   - token: The update token to check.
+    ///   - referenceDate: The reference time used for expiration comparison. Defaults to the current time.
+    /// - Returns: `true` if the token has expired; `false` otherwise.
+    private func isExpired(_ token: LiveActivity.UpdateToken, referenceDate: Date = Date()) -> Bool {
         let ttl = MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL
+        return referenceDate.timeIntervalSince(token.firstIssued) > ttl
+    }
+
+    /// Removes any update tokens whose `firstIssued` date is older than the allowed TTL.
+    ///
+    /// Expired entries are removed based on `MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL`.
+    private func removeExpiredEntries() {
         let now = Date()
-        var workingMap = _persistedMap
-        var anyTokenDidExpire = false
+        var tokens = _persistedMap.tokens
 
-        for (attribute, attributeTokens) in workingMap.tokens {
-            let stillValidTokens = attributeTokens.filter { _, token in
-                // Keep only tokens newer than TTL
-                now.timeIntervalSince(token.tokenFirstIssued) <= ttl
-            }
-            if stillValidTokens.count != attributeTokens.count {
-                anyTokenDidExpire = true
-            }
-            if stillValidTokens.isEmpty {
-                workingMap.tokens.removeValue(forKey: attribute)
-            } else {
-                workingMap.tokens[attribute] = stillValidTokens
-            }
+        let nonExpiredTokens = tokens.filter { _, token in
+            !isExpired(token, referenceDate: now)
         }
 
-        if anyTokenDidExpire {
-            _persistedMap = workingMap
+        guard nonExpiredTokens.count != tokens.count else {
+            // No tokens expired
+            return
         }
+        _persistedMap.tokens = nonExpiredTokens
     }
 }

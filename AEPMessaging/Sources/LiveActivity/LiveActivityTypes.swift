@@ -18,12 +18,54 @@ enum LiveActivity {
         init()
     }
 
+    /// Anything that has a date TTL is compared against.
+    protocol Expirable {
+        var referenceDate: Date { get }
+    }
+
+    /// Anything that can expose its internal dictionary with `ID` keys, whose values are ``Expirable``.
+    protocol DictionaryBacked: Codable, LiveActivity.DefaultInitializable {
+        associatedtype Element: Expirable
+        var storage: [LiveActivity.ID: Element] { get set }
+    }
+
     typealias AttributeType = String
     typealias ID = String
 
-    struct Token: Codable, Equatable {
-        var token: String
-        var tokenFirstIssued: Date
+    struct ChannelActivity: Codable, Equatable, Expirable {
+        let attributeType: String
+        let startedAt: Date
+
+        // Expirable conformance
+        var referenceDate: Date { startedAt }
+    }
+
+    struct PushToStartToken: Codable, Equatable {
+        let firstIssued: Date
+        let value: String
+    }
+
+    struct UpdateToken: Codable, Equatable, Expirable {
+        let attributeType: String
+        let firstIssued: Date
+        let value: String
+
+        // Expirable conformance
+        var referenceDate: Date { firstIssued }
+    }
+
+    struct ChannelMap: Codable, DefaultInitializable, DictionaryBacked {
+        var channels: [ID: ChannelActivity]
+
+        // DictionaryBacked conformance
+        var storage: [LiveActivity.ID: LiveActivity.ChannelActivity] {
+            get { channels }
+            set { channels = newValue }
+        }
+
+        init() {
+            channels = [:]
+        }
     }
 
     /// A data structure representing a mapping of Live Activity update tokens,
@@ -32,11 +74,10 @@ enum LiveActivity {
     /// The structure of this dictionary is:
     /// ```json
     /// {
-    ///   "<LiveActivityAttributeType>": {
-    ///     "<LiveActivityID>": {
-    ///       "tokenFirstIssued": "2025-04-30T10:00:00Z",
-    ///       "token": "<String>"
-    ///     }
+    ///   "<LiveActivityID>": {
+    ///     "attributeType": "<String>",
+    ///     "firstIssued": "<Date>",
+    ///     "token": "<String>"
     ///   }
     /// }
     /// ```
@@ -44,20 +85,25 @@ enum LiveActivity {
     /// Example:
     /// ```json
     /// {
-    ///   "DrinkOrderTrackerActivity": {
-    ///     "order123": {
-    ///       "tokenFirstIssued": "2025-04-30T10:00:00Z",
-    ///       "token": "abc123"
-    ///     },
-    ///     "order456": {
-    ///       "tokenFirstIssued": "2025-04-30T11:00:00Z",
-    ///       "token": "def456"
-    ///     }
+    ///   "order123": {
+    ///     "attributeType": "DrinkOrderTrackerActivity",
+    ///     "firstIssued": "2025-04-30T10:00:00Z",
+    ///     "token": "abc123"
+    ///   },
+    ///   "order456": {
+    ///     "attributeType": "DrinkOrderTrackerActivity",
+    ///     "firstIssued": "2025-04-30T11:00:00Z",
+    ///     "token": "def456"
     ///   }
     /// }
     /// ```
-    struct UpdateTokenMap: Codable, DefaultInitializable {
-        var tokens: [AttributeType: [ID: Token]]
+    struct UpdateTokenMap: Codable, DefaultInitializable, DictionaryBacked {
+        var tokens: [ID: UpdateToken]
+
+        var storage: [LiveActivity.ID: LiveActivity.UpdateToken] {
+            get { tokens }
+            set { tokens = newValue }
+        }
 
         init() {
             tokens = [:]
@@ -70,8 +116,8 @@ enum LiveActivity {
     /// ```json
     /// {
     ///   "<LiveActivityAttributeType>": {
-    ///     "tokenFirstIssued": "<Date or null>",
-    ///     "token": "<token>"
+    ///     "firstIssued": "<Date>",
+    ///     "token": "<String>"
     ///   }
     /// }
     /// ```
@@ -80,17 +126,17 @@ enum LiveActivity {
     /// ```json
     /// {
     ///   "DrinkOrderTrackerActivity": {
-    ///     "tokenFirstIssued": "2025-04-30T10:00:00Z",
+    ///     "firstIssued": "2025-04-30T10:00:00Z",
     ///     "token": "abc123"
     ///   },
     ///   "FoodOrderTrackerActivity": {
-    ///     "tokenFirstIssued": "2025-04-30T10:00:00Z",
+    ///     "firstIssued": "2025-04-30T10:00:00Z",
     ///     "token": "def456"
     ///   }
     /// }
     /// ```
     struct PushToStartTokenMap: Codable, DefaultInitializable {
-        var tokens: [AttributeType: Token]
+        var tokens: [AttributeType: PushToStartToken]
 
         init() {
             tokens = [:]

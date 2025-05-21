@@ -41,7 +41,7 @@ final class PushToStartTokenStoreTests: XCTestCase {
 
         // Then: It should return true, and the token should be stored correctly
         XCTAssertTrue(changed)
-        let allTokens = store.all().tokens
+        let allTokens = store.all().map
         XCTAssertEqual(1, allTokens.count)
         XCTAssertEqual("token", allTokens[ATTRIBUTE]?.token)
         XCTAssertEqual(issuedDate, allTokens[ATTRIBUTE]?.tokenFirstIssued)
@@ -59,7 +59,7 @@ final class PushToStartTokenStoreTests: XCTestCase {
 
         // Then: It should return false, and no changes should be made to the store
         XCTAssertFalse(changed)
-        let allTokens = store.all().tokens
+        let allTokens = store.all().map
         XCTAssertEqual(1, allTokens.count)
         XCTAssertEqual("token", allTokens[ATTRIBUTE]?.token)
         XCTAssertEqual(initialDate, allTokens[ATTRIBUTE]?.tokenFirstIssued)
@@ -91,7 +91,7 @@ final class PushToStartTokenStoreTests: XCTestCase {
 
         // Then: It should return true, and the new token should overwrite the previous one
         XCTAssertTrue(changed)
-        let allTokens = store.all().tokens
+        let allTokens = store.all().map
         XCTAssertEqual(1, allTokens.count)
         XCTAssertEqual("token2", allTokens[ATTRIBUTE]?.token)
         XCTAssertEqual(newDate, allTokens[ATTRIBUTE]?.tokenFirstIssued)
@@ -103,7 +103,7 @@ final class PushToStartTokenStoreTests: XCTestCase {
         store.set(token("token2"), attribute: ATTRIBUTE_2)
 
         // When: Retrieving all stored tokens
-        let allTokens = store.all().tokens
+        let allTokens = store.all().map
 
         // Then: Each token should be stored under its respective attribute
         XCTAssertEqual(2, allTokens.count)
@@ -121,7 +121,7 @@ final class PushToStartTokenStoreTests: XCTestCase {
         // Then: It should return true, and the token should no longer exist in the store
         XCTAssertTrue(removed)
         XCTAssertNil(store.token(for: ATTRIBUTE))
-        XCTAssertTrue(store.all().tokens.isEmpty)
+        XCTAssertTrue(store.all().map.isEmpty)
     }
 
     func testRemove_nonExistingAttribute_returnsFalse() {
@@ -131,7 +131,7 @@ final class PushToStartTokenStoreTests: XCTestCase {
 
         // Then: It should return false, and the store should remain empty
         XCTAssertFalse(removed)
-        XCTAssertTrue(store.all().tokens.isEmpty)
+        XCTAssertTrue(store.all().map.isEmpty)
     }
 
     func testPersistenceAcrossInstances() {
@@ -148,7 +148,7 @@ final class PushToStartTokenStoreTests: XCTestCase {
     }
 
     // MARK: - Private helpers
-    private func token(_ s: String, date: Date = Date()) -> LiveActivity.Token {
-        LiveActivity.Token(token: s, tokenFirstIssued: date)
+    private func token(_ s: String, date: Date = Date()) -> LiveActivity.TokenDetails {
+        LiveActivity.TokenDetails(token: s, tokenFirstIssued: date)
     }
 }

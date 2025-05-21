@@ -16,7 +16,7 @@ import AEPServices
 ///
 /// > Important:  Subclass this base class with a concrete `TokenMap` type and provide
 /// > your own mutator methods for reading and writing specific tokens.
-class TokenStoreBase<TokenMap: Codable & LiveActivity.DefaultInitializable> {
+class PersistenceStoreBase<TokenMap: Codable & LiveActivity.DefaultInitializable> {
     private let datastoreName = MessagingConstants.DATA_STORE_NAME
     private let storeKey: String
 
