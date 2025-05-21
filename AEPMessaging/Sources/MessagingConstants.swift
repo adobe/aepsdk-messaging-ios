@@ -324,8 +324,13 @@ enum MessagingConstants {
     enum SharedState {
         enum Messaging {
             static let PUSH_IDENTIFIER = "pushidentifier"
-            static let LIVE_ACTIVITY_PUSH_TO_START_TOKENS = "liveActivity.pushToStartTokens"
-            static let LIVE_ACTIVITY_UPDATE_TOKENS = "liveActivity.updateTokens"
+            static let LIVE_ACTIVITY = "liveActivity"
+            
+            enum LiveActivity {
+                static let PUSH_TO_START_TOKENS = "pushToStartTokens"
+                static let UPDATE_TOKENS = "updateTokens"
+                static let CHANNEL_ACTIVITIES = "channelActivities"
+            }
         }
 
         enum Configuration {

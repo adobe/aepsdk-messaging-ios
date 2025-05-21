@@ -13,6 +13,11 @@
 import Foundation
 
 enum LiveActivity {
+    typealias AttributeType = String
+    typealias ID = String
+
+    // MARK: - Protocols
+
     /// A type that can be initialized with no arguments.
     protocol DefaultInitializable {
         init()
@@ -23,14 +28,13 @@ enum LiveActivity {
         var referenceDate: Date { get }
     }
 
-    /// Anything that can expose its internal dictionary with `ID` keys, whose values are ``Expirable``.
-    protocol DictionaryBacked: Codable, LiveActivity.DefaultInitializable {
-        associatedtype Element: Expirable
-        var storage: [LiveActivity.ID: Element] { get set }
+    /// Anything that can expose its internal dictionary with `ID` keys, whose values are
+    protocol DictionaryBacked: Codable, DefaultInitializable {
+        associatedtype Element
+        var storage: [ID: Element] { get set }
     }
 
-    typealias AttributeType = String
-    typealias ID = String
+    // MARK: - Element structs
 
     struct ChannelActivity: Codable, Equatable, Expirable {
         let attributeType: String
@@ -54,15 +58,18 @@ enum LiveActivity {
         var referenceDate: Date { firstIssued }
     }
 
+    // MARK: - Map structs
+
     struct ChannelMap: Codable, DefaultInitializable, DictionaryBacked {
         var channels: [ID: ChannelActivity]
 
         // DictionaryBacked conformance
-        var storage: [LiveActivity.ID: LiveActivity.ChannelActivity] {
+        var storage: [ID: ChannelActivity] {
             get { channels }
             set { channels = newValue }
         }
 
+        // DefaultInitializable conformance
         init() {
             channels = [:]
         }
@@ -100,11 +107,13 @@ enum LiveActivity {
     struct UpdateTokenMap: Codable, DefaultInitializable, DictionaryBacked {
         var tokens: [ID: UpdateToken]
 
-        var storage: [LiveActivity.ID: LiveActivity.UpdateToken] {
+        // DictionaryBacked conformance
+        var storage: [ID: UpdateToken] {
             get { tokens }
             set { tokens = newValue }
         }
 
+        // DefaultInitializable conformance
         init() {
             tokens = [:]
         }
@@ -135,9 +144,16 @@ enum LiveActivity {
     ///   }
     /// }
     /// ```
-    struct PushToStartTokenMap: Codable, DefaultInitializable {
+    struct PushToStartTokenMap: Codable, DefaultInitializable, DictionaryBacked {
         var tokens: [AttributeType: PushToStartToken]
 
+        // DictionaryBacked conformance
+        var storage: [AttributeType: PushToStartToken] {
+            get { tokens }
+            set { tokens = newValue }
+        }
+
+        // DefaultInitializable conformance
         init() {
             tokens = [:]
         }

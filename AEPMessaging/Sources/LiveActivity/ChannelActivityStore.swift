@@ -10,20 +10,15 @@
  governing permissions and limitations under the License.
  */
 
-import AEPServices
+import Foundation
 
-typealias UpdateTokenStore = ExpirableStore<LiveActivity.UpdateTokenMap>
-extension UpdateTokenStore {
+typealias ChannelActivityStore = ExpirableStore<LiveActivity.ChannelMap>
+extension ChannelActivityStore {
     convenience init() {
         self.init(
-            storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_UPDATE_TOKENS,
-            ttl: MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL,
-            customEquivalence: tokenChanged
+            storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_CHANNEL_DETAILS,
+            ttl: MessagingConstants.LiveActivity.CHANNEL_DETAIL_MAX_TTL
+            // No custom equivalence logic; any non-expired `ChannelActivity` replaces the old one
         )
     }
-}
-
-private let tokenChanged: (LiveActivity.UpdateToken, LiveActivity.UpdateToken) -> Bool = { old, new in
-    // Change detection for update tokens ignores the timestamp.
-    old.value != new.value || old.attributeType != new.attributeType
 }

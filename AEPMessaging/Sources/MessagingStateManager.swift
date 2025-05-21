@@ -13,6 +13,7 @@
 import AEPServices
 
 class MessagingStateManager {
+    let channelActivityStore = ChannelActivityStore()
     let updateTokenStore = UpdateTokenStore()
     let pushToStartTokenStore = PushToStartTokenStore()
 
@@ -20,17 +21,29 @@ class MessagingStateManager {
 
     func buildMessagingSharedState() -> [String: Any] {
         var sharedStateData: [String: Any] = [:]
+        var liveActivity: [String: Any] = [:]
 
         // Update tokens
-        let updateTokensDict = updateTokenStore.all().asDictionary()
-        if let updateTokens = updateTokensDict, !updateTokens.isEmpty {
-            sharedStateData[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_UPDATE_TOKENS] = updateTokens
+        if let updateTokens = updateTokenStore.all().asDictionary(),
+           !updateTokens.isEmpty {
+            liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.UPDATE_TOKENS] = updateTokens
         }
 
         // Push-to-start tokens
-        let pushToStartTokensDict = pushToStartTokenStore.all().asDictionary()
-        if let pushToStartTokens = pushToStartTokensDict, !pushToStartTokens.isEmpty {
-            sharedStateData[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_PUSH_TO_START_TOKENS] = pushToStartTokens
+        if let pushToStartTokens = pushToStartTokenStore.all().asDictionary(),
+           !pushToStartTokens.isEmpty {
+            liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.PUSH_TO_START_TOKENS] = pushToStartTokens
+        }
+
+        // Channel activities
+        if let channelActivities = channelActivityStore.all().asDictionary(),
+           !channelActivities.isEmpty {
+            liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.CHANNEL_ACTIVITIES] = channelActivities
+        }
+
+        // Only add "liveActivity" if any subkeys exist
+        if !liveActivity.isEmpty {
+            sharedStateData[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] = liveActivity
         }
 
         return sharedStateData

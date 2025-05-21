@@ -197,6 +197,7 @@
 		24CA4BE12B61977800D16369 /* SurfaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BE02B61977800D16369 /* SurfaceTests.swift */; };
 		24FD5F752CEEA50F00AE4567 /* CompletionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */; };
 		4C0111D72DB30FD900996757 /* LiveActivityOrigin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0111D62DB30FD900996757 /* LiveActivityOrigin.swift */; };
+		4C075D6E2DDE74D70082B66C /* ChannelActivityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C075D6D2DDE74D70082B66C /* ChannelActivityStore.swift */; };
 		4C2157F32DC4441F0055C8C9 /* MessagingStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F22DC4441F0055C8C9 /* MessagingStateManager.swift */; };
 		4C2157F52DC444EA0055C8C9 /* UpdateTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F42DC444EA0055C8C9 /* UpdateTokenStore.swift */; };
 		4C2157F72DC444FF0055C8C9 /* PushToStartTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157F62DC444FF0055C8C9 /* PushToStartTokenStore.swift */; };
@@ -204,7 +205,6 @@
 		4C2157FD2DC44C070055C8C9 /* Decodable+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157FC2DC44C070055C8C9 /* Decodable+Messaging.swift */; };
 		4C2157FF2DCAD5530055C8C9 /* PersistenceStoreBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2157FE2DCAD5530055C8C9 /* PersistenceStoreBase.swift */; };
 		4C4A4ABB2DDD250C0084A74B /* ExpirableStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C4A4ABA2DDD250C0084A74B /* ExpirableStore.swift */; };
-		4C62D0202DDC08EC00EAC267 /* ChannelDetailsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C62D01F2DDC08EC00EAC267 /* ChannelDetailsStore.swift */; };
 		4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */; };
 		4C9BE8D62DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */; };
 		4C9BE8D82DAF5A6900EF41A3 /* ActivityTaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */; };
@@ -710,6 +710,7 @@
 		3D55E83254139642A1CAA76E /* Pods_FunctionalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FunctionalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		43204BBDCB8D5720A0D56E52 /* Pods-IntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegrationTests.release.xcconfig"; path = "Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
 		4C0111D62DB30FD900996757 /* LiveActivityOrigin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityOrigin.swift; sourceTree = "<group>"; };
+		4C075D6D2DDE74D70082B66C /* ChannelActivityStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelActivityStore.swift; sourceTree = "<group>"; };
 		4C2157F22DC4441F0055C8C9 /* MessagingStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingStateManager.swift; sourceTree = "<group>"; };
 		4C2157F42DC444EA0055C8C9 /* UpdateTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTokenStore.swift; sourceTree = "<group>"; };
 		4C2157F62DC444FF0055C8C9 /* PushToStartTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushToStartTokenStore.swift; sourceTree = "<group>"; };
@@ -718,7 +719,6 @@
 		4C2157FE2DCAD5530055C8C9 /* PersistenceStoreBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceStoreBase.swift; sourceTree = "<group>"; };
 		4C3B9F882AE3385B00A7D395 /* AEPTestUtils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPTestUtils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C4A4ABA2DDD250C0084A74B /* ExpirableStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpirableStore.swift; sourceTree = "<group>"; };
-		4C62D01F2DDC08EC00EAC267 /* ChannelDetailsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelDetailsStore.swift; sourceTree = "<group>"; };
 		4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Messaging.swift"; sourceTree = "<group>"; };
 		4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveActivityAttributes+Messaging.swift"; sourceTree = "<group>"; };
 		4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityTaskStore.swift; sourceTree = "<group>"; };
@@ -1540,7 +1540,7 @@
 				4C2157F62DC444FF0055C8C9 /* PushToStartTokenStore.swift */,
 				4C2157FE2DCAD5530055C8C9 /* PersistenceStoreBase.swift */,
 				4C2157F42DC444EA0055C8C9 /* UpdateTokenStore.swift */,
-				4C62D01F2DDC08EC00EAC267 /* ChannelDetailsStore.swift */,
+				4C075D6D2DDE74D70082B66C /* ChannelActivityStore.swift */,
 				4C4A4ABA2DDD250C0084A74B /* ExpirableStore.swift */,
 			);
 			path = LiveActivity;
@@ -2902,6 +2902,7 @@
 				242920F52AD06215000DB2CD /* HtmlContentSchemaData.swift in Sources */,
 				244FEA4429B6A1060058FA1C /* FeedItem.swift in Sources */,
 				4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */,
+				4C075D6E2DDE74D70082B66C /* ChannelActivityStore.swift in Sources */,
 				B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */,
 				B6F7CBCA2CC2089A00C35C64 /* AEPImage.swift in Sources */,
 				4C4A4ABB2DDD250C0084A74B /* ExpirableStore.swift in Sources */,
@@ -2961,7 +2962,6 @@
 				090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */,
 				242920EF2AD05AFA000DB2CD /* InAppSchemaData.swift in Sources */,
 				244C2BDE26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift in Sources */,
-				4C62D0202DDC08EC00EAC267 /* ChannelDetailsStore.swift in Sources */,
 				0969D6382A79BB3C00A00BF7 /* Messaging+State.swift in Sources */,
 				242920F82AD06791000DB2CD /* RulesetSchemaData.swift in Sources */,
 				241B2DD42821C80C00E4FF67 /* URL+QueryParams.swift in Sources */,

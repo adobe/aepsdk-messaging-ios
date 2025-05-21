@@ -16,7 +16,8 @@ import AEPServices
 ///
 /// > Important:  Subclass this base class with a concrete `TokenMap` type and provide
 /// > your own mutator methods for reading and writing specific tokens.
-class PersistenceStoreBase<TokenMap: Codable & LiveActivity.DefaultInitializable> {
+class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & LiveActivity.DictionaryBacked> {
+    typealias Element = Map.Element
     private let datastoreName = MessagingConstants.DATA_STORE_NAME
     private let storeKey: String
 
@@ -25,7 +26,7 @@ class PersistenceStoreBase<TokenMap: Codable & LiveActivity.DefaultInitializable
     /// This property attempts to load the persisted token map from the named key-value service
     /// using the provided `collectionName` and `storeKey`. If no persisted data is found,
     /// it initializes an empty default `Map` instance.
-    private lazy var _cache: TokenMap = Self.load(datastoreName: datastoreName, key: storeKey) ?? TokenMap()
+    private lazy var _cache: Map = Self.load(datastoreName: datastoreName, key: storeKey) ?? Map()
 
     /// Provides access to the in-memory token map with automatic persistence on update.
     ///
@@ -35,7 +36,7 @@ class PersistenceStoreBase<TokenMap: Codable & LiveActivity.DefaultInitializable
     ///
     /// - Note: Setting this property triggers a disk write via `persist()`.
     /// > Warning: Do not expose this outside subclasses.
-    var _persistedMap: TokenMap {
+    var _persistedMap: Map {
         get {
             _cache
         }
@@ -52,8 +53,8 @@ class PersistenceStoreBase<TokenMap: Codable & LiveActivity.DefaultInitializable
     /// Returns the full token map.
     ///
     /// - Returns: The current token map.
-    func all() -> TokenMap {
-        _cache
+    func all() -> [LiveActivity.ID: Element] {
+        _cache.storage
     }
 
     /// Persists the current in‑memory token map to the named key‑value service.
@@ -73,11 +74,11 @@ class PersistenceStoreBase<TokenMap: Codable & LiveActivity.DefaultInitializable
     ///   - datastoreName: The top‑level datastore name in the named key‑value store.
     ///   - key: The specific key under which the token map is stored.
     /// - Returns: A fully decoded `Map` on success, or `nil` if no valid data existed.
-    private static func load(datastoreName: String, key: String) -> TokenMap? {
+    private static func load(datastoreName: String, key: String) -> Map? {
         let persistence = ServiceProvider.shared.namedKeyValueService
         guard let dict = persistence.get(collectionName: datastoreName, key: key) as? [String: Any] else {
             return nil
         }
-        return TokenMap.from(dict)
+        return Map.from(dict)
     }
 }

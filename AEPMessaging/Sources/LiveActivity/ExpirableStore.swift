@@ -12,13 +12,27 @@
 
 import Foundation
 
-final class ExpirableStore<Map: LiveActivity.DictionaryBacked>: PersistenceStoreBase<Map> {
-    typealias Element = Map.Element
+final class ExpirableStore<Map: LiveActivity.DictionaryBacked>: PersistenceStoreBase<Map> where Map.Element: LiveActivity.Expirable {
+    /// A predicate used to determine whether a new element meaningfully differs from a previously stored one.
+    ///
+    /// This closure returns `true` if the new element should replace the old one, and `false` if the update
+    /// should be considered redundant.
     typealias Equivalence = (_ old: Element, _ new: Element) -> Bool
 
+    /// The time-to-live (TTL) duration used to determine when an element is considered expired.
     private let ttl: TimeInterval
+    /// An optional predicate that defines custom equivalence logic between stored and incoming elements.
     private let customEquivalence: Equivalence?
 
+    /// Initializes a new store with the given persistence key, expiration time-to-live, and optional custom equivalence logic.
+    ///
+    /// This initializer automatically performs an initial cleanup of expired entries after loading persisted data.
+    ///
+    /// - Parameters:
+    ///   - storeKey: The key used to identify the persisted store in the backing storage.
+    ///   - ttl: The time-to-live (TTL) interval used to determine when elements expire.
+    ///   - customEquivalence: An optional predicate that determines whether a new element meaningfully differs
+    ///     from a previously stored one. If `nil`, all non-expired values are stored unconditionally.
     init(storeKey: String, ttl: TimeInterval, customEquivalence: Equivalence? = nil) {
         self.ttl = ttl
         self.customEquivalence = customEquivalence
@@ -26,11 +40,20 @@ final class ExpirableStore<Map: LiveActivity.DictionaryBacked>: PersistenceStore
         removeExpiredEntries()
     }
 
-    override func all() -> Map {
+    /// Returns the current contents of the store after removing any expired entries.
+    ///
+    /// - Returns: A `Map` containing only non-expired entries.
+    override func all() -> [LiveActivity.ID: Element] {
         removeExpiredEntries()
-        return _persistedMap
+        return _persistedMap.storage
     }
 
+    /// Returns the element associated with the specified ID, if it exists and has not expired.
+    ///
+    /// If the element is expired, it is opportunistically removed from the store.
+    ///
+    /// - Parameter id: The ID whose associated element should be retrieved.
+    /// - Returns: The associated element if it exists and is not expired; `nil` otherwise.
     func value(for id: LiveActivity.ID) -> Element? {
         guard let element = _persistedMap.storage[id] else {
             return nil
@@ -45,6 +68,15 @@ final class ExpirableStore<Map: LiveActivity.DictionaryBacked>: PersistenceStore
         return element
     }
 
+    /// Sets or updates the value for the specified ID, unless the element has expired.
+    ///
+    /// If a custom equivalence predicate is set for the store, it is used to determine whether the new element
+    /// should replace the existing one. If no predicate is set for the store, non-expired values are stored unconditionally.
+    ///
+    /// - Parameters:
+    ///   - element: The value to store.
+    ///   - id: The ID to associate with the element.
+    /// - Returns: `true` if the element was stored or replaced; `false` if it was expired or unchanged.
     @discardableResult
     func set(_ element: Element, id: LiveActivity.ID) -> Bool {
         guard !isExpired(element) else {
@@ -55,13 +87,12 @@ final class ExpirableStore<Map: LiveActivity.DictionaryBacked>: PersistenceStore
         let previous = workingMap.storage.updateValue(element, forKey: id)
         let changed: Bool
 
-        // If there is a previously stored value, and a custom equivalence closure was provided, apply it
-        // to determine if it should be written
+        // If there is a previously stored value, and a custom equivalence closure was set, apply it
+        // to determine if the new element should be saved
         if let previous = previous, let customEquivalence = customEquivalence {
             changed = customEquivalence(previous, element)
         } else {
-            // Otherwise, if custom equivalence is not provided, the default is to always overwrite
-            // Or if there was no previous entry regardless of custom equivalence
+            // If no previous entry or no custom equivalence logic is set, save new element
             changed = previous == nil || customEquivalence == nil
         }
 
@@ -72,6 +103,10 @@ final class ExpirableStore<Map: LiveActivity.DictionaryBacked>: PersistenceStore
         return changed
     }
 
+    /// Removes the element associated with the specified ID, if it exists.
+    ///
+    /// - Parameter id: The ID whose associated element should be removed.
+    /// - Returns: `true` if an element was removed; `false` if no entry existed for the given ID.
     @discardableResult
     func remove(id: LiveActivity.ID) -> Bool {
         var working = _persistedMap
@@ -84,14 +119,24 @@ final class ExpirableStore<Map: LiveActivity.DictionaryBacked>: PersistenceStore
 
     // MARK: - Private helpers
 
-    private func isExpired(_ element: Element, now: Date = Date()) -> Bool {
-        now.timeIntervalSince(element.referenceDate) > ttl
+    /// Determines whether the given element is expired based on the configured TTL and reference time.
+    ///
+    /// - Parameters:
+    ///   - element: The element to evaluate for expiration.
+    ///   - now: The reference time used for comparison. Defaults to the current time.
+    /// - Returns: `true` if the element is expired; `false` otherwise.
+    private func isExpired(_ element: Element, referenceDate: Date = Date()) -> Bool {
+        referenceDate.timeIntervalSince(element.referenceDate) > ttl
     }
 
+    /// Removes all entries from the store whose elements have expired based on their `referenceDate`.
+    /// If any entries are removed, the changes are persisted.
+    ///
+    /// The TTL is defined by ``ttl``.
     private func removeExpiredEntries() {
         let now = Date()
         let filtered = _persistedMap.storage.filter { _, element in
-            !isExpired(element, now: now)
+            !isExpired(element, referenceDate: now)
         }
         if filtered.count != _persistedMap.storage.count {
             _persistedMap.storage = filtered

@@ -134,7 +134,11 @@ extension Messaging {
     ///   - ecid: The Experience Cloud ID associated with the tokens.
     ///   - tokensMap: A map of Live Activity attribute types to their push-to-start tokens.
     ///   - event: The original `Event` that triggered the sync request.
-    func sendLiveActivityPushToStartTokens(ecid: String, tokensMap: LiveActivity.PushToStartTokenMap, event: Event) {
+    func sendLiveActivityPushToStartTokens(
+        ecid: String,
+        tokenMap: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
+        event: Event)
+    {
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to sync the Live Activity push-to-start token, App bundle identifier is invalid.")
@@ -145,13 +149,13 @@ extension Messaging {
         let platform = getPushPlatform(forEvent: event)
 
         // Build one entry per attribute/token pair
-        let detailsArray: [[String: Any]] = tokensMap.tokens.map { attributeType, tokenStruct in
+        let detailsArray: [[String: Any]] = tokenMap.map { attributeType, pushToStartToken in
             [
                 // Standard push fields
                 MessagingConstants.XDM.Push.APP_ID: appId,
                 MessagingConstants.XDM.Push.DENYLISTED: false,
                 MessagingConstants.XDM.Push.PLATFORM: platform,
-                MessagingConstants.XDM.Push.TOKEN: tokenStruct.token,
+                MessagingConstants.XDM.Push.TOKEN: pushToStartToken.value,
 
                 // Live Activity attribute type
                 MessagingConstants.XDM.LiveActivity.ATTRIBUTE_TYPE: attributeType,
