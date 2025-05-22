@@ -17,14 +17,14 @@ import AEPServices
 class MessagingPropertiesTests: XCTestCase {
     var messagingProperties: MessagingProperties!
     var mockNamedKeyValueService: MockNamedKeyValueService!
-    
+
     override func setUp() {
         super.setUp()
         mockNamedKeyValueService = MockNamedKeyValueService()
         ServiceProvider.shared.namedKeyValueService = mockNamedKeyValueService
         messagingProperties = MessagingProperties()
     }
-    
+
     override func tearDown() {
         messagingProperties = nil
         mockNamedKeyValueService = nil
@@ -35,60 +35,86 @@ class MessagingPropertiesTests: XCTestCase {
     func testGetPushIdentifierWhenNotSet() {
         // Test
         let result = messagingProperties.pushIdentifier
-        
+
         // Verify
         XCTAssertNil(result)
         XCTAssertTrue(mockNamedKeyValueService.getCalled)
         XCTAssertEqual(mockNamedKeyValueService.getCollectionName, MessagingConstants.DATA_STORE_NAME)
         XCTAssertEqual(mockNamedKeyValueService.getKey, MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER)
     }
-    
+
     func testGetPushIdentifierWhenSet() {
         // Setup
         let expectedIdentifier = "test-push-token"
         mockNamedKeyValueService.mockValue = expectedIdentifier
-        
+
         // Test
         let result = messagingProperties.pushIdentifier
-        
+
         // Verify
         XCTAssertEqual(result, expectedIdentifier)
         XCTAssertTrue(mockNamedKeyValueService.getCalled)
         XCTAssertEqual(mockNamedKeyValueService.getCollectionName, MessagingConstants.DATA_STORE_NAME)
         XCTAssertEqual(mockNamedKeyValueService.getKey, MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER)
     }
-    
+
     func testSetValidPushIdentifier() {
         // Setup
         let testIdentifier = "test-push-token"
-        
+
         // Test
         messagingProperties.pushIdentifier = testIdentifier
-        
+
         // Verify
         XCTAssertTrue(mockNamedKeyValueService.setCalled)
         XCTAssertEqual(mockNamedKeyValueService.setCollectionName, MessagingConstants.DATA_STORE_NAME)
         XCTAssertEqual(mockNamedKeyValueService.setKey, MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER)
         XCTAssertEqual(mockNamedKeyValueService.setValue as? String, testIdentifier)
     }
-    
+
     func testSetEmptyPushIdentifier() {
         // Test
         messagingProperties.pushIdentifier = ""
-        
+
         // Verify
         XCTAssertTrue(mockNamedKeyValueService.removeCalled)
         XCTAssertEqual(mockNamedKeyValueService.removeCollectionName, MessagingConstants.DATA_STORE_NAME)
         XCTAssertEqual(mockNamedKeyValueService.removeKey, MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER)
     }
-    
+
     func testSetNilPushIdentifier() {
         // Test
         messagingProperties.pushIdentifier = nil
-        
+
         // Verify
         XCTAssertTrue(mockNamedKeyValueService.removeCalled)
         XCTAssertEqual(mockNamedKeyValueService.removeCollectionName, MessagingConstants.DATA_STORE_NAME)
         XCTAssertEqual(mockNamedKeyValueService.removeKey, MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER)
+    }
+
+    func testSetThenGetNewPushIdentifier() {
+        // Setup
+        let testIdentifier = "test-push-token"
+        let newIdentifier = "new-push-token"
+
+        // Test
+        messagingProperties.pushIdentifier = testIdentifier
+
+        // Verify
+        XCTAssertTrue(mockNamedKeyValueService.setCalled)
+        XCTAssertEqual(mockNamedKeyValueService.setCollectionName, MessagingConstants.DATA_STORE_NAME)
+        XCTAssertEqual(mockNamedKeyValueService.setKey, MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER)
+        XCTAssertEqual(mockNamedKeyValueService.setValue as? String, testIdentifier)
+
+        // Test with new identifier
+        messagingProperties.pushIdentifier = newIdentifier
+        let result = messagingProperties.pushIdentifier
+
+        // Verify
+        XCTAssertTrue(mockNamedKeyValueService.setCalled)
+        XCTAssertEqual(mockNamedKeyValueService.setCollectionName, MessagingConstants.DATA_STORE_NAME)
+        XCTAssertEqual(mockNamedKeyValueService.setKey, MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER)
+        XCTAssertEqual(mockNamedKeyValueService.setValue as? String, newIdentifier)
+        XCTAssertEqual(result, newIdentifier)
     }
 }

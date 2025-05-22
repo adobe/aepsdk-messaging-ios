@@ -1191,6 +1191,48 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(MOCK_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
     }
 
+    func testMultiplePushTokenSync_whenTokenMatchesAndOutsideSyncTimeout_forceSyncTrue() {
+        // setup
+        let delay = UInt32(1500000) // 1.5 seconds
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: true] as [String : Any]
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+        usleep(delay)
+
+        let event2 = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+        usleep(delay)
+
+        let event3 = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNoThrow(self.messaging.handleProcessEvent(event2))
+        XCTAssertNoThrow(self.messaging.handleProcessEvent(event3))
+
+        // verify three sync events are dispatched when three generic identity events are received outside the sync timeout and force sync is true
+        XCTAssertNotNil(self.mockRuntime.dispatchedEvents)
+        XCTAssertEqual(3, self.mockRuntime.dispatchedEvents.count)
+        let pushTokenEvent = self.mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
+        XCTAssertEqual(self.MOCK_PUSH_TOKEN, self.getDispatchedEventPushToken(event: pushTokenEvent))
+        let secondPushTokenEvent = self.mockRuntime.secondEvent
+        XCTAssertEqual(EventType.edge, secondPushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, secondPushTokenEvent?.source)
+        XCTAssertEqual(self.MOCK_PUSH_TOKEN, self.getDispatchedEventPushToken(event: secondPushTokenEvent))
+        let thirdPushTokenEvent = self.mockRuntime.thirdEvent
+        XCTAssertEqual(EventType.edge, thirdPushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, thirdPushTokenEvent?.source)
+        XCTAssertEqual(self.MOCK_PUSH_TOKEN, self.getDispatchedEventPushToken(event: thirdPushTokenEvent))
+    }
+
     // MARK: - Helpers
     
     func getGenericEventHistoryDisqualifyEvent(iamMap: [String: String]? = nil) -> Event {
