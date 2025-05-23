@@ -19,8 +19,6 @@ import AEPMessagingLiveActivity
 struct GameScoreLiveActivityView: View {
     // MARK: - Observed / State Properties
     
-    @ObservedObject var pushTokenManager = PushTokenCollectionManager.shared
-    
     /// Keep track of all running GameScore activities so we can refresh easily
     @State private var runningActivities: [Activity<GameScoreLiveActivityAttributes>] = []
     
@@ -32,6 +30,12 @@ struct GameScoreLiveActivityView: View {
     
     /// Per-activity Score & Status, initially populated from contentState
     @State private var activityValues: [String: (homeTeamScore: Int, awayTeamScore: Int, statusText: String)] = [:]
+
+    /// State to hold the liveActivityID input
+    @State private var liveActivityID: String = ""
+    
+    /// State to control alert visibility
+    @State private var showAlert: Bool = false
     
     // MARK: - Body
     
@@ -45,7 +49,7 @@ struct GameScoreLiveActivityView: View {
                 // 1) Push-to-start (iOS 17.2+)
                 if #available(iOS 17.2, *) {
                     PushToStartSection<GameScoreLiveActivityAttributes>(
-                                           pushToStartToken: $pushTokenManager.gameScorePushToStartToken
+                        pushToStartToken: TokenCollector.gameScorePushToStartToken
                                        )
                 } else {
                     Text("Push-to-start not available on < iOS 17.2")
@@ -89,6 +93,11 @@ struct GameScoreLiveActivityView: View {
             }
             .navigationTitle("🏈 Game Live Activity")
             .padding(.horizontal, 10)
+            .alert("Live Activity ID Required", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Please enter a Live Activity ID to start the activity.")
+            }
         }
         .onAppear {
             // Refresh on first load
@@ -103,11 +112,16 @@ private extension GameScoreLiveActivityView {
     var startActivitySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                SectionHeader(title: "Using Application")
+                SectionHeader(title: "Local")
                 Spacer()
                 SectionSubHeader(title: "iOS 16.1+")
             }
             SectionDescription(text: "Manually start a GameScore Live Activity from the app. After starting, a unique push token is generated. Use it to send push-based updates to this Live Activity.")
+            
+            // Text field for liveActivityID
+            TextField("Enter Live Activity ID", text: $liveActivityID)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.vertical, 4)
             
             // Button to start the Live Activity
             Button(action: startLiveActivity) {
@@ -261,7 +275,7 @@ private extension GameScoreLiveActivityView {
     
     /// Refresh the running activities list
     func refreshActivities() {
-        let current = pushTokenManager.getRunningGameScoreActivities()
+        let current = Activity<GameScoreLiveActivityAttributes>.activities
         runningActivities = current
         
         // Also refresh the content states in `activityValues`
@@ -278,7 +292,14 @@ private extension GameScoreLiveActivityView {
             return
         }
         
-        let attributes = GameScoreLiveActivityAttributes(liveActivityData: LiveActivityData(liveActivityID: "<Unique_Game_ID>"))
+        // Validate liveActivityID
+        let trimmedLiveActivityID = liveActivityID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedLiveActivityID.isEmpty else {
+            showAlert = true
+            return
+        }
+        
+        let attributes = GameScoreLiveActivityAttributes(liveActivityData: LiveActivityData(liveActivityID: trimmedLiveActivityID))
         let initialContentState = GameScoreLiveActivityAttributes.ContentState(
             homeTeamScore: 0,
             awayTeamScore: 0,

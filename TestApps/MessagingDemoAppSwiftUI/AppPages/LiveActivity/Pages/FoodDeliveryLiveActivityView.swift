@@ -18,8 +18,6 @@ import AEPMessagingLiveActivity
 struct FoodDeliveryLiveActivityView: View {
     // MARK: - Observed / State Properties
     
-    @ObservedObject var pushTokenManager = PushTokenCollectionManager.shared
-    
     /// An array of all currently running FoodDeliveryLiveActivities
     @State private var runningActivities: [Activity<FoodDeliveryLiveActivityAttributes>] = []
     
@@ -35,6 +33,12 @@ struct FoodDeliveryLiveActivityView: View {
     /// State to hold the restaurant name input
     @State private var restaurantName: String = ""
     
+    /// State to hold the liveActivityID input
+    @State private var liveActivityID: String = ""
+    
+    /// State to control alert visibility
+    @State private var showAlert: Bool = false
+    
     // MARK: - Body
     
     var body: some View {
@@ -47,7 +51,7 @@ struct FoodDeliveryLiveActivityView: View {
                 // 1) Push-to-start (iOS 17.2+)
                 if #available(iOS 17.2, *) {
                     PushToStartSection<FoodDeliveryLiveActivityAttributes>(
-                        pushToStartToken: $pushTokenManager.foodDeliveryPushToStartToken)
+                        pushToStartToken: TokenCollector.foodDeliveryPushToStartToken)
                 } else {
                     Text("Push-to-start not available on < iOS 17.2")
                 }
@@ -90,6 +94,11 @@ struct FoodDeliveryLiveActivityView: View {
             }
             .navigationTitle("🍔 Food Delivery Live Activity")
             .padding(.horizontal, 10)
+            .alert("Live Activity ID Required", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Please enter a Live Activity ID to start the activity.")
+            }
         }
         .onAppear {
             // Refresh on first load
@@ -107,14 +116,19 @@ private extension FoodDeliveryLiveActivityView {
     var startActivitySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                SectionHeader(title: "Using Application")
+                SectionHeader(title: "Local")
                 Spacer()
                 SectionSubHeader(title: "iOS 16.1+")
             }
             SectionDescription(text: "Manually start a Food Delivery Live Activity from the app. After starting, a unique push token is generated. Use it to send push-based updates to this Live Activity.")
             
-            // New TextField for restaurant name
+            // Text field for restaurant name
             TextField("Enter Restaurant Name", text: $restaurantName)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.vertical, 4)
+            
+            // Text field for liveActivityID
+            TextField("Enter Live Activity ID", text: $liveActivityID)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.vertical, 4)
             
@@ -258,7 +272,7 @@ private extension FoodDeliveryLiveActivityView {
     
     /// Refresh the running activities list
     func refreshActivities() {
-        let current = pushTokenManager.getRunningFoodDeliveryActivities()
+        let current = Activity<FoodDeliveryLiveActivityAttributes>.activities
         runningActivities = current
         
         // Also refresh the content states in `activityStatuses`
@@ -275,9 +289,15 @@ private extension FoodDeliveryLiveActivityView {
             return
         }
         
-        // Create attributes using the entered restaurant name
-        let attributes = FoodDeliveryLiveActivityAttributes(liveActivityData: LiveActivityData(liveActivityID: "orderID_234"),
-                                                            restaurantName: restaurantName)
+        // Validate inputs
+        let trimmedLiveActivityID = liveActivityID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedLiveActivityID.isEmpty else {
+            showAlert = true
+            return
+        }
+        
+        // Create attributes using the entered restaurant name and liveActivityID
+        let attributes = FoodDeliveryLiveActivityAttributes(liveActivityData: LiveActivityData(liveActivityID: trimmedLiveActivityID), restaurantName: restaurantName)
         let initialContentState = FoodDeliveryLiveActivityAttributes.ContentState(
             orderStatus: "Ordered"
         )
@@ -390,3 +410,4 @@ struct FoodDeliveryActivityUpdateView: View {
         // Fallback on earlier versions
     }
 }
+

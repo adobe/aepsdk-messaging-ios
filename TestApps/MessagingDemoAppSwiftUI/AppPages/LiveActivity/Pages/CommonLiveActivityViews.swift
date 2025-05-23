@@ -78,12 +78,12 @@ func truncateToken(_ token: String) -> String {
 struct PushToStartSection<Attributes: ActivityAttributes>: View {
     
     /// The push-to-start token you get from `PushTokenManager`.
-    @Binding var pushToStartToken: String
+    var pushToStartToken: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                SectionHeader(title: "Using Push Notification")
+                SectionHeader(title: "Remote")
                 Spacer()
                 SectionSubHeader(title: "iOS 17.2+")
             }
