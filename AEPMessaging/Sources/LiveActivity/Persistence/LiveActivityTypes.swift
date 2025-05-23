@@ -23,12 +23,13 @@ enum LiveActivity {
         init()
     }
 
-    /// Anything that has a date TTL is compared against.
+    /// A type that defines a reference date used to determine expiration based on a TTL.
     protocol Expirable {
         var referenceDate: Date { get }
     }
 
-    /// Anything that can expose its internal dictionary with `ID` keys, whose values are
+    /// A type that exposes a dictionary-backed storage keyed by `ID`, with `Element` values.
+    /// Used for types that support Codable persistence and default initialisation.
     protocol DictionaryBacked: Codable, DefaultInitializable {
         associatedtype Element
         var storage: [ID: Element] { get set }

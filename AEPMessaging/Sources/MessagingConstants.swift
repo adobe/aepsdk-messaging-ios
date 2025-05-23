@@ -370,7 +370,7 @@ enum MessagingConstants {
         /// Tokens older than this duration (12 hours) are considered expired and may be
         /// automatically removed during initialization or cleanup.
         static let UPDATE_TOKEN_MAX_TTL = TimeInterval(60 * 60 * 12)
-        static let CHANNEL_DETAIL_MAX_TTL = UPDATE_TOKEN_MAX_TTL
+        static let CHANNEL_ACTIVITY_MAX_TTL = UPDATE_TOKEN_MAX_TTL
 
         enum States {
             static let DISMISSED = "dismissed"
