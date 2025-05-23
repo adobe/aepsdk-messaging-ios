@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "AEPMessagingLiveActivity"
-  s.version      = "5.0.0"
+  s.version      = "5.7.0"
   s.summary      = "MessagingLiveActivity extension for Adobe Experience Cloud SDK. Written and maintained by Adobe."
   s.description  = <<-DESC
                    The MessagingLiveActivity extension is used in conjunction AEPMessaging to support live activities for Adobe Journey Optimizer.

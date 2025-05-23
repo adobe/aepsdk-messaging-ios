@@ -18,6 +18,11 @@ on:
         required: true
         default: 'yes'
 
+      release_AEPMessagingLiveActivity:
+        description: 'release AEPMessagingLiveActivity pod? ("no" to skip)'
+        required: true
+        default: 'yes'
+
 jobs:
   release_messaging:
     runs-on: macos-13
@@ -41,7 +46,7 @@ jobs:
     - name: Check version in Podspec
       run: |
         set -eo pipefail
-        echo AEPMessaging version: ${{ github.event.inputs.tag }}
+        echo Verifying AEPMessaging and AEPMessagingLiveActivity version is: ${{ github.event.inputs.tag }}
         make check-version VERSION=${{ github.event.inputs.tag }}
     
     - name: Pod repo update
@@ -91,10 +96,26 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Upload - AEPMessagingLiveActivity
+      uses: actions/upload-release-asset@v1
+      if: ${{ github.event.inputs.action_tag == 'yes' }}  
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./build/AEPMessagingLiveActivity.xcframework.zip
+        asset_name: AEPMessagingLiveActivity-${{ github.event.inputs.tag }}.xcframework.zip
+
     - name: Publish Pods - AEPMessaging
       if: ${{ github.event.inputs.release_AEPMessaging == 'yes' }}
       run: |
         set -eo pipefail
         pod trunk push AEPMessaging.podspec --allow-warnings --synchronous
+      env:
+        COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+
+    - name: Publish Pods - AEPMessagingLiveActivity
+      if: ${{ github.event.inputs.release_AEPMessagingLiveActivity == 'yes' }}
+      run: |
+        set -eo pipefail
+        pod trunk push AEPMessagingLiveActivity.podspec --allow-warnings --synchronous
       env:
         COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
