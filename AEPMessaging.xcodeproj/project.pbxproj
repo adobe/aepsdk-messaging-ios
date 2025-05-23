@@ -206,6 +206,15 @@
 		4C9BE8D42DAF59E500EF41A3 /* Data+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */; };
 		4C9BE8D62DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */; };
 		4C9BE8D82DAF5A6900EF41A3 /* ActivityTaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */; };
+		4CE3F8062DCD73F000812544 /* UpdateTokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8052DCD73F000812544 /* UpdateTokenStoreTests.swift */; };
+		4CE3F8082DD5439A00812544 /* PushToStartTokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8072DD5439A00812544 /* PushToStartTokenStoreTests.swift */; };
+		4CE3F80C2DD6AB8A00812544 /* TokenStoreBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F80B2DD6AB8900812544 /* TokenStoreBaseTests.swift */; };
+		4CE3F80F2DD6AD2200812544 /* MockTokenMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F80E2DD6AD2200812544 /* MockTokenMap.swift */; };
+		4CE3F8102DD6AD2200812544 /* MockTokenMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F80E2DD6AD2200812544 /* MockTokenMap.swift */; };
+		4CE3F8122DD6AD9C00812544 /* MockTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8112DD6AD9C00812544 /* MockTokenStore.swift */; };
+		4CE3F8132DD6AD9C00812544 /* MockTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8112DD6AD9C00812544 /* MockTokenStore.swift */; };
+		4CE3F8152DD6AE0600812544 /* CountingDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8142DD6AE0600812544 /* CountingDataStore.swift */; };
+		4CE3F8162DD6AE0600812544 /* CountingDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3F8142DD6AE0600812544 /* CountingDataStore.swift */; };
 		6C2343E8785E6B47C8D961F7 /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D55E83254139642A1CAA76E /* Pods_FunctionalTests.framework */; };
 		8306057F6EE4683383660BD8 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BDCBFF342013F2FF0CE1472 /* Pods_MessagingDemoAppObjC.framework */; };
 		846794A21245172CEE3FF1CA /* Pods_E2EFunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B18970846882D9DC0CD1C50 /* Pods_E2EFunctionalTestApp.framework */; };
@@ -262,6 +271,7 @@
 		B6D035E22D2F23E900031170 /* AppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D035E12D2F23E900031170 /* AppStateManager.swift */; };
 		B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
 		B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */; };
+		B6F795E22DD30238004478B4 /* LiveActivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F795E12DD30238004478B4 /* LiveActivityTests.swift */; };
 		B6F796552DD41330004478B4 /* AEPMessagingLiveActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B61BDACE2DA5E861007FE12E /* AEPMessagingLiveActivity.framework */; };
 		B6F796562DD41330004478B4 /* AEPMessagingLiveActivity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B61BDACE2DA5E861007FE12E /* AEPMessagingLiveActivity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA72CC2089A00C35C64 /* DismissButtonStyle.swift */; };
@@ -728,6 +738,12 @@
 		4C9BE8D32DAF59E500EF41A3 /* Data+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Messaging.swift"; sourceTree = "<group>"; };
 		4C9BE8D52DAF5A4000EF41A3 /* LiveActivityAttributes+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveActivityAttributes+Messaging.swift"; sourceTree = "<group>"; };
 		4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityTaskStore.swift; sourceTree = "<group>"; };
+		4CE3F8052DCD73F000812544 /* UpdateTokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTokenStoreTests.swift; sourceTree = "<group>"; };
+		4CE3F8072DD5439A00812544 /* PushToStartTokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushToStartTokenStoreTests.swift; sourceTree = "<group>"; };
+		4CE3F80B2DD6AB8900812544 /* TokenStoreBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreBaseTests.swift; sourceTree = "<group>"; };
+		4CE3F80E2DD6AD2200812544 /* MockTokenMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTokenMap.swift; sourceTree = "<group>"; };
+		4CE3F8112DD6AD9C00812544 /* MockTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTokenStore.swift; sourceTree = "<group>"; };
+		4CE3F8142DD6AE0600812544 /* CountingDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountingDataStore.swift; sourceTree = "<group>"; };
 		6346827F4BC239DF7DDFD044 /* Pods-MessagingDemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoApp.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp.debug.xcconfig"; sourceTree = "<group>"; };
 		6912F64FC8C8BFAF5ACD8EF0 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		71895CC75A7A5B934C60718F /* Pods-E2EFunctionalTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTestApp.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -804,6 +820,7 @@
 		B69573C72CD444790027E376 /* AEPBundleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPBundleImageView.swift; sourceTree = "<group>"; };
 		B6D035E12D2F23E900031170 /* AppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManager.swift; sourceTree = "<group>"; };
 		B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatusTests.swift; sourceTree = "<group>"; };
+		B6F795E12DD30238004478B4 /* LiveActivityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityTests.swift; sourceTree = "<group>"; };
 		B6F7CB9C2CC2089A00C35C64 /* BaseTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTemplate.swift; sourceTree = "<group>"; };
 		B6F7CB9D2CC2089A00C35C64 /* ContentCardTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardTemplate.swift; sourceTree = "<group>"; };
 		B6F7CB9E2CC2089A00C35C64 /* SmallImageTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallImageTemplate.swift; sourceTree = "<group>"; };
@@ -1171,6 +1188,26 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		4CE3F7FD2DCD689500812544 /* LiveActivity */ = {
+			isa = PBXGroup;
+			children = (
+				4CE3F8072DD5439A00812544 /* PushToStartTokenStoreTests.swift */,
+				4CE3F80B2DD6AB8900812544 /* TokenStoreBaseTests.swift */,
+				4CE3F8052DCD73F000812544 /* UpdateTokenStoreTests.swift */,
+			);
+			path = LiveActivity;
+			sourceTree = "<group>";
+		};
+		4CE3F80D2DD6AD0400812544 /* LiveActivity */ = {
+			isa = PBXGroup;
+			children = (
+				4CE3F8142DD6AE0600812544 /* CountingDataStore.swift */,
+				4CE3F80E2DD6AD2200812544 /* MockTokenMap.swift */,
+				4CE3F8112DD6AD9C00812544 /* MockTokenStore.swift */,
+			);
+			path = LiveActivity;
+			sourceTree = "<group>";
+		};
 		922FFCE6251B2BBA00BCE010 = {
 			isa = PBXGroup;
 			children = (
@@ -1263,6 +1300,7 @@
 		9231543A261E3B36004AE7D3 /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				4CE3F7FD2DCD689500812544 /* LiveActivity */,
 				B6F7CBEB2CC2EA8500C35C64 /* UITests */,
 				24CA4BBF2B6178B700D16369 /* schemas */,
 				24CA4BCE2B617AA900D16369 /* Array+MessagingTests.swift */,
@@ -1306,6 +1344,7 @@
 		9231543C261E3B36004AE7D3 /* TestHelpers */ = {
 			isa = PBXGroup;
 			children = (
+				4CE3F80D2DD6AD0400812544 /* LiveActivity */,
 				B6F7CC0B2CC2ED4100C35C64 /* UITestUtils */,
 				2469A5FA2759401900E56457 /* ConfigurationLoader.swift */,
 				928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */,
@@ -1395,6 +1434,7 @@
 				92863A012637706F000AFA53 /* MessagingFunctionalTests.swift */,
 				B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */,
 				92FC587A2636840C005BAE02 /* MessagingPublicAPITests.swift */,
+				B6F795E12DD30238004478B4 /* LiveActivityTests.swift */,
 				92FC587C2636840C005BAE02 /* Info.plist */,
 			);
 			path = FunctionalTests;
@@ -2352,13 +2392,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2461,13 +2497,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2504,13 +2536,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2591,13 +2619,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2612,13 +2636,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2633,13 +2653,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2654,13 +2670,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2697,13 +2709,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2718,13 +2726,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2816,12 +2820,15 @@
 				246EFA202797441600C76A6B /* MockLaunchRulesEngine.swift in Sources */,
 				246EFA212797441600C76A6B /* MockMessage.swift in Sources */,
 				246EFA222797441600C76A6B /* MockMessaging.swift in Sources */,
+				4CE3F8122DD6AD9C00812544 /* MockTokenStore.swift in Sources */,
 				2402745C29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */,
 				246EFA232797441600C76A6B /* MockMessagingRulesEngine.swift in Sources */,
 				246EFA252797441600C76A6B /* MockNotificationResponseCoder.swift in Sources */,
 				24552E69291F08CF000744AD /* Environment.swift in Sources */,
 				246EFA272797441600C76A6B /* TestableMessagingMobileParameters.swift in Sources */,
 				246EFA1027973E7400C76A6B /* E2EFunctionalTests.swift in Sources */,
+				4CE3F8102DD6AD2200812544 /* MockTokenMap.swift in Sources */,
+				4CE3F8162DD6AE0600812544 /* CountingDataStore.swift in Sources */,
 				246EFA19279743EB00C76A6B /* ConfigurationLoader.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2970,6 +2977,7 @@
 				B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */,
 				243EA6C92733258600195945 /* Dictionary+MessagingTests.swift in Sources */,
 				2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */,
+				4CE3F80F2DD6AD2200812544 /* MockTokenMap.swift in Sources */,
 				243EA6DA2739D47500195945 /* MockMessaging.swift in Sources */,
 				240436CE2C76685C008CCD6D /* MockProposition.swift in Sources */,
 				243EA6D42733261E00195945 /* MessagingEdgeEventTypeTests.swift in Sources */,
@@ -2981,17 +2989,21 @@
 				2469A5EB274D49B100E56457 /* JSONFileLoader.swift in Sources */,
 				24CA4BDB2B61971000D16369 /* PropositionTests.swift in Sources */,
 				24CA4BDF2B61974300D16369 /* PropositionInteractionTests.swift in Sources */,
+				4CE3F8152DD6AE0600812544 /* CountingDataStore.swift in Sources */,
 				24CA4BC92B617A3F00D16369 /* JsonContentSchemaDataTests.swift in Sources */,
 				24CA4BDD2B61972500D16369 /* PropositionItemTests.swift in Sources */,
 				245059762673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift in Sources */,
+				4CE3F8132DD6AD9C00812544 /* MockTokenStore.swift in Sources */,
 				24CA4BD52B6195A500D16369 /* ContentCardRulesEngineTests.swift in Sources */,
 				24CA4BE12B61977800D16369 /* SurfaceTests.swift in Sources */,
+				4CE3F8082DD5439A00812544 /* PushToStartTokenStoreTests.swift in Sources */,
 				24CA4BD12B617AC800D16369 /* Bundle+MessagingTests.swift in Sources */,
 				243EA6E02739D9D700195945 /* TestableMessagingMobileParameters.swift in Sources */,
 				24CA4BCB2B617A7100D16369 /* RulesetSchemaDataTests.swift in Sources */,
 				242920E42AC4D060000DB2CD /* FeedTests.swift in Sources */,
 				243EA6D22733260000195945 /* Messaging+EdgeEventsTests.swift in Sources */,
 				243EA6D62733263D00195945 /* SharedStateResult+MessagingTests.swift in Sources */,
+				4CE3F80C2DD6AB8A00812544 /* TokenStoreBaseTests.swift in Sources */,
 				24CA4BC52B617A1000D16369 /* FeedItemSchemaDataTests.swift in Sources */,
 				243EA6DE2739D4A400195945 /* MockFullscreenMessage.swift in Sources */,
 				24CA4BCF2B617AA900D16369 /* Array+MessagingTests.swift in Sources */,
@@ -3019,6 +3031,7 @@
 				248BD9CA28BD56A200C49B94 /* PropositionInfoTests.swift in Sources */,
 				240FC4302AAFB08E00AFEEEB /* ParsedPropositionsTests.swift in Sources */,
 				243EA6DC2739D48900195945 /* MockMessage.swift in Sources */,
+				4CE3F8062DCD73F000812544 /* UpdateTokenStoreTests.swift in Sources */,
 				24CA4BD92B6196DF00D16369 /* MessagingMigratorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3033,6 +3046,7 @@
 				2469A5FB2759401900E56457 /* ConfigurationLoader.swift in Sources */,
 				92863A022637706F000AFA53 /* MessagingFunctionalTests.swift in Sources */,
 				B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */,
+				B6F795E22DD30238004478B4 /* LiveActivityTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

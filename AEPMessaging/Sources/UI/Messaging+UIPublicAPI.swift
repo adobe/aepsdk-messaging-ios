@@ -29,7 +29,6 @@ public extension Messaging {
                                   _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
         // Request propositions for the specified surface from Messaging extension.
         Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
-
             if let error = error {
                 Log.error(label: UIConstants.LOG_TAG,
                           "Error retrieving content cards UI for surface, \(surface.uri). Error \(error)")

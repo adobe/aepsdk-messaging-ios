@@ -47,7 +47,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         
-        let expectedJSON = #"""
+        let expectedJSON = """
         {
           "xdm": {
             "pushNotificationTracking": {
@@ -88,9 +88,9 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
             }
           }
         }
-        """#
+        """
         
-        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
+        assertExactMatch(expected: expectedJSON, actual: edgeEvent)
     }
 
     func testHandleNotificationResponse_noEventDatasetId() {
@@ -147,7 +147,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         
-        let expectedJSON = #"""
+        let expectedJSON = """
         {
           "xdm": {
             "pushNotificationTracking": {
@@ -170,9 +170,9 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
             }
           }
         }
-        """#
+        """
         
-        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
+        assertExactMatch(expected: expectedJSON, actual: edgeEvent)
     }
 
     // MARK: - Helpers
