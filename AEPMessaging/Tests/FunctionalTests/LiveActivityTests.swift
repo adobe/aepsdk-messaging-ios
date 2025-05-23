@@ -9,6 +9,7 @@
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
  */
+
 import Foundation
 @testable import AEPCore
 @testable import AEPMessaging
@@ -73,32 +74,45 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(EventSource.requestContent, edgeEvent2.source)
         
         // verify edge event for token 2 contains both tokens in the array
-        let data = edgeEvent2.data?["data"] as? [String: Any]
-        let details = data?["liveActivityPushNotificationDetails"] as? [[String: Any]]
-        let expected1: [String: Any] = [
-            "appID": "com.adobe.ajo.e2eTestApp",
-            "denylisted": false,
-            "platform": "apns",
-            "token": token1,
-            "liveActivityAttributeType": attributeType1,
-            "identity": [
-                "namespace": ["code": "ECID"],
-                "id": ECID
+        let expected = """
+        {
+          "xdm": {
+            "eventType": "liveActivity.pushToStart"
+          },
+          "data": {
+            "liveActivityPushNotificationDetails": [
+              {
+                "appID": "com.adobe.ajo.e2eTestApp",
+                "denylisted": false,
+                "platform": "apns",
+                "token": "\(token1)",
+                "liveActivityAttributeType": "\(attributeType1)",
+                "identity": {
+                  "namespace": {
+                    "code": "ECID"
+                  },
+                  "id": "\(ECID)"
+                }
+              },
+              {
+                "appID": "com.adobe.ajo.e2eTestApp",
+                "denylisted": false,
+                "platform": "apns",
+                "token": "\(token2)",
+                "liveActivityAttributeType": "\(attributeType2)",
+                "identity": {
+                  "namespace": {
+                    "code": "ECID"
+                  },
+                  "id": "\(ECID)"
+                }
+              }
             ]
-        ]
-        let expected2: [String: Any] = [
-            "appID": "com.adobe.ajo.e2eTestApp",
-            "denylisted": false,
-            "platform": "apns",
-            "token": token2,
-            "liveActivityAttributeType": attributeType2,
-            "identity": [
-                "namespace": ["code": "ECID"],
-                "id": ECID
-            ]
-        ]
+          }
+        }
+        """
         
-        assertLiveActivityPushNotificationDetailsContains(details ?? [], expected: [expected1, expected2])
+        assertExactMatch(expected: expected, actual: edgeEvent2, pathOptions: AnyOrderMatch())
         
         // verify the final shared state contains both tokens under their respective attribute types
         XCTAssertEqual(2, mockRuntime.createdSharedStates.count)
@@ -683,14 +697,6 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
             XCTAssertEqual(0, tokens.count, "Token should be removed from shared state")
         } else {
             XCTFail("Update tokens should not be found in shared state")
-        }
-    }
-    
-    func assertLiveActivityPushNotificationDetailsContains(_ actual: [[String: Any]], expected: [[String: Any]]) {
-        XCTAssertEqual(actual.count, expected.count, "Array count mismatch")
-        for expectedDict in expected {
-            XCTAssertTrue(actual.contains(where: { NSDictionary(dictionary: $0).isEqual(to: expectedDict) }),
-                          "Expected dictionary not found: \(expectedDict)")
         }
     }
 }
