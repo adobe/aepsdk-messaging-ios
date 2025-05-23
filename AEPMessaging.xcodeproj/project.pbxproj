@@ -271,6 +271,7 @@
 		B6D035E22D2F23E900031170 /* AppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D035E12D2F23E900031170 /* AppStateManager.swift */; };
 		B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
 		B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */; };
+		B6F795E22DD30238004478B4 /* LiveActivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F795E12DD30238004478B4 /* LiveActivityTests.swift */; };
 		B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA72CC2089A00C35C64 /* DismissButtonStyle.swift */; };
 		B6F7CBCA2CC2089A00C35C64 /* AEPImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA92CC2089A00C35C64 /* AEPImage.swift */; };
 		B6F7CBCB2CC2089A00C35C64 /* AEPVStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBB12CC2089A00C35C64 /* AEPVStackView.swift */; };
@@ -799,6 +800,7 @@
 		B69573C72CD444790027E376 /* AEPBundleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPBundleImageView.swift; sourceTree = "<group>"; };
 		B6D035E12D2F23E900031170 /* AppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManager.swift; sourceTree = "<group>"; };
 		B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatusTests.swift; sourceTree = "<group>"; };
+		B6F795E12DD30238004478B4 /* LiveActivityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityTests.swift; sourceTree = "<group>"; };
 		B6F7CB9C2CC2089A00C35C64 /* BaseTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTemplate.swift; sourceTree = "<group>"; };
 		B6F7CB9D2CC2089A00C35C64 /* ContentCardTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardTemplate.swift; sourceTree = "<group>"; };
 		B6F7CB9E2CC2089A00C35C64 /* SmallImageTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallImageTemplate.swift; sourceTree = "<group>"; };
@@ -1411,6 +1413,7 @@
 				92863A012637706F000AFA53 /* MessagingFunctionalTests.swift */,
 				B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */,
 				92FC587A2636840C005BAE02 /* MessagingPublicAPITests.swift */,
+				B6F795E12DD30238004478B4 /* LiveActivityTests.swift */,
 				92FC587C2636840C005BAE02 /* Info.plist */,
 			);
 			path = FunctionalTests;
@@ -3056,6 +3059,7 @@
 				2469A5FB2759401900E56457 /* ConfigurationLoader.swift in Sources */,
 				92863A022637706F000AFA53 /* MessagingFunctionalTests.swift in Sources */,
 				B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */,
+				B6F795E22DD30238004478B4 /* LiveActivityTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
