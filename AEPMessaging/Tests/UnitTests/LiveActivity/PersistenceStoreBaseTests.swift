@@ -329,12 +329,12 @@ class PersistenceStoreBaseTests: XCTestCase {
         let store = PushToStartTokenStore()
 
         let initialDate = Date()
-        let token = LiveActivity.PushToStartToken(firstIssued: initialDate, value: "same")
+        let token = LiveActivity.PushToStartToken(firstIssued: initialDate, token: "same")
         XCTAssertTrue(store.set(token, id: ID))
 
         // When: Setting a token with same value and attributeType, but a different timestamp
         let laterDate = initialDate.addingTimeInterval(1)
-        let sameTokenLater = LiveActivity.PushToStartToken(firstIssued: laterDate, value: "same")
+        let sameTokenLater = LiveActivity.PushToStartToken(firstIssued: laterDate, token: "same")
         let changed = store.set(sameTokenLater, id: ID)
 
         // Then: It should return false due, since only timestamp is different
@@ -346,11 +346,11 @@ class PersistenceStoreBaseTests: XCTestCase {
         let store = PushToStartTokenStore()
 
         let issued = Date()
-        let token = LiveActivity.PushToStartToken(firstIssued: issued, value: "initial")
+        let token = LiveActivity.PushToStartToken(firstIssued: issued, token: "initial")
         XCTAssertTrue(store.set(token, id: ID))
 
         // When: Setting a token with a different value
-        let differentToken = LiveActivity.PushToStartToken(firstIssued: issued, value: "different")
+        let differentToken = LiveActivity.PushToStartToken(firstIssued: issued, token: "different")
         let changed = store.set(differentToken, id: ID)
 
         // Then: It should return true, since value is different
@@ -365,12 +365,12 @@ class PersistenceStoreBaseTests: XCTestCase {
         let ATTRIBUTE = "attribute"
 
         let initialDate = Date()
-        let token = LiveActivity.UpdateToken(attributeType: ATTRIBUTE, firstIssued: initialDate, value: "same")
+        let token = LiveActivity.UpdateToken(attributeType: ATTRIBUTE, firstIssued: initialDate, token: "same")
         XCTAssertTrue(store.set(token, id: ID))
 
         // When: Setting a token with same value and attributeType, but a different timestamp
         let laterDate = initialDate.addingTimeInterval(1)
-        let sameTokenLater = LiveActivity.UpdateToken(attributeType: ATTRIBUTE, firstIssued: laterDate, value: "same")
+        let sameTokenLater = LiveActivity.UpdateToken(attributeType: ATTRIBUTE, firstIssued: laterDate, token: "same")
         let changed = store.set(sameTokenLater, id: ID)
 
         // Then: It should return false due, since only timestamp is different
@@ -383,11 +383,11 @@ class PersistenceStoreBaseTests: XCTestCase {
         let attribute = "attribute"
         let issued = Date()
 
-        let token = LiveActivity.UpdateToken(attributeType: attribute, firstIssued: issued, value: "initial")
+        let token = LiveActivity.UpdateToken(attributeType: attribute, firstIssued: issued, token: "initial")
         XCTAssertTrue(store.set(token, id: ID))
 
         // When: Setting a token with a different value
-        let differentToken = LiveActivity.UpdateToken(attributeType: attribute, firstIssued: issued, value: "different")
+        let differentToken = LiveActivity.UpdateToken(attributeType: attribute, firstIssued: issued, token: "different")
         let changed = store.set(differentToken, id: ID)
 
         // Then: It should return true, since value is different
@@ -399,11 +399,11 @@ class PersistenceStoreBaseTests: XCTestCase {
         let store = UpdateTokenStore()
         let issued = Date()
 
-        let token = LiveActivity.UpdateToken(attributeType: "attribute_1", firstIssued: issued, value: "same")
+        let token = LiveActivity.UpdateToken(attributeType: "attribute_1", firstIssued: issued, token: "same")
         XCTAssertTrue(store.set(token, id: ID))
 
         // When: Setting a token with a different attribute type
-        let differentAttributeToken = LiveActivity.UpdateToken(attributeType: "attribute_2", firstIssued: issued, value: "same")
+        let differentAttributeToken = LiveActivity.UpdateToken(attributeType: "attribute_2", firstIssued: issued, token: "same")
         let changed = store.set(differentAttributeToken, id: ID)
 
         // Then: It should return true, since attribute type is different

@@ -18,7 +18,7 @@ final class PushToStartTokenStore: PersistenceStoreBase<LiveActivity.PushToStart
             storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_PUSH_TO_START_TOKENS,
             customEquivalence: { old, new in
                 // Equals for push to start tokens ignores the timestamp.
-                old.value == new.value
+                old.token == new.token
             }
         )
     }

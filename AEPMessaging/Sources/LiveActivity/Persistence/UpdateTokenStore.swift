@@ -19,7 +19,7 @@ final class UpdateTokenStore: PersistenceStoreBase<LiveActivity.UpdateTokenMap> 
             ttl: MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL,
             customEquivalence: { old, new in
                 // Equals for update tokens ignores the timestamp.
-                old.value == new.value && old.attributeType == new.attributeType
+                old.token == new.token && old.attributeType == new.attributeType
             }
         )
     }

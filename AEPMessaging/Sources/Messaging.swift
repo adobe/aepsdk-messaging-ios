@@ -285,7 +285,7 @@ public class Messaging: NSObject, Extension {
 
             // If the Live Activity ID, attribute type, and update token are valid, update the shared state.
             if let attributeType = event.liveActivityAttributeType {
-                let updateToken = LiveActivity.UpdateToken(attributeType: attributeType, firstIssued: event.timestamp, value: token)
+                let updateToken = LiveActivity.UpdateToken(attributeType: attributeType, firstIssued: event.timestamp, token: token)
                 stateManager.updateTokenStore.set(updateToken, id: liveActivityID)
                 runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
             } else {
@@ -356,7 +356,7 @@ public class Messaging: NSObject, Extension {
             }
 
             // Update the push to start token store and update the Messaging shared state.
-            let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, value: token)
+            let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
             stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
             runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 

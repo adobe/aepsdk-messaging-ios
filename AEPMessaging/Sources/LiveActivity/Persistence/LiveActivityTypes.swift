@@ -47,13 +47,13 @@ enum LiveActivity {
 
     struct PushToStartToken: Codable, Equatable {
         let firstIssued: Date
-        let value: String
+        let token: String
     }
 
     struct UpdateToken: Codable, Equatable, Expirable {
         let attributeType: String
         let firstIssued: Date
-        let value: String
+        let token: String
 
         // Expirable conformance
         var referenceDate: Date { firstIssued }

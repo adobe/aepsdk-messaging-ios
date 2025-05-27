@@ -155,7 +155,7 @@ extension Messaging {
                 MessagingConstants.XDM.Push.APP_ID: appId,
                 MessagingConstants.XDM.Push.DENYLISTED: false,
                 MessagingConstants.XDM.Push.PLATFORM: platform,
-                MessagingConstants.XDM.Push.TOKEN: pushToStartToken.value,
+                MessagingConstants.XDM.Push.TOKEN: pushToStartToken.token,
 
                 // Live Activity attribute type
                 MessagingConstants.XDM.LiveActivity.ATTRIBUTE_TYPE: attributeType,

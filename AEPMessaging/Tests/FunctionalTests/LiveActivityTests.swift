@@ -120,8 +120,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
         if let pushToStartTokens = finalSharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
            let tokens = pushToStartTokens[MessagingConstants.SharedState.Messaging.LiveActivity.PUSH_TO_START_TOKENS] as? [String: [String: Any]] {
-            XCTAssertEqual(token1, tokens[attributeType1]?["value"] as? String)
-            XCTAssertEqual(token2, tokens[attributeType2]?["value"] as? String)
+            XCTAssertEqual(token1, tokens[attributeType1]?["token"] as? String)
+            XCTAssertEqual(token2, tokens[attributeType2]?["token"] as? String)
         } else {
             XCTFail("Push to start tokens not found in shared state")
         }
@@ -610,7 +610,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         if let liveActivity = sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
            let pushToStartTokens = liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.PUSH_TO_START_TOKENS] as? [String: Any],
            let testActivityTokens = pushToStartTokens[attributeType] as? [String: Any],
-           let storedToken = testActivityTokens["value"] as? String {
+           let storedToken = testActivityTokens["token"] as? String {
             XCTAssertEqual(token, storedToken)
         } else {
             XCTFail("Push to start token not found in shared state")
@@ -624,7 +624,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         if let liveActivity = sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
            let updateTokens = liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.UPDATE_TOKENS] as? [String: Any],
            let activity = updateTokens[liveActivityID] as? [String: Any],
-           let storedToken = activity["value"] as? String {
+           let storedToken = activity["token"] as? String {
             XCTAssertEqual(token, storedToken)
         } else {
             XCTFail("Update token not found in shared state")
