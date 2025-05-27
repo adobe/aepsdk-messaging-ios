@@ -20,6 +20,7 @@ import AEPServices
 /// > `Codable`, `LiveActivity.DefaultInitializable`, and `LiveActivity.DictionaryBacked`
 class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & LiveActivity.DictionaryBacked> {
     // MARK: Type aliases
+
     public typealias Element = Map.Element
     public typealias Key = LiveActivity.ID
     /// An equivalence predicate used to determine whether a new element meaningfully differs from a previously stored one.
@@ -29,10 +30,12 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     public typealias Equivalence = (_ old: Element, _ new: Element) -> Bool
 
     // MARK: Persistence configuration
+
     private let datastoreName = MessagingConstants.DATA_STORE_NAME
     private let storeKey: String
 
     // MARK: Behaviour configuration
+
     /// An optional predicate that defines custom equivalence logic between stored and incoming elements.
     /// - SeeAlso: ``Equivalence``
     private let customEquivalence: Equivalence?
@@ -45,7 +48,7 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     /// The cached element map, loaded from disk on first access.
     ///
     /// Lazily loads the map in persistence if it exists, or starts with a fresh one.
-    private lazy var _cache: Map = Self.load(datastoreName: datastoreName, key:storeKey) ?? Map()
+    private lazy var _cache: Map = Self.load(datastoreName: datastoreName, key: storeKey) ?? Map()
 
     /// Provides access to the in-memory element map with automatic persistence on update.
     private var _persistedMap: Map {
@@ -57,11 +60,11 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     }
 
     #if DEBUG
-    /// For test/debug use only: directly access the backing store.
-    var persistedMapForTesting: Map {
-        get { _persistedMap }
-        set { _persistedMap = newValue }
-    }
+        /// For test/debug use only: directly access the backing store.
+        var persistedMapForTesting: Map {
+            get { _persistedMap }
+            set { _persistedMap = newValue }
+        }
     #endif
 
     // MARK: Initialization
@@ -81,12 +84,13 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
         customEquivalence: Equivalence? = nil
     ) {
         self.storeKey = storeKey
-        self.ttl  = ttl
+        self.ttl = ttl
         self.customEquivalence = customEquivalence
         removeExpiredEntriesIfNeeded()
     }
 
     // MARK: Public API
+
     /// Returns the current contents of the store after removing any expired entries (if TTL was provided).
     ///
     /// - Returns: A `Map` containing only non-expired entries.
@@ -123,7 +127,7 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     func set(_ element: Element, id: Key) -> Bool {
         guard !isExpired(element) else { return false }
 
-        var working  = _persistedMap
+        var working = _persistedMap
         let previous = working.storage.updateValue(element, forKey: id)
 
         let didChange: Bool
@@ -155,6 +159,7 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     }
 
     // MARK: Persistence helpers
+
     /// Persists the current in‑memory element map to the named key‑value service.
     ///
     /// If serialization fails, the method exits early without writing anything to disk.
@@ -184,6 +189,7 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
 }
 
 // MARK: – Expiry helpers (private)
+
 private extension PersistenceStoreBase {
     /// Checks whether the given element should be considered expired based on its reference date
     /// and the store’s configured TTL. If no TTL is set or the element doesn’t support expiration,

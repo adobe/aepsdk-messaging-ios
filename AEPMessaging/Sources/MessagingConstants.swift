@@ -325,7 +325,7 @@ enum MessagingConstants {
         enum Messaging {
             static let PUSH_IDENTIFIER = "pushidentifier"
             static let LIVE_ACTIVITY = "liveActivity"
-            
+
             enum LiveActivity {
                 static let PUSH_TO_START_TOKENS = "pushToStartTokens"
                 static let UPDATE_TOKENS = "updateTokens"

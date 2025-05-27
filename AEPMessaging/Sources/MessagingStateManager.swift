@@ -27,7 +27,7 @@ class MessagingStateManager {
         if let updateTokens = updateTokenStore
             .all()
             .asDictionary(dateEncodingStrategy: .millisecondsSince1970),
-           !updateTokens.isEmpty {
+            !updateTokens.isEmpty {
             liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.UPDATE_TOKENS] = updateTokens
         }
 
@@ -35,7 +35,7 @@ class MessagingStateManager {
         if let pushToStartTokens = pushToStartTokenStore
             .all()
             .asDictionary(dateEncodingStrategy: .millisecondsSince1970),
-           !pushToStartTokens.isEmpty {
+            !pushToStartTokens.isEmpty {
             liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.PUSH_TO_START_TOKENS] = pushToStartTokens
         }
 
@@ -43,7 +43,7 @@ class MessagingStateManager {
         if let channelActivities = channelActivityStore
             .all()
             .asDictionary(dateEncodingStrategy: .millisecondsSince1970),
-           !channelActivities.isEmpty {
+            !channelActivities.isEmpty {
             liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.CHANNEL_ACTIVITIES] = channelActivities
         }
 

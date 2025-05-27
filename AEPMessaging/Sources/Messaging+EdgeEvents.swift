@@ -137,8 +137,8 @@ extension Messaging {
     func sendLiveActivityPushToStartTokens(
         ecid: String,
         tokenMap: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
-        event: Event)
-    {
+        event: Event
+    ) {
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to sync the Live Activity push-to-start token, App bundle identifier is invalid.")
