@@ -112,17 +112,17 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         }
         """
         
-        assertExactMatch(expected: expected, actual: edgeEvent2, pathOptions: AnyOrderMatch())
-        
+        assertExactMatch(expected: expected, actual: edgeEvent2, pathOptions: AnyOrderMatch(scope: .subtree))
+
         // verify the final shared state contains both tokens under their respective attribute types
         XCTAssertEqual(2, mockRuntime.createdSharedStates.count)
         let finalSharedState = mockRuntime.createdSharedStates[1]
-        XCTAssertNotNil(finalSharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_PUSH_TO_START_TOKENS])
-        
-        if let pushToStartTokens = finalSharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_PUSH_TO_START_TOKENS] as? [String: Any],
-           let tokens = pushToStartTokens["tokens"] as? [String: [String: Any]] {
-            XCTAssertEqual(token1, tokens[attributeType1]?["token"] as? String)
-            XCTAssertEqual(token2, tokens[attributeType2]?["token"] as? String)
+        XCTAssertNotNil(finalSharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY])
+
+        if let pushToStartTokens = finalSharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
+           let tokens = pushToStartTokens[MessagingConstants.SharedState.Messaging.LiveActivity.PUSH_TO_START_TOKENS] as? [String: [String: Any]] {
+            XCTAssertEqual(token1, tokens[attributeType1]?["value"] as? String)
+            XCTAssertEqual(token2, tokens[attributeType2]?["value"] as? String)
         } else {
             XCTFail("Push to start tokens not found in shared state")
         }
@@ -606,12 +606,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     private func verifyPushToStartSharedState(token: String, attributeType: String) {
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
         let sharedState = mockRuntime.firstSharedState!
-        XCTAssertNotNil(sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_PUSH_TO_START_TOKENS])
-        
-        if let pushToStartTokens = sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_PUSH_TO_START_TOKENS] as? [String: Any],
-           let tokens = pushToStartTokens["tokens"] as? [String: [String: Any]],
-           let testActivityTokens = tokens[attributeType],
-           let storedToken = testActivityTokens["token"] as? String {
+
+        if let liveActivity = sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
+           let pushToStartTokens = liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.PUSH_TO_START_TOKENS] as? [String: Any],
+           let testActivityTokens = pushToStartTokens[attributeType] as? [String: Any],
+           let storedToken = testActivityTokens["value"] as? String {
             XCTAssertEqual(token, storedToken)
         } else {
             XCTFail("Push to start token not found in shared state")
@@ -621,13 +620,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     private func verifyUpdateTokenSharedState(token: String, attributeType: String, liveActivityID: String) {
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
         let sharedState = mockRuntime.firstSharedState!
-        XCTAssertNotNil(sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_UPDATE_TOKENS])
-        
-        if let updateTokens = sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_UPDATE_TOKENS] as? [String: Any],
-           let tokens = updateTokens["tokens"] as? [String: [String: [String: Any]]],
-           let attributeTokens = tokens[attributeType],
-           let activityToken = attributeTokens[liveActivityID],
-           let storedToken = activityToken["token"] as? String {
+
+        if let liveActivity = sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
+           let updateTokens = liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.UPDATE_TOKENS] as? [String: Any],
+           let activity = updateTokens[liveActivityID] as? [String: Any],
+           let storedToken = activity["value"] as? String {
             XCTAssertEqual(token, storedToken)
         } else {
             XCTFail("Update token not found in shared state")
@@ -686,17 +683,14 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         verifyUpdateTokenSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID)
         mockRuntime.dispatchedEvents.removeAll()
     }
-    
+
     private func verifyTokenRemovedFromSharedState() {
-        XCTAssertEqual(2, mockRuntime.createdSharedStates.count)
-        let finalSharedState = mockRuntime.createdSharedStates[1]
-        XCTAssertNotNil(finalSharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_UPDATE_TOKENS])
-        
-        if let updateTokens = finalSharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY_UPDATE_TOKENS] as? [String: Any],
-           let tokens = updateTokens["tokens"] as? [String: [String: [String: Any]]] {
-            XCTAssertEqual(0, tokens.count, "Token should be removed from shared state")
-        } else {
-            XCTFail("Update tokens should not be found in shared state")
+        XCTAssertEqual(mockRuntime.createdSharedStates.count, 2, "Expected exactly two shared states")
+        guard let finalSharedStateOptional = mockRuntime.createdSharedStates.last,
+              let finalSharedState = finalSharedStateOptional else {
+            XCTFail("Final shared state is missing or nil")
+            return
         }
+        XCTAssertTrue(finalSharedState.isEmpty, "Expected the final shared state to be empty")
     }
 }
