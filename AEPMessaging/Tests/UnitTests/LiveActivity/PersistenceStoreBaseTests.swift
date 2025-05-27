@@ -437,4 +437,3 @@ class PersistenceStoreBaseTests: XCTestCase {
         return expired
     }
 }
-

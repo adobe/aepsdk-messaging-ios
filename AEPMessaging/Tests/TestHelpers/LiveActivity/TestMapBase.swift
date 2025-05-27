@@ -16,8 +16,7 @@ struct TestMapBase<Element: Codable & Equatable>:
     Codable,
     Equatable,
     LiveActivity.DefaultInitializable,
-    LiveActivity.DictionaryBacked
-{
+    LiveActivity.DictionaryBacked {
     // DictionaryBacked conformance
     var storage: [LiveActivity.ID: Element]
 
