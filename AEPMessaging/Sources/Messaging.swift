@@ -271,13 +271,10 @@ public class Messaging: NSObject, Extension {
         }
 
         if event.isLiveActivityUpdateTokenEvent {
-            // extract token
             guard let token = event.liveActivityUpdateToken, !token.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid token could not be found in the event.")
                 return
             }
-
-            // extract liveActivityId
             guard let liveActivityID = event.liveActivityID, !liveActivityID.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid Live Activity ID could not be found in the event.")
                 return
@@ -302,6 +299,13 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
+            if let channelID = event.liveActivityChannelID,
+               !channelID.isEmpty,
+               let attributeType = event.liveActivityAttributeType {
+                stateManager.channelActivityStore.set(.init(attributeType: attributeType, startedAt: event.timestamp), id: channelID)
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+            }
+
             sendLiveActivityStart(channelID: event.liveActivityChannelID, liveActivityID: event.liveActivityID, origin: origin, event: event)
             return
         }
@@ -321,14 +325,19 @@ public class Messaging: NSObject, Extension {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity state event (\(event.id.uuidString)) is not 'ended' or 'dismissed'. Skipping.")
                 return
             }
-            guard let liveActivityID = event.liveActivityID else {
-                Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity state event (\(event.id.uuidString)) does not have a Live Activity ID. Skipping.")
+
+            // At this point the Live Activity has reached a terminal state (.ended or .dismissed)
+            // Clean up entry in respective store, depending on which ID type is present
+            if let liveActivityID = event.liveActivityID {
+                stateManager.updateTokenStore.remove(id: liveActivityID)
+            }
+            else if let channelID = event.liveActivityChannelID {
+                stateManager.channelActivityStore.remove(id: channelID)
+            } else {
+                // If neither are present, exit without publishing a new shared state
                 return
             }
 
-            // At this point the Live Activity has reached a terminal state (.ended or .dismissed)
-            // Remove its update token and publish a refreshed shared state
-            stateManager.updateTokenStore.remove(id: liveActivityID)
             runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
         }
 
@@ -345,7 +354,6 @@ public class Messaging: NSObject, Extension {
 
         // handle live activity push-to-start token event
         if event.isLiveActivityPushToStartTokenEvent {
-            // Extract token from event
             guard let token = event.liveActivityPushToStartToken, !token.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event or token is empty.")
                 return

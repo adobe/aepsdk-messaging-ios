@@ -10,12 +10,13 @@
  governing permissions and limitations under the License.
  */
 
+import XCTest
+
+import AEPTestUtils
+
 @testable import AEPCore
 @testable import AEPMessaging
 @testable import AEPServices
-import AEPTestUtils
-import Foundation
-import XCTest
 
 class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     var messaging: Messaging!
@@ -42,8 +43,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_PushToStart_Happy() {
         // create and dispatch event
         let event = createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify edge event and shared state
         verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
@@ -58,13 +58,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
         // dispatch event with token 1 and attributeType1
         let event1 = createPushToStartEvent(token: token1, attributeType: attributeType1)
-        mockSharedStates(for: event1)
-        mockRuntime.simulateComingEvents(event1)
+        simulateEventWithSharedStates(event1)
 
         // dispatch event with token 2 and attributeType2
         let event2 = createPushToStartEvent(token: token2, attributeType: attributeType2)
-        mockSharedStates(for: event2)
-        mockRuntime.simulateComingEvents(event2)
+        simulateEventWithSharedStates(event2)
 
         // there should be two edge events dispatched
         XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
@@ -132,14 +130,12 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
         // create and dispatch event with token 1
         let event1 = createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
-        mockSharedStates(for: event1)
-        mockRuntime.simulateComingEvents(event1)
+        simulateEventWithSharedStates(event1)
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
 
         // create and dispatch event with token 2
         let event2 = createPushToStartEvent(token: NEW_TOKEN, attributeType: ATTRIBUTE_TYPE)
-        mockSharedStates(for: event2)
-        mockRuntime.simulateComingEvents(event2)
+        simulateEventWithSharedStates(event2)
 
         // verify edge event and shared state contains latest token
         verifyPushToStartEdgeEvent(token: NEW_TOKEN, attributeType: ATTRIBUTE_TYPE)
@@ -149,8 +145,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_PushToStart_EmptyToken() {
         // create and dispatch event with empty token
         let event = createPushToStartEvent(token: "", attributeType: ATTRIBUTE_TYPE)
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -162,7 +157,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_PushToStart_MissingECID() {
         // create and dispatch event
         let event = createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
-        mockSharedStates(for: event, ecid: "")
+        mockConfigurationAndEdgeIdentitySharedStates(at: event, ecid: "")
         mockRuntime.simulateComingEvents(event)
 
         // verify no edge event is dispatched
@@ -183,8 +178,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                           source: EventSource.requestContent,
                           data: eventData)
 
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -205,8 +199,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                           source: EventSource.requestContent,
                           data: eventData)
 
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -235,8 +228,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_UpdateToken_Happy() {
         // create and dispatch event
         let event = createUpdateTokenEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID)
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify edge event and shared state
         verifyUpdateTokenEdgeEvent(token: PUSH_TO_START_TOKEN, liveActivityID: LIVE_ACTIVITY_ID)
@@ -246,8 +238,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_UpdateToken_EmptyToken() {
         // create and dispatch event with empty token
         let event = createUpdateTokenEvent(token: "", attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID)
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -268,8 +259,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                           source: EventSource.requestContent,
                           data: eventData)
 
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -290,8 +280,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                 MessagingConstants.XDM.LiveActivity.ID: "LID"
             ]
         )
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // Edge call still sent but no shared state dispatched
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -311,8 +300,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                           source: EventSource.requestContent,
                           data: eventData)
 
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -326,28 +314,31 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_Start_Happy() {
         // create and dispatch event
         let event = createStartEvent(liveActivityID: LIVE_ACTIVITY_ID, channelID: nil, origin: "local")
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify edge event
         verifyStartEdgeEvent(liveActivityID: LIVE_ACTIVITY_ID, channelID: nil, origin: "local")
     }
 
     func test_LiveActivity_Start_WithChannelID() {
-        // create and dispatch event with channel ID instead of Live Activity ID
-        let event = createStartEvent(liveActivityID: nil, channelID: CHANNEL_ID, origin: "local")
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        let event = createStartEvent(liveActivityID: nil,
+                                     channelID: CHANNEL_ID,
+                                     origin: "local")
+        simulateEventWithSharedStates(event)
 
-        // verify edge event
-        verifyStartEdgeEvent(liveActivityID: nil, channelID: CHANNEL_ID, origin: "local")
+        // edge event still verified
+        verifyStartEdgeEvent(liveActivityID: nil,
+                             channelID: CHANNEL_ID,
+                             origin: "local")
+
+        // NEW: shared state should exist after a channel start
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
     }
 
     func test_LiveActivity_Start_MissingIdentifiers() {
         // create event without Live Activity ID or Channel ID
         let event = createStartEvent(liveActivityID: nil, channelID: nil, origin: "local")
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -366,8 +357,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                           source: EventSource.requestContent,
                           data: eventData)
 
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -380,9 +370,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         setupInitialTokenState()
 
         // Create and dispatch dismiss event
-        let dismissEvent = createStateEvent(state: MessagingConstants.LiveActivity.States.DISMISSED, liveActivityID: LIVE_ACTIVITY_ID)
-        mockSharedStates(for: dismissEvent)
-        mockRuntime.simulateComingEvents(dismissEvent)
+        let dismissEvent = createStateEvent(state: MessagingConstants.LiveActivity.States.DISMISSED, liveActivityID: LIVE_ACTIVITY_ID, channelID: nil)
+        simulateEventWithSharedStates(dismissEvent)
 
         // Verify token was removed
         verifyTokenRemovedFromSharedState()
@@ -393,9 +382,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         setupInitialTokenState()
 
         // Create and dispatch ended event
-        let endedEvent = createStateEvent(state: MessagingConstants.LiveActivity.States.ENDED, liveActivityID: LIVE_ACTIVITY_ID)
-        mockSharedStates(for: endedEvent)
-        mockRuntime.simulateComingEvents(endedEvent)
+        let endedEvent = createStateEvent(state: MessagingConstants.LiveActivity.States.ENDED, liveActivityID: LIVE_ACTIVITY_ID, channelID: nil)
+        simulateEventWithSharedStates(endedEvent)
 
         // Verify token was removed
         verifyTokenRemovedFromSharedState()
@@ -406,9 +394,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         setupInitialTokenState()
 
         // Create and dispatch active state event
-        let activeEvent = createStateEvent(state: "Active", liveActivityID: LIVE_ACTIVITY_ID)
-        mockSharedStates(for: activeEvent)
-        mockRuntime.simulateComingEvents(activeEvent)
+        let activeEvent = createStateEvent(state: "Active", liveActivityID: LIVE_ACTIVITY_ID, channelID: nil)
+        simulateEventWithSharedStates(activeEvent)
 
         // verify token is still in shared state
         verifyUpdateTokenSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID)
@@ -430,8 +417,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                           source: EventSource.requestContent,
                           data: eventData)
 
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -456,8 +442,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                           source: EventSource.requestContent,
                           data: eventData)
 
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -482,14 +467,92 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                           source: EventSource.requestContent,
                           data: eventData)
 
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
         // verify token is still in shared state
-        verifyUpdateTokenSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID)
+        verifyUpdateTokenSharedState(
+            token: PUSH_TO_START_TOKEN,
+            attributeType: ATTRIBUTE_TYPE,
+            liveActivityID: LIVE_ACTIVITY_ID
+        )
+    }
+
+    // MARK: - Channel Tests
+
+    func test_LiveActivity_Channel_Dismiss() {
+        setupInitialChannelState()
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        let dismissEvent = createStateEvent(state: MessagingConstants.LiveActivity.States.DISMISSED,
+                                            liveActivityID: nil,
+                                            channelID: CHANNEL_ID)
+        simulateEventWithSharedStates(dismissEvent)
+
+        verifyChannelStoreRemovedFromSharedState()
+    }
+
+    func test_LiveActivity_Channel_Ended() {
+        setupInitialChannelState()
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        let endedEvent = createStateEvent(state: MessagingConstants.LiveActivity.States.ENDED,
+                                          liveActivityID: nil,
+                                          channelID: CHANNEL_ID)
+        simulateEventWithSharedStates(endedEvent)
+
+        verifyChannelStoreRemovedFromSharedState()
+    }
+
+    func test_LiveActivity_Channel_ActiveStateEvent() {
+        setupInitialChannelState()
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        let activeEvent = createStateEvent(state: "Active",
+                                           liveActivityID: nil,
+                                           channelID: CHANNEL_ID)
+        simulateEventWithSharedStates(activeEvent)
+
+        // A non-terminal state should not publish a new shared state
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_LiveActivity_Channel_MultipleActivities_OneEnds() {
+        let CHANNEL_ID_2 = "channel_2"
+
+        // Start two channel based activities
+        let startFirstChannel = createStartEvent(liveActivityID: nil, channelID: CHANNEL_ID, origin: "remote")
+        simulateEventWithSharedStates(startFirstChannel)
+
+        let startSecondChannel = createStartEvent(liveActivityID: nil, channelID: CHANNEL_ID_2, origin: "remote")
+        simulateEventWithSharedStates(startSecondChannel)
+
+        // Two shared-state snapshots should exist - one per start
+        XCTAssertEqual(2, mockRuntime.createdSharedStates.count)
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // End only first channel activity
+        let endFirstChannel = createStateEvent(state: MessagingConstants.LiveActivity.States.DISMISSED,
+                                               liveActivityID: nil,
+                                               channelID: CHANNEL_ID)
+        simulateEventWithSharedStates(endFirstChannel)
+
+        // A new shared state after dismiss should be published
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
+
+        // Verify first channel activity is gone and other channel remains
+        guard let sharedState = mockRuntime.createdSharedStates.first ?? nil,
+              let liveActivity = sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
+              let channelActivities = liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.CHANNEL_ACTIVITIES] as? [String: Any]
+        else {
+            XCTFail("Live Activity shared state missing")
+            return
+        }
+
+        XCTAssertNil(channelActivities[CHANNEL_ID], "Dismissed channel should be removed")
+        XCTAssertNotNil(channelActivities[CHANNEL_ID_2], "Ongoing channel should remain")
     }
 
     // MARK: - Helper Methods
@@ -541,13 +604,25 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                      data: eventData)
     }
 
-    private func mockSharedStates(for event: Event, ecid: String? = nil) {
+    private func mockConfigurationAndEdgeIdentitySharedStates(at event: Event, ecid: String? = nil) {
         // mock configuration shared state
-        mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: event), data: (value: [:], status: .set))
+        mockRuntime.simulateSharedState(
+            for: (extensionName: "com.adobe.module.configuration", event: event),
+            data: (value: [:], status: .set)
+        )
 
         // mock edge identity shared state with ECID
-        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: ecid ?? ECID]]]]
-        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
+        let mockEdgeIdentity: [String: Any] = [
+            MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [
+                MessagingConstants.SharedState.EdgeIdentity.ECID: [
+                    [MessagingConstants.SharedState.EdgeIdentity.ID: ecid ?? ECID]
+                ]
+            ]
+        ]
+        mockRuntime.simulateXDMSharedState(
+            for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+            data: (value: mockEdgeIdentity, status: SharedStateStatus.set)
+        )
     }
 
     private func verifyPushToStartEdgeEvent(token: String, attributeType: String) {
@@ -660,27 +735,47 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         assertExactMatch(expected: expectedData, actual: edgeEvent)
     }
 
-    private func createStateEvent(state: String, liveActivityID: String) -> Event {
-        let eventData: [String: Any] = [
+    private func createStateEvent(state: String,
+                                  liveActivityID: String?,
+                                  channelID: String?) -> Event {
+        var data: [String: Any] = [
             MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
             MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
             MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: "testAppleActivityID",
-            MessagingConstants.XDM.LiveActivity.ID: liveActivityID,
             MessagingConstants.Event.Data.Key.STATE: state
         ]
+        if let liveActivityID = liveActivityID {
+            data[MessagingConstants.XDM.LiveActivity.ID] = liveActivityID
+        }
+        if let channelID = channelID {
+            data[MessagingConstants.XDM.LiveActivity.CHANNEL_ID] = channelID
+        }
         return Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE,
                      type: EventType.messaging,
                      source: EventSource.requestContent,
-                     data: eventData)
+                     data: data)
+    }
+
+    private func simulateEventWithSharedStates(_ event: Event) {
+        mockConfigurationAndEdgeIdentitySharedStates(at: event)
+        mockRuntime.simulateComingEvents(event)
     }
 
     private func setupInitialTokenState() {
-        let event = createUpdateTokenEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID)
-        mockSharedStates(for: event)
-        mockRuntime.simulateComingEvents(event)
+        let event = createUpdateTokenEvent(
+            token: PUSH_TO_START_TOKEN,
+            attributeType: ATTRIBUTE_TYPE,
+            liveActivityID: LIVE_ACTIVITY_ID
+        )
+
+        simulateEventWithSharedStates(event)
 
         // Verify token was added to shared state
-        verifyUpdateTokenSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID)
+        verifyUpdateTokenSharedState(
+            token: PUSH_TO_START_TOKEN,
+            attributeType: ATTRIBUTE_TYPE,
+            liveActivityID: LIVE_ACTIVITY_ID
+        )
         mockRuntime.dispatchedEvents.removeAll()
     }
 
@@ -692,5 +787,34 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
             return
         }
         XCTAssertTrue(finalSharedState.isEmpty, "Expected the final shared state to be empty")
+    }
+
+    private func setupInitialChannelState() {
+        let startEvent = createStartEvent(liveActivityID: nil,
+                                          channelID: CHANNEL_ID,
+                                          origin: "remote")
+        simulateEventWithSharedStates(startEvent)
+
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count, "Channel start should publish a shared state")
+
+        if let sharedState = mockRuntime.firstSharedState,
+           let liveActivity = sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
+           let channelActivities = liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.CHANNEL_ACTIVITIES] as? [String: Any],
+           let activity = channelActivities[CHANNEL_ID] as? [String: Any],
+           let attributeType = activity["attributeType"] as? String {
+            XCTAssertEqual(ATTRIBUTE_TYPE, attributeType)
+        } else {
+            XCTFail("Channel activity entry missing from shared state")
+        }
+    }
+
+    private func verifyChannelStoreRemovedFromSharedState() {
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count,
+                       "Exactly one shared state (the post-dismiss one) expected.")
+        guard let sharedState = mockRuntime.createdSharedStates.first ?? nil else {
+            XCTFail("shared state missing")
+            return
+        }
+        XCTAssertTrue(sharedState.isEmpty, "Channel activity shared state should be empty after dismissal.")
     }
 }
