@@ -330,8 +330,7 @@ public class Messaging: NSObject, Extension {
             // Clean up entry in respective store, depending on which ID type is present
             if let liveActivityID = event.liveActivityID {
                 stateManager.updateTokenStore.remove(id: liveActivityID)
-            }
-            else if let channelID = event.liveActivityChannelID {
+            } else if let channelID = event.liveActivityChannelID {
                 stateManager.channelActivityStore.remove(id: channelID)
             } else {
                 // If neither are present, exit without publishing a new shared state
