@@ -14,9 +14,6 @@
 
 /// A test helper subclass of `MockDataStore` that counts the number of times
 /// the `get(collectionName:key:)` method is called.
-///
-/// Useful for verifying that higher-level code accesses the datastore
-/// as expected.
 class CountingDataStore: MockDataStore {
     /// The number of times `get(collectionName:key:)` has been called.
     private(set) var getCalls = 0

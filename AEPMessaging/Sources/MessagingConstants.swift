@@ -324,8 +324,13 @@ enum MessagingConstants {
     enum SharedState {
         enum Messaging {
             static let PUSH_IDENTIFIER = "pushidentifier"
-            static let LIVE_ACTIVITY_PUSH_TO_START_TOKENS = "liveActivity.pushToStartTokens"
-            static let LIVE_ACTIVITY_UPDATE_TOKENS = "liveActivity.updateTokens"
+            static let LIVE_ACTIVITY = "liveActivity"
+
+            enum LiveActivity {
+                static let PUSH_TO_START_TOKENS = "pushToStartTokens"
+                static let UPDATE_TOKENS = "updateTokens"
+                static let CHANNEL_ACTIVITIES = "channelActivities"
+            }
         }
 
         enum Configuration {
@@ -356,6 +361,7 @@ enum MessagingConstants {
     enum NamedCollectionKeys {
         static let LIVE_ACTIVITY_PUSH_TO_START_TOKENS = "liveActivity.pushToStartTokens"
         static let LIVE_ACTIVITY_UPDATE_TOKENS = "liveActivity.updateTokens"
+        static let LIVE_ACTIVITY_CHANNEL_DETAILS = "liveActivity.channelDetails"
     }
 
     enum LiveActivity {
@@ -364,6 +370,7 @@ enum MessagingConstants {
         /// Tokens older than this duration (12 hours) are considered expired and may be
         /// automatically removed during initialization or cleanup.
         static let UPDATE_TOKEN_MAX_TTL = TimeInterval(60 * 60 * 12)
+        static let CHANNEL_ACTIVITY_MAX_TTL = UPDATE_TOKEN_MAX_TTL
 
         enum States {
             static let DISMISSED = "dismissed"

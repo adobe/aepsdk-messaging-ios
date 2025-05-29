@@ -47,19 +47,21 @@ public extension Messaging {
             let newPushTask = createPushToStartTokenTask(type: T.self)
             Task {
                 await pushToStartTaskStore.setTask(for: attributeType, task: newPushTask)
+                Log.trace(label: MessagingConstants.LOG_TAG,
+                          "Registered Live Activity push-to-start token task for type \(attributeType)")
             }
         } else {
-            Log.debug(
-                label: MessagingConstants.LOG_TAG,
-                "Not creating a Live Activity push-to-start token handler task for " +
-                    "LiveActivityAttributes type \(attributeType). " +
-                    "iOS 17.2 or later is required to start a Live Activity with a push-to-start token."
-            )
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Not creating a Live Activity push-to-start token handler task for " +
+                          "LiveActivityAttributes type \(attributeType). " +
+                          "iOS 17.2 or later is required to start a Live Activity with a push-to-start token.")
         }
 
         let newActivityUpdatesTask = createActivityUpdatesTask(type: T.self)
         Task {
             await activityUpdateTaskStore.setTask(for: attributeType, task: newActivityUpdatesTask)
+            Log.trace(label: MessagingConstants.LOG_TAG,
+                      "Registered Live Activity updates task for type \(attributeType)")
         }
     }
 
@@ -122,6 +124,14 @@ public extension Messaging {
 
                 // Use task group to manage state and push token updates concurrently.
                 await withTaskGroup(of: Void.self) { group in
+                    // TODO: implement contentUpdates events being dispatched in DEBUG mode
+                    if #available(iOS 16.2, *) {
+                        for await value in activity.contentUpdates {
+                            // if origin == assurance
+                            // then send to event hub
+                            value.state
+                        }
+                    }
                     // Listen for state updates.
                     group.addTask {
                         for await newState in activity.activityStateUpdates {
