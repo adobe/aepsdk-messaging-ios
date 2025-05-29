@@ -15,7 +15,7 @@ import Foundation
 final class ChannelActivityStore: PersistenceStoreBase<LiveActivity.ChannelMap> {
     convenience init() {
         self.init(
-            storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_CHANNEL_DETAILS,
+            storeKey: MessagingConstants.NamedCollectionKeys.LiveActivity.CHANNEL_DETAILS,
             ttl: MessagingConstants.LiveActivity.CHANNEL_ACTIVITY_MAX_TTL
             // No custom equivalence logic; any non-expired `ChannelActivity` replaces the old one
         )

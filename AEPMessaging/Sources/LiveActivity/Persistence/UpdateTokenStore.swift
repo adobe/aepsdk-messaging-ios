@@ -15,7 +15,7 @@ import AEPServices
 final class UpdateTokenStore: PersistenceStoreBase<LiveActivity.UpdateTokenMap> {
     convenience init() {
         self.init(
-            storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_UPDATE_TOKENS,
+            storeKey: MessagingConstants.NamedCollectionKeys.LiveActivity.UPDATE_TOKENS,
             ttl: MessagingConstants.LiveActivity.UPDATE_TOKEN_MAX_TTL,
             customEquivalence: { old, new in
                 // Equals for update tokens ignores the timestamp.

@@ -170,10 +170,10 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_PushToStart_MissingAttributeType() {
         // create event without attribute type
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
             MessagingConstants.XDM.Push.TOKEN: PUSH_TO_START_TOKEN
         ]
-        let event = Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START,
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -190,11 +190,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_PushToStart_InvalidTokenFormat() {
         // create event with invalid token format (non-string)
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
             MessagingConstants.XDM.Push.TOKEN: 123, // Invalid token format
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE
         ]
-        let event = Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START,
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -250,11 +250,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_UpdateToken_MissingLiveActivityID() {
         // create event without Live Activity ID
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN: true,
             MessagingConstants.XDM.Push.TOKEN: PUSH_TO_START_TOKEN,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE
         ]
-        let event = Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_UPDATE_TOKEN,
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -270,11 +270,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
     func test_UpdateToken_MissingAttributeType() {
         let event = Event(
-            name: MessagingConstants.Event.Name.LIVE_ACTIVITY_UPDATE_TOKEN,
+            name: MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN,
             type: EventType.messaging,
             source: EventSource.requestContent,
             data: [
-                MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
+                MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN: true,
                 MessagingConstants.XDM.Push.TOKEN: PUSH_TO_START_TOKEN,
                 // Attribute type intentionally omitted
                 MessagingConstants.XDM.LiveActivity.ID: "LID"
@@ -290,12 +290,12 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_UpdateToken_InvalidTokenFormat() {
         // create event with invalid token format (non-string)
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN: true,
             MessagingConstants.XDM.Push.TOKEN: 123, // Invalid token format
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
             MessagingConstants.XDM.LiveActivity.ID: LIVE_ACTIVITY_ID
         ]
-        let event = Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_UPDATE_TOKEN,
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -347,12 +347,12 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_Start_MissingOrigin() {
         // create event without origin
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: "testAppleActivityID",
+            MessagingConstants.Event.Data.Key.LiveActivity.TRACK_START: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
+            MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: "testAppleActivityID",
             MessagingConstants.XDM.LiveActivity.ID: LIVE_ACTIVITY_ID
         ]
-        let event = Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_START,
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.START,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -407,12 +407,12 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
         // Create event without state
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: "testAppleActivityID",
+            MessagingConstants.Event.Data.Key.LiveActivity.TRACK_STATE: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
+            MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: "testAppleActivityID",
             MessagingConstants.XDM.LiveActivity.ID: LIVE_ACTIVITY_ID
         ]
-        let event = Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE,
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.STATE,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -432,12 +432,12 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
         // Create event without attribute type
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: "testAppleActivityID",
+            MessagingConstants.Event.Data.Key.LiveActivity.TRACK_STATE: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: "testAppleActivityID",
             MessagingConstants.XDM.LiveActivity.ID: LIVE_ACTIVITY_ID,
-            MessagingConstants.Event.Data.Key.STATE: MessagingConstants.LiveActivity.States.DISMISSED
+            MessagingConstants.Event.Data.Key.LiveActivity.STATE: MessagingConstants.LiveActivity.States.DISMISSED
         ]
-        let event = Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE,
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.STATE,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -457,12 +457,12 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
         // Create event without live activity ID
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: "testAppleActivityID",
-            MessagingConstants.Event.Data.Key.STATE: MessagingConstants.LiveActivity.States.DISMISSED
+            MessagingConstants.Event.Data.Key.LiveActivity.TRACK_STATE: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
+            MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: "testAppleActivityID",
+            MessagingConstants.Event.Data.Key.LiveActivity.STATE: MessagingConstants.LiveActivity.States.DISMISSED
         ]
-        let event = Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE,
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.STATE,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
@@ -559,11 +559,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
     private func createPushToStartEvent(token: String, attributeType: String) -> Event {
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
             MessagingConstants.XDM.Push.TOKEN: token,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeType
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType
         ]
-        return Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START,
+        return Event(name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START,
                      type: EventType.messaging,
                      source: EventSource.requestContent,
                      data: eventData)
@@ -571,12 +571,12 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
     private func createUpdateTokenEvent(token: String, attributeType: String, liveActivityID: String) -> Event {
         let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN: true,
             MessagingConstants.XDM.Push.TOKEN: token,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeType,
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
             MessagingConstants.XDM.LiveActivity.ID: liveActivityID
         ]
-        return Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_UPDATE_TOKEN,
+        return Event(name: MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN,
                      type: EventType.messaging,
                      source: EventSource.requestContent,
                      data: eventData)
@@ -584,9 +584,9 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
     private func createStartEvent(liveActivityID: String?, channelID: String?, origin: String) -> Event {
         var eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: "testAppleActivityID",
+            MessagingConstants.Event.Data.Key.LiveActivity.TRACK_START: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
+            MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: "testAppleActivityID",
             MessagingConstants.XDM.LiveActivity.ORIGIN: origin
         ]
 
@@ -598,7 +598,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
             eventData[MessagingConstants.XDM.LiveActivity.CHANNEL_ID] = channelID
         }
 
-        return Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_START,
+        return Event(name: MessagingConstants.Event.Name.LiveActivity.START,
                      type: EventType.messaging,
                      source: EventSource.requestContent,
                      data: eventData)
@@ -739,10 +739,10 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                                   liveActivityID: String?,
                                   channelID: String?) -> Event {
         var data: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: "testAppleActivityID",
-            MessagingConstants.Event.Data.Key.STATE: state
+            MessagingConstants.Event.Data.Key.LiveActivity.TRACK_STATE: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
+            MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: "testAppleActivityID",
+            MessagingConstants.Event.Data.Key.LiveActivity.STATE: state
         ]
         if let liveActivityID = liveActivityID {
             data[MessagingConstants.XDM.LiveActivity.ID] = liveActivityID
@@ -750,7 +750,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         if let channelID = channelID {
             data[MessagingConstants.XDM.LiveActivity.CHANNEL_ID] = channelID
         }
-        return Event(name: MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE,
+        return Event(name: MessagingConstants.Event.Name.LiveActivity.STATE,
                      type: EventType.messaging,
                      source: EventSource.requestContent,
                      data: data)
