@@ -311,19 +311,19 @@ extension Event {
     }
 
     private var liveActivityUpdateTokenFlag: Bool {
-        data?[MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN] as? Bool ?? false
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN] as? Bool ?? false
     }
 
     private var liveActivityPushToStartTokenFlag: Bool {
-        data?[MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN] as? Bool ?? false
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN] as? Bool ?? false
     }
 
     private var liveActivityTrackStartFlag: Bool {
-        data?[MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START] as? Bool ?? false
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.TRACK_START] as? Bool ?? false
     }
 
     private var liveActivityTrackStateFlag: Bool {
-        data?[MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE] as? Bool ?? false
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.TRACK_STATE] as? Bool ?? false
     }
 
     var liveActivityPushToStartToken: String? {
@@ -335,7 +335,7 @@ extension Event {
     }
 
     var liveActivityAttributeType: String? {
-        data?[MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE] as? String
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE] as? String
     }
 
     var liveActivityID: String? {
@@ -351,6 +351,6 @@ extension Event {
     }
 
     var liveActivityState: String? {
-        data?[MessagingConstants.Event.Data.Key.STATE] as? String
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.STATE] as? String
     }
 }

@@ -47,19 +47,20 @@ public extension Messaging {
             let newPushTask = createPushToStartTokenTask(type: T.self)
             Task {
                 await pushToStartTaskStore.setTask(for: attributeType, task: newPushTask)
+                Log.trace(label: MessagingConstants.LOG_TAG,
+                          "Registered Live Activity push-to-start token task for type \(attributeType)")
             }
         } else {
-            Log.debug(
-                label: MessagingConstants.LOG_TAG,
-                "Not creating a Live Activity push-to-start token handler task for " +
-                    "LiveActivityAttributes type \(attributeType). " +
-                    "iOS 17.2 or later is required to start a Live Activity with a push-to-start token."
-            )
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Not creating a Live Activity push-to-start token handler task for type \(attributeType). " +
+                          "iOS 17.2 or later is required to start a Live Activity with a push token.")
         }
 
         let newActivityUpdatesTask = createActivityUpdatesTask(type: T.self)
         Task {
             await activityUpdateTaskStore.setTask(for: attributeType, task: newActivityUpdatesTask)
+            Log.trace(label: MessagingConstants.LOG_TAG,
+                      "Registered Live Activity updates task for type \(attributeType)")
         }
     }
 
@@ -122,6 +123,19 @@ public extension Messaging {
 
                 // Use task group to manage state and push token updates concurrently.
                 await withTaskGroup(of: Void.self) { group in
+                    // Listen for content updates when in DEBUG mode.
+                    #if DEBUG
+                        if #available(iOS 16.2, *) {
+                            for await update in activity.contentUpdates {
+                                dispatchContentStateUpdateEvent(activity: activity, contentState: update.state)
+                            }
+                        } else {
+                            Log.debug(label: MessagingConstants.LOG_TAG,
+                                      "Not handling Live Activity content updates for type \(attributeType). " +
+                                          "iOS 16.2 or later is required.")
+                        }
+                    #endif
+
                     // Listen for state updates.
                     group.addTask {
                         for await newState in activity.activityStateUpdates {
@@ -161,14 +175,14 @@ public extension Messaging {
                   Type: \(attributeType)
                   """)
 
-        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeType))"
+        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) for type (\(attributeType))"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: [
-                              MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_PUSH_TO_START_TOKEN: true,
+                              MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
                               MessagingConstants.XDM.Push.TOKEN: token,
-                              MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeType
+                              MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType
                           ])
         MobileCore.dispatch(event: event)
     }
@@ -203,16 +217,16 @@ public extension Messaging {
                   Token: \(token)
                   """)
 
-        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START) for type (\(attributeType))"
+        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) for type (\(attributeType))"
 
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: [
-                              MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_UPDATE_TOKEN: true,
+                              MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN: true,
                               MessagingConstants.XDM.Push.TOKEN: token,
-                              MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeType,
-                              MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
+                              MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+                              MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: activity.id,
                               MessagingConstants.XDM.LiveActivity.ID: liveActivityID
                           ])
         MobileCore.dispatch(event: event)
@@ -237,16 +251,16 @@ public extension Messaging {
                   """)
 
         var data: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_START: true,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeType,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
+            MessagingConstants.Event.Data.Key.LiveActivity.TRACK_START: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+            MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: activity.id,
             MessagingConstants.XDM.LiveActivity.ORIGIN: activity.attributes.liveActivityData.origin
         ]
 
         // Merge in the single identifier (liveActivityID or channelID)
         data.merge(liveActivityIdentifierData) { current, _ in current }
 
-        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_START) for type (\(attributeType))"
+        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.START) for type (\(attributeType))"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
@@ -279,20 +293,73 @@ public extension Messaging {
                   """)
 
         var data: [String: Any] = [
-            MessagingConstants.Event.Data.Key.LIVE_ACTIVITY_TRACK_STATE: true,
-            MessagingConstants.Event.Data.Key.ATTRIBUTE_TYPE: attributeType,
-            MessagingConstants.Event.Data.Key.APPLE_LIVE_ACTIVITY_ID: activity.id,
-            MessagingConstants.Event.Data.Key.STATE: "\(state)"
+            MessagingConstants.Event.Data.Key.LiveActivity.TRACK_STATE: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+            MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: activity.id,
+            MessagingConstants.Event.Data.Key.LiveActivity.STATE: "\(state)"
         ]
 
         // Merge in the single identifier (liveActivityID or channelID)
         data.merge(liveActivityIdentifierData) { current, _ in current }
 
-        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY_STATE): \(state) for type (\(attributeType))"
+        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.STATE): \(state) for type (\(attributeType))"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: data)
+        MobileCore.dispatch(event: event)
+    }
+
+    /// Dispatches an event to track a Live Activity content state update.
+    ///
+    /// - Parameters:
+    ///   - activity: The Live Activity instance whose content state has changed. The activity must conform to ``LiveActivityAttributes``.
+    ///   - contentState: The new content state for the activity, conforming to `T.ContentState`.
+    /// - Note: If the content state cannot be encoded as a dictionary, the event will not be dispatched. This method also includes
+    ///   the Live Activity's identifier data in the event.
+    private static func dispatchContentStateUpdateEvent<T: LiveActivityAttributes>(
+        activity: Activity<T>,
+        contentState: T.ContentState
+    ) {
+        let attributeType = T.attributeType
+        let liveActivityIdentifierData = activity.attributes.liveActivityIdentifierData
+
+        guard let contentStateData = contentState.asDictionary() else {
+            Log.debug(
+                label: MessagingConstants.LOG_TAG,
+                "Failed to encode content state for Live Activity type \(attributeType); skipping event dispatch."
+            )
+            return
+        }
+
+        Log.debug(
+            label: MessagingConstants.LOG_TAG,
+            """
+            Dispatching Live Activity content-state update.
+            Type: \(attributeType)
+            Apple Live Activity ID: \(activity.id)
+            Identifier: \(liveActivityIdentifierData)
+            ContentState: \(contentStateData)
+            """
+        )
+
+        var data: [String: Any] = [
+            MessagingConstants.Event.Data.Key.LiveActivity.TRACK_STATE: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+            MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: activity.id,
+            MessagingConstants.Event.Data.Key.LiveActivity.CONTENT_STATE: contentStateData
+        ]
+
+        // Merge in the single identifier (liveActivityID or channelID)
+        data.merge(liveActivityIdentifierData) { current, _ in current }
+
+        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.CONTENT_STATE): update for type (\(attributeType))"
+        let event = Event(
+            name: eventName,
+            type: EventType.genericData,
+            source: EventSource.debug,
+            data: data
+        )
         MobileCore.dispatch(event: event)
     }
 }

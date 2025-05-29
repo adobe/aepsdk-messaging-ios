@@ -271,22 +271,19 @@ public class Messaging: NSObject, Extension {
         }
 
         if event.isLiveActivityUpdateTokenEvent {
-            // extract token
             guard let token = event.liveActivityUpdateToken, !token.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid token could not be found in the event.")
                 return
             }
-
-            // extract liveActivityId
             guard let liveActivityID = event.liveActivityID, !liveActivityID.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid Live Activity ID could not be found in the event.")
                 return
             }
 
             // If the Live Activity ID, attribute type, and update token are valid, update the shared state.
-            if let attributeTypeName = event.liveActivityAttributeType {
-                let liveActivityToken = LiveActivity.Token(token: token, tokenFirstIssued: event.timestamp)
-                stateManager.updateTokenStore.set(liveActivityToken, attribute: attributeTypeName, id: liveActivityID)
+            if let attributeType = event.liveActivityAttributeType {
+                let updateToken = LiveActivity.UpdateToken(attributeType: attributeType, firstIssued: event.timestamp, token: token)
+                stateManager.updateTokenStore.set(updateToken, id: liveActivityID)
                 runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
             } else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to create a shared state for Live Activity update event (\(event.id.uuidString)) because a valid Live Activity attribute type could not be found in the event.")
@@ -300,6 +297,13 @@ public class Messaging: NSObject, Extension {
             guard let origin = event.liveActivityOrigin else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity start event (\(event.id.uuidString)) because a valid 'origin' could not be found in the event.")
                 return
+            }
+
+            if let channelID = event.liveActivityChannelID,
+               !channelID.isEmpty,
+               let attributeType = event.liveActivityAttributeType {
+                stateManager.channelActivityStore.set(.init(attributeType: attributeType, startedAt: event.timestamp), id: channelID)
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
             }
 
             sendLiveActivityStart(channelID: event.liveActivityChannelID, liveActivityID: event.liveActivityID, origin: origin, event: event)
@@ -321,14 +325,18 @@ public class Messaging: NSObject, Extension {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity state event (\(event.id.uuidString)) is not 'ended' or 'dismissed'. Skipping.")
                 return
             }
-            guard let liveActivityID = event.liveActivityID else {
-                Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity state event (\(event.id.uuidString)) does not have a Live Activity ID. Skipping.")
+
+            // At this point the Live Activity has reached a terminal state (.ended or .dismissed)
+            // Clean up entry in respective store, depending on which ID type is present
+            if let liveActivityID = event.liveActivityID {
+                stateManager.updateTokenStore.remove(id: liveActivityID)
+            } else if let channelID = event.liveActivityChannelID {
+                stateManager.channelActivityStore.remove(id: channelID)
+            } else {
+                // If neither are present, exit without publishing a new shared state
                 return
             }
 
-            // At this point the Live Activity has reached a terminal state (.ended or .dismissed)
-            // Remove its update token and publish a refreshed shared state
-            stateManager.updateTokenStore.remove(attribute: attributeType, id: liveActivityID)
             runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
         }
 
@@ -345,7 +353,6 @@ public class Messaging: NSObject, Extension {
 
         // handle live activity push-to-start token event
         if event.isLiveActivityPushToStartTokenEvent {
-            // Extract token from event
             guard let token = event.liveActivityPushToStartToken, !token.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event or token is empty.")
                 return
@@ -356,8 +363,8 @@ public class Messaging: NSObject, Extension {
             }
 
             // Update the push to start token store and update the Messaging shared state.
-            let liveActivityToken = LiveActivity.Token(token: token, tokenFirstIssued: event.timestamp)
-            stateManager.pushToStartTokenStore.set(liveActivityToken, attribute: attributeType)
+            let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
+            stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
             runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
             // Get all current push to start tokens to send to profile
@@ -368,7 +375,7 @@ public class Messaging: NSObject, Extension {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
                 return
             }
-            sendLiveActivityPushToStartTokens(ecid: ecid, tokensMap: tokenMap, event: event)
+            sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
         }
 
         // handle push interaction event
