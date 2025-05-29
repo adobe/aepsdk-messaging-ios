@@ -54,13 +54,13 @@ class TokenCollector: NSObject ,ObservableObject, Extension {
         if (event.data?["stateowner"] as! String == "com.adobe.messaging") {
             let messagingState = runtime.getSharedState(extensionName: "com.adobe.messaging", event: nil, barrier: false)?.value
             
-            // Extract push-to-start tokens from the messaging state
+            // Extract push-to-start tokens from the new messaging state structure
             if let sharedState = messagingState,
-               let pushToStartTokens = sharedState["liveActivity.pushToStartTokens"] as? [String: Any],
-               let tokens = pushToStartTokens["tokens"] as? [String: Any] {
+               let liveActivity = sharedState["liveActivity"] as? [String: Any],
+               let pushToStartTokens = liveActivity["pushToStartTokens"] as? [String: Any] {
                 
                 // Extract GameScore token
-                if let gameScoreToken = tokens["GameScoreLiveActivityAttributes"] as? [String: Any],
+                if let gameScoreToken = pushToStartTokens["GameScoreLiveActivityAttributes"] as? [String: Any],
                    let token = gameScoreToken["token"] as? String {
                     DispatchQueue.main.async {
                         TokenCollector.gameScorePushToStartToken = token
@@ -69,7 +69,7 @@ class TokenCollector: NSObject ,ObservableObject, Extension {
                 }
                 
                 // Extract AirplaneTracking token
-                if let airplaneToken = tokens["AirplaneTrackingAttributes"] as? [String: Any],
+                if let airplaneToken = pushToStartTokens["AirplaneTrackingAttributes"] as? [String: Any],
                    let token = airplaneToken["token"] as? String {
                     DispatchQueue.main.async {
                         TokenCollector.airplaneTrackingPushToStartToken = token
@@ -78,7 +78,7 @@ class TokenCollector: NSObject ,ObservableObject, Extension {
                 }
                 
                 // Extract FoodDelivery token
-                if let foodDeliveryToken = tokens["FoodDeliveryLiveActivityAttributes"] as? [String: Any],
+                if let foodDeliveryToken = pushToStartTokens["FoodDeliveryLiveActivityAttributes"] as? [String: Any],
                    let token = foodDeliveryToken["token"] as? String {
                     DispatchQueue.main.async {
                         TokenCollector.foodDeliveryPushToStartToken = token
