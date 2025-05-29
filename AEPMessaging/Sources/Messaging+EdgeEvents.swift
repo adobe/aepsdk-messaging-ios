@@ -181,7 +181,7 @@ extension Messaging {
         ]
 
         let pushTokenEdgeEvent = event.createChainedEvent(
-            name: MessagingConstants.Event.Name.LIVE_ACTIVITY_PUSH_TO_START_EDGE,
+            name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START_EDGE,
             type: EventType.edge,
             source: EventSource.requestContent,
             data: eventData
@@ -210,7 +210,7 @@ extension Messaging {
         ]
 
         let updateTokenEdgeEvent = event.createChainedEvent(
-            name: MessagingConstants.Event.Name.LIVE_ACTIVITY_UPDATE_TOKEN_EDGE,
+            name: MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN_EDGE,
             type: EventType.edge,
             source: EventSource.requestContent,
             data: xdmEventData
@@ -255,7 +255,7 @@ extension Messaging {
         ]
 
         let liveActivityStartEdgeEvent = event.createChainedEvent(
-            name: MessagingConstants.Event.Name.LIVE_ACTIVITY_START,
+            name: MessagingConstants.Event.Name.LiveActivity.START,
             type: EventType.edge,
             source: EventSource.requestContent,
             data: xdmEventData

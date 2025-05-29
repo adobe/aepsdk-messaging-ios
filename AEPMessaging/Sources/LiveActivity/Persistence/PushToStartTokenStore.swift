@@ -15,7 +15,7 @@ import AEPServices
 final class PushToStartTokenStore: PersistenceStoreBase<LiveActivity.PushToStartTokenMap> {
     convenience init() {
         self.init(
-            storeKey: MessagingConstants.NamedCollectionKeys.LIVE_ACTIVITY_PUSH_TO_START_TOKENS,
+            storeKey: MessagingConstants.NamedCollectionKeys.LiveActivity.PUSH_TO_START_TOKENS,
             customEquivalence: { old, new in
                 // Equals for push to start tokens ignores the timestamp.
                 old.token == new.token
