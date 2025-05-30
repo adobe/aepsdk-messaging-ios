@@ -248,7 +248,7 @@
 		B61BD8E52DA466F9007FE12E /* FoodDeliveryLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D82DA466F9007FE12E /* FoodDeliveryLiveActivityAttributes.swift */; };
 		B61BD8E62DA466F9007FE12E /* AirplaneTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D72DA466F9007FE12E /* AirplaneTrackingAttributes.swift */; };
 		B61BD8E82DA4670C007FE12E /* GameScoreLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D92DA466F9007FE12E /* GameScoreLiveActivityAttributes.swift */; };
-		B61BD9152DA4A2AE007FE12E /* PushTokenCollectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD9142DA4A2AE007FE12E /* PushTokenCollectionManager.swift */; };
+		B61BD9152DA4A2AE007FE12E /* TokenCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD9142DA4A2AE007FE12E /* TokenCollector.swift */; };
 		B61BD9172DA4A779007FE12E /* LiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD9162DA4A779007FE12E /* LiveActivityView.swift */; };
 		B61BD91D2DA4A96F007FE12E /* AirplaneTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D72DA466F9007FE12E /* AirplaneTrackingAttributes.swift */; };
 		B61BD91E2DA4A96F007FE12E /* FoodDeliveryLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61BD8D82DA466F9007FE12E /* FoodDeliveryLiveActivityAttributes.swift */; };
@@ -271,6 +271,8 @@
 		B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
 		B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */; };
 		B6F795E22DD30238004478B4 /* LiveActivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F795E12DD30238004478B4 /* LiveActivityTests.swift */; };
+		B6F796552DD41330004478B4 /* AEPMessagingLiveActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B61BDACE2DA5E861007FE12E /* AEPMessagingLiveActivity.framework */; };
+		B6F796562DD41330004478B4 /* AEPMessagingLiveActivity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B61BDACE2DA5E861007FE12E /* AEPMessagingLiveActivity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA72CC2089A00C35C64 /* DismissButtonStyle.swift */; };
 		B6F7CBCA2CC2089A00C35C64 /* AEPImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA92CC2089A00C35C64 /* AEPImage.swift */; };
 		B6F7CBCB2CC2089A00C35C64 /* AEPVStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBB12CC2089A00C35C64 /* AEPVStackView.swift */; };
@@ -455,6 +457,13 @@
 			remoteGlobalIDString = 2469A6012759999E00E56457;
 			remoteInfo = FunctionalTestApp;
 		};
+		B6F796572DD41330004478B4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B61BDACD2DA5E861007FE12E;
+			remoteInfo = AEPMessagingLiveActivity;
+		};
 		B6F7CCA92CCA165B00C35C64 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 922FFCE7251B2BBA00BCE010 /* Project object */;
@@ -529,6 +538,17 @@
 				B61BD8B92DA4656B007FE12E /* WidgetMessagingDemoAppSwiftUI.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6F796592DD41330004478B4 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				B6F796562DD41330004478B4 /* AEPMessagingLiveActivity.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -774,7 +794,7 @@
 		B61BD8DC2DA466F9007FE12E /* CommonLiveActivityViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonLiveActivityViews.swift; sourceTree = "<group>"; };
 		B61BD8DD2DA466F9007FE12E /* FoodDeliveryLiveActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodDeliveryLiveActivityView.swift; sourceTree = "<group>"; };
 		B61BD8DE2DA466F9007FE12E /* GameScoreLiveActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScoreLiveActivityView.swift; sourceTree = "<group>"; };
-		B61BD9142DA4A2AE007FE12E /* PushTokenCollectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTokenCollectionManager.swift; sourceTree = "<group>"; };
+		B61BD9142DA4A2AE007FE12E /* TokenCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCollector.swift; sourceTree = "<group>"; };
 		B61BD9162DA4A779007FE12E /* LiveActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityView.swift; sourceTree = "<group>"; };
 		B61BD9C12DA4BD16007FE12E /* AirplaneLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirplaneLiveActivity.swift; sourceTree = "<group>"; };
 		B61BD9C32DA4BD16007FE12E /* FoodDeliveryLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodDeliveryLiveActivity.swift; sourceTree = "<group>"; };
@@ -976,6 +996,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B61BD8AC2DA4656A007FE12E /* SwiftUI.framework in Frameworks */,
+				B6F796552DD41330004478B4 /* AEPMessagingLiveActivity.framework in Frameworks */,
 				B61BD8AA2DA4656A007FE12E /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1440,7 +1461,7 @@
 		B61BD8D62DA466BB007FE12E /* LiveActivity */ = {
 			isa = PBXGroup;
 			children = (
-				B61BD9142DA4A2AE007FE12E /* PushTokenCollectionManager.swift */,
+				B61BD9142DA4A2AE007FE12E /* TokenCollector.swift */,
 				B61BD8DA2DA466F9007FE12E /* Attributes */,
 				B61BD8DF2DA466F9007FE12E /* Pages */,
 			);
@@ -2057,10 +2078,12 @@
 				B61BD8A42DA4656A007FE12E /* Sources */,
 				B61BD8A52DA4656A007FE12E /* Frameworks */,
 				B61BD8A62DA4656A007FE12E /* Resources */,
+				B6F796592DD41330004478B4 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B6F796582DD41330004478B4 /* PBXTargetDependency */,
 			);
 			name = WidgetMessagingDemoAppSwiftUI;
 			productName = WidgetMessagingDemoAppSwiftUIExtension;
@@ -2374,13 +2397,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2483,13 +2502,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2526,13 +2541,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2613,13 +2624,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2634,13 +2641,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2655,13 +2658,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2676,13 +2675,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2719,13 +2714,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2740,13 +2731,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2789,7 +2776,7 @@
 				B6F7CC972CC873AB00C35C64 /* AppDelegate.swift in Sources */,
 				092A77F22A757CB40026D325 /* CodeBasedView.swift in Sources */,
 				B61BD9172DA4A779007FE12E /* LiveActivityView.swift in Sources */,
-				B61BD9152DA4A2AE007FE12E /* PushTokenCollectionManager.swift in Sources */,
+				B61BD9152DA4A2AE007FE12E /* TokenCollector.swift in Sources */,
 				0969D63C2A7A0EF600A00BF7 /* CustomTextView.swift in Sources */,
 				B6F7CC952CC80F4800C35C64 /* Constants.swift in Sources */,
 				091881FF2A16D7A200615481 /* PushView.swift in Sources */,
@@ -3201,6 +3188,11 @@
 			isa = PBXTargetDependency;
 			target = 2469A6012759999E00E56457 /* FunctionalTestApp */;
 			targetProxy = B6D6AE912BA8C48100F0E975 /* PBXContainerItemProxy */;
+		};
+		B6F796582DD41330004478B4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B61BDACD2DA5E861007FE12E /* AEPMessagingLiveActivity */;
+			targetProxy = B6F796572DD41330004478B4 /* PBXContainerItemProxy */;
 		};
 		B6F7CCAA2CCA165B00C35C64 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
