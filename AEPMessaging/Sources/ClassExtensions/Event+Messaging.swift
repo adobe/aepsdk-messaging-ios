@@ -207,12 +207,6 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String
     }
 
-    // MARK: - resetIdentities Event
-
-    var isGenericIdentityResetIdentitiesEvent: Bool {
-        type == EventType.genericIdentity && source == EventSource.requestReset
-    }
-
     // MARK: - Push tracking
 
     var pushTrackingStatus: PushTrackingStatus? {
