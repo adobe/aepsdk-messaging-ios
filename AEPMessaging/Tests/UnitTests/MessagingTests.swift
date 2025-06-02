@@ -75,9 +75,9 @@ class MessagingTests: XCTestCase {
         XCTAssertNoThrow(MobileCore.registerExtensions([Messaging.self]))
     }
     
-    /// validate that 8 listeners are registered onRegister
-    func testOnRegistered_eightListenersAreRegistered() {
-        XCTAssertEqual(mockRuntime.listeners.count, 8)
+    /// validate that 9 listeners are registered onRegister
+    func testOnRegistered_nineListenersAreRegistered() {
+        XCTAssertEqual(mockRuntime.listeners.count, 9)
     }
     
     func testOnUnregisteredCallable() throws {
@@ -1361,5 +1361,29 @@ class MessagingTests: XCTestCase {
         let pushTokenEventData = event?.data?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
         let pushNotificationDetails = pushTokenEventData?[MessagingConstants.XDM.Push.PUSH_NOTIFICATION_DETAILS] as? [[String: Any]]
         return pushNotificationDetails?.first?[MessagingConstants.XDM.Push.TOKEN] as? String
+    }
+
+    // MARK: - Reset Identities Event Tests
+    
+    func testHandleResetIdentitiesEvent_clearsPushToken() {
+        // setup
+        let messagingState = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN] as [String : Any]
+        mockRuntime.simulateSharedState(for: MessagingConstants.EXTENSION_NAME, data: (value: messagingState, status: SharedStateStatus.set))
+        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
+
+        let event = Event(name: "Reset Identities",
+                         type: EventType.genericIdentity,
+                         source: EventSource.requestReset,
+                         data: nil)
+        
+        // test
+        mockRuntime.simulateComingEvents(event)
+        
+        // verify
+        XCTAssertNil(messagingProperties.pushIdentifier)
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
+        let sharedState = mockRuntime.createdSharedStates.last
+        XCTAssertNotNil(sharedState as Any?)
+        XCTAssertEqual(nil, mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as? String)
     }
 }
