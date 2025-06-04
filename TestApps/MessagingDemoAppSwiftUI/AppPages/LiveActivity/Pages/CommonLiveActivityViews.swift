@@ -108,8 +108,9 @@ struct PushToStartSection<Attributes: ActivityAttributes>: View {
                 } label: {
                     Image(systemName: "doc.on.doc")
                 }
+                .padding()
                 .foregroundColor(pushToStartToken.isEmpty ? .gray : .blue)
-                .disabled(pushToStartToken.isEmpty)
+//                .disabled(pushToStartToken.isEmpty)
             }
         }
         .padding(.horizontal)

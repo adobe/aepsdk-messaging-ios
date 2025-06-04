@@ -14,6 +14,7 @@ import AEPCore
 import AEPServices
 import CoreGraphics
 import Foundation
+import AEPMessagingLiveActivity
 
 extension Event {
     // MARK: - Event History handling
@@ -347,7 +348,11 @@ extension Event {
     }
 
     var liveActivityOrigin: String? {
-        data?[MessagingConstants.XDM.LiveActivity.ORIGIN] as? String
+        if #available(iOS 16.1, *) {
+            (data?[MessagingConstants.XDM.LiveActivity.ORIGIN] as? LiveActivityOrigin)?.rawValue
+        } else {
+            nil
+        }
     }
 
     var liveActivityState: String? {

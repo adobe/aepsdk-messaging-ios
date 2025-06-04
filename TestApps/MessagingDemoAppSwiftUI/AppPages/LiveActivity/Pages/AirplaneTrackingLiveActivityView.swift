@@ -328,7 +328,11 @@ private extension AirplaneTrackingLiveActivityView {
         }
         
         // Example attribute + initial content state
-        let attributes = AirplaneTrackingAttributes(liveActivityData: LiveActivityData(liveActivityID: trimmedLiveActivityID), arrivalAirport: "SFO", departureAirport: "MIA", arrivalTerminal: "Terminal 2")
+        let attributes = AirplaneTrackingAttributes(
+            liveActivityData: LiveActivityData(liveActivityID: trimmedLiveActivityID),
+            arrivalAirport: "SFO",
+            departureAirport: "MIA",
+            arrivalTerminal: "Terminal 2")
         let initialContentState = AirplaneTrackingAttributes.ContentState(journeyProgress: 0)
         
         do {

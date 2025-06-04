@@ -121,38 +121,37 @@ public extension Messaging {
                 // Dispatch Live Activity start tracking event
                 dispatchStartEvent(activity: activity)
 
-                // Use task group to manage state and push token updates concurrently.
-                await withTaskGroup(of: Void.self) { group in
-                    // Listen for content updates when in DEBUG mode.
-                    #if DEBUG
-                        if #available(iOS 16.2, *) {
-                            for await update in activity.contentUpdates {
-                                dispatchContentStateUpdateEvent(activity: activity, contentState: update.state)
-                            }
-                        } else {
-                            Log.debug(label: MessagingConstants.LOG_TAG,
-                                      "Not handling Live Activity content updates for type \(attributeType). " +
-                                          "iOS 16.2 or later is required.")
-                        }
-                    #endif
-
-                    // Listen for state updates.
-                    group.addTask {
-                        for await newState in activity.activityStateUpdates {
-                            if newState == .dismissed || newState == .ended {
-                                dispatchStateUpdateEvent(activity: activity, state: newState)
-                            }
+                // Listen for content updates when in DEBUG mode.
+                #if DEBUG
+                if #available(iOS 16.2, *) {
+                    Task {
+                        for await update in activity.contentUpdates {
+                            dispatchContentStateUpdateEvent(activity: activity, contentState: update.state)
                         }
                     }
+                } else {
+                    Log.debug(label: MessagingConstants.LOG_TAG,
+                              "Not handling Live Activity content updates for type \(attributeType). " +
+                              "iOS 16.2 or later is required.")
+                }
+                #endif
 
-                    // Listen for push token updates for this activity.
-                    // Live Activities Broadcast via channels do not use this token.
-                    group.addTask {
-                        for await newTokenData in activity.pushTokenUpdates {
-                            let newTokenHex = newTokenData.hexEncodedString
-                            Log.debug(label: MessagingConstants.LOG_TAG, "Update token received for activity \(activity.id) (\(attributeType)): \(newTokenHex)")
-                            dispatchUpdateTokenEvent(activity: activity, token: newTokenHex)
+                // Listen for state updates.
+                Task {
+                    for await newState in activity.activityStateUpdates {
+                        if newState == .dismissed || newState == .ended {
+                            dispatchStateUpdateEvent(activity: activity, state: newState)
                         }
+                    }
+                }
+
+                // Listen for push token updates for this activity.
+                // Live Activities Broadcast via channels do not use this token.
+                Task {
+                    for await newTokenData in activity.pushTokenUpdates {
+                        let newTokenHex = newTokenData.hexEncodedString
+                        Log.debug(label: MessagingConstants.LOG_TAG, "Update token received for activity \(activity.id) (\(attributeType)): \(newTokenHex)")
+                        dispatchUpdateTokenEvent(activity: activity, token: newTokenHex)
                     }
                 }
             }
@@ -175,7 +174,7 @@ public extension Messaging {
                   Type: \(attributeType)
                   """)
 
-        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) for type (\(attributeType))"
+        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (\(attributeType))"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
@@ -217,7 +216,7 @@ public extension Messaging {
                   Token: \(token)
                   """)
 
-        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) for type (\(attributeType))"
+        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN)"
 
         let event = Event(name: eventName,
                           type: EventType.messaging,
@@ -260,7 +259,7 @@ public extension Messaging {
         // Merge in the single identifier (liveActivityID or channelID)
         data.merge(liveActivityIdentifierData) { current, _ in current }
 
-        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.START) for type (\(attributeType))"
+        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.START)"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
@@ -302,7 +301,7 @@ public extension Messaging {
         // Merge in the single identifier (liveActivityID or channelID)
         data.merge(liveActivityIdentifierData) { current, _ in current }
 
-        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.STATE): \(state) for type (\(attributeType))"
+        let eventName = "\(MessagingConstants.Event.Name.LIVE_ACTIVITY) \(state)"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
@@ -353,7 +352,7 @@ public extension Messaging {
         // Merge in the single identifier (liveActivityID or channelID)
         data.merge(liveActivityIdentifierData) { current, _ in current }
 
-        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.CONTENT_STATE): update for type (\(attributeType))"
+        let eventName = MessagingConstants.Event.Name.LiveActivity.CONTENT_STATE
         let event = Event(
             name: eventName,
             type: EventType.genericData,
