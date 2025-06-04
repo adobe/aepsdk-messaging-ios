@@ -339,7 +339,7 @@ public class Messaging: NSObject, Extension {
     /// Handles the reset identities event by clearing the push identifier from persistence and shared state.
     /// - Parameter event: the `Event` that triggered the reset identities event
     private func handleResetIdentitiesEvent(_ event: Event) {
-        Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event.")
+        Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier.")
         // remove the push token from the shared state
         createMessagingSharedState(token: nil, event: event)
         // clear the push identifier from persistence
