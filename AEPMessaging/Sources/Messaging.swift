@@ -141,6 +141,11 @@ public class Messaging: NSObject, Extension {
                          source: EventSource.requestContent,
                          listener: handleProcessEvent)
 
+        // register listener for reset identities event
+        registerListener(type: EventType.genericIdentity,
+                         source: EventSource.requestReset,
+                         listener: handleResetIdentitiesEvent)
+
         // register listener for Messaging request content event
         registerListener(type: EventType.messaging,
                          source: EventSource.requestContent,
@@ -285,7 +290,7 @@ public class Messaging: NSObject, Extension {
             }
 
             // If the push token is valid update the shared state.
-            runtime.createSharedState(data: [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token], event: event)
+            createMessagingSharedState(token: token, event: event)
 
             // get identityMap from the edge identity xdm shared state
             guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
@@ -317,6 +322,28 @@ public class Messaging: NSObject, Extension {
             handleTrackingInfo(event: event)
             return
         }
+    }
+
+    /// Creates a shared state for the messaging extension with the provided push token.
+    /// - Parameters:
+    ///   - token: the push identifier to be set in the shared state
+    ///   - event: the `Event` that triggered the creation of the shared state
+    private func createMessagingSharedState(token: String?, event: Event) {
+        let state: [String: Any] = token?.isEmpty == false ?
+            [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token!] :
+            [:]
+
+        runtime.createSharedState(data: state, event: event)
+    }
+
+    /// Handles the reset identities event by clearing the push identifier from persistence and shared state.
+    /// - Parameter event: the `Event` that triggered the reset identities event
+    private func handleResetIdentitiesEvent(_ event: Event) {
+        Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier.")
+        // remove the push token from the shared state
+        createMessagingSharedState(token: nil, event: event)
+        // clear the push identifier from persistence
+        messagingProperties.pushIdentifier = nil
     }
 
     /// Checks if the push identifier can be synced
