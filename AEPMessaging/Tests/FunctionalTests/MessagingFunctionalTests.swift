@@ -26,6 +26,7 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
         mockRuntime.ignoreEvent(type: EventType.rulesEngine, source: EventSource.requestReset)
         messaging = Messaging(runtime: mockRuntime)
         messaging.onRegistered()
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
     }
 
     // MARK: - Handle Notification Response
