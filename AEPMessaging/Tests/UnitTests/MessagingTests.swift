@@ -55,7 +55,7 @@ class MessagingTests: XCTestCase {
         
         messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache)
         messaging.onRegistered()
-        
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
         mockNetworkService = MockNetworkService()
         ServiceProvider.shared.networkService = mockNetworkService!
         
