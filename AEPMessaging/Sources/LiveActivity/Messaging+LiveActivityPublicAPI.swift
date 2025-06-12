@@ -123,17 +123,17 @@ public extension Messaging {
 
                 // Listen for content updates when in DEBUG mode.
                 #if DEBUG
-                if #available(iOS 16.2, *) {
-                    Task {
-                        for await update in activity.contentUpdates {
-                            dispatchContentStateUpdateEvent(activity: activity, contentState: update.state)
+                    if #available(iOS 16.2, *) {
+                        Task {
+                            for await update in activity.contentUpdates {
+                                dispatchContentStateUpdateEvent(activity: activity, contentState: update.state)
+                            }
                         }
+                    } else {
+                        Log.debug(label: MessagingConstants.LOG_TAG,
+                                  "Not handling Live Activity content updates for type \(attributeType). " +
+                                      "iOS 16.2 or later is required.")
                     }
-                } else {
-                    Log.debug(label: MessagingConstants.LOG_TAG,
-                              "Not handling Live Activity content updates for type \(attributeType). " +
-                              "iOS 16.2 or later is required.")
-                }
                 #endif
 
                 // Listen for state updates.

@@ -365,7 +365,7 @@ public class Messaging: NSObject, Extension {
 
             // Update the push to start token store and update the Messaging shared state.
             let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
-            let didChange =  stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
+            let didChange = stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
             if !didChange {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Skipping publishing push-to-start token because unchanged: \(pushToStartToken)")
                 return

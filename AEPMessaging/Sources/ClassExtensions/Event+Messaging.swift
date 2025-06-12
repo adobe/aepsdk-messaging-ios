@@ -11,10 +11,10 @@
   */
 
 import AEPCore
+import AEPMessagingLiveActivity
 import AEPServices
 import CoreGraphics
 import Foundation
-import AEPMessagingLiveActivity
 
 extension Event {
     // MARK: - Event History handling
