@@ -27,6 +27,8 @@ enum TemplateBuilder {
         switch schemaData.templateType {
         case .smallImage:
             return SmallImageTemplate(schemaData, customizer)
+        case .largeImage:
+            return LargeImageTemplate(schemaData, customizer)
         case .unknown:
             // Currently unsupported template types
             return nil
