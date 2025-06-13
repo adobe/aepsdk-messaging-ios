@@ -52,7 +52,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         FileManager.default.clearDirectory()
 
         // hub shared state update for 1 extension versions (InstrumentedExtension (registered in FunctionalTestBase), IdentityEdge, Edge Identity, Config
-        setExpectationEvent(type: EventType.hub, source: EventSource.sharedState, expectedCount: 3)
+        setExpectationEvent(type: EventType.hub, source: EventSource.sharedState, expectedCount: 4)
         
         // expectations for update config request&response events
         setExpectationEvent(type: EventType.configuration, source: EventSource.requestContent, expectedCount: 1)

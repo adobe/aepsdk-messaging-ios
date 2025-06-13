@@ -11,6 +11,7 @@
   */
 
 import AEPCore
+import AEPMessagingLiveActivity
 import AEPServices
 import CoreGraphics
 import Foundation
@@ -347,7 +348,11 @@ extension Event {
     }
 
     var liveActivityOrigin: String? {
-        data?[MessagingConstants.XDM.LiveActivity.ORIGIN] as? String
+        if #available(iOS 16.1, *) {
+            (data?[MessagingConstants.XDM.LiveActivity.ORIGIN] as? LiveActivityOrigin)?.rawValue
+        } else {
+            nil
+        }
     }
 
     var liveActivityState: String? {

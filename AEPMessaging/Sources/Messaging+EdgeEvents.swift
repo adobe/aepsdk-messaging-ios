@@ -255,7 +255,7 @@ extension Messaging {
         ]
 
         let liveActivityStartEdgeEvent = event.createChainedEvent(
-            name: MessagingConstants.Event.Name.LiveActivity.START,
+            name: MessagingConstants.Event.Name.LiveActivity.START_EDGE,
             type: EventType.edge,
             source: EventSource.requestContent,
             data: xdmEventData

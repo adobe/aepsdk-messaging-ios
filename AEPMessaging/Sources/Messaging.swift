@@ -183,6 +183,7 @@ public class Messaging: NSObject, Extension {
             return true
         }
         eventsQueue.start()
+        runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: nil)
     }
 
     public func onUnregistered() {
@@ -364,7 +365,11 @@ public class Messaging: NSObject, Extension {
 
             // Update the push to start token store and update the Messaging shared state.
             let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
-            stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
+            let didChange = stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
+            if !didChange {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping publishing push-to-start token because unchanged: \(pushToStartToken)")
+                return
+            }
             runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
             // Get all current push to start tokens to send to profile
