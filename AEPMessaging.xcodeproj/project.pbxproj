@@ -199,7 +199,7 @@
 		56B08B522365B6DC2B556B40 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */; };
 		754F49E92DFCA9EF002601E9 /* LargeImageTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754F49E82DFCA9EA002601E9 /* LargeImageTemplate.swift */; };
 		754F49EB2E007FD4002601E9 /* LargeImageTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = 754F49EA2E007FC1002601E9 /* LargeImageTemplate.json */; };
-		754F49ED2E00828D002601E9 /* LargeImageTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754F49EC2E008285002601E9 /* LargeImageTemplateTests.swift */; };
+		754F49EE2E008B7A002601E9 /* LargeImageTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754F49EC2E008285002601E9 /* LargeImageTemplateTests.swift */; };
 		75B4333CC0B4F5BFAC707055 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */; };
 		899E1724E9B5AD078B0710E5 /* Pods_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA09063EA0248339C5B2C535 /* Pods_IntegrationTests.framework */; };
 		8C4723D49BD3F1EB4060FEAE /* Pods_FunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB9F1A791A757B3C68D23B9D /* Pods_FunctionalTestApp.framework */; };
@@ -1394,7 +1394,6 @@
 		B6F7CBEB2CC2EA8500C35C64 /* UITests */ = {
 			isa = PBXGroup;
 			children = (
-				754F49EC2E008285002601E9 /* LargeImageTemplateTests.swift */,
 				B6F7CBEC2CC2EAF500C35C64 /* AEPButtonTests.swift */,
 				B6F7CBED2CC2EAF500C35C64 /* AEPDismissButtonTests.swift */,
 				B6F7CBEE2CC2EAF500C35C64 /* AEPImageTests.swift */,
@@ -1524,6 +1523,7 @@
 				B6F7CCB22CCA186600C35C64 /* ContentCardTrackingTest.swift */,
 				B6F7CCB32CCA186600C35C64 /* GetContentCardUITest.swift */,
 				B6F7CCB82CCA186600C35C64 /* SmallImageTemplateTest.swift */,
+				754F49EC2E008285002601E9 /* LargeImageTemplateTests.swift */,
 			);
 			path = IntegrationTests;
 			sourceTree = "<group>";
@@ -2558,7 +2558,6 @@
 				24CA4BC12B6178EE00D16369 /* InAppSchemaDataTests.swift in Sources */,
 				24CA4BC72B617A2500D16369 /* HtmlContentSchemaDataTests.swift in Sources */,
 				B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */,
-				754F49ED2E00828D002601E9 /* LargeImageTemplateTests.swift in Sources */,
 				243EA6C92733258600195945 /* Dictionary+MessagingTests.swift in Sources */,
 				2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */,
 				243EA6DA2739D47500195945 /* MockMessaging.swift in Sources */,
@@ -2642,6 +2641,7 @@
 				B6F7CCB92CCA186600C35C64 /* ContentCardTrackingTest.swift in Sources */,
 				B6F7CCBA2CCA186600C35C64 /* SmallImageCustomizer.swift in Sources */,
 				B6F7CCBB2CCA186600C35C64 /* MockNetworkService.swift in Sources */,
+				754F49EE2E008B7A002601E9 /* LargeImageTemplateTests.swift in Sources */,
 				B6F7CCBC2CCA186600C35C64 /* IntegrationTestBase.swift in Sources */,
 				B6F7CCBD2CCA186600C35C64 /* ContentCardEventListeningTest.swift in Sources */,
 				B6F7CCBE2CCA186600C35C64 /* GetContentCardUITest.swift in Sources */,

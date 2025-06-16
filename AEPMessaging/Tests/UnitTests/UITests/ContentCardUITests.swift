@@ -39,6 +39,21 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         XCTAssertNil(contentCardUI?.listener)
     }
     
+    func test_contentCardUI_createInstance_largeImage_happy() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "LargeImageTemplate")
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify
+        XCTAssertNotNil(contentCardUI)
+        XCTAssertEqual(contentCardUI?.template.templateType, .largeImage)
+        XCTAssertEqual(contentCardUI?.proposition, proposition)
+        XCTAssertNotNil(contentCardUI?.view)
+        XCTAssertNil(contentCardUI?.listener)
+    }
+    
     func test_contentCardUI_createInstance_priority() throws {
         // setup
         let proposition =  ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate", priority: 37)
@@ -48,6 +63,17 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         
         // verify        
         XCTAssertEqual(37, contentCardUI?.priority)
+    }
+    
+    func test_contentCardUI_createInstance_largeImage_priority() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "LargeImageTemplate", priority: 42)
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify        
+        XCTAssertEqual(42, contentCardUI?.priority)
     }
     
     func test_contentCardUI_verifyMeta() throws {
@@ -61,6 +87,19 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         let meta = contentCardUI?.meta
         XCTAssertNotNil(meta)
         XCTAssertEqual(meta?["customKey"] as? String, "customValue")
+    }
+    
+    func test_contentCardUI_verifyLargeImageMeta() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "LargeImageTemplate")
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify
+        let meta = contentCardUI?.meta
+        XCTAssertNotNil(meta)
+        XCTAssertNotNil(meta?["adb_template"])
     }
     
     func test_contentCardUI_InvalidProposition() throws {

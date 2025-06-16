@@ -30,6 +30,18 @@ class TemplateBuilderTests: XCTestCase {
         XCTAssertEqual(template?.templateType, .smallImage)
     }
     
+    func test_buildTemplate_largeImageTemplate() {
+        // setup
+        let schema = ContentCardTestUtil.createContentCardSchemaData(fromFile: "LargeImageTemplate")
+        
+        // test
+        let template = TemplateBuilder.buildTemplate(from: schema, customizer: nil)
+        
+        // verify
+        XCTAssertNotNil(template)
+        XCTAssertEqual(template?.templateType, .largeImage)
+    }
+    
     func test_buildTemplate_invalidTemplate() {
         // setup
         let schema = ContentCardTestUtil.createContentCardSchemaData(fromFile: "InvalidTemplate")
