@@ -24,8 +24,8 @@ enum MessagingConstants {
     static let PATH_SEPARATOR = "/"
     static let DATA_STORE_NAME = EXTENSION_NAME
     static let IGNORE_PUSH_SYNC_TIMEOUT_SECONDS = TimeInterval(1) // 1 second
-    static let FORCE_SYNC_MESSAGE = "Push registration force sync is enabled. The push token will be synced."
-    static let NEW_PUSH_TOKEN_MESSAGE = "Push token is new or changed. The push token will be synced."
+    static let OPTIMIZE_PUSH_SYNC_ENABLED = "Push token sync optimization is enabled"
+    static let OPTIMIZE_PUSH_SYNC_DISABLED_SYNC_WITHIN_TIMEOUT = "Push registration sync optimization is disabled but the sync is within the 1 second timeout"
 
     enum ContentTypes {
         static let APPLICATION_JSON = "application/json"
@@ -303,8 +303,8 @@ enum MessagingConstants {
             // config for whether to useSandbox or not
             static let USE_SANDBOX = "messaging.useSandbox"
 
-            // config for whether to force the push identifier sync to be sent
-            static let PUSH_FORCE_SYNC = "messaging.pushForceSync"
+            // config for disabling the push token sync optimization
+            static let OPTIMIZE_PUSH_SYNC = "messaging.optimizePushSync"
         }
 
         enum EdgeIdentity {
