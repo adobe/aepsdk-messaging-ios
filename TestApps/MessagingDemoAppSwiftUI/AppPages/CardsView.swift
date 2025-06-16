@@ -59,7 +59,6 @@ struct CardsView: View, ContentCardUIEventListening {
                 refreshCards()
             }
         }
-        
     }
     
     func refreshCards() {
@@ -100,6 +99,32 @@ struct CardsView: View, ContentCardUIEventListening {
 }
 
 class CardCustomizer : ContentCardCustomizing {
+    func customize(template: AEPMessaging.LargeImageTemplate) {
+        // customize UI elements
+        template.title.textColor = .primary
+        template.title.font = .subheadline
+        template.body?.textColor = .secondary
+        template.body?.font = .caption
+        
+        template.buttons?.first?.text.font = .system(size: 13)
+        template.buttons?.first?.text.textColor = .primary
+        template.buttons?.first?.modifier = AEPViewModifier(ButtonModifier())
+        
+        
+        // customize stack structure
+        template.rootVStack.spacing = 10
+        template.textVStack.alignment = .leading
+        template.textVStack.spacing = 10
+        
+        // add custom modifiers
+        template.buttonHStack.modifier = AEPViewModifier(ButtonHStackModifier())
+        template.rootVStack.modifier = AEPViewModifier(RootVStackModifier())
+        
+        // customize the dismiss buttons
+        template.dismissButton?.image.iconColor = .primary
+        template.dismissButton?.image.iconFont = .system(size: 10)
+    }
+    
     
     func customize(template: SmallImageTemplate) {
         // customize UI elements
@@ -107,8 +132,6 @@ class CardCustomizer : ContentCardCustomizing {
         template.title.font = .subheadline
         template.body?.textColor = .secondary
         template.body?.font = .caption
-        
-        template.image?.modifier = AEPViewModifier(ImageModifier())
         
         template.buttons?.first?.text.font = .system(size: 13)
         template.buttons?.first?.text.textColor = .primary
@@ -127,6 +150,14 @@ class CardCustomizer : ContentCardCustomizing {
         // customize the dismiss buttons
         template.dismissButton?.image.iconColor = .primary
         template.dismissButton?.image.iconFont = .system(size: 10)
+    }
+    
+    struct RootVStackModifier : ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .frame(maxHeight: .infinity, alignment: .leading)
+                .padding()
+        }
     }
     
     struct RootHStackModifier : ViewModifier {
