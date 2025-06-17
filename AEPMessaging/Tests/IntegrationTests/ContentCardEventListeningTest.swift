@@ -66,6 +66,48 @@ class ContentCardEventListeningTest : IntegrationTestBase, ContentCardUIEventLis
         // verify
         #expect(interactEventReceived == true)
     }
+    
+    @Test("large image display event")
+    func largeImageDisplayEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "LargeImageCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? LargeImageTemplate)
+        
+        // test
+        card.eventHandler?.onDisplay()
+        
+        // verify
+        #expect(displayEventReceived == true)
+    }
+    
+    @Test("large image dismiss event")
+    func largeImageDismissEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "LargeImageCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? LargeImageTemplate)
+        
+        // test
+        card.eventHandler?.onDismiss()
+        
+        // verify
+        #expect(dismissEventReceived == true)
+    }
+    
+    @Test("large image interact event")
+    func largeImageInteractEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "LargeImageCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? LargeImageTemplate)
+        
+        // test
+        card.eventHandler?.onInteract(interactionId: "Button Clicked", actionURL: nil)
+        
+        // verify
+        #expect(interactEventReceived == true)
+    }
 
 
     ///**************************************************************

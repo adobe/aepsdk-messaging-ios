@@ -20,6 +20,7 @@ final class ContentCardTemplateTypeTests: XCTestCase {
     func testInitializationFromString() {
         // test known cases
         XCTAssertEqual(ContentCardTemplateType(from: "SmallImage"), .smallImage)
+        XCTAssertEqual(ContentCardTemplateType(from: "LargeImage"), .largeImage)
         
         // test unknown case
         XCTAssertEqual(ContentCardTemplateType(from: "NonExistentType"), .unknown)
@@ -28,6 +29,7 @@ final class ContentCardTemplateTypeTests: XCTestCase {
     func testRawValueInitialization() {
         // test
         XCTAssertEqual(ContentCardTemplateType.smallImage.rawValue, "SmallImage")
+        XCTAssertEqual(ContentCardTemplateType.largeImage.rawValue, "LargeImage")
         XCTAssertEqual(ContentCardTemplateType.unknown.rawValue, "Unknown")
     }
 }

@@ -99,7 +99,7 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         // verify
         let meta = contentCardUI?.meta
         XCTAssertNotNil(meta)
-        XCTAssertNotNil(meta?["adb_template"])
+        XCTAssertEqual(meta?["customKey"] as? String, "customValue")
     }
     
     func test_contentCardUI_InvalidProposition() throws {
@@ -154,6 +154,41 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
     func test_contentCardUI_schemaData_Accessible() throws {
         // setup
         let proposition: Proposition = ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate")
+        
+        // test
+        let card = ContentCardUI.createInstance(with: proposition, customizer: nil, listener: self)
+        
+        // verify
+        XCTAssertNotNil(card?.schemaData)
+    }
+    
+    func test_contentCardUI_largeImage_verifyListenerMethodCalled() throws {
+        // setup
+        let proposition: Proposition = ContentCardTestUtil.createProposition(fromFile: "LargeImageTemplate")
+        displayExpectation = expectation(description: "onDisplay method called")
+        dismissExpectation = expectation(description: "onDismiss method called")
+        interactExpectation = expectation(description: "onInteract method called")
+        
+        // test
+        templateHandler = ContentCardUI.createInstance(with: proposition, customizer: nil, listener: self)
+        templateHandler?.onDisplay()
+        templateHandler?.onDismiss()
+        templateHandler?.onInteract(interactionId: "InteractionId", actionURL: nil)
+
+        // verify
+        // Wait for expectations to be fulfilled
+        waitForExpectations(timeout: 2.0) { error in
+            if let error = error {
+                XCTFail("Expectations were not fulfilled: \(error)")
+            }
+        }
+        
+        XCTAssertNotNil(templateHandler)
+    }
+    
+    func test_contentCardUI_largeImage_schemaData_Accessible() throws {
+        // setup
+        let proposition: Proposition = ContentCardTestUtil.createProposition(fromFile: "LargeImageTemplate")
         
         // test
         let card = ContentCardUI.createInstance(with: proposition, customizer: nil, listener: self)
