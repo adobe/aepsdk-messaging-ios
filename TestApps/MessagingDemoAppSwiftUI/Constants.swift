@@ -15,19 +15,19 @@ import Foundation
 enum Constants {
     // If you change any of the below properties, please uninstall and reinstall the application
     
-    static let APPID = "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development"
+    static let APPID = "3149c49c3910/e2e20a36b6cf/launch-78df58a45342-development"
     
     // Other AppID's
     // "3149c49c3910/b6541e5e6301/launch-f7ac0a320fb3-development"
     // "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development" << com.steveb.iamStagingTester
     // "staging/1b50a869c4a2/9590f35e2dc9/launch-752d0a90822f-development" << com.steveb.priorityTester
     
-    static let isStage = true
+    static let isStage = false
     static let assuranceURL = ""
     
     // Surface Names
     enum SurfaceName {
-        static let CONTENT_CARD = "cardstab"
+        static let CONTENT_CARD = "largeImageCards"
         static let CBE_HTML = "cbehtml"
         static let CBE_JSON = "cbejson"
     }
