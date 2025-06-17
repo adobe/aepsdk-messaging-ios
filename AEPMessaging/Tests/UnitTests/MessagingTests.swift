@@ -1085,12 +1085,12 @@ class MessagingTests: XCTestCase {
             
     // MARK: - Push Token Tests
     
-    func testPushTokenSync_whenTokenMatchesAndForceSyncFalse() {
+    func testPushTokenSync_whenTokenMatches_OptimizePushSyncIsTrue() {
         // setup
         messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
         messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
         messaging.onRegistered()
-        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: false] as [String : Any]
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String : Any]
 
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
 
@@ -1103,12 +1103,12 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
     
-    func testPushTokenSync_whenTokenMatchesAndForceSyncTrue() {
+    func testPushTokenSync_whenTokenMatches_OptimizePushSyncIsFalse() {
         // setup
         messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
         messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
         messaging.onRegistered()
-        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: true] as [String : Any]
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false] as [String : Any]
 
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
 
@@ -1131,7 +1131,7 @@ class MessagingTests: XCTestCase {
         messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
         messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
         messaging.onRegistered()
-        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: false] as [String : Any]
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String : Any]
 
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: NEW_PUSH_TOKEN]
 
@@ -1151,7 +1151,7 @@ class MessagingTests: XCTestCase {
     func testPushTokenSync_whenNoExistingPushToken() {
         // setup
         let NEW_PUSH_TOKEN = "new push token"
-        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: false] as [String : Any]
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String : Any]
 
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: NEW_PUSH_TOKEN]
 
@@ -1168,9 +1168,9 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(NEW_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
     }
     
-    func testMultiplePushTokenSync_whenTokenMatchesAndWithinSyncTimeout_forceSyncTrue() {
+    func testMultiplePushTokenSync_whenTokenMatchesAndWithinSyncTimeout_OptimizePushSyncIsFalse() {
         // setup
-        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: true] as [String : Any]
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false] as [String : Any]
 
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
 
@@ -1191,10 +1191,10 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(MOCK_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
     }
 
-    func testMultiplePushTokenSync_whenTokenMatchesAndOutsideSyncTimeout_forceSyncTrue() {
+    func testMultiplePushTokenSync_whenTokenMatchesAndOutsideSyncTimeout_OptimizePushSyncIsFalse() {
         // setup
         let delay = UInt32(1500000) // 1.5 seconds
-        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC: true] as [String : Any]
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false] as [String : Any]
         let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
 
         let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)

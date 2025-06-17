@@ -350,32 +350,38 @@ public class Messaging: NSObject, Extension {
     /// - Parameter event: the generic request identity`event` containing the push identifier
     /// - Returns: `true` if the push identifier can be synced, `false` otherwise
     private func shouldSyncPushToken(_ event: Event) -> Bool {
-        // check if the push token will be synced regardless if it has changed.
-        // if the value is not present, it will default to false
+        // check if the push token sync optimization will be used.
+        // if true, the push token will be synced only if it has changed.
+        // if the value is not present, it will default to true.
         let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
-        let pushForceSync = configSharedState?.value?[MessagingConstants.SharedState.Configuration.PUSH_FORCE_SYNC] as? Bool ?? false
+        let optimizePushSync = configSharedState?.value?[MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC] as? Bool ?? true
         let existingPushToken = messagingProperties.pushIdentifier
         let pushTokensMatch = existingPushToken == event.token
+        var shouldSync: Bool
 
-        if pushTokensMatch && !pushForceSync {
+        if !pushTokensMatch {
             Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Existing push token matches the new push token, push token will not be synced.")
-            return false
-        } else if pushTokensMatch && !isPushTokenSyncTimeoutExpired(event.timestamp) {
+                      "Push token is new or changed. The push token will be synced.")
+            shouldSync = true
+        } else if !optimizePushSync && isPushTokenSyncTimeoutExpired(event.timestamp) {
             Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Push token sync is within the previous push sync timeout window, push token will not be synced.")
-            return false
+                      "Push registration sync optimization is disabled. The push token will be synced.")
+            shouldSync = true
+        } else {
+            let blockedSyncReason = optimizePushSync ? MessagingConstants.OPTIMIZE_PUSH_SYNC_ENABLED : MessagingConstants.OPTIMIZE_PUSH_SYNC_DISABLED_SYNC_WITHIN_TIMEOUT
+            Log.debug(label: MessagingConstants.LOG_TAG, "\(blockedSyncReason). The push token will not be synced.")
+            shouldSync = false
         }
 
-        Log.debug(label: MessagingConstants.LOG_TAG, pushForceSync ? MessagingConstants.FORCE_SYNC_MESSAGE : MessagingConstants.NEW_PUSH_TOKEN_MESSAGE)
+        if shouldSync {
+            // persist the push token in the messaging named collection
+            messagingProperties.pushIdentifier = event.token
 
-        // persist the push token in the messaging named collection
-        messagingProperties.pushIdentifier = event.token
+            // store the event timestamp of the last push token sync in-memory
+            lastPushTokenSyncTimestamp = event.timestamp
+        }
 
-        // store the event timestamp of the last push token sync in-memory
-        lastPushTokenSyncTimestamp = event.timestamp
-
-        return true
+        return shouldSync
     }
 
     /// Checks if the push token sync timeout has expired
