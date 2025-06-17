@@ -12,7 +12,7 @@
         },
         "image": {
           "url": "https://imagetoDownload.com/cardimage",
-          "dark_url": "https://imagetoDownload.com/darkimage"
+          "darkUrl": "https://imagetoDownload.com/darkimage"
         },
         "buttons": [
           {
@@ -32,8 +32,9 @@
         ]
       },
       "meta": {
-        "adb_template": {
-          "type": "LargeImage"
-        }
+        "adobe": {
+          "template": "LargeImage"
+        },
+        "customKey": "customValue"
       }
 }
