@@ -168,7 +168,7 @@ class ViewController: UIViewController {
             pushSyncOptimization.toggle()
             let config = ["messaging.optimizePushSync": pushSyncOptimization]
             MobileCore.updateConfigurationWith(configDict: config)
-            print("Push sync optimization disabled: \(pushSyncOptimization.description)")
+            print("Push sync optimization " + (pushSyncOptimization ? "enabled" : "disabled"))
         }
     }
 
