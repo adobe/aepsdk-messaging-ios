@@ -42,7 +42,7 @@ public extension Messaging {
     ///                   This type defines the structure and content of your Live Activity.
     static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
         let attributeType = T.attributeType
-        
+
         if let debuggableType = T.self as? any LiveActivityAssuranceDebuggable.Type {
             dispatchAttributeStructureEvent(type: debuggableType)
         }
@@ -365,22 +365,22 @@ public extension Messaging {
         )
         MobileCore.dispatch(event: event)
     }
-    
-    private static func dispatchAttributeStructureEvent<T : LiveActivityAssuranceDebuggable>(
-        type: T.Type) {
+
+    private static func dispatchAttributeStructureEvent<T: LiveActivityAssuranceDebuggable>(
+        type _: T.Type) {
         let debugInfo = T.getDebugInfo()
         let attributes = debugInfo.attributes
         let contentState = debugInfo.state
 
         let attributeTypeName = String(describing: T.self)
-        
+
         // Use JSONSchemaBuilder to create the event data
-            let eventData = LiveActivityDebugSchemaBuilder.buildEventData(
+        let eventData = LiveActivityDebugSchemaBuilder.buildEventData(
             attributeTypeName: attributeTypeName,
             attributes: attributes,
             contentState: contentState
         )
-        
+
         // TODO: Define this event name in MessagingConstants
         let eventName = "Live Activity Assurance Debug for type (\(attributeTypeName))"
         let event = Event(name: eventName,
