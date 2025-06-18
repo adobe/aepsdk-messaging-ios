@@ -26,3 +26,12 @@ struct FoodDeliveryLiveActivityAttributes: LiveActivityAttributes {
         var orderStatus: String
     }
 }
+
+@available(iOS 16.1, *)
+extension FoodDeliveryLiveActivityAttributes : LiveActivityAssuranceDebuggable {
+    static func getDebugInfo() -> (attributes: FoodDeliveryLiveActivityAttributes, state: ContentState) {
+        return (FoodDeliveryLiveActivityAttributes(liveActivityData: LiveActivityData(liveActivityID: "orderID#123"), restaurantName: "Pizza Hut"),
+                ContentState(orderStatus: "Ordered"))
+
+    }
+}
