@@ -206,6 +206,11 @@
 		755DB8B52E0202FE00F3B21B /* LargeImageTemplate_noBody.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8B02E0202FE00F3B21B /* LargeImageTemplate_noBody.json */; };
 		755DB8B62E0202FE00F3B21B /* LargeImageTemplate_onlyTitle.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8B22E0202FE00F3B21B /* LargeImageTemplate_onlyTitle.json */; };
 		755DB8B72E0202FE00F3B21B /* LargeImageTemplate_validTitle_invalidOther.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8B32E0202FE00F3B21B /* LargeImageTemplate_validTitle_invalidOther.json */; };
+		755DB8BE2E0353C700F3B21B /* large image no image.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8BA2E0353C700F3B21B /* large image no image.json */; };
+		755DB8BF2E0353C700F3B21B /* large image no title.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8BB2E0353C700F3B21B /* large image no title.json */; };
+		755DB8C02E0353C700F3B21B /* large image no body.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8B82E0353C700F3B21B /* large image no body.json */; };
+		755DB8C12E0353C700F3B21B /* LargeImageCard.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8BC2E0353C700F3B21B /* LargeImageCard.json */; };
+		755DB8C22E0353C700F3B21B /* large image no buttons.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8B92E0353C700F3B21B /* large image no buttons.json */; };
 		75B4333CC0B4F5BFAC707055 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */; };
 		899E1724E9B5AD078B0710E5 /* Pods_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA09063EA0248339C5B2C535 /* Pods_IntegrationTests.framework */; };
 		8C4723D49BD3F1EB4060FEAE /* Pods_FunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB9F1A791A757B3C68D23B9D /* Pods_FunctionalTestApp.framework */; };
@@ -654,6 +659,11 @@
 		755DB8B12E0202FE00F3B21B /* LargeImageTemplate_noTitle.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LargeImageTemplate_noTitle.json; sourceTree = "<group>"; };
 		755DB8B22E0202FE00F3B21B /* LargeImageTemplate_onlyTitle.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LargeImageTemplate_onlyTitle.json; sourceTree = "<group>"; };
 		755DB8B32E0202FE00F3B21B /* LargeImageTemplate_validTitle_invalidOther.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LargeImageTemplate_validTitle_invalidOther.json; sourceTree = "<group>"; };
+		755DB8B82E0353C700F3B21B /* large image no body.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "large image no body.json"; sourceTree = "<group>"; };
+		755DB8B92E0353C700F3B21B /* large image no buttons.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "large image no buttons.json"; sourceTree = "<group>"; };
+		755DB8BA2E0353C700F3B21B /* large image no image.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "large image no image.json"; sourceTree = "<group>"; };
+		755DB8BB2E0353C700F3B21B /* large image no title.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "large image no title.json"; sourceTree = "<group>"; };
+		755DB8BC2E0353C700F3B21B /* LargeImageCard.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LargeImageCard.json; sourceTree = "<group>"; };
 		7BB455BF61D9D261AC490547 /* Pods-MessagingDemoAppSwiftUI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoAppSwiftUI.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI.debug.xcconfig"; sourceTree = "<group>"; };
 		91A11E37A49E14EB847FB2DF /* Pods_MessagingDemoAppSwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoAppSwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		92085982251BEB7100B9C65A /* MessagingDemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1045,6 +1055,18 @@
 				DD674659DEB5142D8580C271 /* Pods-IntegrationTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		755DB8BD2E0353C700F3B21B /* LargeImageCard */ = {
+			isa = PBXGroup;
+			children = (
+				755DB8B82E0353C700F3B21B /* large image no body.json */,
+				755DB8B92E0353C700F3B21B /* large image no buttons.json */,
+				755DB8BA2E0353C700F3B21B /* large image no image.json */,
+				755DB8BB2E0353C700F3B21B /* large image no title.json */,
+				755DB8BC2E0353C700F3B21B /* LargeImageCard.json */,
+			);
+			path = LargeImageCard;
 			sourceTree = "<group>";
 		};
 		922FFCE6251B2BBA00BCE010 = {
@@ -1458,6 +1480,7 @@
 		B6F7CC192CC2EFE400C35C64 /* NetworkResponses */ = {
 			isa = PBXGroup;
 			children = (
+				755DB8BD2E0353C700F3B21B /* LargeImageCard */,
 				B6F7CC162CC2EFE400C35C64 /* SmallImageCard */,
 				B6F7CC172CC2EFE400C35C64 /* MultipleCards.json */,
 				B6F7CC182CC2EFE400C35C64 /* NoCard.json */,
@@ -2003,6 +2026,11 @@
 				B6F7CCC62CCA1D7C00C35C64 /* NoCard.json in Resources */,
 				B6F7CCC72CCA1D7C00C35C64 /* MultipleCards.json in Resources */,
 				B6F7CCC42CCA1D7100C35C64 /* small image no title.json in Resources */,
+				755DB8BE2E0353C700F3B21B /* large image no image.json in Resources */,
+				755DB8BF2E0353C700F3B21B /* large image no title.json in Resources */,
+				755DB8C02E0353C700F3B21B /* large image no body.json in Resources */,
+				755DB8C12E0353C700F3B21B /* LargeImageCard.json in Resources */,
+				755DB8C22E0353C700F3B21B /* large image no buttons.json in Resources */,
 				B6F7CCC52CCA1D7100C35C64 /* small image no image.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

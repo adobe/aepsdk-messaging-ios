@@ -25,12 +25,12 @@ class ContentCardEventListeningTest : IntegrationTestBase, ContentCardUIEventLis
         dismissEventReceived = false
         interactEventReceived = false
         super.init()
-        setContentCardResponse(fromFile: "SmallImageCard")
     }
 
     @Test("display event")
     func displayEvent() async throws {
         // setup
+        setContentCardResponse(fromFile: "SmallImageCard")
         let cards = try await getContentCardUI(homeSurface, listener: self)
         let card = try #require (cards.first?.template as? SmallImageTemplate)
         
@@ -44,6 +44,7 @@ class ContentCardEventListeningTest : IntegrationTestBase, ContentCardUIEventLis
     @Test("dismiss event")
     func dismissEvent() async throws {
         // setup
+        setContentCardResponse(fromFile: "SmallImageCard")
         let cards = try await getContentCardUI(homeSurface, listener: self)
         let card = try #require (cards.first?.template as? SmallImageTemplate)
         
@@ -57,6 +58,7 @@ class ContentCardEventListeningTest : IntegrationTestBase, ContentCardUIEventLis
     @Test("interact event")
     func interactEvent() async throws {
         // setup
+        setContentCardResponse(fromFile: "SmallImageCard")
         let cards = try await getContentCardUI(homeSurface, listener: self)
         let card = try #require (cards.first?.template as? SmallImageTemplate)
         

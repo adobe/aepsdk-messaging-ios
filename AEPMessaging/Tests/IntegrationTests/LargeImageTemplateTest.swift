@@ -39,19 +39,19 @@ class LargeImageTemplateTest : IntegrationTestBase {
         #expect(card.templateType == .largeImage)
         
         // verify cards UI elements
-        #expect(card.title.content == "Card Title")
-        #expect(card.body?.content == "body")
-        #expect(card.actionURL?.absoluteString == "https://luma.com/sale")
+        #expect(card.title.content == "This is large image title")
+        #expect(card.body?.content == "This is large image body")
+        #expect(card.actionURL?.absoluteString == "https://cardaction.com")
         #expect(card.dismissButton?.image.icon == "xmark")
-        #expect(card.image?.url?.absoluteString == "https://imagetoDownload.com/cardimage")
-        #expect(card.image?.darkUrl?.absoluteString == "https://imagetoDownload.com/darkimage")
+        #expect(card.image?.url?.absoluteString == "https://imageurl.com/light")
+        #expect(card.image?.darkUrl?.absoluteString == "https://imageurl.com/dark")
         
         // verify buttons
-        #expect(card.buttons?.count == 2)
+        #expect(card.buttons?.count == 1)
         let firstButton = try #require (card.buttons?.first)
-        #expect(firstButton.text.content == "Purchase Now")
-        #expect(firstButton.interactId == "purchaseID")
-        #expect(firstButton.actionUrl?.absoluteString == "https://adobe.com/offer")
+        #expect(firstButton.text.content == "ButtonTextOne")
+        #expect(firstButton.interactId == "buttonOneClicked")
+        #expect(firstButton.actionUrl?.absoluteString == "https://buttonone.com/action")
         #expect(card.view != nil)
     }
         

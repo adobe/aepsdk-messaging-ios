@@ -15,6 +15,7 @@ import SwiftUI
 @testable import AEPMessaging
 
 class SmallImageCustomizer : ContentCardCustomizing {
+    
     public var TITLE_COLOR : Color = .blue
     public var BODY_COLOR : Color = .green
     
@@ -33,12 +34,49 @@ class SmallImageCustomizer : ContentCardCustomizing {
     public var TEXT_STACK_ALIGNMENT : HorizontalAlignment = .leading
     public var BUTTON_STACK_ALIGNMENT : VerticalAlignment = .top
     
+    public var ROOT_VERTICAL_STACK_ALIGNMENT : HorizontalAlignment = .leading
+    
     public var DISMISS_ICON_FONT : Font = .system(size: 10)
     public var DISMISS_ICON_COLOR : Color = .gray
     public var DISMISS_ICON_ALIGNMENT : Alignment = .topLeading
     
     public var CARD_BACKGROUND_COLOR : Color = .yellow
 
+    func customize(template: AEPMessaging.LargeImageTemplate) {
+        // customize UI elements
+        template.title.textColor = TITLE_COLOR
+        template.title.font = TITLE_FONT
+        template.body?.textColor = BODY_COLOR
+        template.body?.font = BODY_FONT
+        
+        // customize buttons
+        template.buttons?.first?.text.font = BUTTON_FONT
+        template.buttons?.first?.text.textColor = BUTTON_TEXT_COLOR
+        
+        // customize root stack
+        template.rootVStack.spacing = ROOT_STACK_SPACING
+        template.rootVStack.alignment = ROOT_VERTICAL_STACK_ALIGNMENT
+        
+        // customize text stack
+        template.textVStack.spacing = TEXT_STACK_SPACING
+        template.textVStack.alignment = TEXT_STACK_ALIGNMENT
+        
+        // customize button stack
+        template.buttonHStack.spacing = BUTTON_STACK_SPACING
+        template.buttonHStack.alignment = BUTTON_STACK_ALIGNMENT
+        
+        // add custom modifiers
+        template.buttonHStack.modifier = AEPViewModifier(ButtonHStackModifier())
+        template.rootVStack.modifier = AEPViewModifier(RootVStackModifier())
+                
+        // customize the dismiss buttons
+        template.dismissButton?.image.iconColor = DISMISS_ICON_COLOR
+        template.dismissButton?.image.iconFont = DISMISS_ICON_FONT
+        template.dismissButton?.alignment = DISMISS_ICON_ALIGNMENT
+        
+        // change card background color
+        template.backgroundColor = CARD_BACKGROUND_COLOR
+    }
     
     func customize(template: SmallImageTemplate) {
         // customize UI elements
@@ -49,7 +87,7 @@ class SmallImageCustomizer : ContentCardCustomizing {
         
         // customize buttons
         template.buttons?.first?.text.font = BUTTON_FONT
-        template.buttons?.first?.text.textColor = BUTTON_TEXT_COLOR        
+        template.buttons?.first?.text.textColor = BUTTON_TEXT_COLOR
         
         // customize root stack
         template.rootHStack.spacing = ROOT_STACK_SPACING
@@ -74,6 +112,14 @@ class SmallImageCustomizer : ContentCardCustomizing {
         
         // change card background color
         template.backgroundColor = CARD_BACKGROUND_COLOR
+    }
+    
+    struct RootVStackModifier : ViewModifier {
+        func body(content: Content) -> some View {
+             content
+                .frame(maxHeight: .infinity, alignment: .leading)
+                .padding(.trailing)
+         }
     }
     
     struct RootHStackModifier : ViewModifier {

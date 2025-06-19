@@ -31,7 +31,7 @@ class LargeImageCustomizer : ContentCardCustomizing {
     
     public var ROOT_STACK_ALIGNMENT : HorizontalAlignment = .leading
     public var TEXT_STACK_ALIGNMENT : HorizontalAlignment = .leading
-    public var BUTTON_STACK_ALIGNMENT : HorizontalAlignment = .center
+    public var BUTTON_STACK_ALIGNMENT : VerticalAlignment = .center
     
     public var DISMISS_ICON_FONT : Font = .system(size: 10)
     public var DISMISS_ICON_COLOR : Color = .gray
