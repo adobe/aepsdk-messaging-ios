@@ -56,6 +56,7 @@ let package = Package(
                 .product(name: \"AEPEdge\", package: \"AEPEdge\"),
                 .product(name: \"AEPEdgeIdentity\", package: \"AEPEdgeIdentity\"),
                 .product(name: \"AEPMessaging\", package: \"AEPMessaging\"),
+                .product(name: \"AEPMessagingLiveActivity\", package: \"AEPMessaging\")
             ])
     ]
 )
