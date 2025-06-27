@@ -382,10 +382,10 @@ public extension Messaging {
         )
 
         // TODO: Define this event name in MessagingConstants
-        let eventName = "Live Activity Assurance Debug for type (\(attributeTypeName))"
+        let eventName = "Live Activity Schema (\(attributeTypeName))"
         let event = Event(name: eventName,
-                          type: EventType.messaging,
-                          source: EventSource.requestContent,
+                          type: EventType.genericData,
+                          source: EventSource.debug,
                           data: eventData)
         MobileCore.dispatch(event: event)
     }

@@ -115,8 +115,13 @@ final class LiveActivityDebugSchemaBuilder {
             return buildDictionarySchema(dict: dict)
         }
 
+        // Handle enums
+        if mirror.displayStyle == .enum {
+            return buildEnumSchema(rawType: rawType)
+        }
+
         // Handle leaf types
-        if mirror.children.isEmpty || mirror.displayStyle == .enum || rawType.hasPrefix("Swift.") {
+        if mirror.children.isEmpty || rawType.hasPrefix("Swift.") {
             return buildLeafTypeSchema(rawType: rawType)
         }
 
@@ -189,6 +194,32 @@ final class LiveActivityDebugSchemaBuilder {
     /// Builds schema for leaf types (primitives)
     private static func buildLeafTypeSchema(rawType: String) -> [String: Any] {
         [JSONSchemaKeys.type: mapTypeToJSONSchemaType(rawType)]
+    }
+
+    /// Builds schema for enum types
+    private static func buildEnumSchema(rawType: String) -> [String: Any] {
+        if let enumValues = getEnumValues(for: rawType) {
+            return [
+                JSONSchemaKeys.type: mapTypeToJSONSchemaType(rawType),
+                "enum": enumValues
+            ]
+        }
+
+        // If no enum values found in registry, still indicate it's an enum
+        return [
+            JSONSchemaKeys.type: mapTypeToJSONSchemaType(rawType),
+            "enum": [] // Empty array to indicate it's an enum with unknown values
+        ]
+    }
+
+    /// Registry for enum values - can be populated dynamically
+    private static var enumRegistry: [String: [String]] = [
+        "LiveActivityOrigin": ["local", "remote"]
+    ]
+
+    /// Gets the possible values for an enum type
+    private static func getEnumValues(for typeName: String) -> [String]? {
+        enumRegistry[typeName]
     }
 
     /// Builds schema for structs and classes
