@@ -192,6 +192,27 @@ class ViewController: UIViewController {
         print("Called set push identifier with identifier: \(token)")
     }
 
+    @IBAction func setPushIdentifierTwice(_: Any) {
+        // First identifier
+        let firstToken = "1111111111111111111111111111111111111111111111111111111111111111"
+        guard let firstDataToken = firstToken.toData() else {
+            print("Invalid first push token format.")
+            return
+        }
+        
+        MobileCore.setPushIdentifier(firstDataToken)
+        print("Called set push identifier with first identifier: \(firstToken)")
+        
+        // Second identifier (different from the first)
+        let secondToken = "2222222222222222222222222222222222222222222222222222222222222222"
+        guard let secondDataToken = secondToken.toData() else {
+            print("Invalid second push token format.")
+            return
+        }
+        
+        MobileCore.setPushIdentifier(secondDataToken)
+        print("Called set push identifier with second identifier: \(secondToken)")
+    }
 
     func scheduleNotification() {
         let content = UNMutableNotificationContent()
