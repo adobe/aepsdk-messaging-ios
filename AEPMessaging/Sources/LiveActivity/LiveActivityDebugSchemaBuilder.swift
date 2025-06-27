@@ -18,6 +18,8 @@ final class LiveActivityDebugSchemaBuilder {
     // MARK: - Constants
 
     private enum JSONSchemaKeys {
+        static let schemaMeta = "$schema"
+        static let title = "title"
         static let type = "type"
         static let properties = "properties"
         static let required = "required"
@@ -72,6 +74,8 @@ final class LiveActivityDebugSchemaBuilder {
     /// Builds a JSON schema from the given objects
     private static func buildJSONSchema(attributeTypeName: String, attributes: Any, contentState: Any) -> [String: Any] {
         [
+            JSONSchemaKeys.schemaMeta: "https://json-schema.org/draft/2020-12/schema",
+            JSONSchemaKeys.title: "Live Activity – \(attributeTypeName)",
             PayloadKeys.attributesType: attributeTypeName,
             PayloadKeys.attributes: buildJSONSchemaObject(of: attributes),
             PayloadKeys.contentState: buildJSONSchemaObject(of: contentState)
@@ -117,7 +121,7 @@ final class LiveActivityDebugSchemaBuilder {
 
         // Handle enums
         if mirror.displayStyle == .enum {
-            return buildEnumSchema(rawType: rawType)
+            return buildEnumSchema(value: value, rawType: rawType)
         }
 
         // Handle leaf types
@@ -136,27 +140,24 @@ final class LiveActivityDebugSchemaBuilder {
 
         if typeName.hasPrefix("Optional<") {
             let baseTypeName = typeName.dropFirst(9).dropLast(1)
+            let baseTypeMapped = mapTypeToJSONSchemaType(String(baseTypeName))
 
-            // Check if it's an array type
-            if String(baseTypeName).contains("Array<") || String(baseTypeName).hasSuffix("[]") {
-                return [JSONSchemaKeys.type: JSONSchemaKeys.array]
+            // Determine the correct base representation
+            var baseTypeSchema: Any
+            if baseTypeMapped != JSONSchemaKeys.object {
+                baseTypeSchema = [baseTypeMapped, JSONSchemaKeys.null]
+                return [JSONSchemaKeys.type: baseTypeSchema]
             }
 
-            // Try to map it to a primitive type
-            let mappedType: String = mapTypeToJSONSchemaType(String(baseTypeName))
-
-            // If it maps to a primitive type, return that
-            if mappedType != JSONSchemaKeys.object {
-                return [JSONSchemaKeys.type: mappedType]
-            } else {
-                // For custom types (structs/classes), explore their properties if available
-                if let child = mirror.children.first {
-                    return buildJSONSchemaObject(of: child.value)
-                } else {
-                    // If no children (nil value), return object type for custom types
-                    return [JSONSchemaKeys.type: JSONSchemaKeys.object]
-                }
+            // For complex optional objects/arrays we fall back to 'anyOf'
+            if let child = mirror.children.first {
+                let childSchema = buildJSONSchemaObject(of: child.value)
+                return [
+                    "anyOf": [childSchema, [JSONSchemaKeys.type: JSONSchemaKeys.null]]
+                ]
             }
+            // If value is nil return object|null
+            return [JSONSchemaKeys.type: [JSONSchemaKeys.object, JSONSchemaKeys.null]]
         }
 
         // Fallback for non-optional types
@@ -165,12 +166,43 @@ final class LiveActivityDebugSchemaBuilder {
 
     /// Builds schema for array types
     private static func buildArraySchema(array: [Any]) -> [String: Any] {
-        let itemsSchema: [String: Any]
-        if let first = array.first {
-            itemsSchema = buildJSONSchemaObject(of: first)
-        } else {
-            itemsSchema = [JSONSchemaKeys.type: JSONSchemaKeys.object]
+        // If array is empty fall back to generic object items.
+        guard !array.isEmpty else {
+            return [
+                JSONSchemaKeys.type: JSONSchemaKeys.array,
+                JSONSchemaKeys.items: [JSONSchemaKeys.type: JSONSchemaKeys.object]
+            ]
         }
+
+        // Build schema for every unique element shape in the array.
+        var uniqueSchemas: [[String: Any]] = []
+        var schemaHashes = Set<String>()
+
+        for element in array {
+            let schema = buildJSONSchemaObject(of: element)
+
+            // Serialize schema dictionary deterministically so we can de-duplicate.
+            if let data = try? JSONSerialization.data(withJSONObject: schema, options: [.sortedKeys]),
+               let jsonString = String(data: data, encoding: .utf8) {
+                if !schemaHashes.contains(jsonString) {
+                    schemaHashes.insert(jsonString)
+                    uniqueSchemas.append(schema)
+                }
+            } else {
+                // Fallback: if serialization fails, just append (may create duplicates but avoids data loss)
+                uniqueSchemas.append(schema)
+            }
+        }
+
+        let itemsSchema: [String: Any]
+        if uniqueSchemas.count == 1 {
+            // Homogeneous array – reuse single schema
+            itemsSchema = uniqueSchemas[0]
+        } else {
+            // Heterogeneous array – allow any of the observed schemas
+            itemsSchema = ["anyOf": uniqueSchemas]
+        }
+
         return [
             JSONSchemaKeys.type: JSONSchemaKeys.array,
             JSONSchemaKeys.items: itemsSchema
@@ -179,15 +211,23 @@ final class LiveActivityDebugSchemaBuilder {
 
     /// Builds schema for dictionary types
     private static func buildDictionarySchema(dict: [AnyHashable: Any]) -> [String: Any] {
-        let valueSchema: [String: Any]
-        if let (_, firstVal) = dict.first {
-            valueSchema = buildJSONSchemaObject(of: firstVal)
-        } else {
-            valueSchema = [JSONSchemaKeys.type: JSONSchemaKeys.object]
+        // Empty dictionary, fallback to generic object schema
+        guard !dict.isEmpty else {
+            return [
+                JSONSchemaKeys.type: JSONSchemaKeys.object
+            ]
         }
+
+        // Build property specific schemas for each key
+        var properties: [String: Any] = [:]
+        for (key, value) in dict {
+            let keyString = String(describing: key)
+            properties[keyString] = buildJSONSchemaObject(of: value)
+        }
+
         return [
             JSONSchemaKeys.type: JSONSchemaKeys.object,
-            JSONSchemaKeys.additionalProperties: valueSchema
+            JSONSchemaKeys.properties: properties
         ]
     }
 
@@ -197,7 +237,33 @@ final class LiveActivityDebugSchemaBuilder {
     }
 
     /// Builds schema for enum types
-    private static func buildEnumSchema(rawType: String) -> [String: Any] {
+    private static func buildEnumSchema(value: Any, rawType: String) -> [String: Any] {
+        // Try CaseIterable to enumerate values
+        if let caseIterableType = type(of: value) as? any CaseIterable.Type {
+            let casesCollection = caseIterableType.allCases
+            var enumValues: [String] = []
+            let mirrorCases = Mirror(reflecting: casesCollection)
+            for child in mirrorCases.children {
+                let caseValue = child.value
+                if let rawRep = caseValue as? any RawRepresentable {
+                    enumValues.append(String(describing: rawRep.rawValue))
+                } else {
+                    enumValues.append(String(describing: caseValue))
+                }
+            }
+            let mappedType: String
+            if let rawRepExample = (casesCollection as Any as? any Collection)?.first as? any RawRepresentable {
+                mappedType = mapTypeToJSONSchemaType(String(describing: Swift.type(of: rawRepExample.rawValue)))
+            } else {
+                mappedType = JSONSchemaKeys.string
+            }
+            return [
+                JSONSchemaKeys.type: mappedType,
+                "enum": enumValues
+            ]
+        }
+
+        // Fall back to existing registry
         if let enumValues = getEnumValues(for: rawType) {
             return [
                 JSONSchemaKeys.type: mapTypeToJSONSchemaType(rawType),
@@ -205,10 +271,10 @@ final class LiveActivityDebugSchemaBuilder {
             ]
         }
 
-        // If no enum values found in registry, still indicate it's an enum
+        // Unknown enum, assume string type with empty enum list
         return [
-            JSONSchemaKeys.type: mapTypeToJSONSchemaType(rawType),
-            "enum": [] // Empty array to indicate it's an enum with unknown values
+            JSONSchemaKeys.type: JSONSchemaKeys.string,
+            "enum": []
         ]
     }
 
