@@ -144,10 +144,9 @@ public class Messaging: NSObject, Extension {
                          source: EventSource.wildcard,
                          listener: handleWildcardEvent)
 
-        // register listener for rules consequences with in-app messages
         registerListener(type: EventType.rulesEngine,
                          source: EventSource.responseContent,
-                         listener: handleRulesResponse)
+                         listener: handleRulesConsequence)
 
         // register listener for edge personalization notifications
         registerListener(type: EventType.edge,
@@ -163,11 +162,6 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.system,
                          source: EventSource.debug,
                          listener: handleDebugEvent)
-
-        // register listener for handling event history write events
-        registerListener(type: EventType.messaging,
-                         source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE,
-                         listener: handleEventHistoryWrite)
 
         // Handler function called for each queued event. If the queued event is a get propositions event, process it
         // otherwise if it is an Edge event to update propositions, process it only if it is completed.
@@ -308,15 +302,6 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    /// Responds to event history write events.
-    /// Only current requirement is to remove cached content cards on a disqualify write
-    func handleEventHistoryWrite(_ event: Event) {
-        guard event.isDisqualifyEvent, let activityId = event.eventHistoryActivityId else {
-            return
-        }
-
-        removePropositionFromQualifiedCards(for: activityId)
-    }
 
     // MARK: - In-app Messaging methods
 
@@ -655,20 +640,48 @@ public class Messaging: NSObject, Extension {
                 // pre-fetch the assets for this message if there are any defined
                 rulesEngine.cacheRemoteAssetsFor(allInAppRules)
 
+                let eventHistoryOperationRules = contentCardRulesBySurface.flatMap { $0.value }
+                    .filter { $0.consequences.contains(where: { !$0.isContentCard }) }
+                let allRules = allInAppRules + eventHistoryOperationRules
+
                 // update rules in in-app engine
-                rulesEngine.launchRulesEngine.replaceRules(with: allInAppRules)
+                rulesEngine.launchRulesEngine.replaceRules(with: allRules)
 
             case .feed, .contentCard:
-                Log.trace(label: MessagingConstants.LOG_TAG, "Updating content card definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
+                // split Launch rule by content card type?
+                // put content card rules into engine as per usual
+                // other ones load into inapp rulesEngine
+                    // if it's not merged into inapprulesbysurface though, it will be wiped out by the next inapp fetch
+                var contentCardRules: [Surface : [LaunchRule]] = [:]
+                var eventHistoryOperationRules: [Surface : [LaunchRule]] = [:]
+
+                for (surface, rules) in newRules {
+                    var ccRules   = [LaunchRule]()
+                    var otherRule = [LaunchRule]()
+
+                    for rule in rules {
+                        if rule.consequences.contains(where: { $0.isContentCard }) {
+                            ccRules.append(rule)
+                        } else {
+                            otherRule.append(rule)
+                        }
+                    }
+                    if !ccRules.isEmpty   { contentCardRules[surface]   = ccRules }
+                    if !otherRule.isEmpty { eventHistoryOperationRules[surface] = otherRule }
+                }
+
+                ///#######################################################################
+                Log.trace(label: MessagingConstants.LOG_TAG, "Updating content card definitions for surfaces \(contentCardRules.compactMap { $0.key.uri }).")
 
                 // replace rules for each content card surface we got back
-                contentCardRulesBySurface.merge(newRules) { _, new in new }
+                contentCardRulesBySurface.merge(contentCardRules) { _, new in new }
 
                 // remove any surfaces that were requested but had no in-app content returned
                 for surface in surfacesToRemove {
                     contentCardRulesBySurface.removeValue(forKey: surface)
                 }
 
+                // TODO: apply the filtering logic here to remove non-content card values
                 // update rules in content card rules engine
                 contentCardRulesEngine.launchRulesEngine.replaceRules(with: contentCardRulesBySurface.flatMap { $0.value })
 
@@ -760,14 +773,35 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    /// Handles Rules Consequence events containing schemas
-    private func handleRulesResponse(_ event: Event) {
-        guard event.isSchemaConsequence, event.data != nil else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. Either consequence is not of type 'schema' or 'eventData' is nil.")
+    /// Handles rules engine consequences:
+    /// - Schema consequences are routed to `handleSchemaConsequence`
+    /// - Content card qualification removal consequences are routed to `removePropositionFromQualifiedCards`
+    private func handleRulesConsequence(_ event: Event) {
+        guard event.data != nil else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. 'eventData' is nil.")
+            return
+        }
+        
+        // Handle schema consequences
+        if event.isSchemaConsequence {
+            handleSchemaConsequence(event)
             return
         }
 
-        handleSchemaConsequence(event)
+        // Handle content card disqualify/unqualify consequences
+        guard event.isQualificationRemovalConsequence,
+              let activityId = event.consequenceMessageId,
+              !activityId.isEmpty
+        else {
+            Log.trace(label: MessagingConstants.LOG_TAG,
+                      "Ignoring rule consequence event. Either the consequence is not of type 'schema', or "
+                      + "required properties for content card qualification removal are missing: "
+                      + "a valid disqualify/unqualify type or a non-empty message ID.")
+
+            return
+        }
+
+        removePropositionFromQualifiedCards(for: activityId)
     }
 
     private func handleSchemaConsequence(_ event: Event) {
