@@ -75,9 +75,9 @@ class MessagingTests: XCTestCase {
         XCTAssertNoThrow(MobileCore.registerExtensions([Messaging.self]))
     }
     
-    /// validate that 9 listeners are registered onRegister
-    func testOnRegistered_nineListenersAreRegistered() {
-        XCTAssertEqual(mockRuntime.listeners.count, 9)
+    /// validate that 8 listeners are registered onRegister
+    func testOnRegistered_listenersAreRegistered() {
+        XCTAssertEqual(mockRuntime.listeners.count, 8)
     }
     
     func testOnUnregisteredCallable() throws {
@@ -1012,77 +1012,50 @@ class MessagingTests: XCTestCase {
         XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
     }
     
-    func testHandleEventHistoryWriteHappy() throws {
-        // setup
-        let event = getGenericEventHistoryDisqualifyEvent()
+    // MARK: - Core Rules Engine Disqualification Consequence Tests
+
+    private func getDisqualifyConsequenceEvent(eventType: String = "disqualify", activityId: String = "mockActivityId") -> Event {
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.History.Mask.EVENT_TYPE: eventType,
+            MessagingConstants.Event.History.Mask.MESSAGE_ID: activityId
+        ]
+        return Event(name: "Disqualify Consequence",
+                     type: EventType.rulesEngine,
+                     source: EventSource.responseContent,
+                     data: eventData)
+    }
+
+    func testCardDisqualificationConsequence_disqualify_removesProposition() {
+        // Seed cache with a qualified card
         messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(0, propsForMockSurfaceAfter?.count)
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
+
+        let event = getDisqualifyConsequenceEvent(eventType: "disqualify", activityId: MOCK_ACTIVITY_ID)
+        mockRuntime.simulateComingEvents(event)
+
+        // Card should be removed
+        XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
+    }
+
+    func testCardDisqualificationConsequence_unqualify_removesProposition() {
+        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
+
+        let event = getDisqualifyConsequenceEvent(eventType: "unqualify", activityId: MOCK_ACTIVITY_ID)
+        mockRuntime.simulateComingEvents(event)
+
+        XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
+    }
+
+    func testCardDisqualificationConsequence_nonMatchingEvent_keepsProposition() {
+        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
+
+        // send consequence with eventType "display" which should be ignored
+        let event = getDisqualifyConsequenceEvent(eventType: "display", activityId: MOCK_ACTIVITY_ID)
+        mockRuntime.simulateComingEvents(event)
+
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
     }
     
-    func testHandleEventHistoryWriteNotDisqualifyEvent() throws {
-        // setup
-        let event = Event(name: "name", type: "type", source: "source", data: nil)
-        
-        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
-    }
-    
-    func testHandleEventHistoryWriteNoActivityIdInEvent() throws {
-        // setup
-        let event = getGenericEventHistoryDisqualifyEvent(iamMap: ["eventType": "disqualify"])
-        
-        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
-    }
-    
-    func testHandleEventHistoryWriteWrongActivityIdInEvent() throws {
-        // setup
-        let event = getGenericEventHistoryDisqualifyEvent(iamMap: ["eventType": "disqualify", "id": "non-matching-id"])
-        
-        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
-    }
-            
     // MARK: - Push Token Tests
     
     func testPushTokenSync_whenTokenMatches_OptimizePushSyncIsTrue() {
