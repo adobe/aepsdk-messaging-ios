@@ -79,10 +79,11 @@ public class Messaging: NSObject, Extension {
         set { queue.async { self._inProgressPropositions = newValue } }
     }
 
-    private var _inAppRulesBySurface: [Surface: [LaunchRule]] = [:]
-    private var inAppRulesBySurface: [Surface: [LaunchRule]] {
-        get { queue.sync { self._inAppRulesBySurface } }
-        set { queue.async { self._inAppRulesBySurface = newValue } }
+    /// Stores rules for processing by the Messaging rules engine, where `.process` is called on each rule.
+    private var _processableRulesBySurface: [Surface: [LaunchRule]] = [:]
+    private var processableRulesBySurface: [Surface: [LaunchRule]] {
+        get { queue.sync { self._processableRulesBySurface } }
+        set { queue.async { self._processableRulesBySurface = newValue } }
     }
 
     /// used to manage content card rules between multiple surfaces and multiple requests
@@ -622,66 +623,42 @@ public class Messaging: NSObject, Extension {
         for (inboundType, newRules) in rules {
             let surfacesToRemove = requestedSurfaces.minus(Array(newRules.keys))
             switch inboundType {
-            case .inapp:
-                Log.trace(label: MessagingConstants.LOG_TAG, "Updating in-app message definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
+            case .inapp, .eventHistoryOperation:
+                Log.trace(label: MessagingConstants.LOG_TAG, "Updating \(inboundType) definitions for surfaces \(requestedSurfaces).")
 
                 // replace rules for each in-app surface we got back
-                inAppRulesBySurface.merge(newRules) { _, new in new }
+                processableRulesBySurface.merge(newRules) { _, new in new }
 
                 // remove any surfaces that were requested but had no in-app content returned
+                // Note that in-app and event history operation (content card) surfaces do not overlap
+                // so they will not remove each other
                 for surface in surfacesToRemove {
                     // calls for a dictionary extension?
-                    inAppRulesBySurface.removeValue(forKey: surface)
+                    processableRulesBySurface.removeValue(forKey: surface)
                 }
 
                 // combine all our rules
-                let allInAppRules = inAppRulesBySurface.flatMap { $0.value }
+                let processedRules = processableRulesBySurface.flatMap { $0.value }
 
-                // pre-fetch the assets for this message if there are any defined
-                rulesEngine.cacheRemoteAssetsFor(allInAppRules)
-
-                let eventHistoryOperationRules = contentCardRulesBySurface.flatMap { $0.value }
-                    .filter { $0.consequences.contains(where: { !$0.isContentCard }) }
-                let allRules = allInAppRules + eventHistoryOperationRules
-
-                // update rules in in-app engine
-                rulesEngine.launchRulesEngine.replaceRules(with: allRules)
-
-            case .feed, .contentCard:
-                // split Launch rule by content card type?
-                // put content card rules into engine as per usual
-                // other ones load into inapp rulesEngine
-                    // if it's not merged into inapprulesbysurface though, it will be wiped out by the next inapp fetch
-                var contentCardRules: [Surface : [LaunchRule]] = [:]
-                var eventHistoryOperationRules: [Surface : [LaunchRule]] = [:]
-
-                for (surface, rules) in newRules {
-                    var ccRules   = [LaunchRule]()
-                    var otherRule = [LaunchRule]()
-
-                    for rule in rules {
-                        if rule.consequences.contains(where: { $0.isContentCard }) {
-                            ccRules.append(rule)
-                        } else {
-                            otherRule.append(rule)
-                        }
-                    }
-                    if !ccRules.isEmpty   { contentCardRules[surface]   = ccRules }
-                    if !otherRule.isEmpty { eventHistoryOperationRules[surface] = otherRule }
+                if inboundType == .inapp {
+                    // pre-fetch the assets for this message if there are any defined
+                    rulesEngine.cacheRemoteAssetsFor(processedRules)
                 }
 
-                ///#######################################################################
-                Log.trace(label: MessagingConstants.LOG_TAG, "Updating content card definitions for surfaces \(contentCardRules.compactMap { $0.key.uri }).")
+                // update rules in processed rules engine
+                rulesEngine.launchRulesEngine.replaceRules(with: processedRules)
+
+            case .feed, .contentCard:
+                Log.trace(label: MessagingConstants.LOG_TAG, "Updating content card definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
 
                 // replace rules for each content card surface we got back
-                contentCardRulesBySurface.merge(contentCardRules) { _, new in new }
+                contentCardRulesBySurface.merge(newRules) { _, new in new }
 
                 // remove any surfaces that were requested but had no in-app content returned
                 for surface in surfacesToRemove {
                     contentCardRulesBySurface.removeValue(forKey: surface)
                 }
 
-                // TODO: apply the filtering logic here to remove non-content card values
                 // update rules in content card rules engine
                 contentCardRulesEngine.launchRulesEngine.replaceRules(with: contentCardRulesBySurface.flatMap { $0.value })
 

@@ -27,6 +27,10 @@ extension RuleConsequence {
         detailSchema == MessagingConstants.PersonalizationSchemas.IN_APP
     }
 
+    var isEventHistoryOperation: Bool {
+        detailSchema == MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION
+    }
+
     private var detailSchema: String {
         details[MessagingConstants.Event.Data.Key.SCHEMA] as? String ?? ""
     }
