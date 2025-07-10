@@ -196,6 +196,11 @@
 		24FD5F752CEEA50F00AE4567 /* CompletionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */; };
 		2B2B7A6E0F7CD6312D28421A /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */; };
 		44DFBD558578CFDCD4A9A476 /* Pods_E2EFunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A44BD44CB3A7DA5EBB972652 /* Pods_E2EFunctionalTestApp.framework */; };
+		4C627F582E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F572E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json */; };
+		4C627F5B2E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F592E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json */; };
+		4C627F5C2E1DFE9C001634BB /* feedPropositionContentMissingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */; };
+		4C627F5F2E1E00D3001634BB /* contentCardProposition.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5D2E1E00D3001634BB /* contentCardProposition.json */; };
+		4C627F602E1E00D3001634BB /* contentCardPropositionContent.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5E2E1E00D3001634BB /* contentCardPropositionContent.json */; };
 		56B08B522365B6DC2B556B40 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */; };
 		75B4333CC0B4F5BFAC707055 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */; };
 		899E1724E9B5AD078B0710E5 /* Pods_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA09063EA0248339C5B2C535 /* Pods_IntegrationTests.framework */; };
@@ -633,6 +638,11 @@
 		4A6935385186A1A96989B8F0 /* Pods-FunctionalTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTests.release.xcconfig"; path = "Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests.release.xcconfig"; sourceTree = "<group>"; };
 		4AD2B66914A5CF6D57AB25A7 /* Pods-FunctionalTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTestApp.debug.xcconfig"; path = "Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp.debug.xcconfig"; sourceTree = "<group>"; };
 		4C3B9F882AE3385B00A7D395 /* AEPTestUtils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPTestUtils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C627F572E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentMissingSurfaceMetadata.json; sourceTree = "<group>"; };
+		4C627F592E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentFeedItemConsequences.json; sourceTree = "<group>"; };
+		4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentMissingData.json; sourceTree = "<group>"; };
+		4C627F5D2E1E00D3001634BB /* contentCardProposition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardProposition.json; sourceTree = "<group>"; };
+		4C627F5E2E1E00D3001634BB /* contentCardPropositionContent.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionContent.json; sourceTree = "<group>"; };
 		4DBE357820DAAEE02A221D75 /* Pods-E2EFunctionalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTests.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests.debug.xcconfig"; sourceTree = "<group>"; };
 		53FA287A1BFC0714D83A6419 /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		69F23BE01498B5A36EEE4CDC /* Pods_MessagingDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -929,10 +939,15 @@
 				09265D5F2B74497E0085D825 /* codeBasedPropositionJson.json */,
 				09265D5E2B74497E0085D825 /* codeBasedPropositionJsonContent.json */,
 				242920EA2AC5D744000DB2CD /* cachedProposition.json */,
+				4C627F5D2E1E00D3001634BB /* contentCardProposition.json */,
+				4C627F5E2E1E00D3001634BB /* contentCardPropositionContent.json */,
 				2438B92D29C12179001D6F3A /* emptyContentStringRule.json */,
 				2469A5E02744696400E56457 /* eventSequenceRule.json */,
 				240FC4352AAFCBE500AFEEEB /* feedProposition.json */,
 				240FC43B2AB0B8A200AFEEEB /* feedPropositionContent.json */,
+				4C627F592E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json */,
+				4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */,
+				4C627F572E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json */,
 				2469A5EC2755A60E00E56457 /* functionalTestConfigStage.json */,
 				240FC4372AAFCE3400AFEEEB /* inappPropositionV2.json */,
 				240FC43E2AB0B8A300AFEEEB /* inappPropositionV2Content.json */,
@@ -1922,12 +1937,17 @@
 				B6F7CC252CC2EFE400C35C64 /* SmallImageTemplate_noTitle.json in Resources */,
 				B6F7CC262CC2EFE400C35C64 /* SmallImageTemplate.json in Resources */,
 				B6F7CC272CC2EFE400C35C64 /* SmallImageTemplate_validTitle_invalidOther.json in Resources */,
+				4C627F5B2E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json in Resources */,
+				4C627F5C2E1DFE9C001634BB /* feedPropositionContentMissingData.json in Resources */,
 				243EC1EE2CD0387100BD546E /* inAppMessagePriority20.json in Resources */,
 				243EC1EF2CD0387100BD546E /* inAppMessagePriority60.json in Resources */,
 				B6F7CC2A2CC2EFE400C35C64 /* InvalidTemplate.json in Resources */,
 				2469A5DF274465C900E56457 /* showOnceRule.json in Resources */,
 				240FC4362AAFCBE500AFEEEB /* feedProposition.json in Resources */,
 				242920EB2AC5D745000DB2CD /* cachedProposition.json in Resources */,
+				4C627F582E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json in Resources */,
+				4C627F5F2E1E00D3001634BB /* contentCardProposition.json in Resources */,
+				4C627F602E1E00D3001634BB /* contentCardPropositionContent.json in Resources */,
 				242920D42ABCA559000DB2CD /* ruleWithNoConsequence.json in Resources */,
 				09265D622B74497E0085D825 /* codeBasedPropositionJsonContent.json in Resources */,
 				240FC43F2AB0B8A300AFEEEB /* feedPropositionContent.json in Resources */,
@@ -1986,9 +2006,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2003,9 +2027,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2064,9 +2092,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2103,9 +2135,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2142,9 +2178,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2225,9 +2265,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2264,9 +2308,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2303,9 +2351,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2342,9 +2394,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
