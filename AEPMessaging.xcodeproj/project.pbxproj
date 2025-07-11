@@ -265,6 +265,8 @@
 		B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */; };
 		B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */; };
 		B64256B92D93B08900EDCAC5 /* Messaging+LiveActivityPublicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */; };
+		B6471C7B2E00B0CB0013F127 /* LiveActivityDebuggable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6471C7A2E00B0CB0013F127 /* LiveActivityDebuggable.swift */; };
+		B6471C7D2E01447E0013F127 /* LiveActivityDebugSchemaBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6471C7C2E01447E0013F127 /* LiveActivityDebugSchemaBuilder.swift */; };
 		B67CCF772CD08D5500CF08D1 /* AEPAsyncImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF762CD08D4D00CF08D1 /* AEPAsyncImageView.swift */; };
 		B67CCF792CD0BF8D00CF08D1 /* ContentCardImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */; };
 		B69573C82CD4447F0027E376 /* AEPBundleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69573C72CD444790027E376 /* AEPBundleImageView.swift */; };
@@ -821,6 +823,8 @@
 		B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingNotificationTrackingTests.swift; sourceTree = "<group>"; };
 		B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatus.swift; sourceTree = "<group>"; };
 		B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+LiveActivityPublicAPI.swift"; sourceTree = "<group>"; };
+		B6471C7A2E00B0CB0013F127 /* LiveActivityDebuggable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityDebuggable.swift; sourceTree = "<group>"; };
+		B6471C7C2E01447E0013F127 /* LiveActivityDebugSchemaBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityDebugSchemaBuilder.swift; sourceTree = "<group>"; };
 		B67CCF762CD08D4D00CF08D1 /* AEPAsyncImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPAsyncImageView.swift; sourceTree = "<group>"; };
 		B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardImageCache.swift; sourceTree = "<group>"; };
 		B69573C72CD444790027E376 /* AEPBundleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPBundleImageView.swift; sourceTree = "<group>"; };
@@ -1549,6 +1553,7 @@
 			children = (
 				B61BDAE12DA5EA43007FE12E /* AEPMessagingLiveActivity.h */,
 				B61BDAE22DA5EA43007FE12E /* Info.plist */,
+				B6471C7A2E00B0CB0013F127 /* LiveActivityDebuggable.swift */,
 				B61BDAE32DA5EA43007FE12E /* LiveActivityAttributes.swift */,
 				B61BDAE42DA5EA43007FE12E /* LiveActivityData.swift */,
 				4C0111D62DB30FD900996757 /* LiveActivityOrigin.swift */,
@@ -1569,6 +1574,7 @@
 			children = (
 				4C075D762DDE8A110082B66C /* Persistence */,
 				4C9BE8D72DAF5A6900EF41A3 /* ActivityTaskStore.swift */,
+				B6471C7C2E01447E0013F127 /* LiveActivityDebugSchemaBuilder.swift */,
 				B64256B82D93B07C00EDCAC5 /* Messaging+LiveActivityPublicAPI.swift */,
 			);
 			path = LiveActivity;
@@ -2925,6 +2931,7 @@
 				B6F7CBDE2CC2089A00C35C64 /* ContentCardTemplate.swift in Sources */,
 				B6F7CBDF2CC2089A00C35C64 /* ContentCardTemplateType.swift in Sources */,
 				B6F7CBE02CC2089A00C35C64 /* AEPTextType.swift in Sources */,
+				B6471C7D2E01447E0013F127 /* LiveActivityDebugSchemaBuilder.swift in Sources */,
 				B6F7CBE12CC2089A00C35C64 /* BaseTemplate.swift in Sources */,
 				B6F7CBE22CC2089A00C35C64 /* Messaging+UIPublicAPI.swift in Sources */,
 				B6F7CBE32CC2089A00C35C64 /* UIConstants.swift in Sources */,
@@ -3098,6 +3105,7 @@
 			files = (
 				B61BDAE92DA5EA43007FE12E /* LiveActivityAttributes.swift in Sources */,
 				B61BDAEA2DA5EA43007FE12E /* LiveActivityData.swift in Sources */,
+				B6471C7B2E00B0CB0013F127 /* LiveActivityDebuggable.swift in Sources */,
 				4C0111D72DB30FD900996757 /* LiveActivityOrigin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

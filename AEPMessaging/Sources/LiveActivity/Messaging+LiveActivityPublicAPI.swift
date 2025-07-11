@@ -43,6 +43,10 @@ public extension Messaging {
     static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
         let attributeType = T.attributeType
 
+        if let debuggableType = T.self as? any LiveActivityAssuranceDebuggable.Type {
+            dispatchAttributeStructureEvent(type: debuggableType)
+        }
+
         if #available(iOS 17.2, *) {
             let newPushTask = createPushToStartTokenTask(type: T.self)
             Task {
@@ -359,6 +363,30 @@ public extension Messaging {
             source: EventSource.debug,
             data: data
         )
+        MobileCore.dispatch(event: event)
+    }
+
+    private static func dispatchAttributeStructureEvent<T: LiveActivityAssuranceDebuggable>(
+        type _: T.Type) {
+        let debugInfo = T.getDebugInfo()
+        let attributes = debugInfo.attributes
+        let contentState = debugInfo.state
+
+        let attributeTypeName = String(describing: T.self)
+
+        // Use JSONSchemaBuilder to create the event data
+        let eventData = LiveActivityDebugSchemaBuilder.buildEventData(
+            attributeTypeName: attributeTypeName,
+            attributes: attributes,
+            contentState: contentState
+        )
+
+        // TODO: Define this event name in MessagingConstants
+        let eventName = "Live Activity Schema (\(attributeTypeName))"
+        let event = Event(name: eventName,
+                          type: EventType.genericData,
+                          source: EventSource.debug,
+                          data: eventData)
         MobileCore.dispatch(event: event)
     }
 }
