@@ -111,6 +111,48 @@ class ContentCardEventListeningTest : IntegrationTestBase, ContentCardUIEventLis
         #expect(interactEventReceived == true)
     }
 
+    @Test("image only display event")
+    func imageOnlyDisplayEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "ImageOnlyCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? ImageOnlyTemplate)
+        
+        // test
+        card.eventHandler?.onDisplay()
+        
+        // verify
+        #expect(displayEventReceived == true)
+    }
+    
+    @Test("image only dismiss event")
+    func imageOnlyDismissEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "ImageOnlyCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? ImageOnlyTemplate)
+        
+        // test
+        card.eventHandler?.onDismiss()
+        
+        // verify
+        #expect(dismissEventReceived == true)
+    }
+    
+    @Test("image only interact event")
+    func imageOnlyInteractEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "ImageOnlyCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? ImageOnlyTemplate)
+        
+        // test
+        card.eventHandler?.onInteract(interactionId: "Image Clicked", actionURL: nil)
+        
+        // verify
+        #expect(interactEventReceived == true)
+    }
+
 
     ///**************************************************************
     /// ContentCardUIEventListening protocol implementation

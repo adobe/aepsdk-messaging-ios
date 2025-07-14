@@ -196,6 +196,56 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         // verify
         XCTAssertNotNil(card?.schemaData)
     }
+    
+    func test_contentCardUI_imageOnly_createInstance_happy() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "ImageOnlyTemplate")
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify
+        XCTAssertNotNil(contentCardUI)
+        XCTAssertEqual(contentCardUI?.template.templateType, .imageOnly)
+        XCTAssertEqual(contentCardUI?.proposition, proposition)
+        XCTAssertNotNil(contentCardUI?.view)
+        XCTAssertNil(contentCardUI?.listener)
+    }
+    
+    func test_contentCardUI_imageOnly_priority() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "ImageOnlyTemplate", priority: 25)
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify        
+        XCTAssertEqual(25, contentCardUI?.priority)
+    }
+    
+    func test_contentCardUI_imageOnly_verifyMeta() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "ImageOnlyTemplate")
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify
+        let meta = contentCardUI?.meta
+        XCTAssertNotNil(meta)
+        XCTAssertEqual(meta?["customKey"] as? String, "customValue")
+    }
+    
+    func test_contentCardUI_imageOnly_schemaData_Accessible() throws {
+        // setup
+        let proposition: Proposition = ContentCardTestUtil.createProposition(fromFile: "ImageOnlyTemplate")
+        
+        // test
+        let card = ContentCardUI.createInstance(with: proposition, customizer: nil, listener: self)
+        
+        // verify
+        XCTAssertNotNil(card?.schemaData)
+    }
 }
 
 

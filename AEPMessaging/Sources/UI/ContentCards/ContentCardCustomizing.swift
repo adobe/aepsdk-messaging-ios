@@ -20,4 +20,7 @@ public protocol ContentCardCustomizing {
 
     /// Implement this function to customize content cards with LargeImageTemplate
     func customize(template: LargeImageTemplate)
+    
+    /// Implement this function to customize content cards with ImageOnlyTemplate
+    func customize(template: ImageOnlyTemplate)
 }

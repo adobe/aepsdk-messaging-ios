@@ -53,5 +53,52 @@ class TemplateBuilderTests: XCTestCase {
         XCTAssertNil(template)
     }
     
+    func test_buildTemplate_imageOnlyTemplate() {
+        // setup
+        let schema = ContentCardTestUtil.createContentCardSchemaData(fromFile: "ImageOnlyTemplate")
+        
+        // test
+        let template = TemplateBuilder.buildTemplate(from: schema, customizer: nil)
+        
+        // verify
+        XCTAssertNotNil(template)
+        XCTAssertEqual(template?.templateType, .imageOnly)
+        XCTAssertTrue(template is ImageOnlyTemplate)
+    }
+    
+    func test_buildTemplate_imageOnlyTemplate_onlyImage() {
+        // setup
+        let schema = ContentCardTestUtil.createContentCardSchemaData(fromFile: "ImageOnlyTemplate_onlyImage")
+        
+        // test
+        let template = TemplateBuilder.buildTemplate(from: schema, customizer: nil)
+        
+        // verify
+        XCTAssertNotNil(template)
+        XCTAssertEqual(template?.templateType, .imageOnly)
+        XCTAssertTrue(template is ImageOnlyTemplate)
+    }
+    
+    func test_buildTemplate_imageOnlyTemplate_noImage() {
+        // setup
+        let schema = ContentCardTestUtil.createContentCardSchemaData(fromFile: "ImageOnlyTemplate_noImage")
+        
+        // test
+        let template = TemplateBuilder.buildTemplate(from: schema, customizer: nil)
+        
+        // verify
+        XCTAssertNil(template)
+    }
+    
+    func test_buildTemplate_imageOnlyTemplate_invalidImage() {
+        // setup
+        let schema = ContentCardTestUtil.createContentCardSchemaData(fromFile: "ImageOnlyTemplate_invalidImage")
+        
+        // test
+        let template = TemplateBuilder.buildTemplate(from: schema, customizer: nil)
+        
+        // verify
+        XCTAssertNil(template)
+    }
         
 }

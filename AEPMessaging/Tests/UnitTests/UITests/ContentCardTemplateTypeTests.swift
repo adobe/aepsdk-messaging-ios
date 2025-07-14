@@ -21,6 +21,7 @@ final class ContentCardTemplateTypeTests: XCTestCase {
         // test known cases
         XCTAssertEqual(ContentCardTemplateType(from: "SmallImage"), .smallImage)
         XCTAssertEqual(ContentCardTemplateType(from: "LargeImage"), .largeImage)
+        XCTAssertEqual(ContentCardTemplateType(from: "ImageOnly"), .imageOnly)
         
         // test unknown case
         XCTAssertEqual(ContentCardTemplateType(from: "NonExistentType"), .unknown)
@@ -30,6 +31,7 @@ final class ContentCardTemplateTypeTests: XCTestCase {
         // test
         XCTAssertEqual(ContentCardTemplateType.smallImage.rawValue, "SmallImage")
         XCTAssertEqual(ContentCardTemplateType.largeImage.rawValue, "LargeImage")
+        XCTAssertEqual(ContentCardTemplateType.imageOnly.rawValue, "ImageOnly")
         XCTAssertEqual(ContentCardTemplateType.unknown.rawValue, "Unknown")
     }
 }

@@ -17,6 +17,7 @@ import Foundation
 public enum ContentCardTemplateType: String {
     case smallImage = "SmallImage"
     case largeImage = "LargeImage"
+    case imageOnly = "ImageOnly"
     case unknown = "Unknown"
 
     // Initializer to create an enum case from a string

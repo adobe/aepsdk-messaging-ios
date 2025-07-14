@@ -22,4 +22,8 @@ class EmptyCustomizer : ContentCardCustomizing {
     func customize(template: LargeImageTemplate) {
         // Do nothing
     }
+    
+    func customize(template: ImageOnlyTemplate) {
+        // Do nothing
+    }
 }

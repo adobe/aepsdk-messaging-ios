@@ -152,6 +152,14 @@ class CardCustomizer : ContentCardCustomizing {
         template.dismissButton?.image.iconFont = .system(size: 10)
     }
     
+    func customize(template: ImageOnlyTemplate) {
+        // customize UI elements
+        // customize the dismiss buttons
+        template.dismissButton?.image.iconColor = .primary
+        template.dismissButton?.image.iconFont = .system(size: 10)
+
+    }
+    
     struct RootVStackModifier : ViewModifier {
         func body(content: Content) -> some View {
             content

@@ -1,0 +1,15 @@
+{
+  "expiryDate": 1723163897,
+  "meta": {
+    "adobe": {
+      "template": "ImageOnly"
+    }
+  },
+  "content": {
+    "image": {
+      "url": "https://imagetoDownload.com/cardimage"
+    }
+  },
+  "contentType": "application/json",
+  "publishedDate": 1691541497
+} 

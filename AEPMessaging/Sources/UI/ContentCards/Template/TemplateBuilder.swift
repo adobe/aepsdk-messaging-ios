@@ -29,6 +29,8 @@ enum TemplateBuilder {
             return SmallImageTemplate(schemaData, customizer)
         case .largeImage:
             return LargeImageTemplate(schemaData, customizer)
+        case .imageOnly:
+            return ImageOnlyTemplate(schemaData, customizer)
         case .unknown:
             // Currently unsupported template types
             return nil

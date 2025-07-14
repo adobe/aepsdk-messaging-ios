@@ -166,6 +166,69 @@ class ContentCardTrackingTest : IntegrationTestBase {
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionDismiss").count == 1)
      }
     
+    @Test("image only display tracked")
+    func imageOnlyDisplayEventTracked() async throws {
+        // setup
+        setContentCardResponse(fromFile: "ImageOnlyCard")
+        let networkLatch = setupNetworkWaitLatch(count: 3)
+        
+        // download cards and simulate display
+        let cards = try await getContentCardUI(homeSurface)
+        let cardTemplate = try #require(cards.first?.template as? ImageOnlyTemplate)
+        cardTemplate.eventHandler?.onDisplay()
+        
+        // wait for network calls to complete
+        try awaitNetworkCalls(latch: networkLatch)
+        
+        // verify events
+        #expect(mockNetwork.edgeRequests.count == 3)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionDisplay").count == 1)
+    }
+   
+   @Test("image only interaction tracked")
+    func imageOnlyInteractionEventTracked() async throws {
+        // setup
+        setContentCardResponse(fromFile: "ImageOnlyCard")
+        let networkLatch = setupNetworkWaitLatch(count: 3)
+        
+        // download cards and simulate interaction
+        let cards = try await getContentCardUI(homeSurface)
+        let cardTemplate = try #require(cards.first?.template as? ImageOnlyTemplate)
+        cardTemplate.eventHandler?.onInteract(interactionId: "ImageClicked", actionURL: nil)
+        
+        // wait for network calls to complete
+        try awaitNetworkCalls(latch: networkLatch)
+        
+        // verify events
+        #expect(mockNetwork.edgeRequests.count == 3)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionInteract").count == 1)
+    }
+   
+   @Test("image only dismiss tracked")
+    func imageOnlyDismissEventTracked() async throws {
+        // setup
+        setContentCardResponse(fromFile: "ImageOnlyCard")
+        let networkLatch = setupNetworkWaitLatch(count: 3)
+        
+        // download cards and simulate dismiss
+        let cards = try await getContentCardUI(homeSurface)
+        let cardTemplate = try #require(cards.first?.template as? ImageOnlyTemplate)
+        cardTemplate.eventHandler?.onDismiss()
+        
+        // wait for network calls to complete
+        try awaitNetworkCalls(latch: networkLatch)
+        
+        // verify events
+        #expect(mockNetwork.edgeRequests.count == 3)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionDismiss").count == 1)
+    }
+
     @Test("multiple getContentCardUI API call")
     func multipleGetContentUI() async throws {
         // setup
