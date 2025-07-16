@@ -196,6 +196,9 @@
 		24FD5F752CEEA50F00AE4567 /* CompletionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */; };
 		2B2B7A6E0F7CD6312D28421A /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */; };
 		44DFBD558578CFDCD4A9A476 /* Pods_E2EFunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A44BD44CB3A7DA5EBB972652 /* Pods_E2EFunctionalTestApp.framework */; };
+		4C3D44432E286BB100662A3F /* contentCardPropositionContentMissingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D44402E286BB100662A3F /* contentCardPropositionContentMissingData.json */; };
+		4C3D44442E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D44412E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json */; };
+		4C3D44452E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D44422E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json */; };
 		4C627F582E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F572E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json */; };
 		4C627F5B2E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F592E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json */; };
 		4C627F5C2E1DFE9C001634BB /* feedPropositionContentMissingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */; };
@@ -638,6 +641,9 @@
 		4A6935385186A1A96989B8F0 /* Pods-FunctionalTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTests.release.xcconfig"; path = "Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests.release.xcconfig"; sourceTree = "<group>"; };
 		4AD2B66914A5CF6D57AB25A7 /* Pods-FunctionalTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTestApp.debug.xcconfig"; path = "Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp.debug.xcconfig"; sourceTree = "<group>"; };
 		4C3B9F882AE3385B00A7D395 /* AEPTestUtils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPTestUtils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C3D44402E286BB100662A3F /* contentCardPropositionContentMissingData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionContentMissingData.json; sourceTree = "<group>"; };
+		4C3D44412E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionContentMissingSurfaceMetadata.json; sourceTree = "<group>"; };
+		4C3D44422E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionMultipleCardConsequences.json; sourceTree = "<group>"; };
 		4C627F572E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentMissingSurfaceMetadata.json; sourceTree = "<group>"; };
 		4C627F592E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentFeedItemConsequences.json; sourceTree = "<group>"; };
 		4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentMissingData.json; sourceTree = "<group>"; };
@@ -953,6 +959,9 @@
 				240FC43E2AB0B8A300AFEEEB /* inappPropositionV2Content.json */,
 				2438B92E29C12179001D6F3A /* malformedContentRule.json */,
 				240BDFF52B72E83E00AE8547 /* mockPropositionItem.json */,
+				4C3D44402E286BB100662A3F /* contentCardPropositionContentMissingData.json */,
+				4C3D44412E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json */,
+				4C3D44422E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json */,
 				243EC1EC2CD0387100BD546E /* inAppMessagePriority20.json */,
 				243EC1ED2CD0387100BD546E /* inAppMessagePriority60.json */,
 				243EC1EA2CD036A200BD546E /* inAppMessagePriority100.json */,
@@ -1953,6 +1962,9 @@
 				240FC43F2AB0B8A300AFEEEB /* feedPropositionContent.json in Resources */,
 				2438B92C29C10B2D001D6F3A /* wrongScopeRule.json in Resources */,
 				240FC4422AB0B8A300AFEEEB /* inappPropositionV2Content.json in Resources */,
+				4C3D44432E286BB100662A3F /* contentCardPropositionContentMissingData.json in Resources */,
+				4C3D44442E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json in Resources */,
+				4C3D44452E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json in Resources */,
 				2438B93029C12179001D6F3A /* malformedContentRule.json in Resources */,
 				240FC4382AAFCE3400AFEEEB /* inappPropositionV2.json in Resources */,
 				2438B92F29C12179001D6F3A /* emptyContentStringRule.json in Resources */,
