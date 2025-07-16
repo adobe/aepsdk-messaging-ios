@@ -43,12 +43,10 @@ class DynamicTestableExtensionRuntime: TestableExtensionRuntime {
 }
 
 class ContentCardRulesEngineTests: XCTestCase {
-    // MARK: - Test properties
     var contentCardRulesEngine: ContentCardRulesEngine!
     var mockRuntime: DynamicTestableExtensionRuntime!
     var defaultEvent: Event!
 
-    // MARK: - Setup / Teardown
     override func setUp() {
         super.setUp()
         mockRuntime = DynamicTestableExtensionRuntime()
@@ -59,22 +57,6 @@ class ContentCardRulesEngineTests: XCTestCase {
                              data: ["action": "fullscreen"])
     }
 
-    // MARK: - Helper
-    private func replaceRules(fromFile fileName: String) {
-        // Attempt to load the JSON rule string from the test bundle. If the file does not
-        // exist (will be provided later according to the author), skip the test so that
-        // the suite compiles and runs without failures.
-        let rulesString = JSONFileLoader.getRulesStringFromFile(fileName)
-        guard !rulesString.isEmpty else {
-            XCTFail("Rules file \(fileName).json is missing.")
-            return
-        }
-        let rulesData = Data(rulesString.utf8)
-        let parsedRules = JSONRulesParser.parse(rulesData, runtime: mockRuntime) ?? []
-        contentCardRulesEngine.launchRulesEngine.replaceRules(with: parsedRules)
-    }
-
-    // MARK: - Tests
     func testEvaluate_withNoConsequencesRules_returnsNil() {
         replaceRules(fromFile: "ruleWithNoConsequence")
 
@@ -186,5 +168,19 @@ class ContentCardRulesEngineTests: XCTestCase {
         }
         XCTAssertEqual(1, inboundMessageList.count)
         XCTAssertEqual(.contentCard, inboundMessageList[0].schema)
+    }
+
+    private func replaceRules(fromFile fileName: String) {
+        let rulesString = JSONFileLoader.getRulesStringFromFile(fileName)
+        guard !rulesString.isEmpty else {
+            XCTFail("Rules file \(fileName).json is missing.")
+            return
+        }
+        let rulesData = Data(rulesString.utf8)
+        guard let parsedRules = JSONRulesParser.parse(rulesData, runtime: mockRuntime) else {
+            XCTFail("Unable to parse rules file \(fileName).json.")
+            return
+        }
+        contentCardRulesEngine.launchRulesEngine.replaceRules(with: parsedRules)
     }
 }
