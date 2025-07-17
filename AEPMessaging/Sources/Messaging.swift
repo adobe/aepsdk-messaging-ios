@@ -80,10 +80,10 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Stores rules for processing by the Messaging rules engine, where `.process` is called on each rule.
-    private var _processableRulesBySurface: [Surface: [LaunchRule]] = [:]
-    private var processableRulesBySurface: [Surface: [LaunchRule]] {
-        get { queue.sync { self._processableRulesBySurface } }
-        set { queue.async { self._processableRulesBySurface = newValue } }
+    private var _inAppRulesBySurface: [Surface: [LaunchRule]] = [:]
+    private var inAppRulesBySurface: [Surface: [LaunchRule]] {
+        get { queue.sync { self._inAppRulesBySurface } }
+        set { queue.async { self._inAppRulesBySurface = newValue } }
     }
 
     /// used to manage content card rules between multiple surfaces and multiple requests
@@ -93,6 +93,13 @@ public class Messaging: NSObject, Extension {
         set { queue.async { self._contentCardRulesBySurface = newValue } }
     }
 
+    /// used to manage event history operation rules between multiple surfaces and multiple requests
+    private var _eventHistoryRulesBySurface: [Surface: [LaunchRule]] = [:]
+    private var eventHistoryRulesBySurface: [Surface: [LaunchRule]] {
+        get { queue.sync { self._eventHistoryRulesBySurface } }
+        set { queue.async { self._eventHistoryRulesBySurface = newValue } }
+    }
+    
     /// holds content cards that the user has qualified for
     private var _qualifiedContentCardsBySurface: [Surface: [Proposition]] = [:]
     var qualifiedContentCardsBySurface: [Surface: [Proposition]] {
@@ -717,33 +724,40 @@ public class Messaging: NSObject, Extension {
     }
 
     private func updateRulesEngines(with rules: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
+        // Early exit if no rules to process
+        guard !rules.isEmpty else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "No rules to update in the rules engine - skipping.")
+            return
+        }
+
         for (inboundType, newRules) in rules {
             let surfacesToRemove = requestedSurfaces.minus(Array(newRules.keys))
             switch inboundType {
-            case .inapp, .eventHistoryOperation:
-                Log.trace(label: MessagingConstants.LOG_TAG, "Updating \(inboundType) definitions for surfaces \(requestedSurfaces).")
+            case .inapp:
+                Log.trace(label: MessagingConstants.LOG_TAG, "Updating in-app definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
 
                 // replace rules for each in-app surface we got back
-                processableRulesBySurface.merge(newRules) { _, new in new }
+                inAppRulesBySurface.merge(newRules) { _, new in new }
 
                 // remove any surfaces that were requested but had no in-app content returned
                 // Note that in-app and event history operation (content card) surfaces do not overlap
                 // so they will not remove each other
                 for surface in surfacesToRemove {
                     // calls for a dictionary extension?
-                    processableRulesBySurface.removeValue(forKey: surface)
+                    inAppRulesBySurface.removeValue(forKey: surface)
                 }
 
-                // combine all our rules
-                let processedRules = processableRulesBySurface.flatMap { $0.value }
+                // Flatten the in-app rules (no longer grouped by surface)
+                let inAppRules = inAppRulesBySurface.flatMap { $0.value }
 
-                if inboundType == .inapp {
-                    // pre-fetch the assets for this message if there are any defined
-                    rulesEngine.cacheRemoteAssetsFor(processedRules)
-                }
+                // pre-fetch the assets for this message if there are any defined
+                rulesEngine.cacheRemoteAssetsFor(inAppRules)
 
-                // update rules in processed rules engine
-                rulesEngine.launchRulesEngine.replaceRules(with: processedRules)
+                // Combine with any existing event-history operation rules so we don’t evict them in the rules engine replacement
+                let combinedRules = inAppRules + eventHistoryRulesBySurface.flatMap { $0.value }
+
+                // update rules in rules engine that performs processing
+                rulesEngine.launchRulesEngine.replaceRules(with: combinedRules)
 
             case .feed, .contentCard:
                 Log.trace(label: MessagingConstants.LOG_TAG, "Updating content card definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
@@ -766,9 +780,29 @@ public class Messaging: NSObject, Extension {
                     addOrReplaceContentCards(propositions, forSurface: surface)
                 }
 
+            case .eventHistoryOperation:
+                Log.trace(label: MessagingConstants.LOG_TAG, "Updating event history operation rule definitions for surfaces \(newRules.compactMap { $0.key.uri }).")
+
+                // replace rules for each surface we got back
+                eventHistoryRulesBySurface.merge(newRules) { _, new in new }
+
+                // remove any surfaces that were requested but had no event-history rules returned
+                for surface in surfacesToRemove {
+                    eventHistoryRulesBySurface.removeValue(forKey: surface)
+                }
+
+                // Flatten the event history rules (no longer grouped by surface)
+                let allEventHistoryRules = eventHistoryRulesBySurface.flatMap { $0.value }
+
+                // Combine with any in-app rules so we don’t evict them in the rules engine replacement
+                let combinedRules = allEventHistoryRules + inAppRulesBySurface.flatMap { $0.value }
+
+                // update rules in rules engine that performs processing
+                rulesEngine.launchRulesEngine.replaceRules(with: combinedRules)
+
             default:
                 // no-op
-                Log.trace(label: MessagingConstants.LOG_TAG, "No action will be taken updating messaging rules - the InboundType provided is not supported.")
+                Log.trace(label: MessagingConstants.LOG_TAG, "No action will be taken updating messaging rules - the InboundType provided (\(inboundType)) is not supported.")
             }
         }
     }
@@ -847,51 +881,45 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    /// Handles rules engine consequences:
-    /// - Schema consequences are routed to `handleSchemaConsequence`
-    /// - Content card qualification removal consequences are routed to `removePropositionFromQualifiedCards`
+    /// Handles rules engine consequences
     private func handleRulesConsequence(_ event: Event) {
         guard event.data != nil else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. 'eventData' is nil.")
             return
         }
-        
-        // Handle schema consequences
-        if event.isSchemaConsequence {
-            handleSchemaConsequence(event)
-            return
-        }
 
-        // Handle content card disqualify/unqualify consequences
-        guard event.isQualificationRemovalConsequence,
-              let activityId = event.consequenceMessageId,
-              !activityId.isEmpty
-        else {
-            Log.trace(label: MessagingConstants.LOG_TAG,
-                      "Ignoring rule consequence event. Either the consequence is not of type 'schema', or "
-                      + "required properties for content card qualification removal are missing: "
-                      + "a valid disqualify/unqualify type or a non-empty message ID.")
-
-            return
-        }
-
-        removePropositionFromQualifiedCards(for: activityId)
-    }
-
-    private func handleSchemaConsequence(_ event: Event) {
+        // Attempt to create a proposition item from the consequence event
         guard let propositionItem = PropositionItem.fromRuleConsequenceEvent(event) else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "handleRulesConsequence - Ignoring rule consequence event, propositionItem is nil")
             return
         }
 
         switch propositionItem.schema {
         case .inapp:
-            if
-                let message = Message.fromPropositionItem(propositionItem, with: self, triggeringEvent: event),
-                let propositionInfo = propositionInfoFor(messageId: propositionItem.itemId) {
-                message.propositionInfo = propositionInfo
+            if let message = Message.fromPropositionItem(propositionItem,
+                                                         with: self,
+                                                         triggeringEvent: event),
+               let propInfo = propositionInfoFor(messageId: propositionItem.itemId) {
+                message.propositionInfo = propInfo
                 message.trigger()
                 message.show(withMessagingDelegateControl: true)
             }
+
+        case .eventHistoryOperation:
+            guard let schemaData = propositionItem.eventHistoryOperationSchemaData,
+                  let activityId = schemaData.messageId,
+                  let eventType = schemaData.eventType,
+                  !activityId.isEmpty else {
+                Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring event-history operation consequence: required fields missing.")
+                return
+            }
+
+            // Disqualify or unqualify operations should remove the card from qualified status
+            if eventType == MessagingConstants.XDM.Inbound.PropositionEventType.DISQUALIFY ||
+               eventType == MessagingConstants.XDM.Inbound.PropositionEventType.UNQUALIFY {
+                removePropositionFromQualifiedCards(for: activityId)
+            }
+
         default:
             return
         }
