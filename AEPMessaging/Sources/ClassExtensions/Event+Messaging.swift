@@ -16,50 +16,6 @@ import CoreGraphics
 import Foundation
 
 extension Event {
-    // MARK: - Event History handling
-
-    var isDisqualifyEvent: Bool {
-        isMessagingType && isEventHistoryWriteSource && eventHistoryEventType == .disqualify
-    }
-
-    var eventHistoryActivityId: String? {
-        iamHistoryMap?[MessagingConstants.Event.History.Keys.MESSAGE_ID]
-    }
-
-    private var isEventHistoryWriteSource: Bool {
-        source == MessagingConstants.Event.Source.EVENT_HISTORY_WRITE
-    }
-
-    private var eventHistoryEventType: MessagingEdgeEventType? {
-        guard let eventTypeString = iamHistoryMap?[MessagingConstants.Event.History.Keys.EVENT_TYPE] else {
-            return nil
-        }
-
-        return MessagingEdgeEventType(fromPropositionEventType: eventTypeString)
-    }
-
-    private var iamHistoryMap: [String: String]? {
-        data?[MessagingConstants.Event.Data.Key.IAM_HISTORY] as? [String: String]
-    }
-
-    // MARK: - Rules Consequence Event Handling
-
-    /// The IAM event type from the consequence event data (used for disqualify/unqualify detection)
-    var consequenceEventType: String? {
-        data?[MessagingConstants.Event.History.Mask.EVENT_TYPE] as? String
-    }
-
-    /// The message/activity ID from the consequence event data (used for disqualify/unqualify detection)
-    var consequenceMessageId: String? {
-        data?[MessagingConstants.Event.History.Mask.MESSAGE_ID] as? String
-    }
-
-    /// Returns true if this is a disqualify or unqualify consequence event
-    var isQualificationRemovalConsequence: Bool {
-        guard let eventType = consequenceEventType else { return false }
-        return eventType == MessagingEdgeEventType.disqualify.propositionEventType || eventType == MessagingConstants.XDM.Inbound.PropositionEventType.UNQUALIFY
-    }
-
     // MARK: - In-app Message Consequence Event Handling
 
     var isSchemaConsequence: Bool {
