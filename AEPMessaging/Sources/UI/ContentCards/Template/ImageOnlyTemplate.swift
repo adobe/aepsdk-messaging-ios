@@ -14,6 +14,7 @@
     import SwiftUI
 #endif
 import AEPServices
+
 /// A class representing a content card template with an image-only layout.
 ///
 /// `ImageOnlyTemplate` is a subclass of `BaseTemplate` and conforms to the `ContentCardTemplate` protocol.
@@ -48,12 +49,12 @@ public class ImageOnlyTemplate: BaseTemplate, ContentCardTemplate {
         guard let image = schemaData.image else {
             return nil
         }
-        
+
         self.image = image
         super.init(schemaData)
-        
+
         dismissButton = schemaData.getDismissButton(forTemplate: self)
 
         customizer?.customize(template: self)
     }
-} 
+}
