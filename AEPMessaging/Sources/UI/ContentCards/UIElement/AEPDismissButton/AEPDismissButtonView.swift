@@ -17,7 +17,7 @@
 @available(iOS 15.0, *)
 struct AEPDismissButtonView: View {
     /// The model containing the data about the button.
-    @ObservedObject public var model: AEPDismissButton
+    @ObservedObject var model: AEPDismissButton
 
     /// Initializes a new instance of `AEPButtonView` with the provided model
     init(model: AEPDismissButton) {

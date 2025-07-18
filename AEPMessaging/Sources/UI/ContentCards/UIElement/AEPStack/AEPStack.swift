@@ -51,7 +51,7 @@ public class AEPStack: ObservableObject {
     /// - Throws:
     ///   - `AEPStackError.indexOutOfBounds` if the specified index is out of the valid range.
     func insertView<V: View>(_ view: V, at index: Int) throws {
-        guard index >= 0 && index <= childModels.count else {
+        guard index >= 0, index <= childModels.count else {
             Log.warning(label: UIConstants.LOG_TAG, "AEPStack: Cannot insert view at index \(index). Index out of bounds.")
             throw AEPStackError.indexOutOfBounds
         }

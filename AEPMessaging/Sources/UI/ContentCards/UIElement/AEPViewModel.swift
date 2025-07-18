@@ -41,7 +41,7 @@ struct AnyViewModel<Content: View>: AEPViewModel {
     let wrappedView: Content
 
     /// Provides the adapted view, fulfilling the `AEPViewModel` requirement
-    public var view: some View {
+    var view: some View {
         wrappedView
     }
 }
