@@ -32,6 +32,9 @@ public class Message: NSObject {
         fullscreenMessage?.webView
     }
 
+    /// Custom metadata for the message, if any.
+    @objc public var metadata: [String: Any] = [:]
+
     // MARK: internal properties
 
     /// Holds a reference to the class that created this `Message`.  Used for access to tracking code owned by `Messaging`.
@@ -192,6 +195,9 @@ extension Message {
                                                                                               listener: message,
                                                                                               isLocalImageUsed: usingLocalAssets,
                                                                                               settings: messageSettings) as? FullscreenMessage
+
+        message.metadata = iamSchemaData.meta ?? [:]
+
         if usingLocalAssets {
             message.fullscreenMessage?.setAssetMap(message.assets)
         }
