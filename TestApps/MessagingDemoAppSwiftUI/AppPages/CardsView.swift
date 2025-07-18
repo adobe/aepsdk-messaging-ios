@@ -12,11 +12,15 @@ governing permissions and limitations under the License.
 
 import AEPMessaging
 import SwiftUI
+import AEPCore
 
 struct CardsView: View, ContentCardUIEventListening {
     
     let cardsSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
+    // Surface that points to idsTest content cards
+    let idsTestSurface = Surface(path: Constants.SurfaceName.IDS_TEST)
     @State var savedCards : [ContentCardUI] = []
+    @State var idsCards: [ContentCardUI] = []
     @State private var viewLoaded: Bool = false
     @State private var showLoadingIndicator: Bool = false
     
@@ -28,6 +32,61 @@ struct CardsView: View, ContentCardUIEventListening {
                 downloadCards()
                 refreshCards()
             })
+
+            // Buttons for idsTest cards
+            HStack {
+                Button("QUALIFY") {
+                    MobileCore.track(action: "qualify", data: nil)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        refreshCards()
+                    }
+                }
+                .buttonStyle(.bordered)
+
+                Button("UNQUALIFY/DISMISS") {
+                    // Placeholder for future custom action
+                    MobileCore.track(action: "unqualify", data: nil)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        refreshCards()
+                    }
+                }
+                .buttonStyle(.bordered)
+
+                Button("DISQUALIFY") {
+                    let eventData: [String: Any] = [
+                        "xdm": [
+                            "eventType": "decisioning.propositionDismiss",
+                            "_experience": [
+                                "decisioning": [
+                                    "propositions": [
+                                        [
+                                            "scopeDetails": [
+                                                "activity": [
+                                                    "id": "cbd2e600-72c5-44c3-819f-431e5ecef03c#38cd6cf9-d9c7-456e-ada6-733b01fd31db"
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+
+                    let dismissEvent = Event(
+                        name: "Demo – manual propositionDismiss",
+                        type: EventType.edge,
+                        source: EventSource.requestContent,
+                        data: eventData
+                    )
+
+                    MobileCore.dispatch(event: dismissEvent)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        refreshCards()
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(.horizontal)
             
             ZStack {
                 ScrollView (.vertical, showsIndicators: false){
@@ -37,6 +96,15 @@ struct CardsView: View, ContentCardUIEventListening {
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 5)
                                         .stroke(Color(.systemGray3), lineWidth: 1)
+                                )
+                                .padding()
+                        }
+                        // Show idsTest cards as well
+                        ForEach(idsCards) { card in
+                            card.view
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 5)
+                                        .stroke(Color.blue, lineWidth: 1)
                                 )
                                 .padding()
                         }
@@ -77,11 +145,31 @@ struct CardsView: View, ContentCardUIEventListening {
                 print(error)
             }
         }
+        loadIdsCards()
     }
     
     func downloadCards() {
         showLoadingIndicator = true
-        Messaging.updatePropositionsForSurfaces([cardsSurface])
+        Messaging.updatePropositionsForSurfaces([cardsSurface, idsTestSurface])
+    }
+
+    // MARK: - IDS Test helpers
+    func loadIdsCards() {
+        showLoadingIndicator = true
+        Messaging.getContentCardsUI(for: idsTestSurface,
+                                     customizer: CardCustomizer(),
+                                     listener: self) { result in
+            showLoadingIndicator = false
+            switch result {
+            case .success(let cards):
+                idsCards = cards.sorted { $0.priority > $1.priority }
+            case .failure(let error):
+                if case ContentCardUIError.dataUnavailable = error {
+                    idsCards = []
+                }
+                print(error)
+            }
+        }
     }
     
     func onDisplay(_ card: ContentCardUI) {
