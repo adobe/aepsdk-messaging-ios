@@ -196,7 +196,9 @@ extension Message {
                                                                                               isLocalImageUsed: usingLocalAssets,
                                                                                               settings: messageSettings) as? FullscreenMessage
 
-        message.metadata = iamSchemaData.meta ?? [:]
+        if let metadata = iamSchemaData.meta, !metadata.isEmpty {
+            message.metadata = metadata
+        }
 
         if usingLocalAssets {
             message.fullscreenMessage?.setAssetMap(message.assets)
