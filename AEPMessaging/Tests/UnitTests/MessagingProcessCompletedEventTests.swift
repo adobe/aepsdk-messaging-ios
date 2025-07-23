@@ -368,6 +368,57 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
 
+    func test_handleProcessCompletedEvent_CodeBasedPropositions() {
+        // Surface for code-based HTML experience
+        let codeBasedSurface = Surface(uri: "mobileapp://com.steveb.iamStagingTester/cbeoffers3")
+        let codeBasedPropositionDict = JSONFileLoader.getRulesJsonFromFile("codeBasedPropositionHtml")
+
+        let payload = [codeBasedPropositionDict]
+
+        let requestId = "TESTING_ID"
+
+        // Register expected surface
+        messaging.setRequestedSurfacesforEventId(requestId, expectedSurfaces: [codeBasedSurface])
+
+        // decisions event containing only code-based content
+        let decisionsEvent = Event(name: "decisions",
+                                   type: EventType.edge,
+                                   source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                   data: [
+                                       MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: payload,
+                                       MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestId
+                                   ])
+        mockRuntime.simulateComingEvents(decisionsEvent)
+
+        // process-completed callback
+        let processEvent = Event(name: "process complete",
+                                 type: EventType.messaging,
+                                 source: EventSource.contentComplete,
+                                 data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
+        messaging.handleProcessCompletedEvent(processEvent)
+
+        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled, "In-app rules engine should NOT be invoked for code-based propositions")
+        XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled, "Content-card rules engine should NOT be invoked for code-based propositions")
+
+        // One notification event should be dispatched containing the propositions
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let dispatchedEvent = mockRuntime.dispatchedEvents.first!
+        XCTAssertEqual(MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_NOTIFICATION, dispatchedEvent.name)
+        XCTAssertEqual(EventType.messaging, dispatchedEvent.type)
+        XCTAssertEqual(EventSource.notification, dispatchedEvent.source)
+
+        if let dispatchedPayload = dispatchedEvent.data?[MessagingConstants.Event.Data.Key.PROPOSITIONS] as? [[String: Any]] {
+            XCTAssertEqual(1, dispatchedPayload.count)
+            // Loose equality: check the id field matches expected, indicating same proposition
+            if let expectedId = codeBasedPropositionDict["id"] as? String,
+               let actualId = dispatchedPayload.first?["id"] as? String {
+                XCTAssertEqual(expectedId, actualId)
+            }
+        } else {
+            XCTFail("Notification event missing propositions array")
+        }
+    }
+
     // MARK: - Private helpers
     /// Verifies that the supplied in-app rules are ordered by highest priority (ascending two-digit id suffix).
     /// The last two characters of each first consequence id are expected to be "00", "01", … in the same
