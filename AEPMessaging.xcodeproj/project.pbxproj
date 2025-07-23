@@ -200,6 +200,8 @@
 		4C3D44442E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D44412E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json */; };
 		4C3D44452E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D44422E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json */; };
 		4C3D44472E28842300662A3F /* EventHistoryOperationSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D44462E28842300662A3F /* EventHistoryOperationSchemaData.swift */; };
+		4C55DB8F2E2F41C400379AF4 /* MessagingProcessCompletedEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C55DB8E2E2F41C400379AF4 /* MessagingProcessCompletedEventTests.swift */; };
+		4C55DB912E303BDE00379AF4 /* MessagingTestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C55DB902E303BDE00379AF4 /* MessagingTestConstants.swift */; };
 		4C627F582E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F572E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json */; };
 		4C627F5B2E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F592E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json */; };
 		4C627F5C2E1DFE9C001634BB /* feedPropositionContentMissingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */; };
@@ -646,6 +648,8 @@
 		4C3D44412E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionContentMissingSurfaceMetadata.json; sourceTree = "<group>"; };
 		4C3D44422E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionMultipleCardConsequences.json; sourceTree = "<group>"; };
 		4C3D44462E28842300662A3F /* EventHistoryOperationSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventHistoryOperationSchemaData.swift; sourceTree = "<group>"; };
+		4C55DB8E2E2F41C400379AF4 /* MessagingProcessCompletedEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingProcessCompletedEventTests.swift; sourceTree = "<group>"; };
+		4C55DB902E303BDE00379AF4 /* MessagingTestConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingTestConstants.swift; sourceTree = "<group>"; };
 		4C627F572E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentMissingSurfaceMetadata.json; sourceTree = "<group>"; };
 		4C627F592E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentFeedItemConsequences.json; sourceTree = "<group>"; };
 		4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentMissingData.json; sourceTree = "<group>"; };
@@ -1162,6 +1166,8 @@
 				242920E82AC4EE2D000DB2CD /* Messaging+StateTests.swift */,
 				243EA6D32733261E00195945 /* MessagingEdgeEventTypeTests.swift */,
 				24CA4BD82B6196DF00D16369 /* MessagingMigratorTests.swift */,
+				4C55DB8E2E2F41C400379AF4 /* MessagingProcessCompletedEventTests.swift */,
+				4C55DB902E303BDE00379AF4 /* MessagingTestConstants.swift */,
 				2450596B2673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift */,
 				2469A5E6274C0FA900E56457 /* MessagingRulesEngine+CachingTests.swift */,
 				240FC42F2AAFB08E00AFEEEB /* ParsedPropositionsTests.swift */,
@@ -2642,6 +2648,7 @@
 				24CA4BCB2B617A7100D16369 /* RulesetSchemaDataTests.swift in Sources */,
 				242920E42AC4D060000DB2CD /* FeedTests.swift in Sources */,
 				243EA6D22733260000195945 /* Messaging+EdgeEventsTests.swift in Sources */,
+				4C55DB8F2E2F41C400379AF4 /* MessagingProcessCompletedEventTests.swift in Sources */,
 				243EA6D62733263D00195945 /* SharedStateResult+MessagingTests.swift in Sources */,
 				24CA4BC52B617A1000D16369 /* FeedItemSchemaDataTests.swift in Sources */,
 				243EA6DE2739D4A400195945 /* MockFullscreenMessage.swift in Sources */,
@@ -2661,6 +2668,7 @@
 				B6F7CC012CC2EAF500C35C64 /* SmallImageTemplateTests.swift in Sources */,
 				B6F7CC022CC2EAF500C35C64 /* AEPDismissButtonTests.swift in Sources */,
 				B6F7CC042CC2EAF500C35C64 /* ContentCardUITests.swift in Sources */,
+				4C55DB912E303BDE00379AF4 /* MessagingTestConstants.swift in Sources */,
 				B6F7CC052CC2EAF500C35C64 /* AEPButtonTests.swift in Sources */,
 				2469A5DC27445CAF00E56457 /* MockLaunchRulesEngine.swift in Sources */,
 				2469A5E7274C0FA900E56457 /* MessagingRulesEngine+CachingTests.swift in Sources */,
