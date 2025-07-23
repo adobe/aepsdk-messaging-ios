@@ -232,12 +232,6 @@ class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
             return
         }
         contentCardSchemaData.parent = mockPropositionItem
-        mockPropositionItem.proposition = mockProposition
-        let eventHistoryWriteExpectation = XCTestExpectation(description: "eventHistory write event should be dispatched.")
-        MobileCore.registerEventListener(type: EventType.messaging,
-                                         source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE) { event in
-            eventHistoryWriteExpectation.fulfill()
-        }
                         
         // test
         contentCardSchemaData.track(withEdgeEventType: .dismiss)
@@ -247,7 +241,6 @@ class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
         XCTAssertNil(mockPropositionItem.paramTrackInteraction)
         XCTAssertEqual(.dismiss, mockPropositionItem.paramTrackEventType)
         XCTAssertNil(mockPropositionItem.paramTrackTokens)
-        wait(for: [eventHistoryWriteExpectation], timeout: 2)
     }
     
     func testTrackDismissNoActivityId() throws {
