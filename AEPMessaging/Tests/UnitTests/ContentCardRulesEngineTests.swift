@@ -170,6 +170,7 @@ class ContentCardRulesEngineTests: XCTestCase {
         XCTAssertEqual(.contentCard, inboundMessageList[0].schema)
     }
 
+    // MARK: - Private helpers
     private func replaceRules(fromFile fileName: String) {
         let rulesString = JSONFileLoader.getRulesStringFromFile(fileName)
         guard !rulesString.isEmpty else {
