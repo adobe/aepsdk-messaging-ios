@@ -21,7 +21,7 @@ $dev_branch = 'dev-v5.5.0'
 # SHARED POD GROUPS
 # ==================
 def lib_main
-    pod 'AEPCore' , :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature/historical-consequence'
+    pod 'AEPCore'
     pod 'AEPServices'
     pod 'AEPRulesEngine'
 end
