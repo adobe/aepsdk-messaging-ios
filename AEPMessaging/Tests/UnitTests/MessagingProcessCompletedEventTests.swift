@@ -64,7 +64,7 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         // Setup
         // Create 3 IAM and 4 content-card propositions
         let iamPropositions = (0..<3).map { makeInAppProposition(index: $0) }
-        let cardPropositions = (0..<4).map { makeCardProposition(index: $0) }
+        let cardPropositions = (0..<4).map { makeCardProposition(surface: cardSurface, index: $0) }
         let payloadDicts = (iamPropositions + cardPropositions).compactMap { $0.asDictionary() }
 
         // Prime `requestedSurfacesForEventId` so that the decision event is accepted
@@ -155,7 +155,7 @@ class MessagingProcessCompletedEventTests: XCTestCase {
     func test_handleProcessCompletedEvent_IAMPropositionsNotReturnedInSubsequentResponse() {
         // ---------- First response contains IAM + content cards ----------
         let iamPropositions = (0..<3).map { makeInAppProposition(index: $0) }
-        let cardPropositions = (0..<4).map { makeCardProposition(index: $0) }
+        let cardPropositions = (0..<4).map { makeCardProposition(surface: cardSurface, index: $0) }
         let firstPayload = (iamPropositions + cardPropositions).compactMap { $0.asDictionary() }
         let firstRequestId = "TESTING_ID_1"
 
@@ -239,6 +239,75 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
 
+    func test_handleProcessCompletedEvent_SomeContentCardPropositionsNotReturnedInSubsequentResponse() {
+        let cardSurface1 = Surface(uri: "mobileapp://apifeed1")
+        let cardSurface2 = Surface(uri: "mobileapp://apifeed2")
+        let cardSurface3 = Surface(uri: "mobileapp://apifeed3")
+
+        // ---------- First response (IAM + 3 card surfaces) ----------
+        let iamPropositions = (0..<3).map { makeInAppProposition(index: $0) }
+
+        let card1 = makeCardProposition(surface: cardSurface1, index: 0)
+        let card2 = makeCardProposition(surface: cardSurface2, index: 1)
+        let card3 = makeCardProposition(surface: cardSurface3, index: 2)
+
+        let firstPayload = (iamPropositions + [card1, card2, card3]).compactMap { $0.asDictionary() }
+        let firstRequestId = "TESTING_ID_1"
+
+        messaging.setRequestedSurfacesforEventId(firstRequestId, expectedSurfaces: [iamSurface, cardSurface1, cardSurface2, cardSurface3])
+
+        let decisionsEvent1 = Event(name: "decisions", type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: [
+            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: firstPayload,
+            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: firstRequestId
+        ])
+        mockRuntime.simulateComingEvents(decisionsEvent1)
+
+        let processEvent1 = Event(name: "process complete", type: EventType.messaging, source: EventSource.contentComplete, data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: firstRequestId])
+        messaging.handleProcessCompletedEvent(processEvent1)
+
+        let firstEngineRules = mockLaunchRulesEngine.paramReplaceRulesRules ?? []
+        let firstCardRules = mockContentCardLaunchRulesEngine.paramReplaceRulesRules ?? []
+        XCTAssertEqual(12, firstEngineRules.count) // 3 IAM + 9 event-history
+        XCTAssertEqual(3, firstCardRules.count)
+
+        // ---------- Second response (IAM + ONLY cardSurface1) ----------
+        mockLaunchRulesEngine.replaceRulesCalled = false
+        mockContentCardLaunchRulesEngine.replaceRulesCalled = false
+
+        let secondPayload = (iamPropositions + [card1]).compactMap { $0.asDictionary() }
+        let secondRequestId = "TESTING_ID_2"
+
+        messaging.setRequestedSurfacesforEventId(secondRequestId, expectedSurfaces: [iamSurface, cardSurface1, cardSurface2, cardSurface3])
+
+        let decisionsEvent2 = Event(name: "decisions", type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: [
+            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: secondPayload,
+            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: secondRequestId
+        ])
+        mockRuntime.simulateComingEvents(decisionsEvent2)
+
+        let processEvent2 = Event(name: "process complete", type: EventType.messaging, source: EventSource.contentComplete, data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: secondRequestId])
+        messaging.handleProcessCompletedEvent(processEvent2)
+
+        let secondEngineRules = mockLaunchRulesEngine.paramReplaceRulesRules ?? []
+        let secondCardRules = mockContentCardLaunchRulesEngine.paramReplaceRulesRules ?? []
+
+        // 3 IAM + 3 event-history for card1
+        XCTAssertEqual(6, secondEngineRules.count)
+        XCTAssertEqual(1, secondCardRules.count)
+
+        // Validate event-history rules count is 3 in second engine rules
+        let eventHistoryRules = secondEngineRules.filter { rule in
+            rule.consequences.contains { consequence in
+                let schema = consequence.details[MessagingTestConstants.EventDataKeys.RulesEngine.MESSAGE_CONSEQUENCE_DETAIL_KEY_SCHEMA] as? String
+                return schema == SchemaType.eventHistoryOperation.toString()
+            }
+        }
+        XCTAssertEqual(3, eventHistoryRules.count)
+
+        // No proposition notification dispatched
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+
     // MARK: - Private helpers
     /// Verifies that the supplied in-app rules are ordered by highest priority (ascending two-digit id suffix).
     /// The last two characters of each first consequence id are expected to be "00", "01", … in the same
@@ -296,14 +365,14 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                             items: [item])
     }
 
-    /// Builds a single content card proposition (based on `contentCardPropositionContent.json`) whose item id is unique.
-    private func makeCardProposition(index: Int) -> Proposition {
+    /// Builds a single content card proposition (based on `contentCardPropositionContent.json`) for the given surface.
+    private func makeCardProposition(surface: Surface, index: Int) -> Proposition {
         let rulesJson = setRulesJsonConsequenceIdPriority(
             JSONFileLoader.getRulesJsonFromFile("contentCardPropositionContent"),
             index: index)
         let item = PropositionItem(itemId: "card_\(index)", schema: .ruleset, itemData: rulesJson)
         return Proposition(uniqueId: "cardProp_\(index)",
-                           scope: cardSurface.uri,
+                           scope: surface.uri,
                            scopeDetails: [
                                "decisionProvider": "AJO",
                                "activity": [MessagingConstants.Event.Data.Key.Personalization.RANK: index]
