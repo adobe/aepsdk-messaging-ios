@@ -786,7 +786,7 @@ public class Messaging: NSObject, Extension {
     }
 
     private func collectRules(from rulesBySurface: [Surface: [LaunchRule]]) -> [LaunchRule] {
-        return rulesBySurface.flatMap { $0.value }
+        rulesBySurface.flatMap { $0.value }
     }
 
     /// Dispatch an event containing all propositions for the given surface
@@ -881,7 +881,7 @@ public class Messaging: NSObject, Extension {
             if let message = Message.fromPropositionItem(propositionItem,
                                                          with: self,
                                                          triggeringEvent: event),
-               let propInfo = propositionInfoFor(messageId: propositionItem.itemId) {
+                let propInfo = propositionInfoFor(messageId: propositionItem.itemId) {
                 message.propositionInfo = propInfo
                 message.trigger()
                 message.show(withMessagingDelegateControl: true)
@@ -898,7 +898,7 @@ public class Messaging: NSObject, Extension {
 
             // Disqualify or unqualify operations should remove the card from qualified status
             if eventType == MessagingConstants.XDM.Inbound.PropositionEventType.DISQUALIFY ||
-               eventType == MessagingConstants.XDM.Inbound.PropositionEventType.UNQUALIFY {
+                eventType == MessagingConstants.XDM.Inbound.PropositionEventType.UNQUALIFY {
                 removePropositionFromQualifiedCards(for: activityId)
             }
 

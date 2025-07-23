@@ -10,8 +10,8 @@
  governing permissions and limitations under the License.
  */
 
-import Foundation
 import AEPServices
+import Foundation
 
 /// Represents the schema-data object for
 /// `https://ns.adobe.com/personalization/eventHistoryOperation`
