@@ -53,10 +53,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             let cardSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
             let cbeSurface1 = Surface(path: Constants.SurfaceName.CBE_HTML)
             let cbeSurface2 = Surface(path: Constants.SurfaceName.CBE_JSON)
-            // Full URI surface for idsTest cards
-            let idsTestSurface = Surface(path: Constants.SurfaceName.IDS_TEST)
-
-            Messaging.updatePropositionsForSurfaces([cardSurface, cbeSurface1, cbeSurface2, idsTestSurface])
+            Messaging.updatePropositionsForSurfaces([cardSurface,cbeSurface1, cbeSurface2])
         }
         
         return true

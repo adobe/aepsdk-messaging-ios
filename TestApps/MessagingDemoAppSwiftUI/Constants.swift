@@ -30,6 +30,5 @@ enum Constants {
         static let CONTENT_CARD = "cardstab"
         static let CBE_HTML = "cbehtml"
         static let CBE_JSON = "cbejson"
-        static let IDS_TEST = "617test" // path portion for idsTest surface
     }
 }
