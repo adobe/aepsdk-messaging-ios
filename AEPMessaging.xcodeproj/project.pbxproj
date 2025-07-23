@@ -207,6 +207,7 @@
 		4C627F5C2E1DFE9C001634BB /* feedPropositionContentMissingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */; };
 		4C627F5F2E1E00D3001634BB /* contentCardProposition.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5D2E1E00D3001634BB /* contentCardProposition.json */; };
 		4C627F602E1E00D3001634BB /* contentCardPropositionContent.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5E2E1E00D3001634BB /* contentCardPropositionContent.json */; };
+		4CB003F52E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB003F42E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift */; };
 		56B08B522365B6DC2B556B40 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */; };
 		75B4333CC0B4F5BFAC707055 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */; };
 		899E1724E9B5AD078B0710E5 /* Pods_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA09063EA0248339C5B2C535 /* Pods_IntegrationTests.framework */; };
@@ -664,6 +665,7 @@
 		4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentMissingData.json; sourceTree = "<group>"; };
 		4C627F5D2E1E00D3001634BB /* contentCardProposition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardProposition.json; sourceTree = "<group>"; };
 		4C627F5E2E1E00D3001634BB /* contentCardPropositionContent.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionContent.json; sourceTree = "<group>"; };
+		4CB003F42E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventHistoryOperationSchemaDataTests.swift; sourceTree = "<group>"; };
 		4DBE357820DAAEE02A221D75 /* Pods-E2EFunctionalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTests.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests.debug.xcconfig"; sourceTree = "<group>"; };
 		53FA287A1BFC0714D83A6419 /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		69F23BE01498B5A36EEE4CDC /* Pods_MessagingDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1042,6 +1044,7 @@
 				24CA4BC22B6179F800D16369 /* ContentTypeTests.swift */,
 				24CA4BC42B617A1000D16369 /* FeedItemSchemaDataTests.swift */,
 				24CA4BC62B617A2500D16369 /* HtmlContentSchemaDataTests.swift */,
+				4CB003F42E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift */,
 				24CA4BC02B6178EE00D16369 /* InAppSchemaDataTests.swift */,
 				24CA4BC82B617A3F00D16369 /* JsonContentSchemaDataTests.swift */,
 				24CA4BCA2B617A7100D16369 /* RulesetSchemaDataTests.swift */,
@@ -2653,6 +2656,7 @@
 				243EA6D0273325DC00195945 /* MessageTests.swift in Sources */,
 				D66DF10F2DD533320021AC51 /* MockNamedKeyValueService.swift in Sources */,
 				244FEA4629B6A5D30058FA1C /* FeedItemTests.swift in Sources */,
+				4CB003F52E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift in Sources */,
 				24CA4BC12B6178EE00D16369 /* InAppSchemaDataTests.swift in Sources */,
 				24CA4BC72B617A2500D16369 /* HtmlContentSchemaDataTests.swift in Sources */,
 				B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */,
