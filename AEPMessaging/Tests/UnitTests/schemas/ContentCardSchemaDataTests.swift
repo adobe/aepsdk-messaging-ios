@@ -276,6 +276,31 @@ class ContentCardSchemaDataTests: XCTestCase, AnyCodableAsserts {
         wait(for: [eventHistoryWriteExpectation], timeout: 2)
     }
     
+    func testTrackNullParent() throws {
+        // setup
+        let feedJson = "{\"expiryDate\":\(mockExpiry),\"meta\":{\"\(mockMetaKey)\":\"\(mockMetaValue)\"},\"content\":{\"title\":\"fiTitle\",\"body\":\"fiBody\"},\"contentType\":\"\(mockContentType.toString())\",\"publishedDate\":\(mockPublished)}"
+        guard let contentCardSchemaData = getDecodedContentCard(fromString: feedJson) else {
+            XCTFail("unable to decode feedJson")
+            return
+        }
+
+        contentCardSchemaData.parent = nil
+
+        // expectation to verify no event is dispatched
+        let noDispatchExpectation = XCTestExpectation(description: "no proposition interaction event should be dispatched")
+        noDispatchExpectation.isInverted = true
+        MobileCore.registerEventListener(type: EventType.messaging,
+                                         source: EventSource.requestContent) { event in
+            noDispatchExpectation.fulfill()
+        }
+
+        // test
+        contentCardSchemaData.track("mockInteraction", withEdgeEventType: .interact)
+
+        // verify
+        wait(for: [noDispatchExpectation], timeout: 1)
+    }
+    
     // TEST HELPER
     func testGetEmpty() throws {
         // test
