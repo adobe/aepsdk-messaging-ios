@@ -99,7 +99,7 @@ public class Messaging: NSObject, Extension {
         get { queue.sync { self._eventHistoryRulesBySurface } }
         set { queue.async { self._eventHistoryRulesBySurface = newValue } }
     }
-    
+
     /// holds content cards that the user has qualified for
     private var _qualifiedContentCardsBySurface: [Surface: [Proposition]] = [:]
     var qualifiedContentCardsBySurface: [Surface: [Proposition]] {
