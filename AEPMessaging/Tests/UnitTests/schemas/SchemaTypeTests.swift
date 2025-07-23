@@ -171,4 +171,35 @@ class SchemaTypeTests: XCTestCase {
         // verify
         XCTAssertEqual(.defaultContent, value)
     }
+
+    func testRawValueContentCard() throws {
+        // test
+        let rawValue = SchemaType.contentCard.rawValue
+        // verify
+        XCTAssertEqual(8, rawValue)
+    }
+
+    func testRawValueEventHistoryOperation() throws {
+        // test
+        let rawValue = SchemaType.eventHistoryOperation.rawValue
+        // verify
+        XCTAssertEqual(9, rawValue)
+    }
+
+    func testEventHistoryOperation() throws {
+        // setup
+        let value = SchemaType(rawValue: 9)
+
+        // verify
+        XCTAssertEqual(value, .eventHistoryOperation)
+        XCTAssertEqual(MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION, value?.toString())
+    }
+
+    func testInitFromSchemaEventHistoryOperation() throws {
+        // test
+        let value = SchemaType(from: MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION)
+
+        // verify
+        XCTAssertEqual(.eventHistoryOperation, value)
+    }
 }
