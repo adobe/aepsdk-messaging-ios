@@ -308,6 +308,66 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
 
+    func test_handleProcessCompletedEvent_SeparateIAMAndContentCardRequests() {
+        let contentCardSurface = Surface(uri: "mobileapp://apifeed")
+
+        // ---------- First request: IAM only ----------
+        let iamProps = (0..<3).map { makeInAppProposition(index: $0) }
+        let iamPayload = iamProps.compactMap { $0.asDictionary() }
+        let iamRequestId = "TESTING_ID_IAM"
+
+        messaging.setRequestedSurfacesforEventId(iamRequestId, expectedSurfaces: [iamSurface])
+
+        let decisionsIAM = Event(name: "decisions", type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: [
+            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: iamPayload,
+            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: iamRequestId
+        ])
+        mockRuntime.simulateComingEvents(decisionsIAM)
+
+        let processIAM = Event(name: "process complete", type: EventType.messaging, source: EventSource.contentComplete, data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: iamRequestId])
+        messaging.handleProcessCompletedEvent(processIAM)
+
+        // Capture first engine rules & reset mocks for next request
+        let firstEngineRules = mockLaunchRulesEngine.paramReplaceRulesRules ?? []
+        XCTAssertEqual(3, firstEngineRules.count, "First call should load 3 IAM rules")
+        mockLaunchRulesEngine.replaceRulesCalled = false
+        mockContentCardLaunchRulesEngine.replaceRulesCalled = false
+
+        // ---------- Second request: content cards only ----------
+        let cardProps = (0..<4).map { makeCardProposition(surface: contentCardSurface, index: $0) }
+        let cardPayload = cardProps.compactMap { $0.asDictionary() }
+        let cardRequestId = "TESTING_ID_CONTENT_CARD"
+
+        messaging.setRequestedSurfacesforEventId(cardRequestId, expectedSurfaces: [contentCardSurface])
+
+        let decisionsCard = Event(name: "decisions", type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: [
+            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: cardPayload,
+            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: cardRequestId
+        ])
+        mockRuntime.simulateComingEvents(decisionsCard)
+
+        let processCard = Event(name: "process complete", type: EventType.messaging, source: EventSource.contentComplete, data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: cardRequestId])
+        messaging.handleProcessCompletedEvent(processCard)
+
+        // Validate second engine rules
+        let secondEngineRules = mockLaunchRulesEngine.paramReplaceRulesRules ?? []
+        XCTAssertEqual(15, secondEngineRules.count, "Second call should load 3 IAM + 12 event-history rules")
+
+        // Split them
+        let inAppRules = secondEngineRules.filter { $0.consequences.contains { ($0.details[MessagingTestConstants.EventDataKeys.RulesEngine.MESSAGE_CONSEQUENCE_DETAIL_KEY_SCHEMA] as? String) == SchemaType.inapp.toString() } }
+        let eventHistoryRules = secondEngineRules.filter { $0.consequences.contains { ($0.details[MessagingTestConstants.EventDataKeys.RulesEngine.MESSAGE_CONSEQUENCE_DETAIL_KEY_SCHEMA] as? String) == SchemaType.eventHistoryOperation.toString() } }
+        XCTAssertEqual(3, inAppRules.count)
+        XCTAssertEqual(12, eventHistoryRules.count)
+
+        // Card rules engine should have been called once (only second response)
+        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled)
+        let cardRules = mockContentCardLaunchRulesEngine.paramReplaceRulesRules ?? []
+        XCTAssertEqual(4, cardRules.count)
+
+        // No proposition notification dispatched
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+
     // MARK: - Private helpers
     /// Verifies that the supplied in-app rules are ordered by highest priority (ascending two-digit id suffix).
     /// The last two characters of each first consequence id are expected to be "00", "01", … in the same
