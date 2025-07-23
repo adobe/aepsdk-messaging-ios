@@ -1012,14 +1012,39 @@ class MessagingTests: XCTestCase {
         XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
     }
     
-    // MARK: - Core Rules Engine Disqualification Consequence Tests
+    // MARK: - Core Rules Engine Dis/Unqualification Consequence Tests
 
-    private func getDisqualifyConsequenceEvent(eventType: String = "disqualify", activityId: String = "mockActivityId") -> Event {
-        let eventData: [String: Any] = [
+    private func getQualificationConsequenceEvent(eventType: String, activityId: String = "mockActivityId") -> Event {
+        // Build content map expected by EventHistoryOperation schema data
+        let contentMap: [String: String] = [
             MessagingConstants.Event.History.Mask.EVENT_TYPE: eventType,
             MessagingConstants.Event.History.Mask.MESSAGE_ID: activityId
         ]
-        return Event(name: "Disqualify Consequence",
+
+        // Wrap in the event-history operation data object
+        let eventHistoryData: [String: Any] = [
+            "content": contentMap,
+            "operation": "insertIfNotExists"
+        ]
+
+        // Build schema consequence detail structure
+        let consequenceDetail: [String: Any] = [
+            MessagingConstants.Event.Data.Key.DATA: eventHistoryData,
+            MessagingConstants.Event.Data.Key.ID: "mockConsequenceId",
+            MessagingConstants.Event.Data.Key.SCHEMA: MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION
+        ]
+
+        let triggeredConsequence: [String: Any] = [
+            MessagingConstants.Event.Data.Key.ID: "mockConsequenceId",
+            MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.SCHEMA,
+            MessagingConstants.Event.Data.Key.DETAIL: consequenceDetail
+        ]
+
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: triggeredConsequence
+        ]
+
+        return Event(name: "Qualification Consequence",
                      type: EventType.rulesEngine,
                      source: EventSource.responseContent,
                      data: eventData)
@@ -1030,7 +1055,7 @@ class MessagingTests: XCTestCase {
         messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
         XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
 
-        let event = getDisqualifyConsequenceEvent(eventType: "disqualify", activityId: MOCK_ACTIVITY_ID)
+        let event = getQualificationConsequenceEvent(eventType: "disqualify", activityId: MOCK_ACTIVITY_ID)
         mockRuntime.simulateComingEvents(event)
 
         // Card should be removed
@@ -1040,7 +1065,7 @@ class MessagingTests: XCTestCase {
     func testCardDisqualificationConsequence_unqualify_removesProposition() {
         messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
 
-        let event = getDisqualifyConsequenceEvent(eventType: "unqualify", activityId: MOCK_ACTIVITY_ID)
+        let event = getQualificationConsequenceEvent(eventType: "unqualify", activityId: MOCK_ACTIVITY_ID)
         mockRuntime.simulateComingEvents(event)
 
         XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
@@ -1050,12 +1075,12 @@ class MessagingTests: XCTestCase {
         messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
 
         // send consequence with eventType "display" which should be ignored
-        let event = getDisqualifyConsequenceEvent(eventType: "display", activityId: MOCK_ACTIVITY_ID)
+        let event = getQualificationConsequenceEvent(eventType: "display", activityId: MOCK_ACTIVITY_ID)
         mockRuntime.simulateComingEvents(event)
 
         XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
     }
-    
+
     // MARK: - Push Token Tests
     
     func testPushTokenSync_whenTokenMatches_OptimizePushSyncIsTrue() {
