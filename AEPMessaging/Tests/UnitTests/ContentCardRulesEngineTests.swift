@@ -140,10 +140,10 @@ class ContentCardRulesEngineTests: XCTestCase {
         // Mock historical events to simulate that the user has already qualified for the card
         // The rules engine will request multiple historical checks; return non-zero counts where
         // a previous qualify event is expected and zero for any unqualify/disqualify checks.
-        // Hash for disqualify event is 2655746408
-        // Hash for unqualify event is 2655746409
         mockRuntime.eventHistoryResultProvider = { req in
             switch req.mask.fnv1a32() {
+            // Hash for disqualify event is 2655746408
+            // Hash for unqualify event is 2655746409
             case 2655746408, 2479650165:
                 return EventHistoryResult(count: 0)
             default:
