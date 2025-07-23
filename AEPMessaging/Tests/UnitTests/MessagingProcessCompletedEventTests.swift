@@ -40,8 +40,8 @@ class MessagingProcessCompletedEventTests: XCTestCase {
 
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mockIAMRulesEngine", extensionRuntime: mockRuntime)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime,
-                                                             launchRulesEngine: mockLaunchRulesEngine,
-                                                             cache: mockCache)
+                                                            launchRulesEngine: mockLaunchRulesEngine,
+                                                            cache: mockCache)
 
         mockContentCardLaunchRulesEngine = MockLaunchRulesEngine(name: "mockCardRulesEngine", extensionRuntime: mockRuntime)
         mockContentCardRulesEngine = MockContentCardRulesEngine(extensionRuntime: mockRuntime,
@@ -73,15 +73,13 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         messaging.setRequestedSurfacesforEventId(requestId, expectedSurfaces: [iamSurface, cardSurface, Surface(uri: "mobileapp://mockSurface")])
 
         // Simulate the personalization:decisions event
-        let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: payloadDicts,
-            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestId
-        ]
-
         let decisionsEvent = Event(name: "decisions",
                                    type: EventType.edge,
                                    source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
-                                   data: eventData)
+                                   data: [
+                                       MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: payloadDicts,
+                                       MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestId
+                                   ])
 
         mockRuntime.simulateComingEvents(decisionsEvent)
 
@@ -256,13 +254,19 @@ class MessagingProcessCompletedEventTests: XCTestCase {
 
         messaging.setRequestedSurfacesforEventId(firstRequestId, expectedSurfaces: [iamSurface, cardSurface1, cardSurface2, cardSurface3])
 
-        let decisionsEvent1 = Event(name: "decisions", type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: [
-            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: firstPayload,
-            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: firstRequestId
-        ])
+        let decisionsEvent1 = Event(name: "decisions",
+                                    type: EventType.edge,
+                                    source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                    data: [
+                                        MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: firstPayload,
+                                        MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: firstRequestId
+                                    ])
         mockRuntime.simulateComingEvents(decisionsEvent1)
 
-        let processEvent1 = Event(name: "process complete", type: EventType.messaging, source: EventSource.contentComplete, data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: firstRequestId])
+        let processEvent1 = Event(name: "process complete",
+                                  type: EventType.messaging,
+                                  source: EventSource.contentComplete,
+                                  data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: firstRequestId])
         messaging.handleProcessCompletedEvent(processEvent1)
 
         let firstEngineRules = mockLaunchRulesEngine.paramReplaceRulesRules ?? []
@@ -279,13 +283,19 @@ class MessagingProcessCompletedEventTests: XCTestCase {
 
         messaging.setRequestedSurfacesforEventId(secondRequestId, expectedSurfaces: [iamSurface, cardSurface1, cardSurface2, cardSurface3])
 
-        let decisionsEvent2 = Event(name: "decisions", type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: [
-            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: secondPayload,
-            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: secondRequestId
-        ])
+        let decisionsEvent2 = Event(name: "decisions",
+                                    type: EventType.edge,
+                                    source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                    data: [
+                                        MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: secondPayload,
+                                        MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: secondRequestId
+                                    ])
         mockRuntime.simulateComingEvents(decisionsEvent2)
 
-        let processEvent2 = Event(name: "process complete", type: EventType.messaging, source: EventSource.contentComplete, data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: secondRequestId])
+        let processEvent2 = Event(name: "process complete",
+                                  type: EventType.messaging,
+                                  source: EventSource.contentComplete,
+                                  data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: secondRequestId])
         messaging.handleProcessCompletedEvent(processEvent2)
 
         let secondEngineRules = mockLaunchRulesEngine.paramReplaceRulesRules ?? []
@@ -318,13 +328,19 @@ class MessagingProcessCompletedEventTests: XCTestCase {
 
         messaging.setRequestedSurfacesforEventId(iamRequestId, expectedSurfaces: [iamSurface])
 
-        let decisionsIAM = Event(name: "decisions", type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: [
-            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: iamPayload,
-            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: iamRequestId
-        ])
+        let decisionsIAM = Event(name: "decisions",
+                                 type: EventType.edge,
+                                 source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                 data: [
+                                     MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: iamPayload,
+                                     MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: iamRequestId
+                                 ])
         mockRuntime.simulateComingEvents(decisionsIAM)
 
-        let processIAM = Event(name: "process complete", type: EventType.messaging, source: EventSource.contentComplete, data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: iamRequestId])
+        let processIAM = Event(name: "process complete",
+                               type: EventType.messaging,
+                               source: EventSource.contentComplete,
+                               data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: iamRequestId])
         messaging.handleProcessCompletedEvent(processIAM)
 
         // Capture first engine rules & reset mocks for next request
@@ -340,10 +356,13 @@ class MessagingProcessCompletedEventTests: XCTestCase {
 
         messaging.setRequestedSurfacesforEventId(cardRequestId, expectedSurfaces: [contentCardSurface])
 
-        let decisionsCard = Event(name: "decisions", type: EventType.edge, source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS, data: [
-            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: cardPayload,
-            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: cardRequestId
-        ])
+        let decisionsCard = Event(name: "decisions",
+                                  type: EventType.edge,
+                                  source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                  data: [
+                                      MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: cardPayload,
+                                      MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: cardRequestId
+                                  ])
         mockRuntime.simulateComingEvents(decisionsCard)
 
         let processCard = Event(name: "process complete", type: EventType.messaging, source: EventSource.contentComplete, data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: cardRequestId])
@@ -419,6 +438,91 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         }
     }
 
+    func test_handleProcessCompletedEvent_EmptyPayload() {
+        // Empty payload array
+        let emptyPayload: [[String: Any]] = []
+        let requestId = "TESTING_ID"
+
+        // Register at least one surface so handler accepts the event
+        messaging.setRequestedSurfacesforEventId(requestId, expectedSurfaces: [iamSurface])
+
+        // decisions event with empty payload
+        let decisionsEvent = Event(name: "decisions",
+                                   type: EventType.edge,
+                                   source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                   data: [
+                                       MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: emptyPayload,
+                                       MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestId
+                                   ])
+        mockRuntime.simulateComingEvents(decisionsEvent)
+
+        // process-completed event
+        let processEvent = Event(name: "process complete",
+                                 type: EventType.messaging,
+                                 source: EventSource.contentComplete,
+                                 data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
+        messaging.handleProcessCompletedEvent(processEvent)
+
+        // Validate: no rules engines invoked, no notification dispatched
+        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+
+    func test_handleProcessCompletedEvent_ProcessCompletedEventMissingRequestId() {
+        // Build a process-completed event whose data is missing ENDING_EVENT_ID
+        let badProcessEvent = Event(name: "process complete",
+                                    type: EventType.messaging,
+                                    source: EventSource.contentComplete,
+                                    data: [:])
+
+        messaging.handleProcessCompletedEvent(badProcessEvent)
+
+        // Verify no interactions with rules engines or event dispatches
+        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+
+    func test_handleProcessCompletedEvent_NoValidRulesInPayload() {
+        // Build invalid IAM proposition (missing "rules" key)
+        var invalidIamRules = JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content")
+        invalidIamRules.removeValue(forKey: "rules")
+        let invalidIamItem = PropositionItem(itemId: "invalid_iam", schema: .ruleset, itemData: invalidIamRules)
+        let invalidIamProp = Proposition(uniqueId: "invalidIAM", scope: iamSurface.uri, scopeDetails: ["decisionProvider": "AJO"], items: [invalidIamItem])
+
+        // Build invalid card proposition (missing rules)
+        var invalidCardRules = JSONFileLoader.getRulesJsonFromFile("contentCardPropositionContent")
+        invalidCardRules.removeValue(forKey: "rules")
+        let invalidCardItem = PropositionItem(itemId: "invalid_card", schema: .ruleset, itemData: invalidCardRules)
+        let invalidCardProp = Proposition(uniqueId: "invalidCard", scope: cardSurface.uri, scopeDetails: ["decisionProvider": "AJO"], items: [invalidCardItem])
+
+        let payload = [invalidIamProp, invalidCardProp].compactMap { $0.asDictionary() }
+        let requestId = "TESTING_ID"
+
+        messaging.setRequestedSurfacesforEventId(requestId, expectedSurfaces: [iamSurface, cardSurface])
+
+        let decisionsEvent = Event(name: "decisions",
+                                   type: EventType.edge,
+                                   source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                   data: [
+                                       MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: payload,
+                                       MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestId
+                                   ])
+        mockRuntime.simulateComingEvents(decisionsEvent)
+
+        let processEvent = Event(name: "process complete",
+                                 type: EventType.messaging,
+                                 source: EventSource.contentComplete,
+                                 data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
+        messaging.handleProcessCompletedEvent(processEvent)
+
+        // Validate: rules engines not invoked, no notification dispatched
+        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+
     // MARK: - Private helpers
     /// Verifies that the supplied in-app rules are ordered by highest priority (ascending two-digit id suffix).
     /// The last two characters of each first consequence id are expected to be "00", "01", … in the same
@@ -470,10 +574,10 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         return Proposition(uniqueId: "iamProp_\(index)",
                            scope: iamSurface.uri,
                            scopeDetails: [
-                                "decisionProvider": "AJO",
-                                "activity": [MessagingConstants.Event.Data.Key.Personalization.RANK: index]
+                               "decisionProvider": "AJO",
+                               "activity": [MessagingConstants.Event.Data.Key.Personalization.RANK: index]
                            ],
-                            items: [item])
+                           items: [item])
     }
 
     /// Builds a single content card proposition (based on `contentCardPropositionContent.json`) for the given surface.
