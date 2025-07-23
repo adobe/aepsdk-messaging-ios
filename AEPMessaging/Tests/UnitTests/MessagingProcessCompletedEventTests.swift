@@ -1,0 +1,226 @@
+/*
+ Copyright 2025 Adobe. All rights reserved.
+ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License. You may obtain a copy
+ of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software distributed under
+ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ OF ANY KIND, either express or implied. See the License for the specific language
+ governing permissions and limitations under the License.
+ */
+
+import XCTest
+
+import AEPRulesEngine
+import AEPTestUtils
+
+@testable import AEPCore
+@testable import AEPMessaging
+
+class MessagingProcessCompletedEventTests: XCTestCase {
+    private var messaging: Messaging!
+    private var mockRuntime: TestableExtensionRuntime!
+    private var mockCache: MockCache!
+    private var mockLaunchRulesEngine: MockLaunchRulesEngine!
+    private var mockMessagingRulesEngine: MockMessagingRulesEngine!
+    private var mockContentCardLaunchRulesEngine: MockLaunchRulesEngine!
+    private var mockContentCardRulesEngine: MockContentCardRulesEngine!
+
+    // Surfaces that will be used in the tests
+    private let iamSurface = Surface(uri: "mobileapp://inapp")
+    private let cardSurface = Surface(uri: "mobileapp://apifeed")
+
+    override func setUp() {
+        super.setUp()
+        EventHub.shared = EventHub()
+
+        mockRuntime = TestableExtensionRuntime()
+        mockCache = MockCache(name: "mockCache")
+
+        mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mockIAMRulesEngine", extensionRuntime: mockRuntime)
+        mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime,
+                                                             launchRulesEngine: mockLaunchRulesEngine,
+                                                             cache: mockCache)
+
+        mockContentCardLaunchRulesEngine = MockLaunchRulesEngine(name: "mockCardRulesEngine", extensionRuntime: mockRuntime)
+        mockContentCardRulesEngine = MockContentCardRulesEngine(extensionRuntime: mockRuntime,
+                                                                launchRulesEngine: mockContentCardLaunchRulesEngine)
+
+        messaging = Messaging(runtime: mockRuntime,
+                              rulesEngine: mockMessagingRulesEngine,
+                              contentCardRulesEngine: mockContentCardRulesEngine,
+                              expectedSurfaceUri: iamSurface.uri,
+                              cache: mockCache,
+                              messagingProperties: MessagingProperties())
+        messaging.onRegistered()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+    }
+
+    func test_handleProcessCompletedEvent_InAppAndContentCardRulesCompleted() {
+        // Setup
+        // Create 3 IAM and 4 content-card propositions
+        let iamPropositions = (0..<3).map { makeInAppProposition(index: $0) }
+        let cardPropositions = (0..<4).map { makeCardProposition(index: $0) }
+        let payloadDicts = (iamPropositions + cardPropositions).compactMap { $0.asDictionary() }
+
+        // Prime `requestedSurfacesForEventId` so that the decision event is accepted
+        let requestId = "TESTING_ID"
+
+        messaging.setRequestedSurfacesforEventId(requestId, expectedSurfaces: [iamSurface, cardSurface, Surface(uri: "mobileapp://mockSurface")])
+
+        // Simulate the personalization:decisions event
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: payloadDicts,
+            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestId
+        ]
+
+        let decisionsEvent = Event(name: "decisions",
+                                   type: EventType.edge,
+                                   source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                   data: eventData)
+
+        mockRuntime.simulateComingEvents(decisionsEvent)
+
+        // Simulate Edge’s process-completed callback
+        let processEvent = Event(name: "process complete",
+                                 type: EventType.messaging,
+                                 source: EventSource.contentComplete,
+                                 data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
+
+        messaging.handleProcessCompletedEvent(processEvent)
+
+        // Validate
+        // IAM and content card rules should be replaced once each
+        XCTAssertTrue(mockLaunchRulesEngine.replaceRulesCalled,
+                      "In-app rules engine should have replaceRules called")
+        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled,
+                      "Content-card rules engine should have replaceRules called")
+
+        // Expect 3 IAM rules and 12 content card associated event history operation rules
+        // 3 IAM + (4 cards x 3 event history operation rules = 12) = 15 total
+        let iamRuleCount = mockLaunchRulesEngine.paramReplaceRulesRules?.filter { rule in
+            rule.consequences.contains { consequence in
+                let ruleType = consequence.details[MessagingTestConstants.EventDataKeys.RulesEngine.MESSAGE_CONSEQUENCE_DETAIL_KEY_SCHEMA] as? String
+                return ruleType == SchemaType.inapp.toString()
+            }
+        }.count ?? 0
+
+        let eventHistoryRuleCount = mockLaunchRulesEngine.paramReplaceRulesRules?.filter { rule in
+            rule.consequences.contains { consequence in
+                let ruleType = consequence.details[MessagingTestConstants.EventDataKeys.RulesEngine.MESSAGE_CONSEQUENCE_DETAIL_KEY_SCHEMA] as? String
+                return ruleType == SchemaType.eventHistoryOperation.toString()
+            }
+        }.count ?? 0
+
+        XCTAssertEqual(3, iamRuleCount)
+        XCTAssertEqual(12, eventHistoryRuleCount)
+
+        // Verify IAM rules are returned in priority order using helper
+        let iamRules: [LaunchRule] = (mockLaunchRulesEngine.paramReplaceRulesRules ?? []).filter { rule in
+            rule.consequences.contains { consequence in
+                let ruleType = consequence.details[MessagingTestConstants.EventDataKeys.RulesEngine.MESSAGE_CONSEQUENCE_DETAIL_KEY_SCHEMA] as? String
+                return ruleType == SchemaType.inapp.toString()
+            }
+        }
+        verifyInAppRulesOrdering(iamRules)
+
+        // Content card rules engine should receive 4 rules (one per card)
+        let cardRuleCount = mockContentCardLaunchRulesEngine.paramReplaceRulesRules?.count ?? 0
+        XCTAssertEqual(4, cardRuleCount)
+
+        // Verify propositions were cached once
+        XCTAssertTrue(mockCache.setCalled, "Cache should have been updated with new propositions")
+        if let entry = mockCache.setParamEntry {
+            // Decode cached data into dictionary
+            if let decoded = try? JSONDecoder().decode([String: [Proposition]].self, from: entry.data) {
+                // Only IAM surface should be present (mockSurface removed)
+                XCTAssertEqual(1, decoded.count)
+                if let iamCached = decoded[iamSurface.uri] {
+                    XCTAssertEqual(3, iamCached.count, "Three IAM propositions should be cached")
+                } else {
+                    XCTFail("IAM surface not found in cached propositions")
+                }
+            }
+        }
+        // Cache.remove should NOT be invoked because the propositions file remains with other surfaces
+        XCTAssertFalse(mockCache.removeCalled)
+        // Notification event should NOT be dispatched
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+
+    // MARK: - Private helpers
+    /// Verifies that the supplied in-app rules are ordered by highest priority (ascending two-digit id suffix).
+    /// The last two characters of each first consequence id are expected to be "00", "01", … in the same
+    /// order as the array provided. Fails the test if any rule is out of order or missing an id.
+    /// - Parameter inAppRules: The list of `LaunchRule`s to validate.
+    private func verifyInAppRulesOrdering(_ inAppRules: [LaunchRule]) {
+        for (index, rule) in inAppRules.enumerated() {
+            guard let consequenceId = rule.consequences.first?.id else {
+                XCTFail("Rule at index \(index) has no consequence id – cannot verify ordering.")
+                return
+            }
+            let actualSuffix = String(consequenceId.suffix(2))
+            let expectedSuffix = String(format: "%02d", index)
+            XCTAssertEqual(expectedSuffix, actualSuffix, "In-app rule at index \(index) expected id suffix \(expectedSuffix) but found \(actualSuffix)")
+        }
+    }
+
+    /// Mutates the supplied rules JSON so the first consequence id ends with a two-digit
+    /// suffix derived from `index` (that is, 00-99). This is used to set the priority normally
+    /// set by the server.
+    /// - Parameters:
+    ///   - rulesJson: The original rules JSON dictionary.
+    ///   - index: The index whose value will be substituted into the id suffix.
+    /// - Returns: A new dictionary with the modified consequence id.
+    private func setRulesJsonConsequenceIdPriority(_ rulesJson: [String: Any], index: Int) -> [String: Any] {
+        var result = rulesJson
+        if var rules = result["rules"] as? [[String: Any]],
+           var firstRule = rules.first,
+           var consequences = firstRule["consequences"] as? [[String: Any]],
+           var firstConsequence = consequences.first,
+           var idString = firstConsequence["id"] as? String {
+            let suffix = String(format: "%02d", index)
+            idString = String(idString.dropLast(2)) + suffix
+            firstConsequence["id"] = idString
+            consequences[0] = firstConsequence
+            firstRule["consequences"] = consequences
+            rules[0] = firstRule
+            result["rules"] = rules
+        }
+        return result
+    }
+
+    /// Builds a single in-app proposition (based on `inappPropositionV2Content.json`) whose item id is unique.
+    private func makeInAppProposition(index: Int) -> Proposition {
+        let rulesJson = setRulesJsonConsequenceIdPriority(
+            JSONFileLoader.getRulesJsonFromFile("inappPropositionV2Content"),
+            index: index)
+        let item = PropositionItem(itemId: "iam_\(index)", schema: .ruleset, itemData: rulesJson)
+        return Proposition(uniqueId: "iamProp_\(index)",
+                           scope: iamSurface.uri,
+                           scopeDetails: [
+                                "decisionProvider": "AJO",
+                                "activity": [MessagingConstants.Event.Data.Key.Personalization.RANK: index]
+                           ],
+                            items: [item])
+    }
+
+    /// Builds a single content card proposition (based on `contentCardPropositionContent.json`) whose item id is unique.
+    private func makeCardProposition(index: Int) -> Proposition {
+        let rulesJson = setRulesJsonConsequenceIdPriority(
+            JSONFileLoader.getRulesJsonFromFile("contentCardPropositionContent"),
+            index: index)
+        let item = PropositionItem(itemId: "card_\(index)", schema: .ruleset, itemData: rulesJson)
+        return Proposition(uniqueId: "cardProp_\(index)",
+                           scope: cardSurface.uri,
+                           scopeDetails: [
+                               "decisionProvider": "AJO",
+                               "activity": [MessagingConstants.Event.Data.Key.Personalization.RANK: index]
+                           ],
+                           items: [item])
+    }
+}
