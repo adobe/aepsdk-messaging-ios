@@ -208,6 +208,7 @@
 		4C627F5F2E1E00D3001634BB /* contentCardProposition.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5D2E1E00D3001634BB /* contentCardProposition.json */; };
 		4C627F602E1E00D3001634BB /* contentCardPropositionContent.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5E2E1E00D3001634BB /* contentCardPropositionContent.json */; };
 		4CB003F52E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB003F42E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift */; };
+		4CB003F72E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json in Resources */ = {isa = PBXBuildFile; fileRef = 4CB003F62E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json */; };
 		56B08B522365B6DC2B556B40 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */; };
 		75B4333CC0B4F5BFAC707055 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */; };
 		899E1724E9B5AD078B0710E5 /* Pods_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA09063EA0248339C5B2C535 /* Pods_IntegrationTests.framework */; };
@@ -657,6 +658,7 @@
 		4C627F5D2E1E00D3001634BB /* contentCardProposition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardProposition.json; sourceTree = "<group>"; };
 		4C627F5E2E1E00D3001634BB /* contentCardPropositionContent.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionContent.json; sourceTree = "<group>"; };
 		4CB003F42E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventHistoryOperationSchemaDataTests.swift; sourceTree = "<group>"; };
+		4CB003F62E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ruleWithInvalidConsequenceDetail.json; sourceTree = "<group>"; };
 		4DBE357820DAAEE02A221D75 /* Pods-E2EFunctionalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTests.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests.debug.xcconfig"; sourceTree = "<group>"; };
 		53FA287A1BFC0714D83A6419 /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		69F23BE01498B5A36EEE4CDC /* Pods_MessagingDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -974,6 +976,7 @@
 				243EC1EC2CD0387100BD546E /* inAppMessagePriority20.json */,
 				243EC1ED2CD0387100BD546E /* inAppMessagePriority60.json */,
 				243EC1EA2CD036A200BD546E /* inAppMessagePriority100.json */,
+				4CB003F62E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json */,
 				242920D32ABCA559000DB2CD /* ruleWithNoConsequence.json */,
 				242920D52ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json */,
 				2469A5DE274465C900E56457 /* showOnceRule.json */,
@@ -1954,6 +1957,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CB003F72E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json in Resources */,
 				B6F7CC202CC2EFE400C35C64 /* SmallImageTemplate_onlyTitle.json in Resources */,
 				B6F7CC252CC2EFE400C35C64 /* SmallImageTemplate_noTitle.json in Resources */,
 				B6F7CC262CC2EFE400C35C64 /* SmallImageTemplate.json in Resources */,
