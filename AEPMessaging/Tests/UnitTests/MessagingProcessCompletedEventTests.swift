@@ -152,6 +152,93 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
 
+    func test_handleProcessCompletedEvent_IAMPropositionsNotReturnedInSubsequentResponse() {
+        // ---------- First response contains IAM + content cards ----------
+        let iamPropositions = (0..<3).map { makeInAppProposition(index: $0) }
+        let cardPropositions = (0..<4).map { makeCardProposition(index: $0) }
+        let firstPayload = (iamPropositions + cardPropositions).compactMap { $0.asDictionary() }
+        let firstRequestId = "TESTING_ID_1"
+
+        // Register expected surfaces for first request
+        messaging.setRequestedSurfacesforEventId(firstRequestId, expectedSurfaces: [iamSurface, cardSurface])
+
+        // Fire personalization:decisions event for first response
+        let decisionsEvent1 = Event(name: "decisions",
+                                    type: EventType.edge,
+                                    source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                    data: [
+                                        MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: firstPayload,
+                                        MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: firstRequestId
+                                    ])
+        mockRuntime.simulateComingEvents(decisionsEvent1)
+
+        // Process-completed for first response
+        let processEvent1 = Event(name: "process complete",
+                                  type: EventType.messaging,
+                                  source: EventSource.contentComplete,
+                                  data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: firstRequestId])
+        messaging.handleProcessCompletedEvent(processEvent1)
+
+        // Capture first call results BEFORE second request overwrites them
+        let firstEngineRules = mockLaunchRulesEngine.paramReplaceRulesRules ?? []
+        let firstCardEngineRules = mockContentCardLaunchRulesEngine.paramReplaceRulesRules ?? []
+
+        XCTAssertEqual(15, firstEngineRules.count, "First replaceRules should load 15 total rules (3 IAM + 12 event-history)")
+        XCTAssertEqual(4, firstCardEngineRules.count, "First content-card rules engine call should load 4 rules")
+
+        // Cache should have been written with IAM propositions
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertFalse(mockCache.removeCalled)
+
+        // ---------- Second response contains ONLY content cards ----------
+        mockLaunchRulesEngine.replaceRulesCalled = false
+        mockContentCardLaunchRulesEngine.replaceRulesCalled = false
+        mockCache.setCalled = false
+        mockCache.removeCalled = false
+
+        let secondPayload = cardPropositions.compactMap { $0.asDictionary() }
+        let secondRequestId = "TESTING_ID_2"
+
+        messaging.setRequestedSurfacesforEventId(secondRequestId, expectedSurfaces: [iamSurface, cardSurface])
+
+        let decisionsEvent2 = Event(name: "decisions",
+                                    type: EventType.edge,
+                                    source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                    data: [
+                                        MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: secondPayload,
+                                        MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: secondRequestId
+                                    ])
+        mockRuntime.simulateComingEvents(decisionsEvent2)
+
+        let processEvent2 = Event(name: "process complete",
+                                  type: EventType.messaging,
+                                  source: EventSource.contentComplete,
+                                  data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: secondRequestId])
+        messaging.handleProcessCompletedEvent(processEvent2)
+
+        let secondEngineRules = mockLaunchRulesEngine.paramReplaceRulesRules ?? []
+        let secondCardEngineRules = mockContentCardLaunchRulesEngine.paramReplaceRulesRules ?? []
+
+        XCTAssertEqual(12, secondEngineRules.count, "Second replaceRules should load only 12 event-history rules (no IAM)")
+        XCTAssertEqual(4, secondCardEngineRules.count, "Second content-card rules engine call should still load 4 rules")
+
+        // Validate no IAM rules in second engine rules
+        let secondIamRules = secondEngineRules.filter { rule in
+            rule.consequences.contains { consequence in
+                let ruleType = consequence.details[MessagingTestConstants.EventDataKeys.RulesEngine.MESSAGE_CONSEQUENCE_DETAIL_KEY_SCHEMA] as? String
+                return ruleType == SchemaType.inapp.toString()
+            }
+        }
+        XCTAssertEqual(0, secondIamRules.count, "Second response should not contain any IAM rules")
+
+        // Cache behavior: set should NOT be called, but propositions file should be removed (removeCalled)
+        XCTAssertFalse(mockCache.setCalled)
+        XCTAssertTrue(mockCache.removeCalled, "Cache file should be deleted when no IAM propositions remain")
+
+        // No proposition-received event dispatched
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+
     // MARK: - Private helpers
     /// Verifies that the supplied in-app rules are ordered by highest priority (ascending two-digit id suffix).
     /// The last two characters of each first consequence id are expected to be "00", "01", … in the same
