@@ -164,6 +164,11 @@ enum MessagingConstants {
                 static let MESSAGE_ID = "iam.id"
                 static let TRACKING_ACTION = "iam.action"
             }
+
+            enum OperationKeys {
+                static let MESSAGE_ID = "iam.id"
+                static let EVENT_TYPE = "iam.eventType"
+            }
         }
     }
 

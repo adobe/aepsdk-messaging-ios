@@ -13,34 +13,26 @@
 import AEPServices
 import Foundation
 
-/// Represents the schema-data object for
+/// Represents the schema data object for
 /// `https://ns.adobe.com/personalization/eventHistoryOperation`
 @objc(AEPEventHistoryOperationSchemaData)
 @objcMembers
 public class EventHistoryOperationSchemaData: NSObject, Codable {
-    /// “operation” field – qualify / unqualify / disqualify …
+    /// `operation` field (ex: qualify, unqualify, or disqualify)
     public let operation: String
 
-    /// Whatever object is stored under “content”
-    /// (usually a dictionary containing messageId, eventType …)
+    /// Whatever object is stored under `content` (usually a dictionary containing messageId, eventType, etc)
     public let content: [String: AnyCodable]
-
-    enum CodingKeys: String, CodingKey {
-        case content
-        case operation
-    }
 }
 
 extension EventHistoryOperationSchemaData {
-    /// Convenience accessors -------------------------------------------------
-
-    /// eventHistoryOperation.content.messageId
+    /// Convenience accessor for the message ID in `content`
     var messageId: String? {
-        content[MessagingConstants.Event.History.Mask.MESSAGE_ID]?.stringValue
+        content[MessagingConstants.Event.History.OperationKeys.MESSAGE_ID]?.stringValue
     }
 
-    /// eventHistoryOperation.content.eventType
+    /// Convenience accessor for the event type in `content`
     var eventType: String? {
-        content[MessagingConstants.Event.History.Mask.EVENT_TYPE]?.stringValue
+        content[MessagingConstants.Event.History.OperationKeys.EVENT_TYPE]?.stringValue
     }
 }
