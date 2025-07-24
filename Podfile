@@ -21,7 +21,7 @@ $dev_branch = 'dev-v5.5.0'
 # SHARED POD GROUPS
 # ==================
 def lib_main
-    pod 'AEPCore', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature/historical-consequence'
+    pod 'AEPCore'
     pod 'AEPServices'
     pod 'AEPRulesEngine'
 end
@@ -53,7 +53,7 @@ def app_dev
 end
 
 def test_utils
-     pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :branch => 'feature/historical-consequence'
+     pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :tag => 'testutils-5.6.0'
 end
 
 # ==================
