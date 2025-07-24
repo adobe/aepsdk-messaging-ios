@@ -196,6 +196,19 @@
 		24FD5F752CEEA50F00AE4567 /* CompletionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */; };
 		2B2B7A6E0F7CD6312D28421A /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */; };
 		44DFBD558578CFDCD4A9A476 /* Pods_E2EFunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A44BD44CB3A7DA5EBB972652 /* Pods_E2EFunctionalTestApp.framework */; };
+		4C3D44432E286BB100662A3F /* contentCardPropositionContentMissingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D44402E286BB100662A3F /* contentCardPropositionContentMissingData.json */; };
+		4C3D44442E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D44412E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json */; };
+		4C3D44452E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D44422E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json */; };
+		4C3D44472E28842300662A3F /* EventHistoryOperationSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D44462E28842300662A3F /* EventHistoryOperationSchemaData.swift */; };
+		4C55DB8F2E2F41C400379AF4 /* MessagingProcessCompletedEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C55DB8E2E2F41C400379AF4 /* MessagingProcessCompletedEventTests.swift */; };
+		4C55DB912E303BDE00379AF4 /* MessagingTestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C55DB902E303BDE00379AF4 /* MessagingTestConstants.swift */; };
+		4C627F582E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F572E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json */; };
+		4C627F5B2E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F592E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json */; };
+		4C627F5C2E1DFE9C001634BB /* feedPropositionContentMissingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */; };
+		4C627F5F2E1E00D3001634BB /* contentCardProposition.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5D2E1E00D3001634BB /* contentCardProposition.json */; };
+		4C627F602E1E00D3001634BB /* contentCardPropositionContent.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C627F5E2E1E00D3001634BB /* contentCardPropositionContent.json */; };
+		4CB003F52E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB003F42E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift */; };
+		4CB003F72E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json in Resources */ = {isa = PBXBuildFile; fileRef = 4CB003F62E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json */; };
 		56B08B522365B6DC2B556B40 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */; };
 		75B4333CC0B4F5BFAC707055 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */; };
 		899E1724E9B5AD078B0710E5 /* Pods_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA09063EA0248339C5B2C535 /* Pods_IntegrationTests.framework */; };
@@ -633,6 +646,19 @@
 		4A6935385186A1A96989B8F0 /* Pods-FunctionalTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTests.release.xcconfig"; path = "Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests.release.xcconfig"; sourceTree = "<group>"; };
 		4AD2B66914A5CF6D57AB25A7 /* Pods-FunctionalTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTestApp.debug.xcconfig"; path = "Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp.debug.xcconfig"; sourceTree = "<group>"; };
 		4C3B9F882AE3385B00A7D395 /* AEPTestUtils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AEPTestUtils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C3D44402E286BB100662A3F /* contentCardPropositionContentMissingData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionContentMissingData.json; sourceTree = "<group>"; };
+		4C3D44412E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionContentMissingSurfaceMetadata.json; sourceTree = "<group>"; };
+		4C3D44422E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionMultipleCardConsequences.json; sourceTree = "<group>"; };
+		4C3D44462E28842300662A3F /* EventHistoryOperationSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventHistoryOperationSchemaData.swift; sourceTree = "<group>"; };
+		4C55DB8E2E2F41C400379AF4 /* MessagingProcessCompletedEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingProcessCompletedEventTests.swift; sourceTree = "<group>"; };
+		4C55DB902E303BDE00379AF4 /* MessagingTestConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingTestConstants.swift; sourceTree = "<group>"; };
+		4C627F572E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentMissingSurfaceMetadata.json; sourceTree = "<group>"; };
+		4C627F592E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentFeedItemConsequences.json; sourceTree = "<group>"; };
+		4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedPropositionContentMissingData.json; sourceTree = "<group>"; };
+		4C627F5D2E1E00D3001634BB /* contentCardProposition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardProposition.json; sourceTree = "<group>"; };
+		4C627F5E2E1E00D3001634BB /* contentCardPropositionContent.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contentCardPropositionContent.json; sourceTree = "<group>"; };
+		4CB003F42E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventHistoryOperationSchemaDataTests.swift; sourceTree = "<group>"; };
+		4CB003F62E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ruleWithInvalidConsequenceDetail.json; sourceTree = "<group>"; };
 		4DBE357820DAAEE02A221D75 /* Pods-E2EFunctionalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTests.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests.debug.xcconfig"; sourceTree = "<group>"; };
 		53FA287A1BFC0714D83A6419 /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		69F23BE01498B5A36EEE4CDC /* Pods_MessagingDemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -914,6 +940,7 @@
 				242920F42AD06215000DB2CD /* HtmlContentSchemaData.swift */,
 				242920EE2AD05AFA000DB2CD /* InAppSchemaData.swift */,
 				242920F22AD06207000DB2CD /* JsonContentSchemaData.swift */,
+				4C3D44462E28842300662A3F /* EventHistoryOperationSchemaData.swift */,
 				242920F72AD06791000DB2CD /* RulesetSchemaData.swift */,
 				242920EC2ACF7760000DB2CD /* SchemaType.swift */,
 			);
@@ -929,18 +956,27 @@
 				09265D5F2B74497E0085D825 /* codeBasedPropositionJson.json */,
 				09265D5E2B74497E0085D825 /* codeBasedPropositionJsonContent.json */,
 				242920EA2AC5D744000DB2CD /* cachedProposition.json */,
+				4C627F5D2E1E00D3001634BB /* contentCardProposition.json */,
+				4C627F5E2E1E00D3001634BB /* contentCardPropositionContent.json */,
 				2438B92D29C12179001D6F3A /* emptyContentStringRule.json */,
 				2469A5E02744696400E56457 /* eventSequenceRule.json */,
 				240FC4352AAFCBE500AFEEEB /* feedProposition.json */,
 				240FC43B2AB0B8A200AFEEEB /* feedPropositionContent.json */,
+				4C627F592E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json */,
+				4C627F5A2E1DFE9C001634BB /* feedPropositionContentMissingData.json */,
+				4C627F572E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json */,
 				2469A5EC2755A60E00E56457 /* functionalTestConfigStage.json */,
 				240FC4372AAFCE3400AFEEEB /* inappPropositionV2.json */,
 				240FC43E2AB0B8A300AFEEEB /* inappPropositionV2Content.json */,
 				2438B92E29C12179001D6F3A /* malformedContentRule.json */,
 				240BDFF52B72E83E00AE8547 /* mockPropositionItem.json */,
+				4C3D44402E286BB100662A3F /* contentCardPropositionContentMissingData.json */,
+				4C3D44412E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json */,
+				4C3D44422E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json */,
 				243EC1EC2CD0387100BD546E /* inAppMessagePriority20.json */,
 				243EC1ED2CD0387100BD546E /* inAppMessagePriority60.json */,
 				243EC1EA2CD036A200BD546E /* inAppMessagePriority100.json */,
+				4CB003F62E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json */,
 				242920D32ABCA559000DB2CD /* ruleWithNoConsequence.json */,
 				242920D52ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json */,
 				2469A5DE274465C900E56457 /* showOnceRule.json */,
@@ -994,6 +1030,7 @@
 				24CA4BC22B6179F800D16369 /* ContentTypeTests.swift */,
 				24CA4BC42B617A1000D16369 /* FeedItemSchemaDataTests.swift */,
 				24CA4BC62B617A2500D16369 /* HtmlContentSchemaDataTests.swift */,
+				4CB003F42E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift */,
 				24CA4BC02B6178EE00D16369 /* InAppSchemaDataTests.swift */,
 				24CA4BC82B617A3F00D16369 /* JsonContentSchemaDataTests.swift */,
 				24CA4BCA2B617A7100D16369 /* RulesetSchemaDataTests.swift */,
@@ -1135,6 +1172,8 @@
 				242920E82AC4EE2D000DB2CD /* Messaging+StateTests.swift */,
 				243EA6D32733261E00195945 /* MessagingEdgeEventTypeTests.swift */,
 				24CA4BD82B6196DF00D16369 /* MessagingMigratorTests.swift */,
+				4C55DB8E2E2F41C400379AF4 /* MessagingProcessCompletedEventTests.swift */,
+				4C55DB902E303BDE00379AF4 /* MessagingTestConstants.swift */,
 				2450596B2673DBFE00CC7CA0 /* MessagingRulesEngineTests.swift */,
 				2469A5E6274C0FA900E56457 /* MessagingRulesEngine+CachingTests.swift */,
 				240FC42F2AAFB08E00AFEEEB /* ParsedPropositionsTests.swift */,
@@ -1918,21 +1957,30 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CB003F72E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json in Resources */,
 				B6F7CC202CC2EFE400C35C64 /* SmallImageTemplate_onlyTitle.json in Resources */,
 				B6F7CC252CC2EFE400C35C64 /* SmallImageTemplate_noTitle.json in Resources */,
 				B6F7CC262CC2EFE400C35C64 /* SmallImageTemplate.json in Resources */,
 				B6F7CC272CC2EFE400C35C64 /* SmallImageTemplate_validTitle_invalidOther.json in Resources */,
+				4C627F5B2E1DFE9C001634BB /* feedPropositionContentFeedItemConsequences.json in Resources */,
+				4C627F5C2E1DFE9C001634BB /* feedPropositionContentMissingData.json in Resources */,
 				243EC1EE2CD0387100BD546E /* inAppMessagePriority20.json in Resources */,
 				243EC1EF2CD0387100BD546E /* inAppMessagePriority60.json in Resources */,
 				B6F7CC2A2CC2EFE400C35C64 /* InvalidTemplate.json in Resources */,
 				2469A5DF274465C900E56457 /* showOnceRule.json in Resources */,
 				240FC4362AAFCBE500AFEEEB /* feedProposition.json in Resources */,
 				242920EB2AC5D745000DB2CD /* cachedProposition.json in Resources */,
+				4C627F582E1DFC7E001634BB /* feedPropositionContentMissingSurfaceMetadata.json in Resources */,
+				4C627F5F2E1E00D3001634BB /* contentCardProposition.json in Resources */,
+				4C627F602E1E00D3001634BB /* contentCardPropositionContent.json in Resources */,
 				242920D42ABCA559000DB2CD /* ruleWithNoConsequence.json in Resources */,
 				09265D622B74497E0085D825 /* codeBasedPropositionJsonContent.json in Resources */,
 				240FC43F2AB0B8A300AFEEEB /* feedPropositionContent.json in Resources */,
 				2438B92C29C10B2D001D6F3A /* wrongScopeRule.json in Resources */,
 				240FC4422AB0B8A300AFEEEB /* inappPropositionV2Content.json in Resources */,
+				4C3D44432E286BB100662A3F /* contentCardPropositionContentMissingData.json in Resources */,
+				4C3D44442E286BB100662A3F /* contentCardPropositionContentMissingSurfaceMetadata.json in Resources */,
+				4C3D44452E286BB100662A3F /* contentCardPropositionMultipleCardConsequences.json in Resources */,
 				2438B93029C12179001D6F3A /* malformedContentRule.json in Resources */,
 				240FC4382AAFCE3400AFEEEB /* inappPropositionV2.json in Resources */,
 				2438B92F29C12179001D6F3A /* emptyContentStringRule.json in Resources */,
@@ -2487,6 +2535,7 @@
 				B6F7CBE02CC2089A00C35C64 /* AEPTextType.swift in Sources */,
 				B6F7CBE12CC2089A00C35C64 /* BaseTemplate.swift in Sources */,
 				B6F7CBE22CC2089A00C35C64 /* Messaging+UIPublicAPI.swift in Sources */,
+				4C3D44472E28842300662A3F /* EventHistoryOperationSchemaData.swift in Sources */,
 				B6F7CBE32CC2089A00C35C64 /* UIConstants.swift in Sources */,
 				B6F7CBE42CC2089A00C35C64 /* AEPButton.swift in Sources */,
 				B6F7CBE52CC2089A00C35C64 /* ContentCardUIError.swift in Sources */,
@@ -2544,6 +2593,7 @@
 				245059702673DBFE00CC7CA0 /* Messaging+PublicApiTest.swift in Sources */,
 				243EA6D0273325DC00195945 /* MessageTests.swift in Sources */,
 				244FEA4629B6A5D30058FA1C /* FeedItemTests.swift in Sources */,
+				4CB003F52E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift in Sources */,
 				24CA4BC12B6178EE00D16369 /* InAppSchemaDataTests.swift in Sources */,
 				24CA4BC72B617A2500D16369 /* HtmlContentSchemaDataTests.swift in Sources */,
 				B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */,
@@ -2570,6 +2620,7 @@
 				24CA4BCB2B617A7100D16369 /* RulesetSchemaDataTests.swift in Sources */,
 				242920E42AC4D060000DB2CD /* FeedTests.swift in Sources */,
 				243EA6D22733260000195945 /* Messaging+EdgeEventsTests.swift in Sources */,
+				4C55DB8F2E2F41C400379AF4 /* MessagingProcessCompletedEventTests.swift in Sources */,
 				243EA6D62733263D00195945 /* SharedStateResult+MessagingTests.swift in Sources */,
 				24CA4BC52B617A1000D16369 /* FeedItemSchemaDataTests.swift in Sources */,
 				243EA6DE2739D4A400195945 /* MockFullscreenMessage.swift in Sources */,
@@ -2589,6 +2640,7 @@
 				B6F7CC012CC2EAF500C35C64 /* SmallImageTemplateTests.swift in Sources */,
 				B6F7CC022CC2EAF500C35C64 /* AEPDismissButtonTests.swift in Sources */,
 				B6F7CC042CC2EAF500C35C64 /* ContentCardUITests.swift in Sources */,
+				4C55DB912E303BDE00379AF4 /* MessagingTestConstants.swift in Sources */,
 				B6F7CC052CC2EAF500C35C64 /* AEPButtonTests.swift in Sources */,
 				2469A5DC27445CAF00E56457 /* MockLaunchRulesEngine.swift in Sources */,
 				2469A5E7274C0FA900E56457 /* MessagingRulesEngine+CachingTests.swift in Sources */,

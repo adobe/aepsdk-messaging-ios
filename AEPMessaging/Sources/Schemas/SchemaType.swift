@@ -27,6 +27,8 @@ public enum SchemaType: Int, Codable {
     case nativeAlert = 6
     case defaultContent = 7
     case contentCard = 8
+    /// Schema for Event History Operation consequences used with content cards
+    case eventHistoryOperation = 9
 
     /// Initializes SchemaType with the provided content schema string
     /// - Parameter schema: SchemaType content schema string
@@ -56,6 +58,9 @@ public enum SchemaType: Int, Codable {
 
         case MessagingConstants.PersonalizationSchemas.DEFAULT_CONTENT:
             self = .defaultContent
+
+        case MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION:
+            self = .eventHistoryOperation
 
         default:
             self = .unknown
@@ -90,6 +95,9 @@ public enum SchemaType: Int, Codable {
 
         case .defaultContent:
             return MessagingConstants.PersonalizationSchemas.DEFAULT_CONTENT
+
+        case .eventHistoryOperation:
+            return MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION
 
         default:
             return ""

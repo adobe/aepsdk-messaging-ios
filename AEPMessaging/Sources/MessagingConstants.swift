@@ -49,6 +49,7 @@ enum MessagingConstants {
         static let IN_APP = "https://ns.adobe.com/personalization/message/in-app"
         static let CONTENT_CARD = "https://ns.adobe.com/personalization/message/content-card"
         static let NATIVE_ALERT = "https://ns.adobe.com/personalization/message/native-alert"
+        static let EVENT_HISTORY_OPERATION = "https://ns.adobe.com/personalization/eventHistoryOperation"
 
         @available(*, deprecated, renamed: "CONTENT_CARD")
         static let FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"
@@ -163,6 +164,11 @@ enum MessagingConstants {
                 static let MESSAGE_ID = "iam.id"
                 static let TRACKING_ACTION = "iam.action"
             }
+
+            enum OperationKeys {
+                static let MESSAGE_ID = "iam.id"
+                static let EVENT_TYPE = "iam.eventType"
+            }
         }
     }
 
@@ -233,6 +239,7 @@ enum MessagingConstants {
                 static let INTERACT = "interact"
                 static let DISMISS = "dismiss"
                 static let DISQUALIFY = "disqualify"
+                static let UNQUALIFY = "unqualify"
                 static let SUPPRESSED_DISPLAY = "suppressDisplay"
             }
 
