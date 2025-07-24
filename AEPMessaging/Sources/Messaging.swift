@@ -768,14 +768,14 @@ public class Messaging: NSObject, Extension {
 
     /// Handles rules engine response events (consequences)
     private func handleRulesResponse(_ event: Event) {
-        guard event.data != nil else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. 'eventData' is nil.")
+        guard event.isSchemaConsequence, event.data != nil else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. Either consequence is not of type 'schema' or 'eventData' is nil.")
             return
         }
 
         // Attempt to create a proposition item from the consequence event
         guard let propositionItem = PropositionItem.fromRuleConsequenceEvent(event) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "handleRulesConsequence - Ignoring rule consequence event, propositionItem is nil")
+            Log.debug(label: MessagingConstants.LOG_TAG, "handleRulesResponse - Ignoring rule consequence event, propositionItem is nil")
             return
         }
 
