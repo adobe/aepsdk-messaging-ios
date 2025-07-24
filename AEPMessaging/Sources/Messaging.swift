@@ -628,9 +628,9 @@ public class Messaging: NSObject, Extension {
 
     private func updateRulesEngines(with surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
         // Process rules for each schema type
-        processRulesForSchemaType(surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, schemaType: .inapp, rulesBySurface: &inAppRulesBySurface)
-        processRulesForSchemaType(surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, schemaType: .contentCard, rulesBySurface: &contentCardRulesBySurface)
-        processRulesForSchemaType(surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, schemaType: .eventHistoryOperation, rulesBySurface: &eventHistoryRulesBySurface)
+        processRulesForSchemaType(.inapp, surfaceRulesBySchemaType: surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, rulesBySurface: &inAppRulesBySurface)
+        processRulesForSchemaType(.contentCard, surfaceRulesBySchemaType: surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, rulesBySurface: &contentCardRulesBySurface)
+        processRulesForSchemaType(.eventHistoryOperation, surfaceRulesBySchemaType: surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, rulesBySurface: &eventHistoryRulesBySurface)
 
         // Content card rules engine
         if surfaceRulesBySchemaType[.contentCard] != nil {
@@ -662,10 +662,15 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    private func processRulesForSchemaType(_ surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface], schemaType: SchemaType, rulesBySurface: inout [Surface: [LaunchRule]]) {
+    private func processRulesForSchemaType(
+        _ schemaType: SchemaType,
+        surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]],
+        requestedSurfaces: [Surface],
+        rulesBySurface: inout [Surface: [LaunchRule]])
+    {
         if let newRules = surfaceRulesBySchemaType[schemaType] {
             let newSurfaces = Array(newRules.keys)
-            Log.trace(label: MessagingConstants.LOG_TAG, "Updating definitions for surfaces \(newSurfaces.map { $0.uri }) with schema type \(schemaType).")
+            Log.trace(label: MessagingConstants.LOG_TAG, "Processing schema type \(schemaType): for requested surfaces [\(requestedSurfaces.map { $0.uri })], returned surfaces [\(newSurfaces.map { $0.uri })].")
 
             // merge / replace rules for surfaces present in response
             rulesBySurface.merge(newRules) { _, new in new }
