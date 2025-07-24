@@ -53,6 +53,8 @@ enum PropositionHistory {
         }
         Log.trace(label: MessagingConstants.LOG_TAG, "Writing '\(eventType.propositionEventType)' event\(interactionLog) to EventHistory for Proposition with activityId '\(activityId)'")
 
+        // By setting a mask, event hub will record this event using the keys in the mask
+        // (the keys must be flattened keys) and record into event history
         let event = Event(name: MessagingConstants.Event.Name.EVENT_HISTORY_WRITE,
                           type: EventType.messaging,
                           source: MessagingConstants.Event.Source.EVENT_HISTORY_WRITE,

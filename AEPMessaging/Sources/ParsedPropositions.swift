@@ -55,32 +55,40 @@ struct ParsedPropositions {
                     guard let parsedRules = parseRule(firstPropositionItem.itemData) else {
                         continue
                     }
-                    guard let consequence = parsedRules.first?.consequences.first,
-                          let schemaConsequence = PropositionItem.fromRuleConsequence(consequence)
-                    else {
-                        continue
-                    }
 
-                    // handle these schemas when they're embedded in ruleset-item schemas:
-                    // a. in-app schema consequences get persisted to disk, cached for reporting, and added to rules that need to be updated
-                    //    i. default-content schema consequences are treated like in-app at a proposition level
-                    // b. feed schema consequences get cached for reporting added to rules that need to be updated
-                    //
-                    // IMPORTANT! - for schema consequences that are embedded in ruleset-items, the following is true:
-                    //
-                    //    consequence.id == consequence.detail.id
-                    //
-                    // this is important because we need a reliable key to store and retrieve `PropositionInfo` for reporting
-                    switch schemaConsequence.schema {
-                    case .inapp, .defaultContent:
-                        propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
-                        propositionsToPersist.add(proposition, forKey: surface)
-                        mergeRules(parsedRules, for: surface, with: .inapp)
-                    case .feed, .contentCard:
-                        propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
-                        mergeRules(parsedRules, for: surface, with: .contentCard)
-                    default:
-                        continue
+                    // A ruleset-item can contain multiple rules with varying schema consequence types
+                    for parsedRule in parsedRules {
+                        guard let consequence = parsedRule.consequences.first,
+                              let schemaConsequence = PropositionItem.fromRuleConsequence(consequence)
+                        else {
+                            continue
+                        }
+
+                        // handle these schemas when they're embedded in ruleset-item schemas:
+                        // a. in-app schema consequences get persisted to disk, cached for reporting, and added to rules that need to be updated
+                        //    i. default-content schema consequences are treated like in-app at a proposition level
+                        // b. content card/feed schema consequences get cached for reporting added to rules that need to be updated
+                        //
+                        // IMPORTANT! - for schema consequences that are embedded in ruleset-items, the following is true:
+                        //
+                        //    consequence.id == consequence.detail.id
+                        //
+                        // this is important because we need a reliable key to store and retrieve `PropositionInfo` for reporting
+                        switch schemaConsequence.schema {
+                        case .inapp, .defaultContent:
+                            propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+                            propositionsToPersist.add(proposition, forKey: surface)
+                            mergeRules(parsedRule, for: surface, with: .inapp)
+                        case .feed, .contentCard:
+                            propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+                            mergeRules(parsedRule, for: surface, with: .contentCard)
+                        case .eventHistoryOperation:
+                            // Event history operations don't have proposition info that needs to be cached unlike the cards they are tied to
+                            // The rules just need to be loaded into the processing rules engine
+                            mergeRules(parsedRule, for: surface, with: .eventHistoryOperation)
+                        default:
+                            continue
+                        }
                     }
                 // - handle json-content, html-content, and default-content schemas for code based experiences
                 //   a. code based schemas are cached for reporting
@@ -100,15 +108,15 @@ struct ParsedPropositions {
         return JSONRulesParser.parse(ruleData ?? Data(), runtime: runtime)
     }
 
-    private mutating func mergeRules(_ rules: [LaunchRule], for surface: Surface, with schemaType: SchemaType) {
-        // get rules we may already have for this schemaType
-        var tempRulesBySchemaType = surfaceRulesBySchemaType[schemaType] ?? [:]
+    private mutating func mergeRules(_ rule: LaunchRule, for surface: Surface, with schemaType: SchemaType) {
+        // Get any existing surface to [LaunchRule] map for this schema type
+        var tempRulesBySurface = surfaceRulesBySchemaType[schemaType] ?? [:]
 
-        // combine rules with existing
-        tempRulesBySchemaType.addArray(rules, forKey: surface)
+        // Append the single rule to the array stored for the surface key, or create a new array if none exists
+        tempRulesBySurface.add(rule, forKey: surface)
 
-        // apply up to surfaceRulesBySchemaType
-        surfaceRulesBySchemaType[schemaType] = tempRulesBySchemaType
+        // Set the updated surface map back to the schema type
+        surfaceRulesBySchemaType[schemaType] = tempRulesBySurface
     }
 
     private func sortByRank(_ propositionsBySurface: [Surface: [Proposition]]) -> [Surface: [Proposition]] {

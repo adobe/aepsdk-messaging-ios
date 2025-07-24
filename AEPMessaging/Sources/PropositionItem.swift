@@ -180,6 +180,13 @@ public extension PropositionItem {
         feedItemSchemaData.parent = self
         return feedItemSchemaData
     }
+
+    var eventHistoryOperationSchemaData: EventHistoryOperationSchemaData? {
+        guard schema == .eventHistoryOperation else {
+            return nil
+        }
+        return getTypedData(EventHistoryOperationSchemaData.self)
+    }
 }
 
 /// extension for internal and private methods
