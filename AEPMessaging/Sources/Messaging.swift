@@ -154,7 +154,7 @@ public class Messaging: NSObject, Extension {
 
         registerListener(type: EventType.rulesEngine,
                          source: EventSource.responseContent,
-                         listener: handleRulesConsequence)
+                         listener: handleRulesResponse)
 
         // register listener for edge personalization notifications
         registerListener(type: EventType.edge,
@@ -766,8 +766,8 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    /// Handles rules engine consequences
-    private func handleRulesConsequence(_ event: Event) {
+    /// Handles rules engine response events (consequences)
+    private func handleRulesResponse(_ event: Event) {
         guard event.data != nil else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. 'eventData' is nil.")
             return
