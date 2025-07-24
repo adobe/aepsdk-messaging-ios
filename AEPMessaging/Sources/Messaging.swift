@@ -627,11 +627,6 @@ public class Messaging: NSObject, Extension {
     }
 
     private func updateRulesEngines(with surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
-        // Skip if nothing to process
-        guard !surfaceRulesBySchemaType.isEmpty, !requestedSurfaces.isEmpty else {
-            return
-        }
-
         // Process rules for each schema type
         processRulesForSchemaType(surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, schemaType: .inapp, rulesBySurface: &inAppRulesBySurface)
         processRulesForSchemaType(surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, schemaType: .contentCard, rulesBySurface: &contentCardRulesBySurface)
