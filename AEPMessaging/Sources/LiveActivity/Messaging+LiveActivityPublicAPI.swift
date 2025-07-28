@@ -29,6 +29,56 @@ public extension Messaging {
     /// A shared task store for tasks that handle Live Activity update tokens and state transitions.
     private static let activityUpdateTaskStore = ActivityTaskStore<String>()
 
+    /// Represents the registration state of a Live Activity type.
+    private enum RegistrationState {
+        case registered
+        case unregistered
+        case partiallyRegistered(updateTaskRegistered: Bool, pushStartTaskRegistered: Bool)
+    }
+
+    /// Determines the current registration state for a given Live Activity type.
+    ///
+    /// - Parameter type: The Live Activity type to check.
+    /// - Returns: The current registration state indicating whether the type is fully registered,
+    ///           not registered, or in a partially registered state.
+    private static func getRegistrationState<T: LiveActivityAttributes>(for type: T.Type) async -> RegistrationState {
+        let attributeType = T.attributeType
+        let updateTaskRegistered = await activityUpdateTaskStore.task(for: attributeType) != nil
+        
+        if #available(iOS 17.2, *) {
+            let pushStartTaskRegistered = await pushToStartTaskStore.task(for: attributeType) != nil
+            
+            if updateTaskRegistered && pushStartTaskRegistered {
+                return .registered
+            } else if !updateTaskRegistered && !pushStartTaskRegistered {
+                return .unregistered
+            } else {
+                return .partiallyRegistered(updateTaskRegistered: updateTaskRegistered, pushStartTaskRegistered: pushStartTaskRegistered)
+            }
+        } else {
+            return updateTaskRegistered ? .registered : .unregistered
+        }
+    }
+
+    /// Cleans up any existing tasks for the given attribute type.
+    ///
+    /// - Parameter attributeType: The string identifier for the Live Activity type.
+    private static func cleanupExistingTasks(for attributeType: String) async {
+        // Cancel and remove activity updates task
+        if let existingUpdateTask = await activityUpdateTaskStore.task(for: attributeType) {
+            existingUpdateTask.cancel()
+            await activityUpdateTaskStore.removeTask(for: attributeType)
+        }
+        
+        // Cancel and remove push-to-start task (iOS 17.2+ only)
+        if #available(iOS 17.2, *) {
+            if let existingPushStartTask = await pushToStartTaskStore.task(for: attributeType) {
+                existingPushStartTask.cancel()
+                await pushToStartTaskStore.removeTask(for: attributeType)
+            }
+        }
+    }
+
     /// Registers a Live Activity type with the Adobe Experience Platform SDK.
     ///
     /// When called, this method enables the SDK to:
@@ -43,25 +93,47 @@ public extension Messaging {
     static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
         let attributeType = T.attributeType
 
-        if let debuggableType = T.self as? any LiveActivityAssuranceDebuggable.Type {
-            dispatchAttributeStructureEvent(type: debuggableType)
-        }
+        Task {
+            let registrationState = await getRegistrationState(for: T.self)
+            
+            switch registrationState {
+                case .unregistered:
+                // Proceed with normal registration. This is the first time the type is being registered.
+                break
 
-        if #available(iOS 17.2, *) {
-            let newPushTask = createPushToStartTokenTask(type: T.self)
-            Task {
+            case .registered:
+                // The type is already registered. Skip duplicate registration.
+                Log.debug(label: MessagingConstants.LOG_TAG,
+                          "Live Activity type '\(attributeType)' is already fully registered. Skipping duplicate registration.")
+                return
+
+            case .partiallyRegistered(let updateTaskRegistered, let pushStartTaskRegistered):
+                // The type is partially registered. This is unexpected. Clean up and re-create all tasks.
+                Log.warning(label: MessagingConstants.LOG_TAG,
+                          "Live Activity type '\(attributeType)' is partially registered (update task: \(updateTaskRegistered), push-to-start task: \(pushStartTaskRegistered)). Cleaning up and re-creating all tasks.")
+                await cleanupExistingTasks(for: attributeType)
+            }
+            // Fall through to create fresh tasks
+            
+            // Dispatch attribute structure event if the type supports debugging
+            if let debuggableType = T.self as? any LiveActivityAssuranceDebuggable.Type {
+                dispatchAttributeStructureEvent(type: debuggableType)
+            }
+
+            // Create and register push-to-start token task for iOS 17.2+
+            if #available(iOS 17.2, *) {
+                let newPushTask = createPushToStartTokenTask(type: T.self)
                 await pushToStartTaskStore.setTask(for: attributeType, task: newPushTask)
                 Log.trace(label: MessagingConstants.LOG_TAG,
                           "Registered Live Activity push-to-start token task for type \(attributeType)")
+            } else {
+                Log.debug(label: MessagingConstants.LOG_TAG,
+                          "Not creating a Live Activity push-to-start token handler task for type \(attributeType). " +
+                              "iOS 17.2 or later is required to start a Live Activity with a push token.")
             }
-        } else {
-            Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Not creating a Live Activity push-to-start token handler task for type \(attributeType). " +
-                          "iOS 17.2 or later is required to start a Live Activity with a push token.")
-        }
 
-        let newActivityUpdatesTask = createActivityUpdatesTask(type: T.self)
-        Task {
+            // Create and register activity updates task
+            let newActivityUpdatesTask = createActivityUpdatesTask(type: T.self)
             await activityUpdateTaskStore.setTask(for: attributeType, task: newActivityUpdatesTask)
             Log.trace(label: MessagingConstants.LOG_TAG,
                       "Registered Live Activity updates task for type \(attributeType)")
