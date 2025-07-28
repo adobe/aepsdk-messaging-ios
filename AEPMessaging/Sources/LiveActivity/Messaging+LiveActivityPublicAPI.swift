@@ -41,13 +41,13 @@ public extension Messaging {
     /// - Parameter type: The Live Activity type to check.
     /// - Returns: The current registration state indicating whether the type is fully registered,
     ///           not registered, or in a partially registered state.
-    private static func getRegistrationState<T: LiveActivityAttributes>(for type: T.Type) async -> RegistrationState {
+    private static func getRegistrationState<T: LiveActivityAttributes>(for _: T.Type) async -> RegistrationState {
         let attributeType = T.attributeType
         let updateTaskRegistered = await activityUpdateTaskStore.task(for: attributeType) != nil
-        
+
         if #available(iOS 17.2, *) {
             let pushStartTaskRegistered = await pushToStartTaskStore.task(for: attributeType) != nil
-            
+
             if updateTaskRegistered && pushStartTaskRegistered {
                 return .registered
             } else if !updateTaskRegistered && !pushStartTaskRegistered {
@@ -69,7 +69,7 @@ public extension Messaging {
             existingUpdateTask.cancel()
             await activityUpdateTaskStore.removeTask(for: attributeType)
         }
-        
+
         // Cancel and remove push-to-start task (iOS 17.2+ only)
         if #available(iOS 17.2, *) {
             if let existingPushStartTask = await pushToStartTaskStore.task(for: attributeType) {
@@ -95,9 +95,9 @@ public extension Messaging {
 
         Task {
             let registrationState = await getRegistrationState(for: T.self)
-            
+
             switch registrationState {
-                case .unregistered:
+            case .unregistered:
                 // Proceed with normal registration. This is the first time the type is being registered.
                 break
 
@@ -107,14 +107,14 @@ public extension Messaging {
                           "Live Activity type '\(attributeType)' is already fully registered. Skipping duplicate registration.")
                 return
 
-            case .partiallyRegistered(let updateTaskRegistered, let pushStartTaskRegistered):
+            case let .partiallyRegistered(updateTaskRegistered, pushStartTaskRegistered):
                 // The type is partially registered. This is unexpected. Clean up and re-create all tasks.
                 Log.warning(label: MessagingConstants.LOG_TAG,
-                          "Live Activity type '\(attributeType)' is partially registered (update task: \(updateTaskRegistered), push-to-start task: \(pushStartTaskRegistered)). Cleaning up and re-creating all tasks.")
+                            "Live Activity type '\(attributeType)' is partially registered (update task: \(updateTaskRegistered), push-to-start task: \(pushStartTaskRegistered)). Cleaning up and re-create all tasks.")
                 await cleanupExistingTasks(for: attributeType)
             }
             // Fall through to create fresh tasks
-            
+
             // Dispatch attribute structure event if the type supports debugging
             if let debuggableType = T.self as? any LiveActivityAssuranceDebuggable.Type {
                 dispatchAttributeStructureEvent(type: debuggableType)
