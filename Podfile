@@ -53,7 +53,7 @@ def app_dev
 end
 
 def test_utils
-     pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :tag => 'testutils-5.2.0'
+     pod 'AEPTestUtils', :git => 'https://github.com/adobe/aepsdk-core-ios.git', :tag => 'testutils-5.6.0'
 #    pod 'AEPTestUtils', :git => 'https://github.com/sbenedicadb/aepsdk-core-ios.git', :branch => 'temp-utils'
 end
 
