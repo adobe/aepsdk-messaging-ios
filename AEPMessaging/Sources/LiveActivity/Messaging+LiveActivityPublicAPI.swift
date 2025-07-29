@@ -329,7 +329,7 @@ public extension Messaging {
             MessagingConstants.Event.Data.Key.LiveActivity.TRACK_START: true,
             MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
             MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: activity.id,
-            MessagingConstants.XDM.LiveActivity.ORIGIN: activity.attributes.liveActivityData.origin
+            MessagingConstants.XDM.LiveActivity.ORIGIN: activity.attributes.liveActivityData.origin.rawValue
         ]
 
         // Merge in the single identifier (liveActivityID or channelID)

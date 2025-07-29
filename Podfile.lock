@@ -2,9 +2,9 @@ PODS:
   - AEPAssurance (5.0.1):
     - AEPCore (< 6.0.0, >= 5.0.0)
     - AEPServices (< 6.0.0, >= 5.0.0)
-  - AEPCore (5.5.2):
+  - AEPCore (5.6.0):
     - AEPRulesEngine (< 6.0.0, >= 5.0.0)
-    - AEPServices (< 6.0.0, >= 5.5.2)
+    - AEPServices (< 6.0.0, >= 5.6.0)
   - AEPEdge (5.0.3):
     - AEPCore (< 6.0.0, >= 5.3.1)
     - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
@@ -13,15 +13,15 @@ PODS:
     - AEPEdge (< 6.0.0, >= 5.0.0)
   - AEPEdgeIdentity (5.0.0):
     - AEPCore (< 6.0.0, >= 5.0.0)
-  - AEPLifecycle (5.5.2):
-    - AEPCore (< 6.0.0, >= 5.5.2)
+  - AEPLifecycle (5.6.0):
+    - AEPCore (< 6.0.0, >= 5.6.0)
   - AEPRulesEngine (5.0.0)
-  - AEPServices (5.5.2)
-  - AEPSignal (5.5.2):
-    - AEPCore (< 6.0.0, >= 5.5.2)
-  - AEPTestUtils (5.2.0):
-    - AEPCore (< 6.0.0, >= 5.2.0)
-    - AEPServices (< 6.0.0, >= 5.2.0)
+  - AEPServices (5.6.0)
+  - AEPSignal (5.6.0):
+    - AEPCore (< 6.0.0, >= 5.6.0)
+  - AEPTestUtils (5.6.0):
+    - AEPCore (< 6.0.0, >= 5.6.0)
+    - AEPServices (< 6.0.0, >= 5.6.0)
   - SwiftLint (0.52.0)
 
 DEPENDENCIES:
@@ -34,7 +34,7 @@ DEPENDENCIES:
   - AEPRulesEngine
   - AEPServices
   - AEPSignal
-  - AEPTestUtils (from `https://github.com/adobe/aepsdk-core-ios.git`, tag `testutils-5.2.0`)
+  - AEPTestUtils (from `https://github.com/adobe/aepsdk-core-ios.git`, tag `testutils-5.6.0`)
   - SwiftLint (= 0.52.0)
 
 SPEC REPOS:
@@ -53,26 +53,26 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-core-ios.git
-    :tag: testutils-5.2.0
+    :tag: testutils-5.6.0
 
 CHECKOUT OPTIONS:
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-core-ios.git
-    :tag: testutils-5.2.0
+    :tag: testutils-5.6.0
 
 SPEC CHECKSUMS:
   AEPAssurance: df04baeace42befb0cc213fd6cdfe51651d11ba6
-  AEPCore: a420c47e8734b23ff2e2c3394a352e5bcc2ae169
+  AEPCore: 404a4c600f5a885031a7e9b1e646ea9405d94b24
   AEPEdge: 105afc7958acd7c016d57f7ac1d6f632bf05e6ee
   AEPEdgeConsent: d7db1d19eb4c1e2146360ed3c8df315f671b26d5
   AEPEdgeIdentity: 3161ff33434586962946912d6b8e9e8fca1c4d23
-  AEPLifecycle: 5b9db1186340d064af8348c48aada4c83cc879b2
+  AEPLifecycle: 75e6a1870259c9b50b26f1ae6f6bbe6f25fe2907
   AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
-  AEPServices: bc368ffd8e21339ce9c05fc56e05433824805bfd
-  AEPSignal: d2af781568a8fa951531ccc53964ec8082956157
-  AEPTestUtils: 0b7e4de0203e558fc02b9f4b0f493e57039545b5
+  AEPServices: cbdac48662ef2f1001d05d47b5930a397a8beaab
+  AEPSignal: fc0bcf6f228a35568af06a715326209d8d0857f1
+  AEPTestUtils: 2bbed995c8974f6f6d92058db88d6cd2e4a7f869
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: 7c92b0f9c0760a082c9ca6ec2da5421cb3ff6b4e
+PODFILE CHECKSUM: 9a702c8f5efb8f8bddbc86df0f9f611523bc7bea
 
 COCOAPODS: 1.16.2

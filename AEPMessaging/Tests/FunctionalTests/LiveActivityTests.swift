@@ -591,7 +591,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
             MessagingConstants.Event.Data.Key.LiveActivity.TRACK_START: true,
             MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
             MessagingConstants.Event.Data.Key.LiveActivity.APPLE_ID: "testAppleActivityID",
-            MessagingConstants.XDM.LiveActivity.ORIGIN: origin
+            MessagingConstants.XDM.LiveActivity.ORIGIN: origin.rawValue
         ]
 
         if let liveActivityID = liveActivityID {
