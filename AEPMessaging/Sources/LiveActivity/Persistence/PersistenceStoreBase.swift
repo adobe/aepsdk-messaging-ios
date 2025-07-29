@@ -184,7 +184,7 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
         guard let dict = persistence.get(collectionName: datastoreName, key: key) as? [String: Any] else {
             return nil
         }
-        return Map.from(dict)
+        return Map.fromDictionary(dict)
     }
 }
 
