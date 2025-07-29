@@ -348,11 +348,7 @@ extension Event {
     }
 
     var liveActivityOrigin: String? {
-        if #available(iOS 16.1, *) {
-            (data?[MessagingConstants.XDM.LiveActivity.ORIGIN] as? LiveActivityOrigin)?.rawValue
-        } else {
-            nil
-        }
+        data?[MessagingConstants.XDM.LiveActivity.ORIGIN] as? String
     }
 
     var liveActivityState: String? {
