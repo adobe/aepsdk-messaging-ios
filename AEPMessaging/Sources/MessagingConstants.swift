@@ -50,6 +50,7 @@ enum MessagingConstants {
         static let IN_APP = "https://ns.adobe.com/personalization/message/in-app"
         static let CONTENT_CARD = "https://ns.adobe.com/personalization/message/content-card"
         static let NATIVE_ALERT = "https://ns.adobe.com/personalization/message/native-alert"
+        static let EVENT_HISTORY_OPERATION = "https://ns.adobe.com/personalization/eventHistoryOperation"
 
         @available(*, deprecated, renamed: "CONTENT_CARD")
         static let FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"
@@ -152,12 +153,14 @@ enum MessagingConstants {
 
                     // layout keys
                     static let WIDTH = "width"
+                    static let MAX_WIDTH = "maxWidth"
                     static let HEIGHT = "height"
                     static let VERTICAL_ALIGN = "verticalAlign"
                     static let VERTICAL_INSET = "verticalInset"
                     static let HORIZONTAL_ALIGN = "horizontalAlign"
                     static let HORIZONTAL_INSET = "horizontalInset"
                     static let UI_TAKEOVER = "uiTakeover"
+                    static let FIT_TO_CONTENT = "fitToContent"
                     static let DISPLAY_ANIMATION = "displayAnimation"
                     static let DISMISS_ANIMATION = "dismissAnimation"
                     static let GESTURES = "gestures"
@@ -190,6 +193,11 @@ enum MessagingConstants {
                 static let EVENT_TYPE = "iam.eventType"
                 static let MESSAGE_ID = "iam.id"
                 static let TRACKING_ACTION = "iam.action"
+            }
+
+            enum OperationKeys {
+                static let MESSAGE_ID = "iam.id"
+                static let EVENT_TYPE = "iam.eventType"
             }
         }
     }
@@ -262,6 +270,7 @@ enum MessagingConstants {
                 static let INTERACT = "interact"
                 static let DISMISS = "dismiss"
                 static let DISQUALIFY = "disqualify"
+                static let UNQUALIFY = "unqualify"
                 static let SUPPRESSED_DISPLAY = "suppressDisplay"
             }
 

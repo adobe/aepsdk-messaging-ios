@@ -71,9 +71,9 @@ class MessagingTests: XCTestCase {
         XCTAssertNoThrow(MobileCore.registerExtensions([Messaging.self]))
     }
     
-    /// validate that 8 listeners are registered onRegister
-    func testOnRegistered_eightListenersAreRegistered() {
-        XCTAssertEqual(mockRuntime.listeners.count, 8)
+    /// validate that 7 listeners are registered onRegister
+    func testOnRegistered_sevenListenersAreRegistered() {
+        XCTAssertEqual(mockRuntime.listeners.count, 7)
     }
     
     func testOnUnregisteredCallable() throws {
@@ -966,75 +966,73 @@ class MessagingTests: XCTestCase {
         XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
     }
     
-    func testHandleEventHistoryWriteHappy() throws {
-        // setup
-        let event = getGenericEventHistoryDisqualifyEvent()
-        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(0, propsForMockSurfaceAfter?.count)
+    // MARK: - Core Rules Engine Dis/Unqualification Consequence Tests
+
+    private func getQualificationConsequenceEvent(eventType: String, activityId: String = "mockActivityId") -> Event {
+        // Build content map expected by EventHistoryOperation schema data
+        let contentMap: [String: String] = [
+            MessagingConstants.Event.History.Mask.EVENT_TYPE: eventType,
+            MessagingConstants.Event.History.Mask.MESSAGE_ID: activityId
+        ]
+
+        // Wrap in the event-history operation data object
+        let eventHistoryData: [String: Any] = [
+            "content": contentMap,
+            "operation": "insertIfNotExists"
+        ]
+
+        // Build schema consequence detail structure
+        let consequenceDetail: [String: Any] = [
+            MessagingConstants.Event.Data.Key.DATA: eventHistoryData,
+            MessagingConstants.Event.Data.Key.ID: "mockConsequenceId",
+            MessagingConstants.Event.Data.Key.SCHEMA: MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION
+        ]
+
+        let triggeredConsequence: [String: Any] = [
+            MessagingConstants.Event.Data.Key.ID: "mockConsequenceId",
+            MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.SCHEMA,
+            MessagingConstants.Event.Data.Key.DETAIL: consequenceDetail
+        ]
+
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: triggeredConsequence
+        ]
+
+        return Event(name: "Qualification Consequence",
+                     type: EventType.rulesEngine,
+                     source: EventSource.responseContent,
+                     data: eventData)
     }
-    
-    func testHandleEventHistoryWriteNotDisqualifyEvent() throws {
-        // setup
-        let event = Event(name: "name", type: "type", source: "source", data: nil)
-        
+
+    func testCardDisqualificationConsequence_disqualify_removesProposition() {
+        // Seed cache with a qualified card
         messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
+
+        let event = getQualificationConsequenceEvent(eventType: "disqualify", activityId: MOCK_ACTIVITY_ID)
+        mockRuntime.simulateComingEvents(event)
+
+        // Card should be removed
+        XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
     }
-    
-    func testHandleEventHistoryWriteNoActivityIdInEvent() throws {
-        // setup
-        let event = getGenericEventHistoryDisqualifyEvent(iamMap: ["eventType": "disqualify"])
-        
+
+    func testCardDisqualificationConsequence_unqualify_removesProposition() {
         messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
+
+        let event = getQualificationConsequenceEvent(eventType: "unqualify", activityId: MOCK_ACTIVITY_ID)
+        mockRuntime.simulateComingEvents(event)
+
+        XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
     }
-    
-    func testHandleEventHistoryWriteWrongActivityIdInEvent() throws {
-        // setup
-        let event = getGenericEventHistoryDisqualifyEvent(iamMap: ["eventType": "disqualify", "id": "non-matching-id"])
-        
+
+    func testCardDisqualificationConsequence_nonMatchingEvent_keepsProposition() {
         messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
+
+        // send consequence with eventType "display" which should be ignored
+        let event = getQualificationConsequenceEvent(eventType: "display", activityId: MOCK_ACTIVITY_ID)
+        mockRuntime.simulateComingEvents(event)
+
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
     }
             
     // MARK: - Helpers
