@@ -22,6 +22,7 @@ enum MessagingConstants {
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
+    static let DATA_STORE_NAME = EXTENSION_NAME
 
     enum ContentTypes {
         static let APPLICATION_JSON = "application/json"
@@ -59,7 +60,7 @@ enum MessagingConstants {
         enum Name {
             static let MESSAGE_INTERACTION = "Messaging interaction event"
             static let PUSH_NOTIFICATION_INTERACTION = "Push notification interaction event"
-            static let PUSH_PROFILE_EDGE = "Push notification profile edge event"
+            static let PUSH_PROFILE_EDGE = "Push notification token profile Edge event"
             static let PUSH_TRACKING_EDGE = "Push tracking edge event"
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
@@ -72,6 +73,17 @@ enum MessagingConstants {
             static let PUSH_TRACKING_STATUS = "Push tracking status event"
             static let EVENT_HISTORY_WRITE = "Write IAM event to history"
             static let PUSH_TO_IN_APP = "Push to in-app"
+            static let LIVE_ACTIVITY = "Live Activity"
+
+            enum LiveActivity {
+                static let CONTENT_STATE = "Live Activity updated"
+                static let PUSH_TO_START = "Live Activity push-to-start token"
+                static let PUSH_TO_START_EDGE = "Live Activity push-to-start token to Edge"
+                static let START = "Live Activity start event"
+                static let START_EDGE = "Live Activity start to Edge"
+                static let UPDATE_TOKEN = "Live Activity update token"
+                static let UPDATE_TOKEN_EDGE = "Live Activity update token to Edge"
+            }
         }
 
         enum Source {
@@ -87,13 +99,7 @@ enum MessagingConstants {
             }
 
             enum Key {
-                static let PUSH_IDENTIFIER = "pushidentifier"
-                static let EVENT_TYPE = "eventType"
-                static let APPLICATION_OPENED = "applicationOpened"
-                static let ACTION_ID = "actionId"
                 static let REFRESH_MESSAGES = "refreshmessages"
-                static let PUSH_CLICK_THROUGH_URL = "clickThroughUrl"
-                static let ADOBE_XDM = "adobe_xdm"
                 static let REQUEST_EVENT_ID = "requestEventId"
                 static let IAM_HISTORY = "iam"
                 static let UPDATE_PROPOSITIONS = "updatepropositions"
@@ -104,14 +110,38 @@ enum MessagingConstants {
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
                 static let ENDING_EVENT_ID = "endingEventId"
-                static let PUSH_NOTIFICATION_TRACKING_STATUS = "pushTrackingStatus"
-                static let PUSH_NOTIFICATION_TRACKING_MESSAGE = "pushTrackingStatusMessage"
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
                 static let DETAIL = "detail"
                 static let TYPE = "type"
                 static let SCHEMA = "schema"
                 static let DATA = "data"
+
+                // MARK: Push Notification event keys
+
+                static let PUSH_INTERACTION = "isPushInteractionEvent"
+                static let PUSH_IDENTIFIER = "pushidentifier"
+                static let EVENT_TYPE = "eventType"
+                static let APPLICATION_OPENED = "applicationOpened"
+                static let ACTION_ID = "actionId"
+                static let PUSH_CLICK_THROUGH_URL = "clickThroughUrl"
+                static let ADOBE_XDM = "adobe_xdm"
+                static let PUSH_NOTIFICATION_TRACKING_STATUS = "pushTrackingStatus"
+                static let PUSH_NOTIFICATION_TRACKING_MESSAGE = "pushTrackingStatusMessage"
+
+                // MARK: Live Activity event keys
+
+                enum LiveActivity {
+                    static let APPLE_ID = "appleLiveActivityId"
+                    /// The key for Live Activity Attribute type name. For example, "FoodDeliveryLiveActivityAttributes"
+                    static let ATTRIBUTE_TYPE = "attributeType"
+                    static let CONTENT_STATE = "contentState"
+                    static let PUSH_TO_START_TOKEN = "isLiveActivityPushToStartTokenEvent"
+                    static let STATE = "state"
+                    static let TRACK_START = "isLiveActivityTrackStartEvent"
+                    static let TRACK_STATE = "isLiveActivityTrackStateEvent"
+                    static let UPDATE_TOKEN = "isLiveActivityUpdateTokenEvent"
+                }
 
                 enum Feed {
                     static let SURFACE = "surface"
@@ -218,6 +248,7 @@ enum MessagingConstants {
             static let DATA = "data"
             static let REQUEST = "request"
             static let SEND_COMPLETION = "sendCompletion"
+            static let LIVE_ACTIVITY = "liveActivity"
         }
 
         enum Inbound {
@@ -290,11 +321,33 @@ enum MessagingConstants {
                 static let APNS_SANDBOX = "apnsSandbox"
             }
         }
+
+        enum LiveActivity {
+            static let ATTRIBUTE_TYPE = "liveActivityAttributeType"
+            static let CHANNEL_ID = "channelID"
+            static let ID = "liveActivityID"
+            /// Represents whether the Live Activity was started remotely or locally.
+            static let ORIGIN = "origin"
+            static let PUSH_NOTIFICATION_DETAILS = "liveActivityPushNotificationDetails"
+
+            enum EventType {
+                static let PUSH_TO_START = "liveActivity.pushToStart"
+                static let START = "liveActivity.start"
+                static let UPDATE_TOKEN = "liveActivity.updateToken"
+            }
+        }
     }
 
     enum SharedState {
         enum Messaging {
             static let PUSH_IDENTIFIER = "pushidentifier"
+            static let LIVE_ACTIVITY = "liveActivity"
+
+            enum LiveActivity {
+                static let CHANNEL_ACTIVITIES = "channelActivities"
+                static let PUSH_TO_START_TOKENS = "pushToStartTokens"
+                static let UPDATE_TOKENS = "updateTokens"
+            }
         }
 
         enum Configuration {
@@ -319,6 +372,28 @@ enum MessagingConstants {
         enum UserInfoKey {
             static let ACTION_URL = "adb_uri"
             static let PUSH_TO_INAPP = "adb_iam_id"
+        }
+    }
+
+    enum NamedCollectionKeys {
+        enum LiveActivity {
+            static let PUSH_TO_START_TOKENS = "liveActivity.pushToStartTokens"
+            static let UPDATE_TOKENS = "liveActivity.updateTokens"
+            static let CHANNEL_DETAILS = "liveActivity.channelDetails"
+        }
+    }
+
+    enum LiveActivity {
+        /// The maximum allowed lifetime for a Live Activity update token, in seconds.
+        ///
+        /// Tokens older than this duration (12 hours) are considered expired and may be
+        /// automatically removed during initialization or cleanup.
+        static let UPDATE_TOKEN_MAX_TTL = TimeInterval(60 * 60 * 12)
+        static let CHANNEL_ACTIVITY_MAX_TTL = UPDATE_TOKEN_MAX_TTL
+
+        enum States {
+            static let DISMISSED = "dismissed"
+            static let ENDED = "ended"
         }
     }
 }

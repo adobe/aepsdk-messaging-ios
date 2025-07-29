@@ -34,6 +34,10 @@ struct HomeView: View {
                 .tabItem {
                     Label("Cards", systemImage: "tray.and.arrow.down.fill")
                 }
+            LiveActivityView()
+                .tabItem {
+                    Label("Live Activity", systemImage: "app.badge")
+                }
         }
     }
 }

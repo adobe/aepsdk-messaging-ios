@@ -9,7 +9,7 @@ on:
     # Inputs the workflow accepts.
     inputs:
       version:
-        description: 'New version to use for the Messaging extension.  Example: 4.0.2'
+        description: 'New version to use for the Messaging and MessagingLiveActivity extensions.  Example: 5.0.0'
         required: true
         
       branch:
@@ -27,6 +27,10 @@ on:
       edge-identity-dependency:
         description: 'If a version is provided, update AEPEdgeIdentity dependency in podspec and Package.swift'
         required: false
+      
+      live-activity-dependency:
+        description: 'If a version is provided, update AEPMessagingLiveActivity dependency in podspec and Package.swift'
+        required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -42,7 +46,10 @@ jobs:
         ref: ${{ github.event.inputs.branch }}
     
     - name: Update AEPMessaging
-      run: (sh ./Script/update-versions.sh -n Messaging -v ${{ github.event.inputs.version }} -d "AEPCore ${{ github.event.inputs.core-dependency }}, AEPServices ${{ github.event.inputs.core-dependency }}, AEPEdge ${{ github.event.inputs.edge-dependency }}, AEPEdgeIdentity ${{ github.event.inputs.edge-identity-dependency }}")
+      run: (sh ./Script/update-versions.sh -n Messaging -v ${{ github.event.inputs.version }} -d "AEPCore ${{ github.event.inputs.core-dependency }}, AEPServices ${{ github.event.inputs.core-dependency }}, AEPEdge ${{ github.event.inputs.edge-dependency }}, AEPEdgeIdentity ${{ github.event.inputs.edge-identity-dependency }}, AEPMessagingLiveActivity ${{ github.event.inputs.live-activity-dependency }}")
+
+    - name: Update AEPMessagingLiveActivity
+      run: (sh ./Script/update-versions.sh -n MessagingLiveActivity -v ${{ github.event.inputs.version }})
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4.2.3

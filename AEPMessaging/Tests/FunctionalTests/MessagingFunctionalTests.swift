@@ -26,6 +26,7 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
         mockRuntime.ignoreEvent(type: EventType.rulesEngine, source: EventSource.requestReset)
         messaging = Messaging(runtime: mockRuntime)
         messaging.onRegistered()
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
     }
 
     // MARK: - Handle Notification Response
@@ -50,7 +51,7 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         
-        let expectedJSON = #"""
+        let expectedJSON = """
         {
           "data": {
             "pushNotificationDetails": [
@@ -69,9 +70,9 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
             ]
           }
         }
-        """#
+        """
         
-        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
+        assertExactMatch(expected: expectedJSON, actual: edgeEvent)
         if let dataDict = edgeEvent.data?["data"] as? [String: Any],
            let pushNotificationDetails = dataDict["pushNotificationDetails"] as? [[String: Any]] {
             XCTAssertEqual(1, pushNotificationDetails.count)
@@ -155,7 +156,7 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
         
         XCTAssertEqual(edgeEvent.type, EventType.edge)
 
-        let expectedJSON = #"""
+        let expectedJSON = """
         {
           "data": {
             "pushNotificationDetails": [
@@ -174,9 +175,9 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
             ]
           }
         }
-        """#
+        """
         
-        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
+        assertExactMatch(expected: expectedJSON, actual: edgeEvent)
         if let dataDict = edgeEvent.data?["data"] as? [String: Any],
            let pushNotificationDetails = dataDict["pushNotificationDetails"] as? [[String: Any]] {
             XCTAssertEqual(1, pushNotificationDetails.count)
