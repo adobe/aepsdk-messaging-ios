@@ -68,7 +68,8 @@ jobs:
 
       - run:
           name: Lint Source Code
-          command: make lint 
+
+          command: make lint
 
   test-ios:
     macos:

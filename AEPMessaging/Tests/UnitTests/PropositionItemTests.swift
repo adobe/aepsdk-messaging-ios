@@ -674,6 +674,54 @@ class PropositionItemTests: XCTestCase, AnyCodableAsserts {
         wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
     
+    func testEventHistoryOperationSchemaData_parsedSuccessfully() throws {
+        // setup – load rule file containing an eventHistoryOperation consequence
+        let rulesString = JSONFileLoader.getRulesStringFromFile("contentCardPropositionContent")
+        guard let rulesData = rulesString.data(using: .utf8),
+              let rules = JSONRulesParser.parse(rulesData), rules.count > 1 else {
+            XCTFail("Unable to parse rules JSON")
+            return
+        }
+        // In the file, the second rule (index 1) contains the schema we're interested in
+        guard let consequence = rules[1].consequences.first else {
+            XCTFail("No consequence found in rule")
+            return
+        }
+        guard let propositionItem = PropositionItem.fromRuleConsequence(consequence) else {
+            XCTFail("PropositionItem should not be nil")
+            return
+        }
+        // test
+        let schemaData = propositionItem.eventHistoryOperationSchemaData
+        // verify
+        XCTAssertNotNil(schemaData)
+        XCTAssertEqual("insert", schemaData?.operation)
+        XCTAssertEqual("qualify", schemaData?.eventType)
+        XCTAssertEqual("a43122c4-bf19-499f-b507-087a028d1769#fa035681-15ce-488e-859e-200bb2ca90ac", schemaData?.messageId)
+        // Content comparison
+        let contentDict = schemaData?.content.compactMapValues { $0.value }
+        XCTAssertEqual(2, contentDict?.count)
+    }
+
+    func testEventHistoryOperationSchemaData_emptyItemData_returnsNil() {
+        // setup – create PropositionItem with eventHistoryOperation schema but empty data
+        let propositionItem = PropositionItem(itemId: "testId", schema: .eventHistoryOperation, itemData: [:])
+        // test
+        let schemaData = propositionItem.eventHistoryOperationSchemaData
+        // verify
+        XCTAssertNil(schemaData)
+    }
+
+    func testEventHistoryOperationSchemaData_invalidSchemaType_returnsNil() {
+        // setup – create PropositionItem with wrong schema
+        let itemData: [String: Any] = ["content": "foo"]
+        let propositionItem = PropositionItem(itemId: "testId", schema: .jsonContent, itemData: itemData)
+        // test
+        let schemaData = propositionItem.eventHistoryOperationSchemaData
+        // verify
+        XCTAssertNil(schemaData)
+    }
+    
     // MARK: Helper functions
     private func registerMockExtension<T: Extension>(_ type: T.Type) {
         let semaphore = DispatchSemaphore(value: 0)
