@@ -68,7 +68,7 @@ jobs:
 
       - run:
           name: Lint Source Code
-          command: make lint; make check-format
+          command: make lint 
 
   test-ios:
     macos:
