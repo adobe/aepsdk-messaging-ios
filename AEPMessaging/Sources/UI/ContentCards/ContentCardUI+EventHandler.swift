@@ -30,6 +30,12 @@ extension ContentCardUI: TemplateEventHandler {
     /// Called when the templated content card is interacted by the user
     func onInteract(interactionId: String, actionURL url: URL?) {
         proposition.items.first?.contentCardSchemaData?.track(interactionId, withEdgeEventType: .interact)
+        
+        // Automatically mark as read if this content card is tracking read status
+        if isRead != nil {
+            markAsRead()
+        }
+        
         let urlHandled = listener?.onInteract(self, interactionId, actionURL: url) ?? false
 
         // Open the URL if available and not handled by the listener
