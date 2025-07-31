@@ -67,10 +67,6 @@ jobs:
       - install_dependencies
 
       - run:
-          name: Install SwiftFormat
-          command: make install-swiftformat
-
-      - run:
           name: Lint Source Code
           command: make lint; make check-format
 

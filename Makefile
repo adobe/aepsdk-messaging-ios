@@ -93,15 +93,6 @@ install-githook:
 
 format: lint-autocorrect swift-format
 
-check-format:
-	(swiftformat --lint $(PROJECT_NAME)/Sources --swiftversion 5.1)
-
-install-swiftformat:
-	(brew install swiftformat)
-
-swift-format:
-	(swiftformat $(PROJECT_NAME)/Sources --swiftversion 5.1)
-
 lint-autocorrect:
 	($(CURRENT_DIRECTORY)/Pods/SwiftLint/swiftlint --fix)
 
