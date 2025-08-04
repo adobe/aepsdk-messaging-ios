@@ -26,11 +26,19 @@ struct AEPDismissButtonView: View {
 
     /// The body of the view
     var body: some View {
-        Button(action: {
-            model.parentTemplate?.eventHandler?.onDismiss()
-        }, label: {
-            model.image.view
-        })
-        .applyModifier(model.modifier)
+        model.image.view
+            .background(
+                // Invisible expanded touch area
+                Color.clear
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            )
+            .highPriorityGesture(
+                TapGesture().onEnded { _ in
+                    model.parentTemplate?.eventHandler?.onDismiss()
+                }
+            )
+            .allowsHitTesting(true)
+            .applyModifier(model.modifier)
     }
 }

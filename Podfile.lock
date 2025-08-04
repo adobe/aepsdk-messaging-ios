@@ -70,7 +70,11 @@ SPEC CHECKSUMS:
   AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
   AEPServices: cbdac48662ef2f1001d05d47b5930a397a8beaab
   AEPSignal: fc0bcf6f228a35568af06a715326209d8d0857f1
+<<<<<<< HEAD
   AEPTestUtils: 2bbed995c8974f6f6d92058db88d6cd2e4a7f869
+=======
+  AEPTestUtils: 0b7e4de0203e558fc02b9f4b0f493e57039545b5
+>>>>>>> 4c9e1e1 (fix dismiss button on image only template)
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
 PODFILE CHECKSUM: 9409285f62144fa4f7663784043d9c2458125cbc
