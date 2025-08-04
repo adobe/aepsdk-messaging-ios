@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -186,6 +185,15 @@
                                 <buttonConfiguration key="configuration" style="plain" title="Set Push Identifier Twice"/>
                                 <connections>
                                     <action selector="setPushIdentifierTwice:" destination="BYZ-38-t0r" eventType="touchUpInside" id="DEF-GH-456"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eFL-of-eeW" userLabel="set new push identifier">
+                                <rect key="frame" x="24" y="785" width="314" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Set New Push Identifier"/>
+                                <connections>
+                                    <action selector="setNewPushIdentifier:" destination="BYZ-38-t0r" eventType="touchDragInside" id="7qa-es-X0l"/>
                                 </connections>
                             </button>
                         </subviews>
