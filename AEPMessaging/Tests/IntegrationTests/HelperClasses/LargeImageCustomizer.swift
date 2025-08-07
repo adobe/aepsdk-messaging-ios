@@ -39,15 +39,6 @@ class LargeImageCustomizer : ContentCardCustomizing {
     
     public var CARD_BACKGROUND_COLOR : Color = .yellow
 
-    
-    func customize(template: SmallImageTemplate) {
-        // Do nothing for SmallImageTemplate
-    }
-    
-    func customize(template: ImageOnlyTemplate) {
-        // Do nothing for ImageOnlyTemplate
-    }
-    
     func customize(template: LargeImageTemplate) {
         // customize UI elements
         template.title.textColor = TITLE_COLOR

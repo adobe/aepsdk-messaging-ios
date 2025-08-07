@@ -24,18 +24,18 @@
 /// - Note: The `view` property is lazily initialized and represents the entire layout of the content card.
 @available(iOS 15.0, *)
 public class SmallImageTemplate: BaseTemplate, ContentCardTemplate {
-    public var templateType: ContentCardTemplateType = .smallImage
+    public let templateType: ContentCardTemplateType = .smallImage
 
     /// The title of the content card.
     public var title: AEPText
 
-    /// The body text of the content card, if available.
+    /// The body text of the content card.
     public var body: AEPText?
 
-    /// The image associated with the content card, if available.
+    /// The image associated with the content card.
     public var image: AEPImage?
 
-    /// The buttons associated with the content card, if available.
+    /// The buttons associated with the content card.
     public var buttons: [AEPButton]?
 
     /// A horizontal stack for arranging buttons.

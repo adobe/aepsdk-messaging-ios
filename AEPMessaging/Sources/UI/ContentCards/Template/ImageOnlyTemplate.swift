@@ -25,7 +25,7 @@ import AEPServices
 /// - Note: The `view` property is lazily initialized and represents the entire layout of the content card.
 @available(iOS 15.0, *)
 public class ImageOnlyTemplate: BaseTemplate, ContentCardTemplate {
-    public var templateType: ContentCardTemplateType = .imageOnly
+    public let templateType: ContentCardTemplateType = .imageOnly
 
     /// The image associated with the content card.
     public var image: AEPImage

@@ -22,14 +22,6 @@ class ImageOnlyCustomizer : ContentCardCustomizing {
     
     public var CARD_BACKGROUND_COLOR : Color = .yellow
 
-    func customize(template: SmallImageTemplate) {
-        // Do nothing for SmallImageTemplate
-    }
-    
-    func customize(template: LargeImageTemplate) {
-        // Do nothing for LargeImageTemplate
-    }
-    
     func customize(template: ImageOnlyTemplate) {
         // customize the dismiss buttons
         template.dismissButton?.image.iconColor = DISMISS_ICON_COLOR

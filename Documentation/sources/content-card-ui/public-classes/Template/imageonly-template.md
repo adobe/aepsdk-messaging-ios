@@ -10,11 +10,11 @@
 
 ## Layout
 
-<img src="../../../Assets/imageonlytemplate-layout.png" width="500" />
+<img src="../../../../assets/imageonlytemplate-layout.png" width="500" />
 
 ## Public properties
 
 | Property      | Type                                           | Description                                                  |
 | ------------- | ---------------------------------------------- | ------------------------------------------------------------ |
 | image         | [AEPImage](../UIElements/aepimage.md)          | The image to be shown on the content card.                   |
-| dismissButton | [AEPDismissButton](../UIElements/aepdismissbutton.md) | *Optional*<br>The dismiss button for the content card.       |
+| dismissButton | [AEPDismissButton?](../UIElements/aepdismissbutton.md) | The dismiss button for the content card.       |
