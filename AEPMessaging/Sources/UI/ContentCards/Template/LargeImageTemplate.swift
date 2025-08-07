@@ -1,5 +1,5 @@
 /*
- Copyright 2024 Adobe. All rights reserved.
+ Copyright 2025 Adobe. All rights reserved.
  This file is licensed to you under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License. You may obtain a copy
  of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -14,17 +14,17 @@
     import SwiftUI
 #endif
 
-/// A class representing a content card template with a small image layout.
+/// A class representing a content card template with a large image layout.
 ///
-/// `SmallImageTemplate` is a subclass of `BaseTemplate` and conforms to the `ContentCardTemplate` protocol.
-/// It provides a structured layout for content cards that include a small image, title, body, and optional buttons.
+/// `LargeImageTemplate` is a subclass of `BaseTemplate` and conforms to the `ContentCardTemplate` protocol.
+/// It provides a structured layout for content cards that include a large image, title, body, and optional buttons.
 /// This class is initialized with `ContentCardSchemaData`, which is used to populate the template's properties.
 /// If the required `title` is missing from the schema data, the initialization fails.
 ///
 /// - Note: The `view` property is lazily initialized and represents the entire layout of the content card.
 @available(iOS 15.0, *)
-public class SmallImageTemplate: BaseTemplate, ContentCardTemplate {
-    public let templateType: ContentCardTemplateType = .smallImage
+public class LargeImageTemplate: BaseTemplate, ContentCardTemplate {
+    public let templateType: ContentCardTemplateType = .largeImage
 
     /// The title of the content card.
     public var title: AEPText
@@ -44,24 +44,24 @@ public class SmallImageTemplate: BaseTemplate, ContentCardTemplate {
     /// A vertical stack for arranging the title, body, and buttons.
     public var textVStack = AEPVStack()
 
-    /// A horizontal stack for arranging the image and text stack.
-    public var rootHStack = AEPHStack()
+    /// A vertical stack for arranging the image and text stack.
+    public var rootVStack = AEPVStack()
 
     /// The SwiftUI view representing the content card.
     public lazy var view: some View = buildCardView {
-        rootHStack.view
+        rootVStack.view
     }
 
-    /// Initializes a `SmallImageTemplate` with the given schema data.
+    /// Initializes a `LargeImageTemplate` with the given schema data.
     ///
     /// This initializer extracts the title, body, image, and buttons from the provided `ContentCardSchemaData`.
-    /// It organizes these components into the appropriate stacks to form the small Image layout.
+    /// It organizes these components into the appropriate stacks to form the Large Image layout.
     ///
     /// - Parameters:
     ///    - schemaData: The schema data used to populate the template's properties.
     ///    - customizer: An object conforming to ContentCardCustomizing protocol that allows for
     ///                 custom styling of the content card
-    /// - Returns: An initialized `SmallImageTemplate` or `nil` if the required title is missing.
+    /// - Returns: An initialized `LargeImageTemplate` or `nil` if the required title is missing.
     init?(_ schemaData: ContentCardSchemaData, _ customizer: ContentCardCustomizing?) {
         guard let title = schemaData.title else {
             return nil
@@ -91,9 +91,9 @@ public class SmallImageTemplate: BaseTemplate, ContentCardTemplate {
 
         // Add image and textVStack to rootHStack
         if let image = image {
-            rootHStack.addModel(image)
+            rootVStack.addModel(image)
         }
-        rootHStack.addModel(textVStack)
+        rootVStack.addModel(textVStack)
 
         customizer?.customize(template: self)
     }

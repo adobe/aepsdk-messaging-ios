@@ -25,12 +25,12 @@ class ContentCardEventListeningTest : IntegrationTestBase, ContentCardUIEventLis
         dismissEventReceived = false
         interactEventReceived = false
         super.init()
-        setContentCardResponse(fromFile: "SmallImageCard")
     }
 
     @Test("display event")
     func displayEvent() async throws {
         // setup
+        setContentCardResponse(fromFile: "SmallImageCard")
         let cards = try await getContentCardUI(homeSurface, listener: self)
         let card = try #require (cards.first?.template as? SmallImageTemplate)
         
@@ -44,6 +44,7 @@ class ContentCardEventListeningTest : IntegrationTestBase, ContentCardUIEventLis
     @Test("dismiss event")
     func dismissEvent() async throws {
         // setup
+        setContentCardResponse(fromFile: "SmallImageCard")
         let cards = try await getContentCardUI(homeSurface, listener: self)
         let card = try #require (cards.first?.template as? SmallImageTemplate)
         
@@ -57,11 +58,96 @@ class ContentCardEventListeningTest : IntegrationTestBase, ContentCardUIEventLis
     @Test("interact event")
     func interactEvent() async throws {
         // setup
+        setContentCardResponse(fromFile: "SmallImageCard")
         let cards = try await getContentCardUI(homeSurface, listener: self)
         let card = try #require (cards.first?.template as? SmallImageTemplate)
         
         // test
         card.eventHandler?.onInteract(interactionId: "Button Clicked", actionURL: nil)
+        
+        // verify
+        #expect(interactEventReceived == true)
+    }
+    
+    @Test("large image display event")
+    func largeImageDisplayEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "LargeImageCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? LargeImageTemplate)
+        
+        // test
+        card.eventHandler?.onDisplay()
+        
+        // verify
+        #expect(displayEventReceived == true)
+    }
+    
+    @Test("large image dismiss event")
+    func largeImageDismissEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "LargeImageCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? LargeImageTemplate)
+        
+        // test
+        card.eventHandler?.onDismiss()
+        
+        // verify
+        #expect(dismissEventReceived == true)
+    }
+    
+    @Test("large image interact event")
+    func largeImageInteractEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "LargeImageCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? LargeImageTemplate)
+        
+        // test
+        card.eventHandler?.onInteract(interactionId: "Button Clicked", actionURL: nil)
+        
+        // verify
+        #expect(interactEventReceived == true)
+    }
+
+    @Test("image only display event")
+    func imageOnlyDisplayEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "ImageOnlyCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? ImageOnlyTemplate)
+        
+        // test
+        card.eventHandler?.onDisplay()
+        
+        // verify
+        #expect(displayEventReceived == true)
+    }
+    
+    @Test("image only dismiss event")
+    func imageOnlyDismissEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "ImageOnlyCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? ImageOnlyTemplate)
+        
+        // test
+        card.eventHandler?.onDismiss()
+        
+        // verify
+        #expect(dismissEventReceived == true)
+    }
+    
+    @Test("image only interact event")
+    func imageOnlyInteractEvent() async throws {
+        // setup
+        setContentCardResponse(fromFile: "ImageOnlyCard")
+        let cards = try await getContentCardUI(homeSurface, listener: self)
+        let card = try #require (cards.first?.template as? ImageOnlyTemplate)
+        
+        // test
+        card.eventHandler?.onInteract(interactionId: "Image Clicked", actionURL: nil)
         
         // verify
         #expect(interactEventReceived == true)

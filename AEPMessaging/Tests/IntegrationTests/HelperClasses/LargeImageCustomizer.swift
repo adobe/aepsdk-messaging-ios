@@ -7,15 +7,14 @@
  Unless required by applicable law or agreed to in writing, software distributed under
  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
  OF ANY KIND, either express or implied. See the License for the specific language
- governing permissions and limitations under the License.
+ governing permissions and limitations of this License.
  */
 
 import Testing
 import SwiftUI
 @testable import AEPMessaging
 
-class SmallImageCustomizer : ContentCardCustomizing {
-    
+class LargeImageCustomizer : ContentCardCustomizing {
     public var TITLE_COLOR : Color = .blue
     public var BODY_COLOR : Color = .green
     
@@ -30,19 +29,17 @@ class SmallImageCustomizer : ContentCardCustomizing {
     public var TEXT_STACK_SPACING : CGFloat = 20
     public var BUTTON_STACK_SPACING : CGFloat = 30
     
-    public var ROOT_STACK_ALIGNMENT : VerticalAlignment = .bottom
+    public var ROOT_STACK_ALIGNMENT : HorizontalAlignment = .leading
     public var TEXT_STACK_ALIGNMENT : HorizontalAlignment = .leading
-    public var BUTTON_STACK_ALIGNMENT : VerticalAlignment = .top
-    
-    public var ROOT_VERTICAL_STACK_ALIGNMENT : HorizontalAlignment = .leading
+    public var BUTTON_STACK_ALIGNMENT : VerticalAlignment = .center
     
     public var DISMISS_ICON_FONT : Font = .system(size: 10)
     public var DISMISS_ICON_COLOR : Color = .gray
     public var DISMISS_ICON_ALIGNMENT : Alignment = .topLeading
     
     public var CARD_BACKGROUND_COLOR : Color = .yellow
-    
-    func customize(template: SmallImageTemplate) {
+
+    func customize(template: LargeImageTemplate) {
         // customize UI elements
         template.title.textColor = TITLE_COLOR
         template.title.font = TITLE_FONT
@@ -51,11 +48,11 @@ class SmallImageCustomizer : ContentCardCustomizing {
         
         // customize buttons
         template.buttons?.first?.text.font = BUTTON_FONT
-        template.buttons?.first?.text.textColor = BUTTON_TEXT_COLOR
+        template.buttons?.first?.text.textColor = BUTTON_TEXT_COLOR        
         
-        // customize root stack
-        template.rootHStack.spacing = ROOT_STACK_SPACING
-        template.rootHStack.alignment = ROOT_STACK_ALIGNMENT
+        // customize root stack (LargeImageTemplate uses rootVStack instead of rootHStack)
+        template.rootVStack.spacing = ROOT_STACK_SPACING
+        template.rootVStack.alignment = ROOT_STACK_ALIGNMENT
         
         // customize text stack
         template.textVStack.spacing = TEXT_STACK_SPACING
@@ -67,7 +64,7 @@ class SmallImageCustomizer : ContentCardCustomizing {
         
         // add custom modifiers
         template.buttonHStack.modifier = AEPViewModifier(ButtonHStackModifier())
-        template.rootHStack.modifier = AEPViewModifier(RootHStackModifier())
+        template.rootVStack.modifier = AEPViewModifier(RootVStackModifier())
                 
         // customize the dismiss buttons
         template.dismissButton?.image.iconColor = DISMISS_ICON_COLOR
@@ -81,23 +78,15 @@ class SmallImageCustomizer : ContentCardCustomizing {
     struct RootVStackModifier : ViewModifier {
         func body(content: Content) -> some View {
              content
-                .frame(maxHeight: .infinity, alignment: .leading)
-                .padding(.trailing)
-         }
-    }
-    
-    struct RootHStackModifier : ViewModifier {
-        func body(content: Content) -> some View {
-             content
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.trailing)
+                .frame(maxWidth: .infinity, alignment: .top)
+                .padding(.bottom)
          }
     }
     
     struct ButtonHStackModifier : ViewModifier {
         func body(content: Content) -> some View {
              content
-                .frame(maxWidth: .infinity, alignment: .trailing)
+                .frame(maxWidth: .infinity, alignment: .center)
          }
     }
-}
+} 

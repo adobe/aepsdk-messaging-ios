@@ -23,6 +23,8 @@ extension Tag {
     @Tag static var UITest : Self
     @Tag static var NetworkTest : Self
     @Tag static var SmallImageTemplate : Self
+    @Tag static var LargeImageTemplate : Self
+    @Tag static var ImageOnlyTemplate : Self
     @Tag static var TrackingTest : Self
 }
 
