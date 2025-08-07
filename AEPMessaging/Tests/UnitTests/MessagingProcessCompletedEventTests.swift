@@ -51,7 +51,8 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                               rulesEngine: mockMessagingRulesEngine,
                               contentCardRulesEngine: mockContentCardRulesEngine,
                               expectedSurfaceUri: iamSurface.uri,
-                              cache: mockCache)
+                              cache: mockCache,
+                              messagingProperties: .init())
         messaging.onRegistered()
     }
 

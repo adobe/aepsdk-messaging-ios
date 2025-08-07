@@ -75,9 +75,9 @@ class MessagingTests: XCTestCase {
         XCTAssertNoThrow(MobileCore.registerExtensions([Messaging.self]))
     }
     
-    /// validate that 9 listeners are registered onRegister
-    func testOnRegistered_nineListenersAreRegistered() {
-        XCTAssertEqual(mockRuntime.listeners.count, 9)
+    /// validate that 8 listeners are registered onRegister
+    func testOnRegistered_eightListenersAreRegistered() {
+        XCTAssertEqual(mockRuntime.listeners.count, 8)
     }
     
     func testOnUnregisteredCallable() throws {

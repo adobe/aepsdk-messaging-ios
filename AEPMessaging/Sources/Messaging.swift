@@ -396,16 +396,6 @@ public class Messaging: NSObject, Extension {
         return eventTimestamp.timeIntervalSince(lastPushTokenSyncTimestamp) > MessagingConstants.IGNORE_PUSH_SYNC_TIMEOUT_SECONDS
     }
 
-    /// Responds to event history write events.
-    /// Only current requirement is to remove cached content cards on a disqualify write
-    func handleEventHistoryWrite(_ event: Event) {
-        guard event.isDisqualifyEvent, let activityId = event.eventHistoryActivityId else {
-            return
-        }
-
-        removePropositionFromQualifiedCards(for: activityId)
-    }
-
     // MARK: - In-app Messaging methods
 
     /// Processes debug events triggered by the system.
@@ -773,8 +763,7 @@ public class Messaging: NSObject, Extension {
         _ schemaType: SchemaType,
         surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]],
         requestedSurfaces: [Surface],
-        rulesBySurface: inout [Surface: [LaunchRule]])
-    {
+        rulesBySurface: inout [Surface: [LaunchRule]]) {
         if let newRules = surfaceRulesBySchemaType[schemaType] {
             let newSurfaces = Array(newRules.keys)
             Log.trace(label: MessagingConstants.LOG_TAG, "Processing schema type \(schemaType): for requested surfaces [\(requestedSurfaces.map { $0.uri })], returned surfaces [\(newSurfaces.map { $0.uri })].")
