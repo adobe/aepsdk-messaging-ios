@@ -261,6 +261,10 @@
 		B6165DAA29A67ADA0031B84D /* NotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6165DA329A67AD90031B84D /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */; };
 		B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */; };
+		B64256B02D936B9700EDCAC5 /* BatchedPropositionInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64256AF2D936B9700EDCAC5 /* BatchedPropositionInteraction.swift */; };
+		B64256B22D936BD600EDCAC5 /* Collection+PropositionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64256B12D936BD600EDCAC5 /* Collection+PropositionItem.swift */; };
+		B64256B42D936C1400EDCAC5 /* BatchedPropositionInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64256B32D936C1400EDCAC5 /* BatchedPropositionInteractionTests.swift */; };
+		B64256B62D936C4300EDCAC5 /* CollectionPropositionItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64256B52D936C4300EDCAC5 /* CollectionPropositionItemTests.swift */; };
 		B67CCF772CD08D5500CF08D1 /* AEPAsyncImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF762CD08D4D00CF08D1 /* AEPAsyncImageView.swift */; };
 		B67CCF792CD0BF8D00CF08D1 /* ContentCardImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */; };
 		B69573C82CD4447F0027E376 /* AEPBundleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69573C72CD444790027E376 /* AEPBundleImageView.swift */; };
@@ -341,6 +345,11 @@
 		B6F7CCC52CCA1D7100C35C64 /* small image no image.json in Resources */ = {isa = PBXBuildFile; fileRef = B6F7CC132CC2EFE400C35C64 /* small image no image.json */; };
 		B6F7CCC62CCA1D7C00C35C64 /* NoCard.json in Resources */ = {isa = PBXBuildFile; fileRef = B6F7CC182CC2EFE400C35C64 /* NoCard.json */; };
 		B6F7CCC72CCA1D7C00C35C64 /* MultipleCards.json in Resources */ = {isa = PBXBuildFile; fileRef = B6F7CC172CC2EFE400C35C64 /* MultipleCards.json */; };
+		D63FC3AC2E00DACB00037B50 /* String+DataConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63FC3AB2E00DAB800037B50 /* String+DataConversion.swift */; };
+		D66DF10C2DD5327E0021AC51 /* MessagingPropertiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66DF10B2DD5327E0021AC51 /* MessagingPropertiesTests.swift */; };
+		D66DF10E2DD533320021AC51 /* MockNamedKeyValueService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66DF10D2DD5332A0021AC51 /* MockNamedKeyValueService.swift */; };
+		D66DF10F2DD533320021AC51 /* MockNamedKeyValueService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66DF10D2DD5332A0021AC51 /* MockNamedKeyValueService.swift */; };
+		D6C020412DC2B4880094C9CD /* MessagingProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6C020402DC2B4800094C9CD /* MessagingProperties.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -753,6 +762,10 @@
 		B6165DA729A67ADA0031B84D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingNotificationTrackingTests.swift; sourceTree = "<group>"; };
 		B6389A482A9B32D400B72FB4 /* PushTrackingStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatus.swift; sourceTree = "<group>"; };
+		B64256AF2D936B9700EDCAC5 /* BatchedPropositionInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchedPropositionInteraction.swift; sourceTree = "<group>"; };
+		B64256B12D936BD600EDCAC5 /* Collection+PropositionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+PropositionItem.swift"; sourceTree = "<group>"; };
+		B64256B32D936C1400EDCAC5 /* BatchedPropositionInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchedPropositionInteractionTests.swift; sourceTree = "<group>"; };
+		B64256B52D936C4300EDCAC5 /* CollectionPropositionItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionPropositionItemTests.swift; sourceTree = "<group>"; };
 		B67CCF762CD08D4D00CF08D1 /* AEPAsyncImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPAsyncImageView.swift; sourceTree = "<group>"; };
 		B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardImageCache.swift; sourceTree = "<group>"; };
 		B69573C72CD444790027E376 /* AEPBundleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPBundleImageView.swift; sourceTree = "<group>"; };
@@ -836,7 +849,11 @@
 		CA09063EA0248339C5B2C535 /* Pods_IntegrationTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_IntegrationTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFBC956862FD1C6747587F09 /* Pods-E2EFunctionalTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTestApp.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp.debug.xcconfig"; sourceTree = "<group>"; };
 		CFC660CD22A375E0F809B475 /* Pods-E2EFunctionalTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTestApp.release.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp.release.xcconfig"; sourceTree = "<group>"; };
+		D63FC3AB2E00DAB800037B50 /* String+DataConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+DataConversion.swift"; sourceTree = "<group>"; };
+		D66DF10B2DD5327E0021AC51 /* MessagingPropertiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingPropertiesTests.swift; sourceTree = "<group>"; };
+		D66DF10D2DD5332A0021AC51 /* MockNamedKeyValueService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNamedKeyValueService.swift; sourceTree = "<group>"; };
 		D685E0AE5C614B4788DE869A /* Pods_UnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6C020402DC2B4800094C9CD /* MessagingProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingProperties.swift; sourceTree = "<group>"; };
 		DB9F1A791A757B3C68D23B9D /* Pods_FunctionalTestApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FunctionalTestApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FunctionalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD674659DEB5142D8580C271 /* Pods-IntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegrationTests.release.xcconfig"; path = "Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -1176,6 +1193,7 @@
 				242920F62AD0628B000DB2CD /* Schemas */,
 				B6F7CBC82CC2089A00C35C64 /* UI */,
 				92315435261E3B36004AE7D3 /* AEPMessaging.h */,
+				B64256AF2D936B9700EDCAC5 /* BatchedPropositionInteraction.swift */,
 				24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */,
 				246EF0632C013DED002A9B22 /* ContentCard.swift */,
 				090290C429DCED0B00388226 /* ContentCardRulesEngine.swift */,
@@ -1186,6 +1204,7 @@
 				244C2BDD26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift */,
 				92315436261E3B36004AE7D3 /* Messaging.swift */,
 				244E954A267BAEBE001DC957 /* Messaging+EdgeEvents.swift */,
+				D6C020402DC2B4800094C9CD /* MessagingProperties.swift */,
 				92315434261E3B36004AE7D3 /* Messaging+PublicAPI.swift */,
 				0969D6372A79BB3C00A00BF7 /* Messaging+State.swift */,
 				92315437261E3B36004AE7D3 /* MessagingConstants.swift */,
@@ -1224,6 +1243,7 @@
 				B6F7CBEB2CC2EA8500C35C64 /* UITests */,
 				24CA4BBF2B6178B700D16369 /* schemas */,
 				24CA4BCE2B617AA900D16369 /* Array+MessagingTests.swift */,
+				B64256B32D936C1400EDCAC5 /* BatchedPropositionInteractionTests.swift */,
 				24CA4BD02B617AC800D16369 /* Bundle+MessagingTests.swift */,
 				24CA4BD22B617AED00D16369 /* Cache+MessagingTests.swift */,
 				244F19042D0106BA009F0209 /* CompletionHandlerTests.swift */,
@@ -1235,8 +1255,10 @@
 				244FEA4529B6A5D30058FA1C /* FeedItemTests.swift */,
 				243EA6CA273325A000195945 /* FullscreenMessage+MessageTests.swift */,
 				243EA6CC273325B700195945 /* MessageTests.swift */,
+				B64256B52D936C4300EDCAC5 /* CollectionPropositionItemTests.swift */,
 				243EA6CE273325CC00195945 /* Message+FullscreenMessageDelegateTests.swift */,
 				245059642673DBFD00CC7CA0 /* MessagingTests.swift */,
+				D66DF10B2DD5327E0021AC51 /* MessagingPropertiesTests.swift */,
 				243EA6D12733260000195945 /* Messaging+EdgeEventsTests.swift */,
 				245059632673DBFD00CC7CA0 /* Messaging+PublicApiTest.swift */,
 				242920E82AC4EE2D000DB2CD /* Messaging+StateTests.swift */,
@@ -1277,6 +1299,7 @@
 				243EA6DB2739D48900195945 /* MockMessage.swift */,
 				243EA6D92739D47400195945 /* MockMessaging.swift */,
 				243EA6E1273B436400195945 /* MockMessagingRulesEngine.swift */,
+				D66DF10D2DD5332A0021AC51 /* MockNamedKeyValueService.swift */,
 				92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */,
 				240436CD2C76685C008CCD6D /* MockProposition.swift */,
 				240436CB2C765C41008CCD6D /* MockPropositionItem.swift */,
@@ -1290,6 +1313,7 @@
 		925DF4452522785700A5DE31 /* MessagingDemoApp */ = {
 			isa = PBXGroup;
 			children = (
+				D63FC3AB2E00DAB800037B50 /* String+DataConversion.swift */,
 				925DF44D2522785700A5DE31 /* Assets */,
 				925DF44C2522785700A5DE31 /* AppDelegate.swift */,
 				925DF4502522785700A5DE31 /* SceneDelegate.swift */,
@@ -1586,6 +1610,7 @@
 		B6F7CC5E2CC7081E00C35C64 /* ClassExtensions */ = {
 			isa = PBXGroup;
 			children = (
+				B64256B12D936BD600EDCAC5 /* Collection+PropositionItem.swift */,
 				09B071F52A7318CB00F259C1 /* Array+Messaging.swift */,
 				09B071E72A64D80E00F259C1 /* Bundle+Messaging.swift */,
 				240316B72A83DDD80016B0D9 /* Cache+Messaging.swift */,
@@ -2556,6 +2581,7 @@
 			files = (
 				246EFA1A2797441600C76A6B /* Dictionary+Flatten.swift in Sources */,
 				246EFA1C2797441600C76A6B /* JSONFileLoader.swift in Sources */,
+				D66DF10E2DD533320021AC51 /* MockNamedKeyValueService.swift in Sources */,
 				246EFA1D2797441600C76A6B /* MockCache.swift in Sources */,
 				246EFA1F2797441600C76A6B /* MockFullscreenMessage.swift in Sources */,
 				246EFA202797441600C76A6B /* MockLaunchRulesEngine.swift in Sources */,
@@ -2585,6 +2611,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D63FC3AC2E00DACB00037B50 /* String+DataConversion.swift in Sources */,
 				92859411252287C600B2BE47 /* ViewController.swift in Sources */,
 				92859412252287C600B2BE47 /* AppDelegate.swift in Sources */,
 				92859413252287C600B2BE47 /* SceneDelegate.swift in Sources */,
@@ -2602,6 +2629,7 @@
 				240FC42E2AA920D400AFEEEB /* ParsedPropositions.swift in Sources */,
 				246EF0602BFFC6B5002A9B22 /* PropositionHistory.swift in Sources */,
 				245059982673F94D00CC7CA0 /* MessagingConstants.swift in Sources */,
+				D6C020412DC2B4880094C9CD /* MessagingProperties.swift in Sources */,
 				09B071EE2A651CB200F259C1 /* PropositionItem.swift in Sources */,
 				246FD07226B9F86F00FD130B /* FullscreenMessage+Message.swift in Sources */,
 				242920ED2ACF7760000DB2CD /* SchemaType.swift in Sources */,
@@ -2623,6 +2651,7 @@
 				B67CCF772CD08D5500CF08D1 /* AEPAsyncImageView.swift in Sources */,
 				B6F7CBCE2CC2089A00C35C64 /* AEPDismissButton.swift in Sources */,
 				B6F7CBCF2CC2089A00C35C64 /* ContentCardUIEventListening.swift in Sources */,
+				B64256B22D936BD600EDCAC5 /* Collection+PropositionItem.swift in Sources */,
 				B6F7CBD02CC2089A00C35C64 /* ContentCardUI+EventHandler.swift in Sources */,
 				B6F7CBD12CC2089A00C35C64 /* SmallImageTemplate.swift in Sources */,
 				B6F7CBD22CC2089A00C35C64 /* AEPTextView.swift in Sources */,
@@ -2650,6 +2679,7 @@
 				B6F7CBE62CC2089A00C35C64 /* AEPViewModifier.swift in Sources */,
 				B6F7CBE72CC2089A00C35C64 /* AEPHStackView.swift in Sources */,
 				B6F7CBE82CC2089A00C35C64 /* AEPImageView.swift in Sources */,
+				B64256B02D936B9700EDCAC5 /* BatchedPropositionInteraction.swift in Sources */,
 				B6F7CBE92CC2089A00C35C64 /* AEPStack.swift in Sources */,
 				B6F7CBEA2CC2089A00C35C64 /* TemplateEventHandler.swift in Sources */,
 				244E954B267BAEBE001DC957 /* Messaging+EdgeEvents.swift in Sources */,
@@ -2702,6 +2732,7 @@
 				243EA6E2273B436400195945 /* MockMessagingRulesEngine.swift in Sources */,
 				245059702673DBFE00CC7CA0 /* Messaging+PublicApiTest.swift in Sources */,
 				243EA6D0273325DC00195945 /* MessageTests.swift in Sources */,
+				D66DF10F2DD533320021AC51 /* MockNamedKeyValueService.swift in Sources */,
 				244FEA4629B6A5D30058FA1C /* FeedItemTests.swift in Sources */,
 				4CB003F52E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift in Sources */,
 				24CA4BC12B6178EE00D16369 /* InAppSchemaDataTests.swift in Sources */,
@@ -2709,11 +2740,13 @@
 				B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */,
 				755DB8AD2E02007F00F3B21B /* LargeImageTemplateTests.swift in Sources */,
 				243EA6C92733258600195945 /* Dictionary+MessagingTests.swift in Sources */,
+				B64256B42D936C1400EDCAC5 /* BatchedPropositionInteractionTests.swift in Sources */,
 				2450596F2673DBFE00CC7CA0 /* Event+MessagingTests.swift in Sources */,
 				243EA6DA2739D47500195945 /* MockMessaging.swift in Sources */,
 				240436CE2C76685C008CCD6D /* MockProposition.swift in Sources */,
 				243EA6D42733261E00195945 /* MessagingEdgeEventTypeTests.swift in Sources */,
 				24CA4BD32B617AED00D16369 /* Cache+MessagingTests.swift in Sources */,
+				B64256B62D936C4300EDCAC5 /* CollectionPropositionItemTests.swift in Sources */,
 				244F19052D0106C2009F0209 /* CompletionHandlerTests.swift in Sources */,
 				2402745E29FC424000884DFE /* TestableMessagingDelegate.swift in Sources */,
 				243EA6CF273325CC00195945 /* Message+FullscreenMessageDelegateTests.swift in Sources */,
@@ -2759,6 +2792,7 @@
 				24CA4BC32B6179F800D16369 /* ContentTypeTests.swift in Sources */,
 				243EA6CB273325A000195945 /* FullscreenMessage+MessageTests.swift in Sources */,
 				248BD9CC28BD56B300C49B94 /* PropositionPayloadTests.swift in Sources */,
+				D66DF10C2DD5327E0021AC51 /* MessagingPropertiesTests.swift in Sources */,
 				248BD9CA28BD56A200C49B94 /* PropositionInfoTests.swift in Sources */,
 				240FC4302AAFB08E00AFEEEB /* ParsedPropositionsTests.swift in Sources */,
 				243EA6DC2739D48900195945 /* MockMessage.swift in Sources */,

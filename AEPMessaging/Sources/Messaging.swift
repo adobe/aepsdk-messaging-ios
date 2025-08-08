@@ -107,6 +107,12 @@ public class Messaging: NSObject, Extension {
         set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
     }
 
+    /// Messaging properties to hold the persisted push identifier
+    private var messagingProperties: MessagingProperties = .init()
+
+    /// the timestamp of the last push token sync
+    private var lastPushTokenSyncTimestamp: Date?
+
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -127,11 +133,12 @@ public class Messaging: NSObject, Extension {
 
     /// INTERNAL ONLY
     /// used for testing
-    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, contentCardRulesEngine: ContentCardRulesEngine, expectedSurfaceUri _: String, cache: Cache) {
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, contentCardRulesEngine: ContentCardRulesEngine, expectedSurfaceUri _: String, cache: Cache, messagingProperties: MessagingProperties) {
         self.runtime = runtime
         self.rulesEngine = rulesEngine
         self.contentCardRulesEngine = contentCardRulesEngine
         self.cache = cache
+        self.messagingProperties = messagingProperties
         super.init()
         loadCachedPropositions()
     }
@@ -141,6 +148,11 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.genericIdentity,
                          source: EventSource.requestContent,
                          listener: handleProcessEvent)
+
+        // register listener for reset identities event
+        registerListener(type: EventType.genericIdentity,
+                         source: EventSource.requestReset,
+                         listener: handleResetIdentitiesEvent)
 
         // register listener for Messaging request content event
         registerListener(type: EventType.messaging,
@@ -275,8 +287,12 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
+            if !shouldSyncPushToken(event) {
+                return
+            }
+
             // If the push token is valid update the shared state.
-            runtime.createSharedState(data: [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token], event: event)
+            createMessagingSharedState(token: token, event: event)
 
             // get identityMap from the edge identity xdm shared state
             guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
@@ -310,6 +326,75 @@ public class Messaging: NSObject, Extension {
         }
     }
 
+    /// Creates a shared state for the messaging extension with the provided push token.
+    /// - Parameters:
+    ///   - token: the push identifier to be set in the shared state
+    ///   - event: the `Event` that triggered the creation of the shared state
+    private func createMessagingSharedState(token: String?, event: Event) {
+        let state: [String: Any] = token?.isEmpty == false ?
+            [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token!] :
+            [:]
+
+        runtime.createSharedState(data: state, event: event)
+    }
+
+    /// Handles the reset identities event by clearing the push identifier from persistence and shared state.
+    /// - Parameter event: the `Event` that triggered the reset identities event
+    private func handleResetIdentitiesEvent(_ event: Event) {
+        Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier.")
+        // remove the push token from the shared state
+        createMessagingSharedState(token: nil, event: event)
+        // clear the push identifier from persistence
+        messagingProperties.pushIdentifier = nil
+    }
+
+    /// Checks if the push identifier can be synced
+    /// - Parameter event: the generic request identity`event` containing the push identifier
+    /// - Returns: `true` if the push identifier can be synced, `false` otherwise
+    private func shouldSyncPushToken(_ event: Event) -> Bool {
+        // check if the push token sync optimization will be used.
+        // if true, the push token will be synced only if it has changed.
+        // if the value is not present, it will default to true.
+        let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
+        let optimizePushSync = configSharedState?.value?[MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC] as? Bool ?? true
+        let existingPushToken = messagingProperties.pushIdentifier
+        let pushTokensMatch = existingPushToken == event.token
+        var shouldSync: Bool
+
+        if !pushTokensMatch {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push token is new or changed. The push token will be synced.")
+            shouldSync = true
+        } else if !optimizePushSync && isPushTokenSyncTimeoutExpired(event.timestamp) {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push registration sync optimization is disabled. The push token will be synced.")
+            shouldSync = true
+        } else {
+            let blockedSyncReason = optimizePushSync ? MessagingConstants.OPTIMIZE_PUSH_SYNC_ENABLED : MessagingConstants.OPTIMIZE_PUSH_SYNC_DISABLED_SYNC_WITHIN_TIMEOUT
+            Log.debug(label: MessagingConstants.LOG_TAG, "\(blockedSyncReason). The push token will not be synced.")
+            shouldSync = false
+        }
+
+        if shouldSync {
+            // persist the push token in the messaging named collection
+            messagingProperties.pushIdentifier = event.token
+
+            // store the event timestamp of the last push token sync in-memory
+            lastPushTokenSyncTimestamp = event.timestamp
+        }
+
+        return shouldSync
+    }
+
+    /// Checks if the push token sync timeout has expired
+    /// - Parameter eventTimestamp: the timestamp of the event
+    /// - Returns: `true` if the timeout has expired, `false` otherwise
+    private func isPushTokenSyncTimeoutExpired(_ eventTimestamp: Date) -> Bool {
+        guard let lastPushTokenSyncTimestamp = lastPushTokenSyncTimestamp else {
+            return true
+        }
+        return eventTimestamp.timeIntervalSince(lastPushTokenSyncTimestamp) > MessagingConstants.IGNORE_PUSH_SYNC_TIMEOUT_SECONDS
+    }
 
     // MARK: - In-app Messaging methods
 
@@ -359,19 +444,31 @@ public class Messaging: NSObject, Extension {
     private func addOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface) {
         let startingCount = qualifiedContentCardsBySurface[surface]?.count ?? 0
         if var existingPropositionsArray = qualifiedContentCardsBySurface[surface] {
+            var newPropositionsToTrack: [PropositionItem] = []
+
             for proposition in propositions {
                 if let index = existingPropositionsArray.firstIndex(of: proposition) {
                     existingPropositionsArray.remove(at: index)
                 } else {
-                    proposition.items.first?.track(withEdgeEventType: .trigger)
+                    // Add to batch tracking array if it's a new proposition
+                    if let item = proposition.items.first {
+                        newPropositionsToTrack.append(item)
+                    }
                 }
-
                 existingPropositionsArray.append(proposition)
             }
+
+            // Batch track new propositions
+            if !newPropositionsToTrack.isEmpty {
+                newPropositionsToTrack.track(withEdgeEventType: .trigger)
+            }
+
             qualifiedContentCardsBySurface[surface] = existingPropositionsArray
         } else {
-            for proposition in propositions {
-                proposition.items.first?.track(withEdgeEventType: .trigger)
+            // If no existing propositions, batch track all new propositions
+            let propositionItems = propositions.compactMap { $0.items.first }
+            if !propositionItems.isEmpty {
+                propositionItems.track(withEdgeEventType: .trigger)
             }
             qualifiedContentCardsBySurface[surface] = propositions
         }
@@ -666,8 +763,7 @@ public class Messaging: NSObject, Extension {
         _ schemaType: SchemaType,
         surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]],
         requestedSurfaces: [Surface],
-        rulesBySurface: inout [Surface: [LaunchRule]])
-    {
+        rulesBySurface: inout [Surface: [LaunchRule]]) {
         if let newRules = surfaceRulesBySchemaType[schemaType] {
             let newSurfaces = Array(newRules.keys)
             Log.trace(label: MessagingConstants.LOG_TAG, "Processing schema type \(schemaType): for requested surfaces [\(requestedSurfaces.map { $0.uri })], returned surfaces [\(newSurfaces.map { $0.uri })].")
