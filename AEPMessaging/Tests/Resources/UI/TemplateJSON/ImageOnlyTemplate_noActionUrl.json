@@ -1,0 +1,21 @@
+{
+  "expiryDate": 1723163897,
+  "meta": {
+    "adobe": {
+      "template": "ImageOnly"
+    },
+    "customKey": "customValue"
+  },
+  "content": {
+    "image": {
+      "url": "https://imagetoDownload.com/cardimage",
+      "darkUrl": "https://imagetoDownload.com/darkimage",
+      "alt": "flight offer"
+    },
+    "dismissBtn": {
+      "style": "simple"
+    }
+  },
+  "contentType": "application/json",
+  "publishedDate": 1691541497
+} 

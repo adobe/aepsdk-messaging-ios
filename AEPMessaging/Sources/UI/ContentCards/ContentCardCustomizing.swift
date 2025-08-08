@@ -17,4 +17,18 @@ import Foundation
 public protocol ContentCardCustomizing {
     /// Implement this function to customize content cards with SmallImageTemplate
     func customize(template: SmallImageTemplate)
+
+    /// Implement this function to customize content cards with LargeImageTemplate
+    func customize(template: LargeImageTemplate)
+
+    /// Implement this function to customize content cards with ImageOnlyTemplate
+    func customize(template: ImageOnlyTemplate)
+}
+
+/// Provide default empty implementations for the ContentCardCustomizing protocol methods so conformers can choose to implement only the ones they need.
+@available(iOS 15.0, *)
+public extension ContentCardCustomizing {
+    func customize(template: SmallImageTemplate) {}
+    func customize(template: LargeImageTemplate) {}
+    func customize(template: ImageOnlyTemplate) {}
 }

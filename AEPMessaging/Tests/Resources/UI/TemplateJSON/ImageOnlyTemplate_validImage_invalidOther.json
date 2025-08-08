@@ -1,0 +1,20 @@
+{
+  "expiryDate": 1723163897,
+  "meta": {
+    "adobe": {
+      "template": "ImageOnly"
+    }
+  },
+  "content": {
+    "actionUrl": "https://actionUrl.com",
+    "image": {
+      "url": "https://imagetoDownload.com/cardimage",
+      "darkUrl": "https://imagetoDownload.com/darkimage"
+    },
+    "dismissBtn": {
+      "invalidkey": "simple"
+    }
+  },
+  "contentType": "application/json",
+  "publishedDate": 1691541497
+} 

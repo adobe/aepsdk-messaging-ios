@@ -18,6 +18,8 @@ import XCTest
 final class ContentCardSchemaDataTemplateTests: XCTestCase {
     
     let smallImageSchema = ContentCardTestUtil.createContentCardSchemaData(fromFile: "SmallImageTemplate")
+    let largeImageSchema = ContentCardTestUtil.createContentCardSchemaData(fromFile: "LargeImageTemplate")
+    let imageOnlySchema = ContentCardTestUtil.createContentCardSchemaData(fromFile: "ImageOnlyTemplate")
     let emptySchema = ContentCardSchemaData.getEmpty()
     let invalidSchema = ContentCardTestUtil.createContentCardSchemaData(fromFile: "InvalidTemplate")
     let mockTemplate : MockTemplate = MockTemplate(ContentCardSchemaData.getEmpty())!
@@ -25,36 +27,63 @@ final class ContentCardSchemaDataTemplateTests: XCTestCase {
     func test_templateType() {
         XCTAssertEqual(emptySchema.templateType, .unknown)
         XCTAssertEqual(smallImageSchema.templateType, .smallImage)
+        XCTAssertEqual(largeImageSchema.templateType, .largeImage)
+        XCTAssertEqual(imageOnlySchema.templateType, .imageOnly)
     }
 
     func test_titleExtraction() {
         XCTAssertNil(emptySchema.title)
         XCTAssertNil(invalidSchema.title)
+        XCTAssertNil(imageOnlySchema.title) // ImageOnly template doesn't have title
+        
         let title = smallImageSchema.title
         XCTAssertNotNil(title)
         XCTAssertEqual(title?.content, "Card Title")
+        
+        let largeImageTitle = largeImageSchema.title
+        XCTAssertNotNil(largeImageTitle)
+        XCTAssertEqual(largeImageTitle?.content, "Card Title")
     }
 
     func test_bodyExtraction() {
         XCTAssertNil(emptySchema.body)
         XCTAssertNil(invalidSchema.body)
+        XCTAssertNil(imageOnlySchema.body) // ImageOnly template doesn't have body
+        
         let body = smallImageSchema.body
         XCTAssertNotNil(body)
         XCTAssertEqual(body?.content, "Card Body")
+        
+        let largeImageBody = largeImageSchema.body
+        XCTAssertNotNil(largeImageBody)
+        XCTAssertEqual(largeImageBody?.content, "body")
     }
     
     func test_imageExtraction() {
         XCTAssertNil(emptySchema.image)
         XCTAssertNil(invalidSchema.image)
+        
         let image = smallImageSchema.image
         XCTAssertNotNil(image)
         XCTAssertEqual(image?.url?.absoluteString, "https://imagetoDownload.com/cardimage")
+        
+        let largeImage = largeImageSchema.image
+        XCTAssertNotNil(largeImage)
+        XCTAssertEqual(largeImage?.url?.absoluteString, "https://imagetoDownload.com/cardimage")
+        XCTAssertEqual(largeImage?.darkUrl?.absoluteString, "https://imagetoDownload.com/darkimage")
+        
+        let imageOnlyImage = imageOnlySchema.image
+        XCTAssertNotNil(imageOnlyImage)
+        XCTAssertEqual(imageOnlyImage?.url?.absoluteString, "https://imagetoDownload.com/cardimage")
+        XCTAssertEqual(imageOnlyImage?.darkUrl?.absoluteString, "https://imagetoDownload.com/darkimage")
+        XCTAssertEqual(imageOnlyImage?.altText, "flight offer")
     }
     
     func test_buttonsExtraction() {
         // test with empty schema
         XCTAssertNil(emptySchema.getButtons(forTemplate: mockTemplate))
         XCTAssertNil(invalidSchema.getButtons(forTemplate: mockTemplate))
+        XCTAssertNil(imageOnlySchema.getButtons(forTemplate: mockTemplate)) // ImageOnly template doesn't have buttons
         
         // test with small image template schema
         let buttons = smallImageSchema.getButtons(forTemplate: mockTemplate)
@@ -64,13 +93,31 @@ final class ContentCardSchemaDataTemplateTests: XCTestCase {
         // verify each button
         XCTAssertEqual(buttons?[0].interactId, "purchaseID")
         XCTAssertEqual(buttons?[1].interactId, "cancelID")
+        
+        // test with large image template schema
+        let largeImageButtons = largeImageSchema.getButtons(forTemplate: mockTemplate)
+        XCTAssertNotNil(largeImageButtons)
+        XCTAssertEqual(largeImageButtons?.count, 2)
+        
+        // verify each button
+        XCTAssertEqual(largeImageButtons?[0].interactId, "purchaseID")
+        XCTAssertEqual(largeImageButtons?[1].interactId, "cancelID")
     }
 
     func test_actionUrlExtraction() {
         XCTAssertNil(emptySchema.actionUrl)
+        
         let actionUrl = smallImageSchema.actionUrl
         XCTAssertNotNil(actionUrl)
         XCTAssertEqual(actionUrl?.absoluteString, "https://actionUrl.com")
+        
+        let largeImageActionUrl = largeImageSchema.actionUrl
+        XCTAssertNotNil(largeImageActionUrl)
+        XCTAssertEqual(largeImageActionUrl?.absoluteString, "https://luma.com/sale")
+        
+        let imageOnlyActionUrl = imageOnlySchema.actionUrl
+        XCTAssertNotNil(imageOnlyActionUrl)
+        XCTAssertEqual(imageOnlyActionUrl?.absoluteString, "https://google.com")
     }
 
 }

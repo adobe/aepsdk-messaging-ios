@@ -10,17 +10,17 @@
 
 ## Layout
 
-<img src="../../../Assets/smallimagetemplate-layout.png" width="500" />
+<img src="../../../../assets/smallimagetemplate-layout.png" width="500" />
 
 ## Public properties
 
 | Property      | Type                                           | Description                                                  |
 | ------------- | ---------------------------------------------- | ------------------------------------------------------------ |
 | title         | [AEPText](../UIElements/aeptext.md)            | The title text for the content card.                         |
-| body          | [AEPText](../UIElements/aeptext.md)            | *Optional*<br>The body text of the content card.             |
-| image         | [AEPImage](../UIElements/aepimage.md)          | *Optional*<br>The image to be shown on the content card.     |
-| buttons       | [[AEPButton](../UIElements/aepbutton.md)]      | *Optional*<br>The list of buttons on the content card.       |
+| body          | [AEPText?](../UIElements/aeptext.md)            | The body text of the content card.             |
+| image         | [AEPImage?](../UIElements/aepimage.md)          | The image to be shown on the content card.     |
+| buttons       | [[AEPButton](../UIElements/aepbutton.md)]?      | The list of buttons on the content card.       |
 | buttonHStack  | [AEPHStack](../UIElements/aepstack.md)         | A horizontal stack for arranging buttons.                    |
 | textVStack    | [AEPVStack](../UIElements/aepstack.md)         | A vertical stack for arranging the title, body, and buttons. |
 | rootHStack    | [AEPHStack](../UIElements/aepstack.md)         | A horizontal stack for arranging the image and text stack.   |
-| dismissButton | [AEPDismissButton](../UIElements/aepdismissbutton.md) | *Optional*<br>The dismiss button for the content card.       |
+| dismissButton | [AEPDismissButton?](../UIElements/aepdismissbutton.md) | The dismiss button for the content card.       |

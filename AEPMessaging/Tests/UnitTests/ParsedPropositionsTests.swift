@@ -399,6 +399,26 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(3, thirdProp.rank)
     }
     
+    func testInitPropositionRulesetConsequenceInvalidDetail() throws {
+        // setup – rule has a schema consequence whose `data` block is empty
+        let content = JSONFileLoader.getRulesJsonFromFile("ruleWithInvalidConsequenceDetail")
+        let pi = PropositionItem(itemId: "inapp", schema: .ruleset, itemData: content)
+        let prop = Proposition(uniqueId: "inapp", scope: "inapp", scopeDetails: ["key": "value"], items: [pi])
+        let propositions: [Surface: [Proposition]] = [
+            mockInAppSurfacev2: [prop]
+        ]
+
+        // test
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
+
+        // verify – nothing should be cached or persisted and no rules should be produced
+        XCTAssertNotNil(result)
+        XCTAssertEqual(0, result.propositionInfoToCache.count)
+        XCTAssertEqual(0, result.propositionsToCache.count)
+        XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
+    }
+    
     private func getPropItemFile(_ fileName: String) -> PropositionItem {
         let itemData = JSONFileLoader.getRulesJsonFromFile(fileName)
         return PropositionItem(itemId: "inapp2", schema: rulesetSchema, itemData: itemData)

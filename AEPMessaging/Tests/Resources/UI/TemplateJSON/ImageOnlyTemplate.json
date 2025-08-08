@@ -1,0 +1,22 @@
+{
+  "publishedDate": 1701538942,
+  "expiryDate": 1712190456,
+  "contentType": "application/json",
+  "content": {
+    "actionUrl": "https://google.com",
+    "image": {
+      "url": "https://imagetoDownload.com/cardimage",
+      "darkUrl": "https://imagetoDownload.com/darkimage",
+      "alt": "flight offer"
+    },
+    "dismissBtn": {
+      "style": "simple"
+    }
+  },
+  "meta": {
+    "adobe": {
+      "template": "ImageOnly"
+    },
+    "customKey": "customValue"
+  }
+} 
