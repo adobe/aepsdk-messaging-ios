@@ -210,7 +210,6 @@
 		928594152522880900B2BE47 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 925DF4472522785700A5DE31 /* Assets.xcassets */; };
 		928594162522880900B2BE47 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF4482522785700A5DE31 /* LaunchScreen.storyboard */; };
 		9285941C2522899700B2BE47 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44A2522785700A5DE31 /* Main.storyboard */; };
-		9285941E25228A1500B2BE47 /* ADBMobileConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44E2522785700A5DE31 /* ADBMobileConfig.json */; };
 		92863A022637706F000AFA53 /* MessagingFunctionalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92863A012637706F000AFA53 /* MessagingFunctionalTests.swift */; };
 		9296BA862537BFC0002C88F7 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		92FC587B2636840C005BAE02 /* MessagingPublicAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC587A2636840C005BAE02 /* MessagingPublicAPITests.swift */; };
@@ -664,7 +663,6 @@
 		925DF4492522785700A5DE31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		925DF44B2522785700A5DE31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		925DF44C2522785700A5DE31 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		925DF44E2522785700A5DE31 /* ADBMobileConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ADBMobileConfig.json; sourceTree = "<group>"; };
 		925DF44F2522785700A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		925DF4502522785700A5DE31 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		925DF4A525227C4700A5DE31 /* AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1222,7 +1220,6 @@
 			isa = PBXGroup;
 			children = (
 				2415598428D1217500729136 /* nativeMethodCallingSample.html */,
-				925DF44E2522785700A5DE31 /* ADBMobileConfig.json */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -1925,7 +1922,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2415598528D1217500729136 /* nativeMethodCallingSample.html in Resources */,
-				9285941E25228A1500B2BE47 /* ADBMobileConfig.json in Resources */,
 				9285941C2522899700B2BE47 /* Main.storyboard in Resources */,
 				928594152522880900B2BE47 /* Assets.xcassets in Resources */,
 				928594162522880900B2BE47 /* LaunchScreen.storyboard in Resources */,

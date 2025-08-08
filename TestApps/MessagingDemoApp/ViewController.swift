@@ -208,6 +208,35 @@ class ViewController: UIViewController {
         print("Called set push identifier with identifier: \(testToken)")
     }
 
+    @IBAction func setDifferentPushIdentifierTwice(_: Any) {
+        // Set test identifier
+        let testToken = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+        guard let testDataToken = testToken.toData() else {
+            print("Invalid push token format.")
+            return
+        }
+
+        let testToken2 = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+        guard let testDataToken2 = testToken2.toData() else {
+            print("Invalid push token format.")
+            return
+        }
+
+        MobileCore.setPushIdentifier(testDataToken)
+        print("Called set push identifier with identifier: \(testToken)")
+
+        // Set same identifier
+        MobileCore.setPushIdentifier(testDataToken2)
+        print("Called set push identifier with identifier: \(testToken2)")
+    }
+
+    @IBOutlet weak var tokenLabel: UILabel!
+    
+    @IBAction func displayToken(_: Any) {
+        let devicePushToken = ServiceProvider.shared.namedKeyValueService.get(collectionName: "com.adobe.messaging", key: "pushidentifier") as? String
+        tokenLabel.text = devicePushToken ?? "No token set"
+    }
+
     @IBAction func setNewPushIdentifier(_: Any) {
         // Set test identifier
         let testToken = UUID().uuidString.replacingOccurrences(of: "-", with: "")

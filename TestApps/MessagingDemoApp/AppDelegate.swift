@@ -12,12 +12,7 @@
 
 import AEPAssurance
 import AEPCore
-import AEPEdge
-import AEPEdgeConsent
-import AEPEdgeIdentity
-import AEPLifecycle
 import AEPMessaging
-import AEPSignal
 import UIKit
 import UserNotifications
 
@@ -25,34 +20,28 @@ import UserNotifications
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+        let ASSURANCE_SESSION_ID = ""
+
+        // Use these IDs for Push Sync Optimization Bug Bash
+        let STAGING_APP_ID_WITH_PUSH_OPTIMIZATION_ENABLED = "staging/1b50a869c4a2/c8445c476ccf/launch-735af9a49790-staging"
+        let STAGING_APP_ID_WITH_PUSH_OPTIMIZATION_DISABLED = "staging/1b50a869c4a2/c8445c476ccf/launch-1e5d4da4ab99-development"
+        let STAGING_APP_ID_WITHOUT_PUSH_OPTIMIZATION_KEY = "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development"
+
+
         MobileCore.setLogLevel(.trace)
 
-        let extensions = [
-//            Consent.self,
-            Lifecycle.self,
-            Identity.self,
-            AEPEdgeIdentity.Identity.self,
-            Messaging.self,
-            Edge.self,
-            Signal.self,
-            Assurance.self
-        ]
+        MobileCore.initialize(appId: STAGING_APP_ID_WITHOUT_PUSH_OPTIMIZATION_KEY) {
+            MobileCore.updateConfigurationWith(configDict: ["edge.environment": "int"])
+        #if DEBUG
+            MobileCore.updateConfigurationWith(configDict: ["messaging.useSandbox": true])
+        #endif
 
-        MobileCore.registerExtensions(extensions) {
-            // only start lifecycle if the application is not in the background
-            DispatchQueue.main.async {
-                if application.applicationState != .background {
-                    MobileCore.lifecycleStart(additionalContextData: nil)
-                }
+            if ASSURANCE_SESSION_ID.isEmpty {
+                Assurance.startSession()
+            } else {
+                Assurance.startSession(url: URL(string: ASSURANCE_SESSION_ID)!)
             }
-            
-            // configure
-            MobileCore.configureWith(appId: "3149c49c3910/b6541e5e6301/launch-f7ac0a320fb3-development")
-            // set `messaging.useSandbox` to "true"  to test push notifications in debug environment (Apps signed with Development Certificate)
-//            #if DEBUG
-//                let debugConfig = ["messaging.useSandbox": true]
-//                MobileCore.updateConfigurationWith(configDict: debugConfig)
-//            #endif
         }
         
         registerForPushNotifications(application)
