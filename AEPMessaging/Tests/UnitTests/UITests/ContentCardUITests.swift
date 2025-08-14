@@ -39,6 +39,21 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         XCTAssertNil(contentCardUI?.listener)
     }
     
+    func test_contentCardUI_createInstance_largeImage_happy() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "LargeImageTemplate")
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify
+        XCTAssertNotNil(contentCardUI)
+        XCTAssertEqual(contentCardUI?.template.templateType, .largeImage)
+        XCTAssertEqual(contentCardUI?.proposition, proposition)
+        XCTAssertNotNil(contentCardUI?.view)
+        XCTAssertNil(contentCardUI?.listener)
+    }
+    
     func test_contentCardUI_createInstance_priority() throws {
         // setup
         let proposition =  ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate", priority: 37)
@@ -50,9 +65,33 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
         XCTAssertEqual(37, contentCardUI?.priority)
     }
     
+    func test_contentCardUI_createInstance_largeImage_priority() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "LargeImageTemplate", priority: 42)
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify        
+        XCTAssertEqual(42, contentCardUI?.priority)
+    }
+    
     func test_contentCardUI_verifyMeta() throws {
         // setup
         let proposition =  ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate")
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify
+        let meta = contentCardUI?.meta
+        XCTAssertNotNil(meta)
+        XCTAssertEqual(meta?["customKey"] as? String, "customValue")
+    }
+    
+    func test_contentCardUI_verifyLargeImageMeta() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "LargeImageTemplate")
         
         // test
         let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
@@ -115,6 +154,91 @@ class ContentCardUITests : XCTestCase, ContentCardUIEventListening {
     func test_contentCardUI_schemaData_Accessible() throws {
         // setup
         let proposition: Proposition = ContentCardTestUtil.createProposition(fromFile: "SmallImageTemplate")
+        
+        // test
+        let card = ContentCardUI.createInstance(with: proposition, customizer: nil, listener: self)
+        
+        // verify
+        XCTAssertNotNil(card?.schemaData)
+    }
+    
+    func test_contentCardUI_largeImage_verifyListenerMethodCalled() throws {
+        // setup
+        let proposition: Proposition = ContentCardTestUtil.createProposition(fromFile: "LargeImageTemplate")
+        displayExpectation = expectation(description: "onDisplay method called")
+        dismissExpectation = expectation(description: "onDismiss method called")
+        interactExpectation = expectation(description: "onInteract method called")
+        
+        // test
+        templateHandler = ContentCardUI.createInstance(with: proposition, customizer: nil, listener: self)
+        templateHandler?.onDisplay()
+        templateHandler?.onDismiss()
+        templateHandler?.onInteract(interactionId: "InteractionId", actionURL: nil)
+
+        // verify
+        // Wait for expectations to be fulfilled
+        waitForExpectations(timeout: 2.0) { error in
+            if let error = error {
+                XCTFail("Expectations were not fulfilled: \(error)")
+            }
+        }
+        
+        XCTAssertNotNil(templateHandler)
+    }
+    
+    func test_contentCardUI_largeImage_schemaData_Accessible() throws {
+        // setup
+        let proposition: Proposition = ContentCardTestUtil.createProposition(fromFile: "LargeImageTemplate")
+        
+        // test
+        let card = ContentCardUI.createInstance(with: proposition, customizer: nil, listener: self)
+        
+        // verify
+        XCTAssertNotNil(card?.schemaData)
+    }
+    
+    func test_contentCardUI_imageOnly_createInstance_happy() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "ImageOnlyTemplate")
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify
+        XCTAssertNotNil(contentCardUI)
+        XCTAssertEqual(contentCardUI?.template.templateType, .imageOnly)
+        XCTAssertEqual(contentCardUI?.proposition, proposition)
+        XCTAssertNotNil(contentCardUI?.view)
+        XCTAssertNil(contentCardUI?.listener)
+    }
+    
+    func test_contentCardUI_imageOnly_priority() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "ImageOnlyTemplate", priority: 25)
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify        
+        XCTAssertEqual(25, contentCardUI?.priority)
+    }
+    
+    func test_contentCardUI_imageOnly_verifyMeta() throws {
+        // setup
+        let proposition =  ContentCardTestUtil.createProposition(fromFile: "ImageOnlyTemplate")
+        
+        // test
+        let contentCardUI = ContentCardUI.createInstance(with: proposition, customizer: nil , listener: nil)
+        
+        // verify
+        let meta = contentCardUI?.meta
+        XCTAssertNotNil(meta)
+        XCTAssertEqual(meta?["customKey"] as? String, "customValue")
+    }
+    
+    func test_contentCardUI_imageOnly_schemaData_Accessible() throws {
+        // setup
+        let proposition: Proposition = ContentCardTestUtil.createProposition(fromFile: "ImageOnlyTemplate")
         
         // test
         let card = ContentCardUI.createInstance(with: proposition, customizer: nil, listener: self)

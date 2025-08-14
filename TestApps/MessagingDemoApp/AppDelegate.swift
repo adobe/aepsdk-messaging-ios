@@ -86,6 +86,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         MobileCore.setPushIdentifier(deviceToken)
+
+        // persist push token
+        let deviceTokenString = deviceToken.reduce("") {$0 + String(format: "%02X", $1)}
+        UserDefaults.standard.set(deviceTokenString, forKey: "pushToken")
     }
 
     func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError _: Error) {

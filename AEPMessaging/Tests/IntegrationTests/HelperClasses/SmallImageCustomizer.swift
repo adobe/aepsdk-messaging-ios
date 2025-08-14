@@ -15,6 +15,7 @@ import SwiftUI
 @testable import AEPMessaging
 
 class SmallImageCustomizer : ContentCardCustomizing {
+    
     public var TITLE_COLOR : Color = .blue
     public var BODY_COLOR : Color = .green
     
@@ -33,12 +34,13 @@ class SmallImageCustomizer : ContentCardCustomizing {
     public var TEXT_STACK_ALIGNMENT : HorizontalAlignment = .leading
     public var BUTTON_STACK_ALIGNMENT : VerticalAlignment = .top
     
+    public var ROOT_VERTICAL_STACK_ALIGNMENT : HorizontalAlignment = .leading
+    
     public var DISMISS_ICON_FONT : Font = .system(size: 10)
     public var DISMISS_ICON_COLOR : Color = .gray
     public var DISMISS_ICON_ALIGNMENT : Alignment = .topLeading
     
     public var CARD_BACKGROUND_COLOR : Color = .yellow
-
     
     func customize(template: SmallImageTemplate) {
         // customize UI elements
@@ -49,7 +51,7 @@ class SmallImageCustomizer : ContentCardCustomizing {
         
         // customize buttons
         template.buttons?.first?.text.font = BUTTON_FONT
-        template.buttons?.first?.text.textColor = BUTTON_TEXT_COLOR        
+        template.buttons?.first?.text.textColor = BUTTON_TEXT_COLOR
         
         // customize root stack
         template.rootHStack.spacing = ROOT_STACK_SPACING
@@ -74,6 +76,14 @@ class SmallImageCustomizer : ContentCardCustomizing {
         
         // change card background color
         template.backgroundColor = CARD_BACKGROUND_COLOR
+    }
+    
+    struct RootVStackModifier : ViewModifier {
+        func body(content: Content) -> some View {
+             content
+                .frame(maxHeight: .infinity, alignment: .leading)
+                .padding(.trailing)
+         }
     }
     
     struct RootHStackModifier : ViewModifier {

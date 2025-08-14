@@ -31,6 +31,12 @@ struct AEPDismissButtonView: View {
         }, label: {
             model.image.view
         })
+        .background(
+            // Invisible expanded touch area
+            Color.clear
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        )
         .applyModifier(model.modifier)
     }
 }
