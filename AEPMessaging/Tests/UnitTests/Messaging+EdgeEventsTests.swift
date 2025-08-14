@@ -25,6 +25,7 @@ class MessagingEdgeEventsTests: XCTestCase {
     var mockFeedRulesEngine: MockContentCardRulesEngine!
     var mockLaunchRulesEngine: MockLaunchRulesEngine!
     var mockCache: MockCache!
+    var messagingProperties: MessagingProperties!
     let mockIamSurface = "mobileapp://com.apple.dt.xctest.tool"
 
     // Mock constants
@@ -40,7 +41,8 @@ class MessagingEdgeEventsTests: XCTestCase {
         mockLaunchRulesEngine = MockLaunchRulesEngine(name: "mcokLaunchRulesEngine", extensionRuntime: mockRuntime)
         mockMessagingRulesEngine = MockMessagingRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine, cache: mockCache)
         mockFeedRulesEngine = MockContentCardRulesEngine(extensionRuntime: mockRuntime, launchRulesEngine: mockLaunchRulesEngine)
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface, cache: mockCache)
+        messagingProperties = MessagingProperties()
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockFeedRulesEngine, expectedSurfaceUri: mockIamSurface, cache: mockCache, messagingProperties: messagingProperties)
     }
 
     // MARK: - helpers
