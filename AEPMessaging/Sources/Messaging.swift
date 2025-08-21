@@ -415,7 +415,6 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-
     // MARK: - Private helper methods
 
     /// Retrieves the ECID from the Edge Identity shared state.
@@ -796,8 +795,8 @@ public class Messaging: NSObject, Extension {
         _ schemaType: SchemaType,
         surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]],
         requestedSurfaces: [Surface],
-        rulesBySurface: inout [Surface: [LaunchRule]])
-    {
+        rulesBySurface: inout [Surface: [LaunchRule]]
+    ) {
         if let newRules = surfaceRulesBySchemaType[schemaType] {
             let newSurfaces = Array(newRules.keys)
             Log.trace(label: MessagingConstants.LOG_TAG, "Processing schema type \(schemaType): for requested surfaces [\(requestedSurfaces.map { $0.uri })], returned surfaces [\(newSurfaces.map { $0.uri })].")
