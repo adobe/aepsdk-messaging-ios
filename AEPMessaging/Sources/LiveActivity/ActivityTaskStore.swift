@@ -10,39 +10,77 @@
  governing permissions and limitations under the License.
  */
 
+import Foundation
+
 /// An actor that stores and manages `Task`s associated with Live Activity types in a thread-safe way.
 @available(iOS 13.0, *)
 actor ActivityTaskStore<Key: Hashable> {
-    private var tasks: [Key: Task<Void, Never>] = [:]
+    private struct Entry {
+        let id: UUID
+        let task: Task<Void, Never>
+    }
 
-    /// Sets or replaces the `Task` for the given key.
+    private var entries: [Key: Entry] = [:]
+
+    /// Sets or replaces the `Task` for the given key using the provided identifier.
     ///
-    /// If `task` is `nil`, any existing task for the key will be removed.
+    /// If an entry already exists for the key, the existing task is cancelled before
+    /// the new task is stored. This prevents multiple tasks for the same key from
+    /// running concurrently.
     ///
     /// - Parameters:
-    ///   - key: A `Hashable` key representing the Live Activity type or instance.
-    ///   - task: The `Task` to associate with the key, or `nil` to remove the task.
-    func setTask(for key: Key, task: Task<Void, Never>?) {
-        tasks[key] = task
+    ///   - key: The key representing the Live Activity type to associate with the task.
+    ///   - id: A unique identifier for the task entry. Used to support identity based removal.
+    ///   - task: The `Task` to associate with the key.
+    func setEntry(for key: Key, id: UUID, task: Task<Void, Never>) {
+        if let existing = entries[key] {
+            existing.task.cancel()
+        }
+        entries[key] = Entry(id: id, task: task)
     }
 
     /// Retrieves the `Task` associated with the given key.
     ///
-    /// - Parameter key: The key identifying the task.
-    /// - Returns: The associated `Task` if one exists, or `nil` if not found.
+    /// - Parameter key: The key identifying the stored task.
+    /// - Returns: The associated `Task` if one exists, or `nil` if no task is stored for the key.
     func task(for key: Key) -> Task<Void, Never>? {
-        tasks[key]
+        entries[key]?.task
     }
 
-    /// Removes the `Task` associated with the given key.
+    /// Removes the task entry associated with the given key, unconditionally.
     ///
-    /// - Parameter key: The key representing the task to be removed.
+    /// This does not cancel the task. Callers should cancel the task separately if needed.
+    ///
+    /// - Parameter key: The key representing the task entry to remove.
     func removeTask(for key: Key) {
-        tasks[key] = nil
+        entries[key] = nil
     }
 
-    /// Removes all stored `Task`s.
+    /// Removes the task entry only if the provided identifier matches the current entry.
+    ///
+    /// This is useful when tasks remove themselves on completion to avoid a stale task
+    /// removing a newer entry that has replaced it.
+    ///
+    /// This does not cancel the task. Callers should cancel explicitly if needed.
+    ///
+    /// - Parameters:
+    ///   - key: The key representing the task entry.
+    ///   - id: The identifier expected to match the current entry for the removal to proceed.
+    func removeIfCurrent(for key: Key, id: UUID) {
+        guard let current = entries[key], current.id == id else { return }
+        entries[key] = nil
+    }
+
+    /// Retrieves the identifier for the current task entry associated with the key.
+    ///
+    /// - Parameter key: The key identifying the stored task entry.
+    /// - Returns: The identifier of the current entry, or `nil` if no entry is stored for the key.
+    func currentId(for key: Key) -> UUID? {
+        entries[key]?.id
+    }
+
+    /// Removes all stored task entries without cancelling their tasks.
     func removeAll() {
-        tasks.removeAll()
+        entries.removeAll()
     }
 }
