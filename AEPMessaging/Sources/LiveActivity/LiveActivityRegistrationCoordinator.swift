@@ -12,12 +12,12 @@
 
 import Foundation
 
-@available(iOS 13.0, *)
 /// Coordinates Live Activity type exclusive registration to prevent concurrent duplicate registrations.
 ///
 /// Guarantees at most one registration body runs at a time for a given `attributeType`.
 /// Other callers attempting to register the same type will yield until the in progress
 /// registration completes. Different types can register concurrently.
+@available(iOS 13.0, *)
 actor LiveActivityRegistrationCoordinator {
     private var registeringTypes: Set<String> = []
 
