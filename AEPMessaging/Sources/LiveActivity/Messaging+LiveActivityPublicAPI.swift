@@ -200,10 +200,13 @@ public extension Messaging {
     private static func createActivityUpdatesTask<T: LiveActivityAttributes>(type _: T.Type, entryId: UUID) -> Task<Void, Never> {
         Task {
             let attributeType = T.attributeType
+            var childTasks: [Task<Void, Never>] = []
 
             // Remove this task from storage when the sequence ends.
             defer {
                 Task {
+                    // Cancel any child tasks spawned by this activity updates task
+                    childTasks.forEach { $0.cancel() }
                     await activityUpdateTaskStore.removeIfCurrent(for: attributeType, id: entryId)
                 }
             }
@@ -215,11 +218,12 @@ public extension Messaging {
                 // Listen for content updates when in DEBUG mode.
                 #if DEBUG
                     if #available(iOS 16.2, *) {
-                        Task {
+                        let contentTask = Task {
                             for await update in activity.contentUpdates {
                                 dispatchContentStateUpdateEvent(activity: activity, contentState: update.state)
                             }
                         }
+                        childTasks.append(contentTask)
                     } else {
                         Log.debug(label: MessagingConstants.LOG_TAG,
                                   "Not handling Live Activity content updates for type \(attributeType). " +
@@ -228,23 +232,25 @@ public extension Messaging {
                 #endif
 
                 // Listen for state updates.
-                Task {
+                let stateTask = Task {
                     for await newState in activity.activityStateUpdates {
                         if newState == .dismissed || newState == .ended {
                             dispatchStateUpdateEvent(activity: activity, state: newState)
                         }
                     }
                 }
+                childTasks.append(stateTask)
 
                 // Listen for push token updates for this activity.
                 // Live Activities Broadcast via channels do not use this token.
-                Task {
+                let tokenTask = Task {
                     for await newTokenData in activity.pushTokenUpdates {
                         let newTokenHex = newTokenData.hexEncodedString
                         Log.debug(label: MessagingConstants.LOG_TAG, "Update token received for activity \(activity.id) (\(attributeType)): \(newTokenHex)")
                         dispatchUpdateTokenEvent(activity: activity, token: newTokenHex)
                     }
                 }
+                childTasks.append(tokenTask)
             }
         }
     }
