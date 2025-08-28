@@ -61,4 +61,65 @@ public extension Messaging {
             completion(.success(cards))
         }
     }
+    
+    /// Retrieves a content card container UI for a given surface with automatic template selection.
+    /// 
+    /// This method combines PravinPK's proven UI patterns with schema-driven template architecture.
+    /// It automatically selects the appropriate template (Inbox/Carousel/Custom) based on container settings.
+    ///
+    /// - Parameters:
+    ///   - surface: The surface for which to retrieve the container UI.
+    ///   - customizer: An optional ContentCardCustomizing object to customize the appearance of content cards.
+    ///   - listener: An optional ContainerSettingsEventListening object to listen to container events.
+    ///   - completion: A completion handler that is called with a `Result` type containing either:
+    ///     - success(ContainerSettingsUI): A `ContainerSettingsUI` object if the operation is successful.
+    ///     - failure(ContainerSettingsUIError): A specific error indicating the failure reason
+    static func getContentCardContainerUI(for surface: Surface,
+                                         customizer: ContentCardCustomizing? = nil,
+                                         listener: ContainerSettingsEventListening? = nil,
+                                         _ completion: @escaping (Result<ContainerSettingsUI, ContainerSettingsUIError>) -> Void) {
+        
+        // Request propositions for the specified surface from Messaging extension.
+        Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
+            if let error = error {
+                Log.error(label: UIConstants.LOG_TAG,
+                          "Error retrieving content card container UI for surface, \(surface.uri). Error \(error)")
+                completion(.failure(.dataUnavailable))
+                return
+            }
+            
+            // Look for container settings in propositions
+            var containerSettings: ContainerSettingsSchemaData?
+            
+            // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
+            guard let propositions = propositionDict?[surface] else {
+                completion(.failure(.dataUnavailable))
+                return
+            }
+            
+            // Search for container settings in propositions using functional approach
+            containerSettings = propositions
+                .flatMap { $0.items }
+                .compactMap { $0.containerSettingsSchemaData }
+                .first
+            
+            // Ensure container settings are present - this is required for container UI
+            guard let containerSettings = containerSettings else {
+                Log.error(label: UIConstants.LOG_TAG,
+                          "No container settings found in propositions for surface: \(surface.uri)")
+                completion(.failure(.containerSettingsNotFound))
+                return
+            }
+            
+            // Create the container UI with the required container settings
+            let containerUI = ContainerSettingsUI(
+                surface: surface,
+                containerSettings: containerSettings,
+                customizer: customizer,
+                listener: listener
+            )
+            
+            completion(.success(containerUI))
+        }
+    }
 }

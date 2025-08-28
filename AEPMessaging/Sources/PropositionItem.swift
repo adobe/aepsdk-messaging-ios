@@ -187,6 +187,14 @@ public extension PropositionItem {
         }
         return getTypedData(EventHistoryOperationSchemaData.self)
     }
+    
+    /// Tries to retrieve a `ContainerSettingsSchemaData` object from this `PropositionItem`'s `content` property in `itemData`
+    /// Returns a `ContainerSettingsSchemaData` object if the schema for this `PropositionItem` contains container settings and it is properly formed - `nil` otherwise
+    @available(iOS 15.0, *)
+    var containerSettingsSchemaData: ContainerSettingsSchemaData? {
+        // Container settings can be embedded in various schema types
+        return getTypedData(ContainerSettingsSchemaData.self)
+    }
 }
 
 /// extension for internal and private methods
