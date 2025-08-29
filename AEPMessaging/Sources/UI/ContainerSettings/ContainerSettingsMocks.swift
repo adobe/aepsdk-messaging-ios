@@ -527,7 +527,7 @@ public extension Messaging {
         // In reality, we'd need to properly construct Proposition objects
         // For now, we'll create a basic structure that works with our parsing
         
-        let propositionData: [String: Any] = [
+        let _: [String: Any] = [
             "id": id,
             "scope": surface.uri,
             "items": items

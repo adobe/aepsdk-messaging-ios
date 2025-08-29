@@ -104,42 +104,23 @@ public class ContainerSettingsUI: Identifiable, ObservableObject {
                 }
                 
                 // Extract content cards from propositions
-                guard let propositions = propositionDict?[self.surface] else {#imageLiteral(resourceName: "simulator_screenshot_DC88C86D-1434-40D0-9CCD-6D06E188F977.png")
+                guard let propositions = propositionDict?[self.surface] else {
                     self.state = .empty
                     self.contentCards = []
                     self.listener?.onEmpty(self)
                     return
                 }
                 
-                print("🧪 Container: Processing \(propositions.count) propositions for content cards")
                 var cards: [ContentCardUI] = []
-                for (index, proposition) in propositions.enumerated() {
-                    print("🧪 Container: Processing proposition \(index): \(proposition.uniqueId)")
-                    print("🧪 Container: Proposition has \(proposition.items.count) items")
-                    
-                    // Debug proposition items
-                    for (itemIndex, item) in proposition.items.enumerated() {
-                        print("🧪 Container: Item \(itemIndex): schema=\(item.schema), contentCard=\(item.contentCardSchemaData != nil)")
-                    }
-                    
+                for proposition in propositions {
                     guard let contentCard = ContentCardUI.createInstance(
                         with: proposition,
                         customizer: self.customizer,
                         listener: self.cardEventListener
                     ) else {
-                        print("🧪 Container: Failed to create ContentCardUI for proposition: \(proposition.uniqueId)")
                         Log.warning(label: UIConstants.LOG_TAG,
                                    "Failed to create ContentCardUI for proposition with ID: \(proposition.uniqueId)")
                         continue
-                    }
-                    
-                    // Debug what template was actually created
-                    let templateTypeName = String(describing: type(of: contentCard.template))
-                    print("🧪 Container: Successfully created ContentCardUI with template: \(templateTypeName)")
-                    if let meta = contentCard.meta,
-                       let adobe = meta["adobe"] as? [String: Any],
-                       let template = adobe["template"] as? String {
-                        print("🧪 Container: Template from meta: \(template)")
                     }
                     
                     cards.append(contentCard)
@@ -147,12 +128,9 @@ public class ContainerSettingsUI: Identifiable, ObservableObject {
                 
                 // Apply capacity limit if specified in container settings
                 if self.containerSettings.capacity > 0 {
-                    print("🧪 Container: Applying capacity limit: \(self.containerSettings.capacity), before: \(cards.count)")
                     cards = Array(cards.prefix(self.containerSettings.capacity))
-                    print("🧪 Container: After capacity limit: \(cards.count)")
                 }
                 
-                print("🧪 Container: Final result: \(cards.count) content cards created")
                 self.contentCards = cards
                 
                 if cards.isEmpty {
@@ -172,15 +150,7 @@ public class ContainerSettingsUI: Identifiable, ObservableObject {
     }
 }
 
-// MARK: - Container State
 
-/// Represents the different states of the container
-public enum ContainerState {
-    case loading
-    case loaded
-    case empty
-    case error(Error)
-}
 
 // MARK: - ContentCardUIEventListening Implementation
 
@@ -209,322 +179,5 @@ extension ContainerSettingsUI: ContentCardUIEventListening {
     
     public func onInteract(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
         return listener?.onCardInteracted(card, interactionId, actionURL: actionURL) ?? false
-    }
-}
-
-// MARK: - Container Event Listening Protocol
-
-/// Protocol for listening to container-level events
-@available(iOS 15.0, *)
-public protocol ContainerSettingsEventListening {
-    func onLoading(_ container: ContainerSettingsUI)
-    func onLoaded(_ container: ContainerSettingsUI)
-    func onError(_ container: ContainerSettingsUI, _ error: Error)
-    func onEmpty(_ container: ContainerSettingsUI)
-    func onCardDismissed(_ card: ContentCardUI)
-    func onCardDisplayed(_ card: ContentCardUI)
-    func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool
-    func onCardCreated(_ card: ContentCardUI)
-}
-
-// MARK: - Default Implementation
-
-@available(iOS 15.0, *)
-public extension ContainerSettingsEventListening {
-    func onLoading(_ container: ContainerSettingsUI) {}
-    func onLoaded(_ container: ContainerSettingsUI) {}
-    func onError(_ container: ContainerSettingsUI, _ error: Error) {}
-    func onEmpty(_ container: ContainerSettingsUI) {}
-    func onCardDismissed(_ card: ContentCardUI) {}
-    func onCardDisplayed(_ card: ContentCardUI) {}
-    func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool { false }
-    func onCardCreated(_ card: ContentCardUI) {}
-}
-
-// MARK: - SwiftUI Container View
-
-/// SwiftUI view that renders the container based on template type
-@available(iOS 15.0, *)
-struct ContainerView: View {
-    @ObservedObject var container: ContainerSettingsUI
-    
-    var body: some View {
-        Group {
-            switch container.state {
-            case .loading:
-                loadingView
-            case .loaded:
-                contentView
-            case .empty:
-                emptyStateView
-            case .error(let error):
-                errorView(error)
-            }
-        }
-    }
-    
-    private var loadingView: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-            Text("Loading content cards...")
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    private var contentView: some View {
-        Group {
-            switch container.templateType {
-            case .inbox:
-                InboxContainerView(container: container)
-            case .carousel:
-                CarouselContainerView(container: container)
-            case .custom:
-                CustomContainerView(container: container)
-            case .unknown:
-                CustomContainerView(container: container)
-            }
-        }
-    }
-    
-    private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            // Use empty state settings from container if available
-            if let emptyStateSettings = container.containerSettings.emptyStateSettings {
-                if let imageUrl = emptyStateSettings.image?.url {
-                    AsyncImage(url: URL(string: imageUrl)) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    } placeholder: {
-                        Image(systemName: "tray")
-                            .font(.system(size: 48))
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: 120, maxHeight: 120)
-                } else {
-                    Image(systemName: "tray")
-                        .font(.system(size: 48))
-                        .foregroundColor(.secondary)
-                }
-                
-                if let message = emptyStateSettings.message?.content {
-                    Text(message)
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-            } else {
-                // Default empty state
-                Image(systemName: "tray")
-                    .font(.system(size: 48))
-                    .foregroundColor(.secondary)
-                
-                Text("No content cards available")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-            }
-            
-            Button("Refresh") {
-                container.refresh()
-            }
-            .buttonStyle(.bordered)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
-    }
-    
-    private func errorView(_ error: Error) -> some View {
-        VStack(spacing: 16) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
-                .foregroundColor(.red)
-            
-            Text("Error loading content cards")
-                .font(.headline)
-                .foregroundColor(.primary)
-            
-            Text(error.localizedDescription)
-                .font(.body)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-            
-            Button("Try Again") {
-                container.refresh()
-            }
-            .buttonStyle(.borderedProminent)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
-    }
-}
-
-// MARK: - Template-Specific Views (Placeholders for now)
-
-@available(iOS 15.0, *)
-struct InboxContainerView: View {
-    @ObservedObject var container: ContainerSettingsUI
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Header if available
-            if let heading = container.containerSettings.heading?.content {
-                headerView(heading)
-            }
-            
-            // Vertical scrolling list with unread indicators
-            ScrollView(.vertical, showsIndicators: true) {
-                LazyVStack(spacing: 12) {
-                    ForEach(container.contentCards, id: \.id) { card in
-                        cardRowWithUnread(card)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.bottom)
-            }
-        }
-    }
-    
-    private func headerView(_ heading: String) -> some View {
-        HStack {
-            Text(heading)
-                .font(.title2)
-                .fontWeight(.semibold)
-            Spacer()
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color(.systemBackground))
-    }
-    
-    private func cardRowWithUnread(_ card: ContentCardUI) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            card.view
-            
-            // Show unread indicator if enabled and card is unread
-            if container.containerSettings.isUnreadEnabled == true,
-               let unreadValue = card.meta?["unread"] as? Bool,
-               unreadValue {
-                unreadIndicatorView
-            }
-        }
-        .padding(.vertical, 4)
-    }
-    
-    private var unreadIndicatorView: some View {
-        Circle()
-            .fill(Color.red)
-            .frame(width: 8, height: 8)
-    }
-}
-
-@available(iOS 15.0, *)
-struct CarouselContainerView: View {
-    @ObservedObject var container: ContainerSettingsUI
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Header if available
-            if let heading = container.containerSettings.heading?.content {
-                headerView(heading)
-            }
-            
-            // Horizontal scrolling carousel
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 16) {
-                    ForEach(container.contentCards, id: \.id) { card in
-                        card.view
-                            .frame(width: 280) // Fixed width for carousel
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.bottom)
-            }
-        }
-    }
-    
-    private func headerView(_ heading: String) -> some View {
-        HStack {
-            Text(heading)
-                .font(.title2)
-                .fontWeight(.semibold)
-            Spacer()
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color(.systemBackground))
-    }
-}
-
-@available(iOS 15.0, *)
-struct CustomContainerView: View {
-    @ObservedObject var container: ContainerSettingsUI
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Header if available
-            if let heading = container.containerSettings.heading?.content {
-                headerView(heading)
-            }
-            
-            // Custom layout based on orientation
-            if container.containerSettings.layout.orientation == .horizontal {
-                horizontalLayout
-            } else {
-                verticalLayout
-            }
-        }
-    }
-    
-    private func headerView(_ heading: String) -> some View {
-        HStack {
-            Text(heading)
-                .font(.title2)
-                .fontWeight(.semibold)
-            Spacer()
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color(.systemBackground))
-    }
-    
-    private var verticalLayout: some View {
-        ScrollView(.vertical, showsIndicators: true) {
-            LazyVStack(spacing: 12) {
-                ForEach(container.contentCards, id: \.id) { card in
-                    customCardView(card)
-                }
-            }
-            .padding(.horizontal)
-            .padding(.bottom)
-        }
-    }
-    
-    private var horizontalLayout: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 16) {
-                ForEach(container.contentCards, id: \.id) { card in
-                    customCardView(card)
-                        .frame(width: 280)
-                }
-            }
-            .padding(.horizontal)
-            .padding(.bottom)
-        }
-    }
-    
-    private func customCardView(_ card: ContentCardUI) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            card.view
-            
-            // Show unread indicator if enabled and card is unread
-            if container.containerSettings.isUnreadEnabled == true,
-               let unreadValue = card.meta?["unread"] as? Bool,
-               unreadValue {
-                Circle()
-                    .fill(Color.red)
-                    .frame(width: 8, height: 8)
-            }
-        }
     }
 }
