@@ -15,6 +15,7 @@
 #endif
 import AEPServices
 import Foundation
+import Combine
 
 /// ContainerSettingsUI is a hybrid class that combines PravinPK's proven UI patterns 
 /// with schema-driven template architecture for displaying content cards in containers.
@@ -90,7 +91,7 @@ public class ContainerSettingsUI: Identifiable, ObservableObject {
         state = .loading
         listener?.onLoading(self)
         
-        Messaging.getPropositionsForSurfaces([surface]) { [weak self] propositionDict, error in
+        Messaging.getPropositionsForSurfacesMock([surface]) { [weak self] propositionDict, error in
             guard let self = self else { return }
             
             DispatchQueue.main.async {
@@ -103,35 +104,64 @@ public class ContainerSettingsUI: Identifiable, ObservableObject {
                 }
                 
                 // Extract content cards from propositions
-                guard let propositions = propositionDict?[self.surface] else {
+                guard let propositions = propositionDict?[self.surface] else {#imageLiteral(resourceName: "simulator_screenshot_DC88C86D-1434-40D0-9CCD-6D06E188F977.png")
                     self.state = .empty
                     self.contentCards = []
                     self.listener?.onEmpty(self)
                     return
                 }
                 
+                print("🧪 Container: Processing \(propositions.count) propositions for content cards")
                 var cards: [ContentCardUI] = []
-                for proposition in propositions {
+                for (index, proposition) in propositions.enumerated() {
+                    print("🧪 Container: Processing proposition \(index): \(proposition.uniqueId)")
+                    print("🧪 Container: Proposition has \(proposition.items.count) items")
+                    
+                    // Debug proposition items
+                    for (itemIndex, item) in proposition.items.enumerated() {
+                        print("🧪 Container: Item \(itemIndex): schema=\(item.schema), contentCard=\(item.contentCardSchemaData != nil)")
+                    }
+                    
                     guard let contentCard = ContentCardUI.createInstance(
                         with: proposition,
                         customizer: self.customizer,
                         listener: self.cardEventListener
                     ) else {
+                        print("🧪 Container: Failed to create ContentCardUI for proposition: \(proposition.uniqueId)")
                         Log.warning(label: UIConstants.LOG_TAG,
                                    "Failed to create ContentCardUI for proposition with ID: \(proposition.uniqueId)")
                         continue
                     }
+                    
+                    // Debug what template was actually created
+                    let templateTypeName = String(describing: type(of: contentCard.template))
+                    print("🧪 Container: Successfully created ContentCardUI with template: \(templateTypeName)")
+                    if let meta = contentCard.meta,
+                       let adobe = meta["adobe"] as? [String: Any],
+                       let template = adobe["template"] as? String {
+                        print("🧪 Container: Template from meta: \(template)")
+                    }
+                    
                     cards.append(contentCard)
                 }
                 
                 // Apply capacity limit if specified in container settings
                 if self.containerSettings.capacity > 0 {
+                    print("🧪 Container: Applying capacity limit: \(self.containerSettings.capacity), before: \(cards.count)")
                     cards = Array(cards.prefix(self.containerSettings.capacity))
+                    print("🧪 Container: After capacity limit: \(cards.count)")
                 }
                 
+                print("🧪 Container: Final result: \(cards.count) content cards created")
                 self.contentCards = cards
-                self.state = .loaded
-                self.listener?.onLoaded(self)
+                
+                if cards.isEmpty {
+                    self.state = .empty
+                    self.listener?.onEmpty(self)
+                } else {
+                    self.state = .loaded
+                    self.listener?.onLoaded(self)
+                }
             }
         }
     }

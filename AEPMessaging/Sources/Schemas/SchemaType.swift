@@ -29,6 +29,8 @@ public enum SchemaType: Int, Codable {
     case contentCard = 8
     /// Schema for Event History Operation consequences used with content cards
     case eventHistoryOperation = 9
+    /// Schema for Container Settings
+    case containerSettings = 10
 
     /// Initializes SchemaType with the provided content schema string
     /// - Parameter schema: SchemaType content schema string
@@ -61,6 +63,9 @@ public enum SchemaType: Int, Codable {
 
         case MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION:
             self = .eventHistoryOperation
+
+        case MessagingConstants.PersonalizationSchemas.CONTAINER_SETTINGS:
+            self = .containerSettings
 
         default:
             self = .unknown
@@ -98,6 +103,9 @@ public enum SchemaType: Int, Codable {
 
         case .eventHistoryOperation:
             return MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION
+
+        case .containerSettings:
+            return MessagingConstants.PersonalizationSchemas.CONTAINER_SETTINGS
 
         default:
             return ""

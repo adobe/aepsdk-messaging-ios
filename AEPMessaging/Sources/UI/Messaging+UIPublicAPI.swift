@@ -77,14 +77,14 @@ public extension Messaging {
     static func getContentCardContainerUI(for surface: Surface,
                                          customizer: ContentCardCustomizing? = nil,
                                          listener: ContainerSettingsEventListening? = nil,
-                                         _ completion: @escaping (Result<ContainerSettingsUI, ContainerSettingsUIError>) -> Void) {
+                                         _ completion: @escaping (Result<ContainerSettingsUI, Error>) -> Void) {
         
         // Request propositions for the specified surface from Messaging extension.
         Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
             if let error = error {
                 Log.error(label: UIConstants.LOG_TAG,
                           "Error retrieving content card container UI for surface, \(surface.uri). Error \(error)")
-                completion(.failure(.dataUnavailable))
+                completion(.failure(ContainerSettingsUIError.dataUnavailable))
                 return
             }
             
@@ -93,7 +93,7 @@ public extension Messaging {
             
             // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
             guard let propositions = propositionDict?[surface] else {
-                completion(.failure(.dataUnavailable))
+                completion(.failure(ContainerSettingsUIError.dataUnavailable))
                 return
             }
             
@@ -107,7 +107,7 @@ public extension Messaging {
             guard let containerSettings = containerSettings else {
                 Log.error(label: UIConstants.LOG_TAG,
                           "No container settings found in propositions for surface: \(surface.uri)")
-                completion(.failure(.containerSettingsNotFound))
+                completion(.failure(ContainerSettingsUIError.containerSettingsNotFound))
                 return
             }
             

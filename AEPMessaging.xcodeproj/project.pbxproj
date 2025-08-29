@@ -235,6 +235,12 @@
 		755DB8D42E1EC54700F3B21B /* ImageOnlyTemplateTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8D32E1EC54700F3B21B /* ImageOnlyTemplateTest.swift */; };
 		755DB8D82E1EC5C200F3B21B /* ImageOnlyCard.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8D62E1EC5C200F3B21B /* ImageOnlyCard.json */; };
 		755DB8DA2E1EC67D00F3B21B /* ImageOnlyTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8D92E1EC67D00F3B21B /* ImageOnlyTemplateTests.swift */; };
+		755DB8E42E60BAC500F3B21B /* ContainerSettingsUIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E12E60BAC500F3B21B /* ContainerSettingsUIError.swift */; };
+		755DB8E52E60BAC500F3B21B /* ContainerSettingsUsageExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E22E60BAC500F3B21B /* ContainerSettingsUsageExample.swift */; };
+		755DB8E62E60BAC500F3B21B /* ContainerSettingsSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */; };
+		755DB8E72E60BAC500F3B21B /* ContainerSettingsDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8DD2E60BAC500F3B21B /* ContainerSettingsDemo.swift */; };
+		755DB8E82E60BAC500F3B21B /* ContainerSettingsMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8DE2E60BAC500F3B21B /* ContainerSettingsMocks.swift */; };
+		755DB8E92E60BAC500F3B21B /* ContainerSettingsUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E02E60BAC500F3B21B /* ContainerSettingsUI.swift */; };
 		75B4333CC0B4F5BFAC707055 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */; };
 		899E1724E9B5AD078B0710E5 /* Pods_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA09063EA0248339C5B2C535 /* Pods_IntegrationTests.framework */; };
 		8C4723D49BD3F1EB4060FEAE /* Pods_FunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB9F1A791A757B3C68D23B9D /* Pods_FunctionalTestApp.framework */; };
@@ -721,6 +727,12 @@
 		755DB8D32E1EC54700F3B21B /* ImageOnlyTemplateTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOnlyTemplateTest.swift; sourceTree = "<group>"; };
 		755DB8D62E1EC5C200F3B21B /* ImageOnlyCard.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ImageOnlyCard.json; sourceTree = "<group>"; };
 		755DB8D92E1EC67D00F3B21B /* ImageOnlyTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOnlyTemplateTests.swift; sourceTree = "<group>"; };
+		755DB8DD2E60BAC500F3B21B /* ContainerSettingsDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsDemo.swift; sourceTree = "<group>"; };
+		755DB8DE2E60BAC500F3B21B /* ContainerSettingsMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsMocks.swift; sourceTree = "<group>"; };
+		755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsSchemaData.swift; sourceTree = "<group>"; };
+		755DB8E02E60BAC500F3B21B /* ContainerSettingsUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsUI.swift; sourceTree = "<group>"; };
+		755DB8E12E60BAC500F3B21B /* ContainerSettingsUIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsUIError.swift; sourceTree = "<group>"; };
+		755DB8E22E60BAC500F3B21B /* ContainerSettingsUsageExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsUsageExample.swift; sourceTree = "<group>"; };
 		7BB455BF61D9D261AC490547 /* Pods-MessagingDemoAppSwiftUI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoAppSwiftUI.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI.debug.xcconfig"; sourceTree = "<group>"; };
 		91A11E37A49E14EB847FB2DF /* Pods_MessagingDemoAppSwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoAppSwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		92085982251BEB7100B9C65A /* MessagingDemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1153,6 +1165,19 @@
 			path = ImageOnlyCard;
 			sourceTree = "<group>";
 		};
+		755DB8E32E60BAC500F3B21B /* ContainerSettings */ = {
+			isa = PBXGroup;
+			children = (
+				755DB8DD2E60BAC500F3B21B /* ContainerSettingsDemo.swift */,
+				755DB8DE2E60BAC500F3B21B /* ContainerSettingsMocks.swift */,
+				755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */,
+				755DB8E02E60BAC500F3B21B /* ContainerSettingsUI.swift */,
+				755DB8E12E60BAC500F3B21B /* ContainerSettingsUIError.swift */,
+				755DB8E22E60BAC500F3B21B /* ContainerSettingsUsageExample.swift */,
+			);
+			path = ContainerSettings;
+			sourceTree = "<group>";
+		};
 		922FFCE6251B2BBA00BCE010 = {
 			isa = PBXGroup;
 			children = (
@@ -1512,6 +1537,7 @@
 		B6F7CBC82CC2089A00C35C64 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				755DB8E32E60BAC500F3B21B /* ContainerSettings */,
 				B6F7CBC52CC2089A00C35C64 /* ContentCards */,
 				B6F7CBC62CC2089A00C35C64 /* Messaging+UIPublicAPI.swift */,
 				B6F7CBC72CC2089A00C35C64 /* UIConstants.swift */,
@@ -2652,6 +2678,12 @@
 				B6F7CBCE2CC2089A00C35C64 /* AEPDismissButton.swift in Sources */,
 				B6F7CBCF2CC2089A00C35C64 /* ContentCardUIEventListening.swift in Sources */,
 				B64256B22D936BD600EDCAC5 /* Collection+PropositionItem.swift in Sources */,
+				755DB8E42E60BAC500F3B21B /* ContainerSettingsUIError.swift in Sources */,
+				755DB8E52E60BAC500F3B21B /* ContainerSettingsUsageExample.swift in Sources */,
+				755DB8E62E60BAC500F3B21B /* ContainerSettingsSchemaData.swift in Sources */,
+				755DB8E72E60BAC500F3B21B /* ContainerSettingsDemo.swift in Sources */,
+				755DB8E82E60BAC500F3B21B /* ContainerSettingsMocks.swift in Sources */,
+				755DB8E92E60BAC500F3B21B /* ContainerSettingsUI.swift in Sources */,
 				B6F7CBD02CC2089A00C35C64 /* ContentCardUI+EventHandler.swift in Sources */,
 				B6F7CBD12CC2089A00C35C64 /* SmallImageTemplate.swift in Sources */,
 				B6F7CBD22CC2089A00C35C64 /* AEPTextView.swift in Sources */,

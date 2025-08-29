@@ -19,87 +19,119 @@ import Foundation
 @available(iOS 15.0, *)
 class ContainerSettingsDemo {
     
-    /// Creates a demo container with sample JSON schema data
+    /// Creates a demo container using mock data to simulate real server flow
     static func createDemoContainer(completion: @escaping (Result<ContainerSettingsUI, ContainerSettingsUIError>) -> Void) {
-        let surface = Surface(path: "demo://container")
+        createDemoContainerWithMocks(templateType: .inbox, completion: completion)
+    }
+    
+    /// Creates a demo container with specific template type using mocks
+    static func createDemoContainerWithMocks(templateType: ContainerTemplateType, 
+                                           completion: @escaping (Result<ContainerSettingsUI, ContainerSettingsUIError>) -> Void) {
+        let surfacePath = getSurfacePathForTemplate(templateType)
+        let surface = Surface(path: surfacePath)
         
-        print("🚀 Creating demo container...")
+        print("🚀 Creating demo container with mocks for template: \(templateType)")
+        print("🧪 Using surface: \(surfacePath)")
         
-        // Use the new async API
-        Messaging.getContentCardContainerUI(
+        // Use the mock API to simulate real server flow
+        Messaging.getContentCardContainerUIMock(
             for: surface,
-            customizer: nil,
+            customizer: DemoCardCustomizer(),
             listener: DemoEventListener()
         ) { result in
             switch result {
             case .success(let container):
-                print("✅ Demo container created successfully")
+                print("✅ Mock demo container created successfully")
+                print("📱 Template type: \(container.templateType)")
+                print("📊 Container settings capacity: \(container.containerSettings.capacity)")
                 completion(.success(container))
                 
             case .failure(let error):
-                print("❌ Demo container creation failed: \(error)")
-                
-                // For demo purposes, create a container with sample settings if API fails
-                // This handles cases like containerSettingsNotFound or dataUnavailable
-                let sampleJSON = """
-                {
-                    "heading": {
-                        "content": "Monthly Deals"
-                    },
-                    "layout": {
-                        "orientation": "vertical"
-                    },
-                    "capacity": 10,
-                    "emptyStateSettings": {
-                        "message": {
-                            "content": "No deals today, come back soon!"
-                        },
-                        "image": {
-                            "url": "https://example.com/empty.png",
-                            "darkUrl": "https://example.com/empty-dark.png"
-                        }
-                    },
-                    "unread_indicator": {
-                        "unread_bg": {
-                            "clr": {
-                                "light": "0x10AAFFCC",
-                                "dark": "0x11BBCCDD"
-                            }
-                        },
-                        "unread_icon": {
-                            "placement": "topleft",
-                            "image": {
-                                "url": "https://example.com/unread.png",
-                                "darkUrl": "https://example.com/unread-dark.png"
-                            }
-                        }
-                    },
-                    "isUnreadEnabled": true
-                }
-                """
-                
-                // Parse the JSON into our schema data
-                let containerSettings = try? JSONDecoder().decode(
-                    ContainerSettingsSchemaData.self,
-                    from: sampleJSON.data(using: .utf8) ?? Data()
-                )
-                
-                // Create fallback container with the parsed settings
-                guard let containerSettings = containerSettings else {
-                    completion(.failure(.containerSettingsNotFound))
-                    return
-                }
-                
-                let fallbackContainer = ContainerSettingsUI(
-                    surface: surface,
-                    containerSettings: containerSettings,
-                    customizer: nil,
-                    listener: DemoEventListener()
-                )
-                
-                print("🔄 Created fallback demo container with sample data")
-                completion(.success(fallbackContainer))
+                print("❌ Mock demo container creation failed: \(error)")
+                completion(.failure(error))
             }
+        }
+    }
+    
+    /// Gets surface path that will trigger specific template type in mocks
+    private static func getSurfacePathForTemplate(_ templateType: ContainerTemplateType) -> String {
+        switch templateType {
+        case .inbox:
+            return "demo://inbox-container"
+        case .carousel:
+            return "demo://carousel-container"
+        case .custom:
+            return "demo://custom-container"
+        case .unknown:
+            return "demo://unknown-container"
+        }
+    }
+    
+    /// Creates demo containers for all template types
+    static func createAllDemoContainers(completion: @escaping ([ContainerTemplateType: ContainerSettingsUI]) -> Void) {
+        let templateTypes: [ContainerTemplateType] = [.inbox, .carousel, .custom]
+        var containers: [ContainerTemplateType: ContainerSettingsUI] = [:]
+        let group = DispatchGroup()
+        
+        for templateType in templateTypes {
+            group.enter()
+            createDemoContainerWithMocks(templateType: templateType) { result in
+                defer { group.leave() }
+                
+                switch result {
+                case .success(let container):
+                    containers[templateType] = container
+                    print("✅ Created \(templateType) container")
+                case .failure(let error):
+                    print("❌ Failed to create \(templateType) container: \(error)")
+                }
+            }
+        }
+        
+        group.notify(queue: .main) {
+            print("🎯 Created \(containers.count) demo containers")
+            completion(containers)
+        }
+    }
+    
+    /// Demo card customizer for styling mock content cards
+    class DemoCardCustomizer: ContentCardCustomizing {
+        func customize(template: SmallImageTemplate) {
+            // Customize small image cards with rounded corners and shadows
+            template.backgroundColor = Color(.systemBackground)
+            template.rootHStack.spacing = 12
+            template.textVStack.alignment = .leading
+            template.textVStack.spacing = 8
+            
+            // Note: Template styling should be done through ContentCardCustomizing
+            // Direct template modification of modifiers and button colors is not supported
+            
+            // Customize button text if present
+            if let button = template.buttons?.first {
+                button.text.textColor = .white
+                // Note: Button styling should be done through ContentCardCustomizing
+            }
+        }
+        
+        func customize(template: LargeImageTemplate) {
+            // Customize large image cards with prominent styling
+            template.backgroundColor = Color(.systemBackground)
+            template.textVStack.alignment = .leading
+            template.textVStack.spacing = 12
+            
+            // Note: Template styling should be done through ContentCardCustomizing
+            
+            // Style button text
+            if let button = template.buttons?.first {
+                button.text.textColor = .white
+                // Note: Button styling should be done through ContentCardCustomizing
+            }
+        }
+        
+        func customize(template: ImageOnlyTemplate) {
+            // Customize image-only cards
+            template.backgroundColor = Color(.systemBackground)
+            // Note: Template styling should be done through ContentCardCustomizing
         }
     }
     
@@ -114,15 +146,14 @@ class ContainerSettingsDemo {
             print("📱 Demo: Template type selected: \(container.templateType)")
             
             // Verify template selection logic
-            if let settings = container.containerSettings {
-                let expectedTemplate = getExpectedTemplate(settings)
-                let actualTemplate = container.templateType
-                
-                if expectedTemplate == actualTemplate {
-                    print("✅ Demo: Template selection correct!")
-                } else {
-                    print("❌ Demo: Template selection mismatch - expected: \(expectedTemplate), got: \(actualTemplate)")
-                }
+            let settings = container.containerSettings
+            let expectedTemplate = getExpectedTemplate(settings)
+            let actualTemplate = container.templateType
+            
+            if expectedTemplate == actualTemplate {
+                print("✅ Demo: Template selection correct!")
+            } else {
+                print("❌ Demo: Template selection mismatch - expected: \(expectedTemplate), got: \(actualTemplate)")
             }
         }
         
@@ -233,117 +264,227 @@ class ContainerSettingsDemo {
     }
 }
 
+// MARK: - Demo View Modifiers
+
+@available(iOS 13.0, *)
+struct ShadowModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+    }
+}
+
+@available(iOS 13.0, *)
+struct ButtonModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .cornerRadius(8)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+    }
+}
+
 // MARK: - SwiftUI Demo View
 
 @available(iOS 15.0, *)
 struct ContainerSettingsDemoView: View {
-    @State private var demoContainer: ContainerSettingsUI?
+    @State private var selectedTemplate: ContainerTemplateType = .inbox
+    @State private var demoContainers: [ContainerTemplateType: ContainerSettingsUI] = [:]
     @State private var isLoading = true
     @State private var error: ContainerSettingsUIError?
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
+            VStack(spacing: 0) {
+                // Template selector
+                templateSelector
+                
                 if isLoading {
-                    ProgressView("Creating demo container...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    loadingView
                 } else if let error = error {
-                    VStack(spacing: 16) {
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 48))
-                            .foregroundColor(.red)
-                        Text("Demo Error")
-                            .font(.headline)
-                        Text(error.localizedDescription)
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                        Button("Try Again") {
-                            loadDemoContainer()
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let container = demoContainer {
-                    // Template info
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Template Information")
-                            .font(.headline)
-                        
-                        HStack {
-                            Text("Selected Template:")
-                            Spacer()
-                            Text(container.templateType.rawValue)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.blue)
-                        }
-                        
-                        if let settings = container.containerSettings {
-                            HStack {
-                                Text("Orientation:")
-                                Spacer()
-                                Text(settings.layout.orientation.rawValue)
-                            }
-                            
-                            HStack {
-                                Text("Unread Enabled:")
-                                Spacer()
-                                Text(settings.isUnreadEnabled ? "Yes" : "No")
-                            }
-                            
-                            HStack {
-                                Text("Capacity:")
-                                Spacer()
-                                Text("\(settings.capacity)")
-                            }
-                        }
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
-                    
-                    // Container view
-                    container.view
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    errorView(error)
+                } else if let container = demoContainers[selectedTemplate] {
+                    containerView(container)
                 } else {
-                    Text("No container available")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    emptyView
                 }
             }
-            .padding()
-            .navigationTitle("Container Demo")
+            .navigationTitle("Mock Container Demo")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Run Tests") {
+                        ContainerSettingsDemo.testTemplateSelection()
+                    }
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Refresh") {
-                        demoContainer?.refresh()
+                        demoContainers[selectedTemplate]?.refresh()
                     }
-                    .disabled(demoContainer == nil)
+                    .disabled(demoContainers[selectedTemplate] == nil)
                 }
             }
         }
         .onAppear {
-            loadDemoContainer()
-            // Run template selection tests
-            ContainerSettingsDemo.testTemplateSelection()
+            loadAllDemoContainers()
         }
     }
     
-    private func loadDemoContainer() {
+    private var templateSelector: some View {
+        HStack(spacing: 0) {
+            ForEach([ContainerTemplateType.inbox, .carousel, .custom], id: \.self) { template in
+                Button(action: {
+                    selectedTemplate = template
+                }) {
+                    VStack(spacing: 4) {
+                        Text(templateIcon(for: template))
+                            .font(.title2)
+                        Text(template.rawValue)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(selectedTemplate == template ? Color.blue.opacity(0.1) : Color.clear)
+                    .foregroundColor(selectedTemplate == template ? .blue : .primary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .background(Color(.systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal)
+        .padding(.bottom)
+    }
+    
+    private func templateIcon(for template: ContainerTemplateType) -> String {
+        switch template {
+        case .inbox: return "📥"
+        case .carousel: return "🎠"
+        case .custom: return "⚙️"
+        case .unknown: return "❓"
+        }
+    }
+    
+    private var loadingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+            Text("Loading demo containers...")
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func errorView(_ error: ContainerSettingsUIError) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48))
+                .foregroundColor(.red)
+            Text("Demo Error")
+                .font(.headline)
+            Text(error.localizedDescription)
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            Button("Try Again") {
+                loadAllDemoContainers()
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func containerView(_ container: ContainerSettingsUI) -> some View {
+        VStack(spacing: 0) {
+            // Container info
+            containerInfoCard(container)
+            
+            // Container view
+            container.view
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+    
+    private func containerInfoCard(_ container: ContainerSettingsUI) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("📊 Container Details")
+                    .font(.headline)
+                Spacer()
+                Text(container.templateType.rawValue)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.blue)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(Color.blue.opacity(0.1))
+                    .cornerRadius(8)
+            }
+            
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Orientation: \(container.containerSettings.layout.orientation.rawValue)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("Capacity: \(container.containerSettings.capacity)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Unread: \(container.containerSettings.isUnreadEnabled ? "Yes" : "No")")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("Cards: \(container.contentCards.count)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            if let heading = container.containerSettings.heading?.content {
+                Text("Heading: \(heading)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+        .padding(.horizontal)
+        .padding(.bottom)
+    }
+    
+    private var emptyView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "tray")
+                .font(.system(size: 48))
+                .foregroundColor(.secondary)
+            Text("No container available")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            Button("Reload") {
+                loadAllDemoContainers()
+            }
+            .buttonStyle(.bordered)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func loadAllDemoContainers() {
         isLoading = true
         error = nil
+        demoContainers = [:]
         
-        ContainerSettingsDemo.createDemoContainer { result in
+        ContainerSettingsDemo.createAllDemoContainers { containers in
             DispatchQueue.main.async {
                 self.isLoading = false
+                self.demoContainers = containers
                 
-                switch result {
-                case .success(let container):
-                    self.demoContainer = container
-                    self.error = nil
-                case .failure(let error):
-                    self.error = error
-                    self.demoContainer = nil
+                if containers.isEmpty {
+                    self.error = .containerCreationFailed
                 }
             }
         }

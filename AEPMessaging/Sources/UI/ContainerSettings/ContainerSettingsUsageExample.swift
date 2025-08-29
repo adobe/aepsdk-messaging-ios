@@ -94,7 +94,7 @@ struct ContainerSettingsUsageExample {
                         self.containerUI = container
                         self.error = nil
                     case .failure(let error):
-                        self.error = error
+                        self.error = error as? ContainerSettingsUIError ?? .dataUnavailable
                         self.containerUI = nil
                     }
                 }
@@ -113,13 +113,12 @@ struct ContainerSettingsUsageExample {
             print("📱 Using template: \(container.templateType)")
             
             // Log container settings if available
-            if let settings = container.containerSettings {
-                print("📋 Container Settings:")
-                print("   - Orientation: \(settings.layout.orientation)")
-                print("   - Capacity: \(settings.capacity)")
-                print("   - Unread enabled: \(settings.isUnreadEnabled)")
-                print("   - Heading: \(settings.heading?.content ?? "None")")
-            }
+            let settings = container.containerSettings
+            print("📋 Container Settings:")
+            print("   - Orientation: \(settings.layout.orientation)")
+            print("   - Capacity: \(settings.capacity)")
+            print("   - Unread enabled: \(settings.isUnreadEnabled)")
+            print("   - Heading: \(settings.heading?.content ?? "None")")
         }
         
         func onError(_ container: ContainerSettingsUI, _ error: Error) {
@@ -187,7 +186,8 @@ struct ContainerSettingsUsageExample {
             template.textVStack.alignment = .leading
             
             // Customize button if present
-            template.buttons?.first?.backgroundColor = .blue
+            // Note: AEPButton styling should be done through ContentCardCustomizing
+            // template.buttons?.first?.backgroundColor = .blue
             template.buttons?.first?.text.textColor = .white
         }
         
@@ -234,7 +234,7 @@ struct ContainerSettingsUsageExample {
                     
                 case .failure(let error):
                     print("❌ Container setup failed: \(error)")
-                    completion(.failure(error))
+                    completion(.failure(error as? ContainerSettingsUIError ?? .dataUnavailable))
                 }
             }
         }
@@ -263,10 +263,9 @@ struct ContainerSettingsUsageExample {
             print("✅ Loaded \(container.contentCards.count) cards")
             
             // Example: Log template selection logic
-            if let settings = container.containerSettings {
-                let templateReason = getTemplateSelectionReason(settings)
-                print("🎯 Template selection: \(container.templateType) - \(templateReason)")
-            }
+            let settings = container.containerSettings
+            let templateReason = getTemplateSelectionReason(settings)
+            print("🎯 Template selection: \(container.templateType) - \(templateReason)")
         }
         
         func onError(_ container: ContainerSettingsUI, _ error: Error) {

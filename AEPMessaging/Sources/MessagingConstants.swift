@@ -54,6 +54,7 @@ enum MessagingConstants {
         static let CONTENT_CARD = "https://ns.adobe.com/personalization/message/content-card"
         static let NATIVE_ALERT = "https://ns.adobe.com/personalization/message/native-alert"
         static let EVENT_HISTORY_OPERATION = "https://ns.adobe.com/personalization/eventHistoryOperation"
+        static let CONTAINER_SETTINGS = "https://ns.adobe.com/personalization/container-settings"
 
         @available(*, deprecated, renamed: "CONTENT_CARD")
         static let FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"

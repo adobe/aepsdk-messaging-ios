@@ -66,6 +66,7 @@ public class ContainerSettingsSchemaData: NSObject, Codable {
     }
     
     /// Determines the appropriate container template type based on settings
+    @available(iOS 15.0, *)
     public var templateType: ContainerTemplateType {
         switch (layout.orientation, isUnreadEnabled) {
         case (.vertical, true):
