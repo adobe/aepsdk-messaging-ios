@@ -24,6 +24,7 @@ public extension Messaging {
     /// This simulates the complete flow including proposition fetching and container creation
     static func getContentCardContainerUIMock(for surface: Surface,
                                              customizer: ContentCardCustomizing? = nil,
+                                             containerCustomizer: ContainerCustomizing? = nil,
                                              listener: ContainerSettingsEventListening? = nil,
                                              _ completion: @escaping (Result<ContainerSettingsUI, ContainerSettingsUIError>) -> Void) {
         
@@ -76,6 +77,7 @@ public extension Messaging {
                     surface: surface,
                     containerSettings: containerSettings,
                     customizer: customizer,
+                    containerCustomizer: containerCustomizer,
                     listener: listener
                 )
                 

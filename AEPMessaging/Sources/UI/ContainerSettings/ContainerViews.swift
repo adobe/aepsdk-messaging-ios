@@ -48,15 +48,12 @@ struct ContainerView: View {
     
     private var contentView: some View {
         Group {
-            switch container.templateType {
-            case .inbox:
-                InboxContainerTemplate(container: container)
-            case .carousel:
-                CarouselContainerTemplate(container: container)
-            case .custom:
-                CustomContainerTemplate(container: container)
-            case .unknown:
-                CustomContainerTemplate(container: container)
+            if let template = container.containerTemplate {
+                AnyView(template.view)
+            } else {
+                // Fallback view in case template creation fails
+                Text("Template not available")
+                    .foregroundColor(.secondary)
             }
         }
     }

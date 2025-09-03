@@ -193,7 +193,11 @@ public extension PropositionItem {
     @available(iOS 15.0, *)
     var containerSettingsSchemaData: ContainerSettingsSchemaData? {
         // Container settings can be embedded in various schema types
-        return getTypedData(ContainerSettingsSchemaData.self)
+        guard let containerSettingsSchemaData = getTypedData(ContainerSettingsSchemaData.self) else {
+            return nil
+        }
+        containerSettingsSchemaData.parent = self
+        return containerSettingsSchemaData
     }
 }
 

@@ -1,36 +1,41 @@
 /*
- Copyright 2024 Adobe. All rights reserved.
- This file is licensed to you under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License. You may obtain a copy
- of the License at http://www.apache.org/licenses/LICENSE-2.0
+Copyright 2024 Adobe. All rights reserved.
+This file is licensed to you under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License. You may obtain a copy
+of the License at http://www.apache.org/licenses/LICENSE-2.0
 
- Unless required by applicable law or agreed to in writing, software distributed under
- the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- OF ANY KIND, either express or implied. See the License for the specific language
- governing permissions and limitations under the License.
- */
+Unless required by applicable law or agreed to in writing, software distributed under
+the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+OF ANY KIND, either express or implied. See the License for the specific language
+governing permissions and limitations under the License.
+*/
 
 #if canImport(SwiftUI)
     import SwiftUI
 #endif
 import Foundation
 
-// MARK: - Custom Container Template
-
-/// Template for custom container with configurable scrolling and unread settings
+/// A class representing a container template with a custom configurable layout.
+///
+/// `CustomContainerTemplate` is a subclass of `BaseContainerTemplate` and conforms to the `ContainerTemplate` protocol.
+/// It provides a structured layout for containers that include configurable scrolling orientation and unread indicators.
+/// This class is initialized with `ContainerSettingsSchemaData` and content cards.
+///
+/// - Note: The `view` property is lazily initialized and represents the entire layout of the container.
 @available(iOS 15.0, *)
-struct CustomContainerTemplate: View {
-    @ObservedObject var container: ContainerSettingsUI
-    
-    var body: some View {
+public class CustomContainerTemplate: BaseContainerTemplate, ContainerTemplate {
+    public let templateType: ContainerTemplateType = .custom
+
+    /// The SwiftUI view representing the custom container.
+    public lazy var view: some View = buildContainerView {
         VStack(alignment: .leading, spacing: 0) {
             // Header if available
-            if let heading = container.containerSettings.heading?.content {
-                headerView(heading)
+            if let heading = containerSettings.heading?.content {
+                buildHeaderView(heading)
             }
             
             // Custom layout based on orientation
-            if container.containerSettings.layout.orientation == .horizontal {
+            if containerSettings.layout.orientation == .horizontal {
                 horizontalLayout
             } else {
                 verticalLayout
@@ -38,23 +43,28 @@ struct CustomContainerTemplate: View {
         }
     }
     
-    private func headerView(_ heading: String) -> some View {
-        HStack {
-            Text(heading)
-                .font(.title2)
-                .fontWeight(.semibold)
-            Spacer()
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color(.systemBackground))
+    /// Initializes a `CustomContainerTemplate` with the given schema data and content cards.
+    ///
+    /// - Parameters:
+    ///   - containerSettings: The container settings schema data
+    ///   - contentCards: The content cards to be displayed
+    ///   - customizer: An object conforming to ContainerCustomizing protocol that allows for
+    ///                 custom styling of the container template
+    /// - Returns: An initialized `CustomContainerTemplate` or `nil` if initialization fails.
+    override init?(_ containerSettings: ContainerSettingsSchemaData, 
+                   contentCards: [ContentCardUI], 
+                   customizer: ContainerCustomizing?) {
+        super.init(containerSettings, contentCards: contentCards, customizer: customizer)
+        
+        // Apply specific customization for custom template
+        customizer?.customize(template: self)
     }
     
     private var verticalLayout: some View {
         ScrollView(.vertical, showsIndicators: true) {
             LazyVStack(spacing: 12) {
-                ForEach(container.contentCards, id: \.id) { card in
-                    customCardView(card)
+                ForEach(contentCards, id: \.id) { card in
+                    self.customCardView(card)
                 }
             }
             .padding(.horizontal)
@@ -65,8 +75,8 @@ struct CustomContainerTemplate: View {
     private var horizontalLayout: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 16) {
-                ForEach(container.contentCards, id: \.id) { card in
-                    customCardView(card)
+                ForEach(contentCards, id: \.id) { card in
+                    self.customCardView(card)
                         .frame(width: 280)
                 }
             }
@@ -80,12 +90,8 @@ struct CustomContainerTemplate: View {
             card.view
             
             // Show unread indicator if enabled and card is unread
-            if container.containerSettings.isUnreadEnabled == true,
-               let unreadValue = card.meta?["unread"] as? Bool,
-               unreadValue {
-                Circle()
-                    .fill(Color.red)
-                    .frame(width: 8, height: 8)
+            if isCardUnread(card) {
+                buildUnreadIndicatorView()
             }
         }
     }

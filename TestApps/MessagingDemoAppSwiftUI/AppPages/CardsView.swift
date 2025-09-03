@@ -104,6 +104,7 @@ struct CardsView: View, ContentCardUIEventListening, ContainerSettingsEventListe
         Messaging.getContentCardContainerUIMock(
             for: surface,
             customizer: CardCustomizer(),
+            containerCustomizer: nil,
             listener: self
         ) { result in
             DispatchQueue.main.async {
@@ -204,4 +205,11 @@ class CardCustomizer: ContentCardCustomizing {
         // Basic styling for image-only cards
         template.dismissButton?.image.iconColor = .primary
     }
+}
+
+// MARK: - Container Template Customizer
+
+class ContainerCustomizer {
+    // Simple container customizer implementation
+    // For now, we'll use nil until the protocol types are publicly accessible
 }

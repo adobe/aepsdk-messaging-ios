@@ -239,12 +239,17 @@
 		755DB8E62E60BAC500F3B21B /* ContainerSettingsSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */; };
 		755DB8E82E60BAC500F3B21B /* ContainerSettingsMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8DE2E60BAC500F3B21B /* ContainerSettingsMocks.swift */; };
 		755DB8E92E60BAC500F3B21B /* ContainerSettingsUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E02E60BAC500F3B21B /* ContainerSettingsUI.swift */; };
-		755DB8EE2E624F0D00F3B21B /* CustomContainerTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8EB2E624F0D00F3B21B /* CustomContainerTemplate.swift */; };
-		755DB8EF2E624F0D00F3B21B /* CarouselContainerTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8EA2E624F0D00F3B21B /* CarouselContainerTemplate.swift */; };
-		755DB8F02E624F0D00F3B21B /* InboxContainerTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8EC2E624F0D00F3B21B /* InboxContainerTemplate.swift */; };
 		755DB8F22E624F1700F3B21B /* ContainerSettingsEventListening.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F12E624F1700F3B21B /* ContainerSettingsEventListening.swift */; };
 		755DB8F52E624F2D00F3B21B /* ContainerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F32E624F2D00F3B21B /* ContainerState.swift */; };
 		755DB8F62E624F2D00F3B21B /* ContainerViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F42E624F2D00F3B21B /* ContainerViews.swift */; };
+		755DB8FF2E67573200F3B21B /* ContainerCustomizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F92E67573200F3B21B /* ContainerCustomizing.swift */; };
+		755DB9002E67573200F3B21B /* ContainerTemplateEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8FC2E67573200F3B21B /* ContainerTemplateEventHandler.swift */; };
+		755DB9012E67573200F3B21B /* ContainerTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8FA2E67573200F3B21B /* ContainerTemplate.swift */; };
+		755DB9022E67573200F3B21B /* ContainerTemplateBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8FB2E67573200F3B21B /* ContainerTemplateBuilder.swift */; };
+		755DB9032E67573200F3B21B /* BaseContainerTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F72E67573200F3B21B /* BaseContainerTemplate.swift */; };
+		755DB90A2E67576100F3B21B /* InboxContainerTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB9092E67576100F3B21B /* InboxContainerTemplate.swift */; };
+		755DB90B2E67576100F3B21B /* CarouselContainerTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB9072E67576100F3B21B /* CarouselContainerTemplate.swift */; };
+		755DB90C2E67576100F3B21B /* CustomContainerTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB9082E67576100F3B21B /* CustomContainerTemplate.swift */; };
 		75B4333CC0B4F5BFAC707055 /* Pods_MessagingDemoAppObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */; };
 		899E1724E9B5AD078B0710E5 /* Pods_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA09063EA0248339C5B2C535 /* Pods_IntegrationTests.framework */; };
 		8C4723D49BD3F1EB4060FEAE /* Pods_FunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB9F1A791A757B3C68D23B9D /* Pods_FunctionalTestApp.framework */; };
@@ -735,12 +740,17 @@
 		755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsSchemaData.swift; sourceTree = "<group>"; };
 		755DB8E02E60BAC500F3B21B /* ContainerSettingsUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsUI.swift; sourceTree = "<group>"; };
 		755DB8E12E60BAC500F3B21B /* ContainerSettingsUIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsUIError.swift; sourceTree = "<group>"; };
-		755DB8EA2E624F0D00F3B21B /* CarouselContainerTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarouselContainerTemplate.swift; sourceTree = "<group>"; };
-		755DB8EB2E624F0D00F3B21B /* CustomContainerTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomContainerTemplate.swift; sourceTree = "<group>"; };
-		755DB8EC2E624F0D00F3B21B /* InboxContainerTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxContainerTemplate.swift; sourceTree = "<group>"; };
 		755DB8F12E624F1700F3B21B /* ContainerSettingsEventListening.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsEventListening.swift; sourceTree = "<group>"; };
 		755DB8F32E624F2D00F3B21B /* ContainerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerState.swift; sourceTree = "<group>"; };
 		755DB8F42E624F2D00F3B21B /* ContainerViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViews.swift; sourceTree = "<group>"; };
+		755DB8F72E67573200F3B21B /* BaseContainerTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseContainerTemplate.swift; sourceTree = "<group>"; };
+		755DB8F92E67573200F3B21B /* ContainerCustomizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerCustomizing.swift; sourceTree = "<group>"; };
+		755DB8FA2E67573200F3B21B /* ContainerTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerTemplate.swift; sourceTree = "<group>"; };
+		755DB8FB2E67573200F3B21B /* ContainerTemplateBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerTemplateBuilder.swift; sourceTree = "<group>"; };
+		755DB8FC2E67573200F3B21B /* ContainerTemplateEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerTemplateEventHandler.swift; sourceTree = "<group>"; };
+		755DB9072E67576100F3B21B /* CarouselContainerTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarouselContainerTemplate.swift; sourceTree = "<group>"; };
+		755DB9082E67576100F3B21B /* CustomContainerTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomContainerTemplate.swift; sourceTree = "<group>"; };
+		755DB9092E67576100F3B21B /* InboxContainerTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxContainerTemplate.swift; sourceTree = "<group>"; };
 		7BB455BF61D9D261AC490547 /* Pods-MessagingDemoAppSwiftUI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoAppSwiftUI.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI.debug.xcconfig"; sourceTree = "<group>"; };
 		91A11E37A49E14EB847FB2DF /* Pods_MessagingDemoAppSwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoAppSwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		92085982251BEB7100B9C65A /* MessagingDemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MessagingDemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1191,9 +1201,14 @@
 		755DB8ED2E624F0D00F3B21B /* Template */ = {
 			isa = PBXGroup;
 			children = (
-				755DB8EA2E624F0D00F3B21B /* CarouselContainerTemplate.swift */,
-				755DB8EB2E624F0D00F3B21B /* CustomContainerTemplate.swift */,
-				755DB8EC2E624F0D00F3B21B /* InboxContainerTemplate.swift */,
+				755DB8F72E67573200F3B21B /* BaseContainerTemplate.swift */,
+				755DB9072E67576100F3B21B /* CarouselContainerTemplate.swift */,
+				755DB9082E67576100F3B21B /* CustomContainerTemplate.swift */,
+				755DB9092E67576100F3B21B /* InboxContainerTemplate.swift */,
+				755DB8F92E67573200F3B21B /* ContainerCustomizing.swift */,
+				755DB8FA2E67573200F3B21B /* ContainerTemplate.swift */,
+				755DB8FB2E67573200F3B21B /* ContainerTemplateBuilder.swift */,
+				755DB8FC2E67573200F3B21B /* ContainerTemplateEventHandler.swift */,
 			);
 			path = Template;
 			sourceTree = "<group>";
@@ -2718,6 +2733,9 @@
 				B6F7CBDB2CC2089A00C35C64 /* ContentCardSchemaData+TemplateContent.swift in Sources */,
 				B6F7CBDC2CC2089A00C35C64 /* AEPText.swift in Sources */,
 				B6F7CBDD2CC2089A00C35C64 /* ContentCardCustomizing.swift in Sources */,
+				755DB90A2E67576100F3B21B /* InboxContainerTemplate.swift in Sources */,
+				755DB90B2E67576100F3B21B /* CarouselContainerTemplate.swift in Sources */,
+				755DB90C2E67576100F3B21B /* CustomContainerTemplate.swift in Sources */,
 				B6F7CBDE2CC2089A00C35C64 /* ContentCardTemplate.swift in Sources */,
 				B6F7CBDF2CC2089A00C35C64 /* ContentCardTemplateType.swift in Sources */,
 				B6F7CBE02CC2089A00C35C64 /* AEPTextType.swift in Sources */,
@@ -2728,6 +2746,11 @@
 				B6F7CBE42CC2089A00C35C64 /* AEPButton.swift in Sources */,
 				B6F7CBE52CC2089A00C35C64 /* ContentCardUIError.swift in Sources */,
 				B6F7CBE62CC2089A00C35C64 /* AEPViewModifier.swift in Sources */,
+				755DB8FF2E67573200F3B21B /* ContainerCustomizing.swift in Sources */,
+				755DB9002E67573200F3B21B /* ContainerTemplateEventHandler.swift in Sources */,
+				755DB9012E67573200F3B21B /* ContainerTemplate.swift in Sources */,
+				755DB9022E67573200F3B21B /* ContainerTemplateBuilder.swift in Sources */,
+				755DB9032E67573200F3B21B /* BaseContainerTemplate.swift in Sources */,
 				B6F7CBE72CC2089A00C35C64 /* AEPHStackView.swift in Sources */,
 				B6F7CBE82CC2089A00C35C64 /* AEPImageView.swift in Sources */,
 				B64256B02D936B9700EDCAC5 /* BatchedPropositionInteraction.swift in Sources */,
@@ -2762,9 +2785,6 @@
 				B69573C82CD4447F0027E376 /* AEPBundleImageView.swift in Sources */,
 				B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */,
 				09F5D9402B5CF35F00117437 /* PropositionInteraction.swift in Sources */,
-				755DB8EE2E624F0D00F3B21B /* CustomContainerTemplate.swift in Sources */,
-				755DB8EF2E624F0D00F3B21B /* CarouselContainerTemplate.swift in Sources */,
-				755DB8F02E624F0D00F3B21B /* InboxContainerTemplate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
