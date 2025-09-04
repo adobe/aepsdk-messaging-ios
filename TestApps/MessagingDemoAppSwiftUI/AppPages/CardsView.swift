@@ -104,7 +104,7 @@ struct CardsView: View, ContentCardUIEventListening, ContainerSettingsEventListe
         Messaging.getContentCardContainerUIMock(
             for: surface,
             customizer: CardCustomizer(),
-            containerCustomizer: nil,
+            containerCustomizer: ContainerCustomizer(), // Now using the customizer
             listener: self
         ) { result in
             DispatchQueue.main.async {
@@ -186,6 +186,9 @@ class CardCustomizer: ContentCardCustomizing {
         template.body?.textColor = .secondary
         template.body?.font = .body
         
+        // Customize buttons with blue styling
+        customizeButtons(template.buttons)
+        
         // Customize dismiss button
         template.dismissButton?.image.iconColor = .primary
     }
@@ -197,19 +200,66 @@ class CardCustomizer: ContentCardCustomizing {
         template.body?.textColor = .secondary
         template.body?.font = .body
         
+        // Customize buttons with blue styling
+        customizeButtons(template.buttons)
+        
         // Customize dismiss button
         template.dismissButton?.image.iconColor = .primary
     }
     
     func customize(template: ImageOnlyTemplate) {
         // Basic styling for image-only cards
+        // Note: ImageOnlyTemplate doesn't have buttons, just image and dismiss button
+        
+        // Customize dismiss button
         template.dismissButton?.image.iconColor = .primary
+    }
+    
+    // MARK: - Button Styling Helper
+    
+    private func customizeButtons(_ buttons: [AEPButton]?) {
+        guard let buttons = buttons else { return }
+        
+        for button in buttons {
+            // Set button text color to white
+            button.text.textColor = .white
+            button.text.font = .system(size: 16, weight: .medium)
+            
+            // Apply blue button styling using AEPViewModifier
+            button.modifier = AEPViewModifier(ButtonStyleModifier())
+        }
+    }
+}
+
+// MARK: - Custom Button Style Modifier
+
+struct ButtonStyleModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
+            .frame(minWidth: 100)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.blue)
+            )
+            .shadow(color: .blue.opacity(0.3), radius: 2, x: 0, y: 1)
     }
 }
 
 // MARK: - Container Template Customizer
 
-class ContainerCustomizer {
-    // Simple container customizer implementation
-    // For now, we'll use nil until the protocol types are publicly accessible
+class ContainerCustomizer: ContainerCustomizing {
+    
+    // Customize the base container template (applies to all container types)
+    func customize(template: InboxContainerTemplate) {
+        template.backgroundColor = Color(.red)
+        // Set custom background color for containers
+        // Note: Since backgroundColor might not be accessible from external modules yet,
+        // we'll keep this simple for now and rely on the default implementation
+        print("Customizing container template: \(type(of: template))")
+    }
+    
+    // For now, let's keep the specific template customizations simple
+    // until the backgroundColor property is fully accessible from the test app
 }

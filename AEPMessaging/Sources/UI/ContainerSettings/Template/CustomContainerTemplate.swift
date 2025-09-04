@@ -62,37 +62,50 @@ public class CustomContainerTemplate: BaseContainerTemplate, ContainerTemplate {
     
     private var verticalLayout: some View {
         ScrollView(.vertical, showsIndicators: true) {
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: 16) {
                 ForEach(contentCards, id: \.id) { card in
                     self.customCardView(card)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                        )
                 }
             }
-            .padding(.horizontal)
-            .padding(.bottom)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
     }
     
     private var horizontalLayout: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 16) {
+            LazyHStack(spacing: 20) {
                 ForEach(contentCards, id: \.id) { card in
                     self.customCardView(card)
                         .frame(width: 280)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                        )
                 }
             }
-            .padding(.horizontal)
-            .padding(.bottom)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
     }
     
     private func customCardView(_ card: ContentCardUI) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            card.view
-            
-            // Show unread indicator if enabled and card is unread
-            if isCardUnread(card) {
-                buildUnreadIndicatorView()
+        card.view
+            .padding(.all, 12) // Internal padding for content
+            .padding(.top, containerSettings.layout.orientation == .horizontal ? 20 : 0) // Extra top padding for horizontal layout
+            .overlay(alignment: .topLeading) {
+                // Show unread indicator if enabled and card is unread
+                if isCardUnread(card) {
+                    buildUnreadIndicatorView()
+                        .offset(x: 4, y: 4) // Small offset from top-left corner
+                }
             }
-        }
+            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

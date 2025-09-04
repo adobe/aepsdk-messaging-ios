@@ -26,6 +26,10 @@ governing permissions and limitations under the License.
 ///   that provide specific template implementations.
 @available(iOS 15.0, *)
 public class BaseContainerTemplate: ObservableObject {
+    /// The background color of the container.
+    /// Use this property to set the background color for the container.
+    @Published public var backgroundColor: Color? = Color(.systemGroupedBackground)
+    
     /// The container settings schema data used to configure the template
     public let containerSettings: ContainerSettingsSchemaData
     
@@ -39,6 +43,7 @@ public class BaseContainerTemplate: ObservableObject {
     /// Boolean indicating if the template's view is displayed to the user
     /// Use this boolean to avoid sending multiple display events on a template
     var isDisplayed: Bool = false
+    
     
     /// Initializes a `BaseContainerTemplate` with the given schema data and content cards.
     /// This initializer is designed to be called by subclasses to perform common initialization tasks.
@@ -62,6 +67,7 @@ public class BaseContainerTemplate: ObservableObject {
     /// - Returns: A SwiftUI view of the templated Container
     func buildContainerView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         content()
+            .background(backgroundColor) // Configurable background color
             .onAppear(perform: {
                 if !self.isDisplayed {
                     self.isDisplayed = true
@@ -80,11 +86,15 @@ public class BaseContainerTemplate: ObservableObject {
             Text(heading)
                 .font(.title2)
                 .fontWeight(.semibold)
+                .foregroundColor(.primary)
             Spacer()
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color(.systemBackground))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            Color(.systemBackground)
+                .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
+        )
     }
     
     /// Builds an unread indicator view
@@ -92,7 +102,8 @@ public class BaseContainerTemplate: ObservableObject {
     func buildUnreadIndicatorView() -> some View {
         Circle()
             .fill(Color.red)
-            .frame(width: 8, height: 8)
+            .frame(width: 10, height: 10)
+            .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
     }
     
     /// Checks if a content card is unread based on its metadata

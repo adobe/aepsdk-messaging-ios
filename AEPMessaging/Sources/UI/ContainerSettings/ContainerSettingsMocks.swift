@@ -319,7 +319,7 @@ public extension Messaging {
                     "buttons": [
                         [
                             "interactId": "purchaseID",
-                            "text": ["content": "Purchase Now"],
+                            "text": ["content": "Buy"],
                             "actionUrl": "https://adobe.com/offer"
                         ],
                         [
@@ -351,7 +351,7 @@ public extension Messaging {
                     "buttons": [
                         [
                             "interactId": "purchaseID",
-                            "text": ["content": "Purchase Now"],
+                            "text": ["content": "Buy"],
                             "actionUrl": "https://adobe.com/offer"
                         ],
                         [

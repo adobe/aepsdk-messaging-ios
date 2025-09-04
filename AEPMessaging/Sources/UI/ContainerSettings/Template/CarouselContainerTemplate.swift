@@ -36,14 +36,22 @@ public class CarouselContainerTemplate: BaseContainerTemplate, ContainerTemplate
             
             // Horizontal scrolling carousel
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 16) {
+                LazyHStack(spacing: 20) {
                     ForEach(contentCards, id: \.id) { card in
                         card.view
                             .frame(width: 280) // Fixed width for carousel
+                            .padding(.all, 12) // Internal padding for content
+                            .padding(.top, 20) // Additional top padding inside card for dismiss button
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(.systemBackground))
+                                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
         }
     }

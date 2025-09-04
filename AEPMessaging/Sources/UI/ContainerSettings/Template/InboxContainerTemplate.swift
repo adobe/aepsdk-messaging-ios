@@ -36,13 +36,18 @@ public class InboxContainerTemplate: BaseContainerTemplate, ContainerTemplate {
             
             // Vertical scrolling list with unread indicators
             ScrollView(.vertical, showsIndicators: true) {
-                LazyVStack(spacing: 12) {
+                LazyVStack(spacing: 16) {
                     ForEach(contentCards, id: \.id) { card in
                         self.cardRowWithUnread(card)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color(.systemBackground))
+                                    .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                            )
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
         }
     }
@@ -65,14 +70,15 @@ public class InboxContainerTemplate: BaseContainerTemplate, ContainerTemplate {
     }
     
     private func cardRowWithUnread(_ card: ContentCardUI) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            card.view
-            
-            // Show unread indicator if enabled and card is unread
-            if isCardUnread(card) {
-                buildUnreadIndicatorView()
+        card.view
+            .padding(.all, 12) // Internal padding for content
+            .overlay(alignment: .topLeading) {
+                // Show unread indicator if enabled and card is unread
+                if isCardUnread(card) {
+                    buildUnreadIndicatorView()
+                        .offset(x: 4, y: 4) // Small offset from top-left corner
+                }
             }
-        }
-        .padding(.vertical, 4)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
