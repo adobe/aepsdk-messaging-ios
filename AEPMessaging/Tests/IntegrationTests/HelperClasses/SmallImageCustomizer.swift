@@ -41,14 +41,6 @@ class SmallImageCustomizer : ContentCardCustomizing {
     public var DISMISS_ICON_ALIGNMENT : Alignment = .topLeading
     
     public var CARD_BACKGROUND_COLOR : Color = .yellow
-
-    func customize(template: LargeImageTemplate) {
-        // Do nothing for large image template
-    }
-    
-    func customize(template: ImageOnlyTemplate) {
-        // Do nothing for image only template
-    }
     
     func customize(template: SmallImageTemplate) {
         // customize UI elements

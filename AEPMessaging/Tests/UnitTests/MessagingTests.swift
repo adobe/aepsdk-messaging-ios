@@ -1,14 +1,14 @@
-//
-// Copyright 2021 Adobe. All rights reserved.
-// This file is licensed to you under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License. You may obtain a copy
-// of the License at http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software distributed under
-// the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
-// OF ANY KIND, either express or implied. See the License for the specific language
-// governing permissions and limitations under the License.
-//
+/*
+ Copyright 2021 Adobe. All rights reserved.
+ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License. You may obtain a copy
+ of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software distributed under
+ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ OF ANY KIND, either express or implied. See the License for the specific language
+ governing permissions and limitations under the License.
+ */
 
 @testable import AEPCore
 import AEPServices
@@ -29,6 +29,8 @@ class MessagingTests: XCTestCase {
     var mockCache: MockCache!
     let mockSurface = Surface(path: "promos/feed1")
     var mockProposition: MockProposition!
+    var messagingProperties: MessagingProperties!
+
 
     // Mock constants
     let MOCK_ECID = "mock_ecid"
@@ -52,8 +54,9 @@ class MessagingTests: XCTestCase {
                                           scopeDetails: [
                                             "activity": [ "id": MOCK_ACTIVITY_ID ]],
                                           items: [])
-        
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache)
+        messagingProperties = MessagingProperties()
+
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
         messaging.onRegistered()
         
         mockNetworkService = MockNetworkService()
@@ -64,6 +67,7 @@ class MessagingTests: XCTestCase {
     
     override func tearDown() {
         MobileCore.messagingDelegate = nil
+        messagingProperties.pushIdentifier = nil
     }
     
     /// validate the extension is registered without any error
@@ -1008,77 +1012,251 @@ class MessagingTests: XCTestCase {
         XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
     }
     
-    func testHandleEventHistoryWriteHappy() throws {
-        // setup
-        let event = getGenericEventHistoryDisqualifyEvent()
-        messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(0, propsForMockSurfaceAfter?.count)
+    // MARK: - Core Rules Engine Dis/Unqualification Consequence Tests
+
+    private func getQualificationConsequenceEvent(eventType: String, activityId: String = "mockActivityId") -> Event {
+        // Build content map expected by EventHistoryOperation schema data
+        let contentMap: [String: String] = [
+            MessagingConstants.Event.History.Mask.EVENT_TYPE: eventType,
+            MessagingConstants.Event.History.Mask.MESSAGE_ID: activityId
+        ]
+
+        // Wrap in the event-history operation data object
+        let eventHistoryData: [String: Any] = [
+            "content": contentMap,
+            "operation": "insertIfNotExists"
+        ]
+
+        // Build schema consequence detail structure
+        let consequenceDetail: [String: Any] = [
+            MessagingConstants.Event.Data.Key.DATA: eventHistoryData,
+            MessagingConstants.Event.Data.Key.ID: "mockConsequenceId",
+            MessagingConstants.Event.Data.Key.SCHEMA: MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION
+        ]
+
+        let triggeredConsequence: [String: Any] = [
+            MessagingConstants.Event.Data.Key.ID: "mockConsequenceId",
+            MessagingConstants.Event.Data.Key.TYPE: MessagingConstants.ConsequenceTypes.SCHEMA,
+            MessagingConstants.Event.Data.Key.DETAIL: consequenceDetail
+        ]
+
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.TRIGGERED_CONSEQUENCE: triggeredConsequence
+        ]
+
+        return Event(name: "Qualification Consequence",
+                     type: EventType.rulesEngine,
+                     source: EventSource.responseContent,
+                     data: eventData)
     }
-    
-    func testHandleEventHistoryWriteNotDisqualifyEvent() throws {
-        // setup
-        let event = Event(name: "name", type: "type", source: "source", data: nil)
-        
+
+    func testCardDisqualificationConsequence_disqualify_removesProposition() {
+        // Seed cache with a qualified card
         messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
+
+        let event = getQualificationConsequenceEvent(eventType: "disqualify", activityId: MOCK_ACTIVITY_ID)
+        mockRuntime.simulateComingEvents(event)
+
+        // Card should be removed
+        XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
     }
-    
-    func testHandleEventHistoryWriteNoActivityIdInEvent() throws {
-        // setup
-        let event = getGenericEventHistoryDisqualifyEvent(iamMap: ["eventType": "disqualify"])
-        
+
+    func testCardDisqualificationConsequence_unqualify_removesProposition() {
         messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
+
+        let event = getQualificationConsequenceEvent(eventType: "unqualify", activityId: MOCK_ACTIVITY_ID)
+        mockRuntime.simulateComingEvents(event)
+
+        XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
     }
-    
-    func testHandleEventHistoryWriteWrongActivityIdInEvent() throws {
-        // setup
-        let event = getGenericEventHistoryDisqualifyEvent(iamMap: ["eventType": "disqualify", "id": "non-matching-id"])
-        
+
+    func testCardDisqualificationConsequence_nonMatchingEvent_keepsProposition() {
         messaging.qualifiedContentCardsBySurface[mockSurface] = [mockProposition]
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurface = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurface?.count)
-        
-        // test
-        messaging.handleEventHistoryWrite(event)
-        
-        // verify
-        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
-        let propsForMockSurfaceAfter = messaging.qualifiedContentCardsBySurface[mockSurface]
-        XCTAssertEqual(1, propsForMockSurfaceAfter?.count)
+
+        // send consequence with eventType "display" which should be ignored
+        let event = getQualificationConsequenceEvent(eventType: "display", activityId: MOCK_ACTIVITY_ID)
+        mockRuntime.simulateComingEvents(event)
+
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface[mockSurface]?.count)
     }
             
+    // MARK: - Push Token Tests
+    
+    func testPushTokenSync_whenTokenMatches_OptimizePushSyncIsTrue() {
+        // setup
+        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        messaging.onRegistered()
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String : Any]
+
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+    
+    func testPushTokenSync_whenTokenMatches_OptimizePushSyncIsFalse() {
+        // setup
+        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        messaging.onRegistered()
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false] as [String : Any]
+
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNotNil(mockRuntime.dispatchedEvents)
+        let pushTokenEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
+        XCTAssertEqual(MOCK_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
+    }
+    
+    func testPushTokenSync_whenNewTokenIsDifferent() {
+        // setup
+        let NEW_PUSH_TOKEN = "different push token"
+        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        messaging.onRegistered()
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String : Any]
+
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: NEW_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNotNil(mockRuntime.dispatchedEvents)
+        let pushTokenEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
+        XCTAssertEqual(NEW_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
+    }
+    
+    func testPushTokenSync_whenNoExistingPushToken() {
+        // setup
+        let NEW_PUSH_TOKEN = "new push token"
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String : Any]
+
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: NEW_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNotNil(mockRuntime.dispatchedEvents)
+        let pushTokenEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
+        XCTAssertEqual(NEW_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
+    }
+    
+    func testMultiplePushTokenSync_whenTokenMatchesAndWithinSyncTimeout_OptimizePushSyncIsFalse() {
+        // setup
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false] as [String : Any]
+
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNotNil(mockRuntime.dispatchedEvents)
+        // verify only one sync event is dispatched when three generic identity events are received and force sync is true
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let pushTokenEvent = mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
+        XCTAssertEqual(MOCK_PUSH_TOKEN, getDispatchedEventPushToken(event: pushTokenEvent))
+    }
+
+    func testMultiplePushTokenSync_whenTokenMatchesAndOutsideSyncTimeout_OptimizePushSyncIsFalse() {
+        // setup
+        let delay = UInt32(1500000) // 1.5 seconds
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false] as [String : Any]
+        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN]
+
+        let event = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // sleep for 1.5 seconds to ensure the 2nd syncPushIdentifier event is outside the 1 second sync timeout
+        usleep(delay)
+        let event2 = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // sleep for 1.5 seconds to ensure the 3rd syncPushIdentifier event is outside the 1 second sync timeout
+        usleep(delay)
+        let event3 = Event(name: "handleProcessEvent", type: EventType.genericIdentity, source: EventSource.requestContent, data: eventData)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // test
+        XCTAssertNoThrow(messaging.handleProcessEvent(event))
+        XCTAssertNoThrow(self.messaging.handleProcessEvent(event2))
+        XCTAssertNoThrow(self.messaging.handleProcessEvent(event3))
+
+        // verify three sync events are dispatched when three generic identity events are received outside the sync timeout and force sync is true
+        XCTAssertNotNil(self.mockRuntime.dispatchedEvents)
+        XCTAssertEqual(3, self.mockRuntime.dispatchedEvents.count)
+        let pushTokenEvent = self.mockRuntime.firstEvent
+        XCTAssertEqual(EventType.edge, pushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, pushTokenEvent?.source)
+        XCTAssertEqual(self.MOCK_PUSH_TOKEN, self.getDispatchedEventPushToken(event: pushTokenEvent))
+        let secondPushTokenEvent = self.mockRuntime.secondEvent
+        XCTAssertEqual(EventType.edge, secondPushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, secondPushTokenEvent?.source)
+        XCTAssertEqual(self.MOCK_PUSH_TOKEN, self.getDispatchedEventPushToken(event: secondPushTokenEvent))
+        let thirdPushTokenEvent = self.mockRuntime.thirdEvent
+        XCTAssertEqual(EventType.edge, thirdPushTokenEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, thirdPushTokenEvent?.source)
+        XCTAssertEqual(self.MOCK_PUSH_TOKEN, self.getDispatchedEventPushToken(event: thirdPushTokenEvent))
+    }
+
+    // MARK: - Reset Identities Event Handling Tests
+
+    func testHandleResetIdentitiesEvent_clearsPushToken() {
+        // setup
+        let messagingState = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN] as [String : Any]
+        mockRuntime.simulateSharedState(for: MessagingConstants.EXTENSION_NAME, data: (value: messagingState, status: SharedStateStatus.set))
+        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
+
+        let event = Event(name: "Reset Identities",
+                         type: EventType.genericIdentity,
+                         source: EventSource.requestReset,
+                         data: nil)
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify
+        XCTAssertNil(messagingProperties.pushIdentifier)
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
+        let sharedState = mockRuntime.createdSharedStates.last
+        XCTAssertNotNil(sharedState as Any?)
+        XCTAssertEqual(nil, mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as? String)
+    }
+
     // MARK: - Helpers
     
     func getGenericEventHistoryDisqualifyEvent(iamMap: [String: String]? = nil) -> Event {
@@ -1199,5 +1377,11 @@ class MessagingTests: XCTestCase {
 
     private var SampleEdgeIdentityState: [String: Any] {
         [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
+    }
+
+    private func getDispatchedEventPushToken(event: Event?) -> String? {
+        let pushTokenEventData = event?.data?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
+        let pushNotificationDetails = pushTokenEventData?[MessagingConstants.XDM.Push.PUSH_NOTIFICATION_DETAILS] as? [[String: Any]]
+        return pushNotificationDetails?.first?[MessagingConstants.XDM.Push.TOKEN] as? String
     }
 }

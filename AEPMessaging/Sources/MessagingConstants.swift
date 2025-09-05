@@ -16,12 +16,16 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "5.6.1"
+    static let EXTENSION_VERSION = "5.8.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
     static let THIRTY_DAYS_IN_SECONDS = TimeInterval(60 * 60 * 24 * 30)
     static let PATH_SEPARATOR = "/"
+    static let DATA_STORE_NAME = EXTENSION_NAME
+    static let IGNORE_PUSH_SYNC_TIMEOUT_SECONDS = TimeInterval(1) // 1 second
+    static let OPTIMIZE_PUSH_SYNC_ENABLED = "Push token sync optimization is enabled"
+    static let OPTIMIZE_PUSH_SYNC_DISABLED_SYNC_WITHIN_TIMEOUT = "Push registration sync optimization is disabled but the sync is within the 1 second timeout"
 
     enum ContentTypes {
         static let APPLICATION_JSON = "application/json"
@@ -49,6 +53,7 @@ enum MessagingConstants {
         static let IN_APP = "https://ns.adobe.com/personalization/message/in-app"
         static let CONTENT_CARD = "https://ns.adobe.com/personalization/message/content-card"
         static let NATIVE_ALERT = "https://ns.adobe.com/personalization/message/native-alert"
+        static let EVENT_HISTORY_OPERATION = "https://ns.adobe.com/personalization/eventHistoryOperation"
 
         @available(*, deprecated, renamed: "CONTENT_CARD")
         static let FEED_ITEM = "https://ns.adobe.com/personalization/message/feed-item"
@@ -163,6 +168,11 @@ enum MessagingConstants {
                 static let MESSAGE_ID = "iam.id"
                 static let TRACKING_ACTION = "iam.action"
             }
+
+            enum OperationKeys {
+                static let MESSAGE_ID = "iam.id"
+                static let EVENT_TYPE = "iam.eventType"
+            }
         }
     }
 
@@ -233,6 +243,7 @@ enum MessagingConstants {
                 static let INTERACT = "interact"
                 static let DISMISS = "dismiss"
                 static let DISQUALIFY = "disqualify"
+                static let UNQUALIFY = "unqualify"
                 static let SUPPRESSED_DISPLAY = "suppressDisplay"
             }
 
@@ -298,6 +309,9 @@ enum MessagingConstants {
 
             // config for whether to useSandbox or not
             static let USE_SANDBOX = "messaging.useSandbox"
+
+            // config for disabling the push token sync optimization
+            static let OPTIMIZE_PUSH_SYNC = "messaging.optimizePushSync"
         }
 
         enum EdgeIdentity {
@@ -313,5 +327,9 @@ enum MessagingConstants {
             static let ACTION_URL = "adb_uri"
             static let PUSH_TO_INAPP = "adb_iam_id"
         }
+    }
+
+    enum NamedCollectionKeys {
+        static let PUSH_IDENTIFIER = "pushidentifier"
     }
 }

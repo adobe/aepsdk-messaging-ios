@@ -91,16 +91,7 @@ e2e-functional-test: clean
 install-githook:
 	./tools/git-hooks/setup.sh
 
-format: lint-autocorrect swift-format
-
-check-format:
-	(swiftformat --lint $(PROJECT_NAME)/Sources --swiftversion 5.1)
-
-install-swiftformat:
-	(brew install swiftformat)
-
-swift-format:
-	(swiftformat $(PROJECT_NAME)/Sources --swiftversion 5.1)
+format: lint-autocorrect 
 
 lint-autocorrect:
 	($(CURRENT_DIRECTORY)/Pods/SwiftLint/swiftlint --fix)

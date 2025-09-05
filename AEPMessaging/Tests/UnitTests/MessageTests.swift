@@ -76,6 +76,8 @@ class MessageTests: XCTestCase {
         XCTAssertNotNil(message.fullscreenMessage)
         XCTAssertNotNil(message.assets)
         XCTAssertEqual(1, message.assets?.count)
+        XCTAssertEqual(1, message.metadata.count)
+        XCTAssertEqual("metaValue", message.metadata["metaKey"] as? String)
 
         // cleanup
         try cache.remove(key: mockAssetString)
@@ -98,6 +100,8 @@ class MessageTests: XCTestCase {
         XCTAssertNotNil(message.fullscreenMessage)
         XCTAssertNotNil(message.assets)
         XCTAssertEqual(0, message.assets?.count)
+        XCTAssertEqual(1, message.metadata.count)
+        XCTAssertEqual("metaValue", message.metadata["metaKey"] as? String)
     }
     
     func testCreateFromPropositionItemNoAssets() throws {
@@ -119,11 +123,111 @@ class MessageTests: XCTestCase {
         XCTAssertEqual("itemId", message.id)
         XCTAssertNotNil(message.fullscreenMessage)
         XCTAssertNil(message.assets)
+        XCTAssertEqual(1, message.metadata.count)
+        XCTAssertEqual("metaValue", message.metadata["metaKey"] as? String)
 
         // cleanup
         try cache.remove(key: mockAssetString)
     }
-    
+
+    func testCreateFromPropositionItemNullMetaObject() throws {
+        // setup
+        mockInAppItemData.removeValue(forKey: "meta")
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+
+        // test
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+
+        // verify
+        XCTAssertEqual(mockMessaging, message.parent)
+        XCTAssertEqual(mockEvent, message.triggeringEvent)
+        XCTAssertEqual("itemId", message.id)
+        XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNotNil(message.assets)
+        XCTAssertEqual(0, message.assets?.count)
+
+        XCTAssertTrue(message.metadata.isEmpty)
+    }
+
+    func testCreateFromPropositionItemEmptyMetaObject() throws {
+        // setup
+        mockInAppItemData["meta"] = [:]
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+
+        // test
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+
+        // verify
+        XCTAssertEqual(mockMessaging, message.parent)
+        XCTAssertEqual(mockEvent, message.triggeringEvent)
+        XCTAssertEqual("itemId", message.id)
+        XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNotNil(message.assets)
+        XCTAssertEqual(0, message.assets?.count)
+
+        XCTAssertTrue(message.metadata.isEmpty)
+    }
+
+    func testCreateFromPropositionItemMetaMultipleKeys() throws {
+        // setup
+        mockInAppItemData["meta"] = ["key1": "value1", "key2": 2]
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+
+        // test
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+
+        // verify
+        XCTAssertEqual(mockMessaging, message.parent)
+        XCTAssertEqual(mockEvent, message.triggeringEvent)
+        XCTAssertEqual("itemId", message.id)
+        XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNotNil(message.assets)
+        XCTAssertEqual(0, message.assets?.count)
+
+        XCTAssertEqual(2, message.metadata.count)
+        XCTAssertEqual("value1", message.metadata["key1"] as? String)
+        XCTAssertEqual(2, message.metadata["key2"] as? Int)
+    }
+
+    func testCreateFromPropositionItemMetaNestedKeys() throws {
+        // setup
+        mockInAppItemData["meta"] = ["key1": "value1", "nested" : ["nestedKey": "nestedValue"]]
+        mockPropositionItem = PropositionItem(itemId: "itemId", schema: .inapp, itemData: mockInAppItemData)
+
+        // test
+        guard let message = Message.fromPropositionItem(mockPropositionItem, with: mockMessaging, triggeringEvent: mockEvent) else {
+            XCTFail("failed to create message from convenience constructor.")
+            return
+        }
+
+        // verify
+        XCTAssertEqual(mockMessaging, message.parent)
+        XCTAssertEqual(mockEvent, message.triggeringEvent)
+        XCTAssertEqual("itemId", message.id)
+        XCTAssertNotNil(message.fullscreenMessage)
+        XCTAssertNotNil(message.assets)
+        XCTAssertEqual(0, message.assets?.count)
+
+        XCTAssertEqual(2, message.metadata.count)
+        XCTAssertEqual("value1", message.metadata["key1"] as? String)
+
+        if let nestedMetadata = message.metadata["nested"] as? [String: Any] {
+            XCTAssertEqual(1, nestedMetadata.count)
+            XCTAssertEqual("nestedValue", nestedMetadata["nestedKey"] as? String)
+        } else {
+            XCTFail("message metadata nested key should not be nil")
+        }
+    }
+
     func testCreateFromPropositionItemNotIamSchemaData() throws {
         // setup
         mockPropositionItem = PropositionItem(itemId: "itemId", schema: .htmlContent, itemData: [:])

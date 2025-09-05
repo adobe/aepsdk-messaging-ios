@@ -21,6 +21,7 @@ import UserNotifications
 
 class ViewController: UIViewController {
     @IBOutlet var switchShowMessages: UISwitch?
+    @IBOutlet var switchPushSyncOptimization: UISwitch?
 
     private let messageHandler = MessageHandler()
     
@@ -159,7 +160,39 @@ class ViewController: UIViewController {
         let data = ["key": "value"]
         MobileCore.track(action: "buttonClicked", data: data)
     }
-    
+
+    // push sync optimization testing
+    var pushSyncOptimization = true
+    @IBAction func togglePushSyncOptimization(_ sender: Any) {
+        if sender as? UISwitch == switchPushSyncOptimization {
+            pushSyncOptimization.toggle()
+            let config = ["messaging.optimizePushSync": pushSyncOptimization]
+            MobileCore.updateConfigurationWith(configDict: config)
+            print("Push sync optimization " + (pushSyncOptimization ? "enabled" : "disabled"))
+        }
+    }
+
+    @IBAction func resetIdentities(_: Any) {
+        MobileCore.resetIdentities()
+        print("Reset identities called.")
+    }
+
+    @IBAction func setPushIdentifier(_: Any) {
+        guard let token = UserDefaults.standard.string(forKey: "pushToken") else {
+            print("Push token not found in UserDefaults.")
+            return
+        }
+
+        guard let dataToken = token.toData() else {
+            print("Invalid push token format.")
+            return
+        }
+
+        MobileCore.setPushIdentifier(dataToken)
+        print("Called set push identifier with identifier: \(token)")
+    }
+
+
     func scheduleNotification() {
         let content = UNMutableNotificationContent()
 
