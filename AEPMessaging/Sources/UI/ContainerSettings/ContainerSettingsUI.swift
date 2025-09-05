@@ -148,6 +148,16 @@ public class ContainerSettingsUI: Identifiable, ObservableObject {
                     cards = Array(cards.prefix(self.containerSettings.capacity))
                 }
                 
+                // If unread functionality is enabled, initialize NEW cards as unread
+                if self.containerSettings.isUnreadEnabled {
+                    for card in cards {
+                        // Only set as unread if this card doesn't have a stored read status yet
+                        if card.isRead == nil {
+                            card.isRead = false
+                        }
+                    }
+                }
+                
                 self.contentCards = cards
                 
                 // Create container template with the loaded content cards
@@ -174,6 +184,21 @@ public class ContainerSettingsUI: Identifiable, ObservableObject {
     /// Refreshes the container by re-downloading content cards
     public func refresh() {
         downloadCards()
+    }
+    
+    /// Refreshes the container template with current card states (for UI updates)
+    private func refreshContainerTemplate() {
+        guard !contentCards.isEmpty else { return }
+        
+        // Rebuild container template with current cards to trigger UI update
+        containerTemplate = ContainerTemplateBuilder.buildTemplate(
+            from: containerSettings,
+            contentCards: contentCards,
+            customizer: containerCustomizer
+        )
+        
+        // Set event handler for container template tracking
+        containerTemplate?.eventHandler = self
     }
 }
 
@@ -215,7 +240,17 @@ extension ContainerSettingsUI: ContentCardUIEventListening {
     }
     
     public func onInteract(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
-        return listener?.onCardInteracted(card, interactionId, actionURL: actionURL) ?? false
+        let handled = listener?.onCardInteracted(card, interactionId, actionURL: actionURL) ?? false
+        
+        // Add a small delay to ensure the card's isRead status has been updated
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Refresh container template after interaction to update unread indicators
+            if self.containerSettings.isUnreadEnabled {
+                self.refreshContainerTemplate()
+            }
+        }
+        
+        return handled
     }
 }
 

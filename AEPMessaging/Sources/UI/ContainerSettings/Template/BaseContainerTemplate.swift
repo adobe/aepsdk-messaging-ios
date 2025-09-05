@@ -106,14 +106,16 @@ public class BaseContainerTemplate: ObservableObject {
             .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
     }
     
-    /// Checks if a content card is unread based on its metadata
+    /// Checks if a content card is unread based on its persistent read status
     /// - Parameter card: The content card to check
     /// - Returns: True if the card is unread, false otherwise
     func isCardUnread(_ card: ContentCardUI) -> Bool {
-        guard containerSettings.isUnreadEnabled == true,
-              let unreadValue = card.meta?["unread"] as? Bool else {
+        guard containerSettings.isUnreadEnabled == true else {
             return false
         }
-        return unreadValue
+        
+        // Check the persistent isRead property - if nil, this card doesn't support read/unread
+        // If false or nil (new card), it's unread. If true, it's been read.
+        return card.isRead != true
     }
 }

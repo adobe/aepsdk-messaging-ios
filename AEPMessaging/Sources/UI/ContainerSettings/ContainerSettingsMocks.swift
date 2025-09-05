@@ -255,7 +255,7 @@ public extension Messaging {
         print("🧪 Mock: Created mock item structure: \(mockItem)")
         
         // Create mock proposition
-        let propositionId = "container-\(templateType.rawValue.lowercased())-\(UUID().uuidString.prefix(8))"
+        let propositionId = "container-\(templateType.rawValue.lowercased())-\(surface.uri.hashValue.magnitude)"
         print("🧪 Mock: Creating proposition with id: \(propositionId)")
         
         return createMockProposition(
@@ -285,7 +285,7 @@ public extension Messaging {
             )
             
             let proposition = createMockProposition(
-                id: "card-\(template.lowercased())-\(i)-\(UUID().uuidString.prefix(8))",
+                id: "card-\(template.lowercased())-\(i)-\(surface.uri.hashValue.magnitude)",
                 surface: surface,
                 items: [cardData]
             )
@@ -562,7 +562,13 @@ public extension Messaging {
 @available(iOS 15.0, *)
 class MockProposition: Proposition {
     init(id: String, surface: Surface, items: [PropositionItem]) {
-        super.init(uniqueId: id, scope: surface.uri, scopeDetails: [:], items: items)
+        // Create proper scopeDetails with activity ID for activityId computation
+        let scopeDetails: [String: Any] = [
+            MessagingConstants.Event.Data.Key.Personalization.ACTIVITY: [
+                MessagingConstants.Event.Data.Key.Personalization.ID: id
+            ]
+        ]
+        super.init(uniqueId: id, scope: surface.uri, scopeDetails: scopeDetails, items: items)
     }
     
     required init(from decoder: Decoder) throws {
