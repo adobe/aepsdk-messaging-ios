@@ -20,6 +20,11 @@ import Foundation
 /// ContentCardUI is a class that holds data for a content card and provides a SwiftUI view representation of that content.
 @available(iOS 15.0, *)
 public class ContentCardUI: Identifiable {
+
+    /// Storage for content card read status
+    /// TODO: Remove this once we begin to use read status in traits
+    private let store = NamedCollectionDataStore(name: "com.adobe.module.messaging.contentcard")
+
     /// The underlying data model for the content card.
     let proposition: Proposition
 
@@ -45,7 +50,31 @@ public class ContentCardUI: Identifiable {
     public var meta: [String: Any]? {
         proposition.items.first?.contentCardSchemaData?.meta
     }
-
+    
+    
+    
+    /// Optional read status for content cards that belong to messaging inbox containers.
+    /// If nil, this is a normal content card. If not nil, it supports read/unread functionality.
+    public var isRead: Bool? {
+        get {
+            guard !proposition.activityId.isEmpty else { return nil }
+            return store.getBool(key: proposition.activityId)
+        }
+        set {
+            guard !proposition.activityId.isEmpty else { return }
+            if let newValue = newValue {
+                store[proposition.activityId] = newValue
+            } else {
+                store.remove(key: proposition.activityId)
+            }
+        }
+    }
+    
+    /// Mark this content card as read
+    public func markAsRead() {
+        isRead = true
+    }
+    
     /// Factory method to create a `ContentCardUI` instance based on the provided schema data.
     /// - Parameters:
     ///    - proposition: The `Proposition` containing content card template information
