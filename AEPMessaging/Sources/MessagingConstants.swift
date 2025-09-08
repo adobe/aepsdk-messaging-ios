@@ -326,9 +326,12 @@ enum MessagingConstants {
             static let ATTRIBUTE_TYPE = "liveActivityAttributeType"
             static let CHANNEL_ID = "channelID"
             static let ID = "liveActivityID"
+            static let START = "start"
             /// Represents whether the Live Activity was started remotely or locally.
             static let ORIGIN = "origin"
             static let PUSH_NOTIFICATION_DETAILS = "liveActivityPushNotificationDetails"
+            /// Event name for the Live Activity operation (e.g., "start")
+            static let EVENT = "event"
 
             enum EventType {
                 static let PUSH_TO_START = "liveActivity.pushToStart"
