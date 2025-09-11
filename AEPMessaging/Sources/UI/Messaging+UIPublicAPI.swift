@@ -70,12 +70,14 @@ public extension Messaging {
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the container UI.
     ///   - customizer: An optional ContentCardCustomizing object to customize the appearance of content cards.
+    ///   - containerCustomizer: An optional ContainerCustomizing object to customize the appearance of container templates.
     ///   - listener: An optional ContainerSettingsEventListening object to listen to container events.
     ///   - completion: A completion handler that is called with a `Result` type containing either:
     ///     - success(ContainerSettingsUI): A `ContainerSettingsUI` object if the operation is successful.
     ///     - failure(ContainerSettingsUIError): A specific error indicating the failure reason
     static func getContentCardContainerUI(for surface: Surface,
                                          customizer: ContentCardCustomizing? = nil,
+                                         containerCustomizer: ContainerCustomizing? = nil,
                                          listener: ContainerSettingsEventListening? = nil,
                                          _ completion: @escaping (Result<ContainerSettingsUI, Error>) -> Void) {
         
@@ -116,6 +118,7 @@ public extension Messaging {
                 surface: surface,
                 containerSettings: containerSettings,
                 customizer: customizer,
+                containerCustomizer: containerCustomizer,
                 listener: listener
             )
             
