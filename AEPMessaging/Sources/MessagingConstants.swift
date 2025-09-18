@@ -228,6 +228,7 @@ enum MessagingConstants {
             static let CHANNEL = "channel"
             static let _ID = "_id"
             static let PUSH_CHANNEL_ID = "https://ns.adobe.com/xdm/channels/push"
+            static let LIVE_ACTIVITY_CHANNEL_ID = "https://ns.adobe.com/xdm/channels/liveactivity"
             static let PUSH_CHANNEL_CONTEXT = "pushChannelContext"
             static let PLATFORM = "platform"
             static let APNS = "apns"
@@ -326,7 +327,7 @@ enum MessagingConstants {
             static let ATTRIBUTE_TYPE = "liveActivityAttributeType"
             static let CHANNEL_ID = "channelID"
             static let ID = "liveActivityID"
-            static let START = "start"
+            static let START = "localstart"
             /// Represents whether the Live Activity was started remotely or locally.
             static let ORIGIN = "origin"
             static let PUSH_NOTIFICATION_DETAILS = "liveActivityPushNotificationDetails"

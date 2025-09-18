@@ -246,7 +246,8 @@ extension Messaging {
             return
         }
 
-        let xdm = buildLiveActivityStartXdm(channelID: channelID, liveActivityID: liveActivityID)
+        let platform = getPushPlatform(forEvent: event)
+        let xdm = buildLiveActivityStartXdm(channelID: channelID, liveActivityID: liveActivityID, platform: platform)
 
         // Creating XDM Edge event data
         let xdmEventData: [String: Any] = [
@@ -341,7 +342,7 @@ extension Messaging {
     ///   - channelID: Optional broadcast channel identifier for the Live Activity
     ///   - liveActivityID: Live Activity identifier
     /// - Returns: A dictionary representing the `xdm` object
-    private func buildLiveActivityStartXdm(channelID: String?, liveActivityID: String?) -> [String: Any] {
+    private func buildLiveActivityStartXdm(channelID: String?, liveActivityID: String?, platform: String) -> [String: Any] {
         var liveActivityNode: [String: Any] = [
             MessagingConstants.XDM.LiveActivity.EVENT: MessagingConstants.XDM.LiveActivity.START,
             MessagingConstants.XDM.LiveActivity.ID: liveActivityID as Any
@@ -352,13 +353,14 @@ extension Messaging {
         }
 
         let pushChannelContext: [String: Any] = [
-            MessagingConstants.XDM.Key.LIVE_ACTIVITY: liveActivityNode
+            MessagingConstants.XDM.Key.LIVE_ACTIVITY: liveActivityNode,
+            MessagingConstants.XDM.AdobeKeys.PLATFORM: platform
         ]
 
         let cjm: [String: Any] = [
             MessagingConstants.XDM.AdobeKeys.MESSAGE_PROFILE: [
                 MessagingConstants.XDM.AdobeKeys.CHANNEL: [
-                    MessagingConstants.XDM.AdobeKeys._ID: MessagingConstants.XDM.AdobeKeys.PUSH_CHANNEL_ID
+                    MessagingConstants.XDM.AdobeKeys._ID: MessagingConstants.XDM.AdobeKeys.LIVE_ACTIVITY_CHANNEL_ID
                 ]
             ],
             MessagingConstants.XDM.AdobeKeys.PUSH_CHANNEL_CONTEXT: pushChannelContext
