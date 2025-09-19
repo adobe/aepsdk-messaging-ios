@@ -239,18 +239,23 @@ extension Messaging {
             return
         }
 
-        let liveActivityData: [String: Any?] = [
-            MessagingConstants.XDM.LiveActivity.ID: liveActivityID,
-            MessagingConstants.XDM.LiveActivity.CHANNEL_ID: channelID,
-            MessagingConstants.XDM.Push.APP_ID: appId,
-            MessagingConstants.XDM.LiveActivity.ORIGIN: origin
-        ].compactMapValues { $0 }
+        // Retrieve dataset ID from Configuration shared state
+        guard let datasetId = getDatasetId(forEvent: event) else {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Failed to handle Live Activity start: Experience event dataset ID from the config is invalid or not available. '(\(event.id.uuidString))'")
+            return
+        }
+
+        let platform = getPushPlatform(forEvent: event)
+        let xdm = buildLiveActivityStartXdm(channelID: channelID, liveActivityID: liveActivityID, platform: platform)
 
         // Creating XDM Edge event data
         let xdmEventData: [String: Any] = [
-            MessagingConstants.XDM.Key.XDM: [
-                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.START,
-                MessagingConstants.XDM.Key.LIVE_ACTIVITY: liveActivityData
+            MessagingConstants.XDM.Key.XDM: xdm,
+            MessagingConstants.XDM.Key.META: [
+                MessagingConstants.XDM.Key.COLLECT: [
+                    MessagingConstants.XDM.Key.DATASET_ID: datasetId
+                ]
             ]
         ]
 
@@ -329,6 +334,46 @@ extension Messaging {
                             "\(MessagingConstants.XDM.AdobeKeys.EXPERIENCE) is missing in the event '\(event.id.uuidString)'.")
         }
         return xdmDictResult
+    }
+
+    /// Builds the XDM payload for a Live Activity start event using the AJO Push Tracking Experience Event Schema.
+    ///
+    /// - Parameters:
+    ///   - channelID: Optional broadcast channel identifier for the Live Activity
+    ///   - liveActivityID: Live Activity identifier
+    /// - Returns: A dictionary representing the `xdm` object
+    private func buildLiveActivityStartXdm(channelID: String?, liveActivityID: String?, platform: String) -> [String: Any] {
+        var liveActivityNode: [String: Any] = [
+            MessagingConstants.XDM.LiveActivity.EVENT: MessagingConstants.XDM.LiveActivity.START,
+            MessagingConstants.XDM.LiveActivity.ID: liveActivityID as Any
+        ].compactMapValues { $0 }
+        
+        if let channelID {
+            liveActivityNode[MessagingConstants.XDM.LiveActivity.CHANNEL_ID] = channelID
+        }
+
+        let pushChannelContext: [String: Any] = [
+            MessagingConstants.XDM.Key.LIVE_ACTIVITY: liveActivityNode,
+            MessagingConstants.XDM.AdobeKeys.PLATFORM: platform
+        ]
+
+        let cjm: [String: Any] = [
+            MessagingConstants.XDM.AdobeKeys.MESSAGE_PROFILE: [
+                MessagingConstants.XDM.AdobeKeys.CHANNEL: [
+                    MessagingConstants.XDM.AdobeKeys._ID: MessagingConstants.XDM.AdobeKeys.LIVE_ACTIVITY_CHANNEL_ID
+                ]
+            ],
+            MessagingConstants.XDM.AdobeKeys.PUSH_CHANNEL_CONTEXT: pushChannelContext
+        ]
+
+        let experience: [String: Any] = [
+            MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT: cjm
+        ]
+
+        return [
+            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.START,
+            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: experience
+        ]
     }
 
     /// Adding application data based on the application opened or not

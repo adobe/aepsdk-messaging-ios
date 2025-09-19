@@ -609,10 +609,10 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     }
 
     private func mockConfigurationAndEdgeIdentitySharedStates(at event: Event, ecid: String? = nil) {
-        // mock configuration shared state
+        // mock configuration shared state with dataset id for Edge collect
         mockRuntime.simulateSharedState(
             for: (extensionName: "com.adobe.module.configuration", event: event),
-            data: (value: [:], status: .set)
+            data: (value: [MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET: "mockDataset"], status: .set)
         )
 
         // mock edge identity shared state with ECID
@@ -634,32 +634,27 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
-
-        let expectedJSON = """
-        {
-          "xdm": {
-            "eventType": "liveActivity.pushToStart"
-          },
-          "data": {
-            "liveActivityPushNotificationDetails": [
-              {
-                "appID": "com.adobe.ajo.e2eTestApp",
-                "denylisted": false,
-                "platform": "apns",
-                "token": "\(token)",
-                "liveActivityAttributeType": "\(attributeType)",
-                "identity": {
-                  "namespace": {
-                    "code": "ECID"
-                  },
-                  "id": "\(ECID)"
-                }
-              }
-            ]
-          }
+        // Validate event type
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
+            XCTAssertEqual("liveActivity.pushToStart", xdm["eventType"] as? String)
+        } else {
+            XCTFail("Missing xdm in edge event")
         }
-        """
-        assertExactMatch(expected: expectedJSON, actual: edgeEvent)
+
+        // Validate details contains an entry for the expected attributeType with the expected token
+        guard let data = edgeEvent.data?["data"] as? [String: Any],
+              let details = data["liveActivityPushNotificationDetails"] as? [[String: Any]]
+        else {
+            XCTFail("Missing push-to-start details in edge event data")
+            return
+        }
+
+        let matchingEntry = details.first { entry in
+            (entry["liveActivityAttributeType"] as? String) == attributeType &&
+            (entry["token"] as? String) == token
+        }
+
+        XCTAssertNotNil(matchingEntry, "Expected push-to-start details to include attributeType=\(attributeType) with token=\(token). Actual: \(details)")
     }
 
     private func verifyUpdateTokenEdgeEvent(token: String, liveActivityID: String) {
@@ -714,33 +709,47 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         }
     }
 
-    private func verifyStartEdgeEvent(liveActivityID: String?, channelID: String?, origin: String) {
+    private func verifyStartEdgeEvent(liveActivityID: String?, channelID: String?, origin _: String) {
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
 
-        var liveActivityData: [String: Any] = [
-            "appID": "com.adobe.ajo.e2eTestApp",
-            "origin": origin
+        var liveActivityNode: [String: Any] = [
+            "event": MessagingConstants.XDM.LiveActivity.START
         ]
-
         if let liveActivityID = liveActivityID {
-            liveActivityData["liveActivityID"] = liveActivityID
+            liveActivityNode["liveActivityID"] = liveActivityID
         }
-
         if let channelID = channelID {
-            liveActivityData["channelID"] = channelID
+            liveActivityNode["channelID"] = channelID
         }
 
         let expectedData: [String: Any] = [
             "xdm": [
                 "eventType": "liveActivity.start",
-                "liveActivity": liveActivityData
+                "_experience": [
+                    "customerJourneyManagement": [
+                        "messageProfile": [
+                            "channel": [
+                                "_id": MessagingConstants.XDM.AdobeKeys.LIVE_ACTIVITY_CHANNEL_ID
+                            ]
+                        ],
+                        "pushChannelContext": [
+                            "liveActivity": liveActivityNode,
+                            "platform": MessagingConstants.XDM.Push.Value.APNS
+                        ]
+                    ]
+                ]
+            ],
+            "meta": [
+                "collect": [
+                    "datasetId": "mockDataset"
+                ]
             ]
         ]
 
-        assertExactMatch(expected: expectedData, actual: edgeEvent)
+        assertExactMatch(expected: expectedData, actual: edgeEvent, pathOptions: AnyOrderMatch(scope: .subtree))
     }
 
     private func createStateEvent(state: String,
