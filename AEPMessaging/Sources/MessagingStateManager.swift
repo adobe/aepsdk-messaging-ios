@@ -36,7 +36,7 @@ class MessagingStateManager {
             ServiceProvider.shared.namedKeyValueService.set(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER, value: _pushIdentifier)
         }
     }
-    
+
     let channelActivityStore = ChannelActivityStore()
     let updateTokenStore = UpdateTokenStore()
     let pushToStartTokenStore = PushToStartTokenStore()

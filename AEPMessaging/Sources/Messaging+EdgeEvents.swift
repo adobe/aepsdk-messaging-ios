@@ -347,7 +347,7 @@ extension Messaging {
             MessagingConstants.XDM.LiveActivity.EVENT: MessagingConstants.XDM.LiveActivity.START,
             MessagingConstants.XDM.LiveActivity.ID: liveActivityID as Any
         ].compactMapValues { $0 }
-        
+
         if let channelID {
             liveActivityNode[MessagingConstants.XDM.LiveActivity.CHANNEL_ID] = channelID
         }

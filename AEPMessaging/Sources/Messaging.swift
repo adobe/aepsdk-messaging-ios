@@ -143,8 +143,6 @@ public class Messaging: NSObject, Extension {
         loadCachedPropositions()
     }
 
-    
-
     public func onRegistered() {
         // register listener for set push identifier event
         registerListener(type: EventType.genericIdentity,
@@ -434,17 +432,6 @@ public class Messaging: NSObject, Extension {
                   !ecid.isEmpty
             else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
-
-
-
-
-
-
-
-
-
-
-
                 return
             }
 
