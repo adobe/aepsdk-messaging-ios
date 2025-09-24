@@ -107,6 +107,8 @@ public class Messaging: NSObject, Extension {
         set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
     }
 
+    /// Messaging properties
+    private var stateManager = MessagingStateManager()
     /// Messaging properties to hold the persisted push identifier
     private var messagingProperties: MessagingProperties = .init()
 
@@ -194,6 +196,7 @@ public class Messaging: NSObject, Extension {
             return true
         }
         eventsQueue.start()
+        runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: nil)
     }
 
     public func onUnregistered() {
@@ -264,7 +267,13 @@ public class Messaging: NSObject, Extension {
         // handle an event to track propositions
         if event.isTrackPropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to track propositions.")
-            trackMessages(event)
+
+            guard let propositionInteractionXdm = event.propositionInteractionXdm else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Cannot track proposition item, proposition interaction XDM is not available.")
+                return
+            }
+
+            sendPropositionInteraction(withXdm: propositionInteractionXdm)
             return
         }
 
@@ -275,13 +284,131 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // hard dependency on edge identity module for ecid
-        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event)?.value else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, for valid xdm shared state from edge identity - '\(event.id.uuidString)'.")
+        if event.isLiveActivityUpdateTokenEvent {
+            guard let token = event.liveActivityUpdateToken, !token.isEmpty else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid token could not be found in the event.")
+                return
+            }
+            guard let liveActivityID = event.liveActivityID, !liveActivityID.isEmpty else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid Live Activity ID could not be found in the event.")
+                return
+            }
+
+            // If the Live Activity ID, attribute type, and update token are valid, update the shared state.
+            if let attributeType = event.liveActivityAttributeType {
+                let updateToken = LiveActivity.UpdateToken(attributeType: attributeType, firstIssued: event.timestamp, token: token)
+                stateManager.updateTokenStore.set(updateToken, id: liveActivityID)
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+            } else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to create a shared state for Live Activity update event (\(event.id.uuidString)) because a valid Live Activity attribute type could not be found in the event.")
+            }
+
+            sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
             return
         }
 
-        if event.isGenericIdentityRequestContentEvent {
+        if event.isLiveActivityStartEvent {
+            guard let origin = event.liveActivityOrigin else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity start event (\(event.id.uuidString)) because a valid 'origin' could not be found in the event.")
+                return
+            }
+
+            if let channelID = event.liveActivityChannelID,
+               !channelID.isEmpty,
+               let attributeType = event.liveActivityAttributeType {
+                stateManager.channelActivityStore.set(.init(attributeType: attributeType, startedAt: event.timestamp), id: channelID)
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+            }
+
+            sendLiveActivityStart(channelID: event.liveActivityChannelID, liveActivityID: event.liveActivityID, origin: origin, event: event)
+            return
+        }
+
+        // Handles removal of Live Activity update tokens when the activity reaches an ended or dismissed state
+        if event.isLiveActivityStateEvent {
+            guard let activityState = event.liveActivityState else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity state event (\(event.id.uuidString)) because a valid 'state' could not be found in the event.")
+                return
+            }
+            guard let attributeType = event.liveActivityAttributeType else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity state event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
+                return
+            }
+            guard activityState == MessagingConstants.LiveActivity.States.ENDED
+                || activityState == MessagingConstants.LiveActivity.States.DISMISSED else {
+                Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity state event (\(event.id.uuidString)) is not 'ended' or 'dismissed'. Skipping.")
+                return
+            }
+
+            // At this point the Live Activity has reached a terminal state (.ended or .dismissed)
+            // Clean up entry in respective store, depending on which ID type is present
+            if let liveActivityID = event.liveActivityID {
+                stateManager.updateTokenStore.remove(id: liveActivityID)
+            } else if let channelID = event.liveActivityChannelID {
+                stateManager.channelActivityStore.remove(id: channelID)
+            } else {
+                // If neither are present, exit without publishing a new shared state
+                return
+            }
+
+            runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+        }
+
+        handleEdgeIdentityDependentEvents(event)
+    }
+
+    func handleEdgeIdentityDependentEvents(_ event: Event) {
+        // MARK: Hard dependency on Edge Identity module for all logic below
+
+        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event)?.value else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Event (\(event.id.uuidString)) processing is paused. Waiting for valid XDM shared state from Edge Identity.")
+            return
+        }
+
+        // handle live activity push-to-start token event
+        if event.isLiveActivityPushToStartTokenEvent {
+            guard let token = event.liveActivityPushToStartToken, !token.isEmpty else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event or token is empty.")
+                return
+            }
+            guard let attributeType = event.liveActivityAttributeType, !attributeType.isEmpty else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event or was empty.")
+                return
+            }
+
+            // Update the push to start token store and update the Messaging shared state.
+            let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
+            let didChange = stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
+            if !didChange {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping publishing push-to-start token because unchanged: \(pushToStartToken)")
+                return
+            }
+            runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+
+            // Get all current push to start tokens to send to profile
+            let tokenMap = stateManager.pushToStartTokenStore.all()
+
+            // Don't block shared state from being published because of ECID; check after
+            guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
+                return
+            }
+            sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
+        }
+
+        // handle push interaction event
+        if event.isPushInteractionEvent {
+            if let clickThroughUrl = event.pushClickThroughUrl {
+                DispatchQueue.main.async {
+                    ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
+                }
+            }
+            sendPushInteraction(event: event)
+            return
+        }
+
+        // handle push token event
+        if event.isPushTokenEvent {
             guard let token = event.token, !token.isEmpty else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
                 return
@@ -307,23 +434,47 @@ public class Messaging: NSObject, Extension {
                   !ecid.isEmpty
             else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
+
+
+
+
+
+
+
+
+
+
+
                 return
             }
 
             sendPushToken(ecid: ecid, token: token, event: event)
         }
+    }
 
-        // Check if the event type is `MessagingConstants.Event.EventType.messaging` and
-        // eventSource is `EventSource.requestContent` handle processing of the tracking information
-        if event.isMessagingRequestContentEvent {
-            if let clickThroughUrl = event.pushClickThroughUrl {
-                DispatchQueue.main.async {
-                    ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
-                }
-            }
-            handleTrackingInfo(event: event)
-            return
+    // MARK: - Private helper methods
+
+    /// Retrieves the ECID from the Edge Identity shared state.
+    /// - Parameters:
+    ///   - edgeIdentitySharedState: The shared state dictionary from the Edge Identity module.
+    /// - Returns: The ECID string if available; otherwise, nil.
+    private func retrieveECID(from edgeIdentitySharedState: [AnyHashable: Any]) -> String? {
+        // Retrieve the identity map from the shared state.
+        guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve ECID. Identity map not found in Edge Identity shared state.")
+            return nil
         }
+
+        // Retrieve the ECID array from the identity map.
+        guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
+              !ecidArray.isEmpty,
+              let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
+              !ecid.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve ECID: ECID not found or invalid in identity map.")
+            return nil
+        }
+
+        return ecid
     }
 
     /// Creates a shared state for the messaging extension with the provided push token.
