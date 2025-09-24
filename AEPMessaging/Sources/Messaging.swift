@@ -107,10 +107,8 @@ public class Messaging: NSObject, Extension {
         set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
     }
 
-    /// Messaging properties
+    /// Messaging state manager (push identifier + live activity state)
     private var stateManager = MessagingStateManager()
-    /// Messaging properties to hold the persisted push identifier
-    private var messagingProperties: MessagingProperties = .init()
 
     /// the timestamp of the last push token sync
     private var lastPushTokenSyncTimestamp: Date?
@@ -134,16 +132,18 @@ public class Messaging: NSObject, Extension {
     }
 
     /// INTERNAL ONLY
-    /// used for testing
-    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, contentCardRulesEngine: ContentCardRulesEngine, expectedSurfaceUri _: String, cache: Cache, messagingProperties: MessagingProperties) {
+    /// used for testing - preferred initializer allowing injection of `MessagingStateManager`
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, contentCardRulesEngine: ContentCardRulesEngine, expectedSurfaceUri _: String, cache: Cache, stateManager: MessagingStateManager) {
         self.runtime = runtime
         self.rulesEngine = rulesEngine
         self.contentCardRulesEngine = contentCardRulesEngine
         self.cache = cache
-        self.messagingProperties = messagingProperties
+        self.stateManager = stateManager
         super.init()
         loadCachedPropositions()
     }
+
+    
 
     public func onRegistered() {
         // register listener for set push identifier event
@@ -482,9 +482,14 @@ public class Messaging: NSObject, Extension {
     ///   - token: the push identifier to be set in the shared state
     ///   - event: the `Event` that triggered the creation of the shared state
     private func createMessagingSharedState(token: String?, event: Event) {
-        let state: [String: Any] = token?.isEmpty == false ?
-            [MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER: token!] :
-            [:]
+        var state = stateManager.buildMessagingSharedState()
+
+        // Overlay push identifier change driven by this call
+        if let token = token, !token.isEmpty {
+            state[MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] = token
+        } else {
+            state.removeValue(forKey: MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER)
+        }
 
         runtime.createSharedState(data: state, event: event)
     }
@@ -496,7 +501,7 @@ public class Messaging: NSObject, Extension {
         // remove the push token from the shared state
         createMessagingSharedState(token: nil, event: event)
         // clear the push identifier from persistence
-        messagingProperties.pushIdentifier = nil
+        stateManager.pushIdentifier = nil
     }
 
     /// Checks if the push identifier can be synced
@@ -508,7 +513,7 @@ public class Messaging: NSObject, Extension {
         // if the value is not present, it will default to true.
         let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
         let optimizePushSync = configSharedState?.value?[MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC] as? Bool ?? true
-        let existingPushToken = messagingProperties.pushIdentifier
+        let existingPushToken = stateManager.pushIdentifier
         let pushTokensMatch = existingPushToken == event.token
         var shouldSync: Bool
 
@@ -528,7 +533,7 @@ public class Messaging: NSObject, Extension {
 
         if shouldSync {
             // persist the push token in the messaging named collection
-            messagingProperties.pushIdentifier = event.token
+            stateManager.pushIdentifier = event.token
 
             // store the event timestamp of the last push token sync in-memory
             lastPushTokenSyncTimestamp = event.timestamp

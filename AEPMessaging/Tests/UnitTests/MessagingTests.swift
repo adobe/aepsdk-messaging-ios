@@ -29,7 +29,7 @@ class MessagingTests: XCTestCase {
     var mockCache: MockCache!
     let mockSurface = Surface(path: "promos/feed1")
     var mockProposition: MockProposition!
-    var messagingProperties: MessagingProperties!
+    var stateManager: MessagingStateManager!
 
 
     // Mock constants
@@ -54,9 +54,9 @@ class MessagingTests: XCTestCase {
                                           scopeDetails: [
                                             "activity": [ "id": MOCK_ACTIVITY_ID ]],
                                           items: [])
-        messagingProperties = MessagingProperties()
+        stateManager = MessagingStateManager()
 
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, stateManager: stateManager)
         messaging.onRegistered()
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
         mockNetworkService = MockNetworkService()
@@ -67,7 +67,7 @@ class MessagingTests: XCTestCase {
     
     override func tearDown() {
         MobileCore.messagingDelegate = nil
-        messagingProperties.pushIdentifier = nil
+        stateManager.pushIdentifier = nil
     }
     
     /// validate the extension is registered without any error
@@ -1043,8 +1043,8 @@ class MessagingTests: XCTestCase {
     
     func testPushTokenSync_whenTokenMatches_OptimizePushSyncIsTrue() {
         // setup
-        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, stateManager: stateManager)
         messaging.onRegistered()
         let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String : Any]
 
@@ -1061,8 +1061,8 @@ class MessagingTests: XCTestCase {
     
     func testPushTokenSync_whenTokenMatches_OptimizePushSyncIsFalse() {
         // setup
-        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, stateManager: stateManager)
         messaging.onRegistered()
         let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false] as [String : Any]
 
@@ -1084,8 +1084,8 @@ class MessagingTests: XCTestCase {
     func testPushTokenSync_whenNewTokenIsDifferent() {
         // setup
         let NEW_PUSH_TOKEN = "different push token"
-        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, stateManager: stateManager)
         messaging.onRegistered()
         let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String : Any]
 
@@ -1197,7 +1197,7 @@ class MessagingTests: XCTestCase {
         // setup
         let messagingState = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN] as [String : Any]
         mockRuntime.simulateSharedState(for: MessagingConstants.EXTENSION_NAME, data: (value: messagingState, status: SharedStateStatus.set))
-        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
 
         let event = Event(name: "Reset Identities",
                          type: EventType.genericIdentity,
@@ -1208,7 +1208,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertNil(messagingProperties.pushIdentifier)
+        XCTAssertNil(stateManager.pushIdentifier)
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
         let sharedState = mockRuntime.createdSharedStates.last
         XCTAssertNotNil(sharedState as Any?)

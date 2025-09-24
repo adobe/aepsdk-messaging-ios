@@ -13,6 +13,30 @@
 import AEPServices
 
 class MessagingStateManager {
+    private var _pushIdentifier: String?
+
+    public var pushIdentifier: String? {
+        get {
+            /// Check if we have a push identifier set. if not, retrieve it from the named key-value service
+            if _pushIdentifier == nil {
+                _pushIdentifier = ServiceProvider.shared.namedKeyValueService.get(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER) as? String
+            }
+            return _pushIdentifier
+        }
+
+        set {
+            /// Remove the existing push identifier value from the named key-value service if the new value is nil or empty
+            guard let newValue = newValue, !newValue.isEmpty else {
+                _pushIdentifier = nil
+                ServiceProvider.shared.namedKeyValueService.remove(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER)
+                return
+            }
+            /// Otherwsie save valid values to the named key-value service
+            _pushIdentifier = newValue
+            ServiceProvider.shared.namedKeyValueService.set(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER, value: _pushIdentifier)
+        }
+    }
+    
     let channelActivityStore = ChannelActivityStore()
     let updateTokenStore = UpdateTokenStore()
     let pushToStartTokenStore = PushToStartTokenStore()
@@ -50,6 +74,11 @@ class MessagingStateManager {
         // Only add "liveActivity" if any subkeys exist
         if !liveActivity.isEmpty {
             sharedStateData[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] = liveActivity
+        }
+
+        // Push identifier
+        if let pushId = pushIdentifier, !pushId.isEmpty {
+            sharedStateData[MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] = pushId
         }
 
         return sharedStateData

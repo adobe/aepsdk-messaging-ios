@@ -20,12 +20,12 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
     var messaging: Messaging!
     var mockRuntime: TestableExtensionRuntime!
     var mockConfigSharedState: [String: Any] = [:]
-    var messagingProperties: MessagingProperties!
+    var stateManager: MessagingStateManager!
 
     override func setUp() {
         // clear the push identifier from persistence prior to each test
-        messagingProperties = MessagingProperties()
-        messagingProperties.pushIdentifier = nil
+        stateManager = MessagingStateManager()
+        stateManager.pushIdentifier = nil
         mockRuntime = TestableExtensionRuntime()
         mockRuntime.ignoreEvent(type: EventType.rulesEngine, source: EventSource.requestReset)
         messaging = Messaging(runtime: mockRuntime)
