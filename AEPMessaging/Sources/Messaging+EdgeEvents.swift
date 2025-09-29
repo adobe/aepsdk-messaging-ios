@@ -158,7 +158,7 @@ extension Messaging {
                 MessagingConstants.XDM.Push.TOKEN: pushToStartToken.token,
 
                 // Live Activity attribute type
-                MessagingConstants.XDM.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
 
                 // Identity
                 MessagingConstants.XDM.Push.IDENTITY: [
