@@ -26,7 +26,7 @@ public struct LiveActivityData: Codable {
     public let liveActivityID: String?
 
     /// Defines whether the Live Activity was started locally by the app or remotely via a push-to-start notification.
-    public let origin: LiveActivityOrigin
+    public var origin: LiveActivityOrigin?
 
     /// Initializes a `LiveActivityData` instance with the specified broadcast channel ID.
     /// Use this initializer for Live Activities broadcast to subscribers of a channel.
