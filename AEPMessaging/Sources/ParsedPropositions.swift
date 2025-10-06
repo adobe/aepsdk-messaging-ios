@@ -15,6 +15,8 @@ import AEPServices
 import Foundation
 
 struct ParsedPropositions {
+    let LOG_TAG = "ParsedPropositions"
+    
     weak var runtime: ExtensionRuntime?
 
     // store tracking information for propositions loaded into rules engines
@@ -75,7 +77,7 @@ struct ParsedPropositions {
                         //
                         // this is important because we need a reliable key to store and retrieve `PropositionInfo` for reporting
                         switch schemaConsequence.schema {
-                        case .inapp, .defaultContent:
+                        case .inapp:
                             propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
                             propositionsToPersist.add(proposition, forKey: surface)
                             mergeRules(parsedRule, for: surface, with: .inapp)
@@ -86,6 +88,10 @@ struct ParsedPropositions {
                             // Event history operations don't have proposition info that needs to be cached unlike the cards they are tied to
                             // The rules just need to be loaded into the processing rules engine
                             mergeRules(parsedRule, for: surface, with: .eventHistoryOperation)
+                        case .defaultContent:
+                            // in a future release, determine whether this holdout is replacing IAM or CC, handle accordingly
+                            // for now, do nothing
+                            Log.debug(label: LOG_TAG, "Ignoring holdout treatment for activity '\(proposition.activityId)'")
                         default:
                             continue
                         }
