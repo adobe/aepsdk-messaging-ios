@@ -1,24 +1,24 @@
 PODS:
-  - AEPAssurance (5.0.1):
+  - AEPAssurance (5.0.2):
     - AEPCore (< 6.0.0, >= 5.0.0)
     - AEPServices (< 6.0.0, >= 5.0.0)
-  - AEPCore (5.6.0):
+  - AEPCore (5.7.0):
     - AEPRulesEngine (< 6.0.0, >= 5.0.0)
-    - AEPServices (< 6.0.0, >= 5.6.0)
+    - AEPServices (< 6.0.0, >= 5.7.0)
   - AEPEdge (5.0.3):
     - AEPCore (< 6.0.0, >= 5.3.1)
     - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
-  - AEPEdgeConsent (5.0.0):
+  - AEPEdgeConsent (5.0.1):
     - AEPCore (< 6.0.0, >= 5.0.0)
     - AEPEdge (< 6.0.0, >= 5.0.0)
   - AEPEdgeIdentity (5.0.0):
     - AEPCore (< 6.0.0, >= 5.0.0)
-  - AEPLifecycle (5.6.0):
-    - AEPCore (< 6.0.0, >= 5.6.0)
+  - AEPLifecycle (5.7.0):
+    - AEPCore (< 6.0.0, >= 5.7.0)
   - AEPRulesEngine (5.0.0)
-  - AEPServices (5.6.0)
-  - AEPSignal (5.6.0):
-    - AEPCore (< 6.0.0, >= 5.6.0)
+  - AEPServices (5.7.0)
+  - AEPSignal (5.7.0):
+    - AEPCore (< 6.0.0, >= 5.7.0)
   - AEPTestUtils (5.6.0):
     - AEPCore (< 6.0.0, >= 5.6.0)
     - AEPServices (< 6.0.0, >= 5.6.0)
@@ -61,15 +61,15 @@ CHECKOUT OPTIONS:
     :tag: testutils-5.6.0
 
 SPEC CHECKSUMS:
-  AEPAssurance: df04baeace42befb0cc213fd6cdfe51651d11ba6
-  AEPCore: 404a4c600f5a885031a7e9b1e646ea9405d94b24
+  AEPAssurance: fedcd7ed72b431b5f310eb3a52921345c34c1051
+  AEPCore: d1b0905c5a9531a883d9e8c31212ff61ca900be0
   AEPEdge: 105afc7958acd7c016d57f7ac1d6f632bf05e6ee
-  AEPEdgeConsent: d7db1d19eb4c1e2146360ed3c8df315f671b26d5
+  AEPEdgeConsent: 5f28a8ed6cd86812a73b1f5a4dbde9c81e486bf1
   AEPEdgeIdentity: 3161ff33434586962946912d6b8e9e8fca1c4d23
-  AEPLifecycle: 75e6a1870259c9b50b26f1ae6f6bbe6f25fe2907
+  AEPLifecycle: da35d7393f0d635472719d292b9e4142123cb13c
   AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
-  AEPServices: cbdac48662ef2f1001d05d47b5930a397a8beaab
-  AEPSignal: fc0bcf6f228a35568af06a715326209d8d0857f1
+  AEPServices: e1f14e286a8680cecbe0bcdf6ea47f46573635c4
+  AEPSignal: 6e10c4d1dca8fb1ed8601cb4224ebd30fc241a59
   AEPTestUtils: 2bbed995c8974f6f6d92058db88d6cd2e4a7f869
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 

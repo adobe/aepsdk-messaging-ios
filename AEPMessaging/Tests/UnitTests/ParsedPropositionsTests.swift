@@ -174,8 +174,24 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
     
-    func testInitWithDefaultContentProposition() throws {
+    func testInitWithDefaultContentConsequence() throws {
+        // setup
+        let defaultContentRule = JSONFileLoader.getRulesJsonFromFile("ruleWithDefaultContentConsequence")
+        let pi = PropositionItem(itemId: "inapp2", schema: .ruleset, itemData: defaultContentRule)
+        let prop = Proposition(uniqueId: "inapp2", scope: "inapp2", scopeDetails: ["key": "value"], items: [pi])
+        let propositions: [Surface: [Proposition]] = [
+            mockInAppSurfacev2: [prop]
+        ]
         
+        // test
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInAppSurfacev2], runtime: mockRuntime)
+        
+        // verify
+        XCTAssertNotNil(result)
+        XCTAssertEqual(0, result.propositionInfoToCache.count, "default-content-item schema should be ignored")
+        XCTAssertEqual(0, result.propositionsToCache.count, "default-content-item schema should be ignored")
+        XCTAssertEqual(0, result.propositionsToPersist.count, "default-content-item schema should be ignored")
+        XCTAssertEqual(0, result.surfaceRulesBySchemaType.count, "default-content-item schema should be ignored")
     }
     
     func testInitPropositionItemEmptyContentString() throws {

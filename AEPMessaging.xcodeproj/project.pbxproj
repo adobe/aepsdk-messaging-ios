@@ -193,6 +193,7 @@
 		24CA4BDD2B61972500D16369 /* PropositionItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BDC2B61972500D16369 /* PropositionItemTests.swift */; };
 		24CA4BDF2B61974300D16369 /* PropositionInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BDE2B61974300D16369 /* PropositionInteractionTests.swift */; };
 		24CA4BE12B61977800D16369 /* SurfaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CA4BE02B61977800D16369 /* SurfaceTests.swift */; };
+		24DE13ED2E9074F300D916DC /* ruleWithDefaultContentConsequence.json in Resources */ = {isa = PBXBuildFile; fileRef = 24DE13EC2E9074E700D916DC /* ruleWithDefaultContentConsequence.json */; };
 		24FD5F752CEEA50F00AE4567 /* CompletionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */; };
 		2B2B7A6E0F7CD6312D28421A /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */; };
 		44DFBD558578CFDCD4A9A476 /* Pods_E2EFunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A44BD44CB3A7DA5EBB972652 /* Pods_E2EFunctionalTestApp.framework */; };
@@ -671,6 +672,7 @@
 		24CA4BDC2B61972500D16369 /* PropositionItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionItemTests.swift; sourceTree = "<group>"; };
 		24CA4BDE2B61974300D16369 /* PropositionInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropositionInteractionTests.swift; sourceTree = "<group>"; };
 		24CA4BE02B61977800D16369 /* SurfaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfaceTests.swift; sourceTree = "<group>"; };
+		24DE13EC2E9074E700D916DC /* ruleWithDefaultContentConsequence.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ruleWithDefaultContentConsequence.json; sourceTree = "<group>"; };
 		24EE301D28FF61F0005E417C /* InAppMessagingEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingEventTests.swift; sourceTree = "<group>"; };
 		24FD5F742CEEA50400AE4567 /* CompletionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionHandler.swift; sourceTree = "<group>"; };
 		28E46BC7A8F3939CF2DDDC8F /* Pods_MessagingDemoAppObjC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessagingDemoAppObjC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1043,6 +1045,7 @@
 				243EC1EC2CD0387100BD546E /* inAppMessagePriority20.json */,
 				243EC1ED2CD0387100BD546E /* inAppMessagePriority60.json */,
 				243EC1EA2CD036A200BD546E /* inAppMessagePriority100.json */,
+				24DE13EC2E9074E700D916DC /* ruleWithDefaultContentConsequence.json */,
 				4CB003F62E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json */,
 				242920D32ABCA559000DB2CD /* ruleWithNoConsequence.json */,
 				242920D52ABCD8A6000DB2CD /* ruleWithUnknownConsequenceSchema.json */,
@@ -2075,6 +2078,7 @@
 			files = (
 				4CB003F72E30BEEA002152B0 /* ruleWithInvalidConsequenceDetail.json in Resources */,
 				B6F7CC202CC2EFE400C35C64 /* SmallImageTemplate_onlyTitle.json in Resources */,
+				24DE13ED2E9074F300D916DC /* ruleWithDefaultContentConsequence.json in Resources */,
 				754F49EB2E007FD4002601E9 /* LargeImageTemplate.json in Resources */,
 				B6F7CC252CC2EFE400C35C64 /* SmallImageTemplate_noTitle.json in Resources */,
 				B6F7CC262CC2EFE400C35C64 /* SmallImageTemplate.json in Resources */,
@@ -3459,7 +3463,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.8.0;
+				MARKETING_VERSION = 5.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -3494,7 +3498,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.8.0;
+				MARKETING_VERSION = 5.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
