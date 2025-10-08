@@ -86,7 +86,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                 "denylisted": false,
                 "platform": "apns",
                 "token": "\(token1)",
-                "liveActivityAttributeType": "\(attributeType1)",
+                "attributeType": "\(attributeType1)",
                 "identity": {
                   "namespace": {
                     "code": "ECID"
@@ -99,7 +99,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
                 "denylisted": false,
                 "platform": "apns",
                 "token": "\(token2)",
-                "liveActivityAttributeType": "\(attributeType2)",
+                "attributeType": "\(attributeType2)",
                 "identity": {
                   "namespace": {
                     "code": "ECID"
@@ -650,7 +650,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         }
 
         let matchingEntry = details.first { entry in
-            (entry["liveActivityAttributeType"] as? String) == attributeType &&
+            (entry["attributeType"] as? String) == attributeType &&
             (entry["token"] as? String) == token
         }
 
