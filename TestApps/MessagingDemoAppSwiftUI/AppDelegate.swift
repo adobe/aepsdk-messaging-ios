@@ -31,7 +31,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             Edge.self,
 //            Consent.self,
             Messaging.self,
-            Assurance.self
+            Assurance.self,
+            TokenCollector.self
         ]
         
         MobileCore.registerExtensions(extensions) {
@@ -54,6 +55,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             let cbeSurface1 = Surface(path: Constants.SurfaceName.CBE_HTML)
             let cbeSurface2 = Surface(path: Constants.SurfaceName.CBE_JSON)
             Messaging.updatePropositionsForSurfaces([cardSurface,cbeSurface1, cbeSurface2])
+        }
+        
+        if #available(iOS 16.1, *) {
+            Messaging.registerLiveActivity(AirplaneTrackingAttributes.self)
+            Messaging.registerLiveActivity(FoodDeliveryLiveActivityAttributes.self)
+            Messaging.registerLiveActivity(GameScoreLiveActivityAttributes.self)
         }
         
         return true

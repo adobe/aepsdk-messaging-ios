@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "928D8364254225A700FD0E6D"
-               BuildableName = "AEPMessagingXCF"
-               BlueprintName = "AEPMessagingXCF"
+               BuildableName = "AEPMessagingAllXCF"
+               BlueprintName = "AEPMessagingAllXCF"
                ReferencedContainer = "container:AEPMessaging.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -51,8 +51,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "928D8364254225A700FD0E6D"
-            BuildableName = "AEPMessagingXCF"
-            BlueprintName = "AEPMessagingXCF"
+            BuildableName = "AEPMessagingAllXCF"
+            BlueprintName = "AEPMessagingAllXCF"
             ReferencedContainer = "container:AEPMessaging.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

@@ -14,19 +14,19 @@ import XCTest
 @testable import AEPMessaging
 import AEPServices
 
-class MessagingPropertiesTests: XCTestCase {
-    var messagingProperties: MessagingProperties!
+class MessagingStateManagerTests: XCTestCase {
+    var stateManager: MessagingStateManager!
     var mockNamedKeyValueService: MockNamedKeyValueService!
 
     override func setUp() {
         super.setUp()
         mockNamedKeyValueService = MockNamedKeyValueService()
         ServiceProvider.shared.namedKeyValueService = mockNamedKeyValueService
-        messagingProperties = MessagingProperties()
+        stateManager = MessagingStateManager()
     }
 
     override func tearDown() {
-        messagingProperties = nil
+        stateManager = nil
         mockNamedKeyValueService = nil
         super.tearDown()
     }
@@ -34,7 +34,7 @@ class MessagingPropertiesTests: XCTestCase {
     // MARK: - Push Identifier Tests
     func testGetPushIdentifierWhenNotSet() {
         // Test
-        let result = messagingProperties.pushIdentifier
+        let result = stateManager.pushIdentifier
 
         // Verify
         XCTAssertNil(result)
@@ -49,7 +49,7 @@ class MessagingPropertiesTests: XCTestCase {
         mockNamedKeyValueService.mockValue = expectedIdentifier
 
         // Test
-        let result = messagingProperties.pushIdentifier
+        let result = stateManager.pushIdentifier
 
         // Verify
         XCTAssertEqual(result, expectedIdentifier)
@@ -63,7 +63,7 @@ class MessagingPropertiesTests: XCTestCase {
         let testIdentifier = "test-push-token"
 
         // Test
-        messagingProperties.pushIdentifier = testIdentifier
+        stateManager.pushIdentifier = testIdentifier
 
         // Verify
         XCTAssertTrue(mockNamedKeyValueService.setCalled)
@@ -74,7 +74,7 @@ class MessagingPropertiesTests: XCTestCase {
 
     func testSetEmptyPushIdentifier() {
         // Test
-        messagingProperties.pushIdentifier = ""
+        stateManager.pushIdentifier = ""
 
         // Verify
         XCTAssertTrue(mockNamedKeyValueService.removeCalled)
@@ -84,7 +84,7 @@ class MessagingPropertiesTests: XCTestCase {
 
     func testSetNilPushIdentifier() {
         // Test
-        messagingProperties.pushIdentifier = nil
+        stateManager.pushIdentifier = nil
 
         // Verify
         XCTAssertTrue(mockNamedKeyValueService.removeCalled)
@@ -98,7 +98,7 @@ class MessagingPropertiesTests: XCTestCase {
         let newIdentifier = "new-push-token"
 
         // Test
-        messagingProperties.pushIdentifier = testIdentifier
+        stateManager.pushIdentifier = testIdentifier
 
         // Verify
         XCTAssertTrue(mockNamedKeyValueService.setCalled)
@@ -107,8 +107,8 @@ class MessagingPropertiesTests: XCTestCase {
         XCTAssertEqual(mockNamedKeyValueService.setValue as? String, testIdentifier)
 
         // Test with new identifier
-        messagingProperties.pushIdentifier = newIdentifier
-        let result = messagingProperties.pushIdentifier
+        stateManager.pushIdentifier = newIdentifier
+        let result = stateManager.pushIdentifier
 
         // Verify
         XCTAssertTrue(mockNamedKeyValueService.setCalled)

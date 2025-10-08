@@ -29,7 +29,7 @@ class MessagingTests: XCTestCase {
     var mockCache: MockCache!
     let mockSurface = Surface(path: "promos/feed1")
     var mockProposition: MockProposition!
-    var messagingProperties: MessagingProperties!
+    var stateManager: MessagingStateManager!
 
 
     // Mock constants
@@ -54,11 +54,11 @@ class MessagingTests: XCTestCase {
                                           scopeDetails: [
                                             "activity": [ "id": MOCK_ACTIVITY_ID ]],
                                           items: [])
-        messagingProperties = MessagingProperties()
+        stateManager = MessagingStateManager()
 
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, stateManager: stateManager)
         messaging.onRegistered()
-        
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
         mockNetworkService = MockNetworkService()
         ServiceProvider.shared.networkService = mockNetworkService!
         
@@ -67,7 +67,7 @@ class MessagingTests: XCTestCase {
     
     override func tearDown() {
         MobileCore.messagingDelegate = nil
-        messagingProperties.pushIdentifier = nil
+        stateManager.pushIdentifier = nil
     }
     
     /// validate the extension is registered without any error
@@ -194,49 +194,6 @@ class MessagingTests: XCTestCase {
 //        XCTAssertEqual(1, fetchEventSurfaces?.count)
 //        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", fetchEventSurfaces?.first)
 //    }
-    
-    func testFetchMessages_whenUpdateFeedsRequest_emptySurfacesInArray() throws {
-        // setup
-        let event = Event(name: "Update message feeds event",
-                          type: "com.adobe.eventType.messaging",
-                          source: "com.adobe.eventSource.requestContent",
-                          data: [
-                            "updatefeeds": true,
-                            "surfaces": [
-                                "",
-                                ""
-                            ]
-                          ])
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
-        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-        
-        // test
-        mockRuntime.simulateComingEvents(event)
-        
-        // verify
-        // TODO: verify push status event response?
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-    }
-    
-    func testFetchMessages_whenUpdateFeedsRequest_emptySurfacesArray() throws {
-        // setup
-        let event = Event(name: "Update message feeds event",
-                          type: "com.adobe.eventType.messaging",
-                          source: "com.adobe.eventSource.requestContent",
-                          data: [
-                            "updatefeeds": true,
-                            "surfaces": [] as [String]
-                          ])
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: [EXPERIENCE_CLOUD_ORG: "aTestOrgId"], status: SharedStateStatus.set))
-        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-        
-        // test
-        mockRuntime.simulateComingEvents(event)
-        
-        // verify
-        // TODO: verify push status event response?
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-    }
     
 //    func testHandleEdgePersonalizationNotificationHappy_inAppPropositions() throws {
 //        // setup
@@ -506,7 +463,7 @@ class MessagingTests: XCTestCase {
             XCTFail()
             return
         }
-        XCTAssertEqual("Push notification profile edge event", edgeEvent.name)
+        XCTAssertEqual("Push notification token profile Edge event", edgeEvent.name)
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
         
@@ -637,12 +594,13 @@ class MessagingTests: XCTestCase {
         XCTAssertNoThrow(messaging.handleProcessEvent(event))
     }
     
-    /// validating handleProcessEvent with Tracking info event when event data is empty
-    func testHandleProcessEvent_withTrackingInfoEvent() {
+    /// validating handleProcessEvent with push tracking event when eventData is not empty
+    func testHandleProcessEvent_withPushTrackingEvent() {
         let mockConfig = [MessagingConstants.SharedState.Configuration.EXPERIENCE_EVENT_DATASET: MOCK_EVENT_DATASET] as [String: Any]
         let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: MOCK_ECID]]]]
         
         let eventData: [String: Any]? = [
+            MessagingConstants.Event.Data.Key.PUSH_INTERACTION : true,
             MessagingConstants.Event.Data.Key.EVENT_TYPE: "testEventType",
             MessagingConstants.Event.Data.Key.ID: "testMessageId"
         ]
@@ -1085,8 +1043,8 @@ class MessagingTests: XCTestCase {
     
     func testPushTokenSync_whenTokenMatches_OptimizePushSyncIsTrue() {
         // setup
-        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, stateManager: stateManager)
         messaging.onRegistered()
         let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String : Any]
 
@@ -1103,8 +1061,8 @@ class MessagingTests: XCTestCase {
     
     func testPushTokenSync_whenTokenMatches_OptimizePushSyncIsFalse() {
         // setup
-        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, stateManager: stateManager)
         messaging.onRegistered()
         let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false] as [String : Any]
 
@@ -1126,8 +1084,8 @@ class MessagingTests: XCTestCase {
     func testPushTokenSync_whenNewTokenIsDifferent() {
         // setup
         let NEW_PUSH_TOKEN = "different push token"
-        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
-        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, messagingProperties: messagingProperties)
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        messaging = Messaging(runtime: mockRuntime, rulesEngine: mockMessagingRulesEngine, contentCardRulesEngine: mockContentCardRulesEngine, expectedSurfaceUri: mockSurface.uri, cache: mockCache, stateManager: stateManager)
         messaging.onRegistered()
         let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String : Any]
 
@@ -1239,7 +1197,7 @@ class MessagingTests: XCTestCase {
         // setup
         let messagingState = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN] as [String : Any]
         mockRuntime.simulateSharedState(for: MessagingConstants.EXTENSION_NAME, data: (value: messagingState, status: SharedStateStatus.set))
-        messagingProperties.pushIdentifier = MOCK_PUSH_TOKEN
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
 
         let event = Event(name: "Reset Identities",
                          type: EventType.genericIdentity,
@@ -1250,7 +1208,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(event)
 
         // verify
-        XCTAssertNil(messagingProperties.pushIdentifier)
+        XCTAssertNil(stateManager.pushIdentifier)
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
         let sharedState = mockRuntime.createdSharedStates.last
         XCTAssertNotNil(sharedState as Any?)

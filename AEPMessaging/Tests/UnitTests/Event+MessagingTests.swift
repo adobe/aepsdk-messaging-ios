@@ -479,20 +479,20 @@ class EventPlusMessagingTests: XCTestCase {
     
     // MARK: - Test SetPushIdentifier Events
     
-    func testIsGenericIdentityRequestContentEventHappy() throws {
+    func testIsPushTokenEventHappy() throws {
         // setup
         let event = getSetPushIdentifierEvent()
         
         // verify
-        XCTAssertTrue(event.isGenericIdentityRequestContentEvent)
+        XCTAssertTrue(event.isPushTokenEvent)
     }
     
-    func testIsGenericIdentityRequestContentEventNotHappy() throws {
+    func testIsPushTokenEventNotHappy() throws {
         // setup
         let event = getClickthroughEvent()
         
         // verify
-        XCTAssertFalse(event.isGenericIdentityRequestContentEvent)
+        XCTAssertFalse(event.isPushTokenEvent)
     }
     
     func testPushTokenHappy() throws {

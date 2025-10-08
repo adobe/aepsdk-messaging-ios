@@ -58,6 +58,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
             let expectedEventData = #"""
             {
                 "eventType": "pushTracking.applicationOpened",
+                "isPushInteractionEvent" : true,
                 "applicationOpened": true,
                 "id": "mockIdentifier",
                 "clickThroughUrl": "https://adobe.com",
@@ -88,6 +89,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
             let expectedEventData = #"""
             {
               "eventType": "pushTracking.customAction",
+              "isPushInteractionEvent" : true,
               "actionId": "Dismiss",
               "applicationOpened" : false,
               "id" : "mockIdentifier",
@@ -119,6 +121,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
             let expectedEventData = #"""
             {
               "eventType": "pushTracking.customAction",
+              "isPushInteractionEvent" : true,
               "actionId": "open",
               "applicationOpened" : true,
               "id" : "mockIdentifier",
@@ -151,6 +154,7 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
             let expectedEventData = #"""
             {
               "eventType": "pushTracking.customAction",
+              "isPushInteractionEvent" : true,
               "actionId": "cancel",
               "applicationOpened" : false,
               "id" : "mockIdentifier",

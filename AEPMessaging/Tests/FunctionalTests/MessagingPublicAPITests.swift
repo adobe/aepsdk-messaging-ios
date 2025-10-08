@@ -32,7 +32,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
     // MARK: - Handle Notification Response
 
     func testHandleNotificationResponse() {
-        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getPushInteractionEventData())
 
         // mock configuration shared state
         mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: event), data: (value: mockConfigSharedState, status: .set))
@@ -47,7 +47,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         
-        let expectedJSON = #"""
+        let expectedJSON = """
         {
           "xdm": {
             "pushNotificationTracking": {
@@ -88,13 +88,13 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
             }
           }
         }
-        """#
+        """
         
-        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
+        assertExactMatch(expected: expectedJSON, actual: edgeEvent)
     }
 
     func testHandleNotificationResponse_noEventDatasetId() {
-        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getPushInteractionEventData())
 
         // empty datasetId
         mockConfigSharedState = [:]
@@ -112,7 +112,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
     }
 
     func testHandleNotificationResponse_datasetIdIsEmpty() {
-        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getEventData())
+        let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: getPushInteractionEventData())
 
         // empty datasetId
         mockConfigSharedState = ["messaging.eventDataset": ""]
@@ -130,7 +130,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
     }
 
     func testHandleNotificationResponse_missingXDMData() {
-        var data = getEventData()
+        var data = getPushInteractionEventData()
         data[MessagingConstants.Event.Data.Key.ADOBE_XDM] = nil
         let event = Event(name: "", type: EventType.messaging, source: EventSource.requestContent, data: data)
 
@@ -147,7 +147,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
 
         XCTAssertEqual(edgeEvent.type, EventType.edge)
         
-        let expectedJSON = #"""
+        let expectedJSON = """
         {
           "xdm": {
             "pushNotificationTracking": {
@@ -170,14 +170,14 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
             }
           }
         }
-        """#
+        """
         
-        assertExactMatch(expected: expectedJSON.toAnyCodable()!, actual: edgeEvent.toAnyCodable(), pathOptions: [])
+        assertExactMatch(expected: expectedJSON, actual: edgeEvent)
     }
 
     // MARK: - Helpers
 
-    private func getEventData() -> [String: Any] {
+    private func getPushInteractionEventData() -> [String: Any] {
         let cjmData = ["cjm": ["_experience": ["customerJourneyManagement": ["messageExecution": [
             "messageExecutionID": "16-Sept-postman",
             "journeyVersionID": "some-journeyVersionId",
@@ -185,6 +185,7 @@ class MessagingPublicAPITests: XCTestCase, AnyCodableAsserts {
             "messageID": "567"
         ]]]]]
         let data = [MessagingConstants.Event.Data.Key.ID: "mockMessageId",
+                    MessagingConstants.Event.Data.Key.PUSH_INTERACTION: true,
                     MessagingConstants.Event.Data.Key.APPLICATION_OPENED: true,
                     MessagingConstants.Event.Data.Key.EVENT_TYPE: MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION,
                     MessagingConstants.Event.Data.Key.ACTION_ID: "mockCustomActionId",
