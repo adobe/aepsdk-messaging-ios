@@ -60,7 +60,7 @@ jobs:
   validate-code:
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
-    resource_class: m4pro.medium
+    resource_class: macos.m1.large.gen1
 
     steps:
       - checkout
@@ -74,7 +74,7 @@ jobs:
   test-ios:
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
-    resource_class: m4pro.medium
+    resource_class: macos.m1.large.gen1
 
     steps:
       - checkout
@@ -107,7 +107,7 @@ jobs:
   test-spm-podspec-archive:  
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
-    resource_class: m4pro.medium
+    resource_class: macos.m1.large.gen1
     
     steps:
       - checkout
