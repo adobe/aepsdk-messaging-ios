@@ -36,7 +36,7 @@ jobs:
   release:
     permissions:
         contents: write
-    uses: sbenedicadb/aepsdk-commons/.github/workflows/ios-release.yml@ba923e694db2ef0372f6c6cd508036f58f0745ab
+    uses: sbenedicadb/aepsdk-commons/.github/workflows/ios-release.yml@update-ios-release
     with:
       tag: ${{ github.event.inputs.tag }}
       create-github-release: ${{ github.event.inputs.create-github-release == 'true' && 'AEPMessaging' || '' }}
