@@ -27,7 +27,7 @@ on:
         default: true
 
       pod-publish-extensions:
-        description: 'Publish AEPEdge to Cocoapods.'
+        description: 'Publish AEPMessaging to Cocoapods.'
         type: boolean
         required: true
         default: true
