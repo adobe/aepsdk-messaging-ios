@@ -114,4 +114,4 @@ DEPENDENCIES
   tzinfo (>= 1.2.10)
 
 BUNDLED WITH
-   2.7.2
+   2.6.9
