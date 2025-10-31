@@ -14,7 +14,7 @@ import Foundation
 
 /// An enum which describes different errors that ContainerSettingsUI API's can return
 @available(iOS 15.0, *)
-public enum ContainerSettingsUIError: Int, Error {
+public enum ContainerUIError: Int, Error {
     public typealias RawValue = Int
     
     /// No propositions were returned for the specified surface
@@ -32,7 +32,7 @@ public enum ContainerSettingsUIError: Int, Error {
 
 /// Extension to provide user-friendly error descriptions
 @available(iOS 15.0, *)
-extension ContainerSettingsUIError: LocalizedError {
+extension ContainerUIError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .dataUnavailable:

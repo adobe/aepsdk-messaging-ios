@@ -16,7 +16,7 @@ import SwiftUI
 struct CardsView: View, ContentCardUIEventListening, ContainerSettingsEventListening {
     
     @State private var selectedTemplate: ContainerTemplateType = .inbox
-    @State private var containerUI: ContainerSettingsUI?
+    @State private var containerUI: ContainerUI?
     @State private var isLoading: Bool = false
     
     var body: some View {
@@ -140,19 +140,19 @@ struct CardsView: View, ContentCardUIEventListening, ContainerSettingsEventListe
     // MARK: - Event Listeners
     
     // Container Events
-    func onLoading(_ container: ContainerSettingsUI) {
+    func onLoading(_ container: ContainerUI) {
         print("Container is loading...")
     }
     
-    func onLoaded(_ container: ContainerSettingsUI) {
+    func onLoaded(_ container: ContainerUI) {
         print("Container loaded successfully")
     }
     
-    func onError(_ container: ContainerSettingsUI, _ error: Error) {
+    func onError(_ container: ContainerUI, _ error: Error) {
         print("Container error: \(error.localizedDescription)")
     }
     
-    func onEmpty(_ container: ContainerSettingsUI) {
+    func onEmpty(_ container: ContainerUI) {
         print("Container is empty")
     }
     

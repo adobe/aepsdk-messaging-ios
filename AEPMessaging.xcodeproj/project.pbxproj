@@ -235,10 +235,10 @@
 		755DB8D42E1EC54700F3B21B /* ImageOnlyTemplateTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8D32E1EC54700F3B21B /* ImageOnlyTemplateTest.swift */; };
 		755DB8D82E1EC5C200F3B21B /* ImageOnlyCard.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8D62E1EC5C200F3B21B /* ImageOnlyCard.json */; };
 		755DB8DA2E1EC67D00F3B21B /* ImageOnlyTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8D92E1EC67D00F3B21B /* ImageOnlyTemplateTests.swift */; };
-		755DB8E42E60BAC500F3B21B /* ContainerSettingsUIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E12E60BAC500F3B21B /* ContainerSettingsUIError.swift */; };
+		755DB8E42E60BAC500F3B21B /* ContainerUIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E12E60BAC500F3B21B /* ContainerUIError.swift */; };
 		755DB8E62E60BAC500F3B21B /* ContainerSettingsSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */; };
 		755DB8E82E60BAC500F3B21B /* ContainerSettingsMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8DE2E60BAC500F3B21B /* ContainerSettingsMocks.swift */; };
-		755DB8E92E60BAC500F3B21B /* ContainerSettingsUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E02E60BAC500F3B21B /* ContainerSettingsUI.swift */; };
+		755DB8E92E60BAC500F3B21B /* ContainerUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E02E60BAC500F3B21B /* ContainerUI.swift */; };
 		755DB8F22E624F1700F3B21B /* ContainerSettingsEventListening.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F12E624F1700F3B21B /* ContainerSettingsEventListening.swift */; };
 		755DB8F52E624F2D00F3B21B /* ContainerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F32E624F2D00F3B21B /* ContainerState.swift */; };
 		755DB8F62E624F2D00F3B21B /* ContainerViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F42E624F2D00F3B21B /* ContainerViews.swift */; };
@@ -738,8 +738,8 @@
 		755DB8D92E1EC67D00F3B21B /* ImageOnlyTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOnlyTemplateTests.swift; sourceTree = "<group>"; };
 		755DB8DE2E60BAC500F3B21B /* ContainerSettingsMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsMocks.swift; sourceTree = "<group>"; };
 		755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsSchemaData.swift; sourceTree = "<group>"; };
-		755DB8E02E60BAC500F3B21B /* ContainerSettingsUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsUI.swift; sourceTree = "<group>"; };
-		755DB8E12E60BAC500F3B21B /* ContainerSettingsUIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsUIError.swift; sourceTree = "<group>"; };
+		755DB8E02E60BAC500F3B21B /* ContainerUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerUI.swift; sourceTree = "<group>"; };
+		755DB8E12E60BAC500F3B21B /* ContainerUIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerUIError.swift; sourceTree = "<group>"; };
 		755DB8F12E624F1700F3B21B /* ContainerSettingsEventListening.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsEventListening.swift; sourceTree = "<group>"; };
 		755DB8F32E624F2D00F3B21B /* ContainerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerState.swift; sourceTree = "<group>"; };
 		755DB8F42E624F2D00F3B21B /* ContainerViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViews.swift; sourceTree = "<group>"; };
@@ -1190,8 +1190,8 @@
 				755DB8DE2E60BAC500F3B21B /* ContainerSettingsMocks.swift */,
 				755DB8F12E624F1700F3B21B /* ContainerSettingsEventListening.swift */,
 				755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */,
-				755DB8E02E60BAC500F3B21B /* ContainerSettingsUI.swift */,
-				755DB8E12E60BAC500F3B21B /* ContainerSettingsUIError.swift */,
+				755DB8E02E60BAC500F3B21B /* ContainerUI.swift */,
+				755DB8E12E60BAC500F3B21B /* ContainerUIError.swift */,
 				755DB8F32E624F2D00F3B21B /* ContainerState.swift */,
 				755DB8F42E624F2D00F3B21B /* ContainerViews.swift */,
 			);
@@ -2714,10 +2714,10 @@
 				B6F7CBCE2CC2089A00C35C64 /* AEPDismissButton.swift in Sources */,
 				B6F7CBCF2CC2089A00C35C64 /* ContentCardUIEventListening.swift in Sources */,
 				B64256B22D936BD600EDCAC5 /* Collection+PropositionItem.swift in Sources */,
-				755DB8E42E60BAC500F3B21B /* ContainerSettingsUIError.swift in Sources */,
+				755DB8E42E60BAC500F3B21B /* ContainerUIError.swift in Sources */,
 				755DB8E62E60BAC500F3B21B /* ContainerSettingsSchemaData.swift in Sources */,
 				755DB8E82E60BAC500F3B21B /* ContainerSettingsMocks.swift in Sources */,
-				755DB8E92E60BAC500F3B21B /* ContainerSettingsUI.swift in Sources */,
+				755DB8E92E60BAC500F3B21B /* ContainerUI.swift in Sources */,
 				B6F7CBD02CC2089A00C35C64 /* ContentCardUI+EventHandler.swift in Sources */,
 				B6F7CBD12CC2089A00C35C64 /* SmallImageTemplate.swift in Sources */,
 				B6F7CBD22CC2089A00C35C64 /* AEPTextView.swift in Sources */,

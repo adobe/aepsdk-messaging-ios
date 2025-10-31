@@ -26,7 +26,7 @@ public extension Messaging {
                                              customizer: ContentCardCustomizing? = nil,
                                              containerCustomizer: ContainerCustomizing? = nil,
                                              listener: ContainerSettingsEventListening? = nil,
-                                             _ completion: @escaping (Result<ContainerSettingsUI, ContainerSettingsUIError>) -> Void) {
+                                             _ completion: @escaping (Result<ContainerUI, ContainerUIError>) -> Void) {
         
         print("🧪 Mock: Getting container UI for surface: \(surface.uri)")
         
@@ -73,7 +73,7 @@ public extension Messaging {
                 }
                 
                 // Create the container UI with the required container settings
-                let containerUI = ContainerSettingsUI(
+                let containerUI = ContainerUI(
                     surface: surface,
                     containerSettings: containerSettings,
                     customizer: customizer,

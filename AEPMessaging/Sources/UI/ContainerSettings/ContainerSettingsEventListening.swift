@@ -17,10 +17,10 @@ import Foundation
 /// Protocol for listening to container-level events
 @available(iOS 15.0, *)
 public protocol ContainerSettingsEventListening {
-    func onLoading(_ container: ContainerSettingsUI)
-    func onLoaded(_ container: ContainerSettingsUI)
-    func onError(_ container: ContainerSettingsUI, _ error: Error)
-    func onEmpty(_ container: ContainerSettingsUI)
+    func onLoading(_ container: ContainerUI)
+    func onLoaded(_ container: ContainerUI)
+    func onError(_ container: ContainerUI, _ error: Error)
+    func onEmpty(_ container: ContainerUI)
     func onCardDismissed(_ card: ContentCardUI)
     func onCardDisplayed(_ card: ContentCardUI)
     func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool
@@ -31,10 +31,10 @@ public protocol ContainerSettingsEventListening {
 
 @available(iOS 15.0, *)
 public extension ContainerSettingsEventListening {
-    func onLoading(_ container: ContainerSettingsUI) {}
-    func onLoaded(_ container: ContainerSettingsUI) {}
-    func onError(_ container: ContainerSettingsUI, _ error: Error) {}
-    func onEmpty(_ container: ContainerSettingsUI) {}
+    func onLoading(_ container: ContainerUI) {}
+    func onLoaded(_ container: ContainerUI) {}
+    func onError(_ container: ContainerUI, _ error: Error) {}
+    func onEmpty(_ container: ContainerUI) {}
     func onCardDismissed(_ card: ContentCardUI) {}
     func onCardDisplayed(_ card: ContentCardUI) {}
     func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool { false }

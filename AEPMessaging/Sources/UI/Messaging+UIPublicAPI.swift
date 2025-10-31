@@ -79,14 +79,14 @@ public extension Messaging {
                                          customizer: ContentCardCustomizing? = nil,
                                          containerCustomizer: ContainerCustomizing? = nil,
                                          listener: ContainerSettingsEventListening? = nil,
-                                         _ completion: @escaping (Result<ContainerSettingsUI, Error>) -> Void) {
+                                         _ completion: @escaping (Result<ContainerUI, ContainerUIError>) -> Void) {
         
         // Request propositions for the specified surface from Messaging extension.
         Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
             if let error = error {
                 Log.error(label: UIConstants.LOG_TAG,
                           "Error retrieving content card container UI for surface, \(surface.uri). Error \(error)")
-                completion(.failure(ContainerSettingsUIError.dataUnavailable))
+                completion(.failure(ContainerUIError.dataUnavailable))
                 return
             }
             
@@ -95,7 +95,7 @@ public extension Messaging {
             
             // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
             guard let propositions = propositionDict?[surface] else {
-                completion(.failure(ContainerSettingsUIError.dataUnavailable))
+                completion(.failure(ContainerUIError.dataUnavailable))
                 return
             }
             
@@ -109,12 +109,12 @@ public extension Messaging {
             guard let containerSettings = containerSettings else {
                 Log.error(label: UIConstants.LOG_TAG,
                           "No container settings found in propositions for surface: \(surface.uri)")
-                completion(.failure(ContainerSettingsUIError.containerSettingsNotFound))
+                completion(.failure(ContainerUIError.containerSettingsNotFound))
                 return
             }
             
             // Create the container UI with the required container settings
-            let containerUI = ContainerSettingsUI(
+            let containerUI = ContainerUI(
                 surface: surface,
                 containerSettings: containerSettings,
                 customizer: customizer,

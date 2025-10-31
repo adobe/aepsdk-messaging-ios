@@ -20,7 +20,7 @@ import Foundation
 /// SwiftUI view that renders the container based on template type
 @available(iOS 15.0, *)
 struct ContainerView: View {
-    @ObservedObject var container: ContainerSettingsUI
+    @ObservedObject var container: ContainerUI
     
     var body: some View {
         Group {

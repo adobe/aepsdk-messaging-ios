@@ -20,7 +20,7 @@ import Combine
 /// ContainerSettingsUI is a hybrid class that combines PravinPK's proven UI patterns 
 /// with schema-driven template architecture for displaying content cards in containers.
 @available(iOS 15.0, *)
-public class ContainerSettingsUI: Identifiable, ObservableObject {
+public class ContainerUI: Identifiable, ObservableObject {
     
     // MARK: - Published Properties
     
@@ -207,7 +207,7 @@ public class ContainerSettingsUI: Identifiable, ObservableObject {
 // MARK: - ContentCardUIEventListening Implementation
 
 @available(iOS 15.0, *)
-extension ContainerSettingsUI: ContentCardUIEventListening {
+extension ContainerUI: ContentCardUIEventListening {
     public func onCreate(_ card: ContentCardUI) {
         listener?.onCardCreated(card)
     }
@@ -257,7 +257,7 @@ extension ContainerSettingsUI: ContentCardUIEventListening {
 // MARK: - ContainerTemplateEventHandler Implementation
 
 @available(iOS 15.0, *)
-extension ContainerSettingsUI: ContainerTemplateEventHandler {
+extension ContainerUI: ContainerTemplateEventHandler {
     func onContainerDisplay() {
         // Container display tracking is handled in BaseContainerTemplate
         // This provides additional app-level notification
