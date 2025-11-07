@@ -13,7 +13,7 @@ governing permissions and limitations under the License.
 import AEPMessaging
 import SwiftUI
 
-struct CardsView: View, ContentCardUIEventListening, ContainerSettingsEventListening {
+struct CardsView: View, ContentCardUIEventListening, ContainerEventListening {
     
     @State private var selectedTemplate: ContainerTemplateType = .inbox
     @State private var containerUI: ContainerUI?

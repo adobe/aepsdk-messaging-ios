@@ -78,7 +78,7 @@ public extension Messaging {
     static func getContentCardContainerUI(for surface: Surface,
                                          customizer: ContentCardCustomizing? = nil,
                                          containerCustomizer: ContainerCustomizing? = nil,
-                                         listener: ContainerSettingsEventListening? = nil,
+                                         listener: ContainerEventListening? = nil,
                                          _ completion: @escaping (Result<ContainerUI, ContainerUIError>) -> Void) {
         
         // Request propositions for the specified surface from Messaging extension.

@@ -16,7 +16,7 @@ import Foundation
 
 /// Protocol for listening to container-level events
 @available(iOS 15.0, *)
-public protocol ContainerSettingsEventListening {
+public protocol ContainerEventListening {
     func onLoading(_ container: ContainerUI)
     func onLoaded(_ container: ContainerUI)
     func onError(_ container: ContainerUI, _ error: Error)
@@ -30,7 +30,7 @@ public protocol ContainerSettingsEventListening {
 // MARK: - Default Implementation
 
 @available(iOS 15.0, *)
-public extension ContainerSettingsEventListening {
+public extension ContainerEventListening {
     func onLoading(_ container: ContainerUI) {}
     func onLoaded(_ container: ContainerUI) {}
     func onError(_ container: ContainerUI, _ error: Error) {}

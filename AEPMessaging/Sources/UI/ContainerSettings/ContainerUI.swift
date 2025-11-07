@@ -63,7 +63,7 @@ public class ContainerUI: Identifiable, ObservableObject {
     private let containerCustomizer: ContainerCustomizing?
     
     /// Listener for container events
-    private var listener: ContainerSettingsEventListening?
+    private var listener: ContainerEventListening?
     
     /// Event listener for individual content card events
     private var cardEventListener: ContentCardUIEventListening?
@@ -81,7 +81,7 @@ public class ContainerUI: Identifiable, ObservableObject {
                 containerSettings: ContainerSettingsSchemaData,
                 customizer: ContentCardCustomizing? = nil,
                 containerCustomizer: ContainerCustomizing? = nil,
-                listener: ContainerSettingsEventListening? = nil) {
+                listener: ContainerEventListening? = nil) {
         self.surface = surface
         self.containerSettings = containerSettings
         self.customizer = customizer

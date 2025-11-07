@@ -25,7 +25,7 @@ public extension Messaging {
     static func getContentCardContainerUIMock(for surface: Surface,
                                              customizer: ContentCardCustomizing? = nil,
                                              containerCustomizer: ContainerCustomizing? = nil,
-                                             listener: ContainerSettingsEventListening? = nil,
+                                             listener: ContainerEventListening? = nil,
                                              _ completion: @escaping (Result<ContainerUI, ContainerUIError>) -> Void) {
         
         print("🧪 Mock: Getting container UI for surface: \(surface.uri)")
