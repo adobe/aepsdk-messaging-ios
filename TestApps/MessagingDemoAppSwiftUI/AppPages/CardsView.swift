@@ -251,15 +251,64 @@ struct ButtonStyleModifier: ViewModifier {
 
 class ContainerCustomizer: ContainerCustomizing {
     
-    // Customize the base container template (applies to all container types)
+    // Customize inbox container template
     func customize(template: InboxContainerTemplate) {
-        template.backgroundColor = Color(.red)
-        // Set custom background color for containers
-        // Note: Since backgroundColor might not be accessible from external modules yet,
-        // we'll keep this simple for now and rely on the default implementation
-        print("Customizing container template: \(type(of: template))")
+        
+        template.containerSettings.heading = Heading(content: "Custom Inbox")
+        // Set custom background color for inbox containers
+        template.backgroundColor = Color(.systemGroupedBackground)
+        
+        // Example: Set a custom header view for inbox
+        // This will replace the default SDK header with your custom design
+        template.setCustomHeaderView { heading in
+            HStack {
+                // Custom icon
+                Image(systemName: "envelope.fill")
+                    .foregroundColor(.blue)
+                    .font(.title3)
+                
+                // Custom heading text
+                Text(heading)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.blue)
+                
+                Spacer()
+                
+                // Optional: Add a badge or additional UI element
+                Image(systemName: "bell.badge")
+                    .foregroundColor(.orange)
+                    .font(.title3)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.blue.opacity(0.05)]),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+        }
+        
+        print("Customizing inbox container template")
     }
     
-    // For now, let's keep the specific template customizations simple
-    // until the backgroundColor property is fully accessible from the test app
+    func customize(template: CarouselContainerTemplate) {
+        // Customize carousel-specific settings
+        template.backgroundColor = Color(.systemBackground)
+        
+        // You can set a different custom header for carousel
+        template.setCustomHeaderView { heading in
+            Text(heading)
+                .font(.title)
+                .foregroundColor(.purple)
+                .padding()
+        }
+    }
+    
+    func customize(template: CustomContainerTemplate) {
+        // Customize custom container settings
+        template.backgroundColor = Color(.secondarySystemBackground)
+    }
 }

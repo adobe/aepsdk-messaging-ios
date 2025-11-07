@@ -18,7 +18,7 @@ import AEPServices
 @objcMembers
 public class ContainerSettingsSchemaData: NSObject, Codable {
     /// Heading content for the container
-    public let heading: Heading?
+    public var heading: Heading?
     
     /// Layout configuration including orientation
     public let layout: LayoutSettings
@@ -86,6 +86,10 @@ public class ContainerSettingsSchemaData: NSObject, Codable {
 /// Represents heading content
 public struct Heading: Codable {
     public let content: String
+    
+    public init(content: String) {
+        self.content = content
+    }
     
     enum CodingKeys: String, CodingKey {
         case content

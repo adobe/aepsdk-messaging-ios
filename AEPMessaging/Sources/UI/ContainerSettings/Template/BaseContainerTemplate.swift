@@ -44,6 +44,10 @@ public class BaseContainerTemplate: ObservableObject {
     /// Use this boolean to avoid sending multiple display events on a template
     var isDisplayed: Bool = false
     
+    /// Optional custom header view builder provided by the customer app
+    /// If set, this will be used instead of the default header view
+    private var customHeaderBuilder: ((String) -> AnyView)?
+    
     
     /// Initializes a `BaseContainerTemplate` with the given schema data and content cards.
     /// This initializer is designed to be called by subclasses to perform common initialization tasks.
@@ -56,9 +60,6 @@ public class BaseContainerTemplate: ObservableObject {
           customizer: ContainerCustomizing?) {
         self.containerSettings = containerSettings
         self.contentCards = contentCards
-        
-        // Apply customization if provided
-        customizer?.customize(template: self)
     }
     
     /// Constructs a SwiftUI view with common properties and behaviors applied for all container templates.
@@ -78,10 +79,25 @@ public class BaseContainerTemplate: ObservableObject {
             })
     }
     
-    /// Builds a standardized header view for the container
+    /// Builds a header view for the container
     /// - Parameter heading: The heading text to display
-    /// - Returns: A SwiftUI view representing the header
+    /// - Returns: A SwiftUI view representing the header (custom if provided, otherwise default)
     func buildHeaderView(_ heading: String) -> some View {
+        Group {
+            if let customBuilder = customHeaderBuilder {
+                // Use custom header view provided by customer
+                customBuilder(heading)
+            } else {
+                // Use default SDK header view
+                AnyView(defaultHeaderView(heading))
+            }
+        }
+    }
+    
+    /// Builds the default SDK header view for the container
+    /// - Parameter heading: The heading text to display
+    /// - Returns: A SwiftUI view representing the default header
+    private func defaultHeaderView(_ heading: String) -> some View {
         HStack {
             Text(heading)
                 .font(.title2)
@@ -95,6 +111,15 @@ public class BaseContainerTemplate: ObservableObject {
             Color(.systemBackground)
                 .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
         )
+    }
+    
+    /// Sets a custom header view builder for the container
+    /// This is called by the customizer to provide a custom header view
+    /// - Parameter builder: A closure that takes a heading string and returns a custom view
+    public func setCustomHeaderView<Content: View>(_ builder: @escaping (String) -> Content) {
+        self.customHeaderBuilder = { heading in
+            AnyView(builder(heading))
+        }
     }
     
     /// Builds an unread indicator view
