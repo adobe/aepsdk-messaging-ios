@@ -241,7 +241,7 @@
 		755DB8E92E60BAC500F3B21B /* ContainerUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E02E60BAC500F3B21B /* ContainerUI.swift */; };
 		755DB8F22E624F1700F3B21B /* ContainerEventListening.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F12E624F1700F3B21B /* ContainerEventListening.swift */; };
 		755DB8F52E624F2D00F3B21B /* ContainerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F32E624F2D00F3B21B /* ContainerState.swift */; };
-		755DB8F62E624F2D00F3B21B /* ContainerViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F42E624F2D00F3B21B /* ContainerViews.swift */; };
+		755DB8F62E624F2D00F3B21B /* ContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F42E624F2D00F3B21B /* ContainerView.swift */; };
 		755DB8FF2E67573200F3B21B /* ContainerCustomizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F92E67573200F3B21B /* ContainerCustomizing.swift */; };
 		755DB9002E67573200F3B21B /* ContainerTemplateEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8FC2E67573200F3B21B /* ContainerTemplateEventHandler.swift */; };
 		755DB9012E67573200F3B21B /* ContainerTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8FA2E67573200F3B21B /* ContainerTemplate.swift */; };
@@ -742,7 +742,7 @@
 		755DB8E12E60BAC500F3B21B /* ContainerUIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerUIError.swift; sourceTree = "<group>"; };
 		755DB8F12E624F1700F3B21B /* ContainerEventListening.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerEventListening.swift; sourceTree = "<group>"; };
 		755DB8F32E624F2D00F3B21B /* ContainerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerState.swift; sourceTree = "<group>"; };
-		755DB8F42E624F2D00F3B21B /* ContainerViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViews.swift; sourceTree = "<group>"; };
+		755DB8F42E624F2D00F3B21B /* ContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerView.swift; sourceTree = "<group>"; };
 		755DB8F72E67573200F3B21B /* BaseContainerTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseContainerTemplate.swift; sourceTree = "<group>"; };
 		755DB8F92E67573200F3B21B /* ContainerCustomizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerCustomizing.swift; sourceTree = "<group>"; };
 		755DB8FA2E67573200F3B21B /* ContainerTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerTemplate.swift; sourceTree = "<group>"; };
@@ -1193,7 +1193,7 @@
 				755DB8E02E60BAC500F3B21B /* ContainerUI.swift */,
 				755DB8E12E60BAC500F3B21B /* ContainerUIError.swift */,
 				755DB8F32E624F2D00F3B21B /* ContainerState.swift */,
-				755DB8F42E624F2D00F3B21B /* ContainerViews.swift */,
+				755DB8F42E624F2D00F3B21B /* ContainerView.swift */,
 			);
 			path = ContainerSettings;
 			sourceTree = "<group>";
@@ -2775,7 +2775,7 @@
 				090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */,
 				242920EF2AD05AFA000DB2CD /* InAppSchemaData.swift in Sources */,
 				755DB8F52E624F2D00F3B21B /* ContainerState.swift in Sources */,
-				755DB8F62E624F2D00F3B21B /* ContainerViews.swift in Sources */,
+				755DB8F62E624F2D00F3B21B /* ContainerView.swift in Sources */,
 				244C2BDE26B36A4B008F086A /* Message+FullscreenMessageDelegate.swift in Sources */,
 				0969D6382A79BB3C00A00BF7 /* Messaging+State.swift in Sources */,
 				242920F82AD06791000DB2CD /* RulesetSchemaData.swift in Sources */,

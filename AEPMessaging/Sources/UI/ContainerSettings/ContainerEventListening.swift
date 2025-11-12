@@ -26,17 +26,3 @@ public protocol ContainerEventListening {
     func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool
     func onCardCreated(_ card: ContentCardUI)
 }
-
-// MARK: - Default Implementation
-
-@available(iOS 15.0, *)
-public extension ContainerEventListening {
-    func onLoading(_ container: ContainerUI) {}
-    func onLoaded(_ container: ContainerUI) {}
-    func onError(_ container: ContainerUI, _ error: Error) {}
-    func onEmpty(_ container: ContainerUI) {}
-    func onCardDismissed(_ card: ContentCardUI) {}
-    func onCardDisplayed(_ card: ContentCardUI) {}
-    func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool { false }
-    func onCardCreated(_ card: ContentCardUI) {}
-}

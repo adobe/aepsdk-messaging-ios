@@ -52,7 +52,6 @@ public class ContentCardUI: Identifiable {
     }
     
     
-    
     /// Optional read status for content cards that belong to messaging inbox containers.
     /// If nil, this is a normal content card. If not nil, it supports read/unread functionality.
     public var isRead: Bool? {
