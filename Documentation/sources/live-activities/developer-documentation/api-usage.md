@@ -148,6 +148,32 @@ let activity = try Activity<FoodDeliveryLiveActivityAttributes>.request(
 )
 ```
 
+#### Update a locally started Live Activity
+
+Once you have a reference to the activity, you can update its content state:
+
+```swift
+let updatedContentState = FoodDeliveryLiveActivityAttributes.ContentState(
+    orderStatus: "Preparing"
+)
+
+Task {
+    await activity.update(using: updatedContentState)
+}
+```
+
+#### End a locally started Live Activity
+
+To end the Live Activity, call the `end` method:
+
+```swift
+Task {
+    await activity.end(dismissalPolicy: .default)
+}
+```
+
+> **Note**: Live Activities can be managed remotely regardless of how they were started. A locally started Live Activity can be updated and ended remotely. Similarly, remotely started Live Activities can also be updated and ended remotely.
+
 ### Step 6: Add Assurance debug support (optional)
 
 To debug Live Activity schemas in Adobe Assurance, conform to the [`LiveActivityAssuranceDebuggable`](./classes/live-activity-assurance-debuggable.md) protocol:
