@@ -19,6 +19,9 @@
 
 ## Live Activities
 
+- Prerequisites
+  - [Enable push notifications in your app](./sources/push-messaging/prerequisites/enable-push-notifications.md)
+
 - Developer documentation
   - [API usage](./sources/live-activities/developer-documentation/api-usage.md)
   - Public classes

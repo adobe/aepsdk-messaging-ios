@@ -2,8 +2,6 @@
 
 The Adobe Experience Platform Mobile SDK provides built-in support for Apple's Live Activities. This allows your app to display real-time, dynamic updates directly on the Lock Screen and Dynamic Island without opening the app.
 
-For more in-depth information about the Messaging extension, visit the [official SDK documentation for Adobe Journey Optimizer Messaging extension](https://developer.adobe.com/client-sdks/documentation/adobe-journey-optimizer/).
-
 ## Prerequisites
 
 Ensure the following minimum versions are installed for correct configuration and compatibility:
