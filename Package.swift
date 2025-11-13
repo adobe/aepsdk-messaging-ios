@@ -19,21 +19,29 @@ let package = Package(
     name: "AEPMessaging",
     platforms: [.iOS(.v12)],
     products: [
-        .library(name: "AEPMessaging", targets: ["AEPMessaging"])
+        .library(name: "AEPMessaging", targets: ["AEPMessaging"]),
+        .library(name: "AEPMessagingLiveActivity", targets: ["AEPMessagingLiveActivity"])
     ],
     dependencies: [
-        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "5.6.0")),
+        .package(url: "https://github.com/adobe/aepsdk-core-ios.git", .upToNextMajor(from: "5.7.0")),
         .package(url: "https://github.com/adobe/aepsdk-edge-ios.git", .upToNextMajor(from: "5.0.2")),
         .package(url: "https://github.com/adobe/aepsdk-edgeidentity-ios.git", .upToNextMajor(from: "5.0.0"))
     ],
     targets: [
-        .target(name: "AEPMessaging",
+        .target(
+            name: "AEPMessaging",
             dependencies: [
                 .product(name: "AEPCore", package: "aepsdk-core-ios"),
                 .product(name: "AEPServices", package: "aepsdk-core-ios"),
                 .product(name: "AEPEdge", package: "aepsdk-edge-ios"),
-                .product(name: "AEPEdgeIdentity", package: "aepsdk-edgeidentity-ios")
+                .product(name: "AEPEdgeIdentity", package: "aepsdk-edgeidentity-ios"),
+                "AEPMessagingLiveActivity"
             ],
-            path: "AEPMessaging/Sources")
+            path: "AEPMessaging/Sources"
+        ),
+        .target(
+            name: "AEPMessagingLiveActivity",
+            path: "AEPMessagingLiveActivity/Sources/"
+        )
     ]
 )

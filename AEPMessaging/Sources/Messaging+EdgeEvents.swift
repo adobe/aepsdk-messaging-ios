@@ -15,13 +15,13 @@ import AEPServices
 import Foundation
 
 extension Messaging {
-    // MARK: - internal methods
+    // MARK: - Push Notification Edge Events
 
-    /// Sends an experience event to the platform SDK for tracking the notification click-throughs
+    /// Sends an experience event to the platform SDK for tracking push interactions
     ///
     /// - Parameters:
-    ///   - event: The triggering event with the click through data
-    func handleTrackingInfo(event: Event) {
+    ///   - event: The triggering event with push interaction data
+    func sendPushInteraction(event: Event) {
         guard let datasetId = getDatasetId(forEvent: event) else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to handle tracking information for push notification: " +
@@ -57,12 +57,12 @@ extension Messaging {
 
         dispatchTrackingResponseEvent(.trackingInitiated, forEvent: event)
 
-        // Creating xdm edge event with request content source type
-        let trackingEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
-                                                     type: EventType.edge,
-                                                     source: EventSource.requestContent,
-                                                     data: xdmEventData)
-        dispatch(event: trackingEvent)
+        // create edge event
+        let pushInteractionEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
+                                                            type: EventType.edge,
+                                                            source: EventSource.requestContent,
+                                                            data: xdmEventData)
+        dispatch(event: pushInteractionEvent)
     }
 
     /// Send an edge event to sync the push notification details with push token
@@ -104,6 +104,168 @@ extension Messaging {
                                                           source: EventSource.requestContent,
                                                           data: xdmEventData)
         dispatch(event: pushTokenEdgeEvent)
+    }
+
+    // MARK: - InApp Messages, Content Cards, and Code-Based Experiences Tracking Event
+
+    /// Sends a proposition interaction to the customer's experience event dataset.
+    ///
+    /// - Parameters:
+    ///   - xdm: a dictionary containing the proposition interaction XDM.
+    func sendPropositionInteraction(withXdm xdm: [String: Any]) {
+        var eventData: [String: Any] = [:]
+
+        eventData[MessagingConstants.XDM.Key.XDM] = xdm
+
+        // Creating xdm edge event with request content source type
+        let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
+                          type: EventType.edge,
+                          source: EventSource.requestContent,
+                          data: eventData)
+        dispatch(event: event)
+    }
+
+    // MARK: - Live Activity Edge Event
+
+    /// Sends an Edge event to synchronize Live Activity push-to-start tokens
+    /// and associated details with Adobe Experience Platform profile.
+    ///
+    /// - Parameters:
+    ///   - ecid: The Experience Cloud ID associated with the tokens.
+    ///   - tokensMap: A map of Live Activity attribute types to their push-to-start tokens.
+    ///   - event: The original `Event` that triggered the sync request.
+    func sendLiveActivityPushToStartTokens(
+        ecid: String,
+        tokenMap: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
+        event: Event
+    ) {
+        guard let appId: String = Bundle.main.bundleIdentifier else {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Failed to sync the Live Activity push-to-start token, App bundle identifier is invalid.")
+            return
+        }
+
+        // "apnsSandbox" or "apns"
+        let platform = getPushPlatform(forEvent: event)
+
+        // Build one entry per attribute/token pair
+        let detailsArray: [[String: Any]] = tokenMap.map { attributeType, pushToStartToken in
+            [
+                // Standard push fields
+                MessagingConstants.XDM.Push.APP_ID: appId,
+                MessagingConstants.XDM.Push.DENYLISTED: false,
+                MessagingConstants.XDM.Push.PLATFORM: platform,
+                MessagingConstants.XDM.Push.TOKEN: pushToStartToken.token,
+
+                // Live Activity attribute type
+                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+
+                // Identity
+                MessagingConstants.XDM.Push.IDENTITY: [
+                    MessagingConstants.XDM.Push.NAMESPACE: [
+                        MessagingConstants.XDM.Push.CODE: MessagingConstants.XDM.Push.Value.ECID
+                    ],
+                    MessagingConstants.XDM.Push.ID: ecid
+                ]
+            ]
+        }
+
+        // Creating Edge event data with XDM and data payloads
+        let eventData: [String: Any] = [
+            MessagingConstants.XDM.Key.XDM: [
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.PUSH_TO_START
+            ],
+            MessagingConstants.XDM.Key.DATA: [
+                MessagingConstants.XDM.LiveActivity.PUSH_NOTIFICATION_DETAILS: detailsArray
+            ]
+        ]
+
+        let pushTokenEdgeEvent = event.createChainedEvent(
+            name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START_EDGE,
+            type: EventType.edge,
+            source: EventSource.requestContent,
+            data: eventData
+        )
+        dispatch(event: pushTokenEdgeEvent)
+    }
+
+    /// Sends an Edge request event containing a Live Activity update token tied to a Live Activity ID.
+    ///
+    /// - Parameters:
+    ///   - liveActivityID: The unique identifier for the Live Activity instance associated with the update token.
+    ///   - token: The Live Activity push update token.
+    ///   - event: The original `Event` that triggered the request to send the update token.
+    func sendLiveActivityUpdateToken(liveActivityID: String, token: String, event: Event) {
+        let liveActivityData: [String: Any?] = [
+            MessagingConstants.XDM.LiveActivity.ID: liveActivityID,
+            MessagingConstants.XDM.Push.TOKEN: token
+        ]
+
+        // Creating Edge event data with XDM and data payloads
+        let xdmEventData: [String: Any] = [
+            MessagingConstants.XDM.Key.XDM: [
+                MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.UPDATE_TOKEN
+            ],
+            MessagingConstants.XDM.Key.DATA: liveActivityData
+        ]
+
+        let updateTokenEdgeEvent = event.createChainedEvent(
+            name: MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN_EDGE,
+            type: EventType.edge,
+            source: EventSource.requestContent,
+            data: xdmEventData
+        )
+        dispatch(event: updateTokenEdgeEvent)
+    }
+
+    /// Sends an Edge request event to track the start of a Live Activity.
+    /// This method constructs a Live Activity start event using either a broadcast channel ID or a Live Activity ID.
+    /// If both identifiers are missing, the event will not be sent.
+    ///
+    /// - Parameters:
+    ///   - channelID: An optional unique identifier for the Live Activity broadcast channel.
+    ///   - liveActivityID: An optional unique identifier for the Live Activity instance.
+    ///   - origin: A string describing the source of the Live Activity's creation.
+    ///   - event: The original `Event` that requested tracking the start of the Live Activity.
+    func sendLiveActivityStart(channelID: String? = nil, liveActivityID: String? = nil, origin: String, event: Event) {
+        guard let appId: String = Bundle.main.bundleIdentifier else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to track Live Activity start for event (\(event.id.uuidString)), App bundle identifier is invalid.")
+            return
+        }
+        // Must have either a channelID or a liveActivityID
+        guard channelID != nil || liveActivityID != nil else {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Unable to process Live Activity start event (\(event.id.uuidString)) because the event must contain either a liveActivityID or a channelID.")
+            return
+        }
+
+        // Retrieve dataset ID from Configuration shared state
+        guard let datasetId = getDatasetId(forEvent: event) else {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Failed to handle Live Activity start: Experience event dataset ID from the config is invalid or not available. '(\(event.id.uuidString))'")
+            return
+        }
+
+        let platform = getPushPlatform(forEvent: event)
+        let xdm = buildLiveActivityStartXdm(channelID: channelID, liveActivityID: liveActivityID, platform: platform)
+
+        // Creating XDM Edge event data
+        let xdmEventData: [String: Any] = [
+            MessagingConstants.XDM.Key.XDM: xdm,
+            MessagingConstants.XDM.Key.META: [
+                MessagingConstants.XDM.Key.COLLECT: [
+                    MessagingConstants.XDM.Key.DATASET_ID: datasetId
+                ]
+            ]
+        ]
+
+        let liveActivityStartEdgeEvent = event.createChainedEvent(
+            name: MessagingConstants.Event.Name.LiveActivity.START_EDGE,
+            type: EventType.edge,
+            source: EventSource.requestContent,
+            data: xdmEventData
+        )
+        dispatch(event: liveActivityStartEdgeEvent)
     }
 
     // MARK: - private methods
@@ -172,6 +334,46 @@ extension Messaging {
                             "\(MessagingConstants.XDM.AdobeKeys.EXPERIENCE) is missing in the event '\(event.id.uuidString)'.")
         }
         return xdmDictResult
+    }
+
+    /// Builds the XDM payload for a Live Activity start event using the AJO Push Tracking Experience Event Schema.
+    ///
+    /// - Parameters:
+    ///   - channelID: Optional broadcast channel identifier for the Live Activity
+    ///   - liveActivityID: Live Activity identifier
+    /// - Returns: A dictionary representing the `xdm` object
+    private func buildLiveActivityStartXdm(channelID: String?, liveActivityID: String?, platform: String) -> [String: Any] {
+        var liveActivityNode: [String: Any] = [
+            MessagingConstants.XDM.LiveActivity.EVENT: MessagingConstants.XDM.LiveActivity.START,
+            MessagingConstants.XDM.LiveActivity.ID: liveActivityID as Any
+        ].compactMapValues { $0 }
+
+        if let channelID {
+            liveActivityNode[MessagingConstants.XDM.LiveActivity.CHANNEL_ID] = channelID
+        }
+
+        let pushChannelContext: [String: Any] = [
+            MessagingConstants.XDM.Key.LIVE_ACTIVITY: liveActivityNode,
+            MessagingConstants.XDM.AdobeKeys.PLATFORM: platform
+        ]
+
+        let cjm: [String: Any] = [
+            MessagingConstants.XDM.AdobeKeys.MESSAGE_PROFILE: [
+                MessagingConstants.XDM.AdobeKeys.CHANNEL: [
+                    MessagingConstants.XDM.AdobeKeys._ID: MessagingConstants.XDM.AdobeKeys.LIVE_ACTIVITY_CHANNEL_ID
+                ]
+            ],
+            MessagingConstants.XDM.AdobeKeys.PUSH_CHANNEL_CONTEXT: pushChannelContext
+        ]
+
+        let experience: [String: Any] = [
+            MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT: cjm
+        ]
+
+        return [
+            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.LiveActivity.EventType.START,
+            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: experience
+        ]
     }
 
     /// Adding application data based on the application opened or not
@@ -250,18 +452,6 @@ extension Messaging {
         return configuration.pushPlatform
     }
 
-    /// Generates and dispatches an event prompting the Edge extension to send a proposition interactions tracking event.
-    ///
-    /// - Parameter event: request event containing proposition interaction XDM data
-    func trackMessages(_ event: Event) {
-        guard let propositionInteractionXdm = event.propositionInteractionXdm else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Cannot track proposition item, proposition interaction XDM is not available.")
-            return
-        }
-
-        sendPropositionInteraction(withXdm: propositionInteractionXdm)
-    }
-
     /// {
     ///     "xdm": {
     ///         "eventType": "decisioning.propositionInteract",
@@ -294,23 +484,6 @@ extension Messaging {
     ///         }
     ///     }
     /// }
-
-    /// Sends a proposition interaction to the customer's experience event dataset.
-    ///
-    /// - Parameters:
-    ///   - xdm: a dictionary containing the proposition interaction XDM.
-    func sendPropositionInteraction(withXdm xdm: [String: Any]) {
-        var eventData: [String: Any] = [:]
-
-        eventData[MessagingConstants.XDM.Key.XDM] = xdm
-
-        // Creating xdm edge event with request content source type
-        let event = Event(name: MessagingConstants.Event.Name.MESSAGE_INTERACTION,
-                          type: EventType.edge,
-                          source: EventSource.requestContent,
-                          data: eventData)
-        dispatch(event: event)
-    }
 
     private func dispatchTrackingResponseEvent(_ status: PushTrackingStatus, forEvent event: Event) {
         let responseEvent = event.createResponseEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_STATUS,
