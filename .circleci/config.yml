@@ -58,9 +58,10 @@ commands:
 
 jobs:
   validate-code:
+    resource_class: m4pro.medium
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
-
+    
     steps:
       - checkout
 
@@ -71,6 +72,7 @@ jobs:
           command: make lint
 
   test-ios:
+    resource_class: m4pro.medium
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
 
@@ -103,6 +105,7 @@ jobs:
           when: always # run even if unit tests fail
 
   test-spm-podspec-archive:  
+    resource_class: m4pro.medium
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
     
