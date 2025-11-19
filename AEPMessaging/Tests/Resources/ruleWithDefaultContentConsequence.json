@@ -1,0 +1,50 @@
+{
+    "version": 1,
+    "rules": [
+        {
+            "meta": {
+                "ruleType": "card"
+            },
+            "condition": {
+                "definition": {
+                    "conditions": [
+                        {
+                            "definition": {
+                                "key": "~timestampu",
+                                "matcher": "lt",
+                                "values": [2.0512476e9]
+                            },
+                            "type": "matcher"
+                        },
+                        {
+                            "definition": {
+                                "events": [
+                                    {
+                                        "iam.eventType": "disqualify",
+                                        "iam.id": "11020e96-bf51-41f6-9028-6434c74d61b0#2dbc9195-a2f4-44c7-aa38-23a1ef61172c"
+                                    }
+                                ],
+                                "matcher": "eq",
+                                "value": 0
+                            },
+                            "type": "historical"
+                        }
+                    ],
+                    "logic": "and"
+                },
+                "type": "group"
+            },
+            "consequences": [
+                {
+                    "id": "75fc40cd-3859-44d1-8f6e-a8c55d0c6b6d",
+                    "type": "schema",
+                    "detail": {
+                        "id": "30b92805-92b4-4257-8e30-2a0d640a0f68",
+                        "schema": "https://ns.adobe.com/personalization/default-content-item",
+                        "data": {}
+                    }
+                }
+            ]
+        }
+    ]
+}
