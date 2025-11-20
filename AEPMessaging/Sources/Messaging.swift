@@ -365,33 +365,68 @@ public class Messaging: NSObject, Extension {
 
         // handle live activity push-to-start token event
         if event.isLiveActivityPushToStartTokenEvent {
-            guard let token = event.liveActivityPushToStartToken, !token.isEmpty else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event or token is empty.")
-                return
-            }
-            guard let attributeType = event.liveActivityAttributeType, !attributeType.isEmpty else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event or was empty.")
-                return
-            }
+            // Check if this is a batched event with multiple tokens
+            if let batchedTokens = event.data?["batchedPushToStartTokens"] as? [[String: String]], !batchedTokens.isEmpty {
+                // Handle batched tokens
+                Log.debug(label: MessagingConstants.LOG_TAG, "Processing batched push-to-start tokens (\(batchedTokens.count) types)")
+                
+                var hasChanges = false
+                for tokenData in batchedTokens {
+                    guard let token = tokenData[MessagingConstants.XDM.Push.TOKEN], !token.isEmpty,
+                          let attributeType = tokenData[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE], !attributeType.isEmpty else {
+                        continue
+                    }
+                    
+                    let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
+                    if stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType) {
+                        hasChanges = true
+                    }
+                }
+                
+                guard hasChanges else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "No new tokens in batch")
+                    return
+                }
+                
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+                let tokenMap = stateManager.pushToStartTokenStore.all()
+                
+                guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
+                    return
+                }
+                sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
+                
+            } else {
+                // Handle single token event (original behavior)
+                guard let token = event.liveActivityPushToStartToken, !token.isEmpty else {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event or token is empty.")
+                    return
+                }
+                guard let attributeType = event.liveActivityAttributeType, !attributeType.isEmpty else {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event or was empty.")
+                    return
+                }
 
-            // Update the push to start token store and update the Messaging shared state.
-            let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
-            let didChange = stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
-            if !didChange {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping publishing push-to-start token because unchanged: \(pushToStartToken)")
-                return
-            }
-            runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+                // Update the push to start token store and update the Messaging shared state.
+                let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
+                let didChange = stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
+                if !didChange {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Skipping publishing push-to-start token because unchanged: \(pushToStartToken)")
+                    return
+                }
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
-            // Get all current push to start tokens to send to profile
-            let tokenMap = stateManager.pushToStartTokenStore.all()
+                // Get all current push to start tokens to send to profile
+                let tokenMap = stateManager.pushToStartTokenStore.all()
 
-            // Don't block shared state from being published because of ECID; check after
-            guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
-                return
+                // Don't block shared state from being published because of ECID; check after
+                guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+                    Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
+                    return
+                }
+                sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
             }
-            sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
         }
 
         // handle push interaction event

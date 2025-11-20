@@ -58,9 +58,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         }
         
         if #available(iOS 16.1, *) {
-            Messaging.registerLiveActivity(AirplaneTrackingAttributes.self)
-            Messaging.registerLiveActivity(FoodDeliveryLiveActivityAttributes.self)
-            Messaging.registerLiveActivity(GameScoreLiveActivityAttributes.self)
+            // Register all Live Activities together to batch their push-to-start tokens
+            Messaging.registerLiveActivities([
+                AirplaneTrackingAttributes.self,
+                FoodDeliveryLiveActivityAttributes.self,
+                GameScoreLiveActivityAttributes.self
+            ])
         }
         
         return true
