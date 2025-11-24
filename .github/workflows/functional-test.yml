@@ -26,21 +26,26 @@ jobs:
 
   functional-test:
     # The type of runner that the job will run on
-    runs-on: macos-14
+    runs-on: macos-15
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     
-      - uses: maxim-lobanov/setup-xcode@v1
+      - uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
-          xcode-version: '15.0.1'
+          xcode-version: '16.0'
+
+      - name: Download iOS Simulator
+        run: |
+          xcrun simctl list > /dev/null
+          xcodebuild -downloadPlatform iOS 
 
       - name: Launch iOS Simulator
         uses: futureware-tech/simulator-action@bfa03d93ec9de6dacb0c5553bbf8da8afc6c2ee9
         with:
-          model: 'iPhone 15'
+          model: 'iPhone 16'
           os: 'iOS'
-          os_version: '17.5'
+          os_version: '18.5'
           erase_before_boot: false
           shutdown_after_job: false
 
