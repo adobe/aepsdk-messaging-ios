@@ -366,7 +366,7 @@ public class Messaging: NSObject, Extension {
         // handle live activity push-to-start token event
         if event.isLiveActivityPushToStartTokenEvent {
             // Check if this is a batched event with multiple tokens
-            if let batchedTokens = event.data?["batchedPushToStartTokens"] as? [[String: String]], !batchedTokens.isEmpty {
+            if let batchedTokens = event.data?[MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS] as? [[String: String]], !batchedTokens.isEmpty {
                 // Handle batched tokens
                 Log.debug(label: MessagingConstants.LOG_TAG, "Processing batched push-to-start tokens (\(batchedTokens.count) types)")
                 

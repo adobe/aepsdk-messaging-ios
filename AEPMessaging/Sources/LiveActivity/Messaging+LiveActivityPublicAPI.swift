@@ -110,11 +110,32 @@ public extension Messaging {
         guard !types.isEmpty else { return }
         
         let attributeTypes = types.map { $0.attributeType }
+        let batchKey = Set(attributeTypes)
         
         // Initialize batch tracking for iOS 17.2+ (where push-to-start tokens exist)
         if #available(iOS 17.2, *) {
-            let batchKey = Set(attributeTypes)
             batchLock.lock()
+            
+            // Check if this exact batch already exists
+            if pendingBatches[batchKey] != nil {
+                batchLock.unlock()
+                Log.warning(label: MessagingConstants.LOG_TAG,
+                           "Batch with types \(attributeTypes) is already registered. Skipping duplicate batch registration.")
+                return
+            }
+            
+            // Check for overlapping attribute types with existing batches
+            for (existingBatch, _) in pendingBatches {
+                let overlap = existingBatch.intersection(batchKey)
+                if !overlap.isEmpty {
+                    batchLock.unlock()
+                    Log.error(label: MessagingConstants.LOG_TAG,
+                             "Cannot register batch \(attributeTypes): types \(Array(overlap)) are already part of another batch. Each type can only be in one batch.")
+                    return
+                }
+            }
+            
+            // Safe to create new batch
             pendingBatches[batchKey] = [:]
             batchLock.unlock()
         }
@@ -307,33 +328,40 @@ public extension Messaging {
     /// If not batched, dispatches immediately.
     @available(iOS 17.2, *)
     private static func handlePushToStartToken(attributeType: String, token: String) {
+        // Check and collect token under lock
         batchLock.lock()
-        defer { batchLock.unlock() }
+        var completedBatchTokens: [String: String]?
+        var isPartOfBatch = false
         
         // Check if this token belongs to any pending batch
         for (expectedTypes, var collectedTokens) in pendingBatches {
             if expectedTypes.contains(attributeType) {
+                isPartOfBatch = true
+                
                 // Add token to batch
                 collectedTokens[attributeType] = token
                 pendingBatches[expectedTypes] = collectedTokens
                 
                 // Check if batch is complete
                 if collectedTokens.count == expectedTypes.count {
-                    // Remove batch and dispatch all tokens together
+                    // Batch complete! Remove and save for dispatch
                     pendingBatches.removeValue(forKey: expectedTypes)
-                    batchLock.unlock() // Unlock before dispatching
-                    dispatchBatchedPushToStartTokens(tokens: collectedTokens)
-                    return
+                    completedBatchTokens = collectedTokens
                 }
-                
-                // Batch not complete yet, just return
-                return
+                break
             }
         }
-        
-        // Not part of any batch, dispatch immediately
         batchLock.unlock()
-        dispatchPushToStartTokenEvent(attributeType: attributeType, token: token)
+        
+        // Dispatch outside lock to avoid holding lock during event dispatch
+        if let batchTokens = completedBatchTokens {
+            // Batch completed - dispatch all tokens together
+            dispatchBatchedPushToStartTokens(tokens: batchTokens)
+        } else if !isPartOfBatch {
+            // Not part of any batch - dispatch immediately
+            dispatchPushToStartTokenEvent(attributeType: attributeType, token: token)
+        }
+        // else: Part of incomplete batch - do nothing, wait for more tokens
     }
     
     /// Dispatches an event indicating that a Live Activity push-to-start token has been received.
@@ -392,7 +420,7 @@ public extension Messaging {
                           source: EventSource.requestContent,
                           data: [
                               MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
-                              "batchedPushToStartTokens": tokensArray
+                              MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
                           ])
         MobileCore.dispatch(event: event)
     }

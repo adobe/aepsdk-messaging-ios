@@ -138,6 +138,7 @@ enum MessagingConstants {
                     static let APPLE_ID = "appleLiveActivityId"
                     /// The key for Live Activity Attribute type name. For example, "FoodDeliveryLiveActivityAttributes"
                     static let ATTRIBUTE_TYPE = "attributeType"
+                    static let BATCHED_PUSH_TO_START_TOKENS = "batchedPushToStartTokens"
                     static let CONTENT_STATE = "contentState"
                     static let PUSH_TO_START_TOKEN = "isLiveActivityPushToStartTokenEvent"
                     static let STATE = "state"
