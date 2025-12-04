@@ -68,6 +68,15 @@ public class ContainerUI: Identifiable, ObservableObject {
     /// Event listener for individual content card events
     private var cardEventListener: ContentCardUIEventListening?
     
+    /// Custom loading view builder
+    internal var customLoadingView: (() -> AnyView)?
+    
+    /// Custom error view builder
+    internal var customErrorView: ((Error) -> AnyView)?
+    
+    /// Custom empty state view builder
+    internal var customEmptyView: ((EmptyStateSettings?) -> AnyView)?
+    
     // MARK: - Initialization
     
     /// Initializes a new container settings UI
@@ -184,6 +193,26 @@ public class ContainerUI: Identifiable, ObservableObject {
     /// Refreshes the container by re-downloading content cards
     public func refresh() {
         downloadCards()
+    }
+    
+    // MARK: - Custom State Views
+    
+    /// Sets a custom loading view to be displayed while content is being fetched
+    /// - Parameter builder: A closure that returns a SwiftUI view wrapped in AnyView
+    public func setLoadingView(_ builder: @escaping () -> AnyView) {
+        self.customLoadingView = builder
+    }
+    
+    /// Sets a custom error view to be displayed when content fetch fails
+    /// - Parameter builder: A closure that takes an Error and returns a SwiftUI view wrapped in AnyView
+    public func setErrorView(_ builder: @escaping (Error) -> AnyView) {
+        self.customErrorView = builder
+    }
+    
+    /// Sets a custom empty view to be displayed when no content cards are available
+    /// - Parameter builder: A closure that takes optional EmptyStateSettings and returns a SwiftUI view wrapped in AnyView
+    public func setEmptyView(_ builder: @escaping (EmptyStateSettings?) -> AnyView) {
+        self.customEmptyView = builder
     }
     
     /// Refreshes the container template with current card states (for UI updates)

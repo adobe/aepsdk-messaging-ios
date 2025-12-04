@@ -112,6 +112,88 @@ struct CardsView: View, ContentCardUIEventListening, ContainerEventListening {
                 
                 switch result {
                 case .success(let container):
+                    // Set custom loading view
+                    container.setLoadingView {
+                        AnyView(
+                            VStack(spacing: 16) {
+                                ProgressView()
+                                    .scaleEffect(2.0)
+                                    .tint(.blue)
+                                Text("Fetching your messages...")
+                                    .font(.headline)
+                                    .foregroundColor(.blue)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color(.systemGroupedBackground))
+                        )
+                    }
+                    
+                    // Set custom error view
+                    container.setErrorView { error in
+                        AnyView(
+                            VStack(spacing: 16) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 48))
+                                    .foregroundColor(.orange)
+                                Text("Oops! Something went wrong")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                Text("Error: \(error.localizedDescription)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                                
+                                Button {
+                                    container.refresh()
+                                } label: {
+                                    Label("Try Again", systemImage: "arrow.clockwise")
+                                        .font(.headline)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .tint(.orange)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding()
+                        )
+                    }
+                    
+                    // Set custom empty view
+                    container.setEmptyView { emptyStateSettings in
+                        AnyView(
+                            VStack(spacing: 20) {
+                                Image(systemName: "tray.fill")
+                                    .font(.system(size: 60))
+                                    .foregroundColor(.blue)
+                                
+                                // Use server-provided message if available
+                                if let message = emptyStateSettings?.message?.content {
+                                    Text(message)
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                        .multilineTextAlignment(.center)
+                                } else {
+                                    Text("No messages yet")
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                    Text("Check back later for updates")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Button {
+                                    container.refresh()
+                                } label: {
+                                    Label("Refresh", systemImage: "arrow.clockwise")
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.blue)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding()
+                        )
+                    }
+                    
                     self.containerUI = container
                     
                 case .failure(let error):
