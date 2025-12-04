@@ -18,7 +18,7 @@ import Foundation
 
 // The model class representing the text UI element of the ContentCard.
 @available(iOS 15.0, *)
-public class AEPText: ObservableObject, AEPViewModel {
+public class AEPText: ObservableObject, AEPViewModel, Codable {
     /// The content of the text
     @Published public var content: String
 
@@ -48,5 +48,25 @@ public class AEPText: ObservableObject, AEPViewModel {
         // Initialize with default styles
         font = type.defaultFont
         textColor = type.defaultColor
+    }
+    
+    // MARK: - Codable
+    
+    enum CodingKeys: String, CodingKey {
+        case content
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        content = try container.decode(String.self, forKey: .content)
+        
+        // Initialize with default styles
+        font = AEPTextType.body.defaultFont
+        textColor = AEPTextType.body.defaultColor
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(content, forKey: .content)
     }
 }

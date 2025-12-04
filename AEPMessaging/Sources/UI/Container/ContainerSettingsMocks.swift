@@ -53,13 +53,13 @@ public extension Messaging {
                 for (propIndex, proposition) in propositions.enumerated() {
                     print("🧪 Mock: Proposition \(propIndex): \(proposition.items.count) items")
                     for (itemIndex, item) in proposition.items.enumerated() {
-                        print("🧪 Mock: Item \(itemIndex): schema=\(item.schema), containerSettings=\(item.containerSettingsSchemaData != nil)")
+                        print("🧪 Mock: Item \(itemIndex): schema=\(item.schema), containerSettings=\(item.containerSchemaData != nil)")
                     }
                 }
                 
                 let containerSettings = propositions
                     .flatMap { $0.items }
-                    .compactMap { $0.containerSettingsSchemaData }
+                    .compactMap { $0.containerSchemaData }
                     .first
                 
                 print("🧪 Mock: Found container settings: \(containerSettings != nil)")
@@ -118,7 +118,7 @@ public extension Messaging {
         
         // Debug the container proposition items
         for (index, item) in containerProposition.items.enumerated() {
-            print("🧪 Mock: Container item \(index): schema=\(item.schema), hasContainerSettings=\(item.containerSettingsSchemaData != nil)")
+            print("🧪 Mock: Container item \(index): schema=\(item.schema), hasContainerSettings=\(item.containerSchemaData != nil)")
         }
         
         // Create content card propositions (one of each template)
@@ -547,7 +547,7 @@ public extension Messaging {
             }
             print("🧪 Mock: Creating MockPropositionItem with itemId: \(itemId), schema: \(schemaString)")
             let item = MockPropositionItem(itemId: itemId, schema: schemaString, data: data)
-            print("🧪 Mock: Created item with schema: \(item.schema), containerSettings: \(item.containerSettingsSchemaData != nil)")
+            print("🧪 Mock: Created item with schema: \(item.schema), containerSettings: \(item.containerSchemaData != nil)")
             return item
         }
         
@@ -623,14 +623,14 @@ class MockPropositionItem: PropositionItem {
             
             return contentCard
         } catch {
-            print("🧪 Mock: Failed to decode ContentCardSchemaData: \(error)")
+            print("🧪 Mock: Failed to decode ContentCardContainerSchemaData: \(error)")
             print("🧪 Mock: ItemData structure: \(itemData)")
             return nil
         }
     }
     
-    override var containerSettingsSchemaData: ContainerSettingsSchemaData? {
-        print("🧪 Mock: containerSettingsSchemaData called for schema: \(schema.toString())")
+    override var containerSchemaData: ContainerSchemaData? {
+        print("🧪 Mock: containerSettingsContainerSchemaData called for schema: \(schema.toString())")
         
         // Check if this is a container settings item
         guard schema.toString().contains("container-settings") else {
@@ -642,15 +642,15 @@ class MockPropositionItem: PropositionItem {
         print("🧪 Mock: ItemData keys: \(Array(itemData.keys))")
         print("🧪 Mock: ItemData: \(itemData)")
         
-        // Convert itemData to ContainerSettingsSchemaData (itemData is the `data` field)
+        // Convert itemData to ContainerSchemaData (itemData is the `data` field)
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: itemData)
             print("🧪 Mock: Successfully serialized itemData to JSON")
-            let containerSettings = try JSONDecoder().decode(ContainerSettingsSchemaData.self, from: jsonData)
-            print("🧪 Mock: Successfully decoded ContainerSettingsSchemaData")
+            let containerSettings = try JSONDecoder().decode(ContainerSchemaData.self, from: jsonData)
+            print("🧪 Mock: Successfully decoded ContainerSchemaData")
             return containerSettings
         } catch {
-            print("🧪 Mock: Failed to decode ContainerSettingsSchemaData: \(error)")
+            print("🧪 Mock: Failed to decode ContainerSchemaData: \(error)")
             print("🧪 Mock: ItemData structure: \(itemData)")
             return nil
         }

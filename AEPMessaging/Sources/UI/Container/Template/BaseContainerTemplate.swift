@@ -31,7 +31,7 @@ public class BaseContainerTemplate: ObservableObject {
     @Published public var backgroundColor: Color? = Color(.systemGroupedBackground)
     
     /// The container settings schema data used to configure the template
-    public let containerSettings: ContainerSettingsSchemaData
+    public let containerSettings: ContainerSchemaData
     
     /// The content cards to be displayed in the container
     @Published public var contentCards: [ContentCardUI]
@@ -55,7 +55,7 @@ public class BaseContainerTemplate: ObservableObject {
     ///   - containerSettings: The container settings schema data
     ///   - contentCards: The content cards to be displayed
     ///   - customizer: Optional customizer for the container template
-    init?(_ containerSettings: ContainerSettingsSchemaData, 
+    init?(_ containerSettings: ContainerSchemaData, 
           contentCards: [ContentCardUI], 
           customizer: ContainerCustomizing?) {
         self.containerSettings = containerSettings

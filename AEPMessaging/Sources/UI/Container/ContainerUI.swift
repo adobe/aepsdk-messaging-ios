@@ -42,7 +42,7 @@ public class ContainerUI: Identifiable, ObservableObject {
     public let surface: Surface
     
     /// Container settings schema data (from JSON schema)
-    public let containerSettings: ContainerSettingsSchemaData
+    public let containerSettings: ContainerSchemaData
     
     /// Template type determined by container settings
     public var templateType: ContainerTemplateType {
@@ -87,7 +87,7 @@ public class ContainerUI: Identifiable, ObservableObject {
     ///   - containerCustomizer: Optional customizer for container templates
     ///   - listener: Optional listener for container events
     public init(surface: Surface,
-                containerSettings: ContainerSettingsSchemaData,
+                containerSettings: ContainerSchemaData,
                 customizer: ContentCardCustomizing? = nil,
                 containerCustomizer: ContainerCustomizing? = nil,
                 listener: ContainerEventListening? = nil) {
@@ -234,6 +234,7 @@ public class ContainerUI: Identifiable, ObservableObject {
 
 
 // MARK: - ContentCardUIEventListening Implementation
+
 @available(iOS 15.0, *)
 extension ContainerUI: ContentCardUIEventListening {
     public func onCreate(_ card: ContentCardUI) {

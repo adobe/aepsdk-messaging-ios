@@ -15,39 +15,35 @@ governing permissions and limitations under the License.
 #endif
 import Foundation
 
-/// A class representing a container template with a carousel-style layout.
+/// A class representing a container template with an inbox-style layout.
 ///
-/// `CarouselContainerTemplate` is a subclass of `BaseContainerTemplate` and conforms to the `ContainerTemplate` protocol.
-/// It provides a structured layout for containers that include horizontal scrolling without unread indicators.
-/// This class is initialized with `ContainerSettingsSchemaData` and content cards.
+/// `InboxContainerTemplate` is a subclass of `BaseContainerTemplate` and conforms to the `ContainerTemplate` protocol.
+/// It provides a structured layout for containers that include vertical scrolling with unread indicators.
+/// This class is initialized with `ContainerSchemaData` and content cards.
 ///
 /// - Note: The `view` property is lazily initialized and represents the entire layout of the container.
 @available(iOS 15.0, *)
-public class CarouselContainerTemplate: BaseContainerTemplate, ContainerTemplate {
-    public let templateType: ContainerTemplateType = .carousel
+public class InboxContainerTemplate: BaseContainerTemplate, ContainerTemplate {
+    public let templateType: ContainerTemplateType = .inbox
 
-    /// The SwiftUI view representing the carousel container.
+    /// The SwiftUI view representing the inbox container.
     public lazy var view: some View = buildContainerView {
         VStack(alignment: .leading, spacing: 0) {
             // Header if available
-            if let heading = containerSettings.heading?.content {
+            if let heading = containerSettings.heading?.text.content {
                 buildHeaderView(heading)
             }
             
-            // Horizontal scrolling carousel
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 20) {
+            // Vertical scrolling list with unread indicators
+            ScrollView(.vertical, showsIndicators: true) {
+                LazyVStack(spacing: 16) {
                     ForEach(contentCards, id: \.id) { card in
-                        card.view
-                            .frame(width: 280) // Fixed width for carousel
-                            .padding(.all, 12) // Internal padding for content
-                            .padding(.top, 20) // Additional top padding inside card for dismiss button
+                        self.cardRowWithUnread(card)
                             .background(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: 8)
                                     .fill(Color(.systemBackground))
-                                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                                    .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
                 .padding(.horizontal, 16)
@@ -56,20 +52,33 @@ public class CarouselContainerTemplate: BaseContainerTemplate, ContainerTemplate
         }
     }
     
-    /// Initializes a `CarouselContainerTemplate` with the given schema data and content cards.
+    /// Initializes an `InboxContainerTemplate` with the given schema data and content cards.
     ///
     /// - Parameters:
     ///   - containerSettings: The container settings schema data
     ///   - contentCards: The content cards to be displayed
     ///   - customizer: An object conforming to ContainerCustomizing protocol that allows for
     ///                 custom styling of the container template
-    /// - Returns: An initialized `CarouselContainerTemplate` or `nil` if initialization fails.
-    override init?(_ containerSettings: ContainerSettingsSchemaData, 
+    /// - Returns: An initialized `InboxContainerTemplate` or `nil` if initialization fails.
+    override init?(_ containerSettings: ContainerSchemaData, 
                    contentCards: [ContentCardUI], 
                    customizer: ContainerCustomizing?) {
         super.init(containerSettings, contentCards: contentCards, customizer: customizer)
         
-        // Apply specific customization for carousel template
+        // Apply specific customization for inbox template
         customizer?.customize(template: self)
+    }
+    
+    private func cardRowWithUnread(_ card: ContentCardUI) -> some View {
+        card.view
+            .padding(.all, 12) // Internal padding for content
+            .overlay(alignment: .topLeading) {
+                // Show unread indicator if enabled and card is unread
+                if isCardUnread(card) {
+                    buildUnreadIndicatorView()
+                        .offset(x: 4, y: 4) // Small offset from top-left corner
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

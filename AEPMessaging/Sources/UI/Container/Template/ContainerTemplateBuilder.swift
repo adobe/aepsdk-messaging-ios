@@ -23,7 +23,7 @@ enum ContainerTemplateBuilder {
     ///   - customizer: An object conforming to `ContainerCustomizing` protocol that allows for
     ///                 custom styling of the container template
     /// - Returns: An instance conforming to `ContainerTemplate` if a supported template type is found, otherwise `nil`.
-    static func buildTemplate(from containerSettings: ContainerSettingsSchemaData,
+    static func buildTemplate(from containerSettings: ContainerSchemaData,
                               contentCards: [ContentCardUI],
                               customizer: ContainerCustomizing?) -> (any ContainerTemplate)? {
         switch containerSettings.templateType {

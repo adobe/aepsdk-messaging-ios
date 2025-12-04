@@ -18,7 +18,7 @@
 /// The model class representing the image UI element of the ContentCard.
 /// This class handles the initialization of the image from different sources such as URL or bundle.
 @available(iOS 15.0, *)
-public class AEPImage: ObservableObject, AEPViewModel {
+public class AEPImage: ObservableObject, AEPViewModel, Codable {
     /// The URL of the image to be displayed.
     var url: URL?
 
@@ -87,5 +87,64 @@ public class AEPImage: ObservableObject, AEPViewModel {
 
         // If no valid data is provided, return nil
         return nil
+    }
+    
+    // MARK: - Codable
+    
+    enum CodingKeys: String, CodingKey {
+        case url
+        case darkUrl
+        case alt
+        case bundle
+        case darkBundle
+        case icon
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        altText = try container.decodeIfPresent(String.self, forKey: .alt)
+        
+        if let urlString = try container.decodeIfPresent(String.self, forKey: .url),
+           let url = URL(string: urlString) {
+            imageSourceType = .url
+            self.url = url
+            if let darkUrlString = try container.decodeIfPresent(String.self, forKey: .darkUrl) {
+                darkUrl = URL(string: darkUrlString)
+            }
+            return
+        }
+        
+        if let bundle = try container.decodeIfPresent(String.self, forKey: .bundle) {
+            imageSourceType = .bundle
+            self.bundle = bundle
+            darkBundle = try container.decodeIfPresent(String.self, forKey: .darkBundle)
+            return
+        }
+        
+        if let icon = try container.decodeIfPresent(String.self, forKey: .icon) {
+            imageSourceType = .icon
+            self.icon = icon
+            return
+        }
+        
+        throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Unable to decode AEPImage, no valid image source found."))
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encodeIfPresent(altText, forKey: .alt)
+        
+        switch imageSourceType {
+        case .url:
+            try container.encodeIfPresent(url?.absoluteString, forKey: .url)
+            try container.encodeIfPresent(darkUrl?.absoluteString, forKey: .darkUrl)
+        case .bundle:
+            try container.encodeIfPresent(bundle, forKey: .bundle)
+            try container.encodeIfPresent(darkBundle, forKey: .darkBundle)
+        case .icon:
+            try container.encodeIfPresent(icon, forKey: .icon)
+        }
     }
 }

@@ -55,7 +55,7 @@ private struct DefaultEmptyStateView: View {
             // Use empty state settings from container if available
             if let emptyStateSettings = emptyStateSettings {
                 if let imageUrl = emptyStateSettings.image?.url {
-                    AsyncImage(url: URL(string: imageUrl)) { image in
+                    AsyncImage(url: imageUrl) { image in
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fit)

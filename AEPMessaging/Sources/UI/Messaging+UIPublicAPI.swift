@@ -91,7 +91,7 @@ public extension Messaging {
             }
             
             // Look for container settings in propositions
-            var containerSettings: ContainerSettingsSchemaData?
+            var containerSettings: ContainerSchemaData?
             
             // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
             guard let propositions = propositionDict?[surface] else {
@@ -102,7 +102,7 @@ public extension Messaging {
             // Search for container settings in propositions using functional approach
             containerSettings = propositions
                 .flatMap { $0.items }
-                .compactMap { $0.containerSettingsSchemaData }
+                .compactMap { $0.containerSchemaData }
                 .first
             
             // Ensure container settings are present - this is required for container UI

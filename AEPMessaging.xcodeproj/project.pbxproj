@@ -236,7 +236,6 @@
 		755DB8D82E1EC5C200F3B21B /* ImageOnlyCard.json in Resources */ = {isa = PBXBuildFile; fileRef = 755DB8D62E1EC5C200F3B21B /* ImageOnlyCard.json */; };
 		755DB8DA2E1EC67D00F3B21B /* ImageOnlyTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8D92E1EC67D00F3B21B /* ImageOnlyTemplateTests.swift */; };
 		755DB8E42E60BAC500F3B21B /* ContainerUIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E12E60BAC500F3B21B /* ContainerUIError.swift */; };
-		755DB8E62E60BAC500F3B21B /* ContainerSettingsSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */; };
 		755DB8E82E60BAC500F3B21B /* ContainerSettingsMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8DE2E60BAC500F3B21B /* ContainerSettingsMocks.swift */; };
 		755DB8E92E60BAC500F3B21B /* ContainerUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8E02E60BAC500F3B21B /* ContainerUI.swift */; };
 		755DB8F22E624F1700F3B21B /* ContainerEventListening.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755DB8F12E624F1700F3B21B /* ContainerEventListening.swift */; };
@@ -284,6 +283,13 @@
 		B67CCF792CD0BF8D00CF08D1 /* ContentCardImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */; };
 		B69573C82CD4447F0027E376 /* AEPBundleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69573C72CD444790027E376 /* AEPBundleImageView.swift */; };
 		B6D035E22D2F23E900031170 /* AppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D035E12D2F23E900031170 /* AppStateManager.swift */; };
+		B6D364E22EE1837500AE315D /* ContainerSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364D92EE1837500AE315D /* ContainerSchemaData.swift */; };
+		B6D364E52EE1837500AE315D /* UnreadIndicatorSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364E12EE1837500AE315D /* UnreadIndicatorSettings.swift */; };
+		B6D364E62EE1837500AE315D /* EmptyStateSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364DB2EE1837500AE315D /* EmptyStateSettings.swift */; };
+		B6D364E92EE1837500AE315D /* ContainerTemplateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364DA2EE1837500AE315D /* ContainerTemplateType.swift */; };
+		B6D364EA2EE1837500AE315D /* AEPColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364D72EE1837500AE315D /* AEPColor.swift */; };
+		B6D364EB2EE1837500AE315D /* Heading.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364DC2EE1837500AE315D /* Heading.swift */; };
+		B6D364EC2EE1837500AE315D /* LayoutSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364DE2EE1837500AE315D /* LayoutSettings.swift */; };
 		B6D6A02B265FB1FA005042BE /* Dictionary+Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928639FB263757A7000AFA53 /* Dictionary+Flatten.swift */; };
 		B6E63D042A9EC71C007BB586 /* PushTrackingStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */; };
 		B6F7CBC92CC2089A00C35C64 /* DismissButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CBA72CC2089A00C35C64 /* DismissButtonStyle.swift */; };
@@ -737,7 +743,6 @@
 		755DB8D62E1EC5C200F3B21B /* ImageOnlyCard.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ImageOnlyCard.json; sourceTree = "<group>"; };
 		755DB8D92E1EC67D00F3B21B /* ImageOnlyTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOnlyTemplateTests.swift; sourceTree = "<group>"; };
 		755DB8DE2E60BAC500F3B21B /* ContainerSettingsMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsMocks.swift; sourceTree = "<group>"; };
-		755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSettingsSchemaData.swift; sourceTree = "<group>"; };
 		755DB8E02E60BAC500F3B21B /* ContainerUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerUI.swift; sourceTree = "<group>"; };
 		755DB8E12E60BAC500F3B21B /* ContainerUIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerUIError.swift; sourceTree = "<group>"; };
 		755DB8F12E624F1700F3B21B /* ContainerEventListening.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerEventListening.swift; sourceTree = "<group>"; };
@@ -800,6 +805,13 @@
 		B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardImageCache.swift; sourceTree = "<group>"; };
 		B69573C72CD444790027E376 /* AEPBundleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPBundleImageView.swift; sourceTree = "<group>"; };
 		B6D035E12D2F23E900031170 /* AppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManager.swift; sourceTree = "<group>"; };
+		B6D364D72EE1837500AE315D /* AEPColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPColor.swift; sourceTree = "<group>"; };
+		B6D364D92EE1837500AE315D /* ContainerSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerSchemaData.swift; sourceTree = "<group>"; };
+		B6D364DA2EE1837500AE315D /* ContainerTemplateType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerTemplateType.swift; sourceTree = "<group>"; };
+		B6D364DB2EE1837500AE315D /* EmptyStateSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateSettings.swift; sourceTree = "<group>"; };
+		B6D364DC2EE1837500AE315D /* Heading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Heading.swift; sourceTree = "<group>"; };
+		B6D364DE2EE1837500AE315D /* LayoutSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutSettings.swift; sourceTree = "<group>"; };
+		B6D364E12EE1837500AE315D /* UnreadIndicatorSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnreadIndicatorSettings.swift; sourceTree = "<group>"; };
 		B6E63D032A9EC71C007BB586 /* PushTrackingStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTrackingStatusTests.swift; sourceTree = "<group>"; };
 		B6F7CB9C2CC2089A00C35C64 /* BaseTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTemplate.swift; sourceTree = "<group>"; };
 		B6F7CB9D2CC2089A00C35C64 /* ContentCardTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardTemplate.swift; sourceTree = "<group>"; };
@@ -1183,19 +1195,19 @@
 			path = ImageOnlyCard;
 			sourceTree = "<group>";
 		};
-		755DB8E32E60BAC500F3B21B /* ContainerSettings */ = {
+		755DB8E32E60BAC500F3B21B /* Container */ = {
 			isa = PBXGroup;
 			children = (
+				B6D364D02EE1709100AE315D /* DataModel */,
 				755DB8ED2E624F0D00F3B21B /* Template */,
 				755DB8DE2E60BAC500F3B21B /* ContainerSettingsMocks.swift */,
 				755DB8F12E624F1700F3B21B /* ContainerEventListening.swift */,
-				755DB8DF2E60BAC500F3B21B /* ContainerSettingsSchemaData.swift */,
 				755DB8E02E60BAC500F3B21B /* ContainerUI.swift */,
 				755DB8E12E60BAC500F3B21B /* ContainerUIError.swift */,
 				755DB8F32E624F2D00F3B21B /* ContainerState.swift */,
 				755DB8F42E624F2D00F3B21B /* ContainerView.swift */,
 			);
-			path = ContainerSettings;
+			path = Container;
 			sourceTree = "<group>";
 		};
 		755DB8ED2E624F0D00F3B21B /* Template */ = {
@@ -1452,6 +1464,27 @@
 			path = TestApps/MessagingDemoApp/NotificationService;
 			sourceTree = "<group>";
 		};
+		B6D364D02EE1709100AE315D /* DataModel */ = {
+			isa = PBXGroup;
+			children = (
+				B6D364D92EE1837500AE315D /* ContainerSchemaData.swift */,
+				B6D364DA2EE1837500AE315D /* ContainerTemplateType.swift */,
+				B6D364DB2EE1837500AE315D /* EmptyStateSettings.swift */,
+				B6D364DC2EE1837500AE315D /* Heading.swift */,
+				B6D364DE2EE1837500AE315D /* LayoutSettings.swift */,
+				B6D364E12EE1837500AE315D /* UnreadIndicatorSettings.swift */,
+			);
+			path = DataModel;
+			sourceTree = "<group>";
+		};
+		B6D364ED2EE184A600AE315D /* UIProperties */ = {
+			isa = PBXGroup;
+			children = (
+				B6D364D72EE1837500AE315D /* AEPColor.swift */,
+			);
+			path = UIProperties;
+			sourceTree = "<group>";
+		};
 		B6F7CBA12CC2089A00C35C64 /* Template */ = {
 			isa = PBXGroup;
 			children = (
@@ -1538,9 +1571,10 @@
 			path = AEPText;
 			sourceTree = "<group>";
 		};
-		B6F7CBBD2CC2089A00C35C64 /* UIElement */ = {
+		B6F7CBBD2CC2089A00C35C64 /* UIElements */ = {
 			isa = PBXGroup;
 			children = (
+				B6D364ED2EE184A600AE315D /* UIProperties */,
 				B6F7CBA42CC2089A00C35C64 /* AEPButton */,
 				B6F7CBA82CC2089A00C35C64 /* AEPDismissButton */,
 				B6F7CBAC2CC2089A00C35C64 /* AEPImage */,
@@ -1550,14 +1584,13 @@
 				B6F7CBBB2CC2089A00C35C64 /* AEPViewModifier.swift */,
 				B6F7CBBC2CC2089A00C35C64 /* View+CustomModifiers.swift */,
 			);
-			path = UIElement;
+			path = UIElements;
 			sourceTree = "<group>";
 		};
 		B6F7CBC52CC2089A00C35C64 /* ContentCards */ = {
 			isa = PBXGroup;
 			children = (
 				B6F7CBA12CC2089A00C35C64 /* Template */,
-				B6F7CBBD2CC2089A00C35C64 /* UIElement */,
 				B6F7CBBE2CC2089A00C35C64 /* ContentCardCustomizing.swift */,
 				B6F7CBBF2CC2089A00C35C64 /* ContentCardSchemaData+TemplateContent.swift */,
 				B6F7CBC02CC2089A00C35C64 /* ContentCardTemplateType.swift */,
@@ -1572,7 +1605,8 @@
 		B6F7CBC82CC2089A00C35C64 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				755DB8E32E60BAC500F3B21B /* ContainerSettings */,
+				B6F7CBBD2CC2089A00C35C64 /* UIElements */,
+				755DB8E32E60BAC500F3B21B /* Container */,
 				B6F7CBC52CC2089A00C35C64 /* ContentCards */,
 				B6F7CBC62CC2089A00C35C64 /* Messaging+UIPublicAPI.swift */,
 				B6F7CBC72CC2089A00C35C64 /* UIConstants.swift */,
@@ -2715,7 +2749,6 @@
 				B6F7CBCF2CC2089A00C35C64 /* ContentCardUIEventListening.swift in Sources */,
 				B64256B22D936BD600EDCAC5 /* Collection+PropositionItem.swift in Sources */,
 				755DB8E42E60BAC500F3B21B /* ContainerUIError.swift in Sources */,
-				755DB8E62E60BAC500F3B21B /* ContainerSettingsSchemaData.swift in Sources */,
 				755DB8E82E60BAC500F3B21B /* ContainerSettingsMocks.swift in Sources */,
 				755DB8E92E60BAC500F3B21B /* ContainerUI.swift in Sources */,
 				B6F7CBD02CC2089A00C35C64 /* ContentCardUI+EventHandler.swift in Sources */,
@@ -2741,6 +2774,13 @@
 				B6F7CBE02CC2089A00C35C64 /* AEPTextType.swift in Sources */,
 				B6F7CBE12CC2089A00C35C64 /* BaseTemplate.swift in Sources */,
 				B6F7CBE22CC2089A00C35C64 /* Messaging+UIPublicAPI.swift in Sources */,
+				B6D364E22EE1837500AE315D /* ContainerSchemaData.swift in Sources */,
+				B6D364E52EE1837500AE315D /* UnreadIndicatorSettings.swift in Sources */,
+				B6D364E62EE1837500AE315D /* EmptyStateSettings.swift in Sources */,
+				B6D364E92EE1837500AE315D /* ContainerTemplateType.swift in Sources */,
+				B6D364EA2EE1837500AE315D /* AEPColor.swift in Sources */,
+				B6D364EB2EE1837500AE315D /* Heading.swift in Sources */,
+				B6D364EC2EE1837500AE315D /* LayoutSettings.swift in Sources */,
 				4C3D44472E28842300662A3F /* EventHistoryOperationSchemaData.swift in Sources */,
 				B6F7CBE32CC2089A00C35C64 /* UIConstants.swift in Sources */,
 				B6F7CBE42CC2089A00C35C64 /* AEPButton.swift in Sources */,

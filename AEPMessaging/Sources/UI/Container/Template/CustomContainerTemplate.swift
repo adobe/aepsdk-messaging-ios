@@ -19,7 +19,7 @@ import Foundation
 ///
 /// `CustomContainerTemplate` is a subclass of `BaseContainerTemplate` and conforms to the `ContainerTemplate` protocol.
 /// It provides a structured layout for containers that include configurable scrolling orientation and unread indicators.
-/// This class is initialized with `ContainerSettingsSchemaData` and content cards.
+/// This class is initialized with `ContainerSchemaData` and content cards.
 ///
 /// - Note: The `view` property is lazily initialized and represents the entire layout of the container.
 @available(iOS 15.0, *)
@@ -30,7 +30,7 @@ public class CustomContainerTemplate: BaseContainerTemplate, ContainerTemplate {
     public lazy var view: some View = buildContainerView {
         VStack(alignment: .leading, spacing: 0) {
             // Header if available
-            if let heading = containerSettings.heading?.content {
+            if let heading = containerSettings.heading?.text.content {
                 buildHeaderView(heading)
             }
             
@@ -51,7 +51,7 @@ public class CustomContainerTemplate: BaseContainerTemplate, ContainerTemplate {
     ///   - customizer: An object conforming to ContainerCustomizing protocol that allows for
     ///                 custom styling of the container template
     /// - Returns: An initialized `CustomContainerTemplate` or `nil` if initialization fails.
-    override init?(_ containerSettings: ContainerSettingsSchemaData, 
+    override init?(_ containerSettings: ContainerSchemaData, 
                    contentCards: [ContentCardUI], 
                    customizer: ContainerCustomizing?) {
         super.init(containerSettings, contentCards: contentCards, customizer: customizer)
