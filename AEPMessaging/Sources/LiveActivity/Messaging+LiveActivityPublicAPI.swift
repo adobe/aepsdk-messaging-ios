@@ -33,13 +33,9 @@ public extension Messaging {
     /// calls to `registerLiveActivity` for the same `attributeType`.
     private static let registrationCoordinator = LiveActivityRegistrationCoordinator()
     
-    /// Tracks pending token batches: Set of expected types -> collected tokens
+    /// Coordinator for managing batched push-to-start token collection.
     @available(iOS 17.2, *)
-    private static var pendingBatches: [Set<String>: [String: String]] = [:]
-    
-    /// Lock for thread-safe access to pendingBatches
-    @available(iOS 17.2, *)
-    private static let batchLock = NSLock()
+    private static let tokenBatcher = LiveActivityTokenBatcher()
 
     /// Represents the registration state of a Live Activity type.
     private enum RegistrationState {
@@ -50,11 +46,10 @@ public extension Messaging {
 
     /// Determines the current registration state for a given Live Activity type.
     ///
-    /// - Parameter type: The Live Activity type to check.
+    /// - Parameter attributeType: The Live Activity attribute type to check.
     /// - Returns: The current registration state indicating whether the type is fully registered,
     ///           not registered, or in a partially registered state.
-    private static func getRegistrationState<T: LiveActivityAttributes>(for _: T.Type) async -> RegistrationState {
-        let attributeType = T.attributeType
+    private static func getRegistrationState(for attributeType: String) async -> RegistrationState {
         let updateTaskRegistered = await activityUpdateTaskStore.task(for: attributeType) != nil
 
         if #available(iOS 17.2, *) {
@@ -107,42 +102,8 @@ public extension Messaging {
     /// ])
     /// ```
     static func registerLiveActivities(_ types: [any LiveActivityAttributes.Type]) {
-        guard !types.isEmpty else { return }
-        
-        let attributeTypes = types.map { $0.attributeType }
-        let batchKey = Set(attributeTypes)
-        
-        // Initialize batch tracking for iOS 17.2+ (where push-to-start tokens exist)
-        if #available(iOS 17.2, *) {
-            batchLock.lock()
-            
-            // Check if this exact batch already exists
-            if pendingBatches[batchKey] != nil {
-                batchLock.unlock()
-                Log.warning(label: MessagingConstants.LOG_TAG,
-                           "Batch with types \(attributeTypes) is already registered. Skipping duplicate batch registration.")
-                return
-            }
-            
-            // Check for overlapping attribute types with existing batches
-            for (existingBatch, _) in pendingBatches {
-                let overlap = existingBatch.intersection(batchKey)
-                if !overlap.isEmpty {
-                    batchLock.unlock()
-                    Log.error(label: MessagingConstants.LOG_TAG,
-                             "Cannot register batch \(attributeTypes): types \(Array(overlap)) are already part of another batch. Each type can only be in one batch.")
-                    return
-                }
-            }
-            
-            // Safe to create new batch
-            pendingBatches[batchKey] = [:]
-            batchLock.unlock()
-        }
-        
-        // Register each type normally
         for type in types {
-            registerLiveActivityInternal(type)
+            registerLiveActivity(type)
         }
     }
     
@@ -175,7 +136,7 @@ public extension Messaging {
 
     /// Performs the actual task registration logic for a given Live Activity type.
     private static func performRegistration<T: LiveActivityAttributes>(type _: T.Type, attributeType: String) async {
-        let registrationState = await getRegistrationState(for: T.self)
+        let registrationState = await getRegistrationState(for: attributeType)
 
         switch registrationState {
         case .unregistered:
@@ -249,7 +210,7 @@ public extension Messaging {
 
             for await tokenData in Activity<T>.pushToStartTokenUpdates {
                 let tokenHex = tokenData.hexEncodedString
-                handlePushToStartToken(attributeType: attributeType, token: tokenHex)
+                await tokenBatcher.handleToken(attributeType: attributeType, token: tokenHex)
             }
         }
     }
@@ -322,81 +283,12 @@ public extension Messaging {
             }
         }
     }
-
-    /// Handles incoming push-to-start tokens, checking if they're part of a batch.
-    /// If batched, collects and dispatches all tokens together when complete.
-    /// If not batched, dispatches immediately.
-    @available(iOS 17.2, *)
-    private static func handlePushToStartToken(attributeType: String, token: String) {
-        // Check and collect token under lock
-        batchLock.lock()
-        var completedBatchTokens: [String: String]?
-        var isPartOfBatch = false
-        
-        // Check if this token belongs to any pending batch
-        for (expectedTypes, var collectedTokens) in pendingBatches {
-            if expectedTypes.contains(attributeType) {
-                isPartOfBatch = true
-                
-                // Add token to batch
-                collectedTokens[attributeType] = token
-                pendingBatches[expectedTypes] = collectedTokens
-                
-                // Check if batch is complete
-                if collectedTokens.count == expectedTypes.count {
-                    // Batch complete! Remove and save for dispatch
-                    pendingBatches.removeValue(forKey: expectedTypes)
-                    completedBatchTokens = collectedTokens
-                }
-                break
-            }
-        }
-        batchLock.unlock()
-        
-        // Dispatch outside lock to avoid holding lock during event dispatch
-        if let batchTokens = completedBatchTokens {
-            // Batch completed - dispatch all tokens together
-            dispatchBatchedPushToStartTokens(tokens: batchTokens)
-        } else if !isPartOfBatch {
-            // Not part of any batch - dispatch immediately
-            dispatchPushToStartTokenEvent(attributeType: attributeType, token: token)
-        }
-        // else: Part of incomplete batch - do nothing, wait for more tokens
-    }
     
-    /// Dispatches an event indicating that a Live Activity push-to-start token has been received.
-    ///
-    /// This method constructs and dispatches an event to Messaging extension that represents
-    /// the push-to-start token and associated details for a specific Live Activity type.
-    ///
-    /// - Parameters:
-    ///   - attributeType: A unique string identifier representing the ``LiveActivityAttributes`` type associated with the Live Activity.
-    ///   - token: A `String` representing the push-to-start token for the Live Activity.
-    private static func dispatchPushToStartTokenEvent(attributeType: String, token: String) {
-        Log.debug(label: MessagingConstants.LOG_TAG,
-                  """
-                  Dispatching Live Activity push-to-start token event.
-                  Token: \(token)
-                  Type: \(attributeType)
-                  """)
-
-        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (\(attributeType))"
-        let event = Event(name: eventName,
-                          type: EventType.messaging,
-                          source: EventSource.requestContent,
-                          data: [
-                              MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
-                              MessagingConstants.XDM.Push.TOKEN: token,
-                              MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType
-                          ])
-        MobileCore.dispatch(event: event)
-    }
-    
-    /// Dispatches a single event containing multiple push-to-start tokens from batched registration.
+    /// Dispatches a single event containing multiple push-to-start tokens.
     ///
     /// - Parameter tokens: Dictionary mapping attribute type names to their push-to-start tokens
     @available(iOS 17.2, *)
-    private static func dispatchBatchedPushToStartTokens(tokens: [String: String]) {
+    fileprivate static func dispatchBatchedPushToStartTokens(tokens: [String: String]) {
         guard !tokens.isEmpty else { return }
         
         Log.debug(label: MessagingConstants.LOG_TAG,
@@ -414,6 +306,8 @@ public extension Messaging {
             ]
         }
         
+        // Always dispatch as a "batched" event, even if there's only one token.
+        // This unifies the handling logic in Messaging.swift.
         let eventName = "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched)"
         let event = Event(name: eventName,
                           type: EventType.messaging,
@@ -623,5 +517,42 @@ public extension Messaging {
                           source: EventSource.debug,
                           data: eventData)
         MobileCore.dispatch(event: event)
+    }
+}
+
+/// Actor to coordinate batched Live Activity push-to-start tokens.
+/// This actor ensures that tokens for a set of activity types are collected and dispatched together.
+@available(iOS 17.2, *)
+private actor LiveActivityTokenBatcher {
+    /// Maps a set of expected attribute types to their collected tokens
+    private var accumulatedTokens: [String: String] = [:]
+    private var batchTask: Task<Void, Never>?
+    
+    // Configurable delay for batching (debounce)
+    private let delay: Duration = .milliseconds(200)
+
+    /// Handles a new push-to-start token.
+    ///
+    /// - Parameters:
+    ///   - attributeType: The attribute type associated with the token.
+    ///   - token: The push-to-start token string.
+    func handleToken(attributeType: String, token: String) {
+        // Store token
+        accumulatedTokens[attributeType] = token
+        
+        // If a batch task is not already running, start one
+        if batchTask == nil {
+            batchTask = Task {
+                // Wait for the debounce delay
+                try? await Task.sleep(for: delay)
+                
+                let tokens = accumulatedTokens
+                accumulatedTokens.removeAll()
+                batchTask = nil
+                
+                // Dispatch tokens using Messaging's static method
+                Messaging.dispatchBatchedPushToStartTokens(tokens: tokens)
+            }
+        }
     }
 }
