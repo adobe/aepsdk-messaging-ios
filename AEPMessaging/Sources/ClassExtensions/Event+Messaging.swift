@@ -304,6 +304,10 @@ extension Event {
     var liveActivityPushToStartToken: String? {
         data?[MessagingConstants.XDM.Push.TOKEN] as? String
     }
+    
+    var liveActivityBatchedPushToStartTokens: [[String: String]]? {
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS] as? [[String: String]]
+    }
 
     var liveActivityUpdateToken: String? {
         data?[MessagingConstants.XDM.Push.TOKEN] as? String
