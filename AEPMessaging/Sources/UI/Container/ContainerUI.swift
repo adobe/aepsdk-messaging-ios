@@ -17,8 +17,7 @@ import AEPServices
 import Foundation
 import Combine
 
-/// ContainerSettingsUI is a hybrid class that combines PravinPK's proven UI patterns 
-/// with schema-driven template architecture for displaying content cards in containers.
+/// ContainerUI displays content cards in a simple vertical layout based on schema data.
 @available(iOS 15.0, *)
 public class ContainerUI: Identifiable, ObservableObject {
     
@@ -29,9 +28,6 @@ public class ContainerUI: Identifiable, ObservableObject {
     
     /// Current state of the container
     @Published private(set) var state: ContainerState = .loading
-    
-    /// The container template instance
-    @Published private(set) var containerTemplate: (any ContainerTemplate)?
     
     // MARK: - Public Properties
     
@@ -44,11 +40,6 @@ public class ContainerUI: Identifiable, ObservableObject {
     /// Container settings schema data (from JSON schema)
     public let containerSettings: ContainerSchemaData
     
-    /// Template type determined by container settings
-    public var templateType: ContainerTemplateType {
-        containerSettings.templateType
-    }
-    
     /// SwiftUI view that represents the container
     public var view: some View {
         ContainerView(container: self)
@@ -58,9 +49,6 @@ public class ContainerUI: Identifiable, ObservableObject {
     
     /// Customizer for content cards
     private let customizer: ContentCardCustomizing?
-    
-    /// Customizer for container templates
-    private let containerCustomizer: ContainerCustomizing?
     
     /// Listener for container events
     private var listener: ContainerEventListening?
@@ -79,22 +67,19 @@ public class ContainerUI: Identifiable, ObservableObject {
     
     // MARK: - Initialization
     
-    /// Initializes a new container settings UI
+    /// Initializes a new container UI
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the content cards
     ///   - containerSettings: Required container settings from JSON schema
     ///   - customizer: Optional customizer for content cards
-    ///   - containerCustomizer: Optional customizer for container templates
     ///   - listener: Optional listener for container events
     public init(surface: Surface,
                 containerSettings: ContainerSchemaData,
                 customizer: ContentCardCustomizing? = nil,
-                containerCustomizer: ContainerCustomizing? = nil,
                 listener: ContainerEventListening? = nil) {
         self.surface = surface
         self.containerSettings = containerSettings
         self.customizer = customizer
-        self.containerCustomizer = containerCustomizer
         self.listener = listener
         self.cardEventListener = self
         
@@ -125,14 +110,6 @@ public class ContainerUI: Identifiable, ObservableObject {
                 guard let propositions = propositionDict?[self.surface] else {
                     self.state = .empty
                     self.contentCards = []
-                    self.containerTemplate = ContainerTemplateBuilder.buildTemplate(
-                        from: self.containerSettings,
-                        contentCards: [],
-                        customizer: self.containerCustomizer
-                    )
-                    
-                    // Set event handler for container template tracking
-                    self.containerTemplate?.eventHandler = self
                     self.listener?.onEmpty(self)
                     return
                 }
@@ -169,16 +146,6 @@ public class ContainerUI: Identifiable, ObservableObject {
                 
                 self.contentCards = cards
                 
-                // Create container template with the loaded content cards
-                self.containerTemplate = ContainerTemplateBuilder.buildTemplate(
-                    from: self.containerSettings,
-                    contentCards: cards,
-                    customizer: self.containerCustomizer
-                )
-                
-                // Set event handler for container template tracking
-                self.containerTemplate?.eventHandler = self
-                
                 if cards.isEmpty {
                     self.state = .empty
                     self.listener?.onEmpty(self)
@@ -214,21 +181,6 @@ public class ContainerUI: Identifiable, ObservableObject {
     public func setEmptyView(_ builder: @escaping (EmptyStateSettings?) -> AnyView) {
         self.customEmptyView = builder
     }
-    
-    /// Refreshes the container template with current card states (for UI updates)
-    private func refreshContainerTemplate() {
-        guard !contentCards.isEmpty else { return }
-        
-        // Rebuild container template with current cards to trigger UI update
-        containerTemplate = ContainerTemplateBuilder.buildTemplate(
-            from: containerSettings,
-            contentCards: contentCards,
-            customizer: containerCustomizer
-        )
-        
-        // Set event handler for container template tracking
-        containerTemplate?.eventHandler = self
-    }
 }
 
 
@@ -249,16 +201,6 @@ extension ContainerUI: ContentCardUIEventListening {
         // Remove card from the list
         contentCards.removeAll { $0.id == card.id }
         
-        // Rebuild container template with updated content cards
-        containerTemplate = ContainerTemplateBuilder.buildTemplate(
-            from: containerSettings,
-            contentCards: contentCards,
-            customizer: containerCustomizer
-        )
-        
-        // Set event handler for container template tracking
-        containerTemplate?.eventHandler = self
-        
         // Update state if no cards remain
         if contentCards.isEmpty {
             state = .empty
@@ -270,32 +212,6 @@ extension ContainerUI: ContentCardUIEventListening {
     
     public func onInteract(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
         let handled = listener?.onCardInteracted(card, interactionId, actionURL: actionURL) ?? false
-        
-        // Add a small delay to ensure the card's isRead status has been updated
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            // Refresh container template after interaction to update unread indicators
-            if self.containerSettings.isUnreadEnabled {
-                self.refreshContainerTemplate()
-            }
-        }
-        
         return handled
-    }
-}
-
-// MARK: - ContainerTemplateEventHandler Implementation
-
-@available(iOS 15.0, *)
-extension ContainerUI: ContainerTemplateEventHandler {
-    func onContainerDisplay() {
-        // Container display tracking is handled in BaseContainerTemplate
-        // This provides additional app-level notification
-        listener?.onLoaded(self)
-    }
-    
-    func onContainerInteract(interactionId: String) {
-        // Track container-level interactions
-        containerSettings.track(interactionId, withEdgeEventType: .interact)
-        // Note: Could add container interaction method to listener protocol if needed
     }
 }

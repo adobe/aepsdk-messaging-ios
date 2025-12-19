@@ -140,7 +140,7 @@ private struct DefaultErrorView: View {
 
 // MARK: - Main Container View
 
-/// SwiftUI view that renders the container based on template type
+/// SwiftUI view that renders the container directly from schema data
 @available(iOS 15.0, *)
 struct ContainerView: View {
     @ObservedObject var container: ContainerUI
@@ -171,15 +171,94 @@ struct ContainerView: View {
     }
     
     private var contentView: some View {
-        Group {
-            if let template = container.containerTemplate {
-                AnyView(template.view)
+        VStack(alignment: .leading, spacing: 0) {
+            // Header if available
+            if let heading = container.containerSettings.heading?.text.content {
+                headerView(heading)
+            }
+            
+            // Render based on layout orientation
+            if container.containerSettings.layout.orientation == .horizontal {
+                horizontalLayout
             } else {
-                // Fallback view in case template creation fails
-                Text("Template not available")
-                    .foregroundColor(.secondary)
+                verticalLayout
             }
         }
+        .background(Color(.systemGroupedBackground))
+        .onAppear {
+            // Track container display event
+            container.containerSettings.track(withEdgeEventType: .display)
+        }
+    }
+    
+    private var verticalLayout: some View {
+        ScrollView(.vertical, showsIndicators: true) {
+            LazyVStack(spacing: 16) {
+                ForEach(container.contentCards, id: \.id) { card in
+                    cardRow(card)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                        )
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
+    }
+    
+    private var horizontalLayout: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 20) {
+                ForEach(container.contentCards, id: \.id) { card in
+                    cardRow(card)
+                        .frame(width: 280) // Fixed width for horizontal cards
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                        )
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
+    }
+    
+    private func headerView(_ heading: String) -> some View {
+        HStack {
+            Text(heading)
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            Color(.systemBackground)
+                .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
+        )
+    }
+    
+    private func cardRow(_ card: ContentCardUI) -> some View {
+        let isHorizontal = container.containerSettings.layout.orientation == .horizontal
+        
+        return card.view
+            .padding(.all, 12)
+            .padding(.top, isHorizontal ? 20 : 0) // Extra top padding for horizontal layout dismiss button
+            .overlay(alignment: .topLeading) {
+                // Show unread indicator if enabled and card is unread
+                if container.containerSettings.isUnreadEnabled && card.isRead != true {
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 10, height: 10)
+                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+                        .offset(x: 4, y: 4)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: isHorizontal ? 12 : 8))
     }
     
     private var emptyStateView: some View {

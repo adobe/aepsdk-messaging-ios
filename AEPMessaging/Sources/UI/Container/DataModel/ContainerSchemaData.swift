@@ -69,19 +69,6 @@ public class ContainerSchemaData: NSObject, Codable {
         try container.encodeIfPresent(unreadIndicator, forKey: .unreadIndicator)
         try container.encode(isUnreadEnabled, forKey: .isUnreadEnabled)
     }
-    
-    /// Determines the appropriate container template type based on settings
-    @available(iOS 15.0, *)
-    public var templateType: ContainerTemplateType {
-        switch (layout.orientation, isUnreadEnabled) {
-        case (.vertical, true):
-            return .inbox
-        case (.horizontal, false):
-            return .carousel
-        default:
-            return .custom
-        }
-    }
 }
 
 // MARK: - Container Settings Tracking

@@ -62,22 +62,19 @@ public extension Messaging {
         }
     }
     
-    /// Retrieves a content card container UI for a given surface with automatic template selection.
+    /// Retrieves a content card container UI for a given surface.
     /// 
-    /// This method combines PravinPK's proven UI patterns with schema-driven template architecture.
-    /// It automatically selects the appropriate template (Inbox/Carousel/Custom) based on container settings.
+    /// This method provides a simple vertical layout for displaying content cards in a container.
     ///
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the container UI.
     ///   - customizer: An optional ContentCardCustomizing object to customize the appearance of content cards.
-    ///   - containerCustomizer: An optional ContainerCustomizing object to customize the appearance of container templates.
-    ///   - listener: An optional ContainerSettingsEventListening object to listen to container events.
+    ///   - listener: An optional ContainerEventListening object to listen to container events.
     ///   - completion: A completion handler that is called with a `Result` type containing either:
-    ///     - success(ContainerSettingsUI): A `ContainerSettingsUI` object if the operation is successful.
-    ///     - failure(ContainerSettingsUIError): A specific error indicating the failure reason
+    ///     - success(ContainerUI): A `ContainerUI` object if the operation is successful.
+    ///     - failure(ContainerUIError): A specific error indicating the failure reason
     static func getContentCardContainerUI(for surface: Surface,
                                          customizer: ContentCardCustomizing? = nil,
-                                         containerCustomizer: ContainerCustomizing? = nil,
                                          listener: ContainerEventListening? = nil,
                                          _ completion: @escaping (Result<ContainerUI, ContainerUIError>) -> Void) {
         
@@ -118,7 +115,6 @@ public extension Messaging {
                 surface: surface,
                 containerSettings: containerSettings,
                 customizer: customizer,
-                containerCustomizer: containerCustomizer,
                 listener: listener
             )
             

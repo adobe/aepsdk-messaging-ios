@@ -24,7 +24,6 @@ public extension Messaging {
     /// This simulates the complete flow including proposition fetching and container creation
     static func getContentCardContainerUIMock(for surface: Surface,
                                              customizer: ContentCardCustomizing? = nil,
-                                             containerCustomizer: ContainerCustomizing? = nil,
                                              listener: ContainerEventListening? = nil,
                                              _ completion: @escaping (Result<ContainerUI, ContainerUIError>) -> Void) {
         
@@ -77,11 +76,10 @@ public extension Messaging {
                     surface: surface,
                     containerSettings: containerSettings,
                     customizer: customizer,
-                    containerCustomizer: containerCustomizer,
                     listener: listener
                 )
                 
-                print("✅ Mock: Container UI created successfully with template: \(containerSettings.templateType)")
+                print("✅ Mock: Container UI created successfully")
                 completion(.success(containerUI))
             }
         }
@@ -109,11 +107,10 @@ public extension Messaging {
     
     /// Creates realistic mock propositions with container settings and content cards
     private static func createMockPropositions(for surface: Surface) -> [Proposition] {
-        let templateType = getMockTemplateType(for: surface)
-        print("🧪 Mock: Creating propositions for template type: \(templateType)")
+        print("🧪 Mock: Creating propositions for surface: \(surface.uri)")
         
         // Create container settings proposition
-        let containerProposition = createMockContainerProposition(templateType: templateType, surface: surface)
+        let containerProposition = createMockContainerProposition(surface: surface)
         print("🧪 Mock: Created container proposition with \(containerProposition.items.count) items")
         
         // Debug the container proposition items
@@ -128,134 +125,54 @@ public extension Messaging {
         return [containerProposition] + cardPropositions
     }
     
-    /// Determines mock template type based on surface URI for variety
-    private static func getMockTemplateType(for surface: Surface) -> ContainerTemplateType {
-        print("🧪 Mock: Determining template type for surface: \(surface.uri)")
-        
-        switch surface.uri {
-        case let uri where uri.contains("inbox"):
-            print("🧪 Mock: Surface contains 'inbox' -> returning .inbox")
-            return .inbox
-        case let uri where uri.contains("carousel"):
-            print("🧪 Mock: Surface contains 'carousel' -> returning .carousel")
-            return .carousel
-        case let uri where uri.contains("custom"):
-            print("🧪 Mock: Surface contains 'custom' -> returning .custom")
-            return .custom
-        default:
-            print("🧪 Mock: Surface doesn't match known patterns, using hash-based selection")
-            // Rotate through different types for demo variety
-            let hash = abs(surface.uri.hashValue)
-            let templateType: ContainerTemplateType
-            switch hash % 3 {
-            case 0: templateType = .inbox
-            case 1: templateType = .carousel
-            default: templateType = .custom
-            }
-            print("🧪 Mock: Hash-based selection -> returning .\(templateType)")
-            return templateType
-        }
-    }
-    
     /// Creates a mock proposition containing container settings
-    private static func createMockContainerProposition(templateType: ContainerTemplateType, surface: Surface) -> Proposition {
-        print("🧪 Mock: Creating container proposition for template: \(templateType)")
-        let containerJSON: [String: Any]
+    private static func createMockContainerProposition(surface: Surface) -> Proposition {
+        print("🧪 Mock: Creating container proposition")
         
-        switch templateType {
-        case .inbox:
-            containerJSON = [
-                "heading": ["content": "📥 Inbox Messages"],
-                "layout": ["orientation": "vertical"],
-                "capacity": 3,
-                "emptyStateSettings": [
-                    "message": ["content": "No messages yet, check back soon!"],
+        // Simple vertical layout container
+        let containerJSON: [String: Any] = [
+            "heading": ["content": "📥 Messages"],
+            "layout": ["orientation": "vertical"],
+            "capacity": 3,
+            "emptyStateSettings": [
+                "message": ["content": "No messages yet, check back soon!"],
+                "image": [
+                    "url": "https://example.com/empty-inbox.png",
+                    "darkUrl": "https://example.com/empty-inbox-dark.png"
+                ]
+            ],
+            "unread_indicator": [
+                "unread_bg": [
+                    "clr": [
+                        "light": "0xFF4444FF",
+                        "dark": "0xFF6666FF"
+                    ]
+                ],
+                "unread_icon": [
+                    "placement": "topleft",
                     "image": [
-                        "url": "https://example.com/empty-inbox.png",
-                        "darkUrl": "https://example.com/empty-inbox-dark.png"
+                        "url": "https://example.com/unread.png",
+                        "darkUrl": "https://example.com/unread-dark.png"
                     ]
-                ],
-                "unread_indicator": [
-                    "unread_bg": [
-                        "clr": [
-                            "light": "0xFF4444FF",
-                            "dark": "0xFF6666FF"
-                        ]
-                    ],
-                    "unread_icon": [
-                        "placement": "topleft",
-                        "image": [
-                            "url": "https://example.com/unread.png",
-                            "darkUrl": "https://example.com/unread-dark.png"
-                        ]
-                    ]
-                ],
-                "isUnreadEnabled": true
-            ]
-            
-        case .carousel:
-            containerJSON = [
-                "heading": ["content": "🎠 Featured Offers"],
-                "layout": ["orientation": "horizontal"],
-                "capacity": 3,
-                "emptyStateSettings": [
-                    "message": ["content": "No offers available right now"],
-                    "image": [
-                        "url": "https://example.com/empty-carousel.png"
-                    ]
-                ],
-                "isUnreadEnabled": false
-            ]
-            
-        case .custom:
-            containerJSON = [
-                "heading": ["content": "⚙️ Custom Layout"],
-                "layout": ["orientation": "vertical"],
-                "capacity": 3,
-                "emptyStateSettings": [
-                    "message": ["content": "Customize your experience!"]
-                ],
-                "unread_indicator": [
-                    "unread_bg": [
-                        "clr": [
-                            "light": "0x00FF00FF",
-                            "dark": "0x00CC00FF"
-                        ]
-                    ],
-                    "unread_icon": [
-                        "placement": "topright",
-                        "image": [
-                            "url": "https://example.com/custom-unread.png"
-                        ]
-                    ]
-                ],
-                "isUnreadEnabled": true
-            ]
-            
-        case .unknown:
-            containerJSON = [
-                "heading": ["content": "❓ Unknown Layout"],
-                "layout": ["orientation": "vertical"],
-                "capacity": 3,
-                "isUnreadEnabled": false
-            ]
-        }
+                ]
+            ],
+            "isUnreadEnabled": true
+        ]
         
         // Create item structure matching real SDK format
-        // In real propositions, itemData = the `data` field from each item
-        let itemData: [String: Any] = containerJSON  // This becomes the itemData in PropositionItem
+        let itemData: [String: Any] = containerJSON
         print("🧪 Mock: Container JSON data: \(containerJSON)")
         
-        // Create mock item structure (this is what gets passed to createMockProposition)
+        // Create mock item structure
         let mockItem: [String: Any] = [
-            "id": "container-settings-\(templateType.rawValue)",
+            "id": "container-settings",
             "schema": MessagingConstants.PersonalizationSchemas.CONTAINER_SETTINGS, 
-            "data": itemData  // The real SDK uses `data` field as itemData
+            "data": itemData
         ]
         print("🧪 Mock: Created mock item structure: \(mockItem)")
         
         // Create mock proposition
-        let propositionId = "container-\(templateType.rawValue.lowercased())-\(surface.uri.hashValue.magnitude)"
+        let propositionId = "container-\(surface.uri.hashValue.magnitude)"
         print("🧪 Mock: Creating proposition with id: \(propositionId)")
         
         return createMockProposition(

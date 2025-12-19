@@ -15,15 +15,11 @@ import SwiftUI
 
 struct CardsView: View, ContentCardUIEventListening, ContainerEventListening {
     
-    @State private var selectedTemplate: ContainerTemplateType = .inbox
     @State private var containerUI: ContainerUI?
     @State private var isLoading: Bool = false
     
     var body: some View {
-        VStack(spacing: 16) {
-            // Template selector
-            templateSelector
-            
+        VStack(spacing: 0) {
             // Container view
             ZStack {
                 if let container = containerUI {
@@ -40,71 +36,24 @@ struct CardsView: View, ContentCardUIEventListening, ContainerEventListening {
         }
         .navigationTitle("Container Demo")
         .onAppear {
-            loadContainer(for: selectedTemplate)
-        }
-    }
-    
-    private var templateSelector: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text("Container Template:")
-                    .font(.headline)
-                Spacer()
-            }
-            
-            HStack(spacing: 0) {
-                ForEach([ContainerTemplateType.inbox, .carousel, .custom], id: \.self) { template in
-                    Button(action: {
-                        selectedTemplate = template
-                        loadContainer(for: template)
-                    }) {
-                        VStack(spacing: 4) {
-                            Text(templateIcon(for: template))
-                                .font(.title2)
-                            Text(template.rawValue)
-                                .font(.caption)
-                                .fontWeight(.medium)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(selectedTemplate == template ? Color.blue.opacity(0.15) : Color.clear)
-                        .foregroundColor(selectedTemplate == template ? .blue : .primary)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-        .padding(.horizontal)
-    }
-    
-    private func templateIcon(for template: ContainerTemplateType) -> String {
-        switch template {
-        case .inbox: return "📥"
-        case .carousel: return "🎠"
-        case .custom: return "⚙️"
-        case .unknown: return "❓"
-        @unknown default: return "❓"
+            loadContainer()
         }
     }
     
     // MARK: - Core API Usage
     
     /// This is the main API call that developers will use in production
-    private func loadContainer(for template: ContainerTemplateType) {
+    private func loadContainer() {
         isLoading = true
         containerUI = nil
         
         // Create surface for the container
-        let surfacePath = getSurfacePathForTemplate(template)
-        let surface = Surface(path: surfacePath)
+        let surface = Surface(path: "demo://container")
         
         // Call the Container API (using mock for demo purposes)
         Messaging.getContentCardContainerUIMock(
             for: surface,
             customizer: CardCustomizer(),
-            containerCustomizer: ContainerCustomizer(), // Now using the customizer
             listener: self
         ) { result in
             DispatchQueue.main.async {
@@ -201,21 +150,6 @@ struct CardsView: View, ContentCardUIEventListening, ContainerEventListening {
                     self.containerUI = nil
                 }
             }
-        }
-    }
-    
-    private func getSurfacePathForTemplate(_ template: ContainerTemplateType) -> String {
-        switch template {
-        case .inbox:
-            return "demo://inbox-container"
-        case .carousel:
-            return "demo://carousel-container"
-        case .custom:
-            return "demo://custom-container"
-        case .unknown:
-            return "demo://unknown-container"
-        @unknown default:
-            return "demo://unknown-container"
         }
     }
     
@@ -326,71 +260,5 @@ struct ButtonStyleModifier: ViewModifier {
                     .fill(Color.blue)
             )
             .shadow(color: .blue.opacity(0.3), radius: 2, x: 0, y: 1)
-    }
-}
-
-// MARK: - Container Template Customizer
-
-class ContainerCustomizer: ContainerCustomizing {
-    
-    // Customize inbox container template
-    func customize(template: InboxContainerTemplate) {
-        
-        template.containerSettings.heading = Heading(content: "Custom Inbox")
-        // Set custom background color for inbox containers
-        template.backgroundColor = Color(.systemGroupedBackground)
-        
-        // Example: Set a custom header view for inbox
-        // This will replace the default SDK header with your custom design
-        template.setCustomHeaderView { heading in
-            HStack {
-                // Custom icon
-                Image(systemName: "envelope.fill")
-                    .foregroundColor(.blue)
-                    .font(.title3)
-                
-                // Custom heading text
-                Text(heading)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.blue)
-                
-                Spacer()
-                
-                // Optional: Add a badge or additional UI element
-                Image(systemName: "bell.badge")
-                    .foregroundColor(.orange)
-                    .font(.title3)
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.blue.opacity(0.05)]),
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-        }
-        
-        print("Customizing inbox container template")
-    }
-    
-    func customize(template: CarouselContainerTemplate) {
-        // Customize carousel-specific settings
-        template.backgroundColor = Color(.systemBackground)
-        
-        // You can set a different custom header for carousel
-        template.setCustomHeaderView { heading in
-            Text(heading)
-                .font(.title)
-                .foregroundColor(.purple)
-                .padding()
-        }
-    }
-    
-    func customize(template: CustomContainerTemplate) {
-        // Customize custom container settings
-        template.backgroundColor = Color(.secondarySystemBackground)
     }
 }
