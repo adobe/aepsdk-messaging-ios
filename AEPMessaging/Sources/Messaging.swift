@@ -117,7 +117,8 @@ public class Messaging: NSObject, Extension {
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
         MessagingConstants.PersonalizationSchemas.JSON_CONTENT,
-        MessagingConstants.PersonalizationSchemas.RULESET_ITEM
+        MessagingConstants.PersonalizationSchemas.RULESET_ITEM,
+        MessagingConstants.PersonalizationSchemas.INBOX_ITEM
     ]
 
     // MARK: - Extension protocol methods

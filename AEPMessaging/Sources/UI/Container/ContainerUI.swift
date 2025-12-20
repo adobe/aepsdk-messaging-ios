@@ -38,7 +38,8 @@ public class ContainerUI: Identifiable, ObservableObject {
     public let surface: Surface
     
     /// Container settings schema data (from JSON schema)
-    public let containerSettings: ContainerSchemaData
+    /// Will be nil until fetched from propositions
+    @Published public private(set) var containerSettings: ContainerSchemaData?
     
     /// SwiftUI view that represents the container
     public var view: some View {
@@ -51,7 +52,7 @@ public class ContainerUI: Identifiable, ObservableObject {
     private let customizer: ContentCardCustomizing?
     
     /// Listener for container events
-    private var listener: ContainerEventListening?
+    public var listener: ContainerEventListening?
     
     /// Event listener for individual content card events
     private var cardEventListener: ContentCardUIEventListening?
@@ -67,23 +68,21 @@ public class ContainerUI: Identifiable, ObservableObject {
     
     // MARK: - Initialization
     
-    /// Initializes a new container UI
+    /// Initializes a new container UI that will fetch container settings dynamically
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the content cards
-    ///   - containerSettings: Required container settings from JSON schema
     ///   - customizer: Optional customizer for content cards
     ///   - listener: Optional listener for container events
     public init(surface: Surface,
-                containerSettings: ContainerSchemaData,
                 customizer: ContentCardCustomizing? = nil,
                 listener: ContainerEventListening? = nil) {
         self.surface = surface
-        self.containerSettings = containerSettings
+        self.containerSettings = nil // Will be fetched from propositions
         self.customizer = customizer
         self.listener = listener
         self.cardEventListener = self
         
-        // Start downloading content cards immediately
+        // Start downloading content cards and container settings immediately
         downloadCards()
     }
     
@@ -106,14 +105,32 @@ public class ContainerUI: Identifiable, ObservableObject {
                     return
                 }
                 
-                // Extract content cards from propositions
+                // Extract propositions for the surface
                 guard let propositions = propositionDict?[self.surface] else {
-                    self.state = .empty
-                    self.contentCards = []
-                    self.listener?.onEmpty(self)
+                    let error = ContainerUIError.dataUnavailable
+                    self.state = .error(error)
+                    self.listener?.onError(self, error)
                     return
                 }
                 
+                // Look for container settings in propositions - REQUIRED
+                guard let fetchedSettings = propositions
+                    .flatMap({ $0.items })
+                    .compactMap({ $0.containerSchemaData })
+                    .first else {
+                    // No container settings found - this is an error state
+                    let error = ContainerUIError.containerSettingsNotFound
+                    Log.error(label: UIConstants.LOG_TAG,
+                             "No container settings found in propositions for surface: \(self.surface.uri)")
+                    self.state = .error(error)
+                    self.listener?.onError(self, error)
+                    return
+                }
+                
+                // Update container settings from server response
+                self.containerSettings = fetchedSettings
+                
+                // Extract content cards from propositions
                 var cards: [ContentCardUI] = []
                 for proposition in propositions {
                     guard let contentCard = ContentCardUI.createInstance(
@@ -130,12 +147,12 @@ public class ContainerUI: Identifiable, ObservableObject {
                 }
                 
                 // Apply capacity limit if specified in container settings
-                if self.containerSettings.capacity > 0 {
-                    cards = Array(cards.prefix(self.containerSettings.capacity))
+                if fetchedSettings.capacity > 0 {
+                    cards = Array(cards.prefix(fetchedSettings.capacity))
                 }
                 
                 // If unread functionality is enabled, initialize NEW cards as unread
-                if self.containerSettings.isUnreadEnabled {
+                if fetchedSettings.isUnreadEnabled {
                     for card in cards {
                         // Only set as unread if this card doesn't have a stored read status yet
                         if card.isRead == nil {
@@ -182,7 +199,6 @@ public class ContainerUI: Identifiable, ObservableObject {
         self.customEmptyView = builder
     }
 }
-
 
 
 // MARK: - ContentCardUIEventListening Implementation

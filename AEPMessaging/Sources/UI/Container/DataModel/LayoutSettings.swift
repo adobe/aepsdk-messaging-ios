@@ -35,10 +35,9 @@ public struct LayoutSettings: Codable {
     public enum ContainerOrientation: String, CaseIterable {
         case horizontal = "horizontal"
         case vertical = "vertical"
-        case unknown = "unknown"
         
         init(from string: String) {
-            self = ContainerOrientation(rawValue: string) ?? .unknown
+            self = ContainerOrientation(rawValue: string) ?? .vertical // Default to vertical
         }
     }
 

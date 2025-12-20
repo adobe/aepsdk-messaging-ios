@@ -21,68 +21,22 @@ import AEPServices
 public extension Messaging {
     
     /// Mock version of getContentCardContainerUI for local testing
-    /// This simulates the complete flow including proposition fetching and container creation
+    /// Returns a ContainerUI immediately that will load mock data
     static func getContentCardContainerUIMock(for surface: Surface,
                                              customizer: ContentCardCustomizing? = nil,
-                                             listener: ContainerEventListening? = nil,
-                                             _ completion: @escaping (Result<ContainerUI, ContainerUIError>) -> Void) {
+                                             listener: ContainerEventListening? = nil) -> ContainerUI {
         
         print("🧪 Mock: Getting container UI for surface: \(surface.uri)")
         
-        // Simulate network delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            // Use mock propositions
-            getPropositionsForSurfacesMock([surface]) { propositionDict, error in
-                if let error = error {
-                    Log.error(label: UIConstants.LOG_TAG,
-                              "Mock: Error retrieving propositions for surface, \(surface.uri). Error \(error)")
-                    completion(.failure(.dataUnavailable))
-                    return
-                }
-                
-                // Extract container settings using the same logic as real implementation
-                guard let propositions = propositionDict?[surface] else {
-                    completion(.failure(.dataUnavailable))
-                    return
-                }
-                
-                // Search for container settings in propositions using functional approach
-                // Debug: Check all propositions and items
-                print("🧪 Mock: Checking \(propositions.count) propositions for container settings")
-                for (propIndex, proposition) in propositions.enumerated() {
-                    print("🧪 Mock: Proposition \(propIndex): \(proposition.items.count) items")
-                    for (itemIndex, item) in proposition.items.enumerated() {
-                        print("🧪 Mock: Item \(itemIndex): schema=\(item.schema), containerSettings=\(item.containerSchemaData != nil)")
-                    }
-                }
-                
-                let containerSettings = propositions
-                    .flatMap { $0.items }
-                    .compactMap { $0.containerSchemaData }
-                    .first
-                
-                print("🧪 Mock: Found container settings: \(containerSettings != nil)")
-                
-                // Ensure container settings are present
-                guard let containerSettings = containerSettings else {
-                    Log.error(label: UIConstants.LOG_TAG,
-                              "Mock: No container settings found in propositions for surface: \(surface.uri)")
-                    completion(.failure(.containerSettingsNotFound))
-                    return
-                }
-                
-                // Create the container UI with the required container settings
-                let containerUI = ContainerUI(
-                    surface: surface,
-                    containerSettings: containerSettings,
-                    customizer: customizer,
-                    listener: listener
-                )
-                
-                print("✅ Mock: Container UI created successfully")
-                completion(.success(containerUI))
-            }
-        }
+        // Create and return container immediately - it will fetch data in background
+        let containerUI = ContainerUI(
+            surface: surface,
+            customizer: customizer,
+            listener: listener
+        )
+        
+        print("✅ Mock: Container UI created and returned immediately")
+        return containerUI
     }
     
     /// Mock version of getPropositionsForSurfaces that returns realistic test data

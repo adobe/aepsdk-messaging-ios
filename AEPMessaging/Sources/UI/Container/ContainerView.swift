@@ -173,12 +173,13 @@ struct ContainerView: View {
     private var contentView: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header if available
-            if let heading = container.containerSettings.heading?.text.content {
+            if let heading = container.containerSettings?.heading?.text.content {
                 headerView(heading)
             }
             
-            // Render based on layout orientation
-            if container.containerSettings.layout.orientation == .horizontal {
+            // Render based on layout orientation (default to vertical if nil)
+            let orientation = container.containerSettings?.layout.orientation ?? .vertical
+            if orientation == .horizontal {
                 horizontalLayout
             } else {
                 verticalLayout
@@ -187,7 +188,7 @@ struct ContainerView: View {
         .background(Color(.systemGroupedBackground))
         .onAppear {
             // Track container display event
-            container.containerSettings.track(withEdgeEventType: .display)
+            container.containerSettings?.track(withEdgeEventType: .display)
         }
     }
     
@@ -243,14 +244,15 @@ struct ContainerView: View {
     }
     
     private func cardRow(_ card: ContentCardUI) -> some View {
-        let isHorizontal = container.containerSettings.layout.orientation == .horizontal
+        let isHorizontal = container.containerSettings?.layout.orientation == .horizontal
+        let isUnreadEnabled = container.containerSettings?.isUnreadEnabled ?? false
         
         return card.view
             .padding(.all, 12)
             .padding(.top, isHorizontal ? 20 : 0) // Extra top padding for horizontal layout dismiss button
             .overlay(alignment: .topLeading) {
                 // Show unread indicator if enabled and card is unread
-                if container.containerSettings.isUnreadEnabled && card.isRead != true {
+                if isUnreadEnabled && card.isRead != true {
                     Circle()
                         .fill(Color.red)
                         .frame(width: 10, height: 10)
@@ -264,10 +266,10 @@ struct ContainerView: View {
     private var emptyStateView: some View {
         Group {
             if let customView = container.customEmptyView {
-                customView(container.containerSettings.emptyStateSettings)
+                customView(container.containerSettings?.emptyStateSettings)
             } else {
                 DefaultEmptyStateView(
-                    emptyStateSettings: container.containerSettings.emptyStateSettings,
+                    emptyStateSettings: container.containerSettings?.emptyStateSettings,
                     onRefresh: { container.refresh() }
                 )
             }

@@ -64,61 +64,27 @@ public extension Messaging {
     
     /// Retrieves a content card container UI for a given surface.
     /// 
-    /// This method provides a simple vertical layout for displaying content cards in a container.
+    /// Returns a ContainerUI immediately that starts in a loading state.
+    /// The container will automatically fetch content cards and container settings, 
+    /// then transition to loaded, empty, or error state.
     ///
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the container UI.
     ///   - customizer: An optional ContentCardCustomizing object to customize the appearance of content cards.
     ///   - listener: An optional ContainerEventListening object to listen to container events.
-    ///   - completion: A completion handler that is called with a `Result` type containing either:
-    ///     - success(ContainerUI): A `ContainerUI` object if the operation is successful.
-    ///     - failure(ContainerUIError): A specific error indicating the failure reason
+    /// - Returns: A ContainerUI instance that manages its own loading and display state.
     static func getContentCardContainerUI(for surface: Surface,
                                          customizer: ContentCardCustomizing? = nil,
-                                         listener: ContainerEventListening? = nil,
-                                         _ completion: @escaping (Result<ContainerUI, ContainerUIError>) -> Void) {
+                                         listener: ContainerEventListening? = nil) -> ContainerUI {
         
-        // Request propositions for the specified surface from Messaging extension.
-        Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
-            if let error = error {
-                Log.error(label: UIConstants.LOG_TAG,
-                          "Error retrieving content card container UI for surface, \(surface.uri). Error \(error)")
-                completion(.failure(ContainerUIError.dataUnavailable))
-                return
-            }
-            
-            // Look for container settings in propositions
-            var containerSettings: ContainerSchemaData?
-            
-            // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
-            guard let propositions = propositionDict?[surface] else {
-                completion(.failure(ContainerUIError.dataUnavailable))
-                return
-            }
-            
-            // Search for container settings in propositions using functional approach
-            containerSettings = propositions
-                .flatMap { $0.items }
-                .compactMap { $0.containerSchemaData }
-                .first
-            
-            // Ensure container settings are present - this is required for container UI
-            guard let containerSettings = containerSettings else {
-                Log.error(label: UIConstants.LOG_TAG,
-                          "No container settings found in propositions for surface: \(surface.uri)")
-                completion(.failure(ContainerUIError.containerSettingsNotFound))
-                return
-            }
-            
-            // Create the container UI with the required container settings
-            let containerUI = ContainerUI(
-                surface: surface,
-                containerSettings: containerSettings,
-                customizer: customizer,
-                listener: listener
-            )
-            
-            completion(.success(containerUI))
-        }
+        // Create and return the container UI immediately with default settings
+        // It will start in loading state and fetch both container settings and cards automatically
+        let containerUI = ContainerUI(
+            surface: surface,
+            customizer: customizer,
+            listener: listener
+        )
+        
+        return containerUI
     }
 }
