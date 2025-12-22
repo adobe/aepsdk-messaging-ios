@@ -12,37 +12,37 @@
 
 import Foundation
 
-/// An enum which describes different errors that ContainerSettingsUI API's can return
+/// An enum which describes different errors that InboxUI API's can return
 @available(iOS 15.0, *)
-public enum ContainerUIError: Int, Error {
+public enum InboxError: Int, Error {
     public typealias RawValue = Int
     
     /// No propositions were returned for the specified surface
     case dataUnavailable = 1
     
-    /// Container settings were not found in the propositions
-    case containerSettingsNotFound = 2
+    /// InboxSchemaData were not found in the propositions
+    case inboxSchemaDataNotFound = 2
     
-    /// Invalid container settings schema or parsing failed
-    case invalidContainerSettings = 3
+    /// Invalid inboxSchemaData schema or parsing failed
+    case invalidInboxSchemaData = 3
     
-    /// Container creation failed due to internal error
-    case containerCreationFailed = 4
+    /// inbox creation failed due to internal error
+    case inboxCreationFailed = 4
 }
 
 /// Extension to provide user-friendly error descriptions
 @available(iOS 15.0, *)
-extension ContainerUIError: LocalizedError {
+extension InboxError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .dataUnavailable:
             return "No propositions available for the specified surface"
-        case .containerSettingsNotFound:
-            return "Container settings not found in propositions"
-        case .invalidContainerSettings:
-            return "Invalid container settings schema or parsing failed"
-        case .containerCreationFailed:
-            return "Container creation failed due to internal error"
+        case .inboxSchemaDataNotFound:
+            return "InboxSchemaData not found in propositions"
+        case .invalidInboxSchemaData:
+            return "Invalid inboxSchemaData schema or parsing failed"
+        case .inboxCreationFailed:
+            return "Inbox creation failed due to internal error"
         }
     }
     
@@ -50,12 +50,12 @@ extension ContainerUIError: LocalizedError {
         switch self {
         case .dataUnavailable:
             return "The surface may not be configured or no campaigns are targeting it"
-        case .containerSettingsNotFound:
-            return "The propositions do not contain valid container settings data"
-        case .invalidContainerSettings:
-            return "The container settings JSON schema is malformed or incompatible"
-        case .containerCreationFailed:
-            return "An internal error occurred while creating the container UI"
+        case .inboxSchemaDataNotFound:
+            return "The propositions do not contain valid InboxSchemaData"
+        case .invalidInboxSchemaData:
+            return "The inboxSchemaData is malformed or incompatible"
+        case .inboxCreationFailed:
+            return "An internal error occurred while creating the InboxUI"
         }
     }
     
@@ -63,11 +63,11 @@ extension ContainerUIError: LocalizedError {
         switch self {
         case .dataUnavailable:
             return "Verify the surface configuration and ensure campaigns are active"
-        case .containerSettingsNotFound:
-            return "Check that the proposition contains container settings in the expected format"
-        case .invalidContainerSettings:
-            return "Validate the container settings JSON against the expected schema"
-        case .containerCreationFailed:
+        case .inboxSchemaDataNotFound:
+            return "Check that the proposition contains inboxSchemaData in the expected format"
+        case .invalidInboxSchemaData:
+            return "Validate the InboxSchemaData JSON against the expected schema"
+        case .inboxCreationFailed:
             return "Check logs for additional error details and retry the operation"
         }
     }

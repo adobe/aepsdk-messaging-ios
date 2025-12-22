@@ -14,7 +14,7 @@ import Foundation
 
 /// Represents layout settings including orientation
 public struct LayoutSettings: Codable {
-    public let orientation: ContainerOrientation
+    public let orientation: InboxOrientation
     
     enum CodingKeys: String, CodingKey {
         case orientation
@@ -23,7 +23,7 @@ public struct LayoutSettings: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let orientationString = try container.decode(String.self, forKey: .orientation)
-        orientation = ContainerOrientation(from: orientationString)
+        orientation = InboxOrientation(from: orientationString)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -32,12 +32,12 @@ public struct LayoutSettings: Codable {
     }
     
     
-    public enum ContainerOrientation: String, CaseIterable {
+    public enum InboxOrientation: String, CaseIterable {
         case horizontal = "horizontal"
         case vertical = "vertical"
         
         init(from string: String) {
-            self = ContainerOrientation(rawValue: string) ?? .vertical // Default to vertical
+            self = InboxOrientation(rawValue: string) ?? .vertical // Default to vertical
         }
     }
 

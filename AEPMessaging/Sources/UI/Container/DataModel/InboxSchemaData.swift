@@ -13,18 +13,18 @@
 import Foundation
 import AEPServices
 
-/// Represents the schema data object for container settings based on the exact JSON schema
-@objc(AEPContainerSchemaData)
+/// Represents the schema data object for inbox settings based on the exact JSON schema
+@objc(AEPInboxSchemaData)
 @objcMembers
 @available(iOS 15.0, *)
-public class ContainerSchemaData: NSObject, Codable {
-    /// Heading content for the container
+public class InboxSchemaData: NSObject, Codable {
+    /// Heading content for the inbox
     public var heading: Heading?
     
     /// Layout configuration including orientation
     public let layout: LayoutSettings
     
-    /// Maximum capacity of items in the container
+    /// Maximum capacity of items in the inbox
     public let capacity: Int
     
     /// Empty state configuration when no content is available
@@ -71,17 +71,17 @@ public class ContainerSchemaData: NSObject, Codable {
     }
 }
 
-// MARK: - Container Settings Tracking
+// MARK: - Inbox Tracking
 @available(iOS 15.0, *)
-public extension ContainerSchemaData {
-    /// Tracks interaction with the given container settings schema data object.
+public extension InboxSchemaData {
+    /// Tracks interaction with the given Inbox.
     ///
     /// - Parameters
     ///     - interaction: a custom string value describing the interaction.
     ///     - eventType: an enum specifying event type for the interaction.
     func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let parent = parent else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track ContainerSchemaData, parent proposition item is unavailable.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to track InboxSchemaData, parent proposition item is unavailable.")
             return
         }
         parent.track(interaction, withEdgeEventType: eventType)

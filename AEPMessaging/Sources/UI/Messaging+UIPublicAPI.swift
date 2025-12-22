@@ -71,20 +71,20 @@ public extension Messaging {
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the container UI.
     ///   - customizer: An optional ContentCardCustomizing object to customize the appearance of content cards.
-    ///   - listener: An optional ContainerEventListening object to listen to container events.
+    ///   - listener: An optional InboxEventListening object to listen to container events.
     /// - Returns: A ContainerUI instance that manages its own loading and display state.
-    static func getContentCardContainerUI(for surface: Surface,
+    static func getInboxUI(for surface: Surface,
                                          customizer: ContentCardCustomizing? = nil,
-                                         listener: ContainerEventListening? = nil) -> ContainerUI {
+                                         listener: InboxEventListening? = nil) -> InboxUI {
         
         // Create and return the container UI immediately with default settings
         // It will start in loading state and fetch both container settings and cards automatically
-        let containerUI = ContainerUI(
+        let inboxUI = InboxUI(
             surface: surface,
             customizer: customizer,
             listener: listener
         )
         
-        return containerUI
+        return inboxUI
     }
 }

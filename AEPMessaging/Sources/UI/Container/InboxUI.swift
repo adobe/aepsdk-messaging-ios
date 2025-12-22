@@ -17,33 +17,33 @@ import AEPServices
 import Foundation
 import Combine
 
-/// ContainerUI displays content cards in a simple vertical layout based on schema data.
+/// InboxUI displays content cards in a layout based on schema data.
 @available(iOS 15.0, *)
-public class ContainerUI: Identifiable, ObservableObject {
+public class InboxUI: Identifiable, ObservableObject {
     
     // MARK: - Published Properties
     
-    /// The current list of content cards in the container
+    /// The current list of content cards in the inbox
     @Published private(set) var contentCards: [ContentCardUI] = []
     
-    /// Current state of the container
-    @Published private(set) var state: ContainerState = .loading
+    /// Current state of the inbox
+    @Published private(set) var state: InboxState = .loading
     
     // MARK: - Public Properties
     
-    /// Unique identifier for the container
+    /// Unique identifier for the inbox
     public let id = UUID()
     
     /// The surface for fetching content cards
     public let surface: Surface
     
-    /// Container settings schema data (from JSON schema)
+    /// Inbox schema data (from JSON schema)
     /// Will be nil until fetched from propositions
-    @Published public private(set) var containerSettings: ContainerSchemaData?
+    @Published public private(set) var inboxSchemaData: InboxSchemaData?
     
-    /// SwiftUI view that represents the container
+    /// SwiftUI view that represents the Inbox
     public var view: some View {
-        ContainerView(container: self)
+        InboxView(inbox: self)
     }
     
     // MARK: - Private Properties
@@ -51,8 +51,8 @@ public class ContainerUI: Identifiable, ObservableObject {
     /// Customizer for content cards
     private let customizer: ContentCardCustomizing?
     
-    /// Listener for container events
-    public var listener: ContainerEventListening?
+    /// Listener for inbox events
+    public var listener: InboxEventListening?
     
     /// Event listener for individual content card events
     private var cardEventListener: ContentCardUIEventListening?
@@ -68,21 +68,21 @@ public class ContainerUI: Identifiable, ObservableObject {
     
     // MARK: - Initialization
     
-    /// Initializes a new container UI that will fetch container settings dynamically
+    /// Initializes a new InboxUI that will fetch InboxSchemaData dynamically
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the content cards
     ///   - customizer: Optional customizer for content cards
-    ///   - listener: Optional listener for container events
+    ///   - listener: Optional listener for inbox events
     public init(surface: Surface,
                 customizer: ContentCardCustomizing? = nil,
-                listener: ContainerEventListening? = nil) {
+                listener: InboxEventListening? = nil) {
         self.surface = surface
-        self.containerSettings = nil // Will be fetched from propositions
+        self.inboxSchemaData = nil // Will be fetched from propositions
         self.customizer = customizer
         self.listener = listener
         self.cardEventListener = self
         
-        // Start downloading content cards and container settings immediately
+        // Start downloading content cards and inboxSchemaData immediately
         downloadCards()
     }
     
@@ -99,7 +99,7 @@ public class ContainerUI: Identifiable, ObservableObject {
             DispatchQueue.main.async {
                 if let error = error {
                     Log.error(label: UIConstants.LOG_TAG,
-                             "Error retrieving content cards for container surface: \(self.surface.uri). Error: \(error)")
+                             "Error retrieving content cards for Inbox surface: \(self.surface.uri). Error: \(error)")
                     self.state = .error(error)
                     self.listener?.onError(self, error)
                     return
@@ -107,28 +107,28 @@ public class ContainerUI: Identifiable, ObservableObject {
                 
                 // Extract propositions for the surface
                 guard let propositions = propositionDict?[self.surface] else {
-                    let error = ContainerUIError.dataUnavailable
+                    let error = InboxError.dataUnavailable
                     self.state = .error(error)
                     self.listener?.onError(self, error)
                     return
                 }
                 
-                // Look for container settings in propositions - REQUIRED
+                // Look for inboxSchemaData in propositions - REQUIRED
                 guard let fetchedSettings = propositions
                     .flatMap({ $0.items })
-                    .compactMap({ $0.containerSchemaData })
+                    .compactMap({ $0.inboxSchemaData })
                     .first else {
-                    // No container settings found - this is an error state
-                    let error = ContainerUIError.containerSettingsNotFound
+                    // No inboxSchemaData found - this is an error state
+                    let error = InboxError.inboxSchemaDataNotFound
                     Log.error(label: UIConstants.LOG_TAG,
-                             "No container settings found in propositions for surface: \(self.surface.uri)")
+                             "No InboxSchemaData found in propositions for surface: \(self.surface.uri)")
                     self.state = .error(error)
                     self.listener?.onError(self, error)
                     return
                 }
                 
-                // Update container settings from server response
-                self.containerSettings = fetchedSettings
+                // Update inboxSchemaData from server response
+                self.inboxSchemaData = fetchedSettings
                 
                 // Extract content cards from propositions
                 var cards: [ContentCardUI] = []
@@ -146,7 +146,7 @@ public class ContainerUI: Identifiable, ObservableObject {
                     cards.append(contentCard)
                 }
                 
-                // Apply capacity limit if specified in container settings
+                // Apply capacity limit if specified in inboxSchemaData
                 if fetchedSettings.capacity > 0 {
                     cards = Array(cards.prefix(fetchedSettings.capacity))
                 }
@@ -174,7 +174,7 @@ public class ContainerUI: Identifiable, ObservableObject {
         }
     }
     
-    /// Refreshes the container by re-downloading content cards
+    /// Refreshes the Inbox by re-downloading content cards
     public func refresh() {
         downloadCards()
     }
@@ -204,7 +204,7 @@ public class ContainerUI: Identifiable, ObservableObject {
 // MARK: - ContentCardUIEventListening Implementation
 
 @available(iOS 15.0, *)
-extension ContainerUI: ContentCardUIEventListening {
+extension InboxUI: ContentCardUIEventListening {
     public func onCreate(_ card: ContentCardUI) {
         listener?.onCardCreated(card)
     }

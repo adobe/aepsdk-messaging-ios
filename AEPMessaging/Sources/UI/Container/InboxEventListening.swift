@@ -12,12 +12,17 @@
 
 import Foundation
 
-// MARK: - Container State
+// MARK: - Inbox Event Listening Protocol
 
-/// Represents the different states of the container
-public enum ContainerState {
-    case loading
-    case loaded
-    case empty
-    case error(Error)
+/// Protocol for listening to inbox-level events
+@available(iOS 15.0, *)
+public protocol InboxEventListening {
+    func onLoading(_ inbox: InboxUI)
+    func onLoaded(_ inbox: InboxUI)
+    func onError(_ inbox: InboxUI, _ error: Error)
+    func onEmpty(_ inbox: InboxUI)
+    func onCardDismissed(_ card: ContentCardUI)
+    func onCardDisplayed(_ card: ContentCardUI)
+    func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool
+    func onCardCreated(_ card: ContentCardUI)
 }

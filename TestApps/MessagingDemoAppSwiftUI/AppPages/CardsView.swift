@@ -13,9 +13,9 @@ governing permissions and limitations under the License.
 import AEPMessaging
 import SwiftUI
 
-struct CardsView: View, ContentCardUIEventListening, ContainerEventListening {
+struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
     
-    @StateObject private var containerUI: ContainerUI
+    @StateObject private var containerUI: InboxUI
     
     init() {
         // Create surface for the container
@@ -136,20 +136,20 @@ struct CardsView: View, ContentCardUIEventListening, ContainerEventListening {
     // MARK: - Event Listeners
     
     // Container Events
-    func onLoading(_ container: ContainerUI) {
-        print("Container is loading...")
+    func onLoading(_ inbox: InboxUI) {
+        print("Inbox is loading...")
     }
     
-    func onLoaded(_ container: ContainerUI) {
-        print("Container loaded successfully")
+    func onLoaded(_ inbox: InboxUI) {
+        print("Inbox loaded successfully")
     }
     
-    func onError(_ container: ContainerUI, _ error: Error) {
-        print("Container error: \(error.localizedDescription)")
+    func onError(_ inbox: InboxUI, _ error: Error) {
+        print("Inbox error: \(error.localizedDescription)")
     }
     
-    func onEmpty(_ container: ContainerUI) {
-        print("Container is empty")
+    func onEmpty(_ inbox: InboxUI) {
+        print("Inbox is empty")
     }
     
     // Content Card Events

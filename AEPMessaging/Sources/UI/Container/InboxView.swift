@@ -52,7 +52,7 @@ private struct DefaultEmptyStateView: View {
     
     var body: some View {
         VStack(spacing: Constants.verticalSpacing) {
-            // Use empty state settings from container if available
+            // Use empty state settings from inbox if available
             if let emptyStateSettings = emptyStateSettings {
                 if let imageUrl = emptyStateSettings.image?.url {
                     AsyncImage(url: imageUrl) { image in
@@ -138,16 +138,16 @@ private struct DefaultErrorView: View {
     }
 }
 
-// MARK: - Main Container View
+// MARK: - Main Inbox View
 
-/// SwiftUI view that renders the container directly from schema data
+/// SwiftUI view that renders the inbox directly from schema data
 @available(iOS 15.0, *)
-struct ContainerView: View {
-    @ObservedObject var container: ContainerUI
+struct InboxView: View {
+    @ObservedObject var inbox: InboxUI
     
     var body: some View {
         Group {
-            switch container.state {
+            switch inbox.state {
             case .loading:
                 loadingView
             case .loaded:
@@ -162,7 +162,7 @@ struct ContainerView: View {
     
     private var loadingView: some View {
         Group {
-            if let customView = container.customLoadingView {
+            if let customView = inbox.customLoadingView {
                 customView()
             } else {
                 DefaultLoadingView()
@@ -173,12 +173,12 @@ struct ContainerView: View {
     private var contentView: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header if available
-            if let heading = container.containerSettings?.heading?.text.content {
+            if let heading = inbox.inboxSchemaData?.heading?.text.content {
                 headerView(heading)
             }
             
             // Render based on layout orientation (default to vertical if nil)
-            let orientation = container.containerSettings?.layout.orientation ?? .vertical
+            let orientation = inbox.inboxSchemaData?.layout.orientation ?? .vertical
             if orientation == .horizontal {
                 horizontalLayout
             } else {
@@ -187,15 +187,15 @@ struct ContainerView: View {
         }
         .background(Color(.systemGroupedBackground))
         .onAppear {
-            // Track container display event
-            container.containerSettings?.track(withEdgeEventType: .display)
+            // Track inbox display event
+            inbox.inboxSchemaData?.track(withEdgeEventType: .display)
         }
     }
     
     private var verticalLayout: some View {
         ScrollView(.vertical, showsIndicators: true) {
             LazyVStack(spacing: 16) {
-                ForEach(container.contentCards, id: \.id) { card in
+                ForEach(inbox.contentCards, id: \.id) { card in
                     cardRow(card)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
@@ -212,7 +212,7 @@ struct ContainerView: View {
     private var horizontalLayout: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 20) {
-                ForEach(container.contentCards, id: \.id) { card in
+                ForEach(inbox.contentCards, id: \.id) { card in
                     cardRow(card)
                         .frame(width: 280) // Fixed width for horizontal cards
                         .background(
@@ -244,8 +244,8 @@ struct ContainerView: View {
     }
     
     private func cardRow(_ card: ContentCardUI) -> some View {
-        let isHorizontal = container.containerSettings?.layout.orientation == .horizontal
-        let isUnreadEnabled = container.containerSettings?.isUnreadEnabled ?? false
+        let isHorizontal = inbox.inboxSchemaData?.layout.orientation == .horizontal
+        let isUnreadEnabled = inbox.inboxSchemaData?.isUnreadEnabled ?? false
         
         return card.view
             .padding(.all, 12)
@@ -265,12 +265,12 @@ struct ContainerView: View {
     
     private var emptyStateView: some View {
         Group {
-            if let customView = container.customEmptyView {
-                customView(container.containerSettings?.emptyStateSettings)
+            if let customView = inbox.customEmptyView {
+                customView(inbox.inboxSchemaData?.emptyStateSettings)
             } else {
                 DefaultEmptyStateView(
-                    emptyStateSettings: container.containerSettings?.emptyStateSettings,
-                    onRefresh: { container.refresh() }
+                    emptyStateSettings: inbox.inboxSchemaData?.emptyStateSettings,
+                    onRefresh: { inbox.refresh() }
                 )
             }
         }
@@ -278,12 +278,12 @@ struct ContainerView: View {
     
     private func errorView(_ error: Error) -> some View {
         Group {
-            if let customView = container.customErrorView {
+            if let customView = inbox.customErrorView {
                 customView(error)
             } else {
                 DefaultErrorView(
                     error: error,
-                    onRetry: { container.refresh() }
+                    onRetry: { inbox.refresh() }
                 )
             }
         }
