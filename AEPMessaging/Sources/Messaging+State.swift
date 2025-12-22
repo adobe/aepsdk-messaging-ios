@@ -50,6 +50,20 @@ extension Messaging {
         }
     }
 
+    func updateInboxPropositions(_ newPropositions: [Surface: [Proposition]], removing surfaces: [Surface]? = nil) {
+        // add new surfaces or replace existing surfaces
+        for (surface, propositionsArray) in newPropositions {
+            inboxPropositionsBySurface[surface] = propositionsArray
+        }
+
+        // remove any surfaces if necessary
+        if let surfaces = surfaces {
+            for surface in surfaces {
+                inboxPropositionsBySurface.removeValue(forKey: surface)
+            }
+        }
+    }
+
     // MARK: - private methods
 
     private func hydratePropositionsRulesEngine() {

@@ -39,6 +39,11 @@ class ParsedPropositionTests: XCTestCase {
     var mockCodeBasedProposition: Proposition!
     var mockCodeBasedSurface: Surface!
     var mockCodeBasedContent: [String: Any]!
+
+    var mockInboxPropositionItem: PropositionItem!
+    var mockInboxProposition: Proposition!
+    var mockInboxSurface: Surface!
+    var mockInboxContent: [String: Any]!
         
     override func setUp() {
         mockSurface = Surface(uri: "mobileapp://some.not.matching.surface/path")
@@ -58,6 +63,11 @@ class ParsedPropositionTests: XCTestCase {
         mockCodeBasedPropositionItem = PropositionItem(itemId: "codebased", schema: htmlSchema, itemData: mockCodeBasedContent)
         mockCodeBasedProposition = Proposition(uniqueId: "codebased", scope: "codebased", scopeDetails: ["key":"value"], items: [mockCodeBasedPropositionItem])
         mockCodeBasedSurface = Surface(uri: "codebased")
+
+        mockInboxContent = JSONFileLoader.getRulesJsonFromFile("containerItemPropositionContent")
+        mockInboxPropositionItem = PropositionItem(itemId: "inbox", schema: .containerItem, itemData: mockInboxContent)
+        mockInboxProposition = Proposition(uniqueId: "inbox", scope: "inbox", scopeDetails: ["key":"value"], items: [mockInboxPropositionItem])
+        mockInboxSurface = Surface(uri: "inbox")
     }
     
     func testInitWithEmptyPropositions() throws {
@@ -417,6 +427,83 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
+    }
+
+    // MARK: - Inbox Proposition (Container Item) Tests
+
+    func testInitWithInboxProposition() throws {
+        // setup
+        let propositions: [Surface: [Proposition]] = [
+            mockInboxSurface: [mockInboxProposition]
+        ]
+
+        // test
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInboxSurface], runtime: mockRuntime)
+
+        // verify
+        XCTAssertNotNil(result)
+        XCTAssertEqual(0, result.propositionInfoToCache.count)
+        XCTAssertEqual(0, result.propositionsToCache.count)
+        XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
+        XCTAssertEqual(1, result.inboxPropositionsToCache.count)
+        XCTAssertEqual(1, result.inboxPropositionsToCache[mockInboxSurface]?.count)
+        XCTAssertEqual("inbox", result.inboxPropositionsToCache[mockInboxSurface]?.first?.uniqueId)
+    }
+
+    func testInitWithMixedPropositionsIncludingInbox() throws {
+        // setup
+        let propositions: [Surface: [Proposition]] = [
+            mockCodeBasedSurface: [mockCodeBasedProposition],
+            mockInboxSurface: [mockInboxProposition],
+            mockFeedSurface: [mockFeedProposition]
+        ]
+
+        // test
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockCodeBasedSurface, mockInboxSurface, mockFeedSurface], runtime: mockRuntime)
+
+        // verify
+        XCTAssertNotNil(result)
+        // Code-based proposition should be in propositionsToCache
+        XCTAssertEqual(1, result.propositionsToCache.count)
+        XCTAssertEqual(1, result.propositionsToCache[mockCodeBasedSurface]?.count)
+        // Inbox proposition should be in inboxPropositionsToCache
+        XCTAssertEqual(1, result.inboxPropositionsToCache.count)
+        XCTAssertEqual(1, result.inboxPropositionsToCache[mockInboxSurface]?.count)
+        // Feed proposition should have rules
+        XCTAssertEqual(1, result.surfaceRulesBySchemaType[.contentCard]?.count)
+    }
+
+    func testInitWithMultipleInboxPropositionsForSameSurface() throws {
+        // setup - simulate receiving multiple container propositions for same surface
+        let mockInboxProposition2 = Proposition(uniqueId: "inbox2", scope: "inbox", scopeDetails: ["key":"value"], items: [mockInboxPropositionItem])
+        let propositions: [Surface: [Proposition]] = [
+            mockInboxSurface: [mockInboxProposition, mockInboxProposition2]
+        ]
+
+        // test
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInboxSurface], runtime: mockRuntime)
+
+        // verify - both propositions should be stored
+        XCTAssertNotNil(result)
+        XCTAssertEqual(1, result.inboxPropositionsToCache.count)
+        XCTAssertEqual(2, result.inboxPropositionsToCache[mockInboxSurface]?.count)
+    }
+
+    func testInitWithInboxPropositionDoesNotGoToOtherCaches() throws {
+        // setup
+        let propositions: [Surface: [Proposition]] = [
+            mockInboxSurface: [mockInboxProposition]
+        ]
+
+        // test
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInboxSurface], runtime: mockRuntime)
+
+        // verify - inbox should NOT be in propositionsToCache or propositionsToPersist
+        XCTAssertNotNil(result)
+        XCTAssertEqual(0, result.propositionsToCache.count)
+        XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(1, result.inboxPropositionsToCache.count)
     }
     
     private func getPropItemFile(_ fileName: String) -> PropositionItem {

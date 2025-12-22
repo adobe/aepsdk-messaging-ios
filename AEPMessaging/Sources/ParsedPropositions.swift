@@ -23,6 +23,9 @@ struct ParsedPropositions {
     // non-in-app propositions should be cached and not persisted
     var propositionsToCache: [Surface: [Proposition]] = [:]
 
+    // inbox propositions (container-item) should be cached in memory only
+    var inboxPropositionsToCache: [Surface: [Proposition]] = [:]
+
     // in-app propositions don't need to stay in cache, but must be persisted
     // also need to store tracking info for in-app propositions as `PropositionInfo`
     var propositionsToPersist: [Surface: [Proposition]] = [:]
@@ -94,6 +97,10 @@ struct ParsedPropositions {
                 //   a. code based schemas are cached for reporting
                 case .jsonContent, .htmlContent, .defaultContent:
                     propositionsToCache.add(proposition, forKey: surface)
+                // - handle container-item schemas for inbox
+                //   a. container-item schemas are cached in memory only
+                case .containerItem:
+                    inboxPropositionsToCache.add(proposition, forKey: surface)
                 case .unknown:
                     continue
                 default:
