@@ -93,7 +93,7 @@ public class ContainerUI: Identifiable, ObservableObject {
         state = .loading
         listener?.onLoading(self)
         
-        Messaging.getPropositionsForSurfacesMock([surface]) { [weak self] propositionDict, error in
+        Messaging.getPropositionsForSurfaces([surface]) { [weak self] propositionDict, error in
             guard let self = self else { return }
             
             DispatchQueue.main.async {

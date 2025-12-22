@@ -64,7 +64,7 @@ public enum SchemaType: Int, Codable {
         case MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION:
             self = .eventHistoryOperation
 
-        case MessagingConstants.PersonalizationSchemas.CONTAINER_SETTINGS:
+        case MessagingConstants.PersonalizationSchemas.INBOX_ITEM:
             self = .containerSettings
 
         default:
@@ -105,7 +105,7 @@ public enum SchemaType: Int, Codable {
             return MessagingConstants.PersonalizationSchemas.EVENT_HISTORY_OPERATION
 
         case .containerSettings:
-            return MessagingConstants.PersonalizationSchemas.CONTAINER_SETTINGS
+            return MessagingConstants.PersonalizationSchemas.INBOX_ITEM
 
         default:
             return ""
