@@ -114,6 +114,12 @@ public class Messaging: NSObject, Extension {
         set { queue.async { self._inboxPropositionsBySurface = newValue } }
     }
 
+    // ⚠️ TODO: REMOVE MOCK FLAG - For testing Inbox feature (see Messaging+MockData.swift)
+    #if DEBUG
+    /// Toggle to enable/disable mock propositions (set to false to use real Edge)
+    static let ENABLE_MOCK_PROPOSITIONS = true
+    #endif
+
     /// Messaging properties to hold the persisted push identifier
     private var messagingProperties: MessagingProperties = .init()
 
@@ -582,6 +588,16 @@ public class Messaging: NSObject, Extension {
             Messaging.completionHandlers.append(handler)
         }
 
+        // ⚠️ TODO: REMOVE MOCK CODE - See Messaging+MockData.swift
+        #if DEBUG
+        // MOCK: Inject fake Edge response instead of calling real Edge
+        if Messaging.ENABLE_MOCK_PROPOSITIONS {
+            Log.debug(label: MessagingConstants.LOG_TAG, "🔧 MOCK: Using hardcoded propositions instead of Edge")
+            injectMockEdgeResponseForEvent(newEvent, requestedSurfaces: requestedSurfaces)
+            return
+        }
+        #endif
+
         // dispatch the event and implement handler for the completion event
         MobileCore.dispatch(event: newEvent, timeout: 10.0) { responseEvent in
             // responseEvent is the event dispatched by Edge extension when a request's stream has been closed
@@ -605,6 +621,418 @@ public class Messaging: NSObject, Extension {
             self.dispatch(event: processCompletedEvent)
         }
     }
+
+    // ==================================================================================
+    // ⚠️ TODO: DELETE MOCK CODE SECTION - Lines 625-900 (For Inbox Feature Testing) ⚠️
+    // ==================================================================================
+    #if DEBUG
+    /// Simulates Edge responses with mock hardcoded data for testing Inbox + Content Card propositions
+    /// This processes through the complete normal flow to test all parsing and storage logic
+    private func injectMockEdgeResponseForEvent(_ requestEvent: Event, requestedSurfaces: [Surface]) {
+        Log.debug(label: MessagingConstants.LOG_TAG, "🔧 MOCK: Injecting fake Edge propositions for surfaces: \(requestedSurfaces.map { $0.uri })")
+        
+        // Get mock payload
+        let mockPayload = getMockEdgePropositions()
+        
+        // Create mock Edge event data
+        let mockEdgeEventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestEvent.id.uuidString,
+            MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: mockPayload
+        ]
+        
+        // Create mock Edge event
+        let mockEdgeEvent = Event(
+            name: "Mock Personalization Decisions",
+            type: EventType.edge,
+            source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+            data: mockEdgeEventData
+        )
+        
+        // Process the mock event through normal flow
+        handleEdgePersonalizationNotification(mockEdgeEvent)
+        
+        // Simulate stream completion after short delay
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+            let completionData: [String: Any] = [
+                MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestEvent.id.uuidString
+            ]
+            let completionEvent = Event(
+                name: MessagingConstants.Event.Name.FINALIZE_PROPOSITIONS_RESPONSE,
+                type: EventType.messaging,
+                source: EventSource.contentComplete,
+                data: completionData
+            )
+            
+            self.dispatch(event: completionEvent)
+            
+            Log.debug(label: MessagingConstants.LOG_TAG, "🔧 MOCK: Fake Edge response processing complete. Check inboxPropositionsBySurface and qualifiedContentCardsBySurface!")
+        }
+    }
+    
+    /// Returns hardcoded Edge proposition payload: 3 content cards + 1 inbox (container-item)
+    /// Surface: mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard
+    private func getMockEdgePropositions() -> [[String: Any]] {
+        return [
+            // Mock Content Card 1
+            [
+                "scope": "mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard",
+                "scopeDetails": [
+                    "characteristics": [
+                        "eventToken": "eyJtZXNzYWdlRXhlY3V0aW9uIjp7Im1lc3NhZ2VFeGVjdXRpb25JRCI6IlVFOkluYm91bmQiLCJtZXNzYWdlSUQiOiI0MmQwMzVjMi01NWZiLTQ2MDgtOTFmZi0yYzFmYzZmYTAxMzAiLCJtZXNzYWdlUHVibGljYXRpb25JRCI6Ijg2YmYxMzdmLTY4ODctNGM3ZC05YzM1LWUyN2RmYWZlM2Y0MSIsIm1lc3NhZ2VUeXBlIjoibWFya2V0aW5nIiwiY2FtcGFpZ25JRCI6ImNiZjg3N2YzLTM0MzYtNDBhMy1hMjBjLTBjOGZjZDg0ZjMzYiIsImNhbXBhaWduVmVyc2lvbklEIjoiMGQwOTlmOGItZGM3Ni00NzlhLWI3MjgtNzZkY2I2OGZiOTNiIiwiY2FtcGbgcdxeszd5xzFpZ25BY3Rpb25JRCI6IjIwMjI2NDI4LTEzYjAtNGU5OC1hOGY3LTA5MTA2YWI3NmM4YSJ9LCJtZXNzYWdlUHJvZmlsZSI6eyJtZXNzYWdlUHJvZmlsZUlEIjoiYTRlOGZjM2ItNTE1OS00Y2FkLWE4NTMtMDYzNThhZDU4NmM2IiwiY2hhbm5lbCI6eyJfaWQiOiJodHRwczovL25zLmFkb2JlLmNvbS94ZG0vY2hhbm5lbHMvbWVzc2FnZUZlZWQiLCJfdHlwZSI6Imh0dHBzOi8vbnMuYWRvYmUuY29tL3hkbS9jaGFubmVsLXR5cGVzL21lc3NhZ2VGZWVkIn19fQ=="
+                    ],
+                    "correlationID": "86bf137f-6887-4c7d-9c35-e27dfafe3f41-0",
+                    "decisionProvider": "AJO",
+                    "activity": [
+                        "matchedSurfaces": ["mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard"],
+                        "id": "cbf877f3-3436-40a3-a20c-0c8fcd84f33b#20226428-13b0-4e98-a8f7-09106ab76c8a",
+                        "priority": 0
+                    ],
+                    "rank": 4
+                ],
+                "items": [
+                    [
+                        "data": [
+                            "rules": [
+                                [
+                                    "consequences": [
+                                        [
+                                            "type": "schema",
+                                            "detail": [
+                                                "id": "5c1cef44-2d39-47d6-9cbf-dfad4c3f8bc8",
+                                                "schema": "https://ns.adobe.com/personalization/message/content-card",
+                                                "data": [
+                                                    "contentType": "application/json",
+                                                    "content": [
+                                                        "title": ["content": "Stay connected to all the action"],
+                                                        "body": ["content": "Get live scores, real-time updates, and exclusive content right at your fingertips."],
+                                                        "image": [
+                                                            "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdXVlM13SfgMgRtJ5PlpkKp4uwWg8pfxWuzA&s",
+                                                            "darkUrl": "https://i.etsystatic.com/17919029/r/il/d573a6/5343830480/il_570xN.5343830480_4f04.jpg",
+                                                            "alt": ""
+                                                        ],
+                                                        "buttons": [
+                                                            [
+                                                                "interactId": "downloadClicked",
+                                                                "text": ["content": "Download App"],
+                                                                "id": "5b4d53f5-45bd-4e5c-a5cb-6e650b1993f6",
+                                                                "actionUrl": "https://nba.com"
+                                                            ]
+                                                        ],
+                                                        "dismissBtn": ["style": "simple"],
+                                                        "actionUrl": ""
+                                                    ],
+                                                    "expiryDate": 2019715200,
+                                                    "meta": [
+                                                        "adobe": ["template": "SmallImage"],
+                                                        "surface": "mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard",
+                                                        "unread": "true"
+                                                    ],
+                                                    "publishedDate": 1744056934
+                                                ]
+                                            ],
+                                            "id": "5c1cef44-2d39-47d6-9cbf-dfad4c3f8bc8"
+                                        ]
+                                    ],
+                                    "condition": [
+                                        "definition": [
+                                            "logic": "and",
+                                            "conditions": [
+                                                [
+                                                    "definition": [
+                                                        "value": 0,
+                                                        "matcher": "eq",
+                                                        "events": [
+                                                            [
+                                                                "iam.id": "cbf877f3-3436-40a3-a20c-0c8fcd84f33b#20226428-13b0-4e98-a8f7-09106ab76c8a",
+                                                                "iam.eventType": "disqualify"
+                                                            ]
+                                                        ]
+                                                    ],
+                                                    "type": "historical"
+                                                ],
+                                                [
+                                                    "definition": [
+                                                        "conditions": [
+                                                            [
+                                                                "type": "matcher",
+                                                                "definition": [
+                                                                    "values": [2019715200],
+                                                                    "key": "~timestampu",
+                                                                    "matcher": "lt"
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        "logic": "and"
+                                                    ],
+                                                    "type": "group"
+                                                ]
+                                            ]
+                                        ],
+                                        "type": "group"
+                                    ]
+                                ]
+                            ],
+                            "version": 1
+                        ],
+                        "schema": "https://ns.adobe.com/personalization/ruleset-item",
+                        "id": "78d3d100-d60f-43d8-8992-c95aca9b9904"
+                    ]
+                ],
+                "id": "eb60f3c8-ee7f-47b2-93bd-c0f18a8078d1"
+            ],
+            // Mock Content Card 2
+            [
+                "scopeDetails": [
+                    "rank": 3,
+                    "activity": [
+                        "matchedSurfaces": ["mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard"],
+                        "priority": 0,
+                        "id": "ff901693-0e16-4ce4-9a2e-446ea6cdbd90#20226428-13b0-4e98-a8f7-09106ab76c8a"
+                    ],
+                    "characteristics": [
+                        "eventToken": "eyJtZXNzYWdlRXhlY3V0aW9uIjp7Im1lc3NhZ2VFeGVjdXRpb25JRCI6IlVFOkluYm91bmQiLCJtZXNzYWdlSUQiOiI3NjEwMThiZi03MzQwLTQ3MjgtOTNjMS1iOTI5NzZmNmIzODgiLCJtZXNzYWdlUHVibGljYXRpb25JRCI6ImQ2ZDdiZTY3LWEyNTYtNGJmZS1hOWJiLWE2MzEwMmU0ODM0OSIsIm1lc3NhZ2VUeXBlIjoibWFya2V0aW5nIiwiY2FtcGFpZ25JRCI6ImZmOTAxNjkzLTBlMTYtNGNlNC05YTJlLTQ0NmVhNmNkYmQ5MCIsImNhbXBhaWduVmVyc2lvbklEIjoiN2MwYTM2ZGMtYmY4YS00MWQ5LWEzNmQtNmMxMmRhYzI0MmFiIiwiY2FtcGFpZ25BY3Rpb25JRCI6IjIwMjI2NDI4LTEzYjAtNGU5OC1hOGY3LTA5MTA2YWI3NmM4YSJ9LCJtZXNzYWdlUHJvZmlsZSI6eyJtZXNzYWdlUHJvZmlsZUlEIjoiNmRjNGUxOWUtMjBjZC00Y2RmLWIxYmItN2EzMTU2YjQ4ZGIxIiwiY2hhbm5lbCI6eyJfaWQiOiJodHRwczovL25zLmFkb2JlLmNvbS94ZG0vY2hhbm5lbHMvbWVzc2FnZUZlZWQiLCJfdHlwZSI6Imh0dHBzOi8vbnMuYWRvYmUuY29tL3hkbS9jaGFubmVsLXR5cGVzL21lc3NhZ2VGZWVkIn19fQ=="
+                    ],
+                    "correlationID": "d6d7be67-a256-4bfe-a9bb-a63102e48349-0",
+                    "decisionProvider": "AJO"
+                ],
+                "scope": "mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard",
+                "id": "cccc3b0a-6def-4721-bf86-4317970cc8f9",
+                "items": [
+                    [
+                        "id": "42d08b5e-ae23-466d-913c-ddc0a836db8d",
+                        "schema": "https://ns.adobe.com/personalization/ruleset-item",
+                        "data": [
+                            "rules": [
+                                [
+                                    "condition": [
+                                        "definition": [
+                                            "conditions": [
+                                                [
+                                                    "definition": [
+                                                        "value": 0,
+                                                        "matcher": "eq",
+                                                        "events": [
+                                                            [
+                                                                "iam.eventType": "disqualify",
+                                                                "iam.id": "ff901693-0e16-4ce4-9a2e-446ea6cdbd90#20226428-13b0-4e98-a8f7-09106ab76c8a"
+                                                            ]
+                                                        ]
+                                                    ],
+                                                    "type": "historical"
+                                                ],
+                                                [
+                                                    "definition": [
+                                                        "logic": "and",
+                                                        "conditions": [
+                                                            [
+                                                                "definition": [
+                                                                    "matcher": "lt",
+                                                                    "key": "~timestampu",
+                                                                    "values": [2051251200]
+                                                                ],
+                                                                "type": "matcher"
+                                                            ]
+                                                        ]
+                                                    ],
+                                                    "type": "group"
+                                                ]
+                                            ],
+                                            "logic": "and"
+                                        ],
+                                        "type": "group"
+                                    ],
+                                    "consequences": [
+                                        [
+                                            "detail": [
+                                                "id": "1e08a7b2-67d0-4ade-baf1-f4e70a2ab397",
+                                                "data": [
+                                                    "expiryDate": 2051251200,
+                                                    "meta": [
+                                                        "surface": "mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard",
+                                                        "adobe": ["template": "SmallImage"],
+                                                        "unread": "true"
+                                                    ],
+                                                    "contentType": "application/json",
+                                                    "content": [
+                                                        "image": [
+                                                            "alt": "",
+                                                            "darkUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT8gAa1wUx9Ox2M6cZNwUJe32xE-l_4oqPVA&s",
+                                                            "url": "https://hips.hearstapps.com/hmg-prod/images/golden-retriever-dog-royalty-free-image-505534037-1565105327.jpg?crop=0.760xw:1.00xh;0.204xw,0&resize=980:*"
+                                                        ],
+                                                        "actionUrl": "",
+                                                        "dismissBtn": ["style": "simple"],
+                                                        "body": ["content": "Get live scores, real-time updates, and exclusive content right at your fingertips."],
+                                                        "buttons": [
+                                                            [
+                                                                "interactId": "downloadClicked",
+                                                                "text": ["content": "Download App"],
+                                                                "id": "5b4d53f5-45bd-4e5c-a5cb-6e650b1993f6",
+                                                                "actionUrl": "https://nba.com"
+                                                            ]
+                                                        ],
+                                                        "title": ["content": "Stay connected to all the action"]
+                                                    ],
+                                                    "publishedDate": 1743719161
+                                                ],
+                                                "schema": "https://ns.adobe.com/personalization/message/content-card"
+                                            ],
+                                            "type": "schema",
+                                            "id": "1e08a7b2-67d0-4ade-baf1-f4e70a2ab397"
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            "version": 1
+                        ]
+                    ]
+                ]
+            ],
+            // Mock Content Card 3
+            [
+                "scope": "mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard",
+                "items": [
+                    [
+                        "data": [
+                            "rules": [
+                                [
+                                    "condition": [
+                                        "definition": [
+                                            "logic": "and",
+                                            "conditions": [
+                                                [
+                                                    "definition": [
+                                                        "events": [
+                                                            [
+                                                                "iam.eventType": "disqualify",
+                                                                "iam.id": "9cea0cb9-18eb-4f22-9d49-d4000817b2cb#20226428-13b0-4e98-a8f7-09106ab76c8a"
+                                                            ]
+                                                        ],
+                                                        "value": 0,
+                                                        "matcher": "eq"
+                                                    ],
+                                                    "type": "historical"
+                                                ],
+                                                [
+                                                    "type": "group",
+                                                    "definition": [
+                                                        "conditions": [
+                                                            [
+                                                                "definition": [
+                                                                    "values": [2019715200],
+                                                                    "matcher": "lt",
+                                                                    "key": "~timestampu"
+                                                                ],
+                                                                "type": "matcher"
+                                                            ]
+                                                        ],
+                                                        "logic": "and"
+                                                    ]
+                                                ]
+                                            ]
+                                        ],
+                                        "type": "group"
+                                    ],
+                                    "consequences": [
+                                        [
+                                            "id": "708fd987-2c76-421f-87f7-6885aee83aef",
+                                            "detail": [
+                                                "id": "708fd987-2c76-421f-87f7-6885aee83aef",
+                                                "data": [
+                                                    "expiryDate": 2019715200,
+                                                    "content": [
+                                                        "actionUrl": "",
+                                                        "body": ["content": "Get live scores, real-time updates, and exclusive content right at your fingertips."],
+                                                        "image": [
+                                                            "url": "https://cdn-icons-png.flaticon.com/256/3303/3303838.png",
+                                                            "alt": ""
+                                                        ],
+                                                        "buttons": [
+                                                            [
+                                                                "id": "5b4d53f5-45bd-4e5c-a5cb-6e650b1993f6",
+                                                                "text": ["content": "Download App"],
+                                                                "interactId": "downloadClicked",
+                                                                "actionUrl": "https://nba.com"
+                                                            ]
+                                                        ],
+                                                        "dismissBtn": ["style": "circle"],
+                                                        "title": ["content": "Stay connected to all the action"]
+                                                    ],
+                                                    "publishedDate": 1739862708,
+                                                    "meta": [
+                                                        "adobe": ["template": "SmallImage"],
+                                                        "surface": "mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard"
+                                                    ],
+                                                    "contentType": "application/json"
+                                                ],
+                                                "schema": "https://ns.adobe.com/personalization/message/content-card"
+                                            ],
+                                            "type": "schema"
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            "version": 1
+                        ],
+                        "id": "bc48dae0-bf2b-43fd-aae4-b35dc06c6a2f",
+                        "schema": "https://ns.adobe.com/personalization/ruleset-item"
+                    ]
+                ],
+                "id": "251a0ca9-d35a-4570-b6e5-b7258154624e",
+                "scopeDetails": [
+                    "rank": 2,
+                    "decisionProvider": "AJO",
+                    "correlationID": "bf410ebc-9e3c-459c-af24-5a58cc01ffc8-0",
+                    "activity": [
+                        "priority": 0,
+                        "id": "9cea0cb9-18eb-4f22-9d49-d4000817b2cb#20226428-13b0-4e98-a8f7-09106ab76c8a",
+                        "matchedSurfaces": ["mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard"]
+                    ],
+                    "characteristics": [
+                        "eventToken": "eyJtZXNzYWdlRXhlY3V0aW9uIjp7Im1lc3NhZ2VFeGVjdXRpb25JRCI6IlVFOkluYm91bmQiLCJtZXNzYWdlSUQiOiJlYTgxNTYxZS00NGY4LTRkMzMtOGNmZC03ZTUyNmQ2OTgyZDgiLCJtZXNzYWdlUHVibGljYXRpb25JRCI6ImJmNDEwZWJjLTllM2MtNDU5Yy1hZjI0LTVhNThjYzAxZmZjOCIsIm1lc3NhZ2VUeXBlIjoibWFya2V0aW5nIiwiY2FtcGFpZ25JRCI6IjljZWEwY2I5LTE4ZWItNGYyMi05ZDQ5LWQ0MDAwODE3YjJjYiIsImNhbXBhaWduVmVyc2lvbklEIjoiZmUzMzI2NWMtYTdjNS00ZGI5LTk4ZDktMDgzNjBkZGFkODAzIiwiY2FtcGFpZ25BY3Rpb25JRCI6IjIwMjI2NDI4LTEzYjAtNGU5OC1hOGY3LTA5MTA2YWI3NmM4YSJ9LCJtZXNzYWdlUHJvZmlsZSI6eyJtZXNzYWdlUHJvZmlsZUlEIjoiNWNhMGUxNjEtNThlMS00MjdlLWE4YTgtZTJlZmI3OGI1MzhiIiwiY2hhbm5lbCI6eyJfaWQiOiJodHRwczovL25zLmFkb2JlLmNvbS94ZG0vY2hhbm5lbHMvbWVzc2FnZUZlZWQiLCJfdHlwZSI6Imh0dHBzOi8vbnMuYWRvYmUuY29tL3hkbS9jaGFubmVsLXR5cGVzL21lc3NhZ2VGZWVkIn19fQ=="
+                    ]
+                ]
+            ],
+            // Mock Inbox Proposition (container-item)
+            [
+                "id": "66e05490-5e91-45c4-8eee-339784032940",
+                "scope": "mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard",
+                "scopeDetails": [
+                    "decisionProvider": "AJO",
+                    "correlationID": "za380bc9-aea0-486e-85f4-5904cc53124d-0",
+                    "characteristics": [
+                        "eventToken": "eyJtZXNzYWdlRXhlY3V0aW9uIjp7Im1lc3NhZ2VFeGVjdXRpb25JRCI6IlVFOkluYm91bmQiLCJtZXNzYWdlSUQiOiJ6YTM4MGJjOS1hZWEwLTQ4NmUtODVmNC01OTA0Y2M1MzEyNGQiLCJtZXNzYWdlUHVibGljYXRpb25JRCI6InphMzgwYmM5LWFlYTAtNDg2ZS04NWY0LTU5MDRjYzUzMTI0ZCIsIm1lc3NhZ2VUeXBlIjoibWFya2V0aW5nIiwiY2FtcGFpZ25JRCI6Ijk5ZGI4YWZmNC04MmFmLTQ2MGUtODUyNC03M2UxNDQxYWZkZmEiLCJjYW1wYWlnblZlcnNpb25JRCI6Ino5OTM5ZmNkLTc5MjQtNGQxZS1hMTFhLWJiZjk1NTIzYTJmMiIsImNhbXBhaWduQWN0aW9uSUQiOiJpZCJ9LCJtZXNzYWdlUHJvZmlsZSI6eyJtZXNzYWdlUHJvZmlsZUlEIjoiMmU5NjM1NzQtNjBkMS00MjkyLWJjMzktNmQ2ZTVmMDI1ZmNhIiwiY2hhbm5lbCI6eyJfaWQiOiJodHRwczovL25zLmFkb2JlLmNvbS94ZG0vY2hhbm5lbHMvY29udGFpbmVyIiwiX3R5cGUiOiJodHRwczovL25zLmFkb2JlLmNvbS94ZG0vY2hhbm5lbC10eXBlcy9jb250YWluZXIifX19"
+                    ],
+                    "rank": 1,
+                    "activity": [
+                        "id": "99db8aff4-82af-460e-8524-73e1441afdfa#id",
+                        "priority": 0,
+                        "matchedSurfaces": ["mobileapp://com.adobe.MessagingDemoAppSwiftUI/inboxcard"]
+                    ]
+                ],
+                "items": [
+                    [
+                        "id": "569d1166-d3e0-4aea-b9a7-6de8ebdf3aec",
+                        "schema": "https://ns.adobe.com/personalization/container-item",
+                        "data": [
+                            "content": [
+                                "heading": ["content": "Trending Now Container"],
+                                "layout": ["orientation": "vertical"],
+                                "capacity": 10,
+                                "emptyStateSettings": [
+                                    "message": ["content": "Check back soon!"]
+                                ],
+                                "isUnreadEnabled": true
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    }
+    #endif
+    // ==============================================================================================
+    // ⚠️ END OF MOCK CODE SECTION - Delete lines 625-900 when testing is complete ⚠️
+    // ==============================================================================================
 
     func handleProcessCompletedEvent(_ event: Event) {
         defer {

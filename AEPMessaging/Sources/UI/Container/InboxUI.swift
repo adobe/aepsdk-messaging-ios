@@ -83,13 +83,16 @@ public class InboxUI: Identifiable, ObservableObject {
         self.cardEventListener = self
         
         // Start downloading content cards and inboxSchemaData immediately
-        downloadCards()
+        refresh()
     }
     
     // MARK: - Public Methods
     
-    /// Downloads the content cards for the surface
-    public func downloadCards() {
+    /// Refreshes the inbox by fetching the latest propositions.
+    ///
+    /// The state transitions to `.loading` during the fetch, then to `.loaded`, `.empty`, or `.error`
+    /// based on the results. The listener is notified at each state change.
+    public func refresh() {
         state = .loading
         listener?.onLoading(self)
         
@@ -97,87 +100,173 @@ public class InboxUI: Identifiable, ObservableObject {
             guard let self = self else { return }
             
             DispatchQueue.main.async {
-                if let error = error {
-                    Log.error(label: UIConstants.LOG_TAG,
-                             "Error retrieving content cards for Inbox surface: \(self.surface.uri). Error: \(error)")
-                    self.state = .error(error)
-                    self.listener?.onError(self, error)
-                    return
-                }
-                
-                // Extract propositions for the surface
-                guard let propositions = propositionDict?[self.surface] else {
-                    let error = InboxError.dataUnavailable
-                    self.state = .error(error)
-                    self.listener?.onError(self, error)
-                    return
-                }
-                
-                // Look for inboxSchemaData in propositions - REQUIRED
-                guard let fetchedSettings = propositions
-                    .flatMap({ $0.items })
-                    .compactMap({ $0.inboxSchemaData })
-                    .first else {
-                    // No inboxSchemaData found - this is an error state
-                    let error = InboxError.inboxSchemaDataNotFound
-                    Log.error(label: UIConstants.LOG_TAG,
-                             "No InboxSchemaData found in propositions for surface: \(self.surface.uri)")
-                    self.state = .error(error)
-                    self.listener?.onError(self, error)
-                    return
-                }
-                
-                // Update inboxSchemaData from server response
-                self.inboxSchemaData = fetchedSettings
-                
-                // Extract content cards from propositions
-                var cards: [ContentCardUI] = []
-                for proposition in propositions {
-                    guard let contentCard = ContentCardUI.createInstance(
-                        with: proposition,
-                        customizer: self.customizer,
-                        listener: self.cardEventListener
-                    ) else {
-                        Log.warning(label: UIConstants.LOG_TAG,
-                                   "Failed to create ContentCardUI for proposition with ID: \(proposition.uniqueId)")
-                        continue
-                    }
-                    
-                    cards.append(contentCard)
-                }
-                
-                // Apply capacity limit if specified in inboxSchemaData
-                if fetchedSettings.capacity > 0 {
-                    cards = Array(cards.prefix(fetchedSettings.capacity))
-                }
-                
-                // If unread functionality is enabled, initialize NEW cards as unread
-                if fetchedSettings.isUnreadEnabled {
-                    for card in cards {
-                        // Only set as unread if this card doesn't have a stored read status yet
-                        if card.isRead == nil {
-                            card.isRead = false
-                        }
-                    }
-                }
-                
-                self.contentCards = cards
-                
-                if cards.isEmpty {
-                    self.state = .empty
-                    self.listener?.onEmpty(self)
-                } else {
-                    self.state = .loaded
-                    self.listener?.onLoaded(self)
-                }
+                self.processInboxPropositions(propositionDict, error: error)
             }
         }
     }
     
-    /// Refreshes the Inbox by re-downloading content cards
-    public func refresh() {
-        downloadCards()
+    // MARK: - Private Methods
+    
+    /// Processes the received propositions for the inbox surface.
+    ///
+    /// - Parameters:
+    ///   - propositionDict: Dictionary mapping surfaces to their propositions
+    ///   - error: Optional error from the proposition fetch
+    private func processInboxPropositions(_ propositionDict: [Surface: [Proposition]]?, error: Error?) {
+        // Handle fetch errors
+        if let error = error {
+            handleError(error, message: "Error retrieving propositions for Inbox")
+            return
+        }
+        
+        // Extract propositions for given inbox surface
+        guard let propositions = propositionDict?[surface], !propositions.isEmpty else {
+            handleError(InboxError.dataUnavailable, message: "No propositions found for surface")
+            return
+        }
+        
+        // Separate inbox configuration from content card propositions
+        let (inboxProposition, contentCardPropositions) = separatePropositions(propositions)
+        
+        // Extract and validate inboxSchemaData
+        guard let inboxSchemaData = extractInboxSchemaData(from: inboxProposition) else {
+            return // Error already handled in extractInboxSchemaData
+        }
+        
+        // Store inboxSchemaData
+        self.inboxSchemaData = inboxSchemaData
+        
+        // Create content card UI instances
+        let cards = createContentCards(from: contentCardPropositions)
+        
+        // Apply inbox configuration (capacity, unread status) to contentCards
+        let configuredCards = applyInboxConfiguration(to: cards, with: inboxSchemaData)
+        
+        // Update content cards and state based on results
+        contentCards = configuredCards
+        
+        if configuredCards.isEmpty {
+            state = .empty
+            listener?.onEmpty(self)
+        } else {
+            state = .loaded
+            listener?.onLoaded(self)
+        }
+        
+        Log.debug(label: UIConstants.LOG_TAG,
+                 "Inbox loaded successfully with \(configuredCards.count) card(s) for surface: \(surface.uri)")
     }
+    
+    /// Separates inbox proposition (container-item) from content card propositions.
+    ///
+    /// - Parameter propositions: All propositions for the surface
+    /// - Returns: Tuple containing the inbox proposition and array of content card propositions
+    private func separatePropositions(_ propositions: [Proposition]) -> (inbox: Proposition?, contentCards: [Proposition]) {
+        var inboxProposition: Proposition?
+        var contentCardPropositions: [Proposition] = []
+        
+        for proposition in propositions {
+            if proposition.items.first?.schema == .containerItem {
+                inboxProposition = proposition
+                Log.debug(label: UIConstants.LOG_TAG,
+                         "Found inbox configuration (container-item) with ID: \(proposition.uniqueId)")
+            } else {
+                contentCardPropositions.append(proposition)
+            }
+        }
+        
+        Log.debug(label: UIConstants.LOG_TAG,
+                 "Separated \(contentCardPropositions.count) content card proposition(s) from inbox configuration")
+        
+        return (inboxProposition, contentCardPropositions)
+    }
+    
+    /// Extracts inbox schema data from the inbox proposition.
+    ///
+    /// - Parameter proposition: The inbox (container-item) proposition
+    /// - Returns: InboxSchemaData if extraction is successful, nil otherwise
+    private func extractInboxSchemaData(from proposition: Proposition?) -> InboxSchemaData? {
+        guard let proposition = proposition else {
+            handleError(InboxError.inboxSchemaDataNotFound,
+                       message: "No inbox proposition (container-item) found")
+            return nil
+        }
+        
+        guard let firstItem = proposition.items.first,
+              let inboxSchemaData = firstItem.inboxSchemaData else {
+            handleError(InboxError.inboxSchemaDataNotFound,
+                       message: "No InboxSchemaData found in container-item")
+            return nil
+        }
+        
+        return inboxSchemaData
+    }
+    
+    /// Creates ContentCardUI instances from content card propositions.
+    ///
+    /// - Parameter propositions: Array of content card propositions
+    /// - Returns: Array of successfully created ContentCardUI instances
+    private func createContentCards(from propositions: [Proposition]) -> [ContentCardUI] {
+        return propositions.compactMap { proposition in
+            guard let contentCard = ContentCardUI.createInstance(
+                with: proposition,
+                customizer: customizer,
+                listener: cardEventListener
+            ) else {
+                Log.warning(label: UIConstants.LOG_TAG,
+                           "Failed to create ContentCardUI for proposition: \(proposition.uniqueId)")
+                return nil
+            }
+            return contentCard
+        }
+    }
+    
+    /// Applies inbox-specific configuration to content cards.
+    ///
+    /// This includes:
+    /// - Limiting cards based on capacity setting
+    /// - Initializing unread status for new cards
+    ///
+    /// - Parameters:
+    ///   - cards: Array of content card UI instances
+    ///   - settings: Inbox configuration settings
+    /// - Returns: Configured array of content cards
+    private func applyInboxConfiguration(to cards: [ContentCardUI], with settings: InboxSchemaData) -> [ContentCardUI] {
+        var configuredCards = cards
+        
+        // Apply capacity limit if specified
+        if settings.content.capacity > 0 {
+            configuredCards = Array(configuredCards.prefix(settings.content.capacity))
+            if cards.count > configuredCards.count {
+                Log.debug(label: UIConstants.LOG_TAG,
+                         "Applied capacity limit: showing \(configuredCards.count) of \(cards.count) cards")
+            }
+        }
+        
+        // Initialize unread status for new cards if enabled
+        if settings.content.isUnreadEnabled {
+            configuredCards.forEach { card in
+                if card.isRead == nil {
+                    card.isRead = false
+                }
+            }
+        }
+        
+        return configuredCards
+    }
+    
+    /// Handles errors by updating state and notifying the listener.
+    ///
+    /// - Parameters:
+    ///   - error: The error that occurred
+    ///   - message: Descriptive message for logging
+    private func handleError(_ error: Error, message: String) {
+        Log.error(label: UIConstants.LOG_TAG,
+                 "\(message) for surface: \(surface.uri). Error: \(error)")
+        state = .error(error)
+        listener?.onError(self, error)
+    }
+    
     
     // MARK: - Custom State Views
     

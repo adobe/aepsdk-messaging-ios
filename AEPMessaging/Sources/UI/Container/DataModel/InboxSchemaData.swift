@@ -13,67 +13,31 @@
 import Foundation
 import AEPServices
 
-/// Represents the schema data object for inbox settings based on the exact JSON schema
+/// Represents the schema data object for inbox based on the exact JSON schema
 @objc(AEPInboxSchemaData)
 @objcMembers
 @available(iOS 15.0, *)
 public class InboxSchemaData: NSObject, Codable {
-    /// Heading content for the inbox
-    public var heading: Heading?
-    
-    /// Layout configuration including orientation
-    public let layout: LayoutSettings
-    
-    /// Maximum capacity of items in the inbox
-    public let capacity: Int
-    
-    /// Empty state configuration when no content is available
-    public let emptyStateSettings: EmptyStateSettings?
-    
-    /// Unread indicator configuration
-    public let unreadIndicator: UnreadIndicatorSettings?
-    
-    /// Whether unread functionality is enabled
-    public let isUnreadEnabled: Bool
+    /// Inbox settings containing all configuration
+    public let content: InboxSettings
     
     /// Reference to the parent proposition item for tracking purposes
     weak var parent: PropositionItem?
     
     enum CodingKeys: String, CodingKey {
-        case heading
-        case layout
-        case capacity
-        case emptyStateSettings
-        case unreadIndicator = "unread_indicator"
-        case isUnreadEnabled
+        case content
     }
     
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        heading = try? container.decode(Heading.self, forKey: .heading)
-        layout = try container.decode(LayoutSettings.self, forKey: .layout)
-        capacity = try container.decode(Int.self, forKey: .capacity)
-        emptyStateSettings = try? container.decode(EmptyStateSettings.self, forKey: .emptyStateSettings)
-        unreadIndicator = try? container.decode(UnreadIndicatorSettings.self, forKey: .unreadIndicator)
-        isUnreadEnabled = try container.decodeIfPresent(Bool.self, forKey: .isUnreadEnabled) ?? false
+        content = try container.decode(InboxSettings.self, forKey: .content)
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encodeIfPresent(heading, forKey: .heading)
-        try container.encode(layout, forKey: .layout)
-        try container.encode(capacity, forKey: .capacity)
-        try container.encodeIfPresent(emptyStateSettings, forKey: .emptyStateSettings)
-        try container.encodeIfPresent(unreadIndicator, forKey: .unreadIndicator)
-        try container.encode(isUnreadEnabled, forKey: .isUnreadEnabled)
+        try container.encode(content, forKey: .content)
     }
-}
-
-// MARK: - Inbox Tracking
-@available(iOS 15.0, *)
-public extension InboxSchemaData {
+    
     /// Tracks interaction with the given Inbox.
     ///
     /// - Parameters

@@ -173,12 +173,12 @@ struct InboxView: View {
     private var contentView: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header if available
-            if let heading = inbox.inboxSchemaData?.heading?.text.content {
+            if let heading = inbox.inboxSchemaData?.content.heading?.text.content {
                 headerView(heading)
             }
             
             // Render based on layout orientation (default to vertical if nil)
-            let orientation = inbox.inboxSchemaData?.layout.orientation ?? .vertical
+            let orientation = inbox.inboxSchemaData?.content.layout.orientation ?? .vertical
             if orientation == .horizontal {
                 horizontalLayout
             } else {
@@ -244,8 +244,8 @@ struct InboxView: View {
     }
     
     private func cardRow(_ card: ContentCardUI) -> some View {
-        let isHorizontal = inbox.inboxSchemaData?.layout.orientation == .horizontal
-        let isUnreadEnabled = inbox.inboxSchemaData?.isUnreadEnabled ?? false
+        let isHorizontal = inbox.inboxSchemaData?.content.layout.orientation == .horizontal
+        let isUnreadEnabled = inbox.inboxSchemaData?.content.isUnreadEnabled ?? false
         
         return card.view
             .padding(.all, 12)
@@ -266,10 +266,10 @@ struct InboxView: View {
     private var emptyStateView: some View {
         Group {
             if let customView = inbox.customEmptyView {
-                customView(inbox.inboxSchemaData?.emptyStateSettings)
+                customView(inbox.inboxSchemaData?.content.emptyStateSettings)
             } else {
                 DefaultEmptyStateView(
-                    emptyStateSettings: inbox.inboxSchemaData?.emptyStateSettings,
+                    emptyStateSettings: inbox.inboxSchemaData?.content.emptyStateSettings,
                     onRefresh: { inbox.refresh() }
                 )
             }

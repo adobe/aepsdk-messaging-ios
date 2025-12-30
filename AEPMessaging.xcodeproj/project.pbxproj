@@ -274,6 +274,7 @@
 		B67CCF772CD08D5500CF08D1 /* AEPAsyncImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF762CD08D4D00CF08D1 /* AEPAsyncImageView.swift */; };
 		B67CCF792CD0BF8D00CF08D1 /* ContentCardImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */; };
 		B69573C82CD4447F0027E376 /* AEPBundleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69573C72CD444790027E376 /* AEPBundleImageView.swift */; };
+		B6C752782F02692A00F76A54 /* InboxSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C752772F02692A00F76A54 /* InboxSettings.swift */; };
 		B6D035E22D2F23E900031170 /* AppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D035E12D2F23E900031170 /* AppStateManager.swift */; };
 		B6D364E22EE1837500AE315D /* InboxSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364D92EE1837500AE315D /* InboxSchemaData.swift */; };
 		B6D364E52EE1837500AE315D /* UnreadIndicatorSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364E12EE1837500AE315D /* UnreadIndicatorSettings.swift */; };
@@ -787,6 +788,7 @@
 		B67CCF762CD08D4D00CF08D1 /* AEPAsyncImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPAsyncImageView.swift; sourceTree = "<group>"; };
 		B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardImageCache.swift; sourceTree = "<group>"; };
 		B69573C72CD444790027E376 /* AEPBundleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPBundleImageView.swift; sourceTree = "<group>"; };
+		B6C752772F02692A00F76A54 /* InboxSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxSettings.swift; sourceTree = "<group>"; };
 		B6D035E12D2F23E900031170 /* AppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManager.swift; sourceTree = "<group>"; };
 		B6D364D72EE1837500AE315D /* AEPColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPColor.swift; sourceTree = "<group>"; };
 		B6D364D92EE1837500AE315D /* InboxSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxSchemaData.swift; sourceTree = "<group>"; };
@@ -1434,6 +1436,7 @@
 			isa = PBXGroup;
 			children = (
 				B6D364D92EE1837500AE315D /* InboxSchemaData.swift */,
+				B6C752772F02692A00F76A54 /* InboxSettings.swift */,
 				B6D364DB2EE1837500AE315D /* EmptyStateSettings.swift */,
 				B6D364DC2EE1837500AE315D /* Heading.swift */,
 				B6D364DE2EE1837500AE315D /* LayoutSettings.swift */,
@@ -2741,6 +2744,7 @@
 				B6D364EA2EE1837500AE315D /* AEPColor.swift in Sources */,
 				B6D364EB2EE1837500AE315D /* Heading.swift in Sources */,
 				B6D364EC2EE1837500AE315D /* LayoutSettings.swift in Sources */,
+				B6C752782F02692A00F76A54 /* InboxSettings.swift in Sources */,
 				4C3D44472E28842300662A3F /* EventHistoryOperationSchemaData.swift in Sources */,
 				B6F7CBE32CC2089A00C35C64 /* UIConstants.swift in Sources */,
 				B6F7CBE42CC2089A00C35C64 /* AEPButton.swift in Sources */,

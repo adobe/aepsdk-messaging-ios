@@ -192,12 +192,11 @@ public extension PropositionItem {
     /// Returns a `InboxSchemaData` object if the schema for this `PropositionItem` contains container settings and it is properly formed - `nil` otherwise
     @available(iOS 15.0, *)
     var inboxSchemaData: InboxSchemaData? {
-        // Container settings can be embedded in various schema types
-        guard let containerSettingsContainerSchemaData = getTypedData(InboxSchemaData.self) else {
+        guard let inboxSchemaData = getTypedData(InboxSchemaData.self) else {
             return nil
         }
-        containerSettingsContainerSchemaData.parent = self
-        return containerSettingsContainerSchemaData
+        inboxSchemaData.parent = self
+        return inboxSchemaData
     }
 }
 
