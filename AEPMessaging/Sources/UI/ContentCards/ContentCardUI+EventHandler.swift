@@ -31,10 +31,8 @@ extension ContentCardUI: TemplateEventHandler {
     func onInteract(interactionId: String, actionURL url: URL?) {
         proposition.items.first?.contentCardSchemaData?.track(interactionId, withEdgeEventType: .interact)
         
-        // Automatically mark as read if this content card is tracking read status
-        if isRead != nil {
-            markAsRead()
-        }
+        // Automatically mark as read on any interaction
+        markAsRead()
         
         let urlHandled = listener?.onInteract(self, interactionId, actionURL: url) ?? false
 

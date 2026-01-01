@@ -275,6 +275,8 @@
 		B67CCF792CD0BF8D00CF08D1 /* ContentCardImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */; };
 		B69573C82CD4447F0027E376 /* AEPBundleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69573C72CD444790027E376 /* AEPBundleImageView.swift */; };
 		B6C752782F02692A00F76A54 /* InboxSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C752772F02692A00F76A54 /* InboxSettings.swift */; };
+		B6C7527A2F04B0CB00F76A54 /* ReadStatusManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C752792F04B0CB00F76A54 /* ReadStatusManagerTests.swift */; };
+		B6C7527C2F04B10100F76A54 /* ReadStatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C7527B2F04B10100F76A54 /* ReadStatusManager.swift */; };
 		B6D035E22D2F23E900031170 /* AppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D035E12D2F23E900031170 /* AppStateManager.swift */; };
 		B6D364E22EE1837500AE315D /* InboxSchemaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364D92EE1837500AE315D /* InboxSchemaData.swift */; };
 		B6D364E52EE1837500AE315D /* UnreadIndicatorSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D364E12EE1837500AE315D /* UnreadIndicatorSettings.swift */; };
@@ -789,6 +791,8 @@
 		B67CCF782CD0BF8700CF08D1 /* ContentCardImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardImageCache.swift; sourceTree = "<group>"; };
 		B69573C72CD444790027E376 /* AEPBundleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPBundleImageView.swift; sourceTree = "<group>"; };
 		B6C752772F02692A00F76A54 /* InboxSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxSettings.swift; sourceTree = "<group>"; };
+		B6C752792F04B0CB00F76A54 /* ReadStatusManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadStatusManagerTests.swift; sourceTree = "<group>"; };
+		B6C7527B2F04B10100F76A54 /* ReadStatusManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadStatusManager.swift; sourceTree = "<group>"; };
 		B6D035E12D2F23E900031170 /* AppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManager.swift; sourceTree = "<group>"; };
 		B6D364D72EE1837500AE315D /* AEPColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPColor.swift; sourceTree = "<group>"; };
 		B6D364D92EE1837500AE315D /* InboxSchemaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxSchemaData.swift; sourceTree = "<group>"; };
@@ -1179,7 +1183,7 @@
 			path = ImageOnlyCard;
 			sourceTree = "<group>";
 		};
-		755DB8E32E60BAC500F3B21B /* Container */ = {
+		755DB8E32E60BAC500F3B21B /* Inbox */ = {
 			isa = PBXGroup;
 			children = (
 				B6D364D02EE1709100AE315D /* DataModel */,
@@ -1189,7 +1193,7 @@
 				755DB8F32E624F2D00F3B21B /* InboxState.swift */,
 				755DB8F42E624F2D00F3B21B /* InboxView.swift */,
 			);
-			path = Container;
+			path = Inbox;
 			sourceTree = "<group>";
 		};
 		922FFCE6251B2BBA00BCE010 = {
@@ -1566,6 +1570,7 @@
 				B6F7CBC22CC2089A00C35C64 /* ContentCardUI+EventHandler.swift */,
 				B6F7CBC32CC2089A00C35C64 /* ContentCardUIError.swift */,
 				B6F7CBC42CC2089A00C35C64 /* ContentCardUIEventListening.swift */,
+				B6C7527B2F04B10100F76A54 /* ReadStatusManager.swift */,
 			);
 			path = ContentCards;
 			sourceTree = "<group>";
@@ -1574,7 +1579,7 @@
 			isa = PBXGroup;
 			children = (
 				B6F7CBBD2CC2089A00C35C64 /* UIElements */,
-				755DB8E32E60BAC500F3B21B /* Container */,
+				755DB8E32E60BAC500F3B21B /* Inbox */,
 				B6F7CBC52CC2089A00C35C64 /* ContentCards */,
 				B6F7CBC62CC2089A00C35C64 /* Messaging+UIPublicAPI.swift */,
 				B6F7CBC72CC2089A00C35C64 /* UIConstants.swift */,
@@ -1585,6 +1590,7 @@
 		B6F7CBEB2CC2EA8500C35C64 /* UITests */ = {
 			isa = PBXGroup;
 			children = (
+				B6C752792F04B0CB00F76A54 /* ReadStatusManagerTests.swift */,
 				B6F7CBEC2CC2EAF500C35C64 /* AEPButtonTests.swift */,
 				B6F7CBED2CC2EAF500C35C64 /* AEPDismissButtonTests.swift */,
 				B6F7CBEE2CC2EAF500C35C64 /* AEPImageTests.swift */,
@@ -2762,6 +2768,7 @@
 				246EF0642C013DED002A9B22 /* ContentCard.swift in Sources */,
 				240316B82A83DDD80016B0D9 /* Cache+Messaging.swift in Sources */,
 				245059522671283F00CC7CA0 /* MessagingRulesEngine.swift in Sources */,
+				B6C7527C2F04B10100F76A54 /* ReadStatusManager.swift in Sources */,
 				754F49E92DFCA9EF002601E9 /* LargeImageTemplate.swift in Sources */,
 				244C2BD826B36480008F086A /* MessagingEdgeEventType.swift in Sources */,
 				2450599D2673FABF00CC7CA0 /* Messaging+PublicAPI.swift in Sources */,
@@ -2829,6 +2836,7 @@
 				2469A5EB274D49B100E56457 /* JSONFileLoader.swift in Sources */,
 				24CA4BDB2B61971000D16369 /* PropositionTests.swift in Sources */,
 				24CA4BDF2B61974300D16369 /* PropositionInteractionTests.swift in Sources */,
+				B6C7527A2F04B0CB00F76A54 /* ReadStatusManagerTests.swift in Sources */,
 				B63467672EF9442C00DBF753 /* Messaging+InboxPropositionsTests.swift in Sources */,
 				24CA4BC92B617A3F00D16369 /* JsonContentSchemaDataTests.swift in Sources */,
 				24CA4BDD2B61972500D16369 /* PropositionItemTests.swift in Sources */,

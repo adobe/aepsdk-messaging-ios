@@ -57,6 +57,13 @@ public extension Messaging {
                 // append the successfully created content card to the cards array.
                 cards.append(contentCard)
             }
+            
+            // Cleanup stale read status entries for this surface
+            // This ensures read statuses are removed when campaigns end
+            ReadStatusManager.shared.cleanupStaleReadStatus(
+                currentCards: cards,
+                surfaceUri: surface.uri
+            )
 
             completion(.success(cards))
         }

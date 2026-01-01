@@ -142,6 +142,13 @@ public class InboxUI: Identifiable, ObservableObject {
         // Apply inbox configuration (capacity, unread status) to contentCards
         let configuredCards = applyInboxConfiguration(to: cards, with: inboxSchemaData)
         
+        // Cleanup stale read status entries using ReadStatusManager
+        // This removes read statuses for campaigns no longer active on this surface
+        ReadStatusManager.shared.cleanupStaleReadStatus(
+            currentCards: configuredCards,
+            surfaceUri: surface.uri
+        )
+        
         // Update content cards and state based on results
         contentCards = configuredCards
         
@@ -243,13 +250,12 @@ public class InboxUI: Identifiable, ObservableObject {
             }
         }
         
-        // Initialize unread status for new cards if enabled
-        if settings.content.isUnreadEnabled {
-            configuredCards.forEach { card in
-                if card.isRead == nil {
-                    card.isRead = false
-                }
-            }
+        // Initialize unread status for all new cards
+        // Cards with no existing read status will default to false (unread)
+        configuredCards.forEach { card in
+            // Just accessing isRead will trigger the getter which defaults to false
+            // This ensures the card is registered in ReadStatusManager
+            _ = card.isRead
         }
         
         return configuredCards

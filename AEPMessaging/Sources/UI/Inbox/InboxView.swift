@@ -252,7 +252,7 @@ struct InboxView: View {
             .padding(.top, isHorizontal ? 20 : 0) // Extra top padding for horizontal layout dismiss button
             .overlay(alignment: .topLeading) {
                 // Show unread indicator if enabled and card is unread
-                if isUnreadEnabled && card.isRead != true {
+                if isUnreadEnabled && !card.isRead {
                     Circle()
                         .fill(Color.red)
                         .frame(width: 10, height: 10)

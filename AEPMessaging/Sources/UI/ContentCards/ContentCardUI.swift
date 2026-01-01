@@ -21,10 +21,6 @@ import Foundation
 @available(iOS 15.0, *)
 public class ContentCardUI: Identifiable {
 
-    /// Storage for content card read status
-    /// TODO: Remove this once we begin to use read status in traits
-    private let store = NamedCollectionDataStore(name: "com.adobe.module.messaging.contentcard")
-
     /// The underlying data model for the content card.
     let proposition: Proposition
 
@@ -51,25 +47,33 @@ public class ContentCardUI: Identifiable {
         proposition.items.first?.contentCardSchemaData?.meta
     }
     
-    
-    /// Optional read status for content cards that belong to messaging inbox containers.
-    /// If nil, this is a normal content card. If not nil, it supports read/unread functionality.
-    public var isRead: Bool? {
+    /// Read status for content cards, persisted between app launches.
+    ///
+    /// The read status is managed by `ReadStatusManager` which tracks:
+    /// - Individual card read status (activityId → isRead)
+    /// - Surface ownership (activityId → Set of surface URIs)
+    ///
+    /// This ensures read status is preserved when the same campaign appears
+    /// across multiple surfaces, and is only deleted when no surface references
+    /// the campaign anymore.
+    ///
+    /// Defaults to `false` for new cards that haven't been interacted with.
+    public var isRead: Bool {
         get {
-            guard !proposition.activityId.isEmpty else { return nil }
-            return store.getBool(key: proposition.activityId)
+            return ReadStatusManager.shared.getReadStatus(for: proposition.activityId) ?? false
         }
         set {
-            guard !proposition.activityId.isEmpty else { return }
-            if let newValue = newValue {
-                store[proposition.activityId] = newValue
-            } else {
-                store.remove(key: proposition.activityId)
-            }
+            ReadStatusManager.shared.setReadStatus(newValue, for: proposition.activityId)
         }
     }
     
-    /// Mark this content card as read
+    /// Marks this content card as read.
+    ///
+    /// The read status is persisted and will be maintained across app launches.
+    ///
+    /// This method is automatically called when the user interacts with the card
+    /// (button click, tap, etc.), but can also be called manually if needed.
+    ///
     public func markAsRead() {
         isRead = true
     }
