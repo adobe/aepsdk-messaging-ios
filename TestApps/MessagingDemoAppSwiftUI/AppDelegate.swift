@@ -82,6 +82,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
                 }
             }
             
+            self.registerNotificationCategories()
             self.registerForPushNotifications(application)
             let cardSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
             let cbeSurface1 = Surface(path: Constants.SurfaceName.CBE_HTML)
@@ -99,6 +100,69 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
         
     // MARK: - Push Notification registration methods
+    
+    /// Registers custom notification categories with action buttons for testing dismiss functionality
+    func registerNotificationCategories() {
+        print("""
+        
+        ══════════════════════════════════════════════════════════════════
+        📋 [SETUP] Registering Notification Categories with Actions
+        ══════════════════════════════════════════════════════════════════
+        
+        """)
+        
+        // Define dismiss action (doesn't open app)
+        let dismissAction = UNNotificationAction(
+            identifier: "Dismiss",
+            title: "Dismiss",
+            options: []
+        )
+        
+        // Define accept action (opens app)
+        let acceptAction = UNNotificationAction(
+            identifier: "ACCEPT_ACTION",
+            title: "Accept",
+            options: [.foreground]
+        )
+        
+        // Define decline action (doesn't open app)
+        let declineAction = UNNotificationAction(
+            identifier: "DECLINE_ACTION",
+            title: "Decline",
+            options: []
+        )
+        
+        // Create category with actions
+        let trackableCategory = UNNotificationCategory(
+            identifier: "TRACKABLE_CATEGORY",
+            actions: [acceptAction, dismissAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        // Create category with three actions
+        let fullTrackingCategory = UNNotificationCategory(
+            identifier: "FULL_TRACKING_CATEGORY",
+            actions: [acceptAction, declineAction, dismissAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        // Register categories
+        UNUserNotificationCenter.current().setNotificationCategories([trackableCategory, fullTrackingCategory])
+        
+        print("""
+        ✅ [SETUP] Registered 2 notification categories:
+        ├─ TRACKABLE_CATEGORY (Accept, Dismiss)
+        └─ FULL_TRACKING_CATEGORY (Accept, Decline, Dismiss)
+        
+        To test dismiss functionality, notifications must include:
+        "category": "TRACKABLE_CATEGORY" or "FULL_TRACKING_CATEGORY"
+        ══════════════════════════════════════════════════════════════════
+        
+        """)
+    }
+    
     func registerForPushNotifications(_ application : UIApplication) {
         let center = UNUserNotificationCenter.current()
         
@@ -202,11 +266,13 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         case UNNotificationDefaultActionIdentifier:
             actionType = "Notification Tapped (Default Action)"
         case UNNotificationDismissActionIdentifier:
-            actionType = "Notification Dismissed"
+            actionType = "Notification Dismissed (System)"
         case "ACCEPT_ACTION":
             actionType = "Custom Action: ACCEPT"
         case "DECLINE_ACTION":
             actionType = "Custom Action: DECLINE"
+        case "Dismiss":
+            actionType = "Custom Action: DISMISS"
         default:
             actionType = "Custom Action: \(response.actionIdentifier)"
         }
