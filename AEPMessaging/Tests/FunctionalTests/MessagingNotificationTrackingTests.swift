@@ -38,6 +38,29 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
                                 ]
     ]
     
+    static let mockUserInfoWithDecisioning = ["_xdm" :
+                                ["mixins":
+                                    ["_experience":
+                                        ["customerJourneyManagement":
+                                            ["messageExecution":
+                                                ["messageExecutionID": "mockExecutionID",
+                                                 "messageID": "mockMessageId",
+                                                 "messageType": "transactional",
+                                                 "campaignID": "mockCampaignID",
+                                                 "campaignVersionID": "mockCampaignVersionID",
+                                                 "batchInstanceID": "mockBatchInstanceID"]
+                                            ],
+                                         "decisioning":
+                                            ["propositions":
+                                                [["scopeDetails":
+                                                    ["correlationID": "mockCorrelationID"]
+                                                ]]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+    ]
+    
     
     public class override func setUp() {
         super.setUp()
@@ -455,6 +478,184 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         // Register the notification type.
         let notificationCenter = UNUserNotificationCenter.current()
         notificationCenter.setNotificationCategories([meetingInviteCategory])
+    }
+    
+    // MARK: - propositionEventType Tests
+    
+    func test_pushNotification_applicationOpened_addsPropositionEventType_interact() {
+        // setup
+        var actualStatus : PushTrackingStatus?
+        let expectation = XCTestExpectation(description: "Messaging Push Tracking Response with propositionEventType")
+        setExpectationEvent(type: EventType.edge, source: EventSource.requestContent, expectedCount: 1)
+        let response = prepareNotificationResponse(withUserInfo: Self.mockUserInfoWithDecisioning)!
+        
+        // test
+        Messaging.handleNotificationResponse(response, closure: { status in
+            actualStatus = status
+            expectation.fulfill()
+        })
+        
+        // verify tracking status value
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+        XCTAssertEqual(.trackingInitiated, actualStatus)
+        
+        // verify
+        let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
+        XCTAssertEqual(1, events.count)
+        let edgeEvent = events.first!
+        
+        // verify propositionEventType is added to decisioning section
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
+           let experience = xdm["_experience"] as? [String: Any],
+           let decisioning = experience["decisioning"] as? [String: Any],
+           let propositionEventType = decisioning["propositionEventType"] as? [String: Int] {
+            XCTAssertEqual(1, propositionEventType["interact"])
+            XCTAssertNil(propositionEventType["dismiss"])
+        } else {
+            XCTFail("propositionEventType not found in decisioning section")
+        }
+        
+        // verify event type is applicationOpened
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
+            XCTAssertEqual("pushTracking.applicationOpened", xdm["eventType"] as? String)
+        }
+    }
+    
+    func test_pushNotification_dismiss_addsPropositionEventType_dismiss() {
+        // setup
+        setExpectationEvent(type: EventType.edge, source: EventSource.requestContent, expectedCount: 1)
+        let response = prepareNotificationResponse(withUserInfo: Self.mockUserInfoWithDecisioning, 
+                                                   actionIdentifier: "Dismiss")!
+        
+        // test
+        Messaging.handleNotificationResponse(response)
+        
+        // verify
+        let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
+        XCTAssertEqual(1, events.count)
+        let edgeEvent = events.first!
+        
+        // verify propositionEventType is set to dismiss
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
+           let experience = xdm["_experience"] as? [String: Any],
+           let decisioning = experience["decisioning"] as? [String: Any],
+           let propositionEventType = decisioning["propositionEventType"] as? [String: Int] {
+            XCTAssertEqual(1, propositionEventType["dismiss"])
+            XCTAssertNil(propositionEventType["interact"])
+        } else {
+            XCTFail("propositionEventType not found in decisioning section")
+        }
+        
+        // verify event type is customAction with Dismiss actionID
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
+            XCTAssertEqual("pushTracking.customAction", xdm["eventType"] as? String)
+            if let pushTracking = xdm["pushNotificationTracking"] as? [String: Any],
+               let customAction = pushTracking["customAction"] as? [String: Any] {
+                XCTAssertEqual("Dismiss", customAction["actionID"] as? String)
+            }
+        }
+    }
+    
+    func test_pushNotification_customAction_addsPropositionEventType_interact() {
+        // setup
+        setExpectationEvent(type: EventType.edge, source: EventSource.requestContent, expectedCount: 1)
+        let response = prepareNotificationResponse(withUserInfo: Self.mockUserInfoWithDecisioning,
+                                                   actionIdentifier: "ForegroundActionId", 
+                                                   categoryIdentifier: "CategoryId")!
+        
+        // test
+        Messaging.handleNotificationResponse(response)
+        
+        // verify
+        let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
+        XCTAssertEqual(1, events.count)
+        let edgeEvent = events.first!
+        
+        // verify propositionEventType is set to interact for custom actions
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
+           let experience = xdm["_experience"] as? [String: Any],
+           let decisioning = experience["decisioning"] as? [String: Any],
+           let propositionEventType = decisioning["propositionEventType"] as? [String: Int] {
+            XCTAssertEqual(1, propositionEventType["interact"])
+            XCTAssertNil(propositionEventType["dismiss"])
+        } else {
+            XCTFail("propositionEventType not found in decisioning section")
+        }
+        
+        // verify event type is customAction with custom actionID
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
+            XCTAssertEqual("pushTracking.customAction", xdm["eventType"] as? String)
+            if let pushTracking = xdm["pushNotificationTracking"] as? [String: Any],
+               let customAction = pushTracking["customAction"] as? [String: Any] {
+                XCTAssertEqual("ForegroundActionId", customAction["actionID"] as? String)
+            }
+        }
+    }
+    
+    func test_pushNotification_withoutDecisioningSection_doesNotAddPropositionEventType() {
+        // setup - using mockUserInfo without decisioning section
+        var actualStatus : PushTrackingStatus?
+        let expectation = XCTestExpectation(description: "Messaging Push Tracking Response")
+        setExpectationEvent(type: EventType.edge, source: EventSource.requestContent, expectedCount: 1)
+        let response = prepareNotificationResponse(withUserInfo: Self.mockUserInfo)!
+        
+        // test
+        Messaging.handleNotificationResponse(response, closure: { status in
+            actualStatus = status
+            expectation.fulfill()
+        })
+        
+        // verify tracking status value
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+        XCTAssertEqual(.trackingInitiated, actualStatus)
+        
+        // verify
+        let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
+        XCTAssertEqual(1, events.count)
+        let edgeEvent = events.first!
+        
+        // verify propositionEventType is NOT added when decisioning section doesn't exist
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
+           let experience = xdm["_experience"] as? [String: Any],
+           let decisioning = experience["decisioning"] as? [String: Any] {
+            XCTAssertNil(decisioning["propositionEventType"], "propositionEventType should not be added when decisioning section doesn't exist in original payload")
+        }
+        
+        // verify event still processes correctly
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
+            XCTAssertEqual("pushTracking.applicationOpened", xdm["eventType"] as? String)
+        }
+    }
+    
+    func test_pushNotification_dismissWithUNNotificationDismissActionIdentifier_addsPropositionEventType_dismiss() {
+        // setup - test iOS system dismiss identifier
+        setExpectationEvent(type: EventType.edge, source: EventSource.requestContent, expectedCount: 1)
+        let response = prepareNotificationResponse(withUserInfo: Self.mockUserInfoWithDecisioning,
+                                                   actionIdentifier: UNNotificationDismissActionIdentifier)!
+        
+        // test
+        Messaging.handleNotificationResponse(response)
+        
+        // verify
+        let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
+        XCTAssertEqual(1, events.count)
+        let edgeEvent = events.first!
+        
+        // verify propositionEventType is set to dismiss
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
+           let experience = xdm["_experience"] as? [String: Any],
+           let decisioning = experience["decisioning"] as? [String: Any],
+           let propositionEventType = decisioning["propositionEventType"] as? [String: Int] {
+            XCTAssertEqual(1, propositionEventType["dismiss"])
+            XCTAssertNil(propositionEventType["interact"])
+        } else {
+            XCTFail("propositionEventType not found in decisioning section")
+        }
+        
+        // verify event type is customAction with Dismiss actionID
+        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
+            XCTAssertEqual("pushTracking.customAction", xdm["eventType"] as? String)
+        }
     }
     
 }
