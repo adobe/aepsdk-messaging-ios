@@ -20,38 +20,6 @@ extension Message: FullscreenMessageDelegate {
             return
         }
 
-        if let propInfo = message.propositionInfo {
-            Log.debug(label: MessagingConstants.LOG_TAG, """
-                📱 [PRODUCTION] In-app message shown.
-                ═══════════════════════════════════════════════════════════
-                Message ID: '\(message.id)'
-                
-                🎯 Proposition Info:
-                ├─ Activity ID: '\(propInfo.activityId)'
-                ├─ Correlation ID: '\(propInfo.correlationId)'
-                └─ Scope: '\(propInfo.scope)'
-                
-                📊 Tracking:
-                ├─ Auto Track: \(message.autoTrack ? "Enabled" : "Disabled")
-                └─ Metadata: \(message.metadata)
-                ═══════════════════════════════════════════════════════════
-                """)
-        } else {
-            Log.debug(label: MessagingConstants.LOG_TAG, """
-                🧪 [ASSURANCE TEST] In-app test message shown.
-                ═══════════════════════════════════════════════════════════
-                Message ID: '\(message.id)'
-                
-                ⚠️  PropositionInfo: nil (Test message - no proposition context)
-                ⚠️  Tracking events may have limited metadata
-                
-                📊 Message Details:
-                ├─ Auto Track: \(message.autoTrack ? "Enabled" : "Disabled")
-                └─ Metadata: \(message.metadata)
-                ═══════════════════════════════════════════════════════════
-                """)
-        }
-        
         if message.autoTrack {
             message.track(withEdgeEventType: .display)
         }
@@ -78,23 +46,6 @@ extension Message: FullscreenMessageDelegate {
     public func onDismiss(message: FullscreenMessage) {
         guard let message = message.parent else {
             return
-        }
-        if let propInfo = message.propositionInfo {
-            Log.debug(label: MessagingConstants.LOG_TAG, """
-                📱 [PRODUCTION] In-app message dismissed.
-                ═══════════════════════════════════════════════════════════
-                Message ID: '\(message.id)'
-                Activity ID: '\(propInfo.activityId)'
-                ═══════════════════════════════════════════════════════════
-                """)
-        } else {
-            Log.debug(label: MessagingConstants.LOG_TAG, """
-                🧪 [ASSURANCE TEST] In-app test message dismissed.
-                ═══════════════════════════════════════════════════════════
-                Message ID: '\(message.id)'
-                ⚠️  No proposition context (Test message)
-                ═══════════════════════════════════════════════════════════
-                """)
         }
         message.recordEventHistory(eventType: .dismiss, interaction: nil)
         message.dismiss()

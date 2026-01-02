@@ -396,27 +396,11 @@ public class Messaging: NSObject, Extension {
 
         // handle push interaction event
         if event.isPushInteractionEvent {
-            Log.debug(label: MessagingConstants.LOG_TAG, """
-                📱 [FLOW STEP 5] Push interaction event received by Messaging extension.
-                ═══════════════════════════════════════════════════════════
-                Event ID: \(event.id.uuidString)
-                Event Type: \(event.xdmEventType ?? "unknown")
-                Message ID: \(event.messagingId ?? "unknown")
-                Application Opened: \(event.applicationOpened)
-                
-                📦 Event Data:
-                \(event.data?.prettyPrintedJson ?? "{}")
-                ═══════════════════════════════════════════════════════════
-                """)
-            
             if let clickThroughUrl = event.pushClickThroughUrl {
-                Log.debug(label: MessagingConstants.LOG_TAG, "🔗 [FLOW STEP 5] Found click-through URL: \(clickThroughUrl.absoluteString). Opening in browser...")
                 DispatchQueue.main.async {
                     ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
                 }
             }
-            
-            Log.debug(label: MessagingConstants.LOG_TAG, "➡️  [FLOW STEP 5] Forwarding to sendPushInteraction() to build Edge event...")
             sendPushInteraction(event: event)
             return
         }
@@ -561,34 +545,27 @@ public class Messaging: NSObject, Extension {
     /// A debug event allows the messaging extension to processes non-production workflows.
     /// - Parameter event: the debug `Event` to be handled.
     private func handleDebugEvent(_ event: Event) {
-        Log.debug(label: MessagingConstants.LOG_TAG, "🧪 [ASSURANCE TEST] Received debug event. Event ID: \(event.id.uuidString), Type: \(event.type), Source: \(event.source)")
-        
         // handle rules consequence debug events
         if event.debugEventType == EventType.rulesEngine, event.debugEventSource == EventSource.responseContent {
             // we can only handle schema consequences
             guard event.isSchemaConsequence, event.data != nil else {
-                Log.trace(label: MessagingConstants.LOG_TAG, "🧪 [ASSURANCE TEST] Ignoring rule consequence event. Either consequence is not of type 'schema' or 'eventData' is nil.")
+                Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. Either consequence is not of type 'schema' or 'eventData' is nil.")
                 return
             }
 
             // create a temporary proposition item
             guard let temporaryPropositionItem = PropositionItem.fromRuleConsequenceEvent(event) else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "🧪 [ASSURANCE TEST] Failed to create proposition item from debug event.")
                 return
             }
-
-            Log.debug(label: MessagingConstants.LOG_TAG, "🧪 [ASSURANCE TEST] Created temporary proposition item. Schema: \(temporaryPropositionItem.schema), Item ID: \(temporaryPropositionItem.itemId)")
 
             switch temporaryPropositionItem.schema {
             case .inapp:
                 if
                     let message = Message.fromPropositionItem(temporaryPropositionItem, with: self, triggeringEvent: event) {
-                    Log.debug(label: MessagingConstants.LOG_TAG, "🧪 [ASSURANCE TEST] Showing in-app test message. Message ID: \(message.id). NOTE: This is a test message with NO PropositionInfo context - tracking may have limited metadata.")
                     message.trigger()
                     message.show(withMessagingDelegateControl: true)
                 }
             default:
-                Log.debug(label: MessagingConstants.LOG_TAG, "🧪 [ASSURANCE TEST] Unsupported schema type for debug event: \(temporaryPropositionItem.schema)")
                 return
             }
         }
@@ -1030,8 +1007,6 @@ public class Messaging: NSObject, Extension {
 
     /// Handles rules engine response events (consequences)
     private func handleRulesResponse(_ event: Event) {
-        Log.trace(label: MessagingConstants.LOG_TAG, "📱 [PRODUCTION] Processing rules engine response event. Event ID: \(event.id.uuidString)")
-        
         guard event.isSchemaConsequence, event.data != nil else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. Either consequence is not of type 'schema' or 'eventData' is nil.")
             return
@@ -1043,8 +1018,6 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        Log.debug(label: MessagingConstants.LOG_TAG, "📱 [PRODUCTION] Created proposition item from rules response. Schema: \(propositionItem.schema), Item ID: \(propositionItem.itemId)")
-
         switch propositionItem.schema {
         case .inapp:
             if let message = Message.fromPropositionItem(propositionItem,
@@ -1052,11 +1025,8 @@ public class Messaging: NSObject, Extension {
                                                          triggeringEvent: event),
                 let propInfo = propositionInfoFor(messageId: propositionItem.itemId) {
                 message.propositionInfo = propInfo
-                Log.debug(label: MessagingConstants.LOG_TAG, "📱 [PRODUCTION] Showing in-app production message. Message ID: \(message.id), Activity ID: \(propInfo.activityId). Full proposition context available for tracking.")
                 message.trigger()
                 message.show(withMessagingDelegateControl: true)
-            } else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "📱 [PRODUCTION] Unable to show in-app message - either message creation failed or proposition info not found for item ID: \(propositionItem.itemId)")
             }
 
         case .eventHistoryOperation:
