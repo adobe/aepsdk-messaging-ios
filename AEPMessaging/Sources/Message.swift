@@ -95,11 +95,12 @@ public class Message: NSObject {
     @objc(trackInteraction:withEdgeEventType:)
     public func track(_ interaction: String? = nil, withEdgeEventType eventType: MessagingEdgeEventType) {
         guard let propInfo = propositionInfo else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to send a proposition interaction, proposition info is not found for message (\(id)).")
+            Log.warning(label: MessagingConstants.LOG_TAG, "🧪 [ASSURANCE TEST] Unable to send a proposition interaction - proposition info is not found for message (\(id)). This is expected for Assurance test messages. Tracking event will NOT be sent to Edge Network.")
             return
         }
 
         let propositionInteractionXdm = PropositionInteraction(eventType: eventType, interaction: interaction ?? "", propositionInfo: propInfo, itemId: nil, tokens: nil).xdm
+        Log.debug(label: MessagingConstants.LOG_TAG, "📱 [PRODUCTION] Tracking in-app message interaction. Event Type: \(eventType.propositionEventType), Message ID: \(id), XDM Payload: \(propositionInteractionXdm)")
         parent?.sendPropositionInteraction(withXdm: propositionInteractionXdm)
     }
 
@@ -129,6 +130,12 @@ public class Message: NSObject {
 
     /// Called when a `Message` is triggered - i.e. it's conditional criteria have been met.
     func trigger() {
+        if propositionInfo != nil {
+            Log.trace(label: MessagingConstants.LOG_TAG, "📱 [PRODUCTION] In-app message triggered. Message ID: \(id)")
+        } else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "🧪 [ASSURANCE TEST] In-app test message triggered. Message ID: \(id)")
+        }
+        
         if autoTrack {
             track(withEdgeEventType: .trigger)
         }
@@ -144,10 +151,11 @@ public class Message: NSObject {
     ///  - interaction: if provided, adds a custom interaction to the hash
     func recordEventHistory(eventType: MessagingEdgeEventType, interaction: String?) {
         guard let propInfo = propositionInfo, !propInfo.activityId.isEmpty else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to write event history event '\(eventType.propositionEventType)', proposition info is not available for message (\(id)).")
+            Log.debug(label: MessagingConstants.LOG_TAG, "🧪 [ASSURANCE TEST] Unable to write event history event '\(eventType.propositionEventType)' - proposition info is not available for message (\(id)). This is expected for Assurance test messages. Event history will NOT be recorded.")
             return
         }
 
+        Log.trace(label: MessagingConstants.LOG_TAG, "📱 [PRODUCTION] Recording event history. Event Type: '\(eventType.propositionEventType)', Activity ID: \(propInfo.activityId), Message ID: \(id)")
         PropositionHistory.record(activityId: propInfo.activityId, eventType: eventType, interaction: interaction)
     }
 
@@ -184,6 +192,7 @@ extension Message {
         guard let iamSchemaData = propositionItem.inappSchemaData,
               let htmlContent = iamSchemaData.content as? String
         else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Failed to create Message - missing inapp schema data or HTML content")
             return nil
         }
 
@@ -203,6 +212,26 @@ extension Message {
         if usingLocalAssets {
             message.fullscreenMessage?.setAssetMap(message.assets)
         }
+
+        // Log detailed in-app message information
+        let htmlPreview = htmlContent.count > 200 ? String(htmlContent.prefix(200)) + "..." : htmlContent
+        Log.debug(label: MessagingConstants.LOG_TAG, """
+            📱 [IN-APP MESSAGE] Created message from proposition item.
+            ═══════════════════════════════════════════════════════════
+            Message ID: '\(message.id)'
+            Schema Type: '\(propositionItem.schema)'
+            
+            📝 Content Details:
+            ├─ HTML Content Length: \(htmlContent.count) characters
+            ├─ HTML Preview: \(htmlPreview)
+            ├─ Using Local Assets: \(usingLocalAssets)
+            ├─ Remote Assets Count: \(iamSchemaData.remoteAssets?.count ?? 0)
+            └─ Metadata: \(message.metadata)
+            
+            📦 Message Settings:
+            └─ \(messageSettings != nil ? "Present" : "None")
+            ═══════════════════════════════════════════════════════════
+            """)
 
         return message
     }

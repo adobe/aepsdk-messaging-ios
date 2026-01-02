@@ -222,6 +222,7 @@ enum MessagingConstants {
             static let MIXINS = "mixins"
             static let EXPERIENCE = "_experience"
             static let CUSTOMER_JOURNEY_MANAGEMENT = "customerJourneyManagement"
+            static let DECISIONING = "decisioning"
             static let APPLICATION = "application"
             static let LAUNCHES = "launches"
             static let LAUNCHES_VALUE = "value"

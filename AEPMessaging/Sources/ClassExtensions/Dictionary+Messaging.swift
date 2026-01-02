@@ -19,6 +19,16 @@ extension Dictionary where Key == String, Value == Any {
     mutating func mergeXdm(rhs: [String: Any]) {
         merge(rhs) { _, new in new }
     }
+    
+    /// Returns a pretty-printed JSON string representation of the dictionary.
+    /// - Returns: A formatted JSON string, or nil if the dictionary cannot be serialized to JSON.
+    var prettyPrintedJson: String? {
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: self, options: [.prettyPrinted, .sortedKeys]),
+              let jsonString = String(data: jsonData, encoding: .utf8) else {
+            return nil
+        }
+        return jsonString
+    }
 }
 
 extension Dictionary {

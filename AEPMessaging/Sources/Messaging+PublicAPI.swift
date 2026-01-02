@@ -31,13 +31,37 @@ import UserNotifications
                                            urlHandler: ((URL) -> Bool)? = nil,
                                            closure: ((PushTrackingStatus) -> Void)? = nil) {
         let notificationRequest = response.notification.request
+        let content = notificationRequest.content
+        
+        // Log detailed push notification content
+        Log.debug(label: MessagingConstants.LOG_TAG, """
+            📩 [FLOW STEP 2] SDK received push notification response from Demo App.
+            ═══════════════════════════════════════════════════════════
+            Action Identifier: '\(response.actionIdentifier)'
+            Notification ID: '\(notificationRequest.identifier)'
+            
+            📝 Content:
+            ├─ Title: '\(content.title)'
+            ├─ Subtitle: '\(content.subtitle)'
+            ├─ Body: '\(content.body)'
+            ├─ Badge: \(content.badge?.intValue ?? 0)
+            ├─ Sound: \(content.sound != nil ? "Present" : "None")
+            ├─ Category: '\(content.categoryIdentifier)'
+            └─ Thread ID: '\(content.threadIdentifier)'
+            
+            📦 Full UserInfo Payload:
+            \(content.userInfo)
+            ═══════════════════════════════════════════════════════════
+            """)
 
         // Checking if the message has the _xdm key that contains tracking information
         guard let xdm = notificationRequest.content.userInfo[MessagingConstants.XDM.AdobeKeys._XDM] as? [String: Any], !xdm.isEmpty else {
-            Log.trace(label: MessagingConstants.LOG_TAG, "XDM fields containing tracking data are not present in the received push notification response. No push interaction tracking will be done for the notification.")
+            Log.trace(label: MessagingConstants.LOG_TAG, "❌ [FLOW STEP 2] XDM fields containing tracking data are not present in the received push notification response. No push interaction tracking will be done for the notification.")
             closure?(.noTrackingData)
             return
         }
+        
+        Log.debug(label: MessagingConstants.LOG_TAG, "✅ [FLOW STEP 2] Found XDM tracking data in notification payload. Tracking will be enabled.")
 
         // check for a deeplink to an in-app message
         let pushToInappIdentifier = notificationRequest.content.userInfo[MessagingConstants.PushNotification.UserInfoKey.PUSH_TO_INAPP] as? String
@@ -72,16 +96,33 @@ import UserNotifications
 
                 var modifiedEventData = addNotificationActionToEventData(eventData, response, urlHandler)
                 modifiedEventData[MessagingConstants.Event.Data.Key.PUSH_INTERACTION] = true
+                
+                Log.debug(label: MessagingConstants.LOG_TAG, """
+                    📝 [FLOW STEP 3] Created push interaction event data.
+                    ═══════════════════════════════════════════════════════════
+                    Event Type: '\(modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] ?? "unknown")'
+                    Action ID: '\(modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] ?? "N/A")'
+                    Application Opened: \(modifiedEventData[MessagingConstants.Event.Data.Key.APPLICATION_OPENED] ?? false)
+                    
+                    📦 Full Event Data:
+                    \(modifiedEventData.prettyPrintedJson ?? "{}")
+                    ═══════════════════════════════════════════════════════════
+                    """)
+                
                 let event = Event(name: MessagingConstants.Event.Name.PUSH_NOTIFICATION_INTERACTION,
                                   type: EventType.messaging,
                                   source: EventSource.requestContent,
                                   data: modifiedEventData)
+                
+                Log.debug(label: MessagingConstants.LOG_TAG, "🚀 [FLOW STEP 4] Dispatching push notification interaction event to Mobile Core Event Hub. Event ID: \(event.id.uuidString)")
 
                 MobileCore.dispatch(event: event) { responseEvent in
                     guard let status = responseEvent?.pushTrackingStatus else {
+                        Log.debug(label: MessagingConstants.LOG_TAG, "❌ [FLOW STEP 8] Push tracking failed with unknown error.")
                         closure?(.unknownError)
                         return
                     }
+                    Log.debug(label: MessagingConstants.LOG_TAG, "✅ [FLOW STEP 8] Push tracking complete with status: \(status)")
                     closure?(status)
                 }
             })
@@ -246,6 +287,7 @@ import UserNotifications
             // actionIdentifier `UNNotificationDefaultActionIdentifier` indicates user tapped the notification body.
             // This results in opening of the application.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED
+            Log.debug(label: MessagingConstants.LOG_TAG, "Push notification opened. Event Type: '\(MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED)', Payload: \(modifiedEventData)")
 
             let userInfo = response.notification.request.content.userInfo
             // If the notification does not contain a valid click through URL, log a warning and break
@@ -272,12 +314,14 @@ import UserNotifications
             // notification by tapping "Clear" action button.
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
             modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] = "Dismiss"
+            Log.debug(label: MessagingConstants.LOG_TAG, "Push notification dismissed. Event Type: '\(MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION)', Action ID: 'Dismiss', Payload: \(modifiedEventData)")
 
         default:
             // If actionIdentifier is none of the default values.
             // This indicates that a custom action on a notification is taken by the user. (i.e. The user has clicked on one of the notification action buttons.)
             modifiedEventData[MessagingConstants.Event.Data.Key.EVENT_TYPE] = MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION
             modifiedEventData[MessagingConstants.Event.Data.Key.ACTION_ID] = response.actionIdentifier
+            Log.debug(label: MessagingConstants.LOG_TAG, "Push notification custom action. Event Type: '\(MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION)', Action ID: '\(response.actionIdentifier)', Payload: \(modifiedEventData)")
         }
 
         return modifiedEventData

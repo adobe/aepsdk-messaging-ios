@@ -17,33 +17,41 @@ import Foundation
 extension Messaging {
     // MARK: - Push Notification Edge Events
 
-    /// Sends an experience event to the platform SDK for tracking push interactions
+    /// Sends an experience event to the platform SDK for tracking push interaction
     ///
     /// - Parameters:
     ///   - event: The triggering event with push interaction data
     func sendPushInteraction(event: Event) {
+        Log.debug(label: MessagingConstants.LOG_TAG, "🔧 [FLOW STEP 6] Building XDM payload for Edge Network...")
+        
         guard let datasetId = getDatasetId(forEvent: event) else {
             Log.warning(label: MessagingConstants.LOG_TAG,
-                        "Failed to handle tracking information for push notification: " +
+                        "❌ [FLOW STEP 6] Failed to handle tracking information for push notification: " +
                             "Experience event dataset ID from the config is invalid or not available. '\(event.id.uuidString)'")
             dispatchTrackingResponseEvent(.noDatasetConfigured, forEvent: event)
             return
         }
+        
+        Log.debug(label: MessagingConstants.LOG_TAG, "✅ [FLOW STEP 6] Dataset ID validated: \(datasetId)")
 
         // Get the xdm data with push tracking details
         guard var xdmMap = getXdmData(event: event) else {
             Log.warning(label: MessagingConstants.LOG_TAG,
-                        "Failed to handle tracking information for push notification: " +
+                        "❌ [FLOW STEP 6] Failed to handle tracking information for push notification: " +
                             "Error while creating xdmMap with the push tracking details from the event and config. '\(event.id.uuidString)'")
             return
         }
+        
+        Log.debug(label: MessagingConstants.LOG_TAG, "✅ [FLOW STEP 6] Extracted XDM data from event.")
 
         // Add application specific tracking data
         let applicationOpened = event.applicationOpened
         xdmMap = addApplicationData(applicationOpened: applicationOpened, xdmData: xdmMap)
+        Log.debug(label: MessagingConstants.LOG_TAG, "✅ [FLOW STEP 6] Added application tracking data (applicationOpened: \(applicationOpened)).")
 
         // Add Adobe specific tracking data
         xdmMap = addAdobeData(event: event, xdmDict: xdmMap)
+        Log.debug(label: MessagingConstants.LOG_TAG, "✅ [FLOW STEP 6] Added Adobe Journey Optimizer tracking data.")
 
         // Creating xdm edge event data
         let xdmEventData: [String: Any] = [
@@ -55,6 +63,19 @@ extension Messaging {
             ]
         ]
 
+        Log.debug(label: MessagingConstants.LOG_TAG, """
+            📤 [FLOW STEP 7] Sending push interaction to Adobe Experience Edge Network.
+            ═══════════════════════════════════════════════════════════
+            Edge Event Name: '\(MessagingConstants.Event.Name.PUSH_TRACKING_EDGE)'
+            XDM Event Type: '\(event.xdmEventType ?? "unknown")'
+            Message ID: '\(event.messagingId ?? "unknown")'
+            Dataset ID: '\(datasetId)'
+            
+            📦 Complete XDM Payload:
+            \(xdmEventData.prettyPrintedJson ?? "{}")
+            ═══════════════════════════════════════════════════════════
+            """)
+
         dispatchTrackingResponseEvent(.trackingInitiated, forEvent: event)
 
         // create edge event
@@ -63,6 +84,8 @@ extension Messaging {
                                                             source: EventSource.requestContent,
                                                             data: xdmEventData)
         dispatch(event: pushInteractionEvent)
+        
+        Log.debug(label: MessagingConstants.LOG_TAG, "✅ [FLOW STEP 7] Push tracking event dispatched to Edge extension. Event ID: \(pushInteractionEvent.id.uuidString)")
     }
 
     /// Send an edge event to sync the push notification details with push token
@@ -95,6 +118,8 @@ extension Messaging {
                  ]]
             ]
         ]
+
+        Log.debug(label: MessagingConstants.LOG_TAG, "Syncing push token with Edge. ECID: \(ecid), Platform: \(platform), Token: \(token.prefix(10))..., Payload: \(profileEventData)")
 
         // Creating xdm edge event data
         let xdmEventData: [String: Any] = [MessagingConstants.XDM.Key.DATA: profileEventData]
@@ -180,6 +205,8 @@ extension Messaging {
             ]
         ]
 
+        Log.debug(label: MessagingConstants.LOG_TAG, "Syncing Live Activity push-to-start tokens with Edge. ECID: \(ecid), Platform: \(platform), Token count: \(tokenMap.count), Payload: \(eventData)")
+
         let pushTokenEdgeEvent = event.createChainedEvent(
             name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START_EDGE,
             type: EventType.edge,
@@ -200,6 +227,8 @@ extension Messaging {
             MessagingConstants.XDM.LiveActivity.ID: liveActivityID,
             MessagingConstants.XDM.Push.TOKEN: token
         ]
+
+        Log.debug(label: MessagingConstants.LOG_TAG, "Syncing Live Activity update token with Edge. Activity ID: \(liveActivityID), Token: \(token.prefix(10))..., Data: \(liveActivityData)")
 
         // Creating Edge event data with XDM and data payloads
         let xdmEventData: [String: Any] = [
@@ -258,6 +287,8 @@ extension Messaging {
                 ]
             ]
         ]
+
+        Log.debug(label: MessagingConstants.LOG_TAG, "Tracking Live Activity start. Channel ID: \(channelID ?? "nil"), Activity ID: \(liveActivityID ?? "nil"), Origin: \(origin), Platform: \(platform), XDM Payload: \(xdmEventData)")
 
         let liveActivityStartEdgeEvent = event.createChainedEvent(
             name: MessagingConstants.Event.Name.LiveActivity.START_EDGE,
@@ -326,8 +357,50 @@ extension Messaging {
                 // Merging the dictionary
                 cjmDict.mergeXdm(rhs: cjmPushProfile)
                 experienceDict[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] = cjmDict
-                xdmDictResult[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experienceDict
             }
+            
+            // Add propositionEventType to decisioning section for push notifications
+            if var decisioningDict = experienceDict[MessagingConstants.XDM.AdobeKeys.DECISIONING] as? [String: Any] {
+                // Determine the proposition event type based on push notification action
+                let propositionEventType: [String: Int]
+                
+                if let xdmEventType = event.xdmEventType {
+                    switch xdmEventType {
+                    case MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED:
+                        // User tapped notification body → interact
+                        propositionEventType = ["interact": 1]
+                        Log.debug(label: MessagingConstants.LOG_TAG, "📊 Adding propositionEventType: interact (application opened)")
+                        
+                    case MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION:
+                        // Custom action - check if it's dismiss or other action
+                        if let actionId = event.actionId, actionId == "Dismiss" {
+                            // User dismissed notification → dismiss
+                            propositionEventType = ["dismiss": 1]
+                            Log.debug(label: MessagingConstants.LOG_TAG, "📊 Adding propositionEventType: dismiss")
+                        } else {
+                            // User tapped custom action button (Accept, Decline, etc.) → interact
+                            propositionEventType = ["interact": 1]
+                            Log.debug(label: MessagingConstants.LOG_TAG, "📊 Adding propositionEventType: interact (custom action: \(event.actionId ?? "unknown"))")
+                        }
+                        
+                    default:
+                        // Unknown event type - default to interact
+                        propositionEventType = ["interact": 1]
+                        Log.debug(label: MessagingConstants.LOG_TAG, "📊 Adding propositionEventType: interact (default)")
+                    }
+                    
+                    // Add propositionEventType to decisioning
+                    decisioningDict["propositionEventType"] = propositionEventType
+                    experienceDict[MessagingConstants.XDM.AdobeKeys.DECISIONING] = decisioningDict
+                    
+                    Log.debug(label: MessagingConstants.LOG_TAG, """
+                        ✅ Added propositionEventType to decisioning section:
+                        └─ propositionEventType: \(propositionEventType)
+                        """)
+                }
+            }
+            
+            xdmDictResult[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experienceDict
         } else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to send adobe/cjm information data with the tracking," +

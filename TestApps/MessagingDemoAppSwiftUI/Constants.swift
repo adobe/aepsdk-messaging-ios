@@ -15,7 +15,7 @@ import Foundation
 enum Constants {
     // If you change any of the below properties, please uninstall and reinstall the application
     
-    static let APPID = "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development"
+    static let APPID = "staging/1b50a869c4a2/9590f35e2dc9/launch-752d0a90822f-development"
     
     // Other AppID's
     // "3149c49c3910/b6541e5e6301/launch-f7ac0a320fb3-development"
@@ -23,7 +23,7 @@ enum Constants {
     // "staging/1b50a869c4a2/9590f35e2dc9/launch-752d0a90822f-development" << com.steveb.priorityTester
     
     static let isStage = true
-    static let assuranceURL = ""
+    static let assuranceURL = "app://com.aepsampleapp?adb_validation_sessionid=96c40f44-09ca-40cf-8ca3-67577c0687bc&env=qa"
     
     // Surface Names
     enum SurfaceName {
