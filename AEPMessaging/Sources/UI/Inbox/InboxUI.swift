@@ -77,7 +77,6 @@ public class InboxUI: Identifiable, ObservableObject {
     
     /// Background view for the inbox container.
     /// Default is `Color(.systemGroupedBackground)` which adapts to light/dark mode.
-    @available(iOS 15.0, *)
     internal var background: AnyView = AnyView(Color(.systemGroupedBackground))
     
     /// Spacing between content cards in the inbox.

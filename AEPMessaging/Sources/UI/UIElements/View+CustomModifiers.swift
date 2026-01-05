@@ -40,4 +40,18 @@ extension View {
             self
         }
     }
+    
+    /// Conditionally applies a modifier to a view.
+    /// - Parameters:
+    ///   - condition: The condition to evaluate
+    ///   - transform: The modifier to apply if condition is true
+    /// - Returns: The modified view if condition is true, otherwise the original view
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
 }
