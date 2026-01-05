@@ -80,6 +80,18 @@ public class InboxUI: Identifiable, ObservableObject {
     @available(iOS 15.0, *)
     internal var background: AnyView = AnyView(Color(.systemGroupedBackground))
     
+    /// Spacing between content cards in the inbox.
+    /// Default is `16` points.
+    public var cardSpacing: CGFloat = 16
+    
+    /// Padding around the content area of the inbox.
+    /// Default is `EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16)`.
+    public var contentPadding: EdgeInsets = EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16)    
+    
+    /// Size of the unread indicator icon.
+    /// Default is `20` points (width and height).
+    public var unreadIconSize: CGFloat = 16
+    
     // MARK: - Initialization
     
     /// Initializes a new InboxUI that will fetch InboxSchemaData dynamically

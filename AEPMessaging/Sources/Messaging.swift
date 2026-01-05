@@ -1021,6 +1021,20 @@ public class Messaging: NSObject, Extension {
                                 "emptyStateSettings": [
                                     "message": ["content": "Check back soon!"]
                                 ],
+                                "unread_indicator": [
+                                    "unread_bg": [
+                                        "clr": [
+                                            "light": "0x10AAFFCC",
+                                            "dark": "0x11BBCCDD"
+                                        ]
+                                    ],
+                                    "unread_icon": [
+                                        "placement": "topleft",
+                                        "image": [
+                                            "icon": "star.fill"
+                                        ]
+                                    ]
+                                ],
                                 "isUnreadEnabled": true
                             ]
                         ]

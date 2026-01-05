@@ -65,7 +65,7 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
                     ProgressView()
                         .scaleEffect(2.0)
                         .tint(.blue)
-                    Text("Fetching your messages...")
+                    Text("Loading your offers")
                         .font(.headline)
                         .foregroundColor(.blue)
                 }
@@ -97,7 +97,7 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
                             .font(.headline)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.orange)
+                    .tint(.blue)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()
@@ -119,7 +119,7 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
                             .fontWeight(.semibold)
                             .multilineTextAlignment(.center)
                     } else {
-                        Text("No messages yet")
+                        Text("No Offers yet")
                             .font(.title3)
                             .fontWeight(.semibold)
                         Text("Check back later for updates")

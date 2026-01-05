@@ -71,18 +71,12 @@ struct InboxView: View {
     
     private var verticalLayout: some View {
         ScrollView(.vertical, showsIndicators: true) {
-            LazyVStack(spacing: 16) {
+            LazyVStack(spacing: inbox.cardSpacing) {
                 ForEach(inbox.contentCards, id: \.id) { card in
-                    cardRow(card)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color(.systemBackground))
-                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
-                        )
+                    styledCardView(for: card)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(inbox.contentPadding)
         }
         .if(inbox.isPullToRefreshEnabled) { view in
             view.refreshable {
@@ -93,19 +87,12 @@ struct InboxView: View {
     
     private var horizontalLayout: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 20) {
+            LazyHStack(spacing: inbox.cardSpacing) {
                 ForEach(inbox.contentCards, id: \.id) { card in
-                    cardRow(card)
-                        .frame(width: 280) // Fixed width for horizontal cards
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(.systemBackground))
-                                .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-                        )
+                    styledCardView(for: card)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(inbox.contentPadding)
         }
         .if(inbox.isPullToRefreshEnabled) { view in
             view.refreshable {
@@ -130,25 +117,60 @@ struct InboxView: View {
         )
     }
     
-    private func cardRow(_ card: ContentCardUI) -> some View {
-        let isHorizontal = inbox.inboxSchemaData?.content.layout.orientation == .horizontal
-        let isUnreadEnabled = inbox.inboxSchemaData?.content.isUnreadEnabled ?? false
+    /// Returns a styled card view with optional unread indicators
+    /// - Parameter card: The content card to style
+    /// - Returns: Card view with unread styling applied if applicable
+    private func styledCardView(for card: ContentCardUI) -> some View {
+        // Early exit if unread feature is disabled
+        guard let inboxSchemaData = inbox.inboxSchemaData,
+              inboxSchemaData.content.isUnreadEnabled else {
+            return card.view
+        }
         
+        // Early exit if card is already read
+        guard !card.isRead else {
+            return card.view
+        }
+        
+        // Card is unread - apply unread styling
+        let unreadSettings = inboxSchemaData.content.unreadIndicator
+        
+        // Apply unread background color if available
+        if let unreadBgColor = unreadSettings?.unreadBackground?.color {
+            card.template.backgroundColor = Color(aepColor: unreadBgColor)
+        }
+        
+        // Apply unread icon overlay if available
+        let unreadIcon = unreadSettings?.unreadIcon
         return card.view
-            .padding(.all, 12)
-            .padding(.top, isHorizontal ? 20 : 0) // Extra top padding for horizontal layout dismiss button
-            .overlay(alignment: .topLeading) {
-                // Show unread indicator if enabled and card is unread
-                if isUnreadEnabled && !card.isRead {
-                    Circle()
-                        .fill(Color.red)
-                        .frame(width: 10, height: 10)
-                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                        .offset(x: 4, y: 4)
+            .if(unreadIcon != nil) { view in
+                view.overlay(alignment: unreadIconAlignment(unreadIcon?.placement)) {
+                    unreadIcon?.image.view
+                        .frame(width: inbox.unreadIconSize, height: inbox.unreadIconSize)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: isHorizontal ? 12 : 8))
     }
+    
+    // MARK: - Unread Styling Helpers
+    
+    /// Returns the SwiftUI alignment for the unread icon based on placement settings
+    private func unreadIconAlignment(_ placement: UnreadIndicatorSettings.UnreadIconSettings.IconPlacement?) -> Alignment {
+        guard let placement = placement else { return .topLeading }
+        
+        switch placement {
+        case .topLeft:
+            return .topLeading
+        case .topRight:
+            return .topTrailing
+        case .bottomLeft:
+            return .bottomLeading
+        case .bottomRight:
+            return .bottomTrailing
+        case .unknown:
+            return .topLeading
+        }
+    }
+    
     
     private var emptyStateView: some View {
         Group {
@@ -193,5 +215,67 @@ extension View {
         } else {
             self
         }
+    }
+}
+
+// MARK: - Color Extensions
+
+@available(iOS 15.0, *)
+extension Color {
+    /// Creates a Color from AEPColor with light and dark mode support
+    /// - Parameter aepColor: The AEPColor containing hex values for light and dark modes
+    init(aepColor: AEPColor) {
+        self.init(
+            light: Color(hex: aepColor.light),
+            dark: Color(hex: aepColor.dark)
+        )
+    }
+    
+    /// Creates a Color from AEPColor with light and dark mode support
+    /// - Parameters:
+    ///   - light: Color for light mode
+    ///   - dark: Color for dark mode
+    init(light: Color, dark: Color) {
+        #if canImport(UIKit)
+        self.init(UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light)
+        })
+        #else
+        self = light
+        #endif
+    }
+    
+    /// Creates a Color from a hex string
+    /// Supports formats: "0xRRGGBB", "0xRRGGBBAA", "#RRGGBB", "#RRGGBBAA", "RRGGBB", "RRGGBBAA"
+    /// - Parameter hex: The hex string
+    init(hex: String) {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        hexSanitized = hexSanitized.replacingOccurrences(of: "0x", with: "")
+        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+        
+        var rgb: UInt64 = 0
+        Scanner(string: hexSanitized).scanHexInt64(&rgb)
+        
+        let length = hexSanitized.count
+        let r, g, b, a: Double
+        
+        if length == 6 {
+            r = Double((rgb & 0xFF0000) >> 16) / 255.0
+            g = Double((rgb & 0x00FF00) >> 8) / 255.0
+            b = Double(rgb & 0x0000FF) / 255.0
+            a = 1.0
+        } else if length == 8 {
+            r = Double((rgb & 0xFF000000) >> 24) / 255.0
+            g = Double((rgb & 0x00FF0000) >> 16) / 255.0
+            b = Double((rgb & 0x0000FF00) >> 8) / 255.0
+            a = Double(rgb & 0x000000FF) / 255.0
+        } else {
+            r = 0
+            g = 0
+            b = 0
+            a = 1
+        }
+        
+        self.init(.sRGB, red: r, green: g, blue: b, opacity: a)
     }
 }
