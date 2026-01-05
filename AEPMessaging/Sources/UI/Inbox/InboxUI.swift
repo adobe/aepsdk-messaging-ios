@@ -73,6 +73,13 @@ public class InboxUI: Identifiable, ObservableObject {
     /// Default is `false`.
     public var isPullToRefreshEnabled: Bool = false
     
+    // MARK: - Customization Properties
+    
+    /// Background view for the inbox container.
+    /// Default is `Color(.systemGroupedBackground)` which adapts to light/dark mode.
+    @available(iOS 15.0, *)
+    internal var background: AnyView = AnyView(Color(.systemGroupedBackground))
+    
     // MARK: - Initialization
     
     /// Initializes a new InboxUI that will fetch InboxSchemaData dynamically
@@ -313,6 +320,30 @@ public class InboxUI: Identifiable, ObservableObject {
     
     
     // MARK: - Custom State Views
+    
+    /// Sets a custom background for the inbox container.
+    /// Can be a color, image, gradient, or any SwiftUI view.
+    /// 
+    /// ## Examples:
+    /// ```swift
+    /// // Solid color
+    /// inbox.setBackground(Color.white)
+    /// 
+    /// // Gradient
+    /// inbox.setBackground(
+    ///     LinearGradient(colors: [.blue, .purple], startPoint: .top, endPoint: .bottom)
+    /// )
+    /// 
+    /// // Image
+    /// inbox.setBackground(
+    ///     Image("background").resizable().aspectRatio(contentMode: .fill)
+    /// )
+    /// ```
+    /// - Parameter view: Any SwiftUI view to use as the background
+    @available(iOS 15.0, *)
+    public func setBackground<V: View>(_ view: V) {
+        self.background = AnyView(view)
+    }
     
     /// Sets a custom loading view to be displayed while content is being fetched
     /// - Parameter builder: A closure that returns a SwiftUI view wrapped in AnyView

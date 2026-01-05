@@ -62,7 +62,7 @@ struct InboxView: View {
                 verticalLayout
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(inbox.background)
         .onAppear {
             // Track inbox display event
             inbox.inboxSchemaData?.track(withEdgeEventType: .display)
