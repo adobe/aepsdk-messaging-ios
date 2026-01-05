@@ -15,31 +15,37 @@ import SwiftUI
 
 struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
     
-    @StateObject private var containerUI: InboxUI
-    
-    init() {
-        // Create surface for the container
-        let surface = Surface(path: "demo://container")
-        
-        // Get ContainerUI immediately - it starts in loading state
-        let container = Messaging.getContentCardContainerUIMock(
-            for: surface,
-            customizer: CardCustomizer(),
-            listener: nil // We'll set self as listener after init
-        )
-        
-        _containerUI = StateObject(wrappedValue: container)
-    }
+    @State private var inboxUI: InboxUI?
     
     var body: some View {
         VStack(spacing: 0) {
             // Container view - observes state changes automatically
-            containerUI.view
+            if let inboxUI = inboxUI {
+                inboxUI.view
+            } else {
+                ProgressView()
+            }
         }
-        .navigationTitle("Container Demo")
+        .navigationTitle("Inbox Demo")        
         .onAppear {
-            // Set self as listener after view appears
-            containerUI.listener = self
+            let cardSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
+            Messaging.updatePropositionsForSurfaces([cardSurface])
+            // Only initialize once
+            guard inboxUI == nil else { return }
+            
+            let surface = Surface(path: "inboxcard")
+            
+            // Get ContainerUI immediately - it starts in loading state
+            let inbox = Messaging.getInboxUI(
+                for: surface,
+                customizer: CardCustomizer(),
+                listener: self
+            )
+            
+            // Enable pull-to-refresh
+            inbox.isPullToRefreshEnabled = true
+            
+            inboxUI = inbox
             
             // Configure custom views
             configureCustomViews()
@@ -50,6 +56,8 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
     
     /// Configures custom views for the container
     private func configureCustomViews() {
+        guard let containerUI = inboxUI else { return }
+        
         // Set custom loading view
         containerUI.setLoadingView {
             AnyView(
@@ -83,7 +91,7 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
                         .padding(.horizontal)
                     
                     Button {
-                        self.containerUI.refresh()
+                        containerUI.refresh()
                     } label: {
                         Label("Try Again", systemImage: "arrow.clockwise")
                             .font(.headline)
@@ -120,7 +128,7 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
                     }
                     
                     Button {
-                        self.containerUI.refresh()
+                        containerUI.refresh()
                     } label: {
                         Label("Refresh", systemImage: "arrow.clockwise")
                     }
@@ -135,7 +143,7 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
     
     // MARK: - Event Listeners
     
-    // Container Events
+    // Inbox Events
     func onLoading(_ inbox: InboxUI) {
         print("Inbox is loading...")
     }

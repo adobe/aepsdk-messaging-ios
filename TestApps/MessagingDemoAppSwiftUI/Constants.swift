@@ -26,7 +26,7 @@ enum Constants {
     
     // Surface Names
     enum SurfaceName {
-        static let CONTENT_CARD = "cardstab"
+        static let CONTENT_CARD = "inboxcard"
         //static let CONTENT_CARD = "largeImageCards"
         static let CBE_HTML = "cbehtml"
         static let CBE_JSON = "cbejson"

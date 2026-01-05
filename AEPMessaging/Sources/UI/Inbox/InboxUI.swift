@@ -66,6 +66,13 @@ public class InboxUI: Identifiable, ObservableObject {
     /// Custom empty state view builder
     internal var customEmptyView: ((EmptyStateSettings?) -> AnyView)?
     
+    // MARK: - Pull-to-Refresh Properties
+    
+    /// Enables or disables pull-to-refresh functionality.
+    /// When enabled, users can pull down on the inbox to refresh content.
+    /// Default is `false`.
+    public var isPullToRefreshEnabled: Bool = false
+    
     // MARK: - Initialization
     
     /// Initializes a new InboxUI that will fetch InboxSchemaData dynamically
@@ -90,22 +97,53 @@ public class InboxUI: Identifiable, ObservableObject {
     
     /// Refreshes the inbox by fetching the latest propositions.
     ///
+    /// First updates propositions from the server, then fetches the updated propositions.
     /// The state transitions to `.loading` during the fetch, then to `.loaded`, `.empty`, or `.error`
     /// based on the results. The listener is notified at each state change.
     public func refresh() {
-        state = .loading
-        listener?.onLoading(self)
-        
-        Messaging.getPropositionsForSurfaces([surface]) { [weak self] propositionDict, error in
-            guard let self = self else { return }
-            
-            DispatchQueue.main.async {
-                self.processInboxPropositions(propositionDict, error: error)
+        performRefresh(completion: {})
+    }
+    
+    /// Asynchronously refreshes the inbox by fetching the latest propositions.
+    ///
+    /// This method is designed for use with SwiftUI's `.refreshable` modifier.
+    /// First updates propositions from the server, then fetches the updated propositions.
+    /// It suspends until the refresh operation completes (success or failure).
+    @MainActor
+    internal func refreshAsync() async {
+        await withCheckedContinuation { continuation in
+            performRefresh {
+                continuation.resume()
             }
         }
     }
     
     // MARK: - Private Methods
+    
+    /// Performs the refresh operation by updating propositions from the server and fetching them.
+    ///
+    /// This is the core refresh logic used by both `refresh()` and `refreshAsync()`.
+    /// - Parameter completion: Called when the refresh operation completes (success or failure)
+    private func performRefresh(completion: @escaping () -> Void) {
+        state = .loading
+        listener?.onLoading(self)
+        
+        // First update propositions from the server
+        Messaging.updatePropositionsForSurfaces([surface]) { [weak self] _ in
+            guard let self = self else {
+                completion()
+                return
+            }
+            
+            // Then get the updated propositions
+            Messaging.getPropositionsForSurfaces([self.surface]) { propositionDict, error in
+                DispatchQueue.main.async {
+                    self.processInboxPropositions(propositionDict, error: error)
+                    completion()
+                }
+            }
+        }
+    }
     
     /// Processes the received propositions for the inbox surface.
     ///

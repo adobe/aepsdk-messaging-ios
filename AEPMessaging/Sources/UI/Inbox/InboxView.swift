@@ -207,6 +207,11 @@ struct InboxView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
+        .if(inbox.isPullToRefreshEnabled) { view in
+            view.refreshable {
+                await inbox.refreshAsync()
+            }
+        }
     }
     
     private var horizontalLayout: some View {
@@ -224,6 +229,11 @@ struct InboxView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
+        }
+        .if(inbox.isPullToRefreshEnabled) { view in
+            view.refreshable {
+                await inbox.refreshAsync()
+            }
         }
     }
     
@@ -286,6 +296,25 @@ struct InboxView: View {
                     onRetry: { inbox.refresh() }
                 )
             }
+        }
+    }
+}
+
+// MARK: - View Extensions
+
+@available(iOS 15.0, *)
+extension View {
+    /// Conditionally applies a modifier to a view.
+    /// - Parameters:
+    ///   - condition: The condition to evaluate
+    ///   - transform: The modifier to apply if condition is true
+    /// - Returns: The modified view if condition is true, otherwise the original view
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
         }
     }
 }
