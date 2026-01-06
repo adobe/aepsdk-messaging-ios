@@ -47,30 +47,37 @@ class MessagingRuleEngineInterceptor: RuleReevaluationInterceptor {
     ///
     /// - Parameter completion: Closure to call when message refresh is complete
     private func refreshMessagesThenComplete(completion: @escaping () -> Void) {
-        // Build the refresh messages event
-        let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.REFRESH_MESSAGES: true
-        ]
         
-        let refreshMessageEvent = Event(
-            name: "Refresh in-app messages",
-            type: EventType.messaging,
-            source: EventSource.requestContent,
-            data: eventData
-        )
-        
-        // Create a completion handler that will be called when refresh finishes
-        let updateHandler: (Bool) -> Void = { _ in
-            Log.trace(label: self.LOG_TAG, "Message refresh completed, triggering rule re-evaluation")
-            completion()
+        Messaging.updatePropositionsForSurfaces([Surface()]) { success in
+            if(success){
+                completion()
+            }
         }
         
-        // Register the completion handler with the Messaging extension
-        let handler = CompletionHandler(originatingEvent: refreshMessageEvent, handler: updateHandler)
-        Messaging.completionHandlers.append(handler)
-        
-        // Dispatch the refresh event
-        MobileCore.dispatch(event: refreshMessageEvent)
+        // Build the refresh messages event
+//        let eventData: [String: Any] = [
+//            MessagingConstants.Event.Data.Key.REFRESH_MESSAGES: true
+//        ]
+//        
+//        let refreshMessageEvent = Event(
+//            name: "Refresh in-app messages",
+//            type: EventType.messaging,
+//            source: EventSource.requestContent,
+//            data: eventData
+//        )
+//        
+//        // Create a completion handler that will be called when refresh finishes
+//        let updateHandler: (Bool) -> Void = { _ in
+//            Log.trace(label: self.LOG_TAG, "Message refresh completed, triggering rule re-evaluation")
+//            completion()
+//        }
+//        
+//        // Register the completion handler with the Messaging extension
+//        let handler = CompletionHandler(originatingEvent: refreshMessageEvent, handler: updateHandler)
+//        Messaging.completionHandlers.append(handler)
+//        
+//        // Dispatch the refresh event
+//        MobileCore.dispatch(event: refreshMessageEvent)
     }
 }
 

@@ -152,6 +152,6 @@ struct ParsedPropositions {
               let jsonString = String(data: jsonData, encoding: .utf8) else {
             return false
         }
-        return jsonString.contains("fullscreen")
+        return jsonString.contains("fullscreen_ss")
     }
 }
