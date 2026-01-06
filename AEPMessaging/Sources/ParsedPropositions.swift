@@ -55,7 +55,6 @@ struct ParsedPropositions {
                 // - handle ruleset-item schemas
                 case .ruleset:
                     // Check if this is a fullscreen in-app message and mark it as reevaluable
-                    // This matches Android: if JSON contains "fullscreen", add reevaluable flag
                     var rules = firstPropositionItem.itemData
                     if isFullscreenInAppMessage(rules) {
                         rules["reevaluable"] = true
@@ -142,11 +141,7 @@ struct ParsedPropositions {
         return propositionsSortedByRank
     }
     
-    /// Checks if the rule data represents a fullscreen in-app message.
-    /// Matches Android implementation: `new JSONObject(rules).toString().contains("fullscreen")`
-    ///
-    /// - Parameter ruleData: The rule dictionary to check
-    /// - Returns: `true` if the JSON contains "fullscreen"
+    // Mock function to demonstrate reEvaluation
     private func isFullscreenInAppMessage(_ ruleData: [String: Any]) -> Bool {
         guard let jsonData = try? JSONSerialization.data(withJSONObject: ruleData),
               let jsonString = String(data: jsonData, encoding: .utf8) else {
