@@ -21,8 +21,9 @@ $dev_branch = 'dev-v5.5.0'
 # SHARED POD GROUPS
 # ==================
 def lib_main
-    pod 'AEPCore'
-    pod 'AEPServices'
+    # Using local Core fork for reevaluation feature development
+    pod 'AEPCore', :path => '../aepsdk-core-ios'
+    pod 'AEPServices', :path => '../aepsdk-core-ios'
     pod 'AEPRulesEngine'
 end
 
