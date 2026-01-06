@@ -66,6 +66,9 @@ public class InboxUI: Identifiable, ObservableObject {
     /// Custom empty state view builder
     internal var customEmptyView: ((EmptyStateSettings?) -> AnyView)?
     
+    /// Custom heading view builder
+    internal var customHeadingView: ((Heading) -> AnyView)?
+    
     // MARK: - Pull-to-Refresh Properties
     
     /// Enables or disables pull-to-refresh functionality.
@@ -372,6 +375,12 @@ public class InboxUI: Identifiable, ObservableObject {
     /// - Parameter builder: A closure that takes optional EmptyStateSettings and returns a SwiftUI view wrapped in AnyView
     public func setEmptyView(_ builder: @escaping (EmptyStateSettings?) -> AnyView) {
         self.customEmptyView = builder
+    }
+    
+    /// Sets a custom heading view to be displayed at the top of the inbox
+    /// - Parameter builder: A closure that takes a Heading object and returns a SwiftUI view wrapped in AnyView
+    public func setHeadingView(_ builder: @escaping (Heading) -> AnyView) {
+        self.customHeadingView = builder
     }
 }
 

@@ -22,7 +22,7 @@ enum Constants {
     // "staging/1b50a869c4a2/9590f35e2dc9/launch-752d0a90822f-development" << com.steveb.priorityTester
     
     static let isStage = false
-    static let assuranceURL = "lab://?adb_validation_sessionid=e7edaebe-9064-45e7-b45b-40a75426f380"
+    static let assuranceURL = ""
     
     // Surface Names
     enum SurfaceName {

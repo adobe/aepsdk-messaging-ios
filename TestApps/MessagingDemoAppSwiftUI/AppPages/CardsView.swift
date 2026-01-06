@@ -19,125 +19,133 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Container view - observes state changes automatically
             if let inboxUI = inboxUI {
                 inboxUI.view
-            } else {
-                ProgressView()
             }
         }
         .navigationTitle("Inbox Demo")        
         .onAppear {
-            let cardSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
-            Messaging.updatePropositionsForSurfaces([cardSurface])
             // Only initialize once
             guard inboxUI == nil else { return }
-            
             let surface = Surface(path: "inboxcard")
             
-            // Get ContainerUI immediately - it starts in loading state
+            // Get InboxUI immediately - it starts in loading state
             let inbox = Messaging.getInboxUI(
                 for: surface,
                 customizer: CardCustomizer(),
                 listener: self
             )
-            
-            // Enable pull-to-refresh
-            inbox.isPullToRefreshEnabled = true
-            
             inboxUI = inbox
             
-            // Configure custom views
-            configureCustomViews()
-        }
-    }
-    
-    // MARK: - Configuration
-    
-    /// Configures custom views for the container
-    private func configureCustomViews() {
-        guard let containerUI = inboxUI else { return }
-        
-        // Set custom loading view
-        containerUI.setLoadingView {
-            AnyView(
-                VStack(spacing: 16) {
-                    ProgressView()
-                        .scaleEffect(2.0)
-                        .tint(.blue)
-                    Text("Loading your offers")
-                        .font(.headline)
-                        .foregroundColor(.blue)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(.systemGroupedBackground))
-            )
-        }
-        
-        // Set custom error view
-        containerUI.setErrorView { error in
-            AnyView(
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 48))
-                        .foregroundColor(.orange)
-                    Text("Oops! Something went wrong")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    Text("Error: \(error.localizedDescription)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    
-                    Button {
-                        containerUI.refresh()
-                    } label: {
-                        Label("Try Again", systemImage: "arrow.clockwise")
+            // Configure inbox properties
+            inbox.isPullToRefreshEnabled = true
+            inbox.cardSpacing = 20
+            inbox.contentPadding = EdgeInsets(top: 20, leading: 10, bottom: 20, trailing: 10)
+            
+            
+            
+            // Set custom heading view
+//            inbox.setHeadingView { heading in
+//                AnyView(
+//                    HStack {
+//                        Text(heading.text.content)
+//                            .font(.title)
+//                            .fontWeight(.bold)
+//                        Spacer()
+//                    }
+//                    .padding(.horizontal, 20)
+//                    .padding(.vertical, 16)
+//                    .background(
+//                        LinearGradient(
+//                            colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.05)],
+//                            startPoint: .leading,
+//                            endPoint: .trailing
+//                        )
+//                    )
+//                )
+//            }
+            
+            // Set custom loading view
+            inbox.setLoadingView {
+                AnyView(
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(2.0)
+                            .tint(.blue)
+                        Text("Loading your offers")
                             .font(.headline)
+                            .foregroundColor(.blue)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.blue)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding()
-            )
-        }
-        
-        // Set custom empty view
-        containerUI.setEmptyView { emptyStateSettings in
-            AnyView(
-                VStack(spacing: 20) {
-                    Image(systemName: "tray.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
-                    
-                    // Use server-provided message if available
-                    if let message = emptyStateSettings?.message?.content {
-                        Text(message)
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .multilineTextAlignment(.center)
-                    } else {
-                        Text("No Offers yet")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                        Text("Check back later for updates")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(.systemGroupedBackground))
+                )
+            }
+            
+            // Set custom error view
+            inbox.setErrorView { error in
+                AnyView(
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 48))
+                            .foregroundColor(.orange)
+                        Text("Oops! Something went wrong")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        Text("Error: \(error.localizedDescription)")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                        
+                        Button {
+                            inbox.refresh()
+                        } label: {
+                            Label("Try Again", systemImage: "arrow.clockwise")
+                                .font(.headline)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.blue)
                     }
-                    
-                    Button {
-                        containerUI.refresh()
-                    } label: {
-                        Label("Refresh", systemImage: "arrow.clockwise")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                )
+            }
+            
+            // Set custom empty view
+            inbox.setEmptyView { emptyStateSettings in
+                AnyView(
+                    VStack(spacing: 20) {
+                        Image(systemName: "tray.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(.blue)
+                        
+                        // Use server-provided message if available
+                        if let message = emptyStateSettings?.message?.content {
+                            Text(message)
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .multilineTextAlignment(.center)
+                        } else {
+                            Text("No Offers yet")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                            Text("Check back later for updates")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Button {
+                            inbox.refresh()
+                        } label: {
+                            Label("Refresh", systemImage: "arrow.clockwise")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.blue)
                     }
-                    .buttonStyle(.bordered)
-                    .tint(.blue)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding()
-            )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                )
+            }
         }
     }
     
@@ -200,7 +208,7 @@ class CardCustomizer: ContentCardCustomizing {
     func customize(template: SmallImageTemplate) {
         // Basic styling for small image cards
         template.title.textColor = .primary
-        template.title.font = .headline
+        template.title.font = .title
         template.body?.textColor = .secondary
         template.body?.font = .body
         

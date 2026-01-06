@@ -50,7 +50,7 @@ struct InboxView: View {
     private var contentView: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header if available
-            if let heading = inbox.inboxSchemaData?.content.heading?.text.content {
+            if let heading = inbox.inboxSchemaData?.content.heading {
                 headerView(heading)
             }
             
@@ -101,20 +101,14 @@ struct InboxView: View {
         }
     }
     
-    private func headerView(_ heading: String) -> some View {
-        HStack {
-            Text(heading)
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(.primary)
-            Spacer()
+    private func headerView(_ heading: Heading) -> some View {
+        Group {
+            if let customView = inbox.customHeadingView {
+                customView(heading)
+            } else {
+                DefaultHeadingView(heading: heading)
+            }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(
-            Color(.systemBackground)
-                .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
-        )
     }
     
     /// Returns a styled card view with optional unread indicators

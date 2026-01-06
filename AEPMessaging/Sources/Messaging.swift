@@ -1015,7 +1015,7 @@ public class Messaging: NSObject, Extension {
                         "schema": "https://ns.adobe.com/personalization/container-item",
                         "data": [
                             "content": [
-                                "heading": ["content": "Trending Now Container"],
+                                "heading": ["text": [ "content": "My Supercool Inbox"]],
                                 "layout": ["orientation": "vertical"],
                                 "capacity": 10,
                                 "emptyStateSettings": [

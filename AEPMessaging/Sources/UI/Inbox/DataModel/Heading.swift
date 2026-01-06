@@ -17,10 +17,6 @@ import Foundation
 public struct Heading: Codable {
     public let text: AEPText
     
-    public init(text: AEPText) {
-        self.text = text
-    }
-    
     enum CodingKeys: String, CodingKey {
         case text
     }

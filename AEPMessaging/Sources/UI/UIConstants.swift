@@ -102,4 +102,17 @@ enum UIConstants {
             }
         }
     }
+    
+    @available(iOS 15.0, *)
+    enum Inbox {
+        enum DefaultStyle {
+            enum Heading {
+                static let FONT = Font.title2
+                static let COLOR = Color.primary
+                static let HORIZONTAL_PADDING: CGFloat = 16
+                static let VERTICAL_PADDING: CGFloat = 12
+                static let BACKGROUND_COLOR = Color(.systemBackground)
+            }
+        }
+    }
 }
