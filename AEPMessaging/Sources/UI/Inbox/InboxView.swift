@@ -27,10 +27,12 @@ struct InboxView: View {
             switch inbox.state {
             case .loading:
                 loadingView
-            case .loaded:
-                contentView
-            case .empty:
-                emptyStateView
+            case .loaded(let cards):
+                if cards.isEmpty {
+                    emptyStateView
+                } else {
+                    contentView
+                }
             case .error(let error):
                 errorView(error)
             }

@@ -208,16 +208,10 @@ public class InboxUI: Identifiable, ObservableObject {
             surfaceUri: surface.uri
         )
         
-        // Update content cards and state based on results
+        // Update content cards and state
         contentCards = configuredCards
-        
-        if configuredCards.isEmpty {
-            state = .empty
-            listener?.onEmpty(self)
-        } else {
-            state = .loaded
-            listener?.onLoaded(self)
-        }
+        state = .loaded(configuredCards)
+        listener?.onSuccess(self)
         
         Log.debug(label: UIConstants.LOG_TAG,
                  "Inbox loaded successfully with \(configuredCards.count) card(s) for surface: \(surface.uri)")
@@ -401,11 +395,8 @@ extension InboxUI: ContentCardUIEventListening {
         // Remove card from the list
         contentCards.removeAll { $0.id == card.id }
         
-        // Update state if no cards remain
-        if contentCards.isEmpty {
-            state = .empty
-            listener?.onEmpty(self)
-        }
+        // Update state with remaining cards
+        state = .loaded(contentCards)
         
         listener?.onCardDismissed(card)
     }

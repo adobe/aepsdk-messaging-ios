@@ -17,12 +17,24 @@ import Foundation
 /// Protocol for listening to inbox-level events
 @available(iOS 15.0, *)
 public protocol InboxEventListening {
+    /// Called when the inbox starts loading content
     func onLoading(_ inbox: InboxUI)
-    func onLoaded(_ inbox: InboxUI)
+    
+    /// Called when the inbox successfully loads content (may be empty or have cards)
+    func onSuccess(_ inbox: InboxUI)
+    
+    /// Called when the inbox encounters an error while loading
     func onError(_ inbox: InboxUI, _ error: Error)
-    func onEmpty(_ inbox: InboxUI)
+    
+    /// Called when a card is dismissed
     func onCardDismissed(_ card: ContentCardUI)
+    
+    /// Called when a card is displayed
     func onCardDisplayed(_ card: ContentCardUI)
+    
+    /// Called when a card is interacted with
     func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool
+    
+    /// Called when a card is created
     func onCardCreated(_ card: ContentCardUI)
 }

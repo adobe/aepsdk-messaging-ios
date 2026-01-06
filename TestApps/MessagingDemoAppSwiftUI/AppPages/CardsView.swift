@@ -156,16 +156,12 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
         print("Inbox is loading...")
     }
     
-    func onLoaded(_ inbox: InboxUI) {
+    func onSuccess(_ inbox: InboxUI) {
         print("Inbox loaded successfully")
     }
     
     func onError(_ inbox: InboxUI, _ error: Error) {
         print("Inbox error: \(error.localizedDescription)")
-    }
-    
-    func onEmpty(_ inbox: InboxUI) {
-        print("Inbox is empty")
     }
     
     // Content Card Events

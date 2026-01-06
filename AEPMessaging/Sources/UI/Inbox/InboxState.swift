@@ -15,9 +15,9 @@ import Foundation
 // MARK: - Inbox State
 
 /// Represents the different states of the inbox
+@available(iOS 15.0, *)
 public enum InboxState {
     case loading
-    case loaded
-    case empty
+    case loaded([ContentCardUI])
     case error(Error)
 }
