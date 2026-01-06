@@ -57,6 +57,7 @@ extension Messaging {
 
         dispatchTrackingResponseEvent(.trackingInitiated, forEvent: event)
 
+
         // Creating xdm edge event with request content source type
         let trackingEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
                                                      type: EventType.edge,
@@ -164,8 +165,41 @@ extension Messaging {
                 // Merging the dictionary
                 cjmDict.mergeXdm(rhs: cjmPushProfile)
                 experienceDict[MessagingConstants.XDM.AdobeKeys.CUSTOMER_JOURNEY_MANAGEMENT] = cjmDict
-                xdmDictResult[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experienceDict
             }
+            
+            // Add propositionEventType to decisioning section for push notifications
+            if var decisioningDict = experienceDict[MessagingConstants.XDM.AdobeKeys.DECISIONING] as? [String: Any] {
+                // Determine the proposition event type based on push notification action
+                let propositionEventType: [String: Int]
+                
+                if let xdmEventType = event.xdmEventType {
+                    switch xdmEventType {
+                    case MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED:
+                        // User tapped notification body → interact
+                        propositionEventType = ["interact": 1]
+                        
+                    case MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION:
+                        // Custom action - check if it's dismiss or other action
+                        if let actionId = event.actionId, actionId == "Dismiss" {
+                            // User dismissed notification → dismiss
+                            propositionEventType = ["dismiss": 1]
+                        } else {
+                            // User tapped custom action button (Accept, Decline, etc.) → interact
+                            propositionEventType = ["interact": 1]
+                        }
+                        
+                    default:
+                        // Unknown event type - default to interact
+                        propositionEventType = ["interact": 1]
+                    }
+                    
+                    // Add propositionEventType to decisioning
+                    decisioningDict["propositionEventType"] = propositionEventType
+                    experienceDict[MessagingConstants.XDM.AdobeKeys.DECISIONING] = decisioningDict
+                }
+            }
+            
+            xdmDictResult[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experienceDict
         } else {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "Failed to send adobe/cjm information data with the tracking," +
