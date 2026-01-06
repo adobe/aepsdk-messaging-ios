@@ -21,36 +21,24 @@ struct DefaultErrorView: View {
     let error: Error
     let onRetry: () -> Void
     
-    private enum Constants {
-        static let verticalSpacing: CGFloat = 16
-        static let iconSize: CGFloat = 48
-        static let icon = "exclamationmark.triangle"
-        static let title = "Error loading content cards"
-        static let buttonTitle = "Try Again"
-    }
-    
     var body: some View {
-        VStack(spacing: Constants.verticalSpacing) {
-            Image(systemName: Constants.icon)
-                .font(.system(size: Constants.iconSize))
-                .foregroundColor(.red)
-            
-            Text(Constants.title)
-                .font(.headline)
-                .foregroundColor(.primary)
+        VStack(spacing: UIConstants.Inbox.DefaultStyle.ErrorView.VERTICAL_SPACING) {
+            Text(UIConstants.Inbox.DefaultStyle.ErrorView.TITLE)
+                .font(UIConstants.Inbox.DefaultStyle.ErrorView.TITLE_FONT)
+                .foregroundColor(UIConstants.Inbox.DefaultStyle.ErrorView.TITLE_COLOR)
             
             Text(error.localizedDescription)
-                .font(.body)
-                .foregroundColor(.secondary)
+                .font(UIConstants.Inbox.DefaultStyle.ErrorView.ERROR_MESSAGE_FONT)
+                .foregroundColor(UIConstants.Inbox.DefaultStyle.ErrorView.ERROR_MESSAGE_COLOR)
                 .multilineTextAlignment(.center)
             
-            Button(Constants.buttonTitle) {
+            Button(UIConstants.Inbox.DefaultStyle.ErrorView.BUTTON_TITLE) {
                 onRetry()
             }
             .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
+        .padding(UIConstants.Inbox.DefaultStyle.ErrorView.PADDING)
     }
 }
 

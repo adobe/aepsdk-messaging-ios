@@ -18,16 +18,11 @@ import Foundation
 /// Default loading view shown while content cards are being fetched
 @available(iOS 15.0, *)
 struct DefaultLoadingView: View {
-    private enum Constants {
-        static let verticalSpacing: CGFloat = 16
-        static let message = "Loading..."
-    }
-    
     var body: some View {
-        VStack(spacing: Constants.verticalSpacing) {
+        VStack(spacing: UIConstants.Inbox.DefaultStyle.LoadingView.VERTICAL_SPACING) {
             ProgressView()
-            Text(Constants.message)
-                .foregroundColor(.secondary)
+            Text(UIConstants.Inbox.DefaultStyle.LoadingView.MESSAGE)
+                .foregroundColor(UIConstants.Inbox.DefaultStyle.LoadingView.MESSAGE_COLOR)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

@@ -21,61 +21,48 @@ struct DefaultEmptyStateView: View {
     let emptyStateSettings: EmptyStateSettings?
     let onRefresh: () -> Void
     
-    private enum Constants {
-        static let verticalSpacing: CGFloat = 16
-        static let iconSize: CGFloat = 48
-        static let icon = "tray"
-        static let message = "No content cards available"
-        static let buttonTitle = "Refresh"
-        static let imageMaxSize: CGFloat = 120
-    }
-    
     var body: some View {
-        VStack(spacing: Constants.verticalSpacing) {
-            // Use empty state settings from inbox if available
+        VStack(spacing: UIConstants.Inbox.DefaultStyle.EmptyState.VERTICAL_SPACING) {
             if let emptyStateSettings = emptyStateSettings {
-                if let imageUrl = emptyStateSettings.image?.url {
-                    AsyncImage(url: imageUrl) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    } placeholder: {
-                        Image(systemName: Constants.icon)
-                            .font(.system(size: Constants.iconSize))
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: Constants.imageMaxSize, 
-                           maxHeight: Constants.imageMaxSize)
-                } else {
-                    Image(systemName: Constants.icon)
-                        .font(.system(size: Constants.iconSize))
-                        .foregroundColor(.secondary)
+                // Show image from server if available
+                if let image = emptyStateSettings.image {
+                    image.view
+                        .frame(maxWidth: UIConstants.Inbox.DefaultStyle.EmptyState.IMAGE_MAX_SIZE, 
+                               maxHeight: UIConstants.Inbox.DefaultStyle.EmptyState.IMAGE_MAX_SIZE)
                 }
                 
-                if let message = emptyStateSettings.message?.content {
-                    Text(message)
-                        .font(.headline)
-                        .foregroundColor(.secondary)
+                // Show message from server if available
+                if let message = emptyStateSettings.message {
+                    message.view
                         .multilineTextAlignment(.center)
+                        .onAppear {
+                            applyDefaultStyling(to: message)
+                        }
                 }
             } else {
-                // Default empty state
-                Image(systemName: Constants.icon)
-                    .font(.system(size: Constants.iconSize))
-                    .foregroundColor(.secondary)
-                
-                Text(Constants.message)
-                    .font(.headline)
-                    .foregroundColor(.secondary)
+                // Default empty state message only
+                Text(UIConstants.Inbox.DefaultStyle.EmptyState.MESSAGE)
+                    .font(UIConstants.Inbox.DefaultStyle.EmptyState.MESSAGE_FONT)
+                    .foregroundColor(UIConstants.Inbox.DefaultStyle.EmptyState.MESSAGE_COLOR)
             }
             
-            Button(Constants.buttonTitle) {
+            Button(UIConstants.Inbox.DefaultStyle.EmptyState.BUTTON_TITLE) {
                 onRefresh()
             }
             .buttonStyle(.bordered)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
+        .padding(UIConstants.Inbox.DefaultStyle.EmptyState.PADDING)
+    }
+    
+    /// Applies default styling to the empty state message if not already customized
+    private func applyDefaultStyling(to message: AEPText) {
+        if message.font == nil {
+            message.font = UIConstants.Inbox.DefaultStyle.EmptyState.MESSAGE_FONT
+        }
+        if message.textColor == nil {
+            message.textColor = UIConstants.Inbox.DefaultStyle.EmptyState.MESSAGE_COLOR
+        }
     }
 }
 
