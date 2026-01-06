@@ -27,11 +27,6 @@ struct DefaultErrorView: View {
                 .font(UIConstants.Inbox.DefaultStyle.ErrorView.TITLE_FONT)
                 .foregroundColor(UIConstants.Inbox.DefaultStyle.ErrorView.TITLE_COLOR)
             
-            Text(error.localizedDescription)
-                .font(UIConstants.Inbox.DefaultStyle.ErrorView.ERROR_MESSAGE_FONT)
-                .foregroundColor(UIConstants.Inbox.DefaultStyle.ErrorView.ERROR_MESSAGE_COLOR)
-                .multilineTextAlignment(.center)
-            
             Button(UIConstants.Inbox.DefaultStyle.ErrorView.BUTTON_TITLE) {
                 onRetry()
             }
@@ -41,4 +36,3 @@ struct DefaultErrorView: View {
         .padding(UIConstants.Inbox.DefaultStyle.ErrorView.PADDING)
     }
 }
-

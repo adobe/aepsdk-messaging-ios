@@ -129,8 +129,6 @@ enum UIConstants {
                 static let TITLE = "An error occurred while loading your inbox"
                 static let TITLE_FONT = Font.headline
                 static let TITLE_COLOR = Color.primary
-                static let ERROR_MESSAGE_FONT = Font.body
-                static let ERROR_MESSAGE_COLOR = Color.secondary
                 static let BUTTON_TITLE = "Try Again"
                 static let PADDING: CGFloat = 16
             }
