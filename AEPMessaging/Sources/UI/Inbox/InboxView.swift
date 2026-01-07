@@ -74,8 +74,8 @@ struct InboxView: View {
     private var verticalLayout: some View {
         ScrollView(.vertical, showsIndicators: true) {
             LazyVStack(spacing: inbox.cardSpacing) {
-                ForEach(inbox.contentCards, id: \.id) { card in
-                    styledCardView(for: card)
+                ForEach(inbox.contentCards) { card in
+                    card.view
                 }
             }
             .padding(inbox.contentPadding)
@@ -90,8 +90,8 @@ struct InboxView: View {
     private var horizontalLayout: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: inbox.cardSpacing) {
-                ForEach(inbox.contentCards, id: \.id) { card in
-                    styledCardView(for: card)
+                ForEach(inbox.contentCards) { card in
+                    card.view
                 }
             }
             .padding(inbox.contentPadding)
@@ -112,61 +112,6 @@ struct InboxView: View {
             }
         }
     }
-    
-    /// Returns a styled card view with optional unread indicators
-    /// - Parameter card: The content card to style
-    /// - Returns: Card view with unread styling applied if applicable
-    private func styledCardView(for card: ContentCardUI) -> some View {
-        // Early exit if unread feature is disabled
-        guard let inboxSchemaData = inbox.inboxSchemaData,
-              inboxSchemaData.content.isUnreadEnabled else {
-            return card.view
-        }
-        
-        // Early exit if card is already read
-        guard !card.isRead else {
-            return card.view
-        }
-        
-        // Card is unread - apply unread styling
-        let unreadSettings = inboxSchemaData.content.unreadIndicator
-        
-        // Apply unread background color if available
-        if let unreadBgColor = unreadSettings?.unreadBackground?.color {
-            card.template.backgroundColor = Color(aepColor: unreadBgColor)
-        }
-        
-        // Apply unread icon overlay if available
-        let unreadIcon = unreadSettings?.unreadIcon
-        return card.view
-            .if(unreadIcon != nil) { view in
-                view.overlay(alignment: unreadIconAlignment(unreadIcon?.placement)) {
-                    unreadIcon?.image.view
-                        .frame(width: inbox.unreadIconSize, height: inbox.unreadIconSize)
-                }
-            }
-    }
-    
-    // MARK: - Unread Styling Helpers
-    
-    /// Returns the SwiftUI alignment for the unread icon based on placement settings
-    private func unreadIconAlignment(_ placement: UnreadIndicatorSettings.UnreadIconSettings.IconPlacement?) -> Alignment {
-        guard let placement = placement else { return .topLeading }
-        
-        switch placement {
-        case .topLeft:
-            return .topLeading
-        case .topRight:
-            return .topTrailing
-        case .bottomLeft:
-            return .bottomLeading
-        case .bottomRight:
-            return .bottomTrailing
-        case .unknown:
-            return .topLeading
-        }
-    }
-    
     
     private var emptyStateView: some View {
         Group {

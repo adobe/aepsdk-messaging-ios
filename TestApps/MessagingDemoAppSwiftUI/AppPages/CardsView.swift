@@ -45,25 +45,25 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
             
             
             // Set custom heading view
-//            inbox.setHeadingView { heading in
-//                AnyView(
-//                    HStack {
-//                        Text(heading.text.content)
-//                            .font(.title)
-//                            .fontWeight(.bold)
-//                        Spacer()
-//                    }
-//                    .padding(.horizontal, 20)
-//                    .padding(.vertical, 16)
-//                    .background(
-//                        LinearGradient(
-//                            colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.05)],
-//                            startPoint: .leading,
-//                            endPoint: .trailing
-//                        )
-//                    )
-//                )
-//            }
+           inbox.setHeadingView { heading in
+               AnyView(
+                   HStack {
+                       Text(heading.text.content)
+                           .font(.title)
+                           .fontWeight(.bold)
+                       Spacer()
+                   }
+                   .padding(.horizontal, 20)
+                   .padding(.vertical, 16)
+                   .background(
+                       LinearGradient(
+                           colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.05)],
+                           startPoint: .leading,
+                           endPoint: .trailing
+                       )
+                   )
+               )
+           }
             
             // Set custom loading view
             inbox.setLoadingView {
@@ -202,17 +202,34 @@ class CardCustomizer: ContentCardCustomizing {
     }
     
     func customize(template: SmallImageTemplate) {
-        // Basic styling for small image cards
+        // Smaller title font with better styling
         template.title.textColor = .primary
-        template.title.font = .title
-        template.body?.textColor = .secondary
-        template.body?.font = .body
+        template.title.font = .system(size: 16, weight: .semibold)
         
-        // Customize buttons with blue styling
+        // Smaller description font
+        template.body?.textColor = .secondary
+        template.body?.font = .system(size: 13, weight: .regular)
+        
+        // Set image to 100x100 with rounded corners
+        template.image?.modifier = AEPViewModifier(ImageViewModifier())
+        
+        // Set background white with opacity
+        template.backgroundColor = Color.white.opacity(0.95)
+        
+        // Improve spacing between elements
+        template.rootHStack.spacing = 12
+        template.textVStack.spacing = 6
+        template.buttonHStack.spacing = 8
+        
+        // Add enhanced card styling with corner radius, border, and shadow
+        template.rootHStack.modifier = AEPViewModifier(SmallImageCardBorderModifier())
+        
+        // Customize buttons with enhanced styling
         customizeButtons(template.buttons)
         
         // Customize dismiss button
-        template.dismissButton?.image.iconColor = .primary
+        template.dismissButton?.image.iconColor = .gray
+        template.dismissButton?.image.iconFont = .system(size: 14, weight: .semibold)
     }
     
     func customize(template: ImageOnlyTemplate) {
@@ -229,28 +246,67 @@ class CardCustomizer: ContentCardCustomizing {
         guard let buttons = buttons else { return }
         
         for button in buttons {
-            // Set button text color to white
+            // Set button text with better styling
             button.text.textColor = .white
-            button.text.font = .system(size: 16, weight: .medium)
+            button.text.font = .system(size: 14, weight: .semibold)
             
-            // Apply blue button styling using AEPViewModifier
-            button.modifier = AEPViewModifier(ButtonStyleModifier())
+            // Apply enhanced button styling using AEPViewModifier
+            button.modifier = AEPViewModifier(EnhancedButtonStyleModifier())
         }
     }
 }
 
-// MARK: - Custom Button Style Modifier
+// MARK: - Enhanced Button Style Modifier
 
-struct ButtonStyleModifier: ViewModifier {
+struct EnhancedButtonStyleModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .padding(.vertical, 12)
-            .padding(.horizontal, 20)
-            .frame(minWidth: 100)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 24)
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.blue)
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue, Color.blue.opacity(0.8)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
             )
-            .shadow(color: .blue.opacity(0.3), radius: 2, x: 0, y: 1)
+            .cornerRadius(20)
+            .shadow(color: .blue.opacity(0.4), radius: 4, x: 0, y: 2)
+    }
+}
+
+// MARK: - Image View Modifier
+
+struct ImageViewModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(width: 100, height: 100)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 2)
+    }
+}
+
+// MARK: - Small Image Card Border Modifier
+
+struct SmallImageCardBorderModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(0.95))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.purple.opacity(0.1)]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
+            )
+            .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
     }
 }

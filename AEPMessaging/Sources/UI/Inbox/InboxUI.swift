@@ -348,7 +348,6 @@ public class InboxUI: Identifiable, ObservableObject {
     /// )
     /// ```
     /// - Parameter view: Any SwiftUI view to use as the background
-    @available(iOS 15.0, *)
     public func setBackground<V: View>(_ view: V) {
         self.background = AnyView(view)
     }
