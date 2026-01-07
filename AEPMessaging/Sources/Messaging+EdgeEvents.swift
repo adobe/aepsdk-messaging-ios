@@ -57,7 +57,6 @@ extension Messaging {
 
         dispatchTrackingResponseEvent(.trackingInitiated, forEvent: event)
 
-
         // Creating xdm edge event with request content source type
         let trackingEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.PUSH_TRACKING_EDGE,
                                                      type: EventType.edge,
@@ -168,7 +167,7 @@ extension Messaging {
             }
             
             // Add propositionEventType to decisioning section for push notifications
-            if var decisioningDict = experienceDict[MessagingConstants.XDM.AdobeKeys.DECISIONING] as? [String: Any] {
+            if var decisioningDict = experienceDict[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any] {
                 // Determine the proposition event type based on push notification action
                 let propositionEventType: [String: Int]
                 
@@ -176,26 +175,26 @@ extension Messaging {
                     switch xdmEventType {
                     case MessagingConstants.XDM.Push.EventType.APPLICATION_OPENED:
                         // User tapped notification body → interact
-                        propositionEventType = ["interact": 1]
+                        propositionEventType = [MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT: 1]
                         
                     case MessagingConstants.XDM.Push.EventType.CUSTOM_ACTION:
                         // Custom action - check if it's dismiss or other action
                         if let actionId = event.actionId, actionId == "Dismiss" {
                             // User dismissed notification → dismiss
-                            propositionEventType = ["dismiss": 1]
+                            propositionEventType = [MessagingConstants.XDM.Inbound.PropositionEventType.DISMISS: 1]
                         } else {
                             // User tapped custom action button (Accept, Decline, etc.) → interact
-                            propositionEventType = ["interact": 1]
+                            propositionEventType = [MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT: 1]
                         }
                         
                     default:
                         // Unknown event type - default to interact
-                        propositionEventType = ["interact": 1]
+                        propositionEventType = [MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT: 1]
                     }
                     
                     // Add propositionEventType to decisioning
-                    decisioningDict["propositionEventType"] = propositionEventType
-                    experienceDict[MessagingConstants.XDM.AdobeKeys.DECISIONING] = decisioningDict
+                    decisioningDict[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE] = propositionEventType
+                    experienceDict[MessagingConstants.XDM.Inbound.Key.DECISIONING] = decisioningDict
                 }
             }
             
