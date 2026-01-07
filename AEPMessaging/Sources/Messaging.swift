@@ -115,22 +115,8 @@ public class Messaging: NSObject, Extension {
 
     // MARK: - Push-to-Start Token Debouncing
 
-    /// Debounce work item for batching push-to-start token Edge events.
     /// When multiple tokens arrive in quick succession, this ensures we send a single Edge event with all tokens.
-    private var pushToStartDebounceWorkItem: DispatchWorkItem?
-
-    /// The ECID to use for the debounced Edge event
-    private var pushToStartDebounceECID: String?
-
-    /// The event to use as parent for the debounced Edge event
-    private var pushToStartDebounceEvent: Event?
-
-    /// Unique identifier for the current debounce cycle. Used to prevent stale work items from executing.
-    private var pushToStartDebounceID: UUID?
-
-    /// Debounce interval for push-to-start token sync (in seconds).
-    /// Tokens typically arrive within ~1ms of each other, so 200ms provides ample buffer.
-    private let pushToStartDebounceInterval: TimeInterval = 0.2
+    private lazy var pushToStartDebouncer = LiveActivityEdgeEventDebouncer(interval: 0.2, queue: queue)
 
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
@@ -492,61 +478,21 @@ public class Messaging: NSObject, Extension {
     ///   - ecid: The Experience Cloud ID to include in the Edge event.
     ///   - event: The event that triggered the token sync (used as parent for the Edge event).
     private func scheduleDebouncedPushToStartTokenSync(ecid: String, event: Event) {
-        queue.async { [weak self] in
+        pushToStartDebouncer.schedule(ecid: ecid, event: event) { [weak self] storedECID, storedEvent in
             guard let self = self else { return }
 
-            // Cancel any pending debounce work item to reset the timer
-            self.pushToStartDebounceWorkItem?.cancel()
+            // Get all current push-to-start tokens after the debounce period
+            let tokenMap = self.stateManager.pushToStartTokenStore.all()
 
-            // Store the ECID and event for the debounced call
-            self.pushToStartDebounceECID = ecid
-            self.pushToStartDebounceEvent = event
-
-            // Generate a unique ID for this debounce cycle to detect stale executions
-            let currentDebounceID = UUID()
-            self.pushToStartDebounceID = currentDebounceID
-
-            // Create a new debounced work item
-            let workItem = DispatchWorkItem { [weak self] in
-                guard let self = self else { return }
-
-                // Verify this work item is still the current one (not superseded by a newer debounce)
-                guard self.pushToStartDebounceID == currentDebounceID else {
-                    Log.debug(label: MessagingConstants.LOG_TAG, "Skipping stale debounce work item for push-to-start tokens.")
-                    return
-                }
-
-                // Get all current push-to-start tokens after the debounce period
-                let tokenMap = self.stateManager.pushToStartTokenStore.all()
-
-                guard !tokenMap.isEmpty else {
-                    Log.debug(label: MessagingConstants.LOG_TAG, "No push-to-start tokens to sync after debounce.")
-                    return
-                }
-
-                guard let storedECID = self.pushToStartDebounceECID,
-                      let storedEvent = self.pushToStartDebounceEvent else {
-                    Log.warning(label: MessagingConstants.LOG_TAG, "Unable to send push-to-start tokens: missing ECID or event.")
-                    return
-                }
-
-                Log.debug(label: MessagingConstants.LOG_TAG,
-                          "Sending \(tokenMap.count) push-to-start token(s) to Edge after debounce: \(tokenMap.keys.joined(separator: ", "))")
-
-                self.sendLiveActivityPushToStartTokens(ecid: storedECID, tokenMap: tokenMap, event: storedEvent)
-
-                // Clear the debounce state only if we're still the current cycle
-                if self.pushToStartDebounceID == currentDebounceID {
-                    self.pushToStartDebounceECID = nil
-                    self.pushToStartDebounceEvent = nil
-                    self.pushToStartDebounceID = nil
-                }
+            guard !tokenMap.isEmpty else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "No push-to-start tokens to sync after debounce.")
+                return
             }
 
-            self.pushToStartDebounceWorkItem = workItem
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Sending \(tokenMap.count) push-to-start token(s) to Edge after debounce: \(tokenMap.keys.joined(separator: ", "))")
 
-            // Schedule the work item after the debounce interval
-            self.queue.asyncAfter(deadline: .now() + self.pushToStartDebounceInterval, execute: workItem)
+            self.sendLiveActivityPushToStartTokens(ecid: storedECID, tokenMap: tokenMap, event: storedEvent)
         }
     }
 
