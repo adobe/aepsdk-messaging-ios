@@ -505,54 +505,19 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         let edgeEvent = events.first!
         
         // verify propositionEventType is added to decisioning section
-        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
-           let experience = xdm["_experience"] as? [String: Any],
-           let decisioning = experience["decisioning"] as? [String: Any],
-           let propositionEventType = decisioning["propositionEventType"] as? [String: Int] {
-            XCTAssertEqual(1, propositionEventType["interact"])
-            XCTAssertNil(propositionEventType["dismiss"])
+        if let xdm = edgeEvent.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any],
+           let experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any],
+           let decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any],
+           let propositionEventType = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE] as? [String: Int] {
+            XCTAssertEqual(1, propositionEventType[MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT])
+            XCTAssertNil(propositionEventType[MessagingConstants.XDM.Inbound.PropositionEventType.DISMISS])
         } else {
             XCTFail("propositionEventType not found in decisioning section")
         }
         
         // verify event type is applicationOpened
-        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
-            XCTAssertEqual("pushTracking.applicationOpened", xdm["eventType"] as? String)
-        }
-    }
-    
-    func test_pushNotification_dismiss_addsPropositionEventType_dismiss() {
-        // setup
-        setExpectationEvent(type: EventType.edge, source: EventSource.requestContent, expectedCount: 1)
-        let response = prepareNotificationResponse(withUserInfo: Self.mockUserInfoWithDecisioning, 
-                                                   actionIdentifier: "Dismiss")!
-        
-        // test
-        Messaging.handleNotificationResponse(response)
-        
-        // verify
-        let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
-        XCTAssertEqual(1, events.count)
-        let edgeEvent = events.first!
-        
-        // verify propositionEventType is set to dismiss
-        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
-           let experience = xdm["_experience"] as? [String: Any],
-           let decisioning = experience["decisioning"] as? [String: Any],
-           let propositionEventType = decisioning["propositionEventType"] as? [String: Int] {
-            XCTAssertEqual(1, propositionEventType["dismiss"])
-            XCTAssertNil(propositionEventType["interact"])
-        } else {
-            XCTFail("propositionEventType not found in decisioning section")
-        }
-        
-        // verify event type is customAction with Dismiss actionID
-        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
-            XCTAssertEqual("pushTracking.customAction", xdm["eventType"] as? String)
-            if let pushTracking = xdm["pushNotificationTracking"] as? [String: Any],
-               let customAction = pushTracking["customAction"] as? [String: Any] {
-                XCTAssertEqual("Dismiss", customAction["actionID"] as? String)
-            }
+        if let xdm = edgeEvent.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any] {
+            XCTAssertEqual("pushTracking.applicationOpened", xdm[MessagingConstants.XDM.Key.EVENT_TYPE] as? String)
         }
     }
     
@@ -572,22 +537,22 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         let edgeEvent = events.first!
         
         // verify propositionEventType is set to interact for custom actions
-        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
-           let experience = xdm["_experience"] as? [String: Any],
-           let decisioning = experience["decisioning"] as? [String: Any],
-           let propositionEventType = decisioning["propositionEventType"] as? [String: Int] {
-            XCTAssertEqual(1, propositionEventType["interact"])
-            XCTAssertNil(propositionEventType["dismiss"])
+        if let xdm = edgeEvent.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any],
+           let experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any],
+           let decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any],
+           let propositionEventType = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE] as? [String: Int] {
+            XCTAssertEqual(1, propositionEventType[MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT])
+            XCTAssertNil(propositionEventType[MessagingConstants.XDM.Inbound.PropositionEventType.DISMISS])
         } else {
             XCTFail("propositionEventType not found in decisioning section")
         }
         
         // verify event type is customAction with custom actionID
-        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
-            XCTAssertEqual("pushTracking.customAction", xdm["eventType"] as? String)
-            if let pushTracking = xdm["pushNotificationTracking"] as? [String: Any],
-               let customAction = pushTracking["customAction"] as? [String: Any] {
-                XCTAssertEqual("ForegroundActionId", customAction["actionID"] as? String)
+        if let xdm = edgeEvent.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any] {
+            XCTAssertEqual("pushTracking.customAction", xdm[MessagingConstants.XDM.Key.EVENT_TYPE] as? String)
+            if let pushTracking = xdm[MessagingConstants.XDM.Key.PUSH_NOTIFICATION_TRACKING] as? [String: Any],
+               let customAction = pushTracking[MessagingConstants.XDM.Key.CUSTOM_ACTION] as? [String: Any] {
+                XCTAssertEqual("ForegroundActionId", customAction[MessagingConstants.XDM.Key.ACTION_ID] as? String)
             }
         }
     }
@@ -615,15 +580,16 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         let edgeEvent = events.first!
         
         // verify propositionEventType is NOT added when decisioning section doesn't exist
-        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
-           let experience = xdm["_experience"] as? [String: Any],
-           let decisioning = experience["decisioning"] as? [String: Any] {
-            XCTAssertNil(decisioning["propositionEventType"], "propositionEventType should not be added when decisioning section doesn't exist in original payload")
-        }
-        
-        // verify event still processes correctly
-        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
-            XCTAssertEqual("pushTracking.applicationOpened", xdm["eventType"] as? String)
+        if let xdm = edgeEvent.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any],
+           let experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any] {
+            // Use optional chaining to safely access propositionEventType even if decisioning doesn't exist
+            let propositionEventType = (experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any])?[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE]
+            XCTAssertNil(propositionEventType, "propositionEventType should not be added when decisioning section doesn't exist in original payload")
+            
+            // verify event still processes correctly
+            XCTAssertEqual("pushTracking.applicationOpened", xdm[MessagingConstants.XDM.Key.EVENT_TYPE] as? String)
+        } else {
+            XCTFail("xdm or _experience not found in edge event")
         }
     }
     
@@ -642,19 +608,19 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
         let edgeEvent = events.first!
         
         // verify propositionEventType is set to dismiss
-        if let xdm = edgeEvent.data?["xdm"] as? [String: Any],
-           let experience = xdm["_experience"] as? [String: Any],
-           let decisioning = experience["decisioning"] as? [String: Any],
-           let propositionEventType = decisioning["propositionEventType"] as? [String: Int] {
-            XCTAssertEqual(1, propositionEventType["dismiss"])
-            XCTAssertNil(propositionEventType["interact"])
+        if let xdm = edgeEvent.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any],
+           let experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any],
+           let decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any],
+           let propositionEventType = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE] as? [String: Int] {
+            XCTAssertEqual(1, propositionEventType[MessagingConstants.XDM.Inbound.PropositionEventType.DISMISS])
+            XCTAssertNil(propositionEventType[MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT])
         } else {
             XCTFail("propositionEventType not found in decisioning section")
         }
         
         // verify event type is customAction with Dismiss actionID
-        if let xdm = edgeEvent.data?["xdm"] as? [String: Any] {
-            XCTAssertEqual("pushTracking.customAction", xdm["eventType"] as? String)
+        if let xdm = edgeEvent.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any] {
+            XCTAssertEqual("pushTracking.customAction", xdm[MessagingConstants.XDM.Key.EVENT_TYPE] as? String)
         }
     }
 }
