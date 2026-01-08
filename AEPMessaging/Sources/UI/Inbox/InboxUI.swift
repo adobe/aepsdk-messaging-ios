@@ -195,8 +195,8 @@ public class InboxUI: Identifiable, ObservableObject {
         // Store inboxSchemaData
         self.inboxSchemaData = inboxSchemaData
         
-        // Create content card UI instances
-        let cards = createContentCards(from: contentCardPropositions)
+        // Create content card UI instances with inbox settings
+        let cards = createContentCards(from: contentCardPropositions, inboxSettings: inboxSchemaData.content)
         
         // Apply inbox configuration (capacity, unread status) to contentCards
         let configuredCards = applyInboxConfiguration(to: cards, with: inboxSchemaData)
@@ -264,14 +264,17 @@ public class InboxUI: Identifiable, ObservableObject {
     
     /// Creates ContentCardUI instances from content card propositions.
     ///
-    /// - Parameter propositions: Array of content card propositions
+    /// - Parameters:
+    ///   - propositions: Array of content card propositions
+    ///   - inboxSettings: Optional inbox settings to apply during creation (for future extensibility)
     /// - Returns: Array of successfully created ContentCardUI instances
-    private func createContentCards(from propositions: [Proposition]) -> [ContentCardUI] {
+    private func createContentCards(from propositions: [Proposition], inboxSettings: InboxSettings? = nil) -> [ContentCardUI] {
         return propositions.compactMap { proposition in
             guard let contentCard = ContentCardUI.createInstance(
                 with: proposition,
                 customizer: customizer,
-                listener: cardEventListener
+                listener: cardEventListener,
+                inboxSettings: inboxSettings
             ) else {
                 Log.warning(label: UIConstants.LOG_TAG,
                            "Failed to create ContentCardUI for proposition: \(proposition.uniqueId)")
@@ -305,6 +308,7 @@ public class InboxUI: Identifiable, ObservableObject {
         
         // Initialize unread status for all new cards
         // Cards with no existing read status will default to false (unread)
+        // Note: Unread settings are already applied during card creation in createContentCards()
         configuredCards.forEach { card in
             // Just accessing isRead will trigger the getter which defaults to false
             // This ensures the card is registered in ReadStatusManager

@@ -263,6 +263,7 @@
 		92FC594626372E34005BAE02 /* MockNotificationResponseCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */; };
 		B3F98C855B004D1DE6BF2C47 /* Pods_AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9B29BC8FDB1668EB2D55D15 /* Pods_AEPMessaging.framework */; };
 		B45151C97D7CC04168690FB8 /* Pods_MessagingDemoApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F23BE01498B5A36EEE4CDC /* Pods_MessagingDemoApp.framework */; };
+		B60EE0C22F0E40C30040189F /* AEPUnreadIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60EE0C12F0E40C30040189F /* AEPUnreadIcon.swift */; };
 		B6165DA629A67ADA0031B84D /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6165DA529A67ADA0031B84D /* NotificationService.swift */; };
 		B6165DAA29A67ADA0031B84D /* NotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6165DA329A67AD90031B84D /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B631AE162A61336800E8B82E /* MessagingNotificationTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B631AE152A61336800E8B82E /* MessagingNotificationTrackingTests.swift */; };
@@ -784,6 +785,7 @@
 		A44BD44CB3A7DA5EBB972652 /* Pods_E2EFunctionalTestApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_E2EFunctionalTestApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9ADDB0B1BD3178D864C6041 /* Pods-MessagingDemoAppObjC.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoAppObjC.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC.debug.xcconfig"; sourceTree = "<group>"; };
 		ACD6F3099D795F3ACFB3F1DC /* Pods-IntegrationTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegrationTests.debug.xcconfig"; path = "Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests.debug.xcconfig"; sourceTree = "<group>"; };
+		B60EE0C12F0E40C30040189F /* AEPUnreadIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEPUnreadIcon.swift; sourceTree = "<group>"; };
 		B6165DA329A67AD90031B84D /* NotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6165DA529A67ADA0031B84D /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		B6165DA729A67ADA0031B84D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1440,6 +1442,14 @@
 			path = FunctionalTests;
 			sourceTree = "<group>";
 		};
+		B60EE0C02F0E409A0040189F /* AEPUnreadIcon */ = {
+			isa = PBXGroup;
+			children = (
+				B60EE0C12F0E40C30040189F /* AEPUnreadIcon.swift */,
+			);
+			path = AEPUnreadIcon;
+			sourceTree = "<group>";
+		};
 		B6165DA429A67ADA0031B84D /* NotificationService */ = {
 			isa = PBXGroup;
 			children = (
@@ -1571,6 +1581,7 @@
 		B6F7CBBD2CC2089A00C35C64 /* UIElements */ = {
 			isa = PBXGroup;
 			children = (
+				B60EE0C02F0E409A0040189F /* AEPUnreadIcon */,
 				B6D364ED2EE184A600AE315D /* UIProperties */,
 				B6F7CBA42CC2089A00C35C64 /* AEPButton */,
 				B6F7CBA82CC2089A00C35C64 /* AEPDismissButton */,
@@ -2762,6 +2773,7 @@
 				B6F7CBD82CC2089A00C35C64 /* AEPStackError.swift in Sources */,
 				B6D035E22D2F23E900031170 /* AppStateManager.swift in Sources */,
 				B6F7CBD92CC2089A00C35C64 /* AEPViewModel.swift in Sources */,
+				B60EE0C22F0E40C30040189F /* AEPUnreadIcon.swift in Sources */,
 				B6F7CBDA2CC2089A00C35C64 /* ImageSourceType.swift in Sources */,
 				B6F7CBDB2CC2089A00C35C64 /* ContentCardSchemaData+TemplateContent.swift in Sources */,
 				B67EB2A52F0CE92100844ADC /* DefaultHeadingView.swift in Sources */,

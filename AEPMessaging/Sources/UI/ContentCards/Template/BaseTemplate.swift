@@ -34,6 +34,19 @@ public class BaseTemplate: ObservableObject {
     /// the dismiss button model
     @Published public var dismissButton: AEPDismissButton?
 
+    /// The unread indicator icon model
+    /// Contains settings for the unread icon including image and placement
+    /// This property is optional and will only be set if unread icon settings are provided
+    @Published public var unreadIcon: AEPUnreadIcon?
+    
+    /// The background view for the unread state obtained from the inbox settings
+    /// This view overlays the card content when the card is in unread state
+    @Published public var unreadBackground: AnyView?
+    
+    /// Boolean indicating if the card has been read
+    /// Used to determine visibility of unread indicators
+    @Published var isRead: Bool = false
+
     /// An optional handler that conforms to the `TemplateEventHandler` protocol.
     /// Use this property to assign a listener that will handle events related to the content card's interactions.
     weak var eventHandler: TemplateEventHandler?
@@ -47,29 +60,79 @@ public class BaseTemplate: ObservableObject {
 
     /// Initializes a `BaseTemplate` with the given schema data.
     /// This initializer is designed to be called by subclasses to perform common initialization tasks.
-    /// - Parameter schemaData: The schema data used for initialization.
-    init?(_ schemaData: ContentCardSchemaData) {
+    /// - Parameters:
+    ///   - schemaData: The schema data used for initialization.
+    ///   - inboxSettings: Optional settings that apply specific configurations to content cards when displayed within an inbox
+    init?(_ schemaData: ContentCardSchemaData, _ inboxSettings: InboxSettings? = nil) {
         actionURL = schemaData.actionUrl
+        
+        // Apply inbox settings if provided
+        if let inboxSettings = inboxSettings {
+            // Apply unread indicator settings if available
+            if let unreadSettings = inboxSettings.unreadIndicator {
+                // Set unread icon if available
+                if let iconSettings = unreadSettings.unreadIcon {
+                    self.unreadIcon = AEPUnreadIcon(settings: iconSettings)
+                }
+                
+                // Set unread background if available
+                if let bgSettings = unreadSettings.unreadBackground {
+                    self.unreadBackground = AnyView(Color(aepColor: bgSettings.color))
+                }
+            }
+            isRead = true
+        }
+    }
+    
+    /// Updates the visual state of the template based on read status
+    /// - Parameter isRead: Boolean indicating if the card has been read
+    func updateUnreadState(isRead: Bool) {
+        self.isRead = isRead
     }
 
     /// Constructs a SwiftUI view with common properties and behaviors applied for all templates.
     ///
     /// - Parameter content: A closure that returns the content view to be displayed.
     /// - Returns: A SwiftUI view of the templated Content Card
-    func buildCardView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    func buildCardView<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
+        TemplateWrapperView(template: self, content: content)
+    }
+}
+
+/// A wrapper view that observes the template and updates when it changes
+@available(iOS 15.0, *)
+private struct TemplateWrapperView<Content: View>: View {
+    @ObservedObject var template: BaseTemplate
+    let content: () -> Content
+    
+    var body: some View {
         content()
-            .background(backgroundColor)
-            .onTapGesture {
-                self.eventHandler?.onInteract(interactionId: UIConstants.CardTemplate.InteractionID.cardTapped, actionURL: self.actionURL)
-            }.onAppear(perform: {
-                if !self.isDisplayed {
-                    self.isDisplayed = true
-                    self.eventHandler?.onDisplay()
+            .background {
+                if !template.isRead, let unreadBackground = template.unreadBackground {
+                    unreadBackground
+                } else {
+                    template.backgroundColor
                 }
-            }).overlay(alignment: dismissButton?.alignment ??
+            }
+            .onTapGesture {
+                template.eventHandler?.onInteract(interactionId: UIConstants.CardTemplate.InteractionID.cardTapped, actionURL: template.actionURL)
+            }.onAppear(perform: {
+                if !template.isDisplayed {
+                    template.isDisplayed = true
+                    template.eventHandler?.onDisplay()
+                }
+            })
+            // Unread Icon Overlay
+            .overlay(alignment: template.unreadIcon?.alignment ?? .topTrailing, content: {
+                if !template.isRead, let icon = template.unreadIcon {
+                    icon.view
+                }
+            })
+            // Dismiss Button Overlay
+            .overlay(alignment: template.dismissButton?.alignment ??
                 UIConstants.CardTemplate.DefaultStyle.DismissButton.ALIGNMENT, content: {
-                    if dismissButton != nil {
-                        dismissButton?.view
+                    if template.dismissButton != nil {
+                        template.dismissButton?.view
                             .padding(UIConstants.CardTemplate.DefaultStyle.PADDING)
                     }
                 })

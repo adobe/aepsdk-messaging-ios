@@ -175,6 +175,7 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
     
     func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
         print("Card interacted: \(interactionId)")
+
         return false // Return false to allow default URL handling
     }
     
@@ -230,6 +231,9 @@ class CardCustomizer: ContentCardCustomizing {
         // Customize dismiss button
         template.dismissButton?.image.iconColor = .gray
         template.dismissButton?.image.iconFont = .system(size: 14, weight: .semibold)
+        template.unreadIcon?.image.iconColor = .yellow
+        template.unreadIcon?.image.iconFont = .system(size: 40, weight: .semibold)
+        template.unreadIcon?.alignment = .topTrailing
     }
     
     func customize(template: ImageOnlyTemplate) {
@@ -292,10 +296,6 @@ struct SmallImageCardBorderModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.95))
-            )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(

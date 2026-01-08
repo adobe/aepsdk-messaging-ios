@@ -21,16 +21,18 @@ enum TemplateBuilder {
     ///    - schemaData: The content card schema data containing template information.
     ///    - customizer: An object conforming to `ContentCardCustomizing` protocol that allows for
     ///                 custom styling of the content card
+    ///    - inboxSettings: Optional settings that apply specific configurations to content cards when displayed within an inbox
     /// - Returns: An instance conforming to `ContentCardTemplate` if a supported template type is found, otherwise `nil`.
     static func buildTemplate(from schemaData: ContentCardSchemaData,
-                              customizer: ContentCardCustomizing?) -> (any ContentCardTemplate)? {
+                              customizer: ContentCardCustomizing?,
+                              inboxSettings: InboxSettings? = nil) -> (any ContentCardTemplate)? {
         switch schemaData.templateType {
         case .smallImage:
-            return SmallImageTemplate(schemaData, customizer)
+            return SmallImageTemplate(schemaData, customizer, inboxSettings)
         case .largeImage:
-            return LargeImageTemplate(schemaData, customizer)
+            return LargeImageTemplate(schemaData, customizer, inboxSettings)
         case .imageOnly:
-            return ImageOnlyTemplate(schemaData, customizer)
+            return ImageOnlyTemplate(schemaData, customizer, inboxSettings)
         case .unknown:
             // Currently unsupported template types
             return nil

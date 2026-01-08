@@ -32,7 +32,7 @@ public class ImageOnlyTemplate: BaseTemplate, ContentCardTemplate {
 
     /// The SwiftUI view representing the content card.
     public lazy var view: some View = buildCardView {
-        image.view
+        self.image.view
     }
 
     /// Initializes an `ImageOnlyTemplate` with the given schema data.
@@ -44,14 +44,15 @@ public class ImageOnlyTemplate: BaseTemplate, ContentCardTemplate {
     ///    - schemaData: The schema data used to populate the template's properties.
     ///    - customizer: An object conforming to ContentCardCustomizing protocol that allows for
     ///                 custom styling of the content card
+    ///    - inboxSettings: Optional settings that apply specific configurations to content cards when displayed within an inbox
     /// - Returns: An initialized `ImageOnlyTemplate` or `nil` if the required image is missing.
-    init?(_ schemaData: ContentCardSchemaData, _ customizer: ContentCardCustomizing?) {
+    init?(_ schemaData: ContentCardSchemaData, _ customizer: ContentCardCustomizing?, _ inboxSettings: InboxSettings? = nil) {
         guard let image = schemaData.image else {
             return nil
         }
 
         self.image = image
-        super.init(schemaData)
+        super.init(schemaData, inboxSettings)
 
         dismissButton = schemaData.getDismissButton(forTemplate: self)
 
