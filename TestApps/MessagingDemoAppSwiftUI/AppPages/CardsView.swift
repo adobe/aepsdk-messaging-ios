@@ -41,9 +41,7 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
             inbox.isPullToRefreshEnabled = true
             inbox.cardSpacing = 20
             inbox.contentPadding = EdgeInsets(top: 20, leading: 10, bottom: 20, trailing: 10)
-            
-            
-            
+                                    
             // Set custom heading view
            inbox.setHeadingView { heading in
                AnyView(
@@ -84,66 +82,105 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
             // Set custom error view
             inbox.setErrorView { error in
                 AnyView(
-                    VStack(spacing: 16) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 48))
-                            .foregroundColor(.orange)
-                        Text("Oops! Something went wrong")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        Text("Error: \(error.localizedDescription)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
+                    VStack(spacing: 20) {
+                        // Sad puppy image
+                        Image("ErrorMessageIcon")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 200, height: 150)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
                         
+                        // Main error message
+                        VStack(spacing: 8) {
+                            Text("SORRY")
+                                .font(.system(size: 32, weight: .thin))
+                                .foregroundColor(.gray)
+                                .tracking(4)
+                            
+                            Text("something went wrong")
+                                .font(.system(size: 18, weight: .light))
+                                .foregroundColor(.gray)
+                            
+                            Text("on our end")
+                                .font(.system(size: 18, weight: .light))
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.top, 8)                        
+                        
+                        // Refresh button
                         Button {
                             inbox.refresh()
                         } label: {
-                            Label("Try Again", systemImage: "arrow.clockwise")
-                                .font(.headline)
+                            HStack(spacing: 8) {
+                                Image(systemName: "arrow.clockwise")
+                                Text("Try Again")
+                            }
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 32)
+                            .padding(.vertical, 12)
+                            .background(Color.blue)
+                            .cornerRadius(8)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.blue)
+                        .padding(.top, 8)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding()
+                    .background(Color(.systemBackground))
                 )
             }
             
             // Set custom empty view
             inbox.setEmptyView { emptyStateSettings in
                 AnyView(
-                    VStack(spacing: 20) {
-                        Image(systemName: "tray.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.blue)
+                    VStack(spacing: 24) {
+                        // Mailbox icon
+                        Image("emptyMessageIcon")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 140, height: 140)
+                            .shadow(color: .blue.opacity(0.2), radius: 10, x: 0, y: 4)
                         
-                        // Use server-provided message if available
-                        if let message = emptyStateSettings?.message?.content {
-                            Text(message)
-                                .font(.title3)
-                                .fontWeight(.semibold)
-                                .multilineTextAlignment(.center)
-                        } else {
-                            Text("No Offers yet")
-                                .font(.title3)
-                                .fontWeight(.semibold)
-                            Text("Check back later for updates")
-                                .font(.subheadline)
+                        // Title and body text
+                        VStack(spacing: 12) {
+                            Text("No new message")
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            Text("Check back later for exciting offers\n(or boring ads, we'll surprise you! 🎁)")
+                                .font(.system(size: 16))
                                 .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(4)
                         }
+                        .padding(.horizontal, 32)
                         
+                        // Refresh button
                         Button {
                             inbox.refresh()
                         } label: {
-                            Label("Refresh", systemImage: "arrow.clockwise")
+                            HStack(spacing: 8) {
+                                Image(systemName: "arrow.clockwise")
+                                Text("Refresh")
+                            }
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 28)
+                            .padding(.vertical, 12)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color.blue, Color.blue.opacity(0.8)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .cornerRadius(24)
+                            .shadow(color: .blue.opacity(0.3), radius: 6, x: 0, y: 3)
                         }
-                        .buttonStyle(.bordered)
-                        .tint(.blue)
+                        .padding(.top, 8)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding()
+                    .background(Color(.systemBackground))
                 )
             }
         }
@@ -214,8 +251,8 @@ class CardCustomizer: ContentCardCustomizing {
         // Set image to 100x100 with rounded corners
         template.image?.modifier = AEPViewModifier(ImageViewModifier())
         
-        // Set background white with opacity
-        template.backgroundColor = Color.white.opacity(0.95)
+        // Clear template background - handled in modifier instead
+        template.backgroundColor = nil
         
         // Improve spacing between elements
         template.rootHStack.spacing = 12
@@ -307,6 +344,7 @@ struct SmallImageCardBorderModifier: ViewModifier {
                         lineWidth: 1.5
                     )
             )
+            .clipShape(RoundedRectangle(cornerRadius: 16))
             .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
     }
 }

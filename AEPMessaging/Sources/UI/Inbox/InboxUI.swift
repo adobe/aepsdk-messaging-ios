@@ -306,6 +306,8 @@ public class InboxUI: Identifiable, ObservableObject {
             }
         }
         
+        
+        
         // Initialize unread status for all new cards
         // Cards with no existing read status will default to false (unread)
         // Note: Unread settings are already applied during card creation in createContentCards()

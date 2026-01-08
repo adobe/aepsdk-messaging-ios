@@ -29,7 +29,7 @@ struct InboxView: View {
                 loadingView
             case .loaded(let cards):
                 if cards.isEmpty {
-                    emptyStateView
+                    emptyStateViewWithHeading
                 } else {
                     contentView
                 }
@@ -124,6 +124,19 @@ struct InboxView: View {
                 )
             }
         }
+    }
+    
+    private var emptyStateViewWithHeading: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header if available
+            if let heading = inbox.inboxSchemaData?.content.heading {
+                headerView(heading)
+            }
+            
+            // Empty state view
+            emptyStateView
+        }
+        .background(inbox.background)
     }
     
     private func errorView(_ error: Error) -> some View {
