@@ -28,7 +28,6 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
             // Only initialize once
             guard inboxUI == nil else { return }
             let surface = Surface(path: "inboxcard")
-            
             // Get InboxUI immediately - it starts in loading state
             let inbox = Messaging.getInboxUI(
                 for: surface,
@@ -36,14 +35,14 @@ struct CardsView: View, ContentCardUIEventListening, InboxEventListening {
                 listener: self
             )
             inboxUI = inbox
-            
+                        
             // Configure inbox properties
             inbox.isPullToRefreshEnabled = true
             inbox.cardSpacing = 20
             inbox.contentPadding = EdgeInsets(top: 20, leading: 10, bottom: 20, trailing: 10)
                                     
             // Set custom heading view
-           inbox.setHeadingView { heading in
+            inbox.setHeadingView { heading in
                AnyView(
                    HStack {
                        Text(heading.text.content)
@@ -268,9 +267,10 @@ class CardCustomizer: ContentCardCustomizing {
         // Customize dismiss button
         template.dismissButton?.image.iconColor = .gray
         template.dismissButton?.image.iconFont = .system(size: 14, weight: .semibold)
+        
         template.unreadIcon?.image.iconColor = .yellow
-        template.unreadIcon?.image.iconFont = .system(size: 40, weight: .semibold)
-        template.unreadIcon?.alignment = .topTrailing
+        template.unreadIcon?.image.iconFont = .system(size: 20, weight: .semibold)
+        template.unreadIcon?.alignment = .topLeading
     }
     
     func customize(template: ImageOnlyTemplate) {

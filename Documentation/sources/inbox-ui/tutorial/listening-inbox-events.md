@@ -60,7 +60,7 @@ Called when a content card is displayed to the user. Use this event to track imp
 
 ```swift
 func onCardDisplayed(_ card: ContentCardUI) {
-    AnalyticsService.trackImpression(cardId: card.id)
+    print("Card displayed: \(card.id)")
 }
 ```
 
@@ -128,14 +128,7 @@ struct InboxPage: View, InboxEventListening {
     }
     
     var body: some View {
-        NavigationView {
-            inboxUI.view
-                .navigationTitle("Inbox")
-                .alert("Error", isPresented: $showError) {
-                    Button("OK") { showError = false }
-                } message: {
-                    Text(errorMessage)
-                }
+           inboxUI.view
         }
         .onAppear {
             Messaging.updatePropositionsForSurfaces([Surface(path: "inbox")])
@@ -150,7 +143,7 @@ struct InboxPage: View, InboxEventListening {
     
     func onSuccess(_ inbox: InboxUI) {
         print("Inbox loaded successfully")
-        AnalyticsService.track("inbox_loaded")
+
     }
     
     func onError(_ inbox: InboxUI, _ error: Error) {
@@ -166,7 +159,7 @@ struct InboxPage: View, InboxEventListening {
     }
     
     func onCardDisplayed(_ card: ContentCardUI) {
-        AnalyticsService.trackImpression(cardId: card.id)
+        print("Card displayed: \(card.id)")
     }
     
     func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
@@ -182,7 +175,6 @@ struct InboxPage: View, InboxEventListening {
     
     func onCardDismissed(_ card: ContentCardUI) {
         print("Card dismissed: \(card.id)")
-        AnalyticsService.track("card_dismissed", properties: ["card_id": card.id])
     }
     
     private func handleDeepLink(_ url: URL) {
@@ -225,20 +217,6 @@ func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL:
 }
 ```
 
-### Pattern 3: Analytics + Default Behavior
-
-```swift
-func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
-    // Track interaction but let SDK handle URL
-    AnalyticsService.trackInteraction(
-        cardId: card.id,
-        interactionId: interactionId,
-        url: actionURL
-    )
-    
-    return false // Let SDK open the URL
-}
-```
 
 ## Best Practices
 
