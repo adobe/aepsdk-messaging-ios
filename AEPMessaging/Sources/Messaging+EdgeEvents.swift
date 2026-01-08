@@ -168,6 +168,14 @@ extension Messaging {
             
             // Add propositionEventType to decisioning section for push notifications
             if var decisioningDict = experienceDict[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any] {
+                // Check if experienceDecisioningRequestId exists to validate this is a decisioning notification
+                if let exdRequestId = decisioningDict[MessagingConstants.XDM.Inbound.Key.EXPERIENCE_DECISIONING_REQUEST_ID] as? String, !exdRequestId.isEmpty {
+                    // Valid decisioning notification, proceed with propositionEventType
+                } else {
+                    // Skip adding propositionEventType if no experienceDecisioningRequestId
+                    return xdmDictResult
+                }
+                
                 // Determine the proposition event type based on push notification action
                 let propositionEventType: [String: Int]
                 
