@@ -45,7 +45,7 @@ public class BaseTemplate: ObservableObject {
     
     /// Boolean indicating if the card has been read
     /// Used to determine visibility of unread indicators
-    @Published var isRead: Bool = false
+    @Published var isReadForView: Bool = false
 
     /// An optional handler that conforms to the `TemplateEventHandler` protocol.
     /// Use this property to assign a listener that will handle events related to the content card's interactions.
@@ -80,14 +80,14 @@ public class BaseTemplate: ObservableObject {
                     self.unreadBackground = AnyView(Color(aepColor: bgSettings.color))
                 }
             }
-            isRead = true
+            isReadForView = true
         }
     }
     
     /// Updates the visual state of the template based on read status
     /// - Parameter isRead: Boolean indicating if the card has been read
-    func updateUnreadState(isRead: Bool) {
-        self.isRead = isRead
+    func updateUnreadStateForView(isRead: Bool) {
+        self.isReadForView = isRead
     }
 
     /// Constructs a SwiftUI view with common properties and behaviors applied for all templates.
@@ -108,7 +108,7 @@ private struct TemplateWrapperView<Content: View>: View {
     var body: some View {
         content()
             .background {
-                if !template.isRead, let unreadBackground = template.unreadBackground {
+                if !template.isReadForView, let unreadBackground = template.unreadBackground {
                     unreadBackground
                 } else {
                     template.backgroundColor
@@ -124,7 +124,7 @@ private struct TemplateWrapperView<Content: View>: View {
             })
             // Unread Icon Overlay
             .overlay(alignment: template.unreadIcon?.alignment ?? .topTrailing, content: {
-                if !template.isRead, let icon = template.unreadIcon {
+                if !template.isReadForView, let icon = template.unreadIcon {
                     icon.view
                 }
             })

@@ -64,7 +64,7 @@ public class ContentCardUI: Identifiable {
         }
         set {
             ReadStatusManager.shared.setReadStatus(newValue, for: proposition.activityId)
-            template.updateUnreadState(isRead: newValue)
+            template.updateUnreadStateForView(isRead: newValue)
         }
     }
     
@@ -124,6 +124,6 @@ public class ContentCardUI: Identifiable {
         
         // Initialize the template's read state from ReadStatusManager
         let currentReadStatus = ReadStatusManager.shared.getReadStatus(for: proposition.activityId) ?? false
-        template.updateUnreadState(isRead: currentReadStatus)
+        template.updateUnreadStateForView(isRead: currentReadStatus)
     }
 }
