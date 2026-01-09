@@ -61,14 +61,13 @@ public class SmallImageTemplate: BaseTemplate, ContentCardTemplate {
     ///    - schemaData: The schema data used to populate the template's properties.
     ///    - customizer: An object conforming to ContentCardCustomizing protocol that allows for
     ///                 custom styling of the content card
-    ///    - inboxSettings: Optional settings that apply specific configurations to content cards when displayed within an inbox
     /// - Returns: An initialized `SmallImageTemplate` or `nil` if the required title is missing.
-    init?(_ schemaData: ContentCardSchemaData, _ customizer: ContentCardCustomizing?, _ inboxSettings: InboxSettings? = nil) {
+    init?(_ schemaData: ContentCardSchemaData, _ customizer: ContentCardCustomizing? = nil) {
         guard let title = schemaData.title else {
             return nil
         }
         self.title = title
-        super.init(schemaData, inboxSettings)
+        super.init(schemaData)
 
         body = schemaData.body
         image = schemaData.image

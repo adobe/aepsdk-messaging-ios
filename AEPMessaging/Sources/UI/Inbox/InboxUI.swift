@@ -195,8 +195,8 @@ public class InboxUI: Identifiable, ObservableObject {
         // Store inboxSchemaData
         self.inboxSchemaData = inboxSchemaData
         
-        // Create content card UI instances with inbox settings
-        let cards = createContentCards(from: contentCardPropositions, inboxSettings: inboxSchemaData.content)
+        // Create content card UI instances with unread indicator settings
+        let cards = createContentCards(from: contentCardPropositions, unreadIndicator: inboxSchemaData.content.unreadIndicator)
         
         // Apply inbox configuration (capacity, unread status) to contentCards
         let configuredCards = applyInboxConfiguration(to: cards, with: inboxSchemaData)
@@ -266,21 +266,43 @@ public class InboxUI: Identifiable, ObservableObject {
     ///
     /// - Parameters:
     ///   - propositions: Array of content card propositions
-    ///   - inboxSettings: Optional inbox settings to apply during creation (for future extensibility)
+    ///   - unreadIndicator: Optional unread indicator settings to apply to content cards
     /// - Returns: Array of successfully created ContentCardUI instances
-    private func createContentCards(from propositions: [Proposition], inboxSettings: InboxSettings? = nil) -> [ContentCardUI] {
+    private func createContentCards(from propositions: [Proposition], unreadIndicator: UnreadIndicatorSettings? = nil) -> [ContentCardUI] {
         return propositions.compactMap { proposition in
             guard let contentCard = ContentCardUI.createInstance(
                 with: proposition,
                 customizer: customizer,
-                listener: cardEventListener,
-                inboxSettings: inboxSettings
+                listener: cardEventListener
             ) else {
                 Log.warning(label: UIConstants.LOG_TAG,
                            "Failed to create ContentCardUI for proposition: \(proposition.uniqueId)")
                 return nil
             }
+            
+            // Apply unread indicator settings post-creation
+            applyUnreadIndicator(to: contentCard, with: unreadIndicator)
+            
             return contentCard
+        }
+    }
+    
+    /// Applies unread indicator visual settings to a content card.
+    ///
+    /// This method configures the template's unread icon and background based on inbox settings.
+    /// It is called after card creation to keep templates decoupled from inbox-specific types.
+    ///
+    /// - Parameters:
+    ///   - card: The content card UI instance to configure
+    ///   - settings: Optional unread indicator settings from inbox schema
+    private func applyUnreadIndicator(to card: ContentCardUI, with settings: UnreadIndicatorSettings?) {
+        guard let settings = settings else { return }
+        
+        if let iconSettings = settings.unreadIcon {
+            card.template.unreadIcon = AEPUnreadIcon(settings: iconSettings)
+        }
+        if let bgSettings = settings.unreadBackground {
+            card.template.unreadBackground = AnyView(Color(aepColor: bgSettings.color))
         }
     }
     

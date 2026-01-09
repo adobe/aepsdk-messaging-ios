@@ -84,17 +84,15 @@ public class ContentCardUI: Identifiable {
     ///    - proposition: The `Proposition` containing content card template information
     ///    - customizer: An optional object conforming to `ContentCardCustomizing` protocol that allows for custom styling of the content card
     ///    - listener: An optional object conforming to `ContentCardUIEventListening` protocol implemented by the host app to listen to UI events from the content card
-    ///    - inboxSettings: Optional settings that apply specific configurations to content cards when displayed within an inbox
     /// - Returns: An initialized `ContentCardUI` instance, or `nil` if unable to create template from proposition
     static func createInstance(with proposition: Proposition,
                                customizer: ContentCardCustomizing?,
-                               listener: ContentCardUIEventListening?,
-                               inboxSettings: InboxSettings? = nil) -> ContentCardUI? {
+                               listener: ContentCardUIEventListening?) -> ContentCardUI? {
         guard let schemaData = proposition.items.first?.contentCardSchemaData else {
             return nil
         }
 
-        guard let template = TemplateBuilder.buildTemplate(from: schemaData, customizer: customizer, inboxSettings: inboxSettings) else {
+        guard let template = TemplateBuilder.buildTemplate(from: schemaData, customizer: customizer) else {
             return nil
         }
 
