@@ -42,16 +42,16 @@ class UnreadStateTests: XCTestCase {
         }
         
         // Initial state
-        XCTAssertFalse(template.isRead, "Should be unread (isRead=false) by default")
+        XCTAssertFalse(template.isReadForView, "Should be unread (isReadForView=false) by default")
         XCTAssertNil(template.unreadIcon)
         XCTAssertNil(template.unreadBackground)
         
         // Update state
-        template.updateUnreadState(isRead: true)
-        XCTAssertTrue(template.isRead)
+        template.updateUnreadStateForView(isRead: true)
+        XCTAssertTrue(template.isReadForView)
         
-        template.updateUnreadState(isRead: false)
-        XCTAssertFalse(template.isRead)
+        template.updateUnreadStateForView(isRead: false)
+        XCTAssertFalse(template.isReadForView)
     }
     
     func testContentCardUISetUnreadSettings() {

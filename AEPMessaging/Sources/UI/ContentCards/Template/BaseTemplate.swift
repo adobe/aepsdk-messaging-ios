@@ -39,7 +39,7 @@ public class BaseTemplate: ObservableObject {
     /// This property is optional and will only be set if unread icon settings are provided
     @Published public var unreadIcon: AEPUnreadIcon?
     
-    /// The background view for the unread state obtained from the inbox settings
+    /// The background view for the unread state
     /// This view overlays the card content when the card is in unread state
     @Published public var unreadBackground: AnyView?
     
@@ -62,26 +62,8 @@ public class BaseTemplate: ObservableObject {
     /// This initializer is designed to be called by subclasses to perform common initialization tasks.
     /// - Parameters:
     ///   - schemaData: The schema data used for initialization.
-    ///   - inboxSettings: Optional settings that apply specific configurations to content cards when displayed within an inbox
-    init?(_ schemaData: ContentCardSchemaData, _ inboxSettings: InboxSettings? = nil) {
+    init?(_ schemaData: ContentCardSchemaData) {
         actionURL = schemaData.actionUrl
-        
-        // Apply inbox settings if provided
-        if let inboxSettings = inboxSettings {
-            // Apply unread indicator settings if available
-            if let unreadSettings = inboxSettings.unreadIndicator {
-                // Set unread icon if available
-                if let iconSettings = unreadSettings.unreadIcon {
-                    self.unreadIcon = AEPUnreadIcon(settings: iconSettings)
-                }
-                
-                // Set unread background if available
-                if let bgSettings = unreadSettings.unreadBackground {
-                    self.unreadBackground = AnyView(Color(aepColor: bgSettings.color))
-                }
-            }
-            isReadForView = true
-        }
     }
     
     /// Updates the visual state of the template based on read status
