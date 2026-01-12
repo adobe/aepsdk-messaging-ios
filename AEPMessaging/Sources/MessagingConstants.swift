@@ -264,6 +264,7 @@ enum MessagingConstants {
                 static let ITEMS = "items"
                 static let CHARACTERISTICS = "characteristics"
                 static let TOKENS = "tokens"
+                static let EXPERIENCE_DECISIONING_REQUEST_ID = "exdRequestID"
             }
 
             enum Value {
