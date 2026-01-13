@@ -16,7 +16,7 @@ import Foundation
 
 struct ParsedPropositions {
     let LOG_TAG = "ParsedPropositions"
-    
+
     weak var runtime: ExtensionRuntime?
 
     // store tracking information for propositions loaded into rules engines
