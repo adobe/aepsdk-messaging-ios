@@ -16,9 +16,6 @@ import AEPServices
 
 /// Abstract base class for persistence and caching of Live Activity related element maps.
 ///
-/// This class is thread-safe: all public methods synchronize access to the underlying storage
-/// using a serial dispatch queue.
-///
 /// > Important:  Subclass this base class with a concrete `Map` type conforming to:
 /// > `Codable`, `LiveActivity.DefaultInitializable`, and `LiveActivity.DictionaryBacked`
 class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & LiveActivity.DictionaryBacked> {
@@ -31,10 +28,6 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     /// This closure should return `true` if the new element should be considered equal to the old one, and `false` if the elements
     /// should be considered different.
     public typealias Equivalence = (_ old: Element, _ new: Element) -> Bool
-
-    /// Serial queue for synchronizing access to the backing storage.
-    /// Ensures thread-safe reads and writes from multiple queues.
-    private let accessQueue: DispatchQueue
 
     // MARK: Persistence configuration
 
@@ -93,7 +86,6 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
         self.storeKey = storeKey
         self.ttl = ttl
         self.customEquivalence = customEquivalence
-        self.accessQueue = DispatchQueue(label: "com.adobe.messaging.persistenceStore.\(storeKey)")
         removeExpiredEntriesIfNeeded()
     }
 
@@ -103,10 +95,8 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     ///
     /// - Returns: A `Map` containing only non-expired entries.
     func all() -> [Key: Element] {
-        accessQueue.sync {
-            removeExpiredEntriesIfNeeded()
-            return _persistedMap.storage
-        }
+        removeExpiredEntriesIfNeeded()
+        return _persistedMap.storage
     }
 
     /// Returns the element associated with the specified ID, if it exists and has not expired (if TTL was provided).
@@ -116,14 +106,12 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     /// - Parameter id: The ID whose associated element should be retrieved.
     /// - Returns: The associated element if it exists and is not expired; `nil` otherwise.
     func value(for id: Key) -> Element? {
-        accessQueue.sync {
-            guard let element = _persistedMap.storage[id] else { return nil }
-            guard !isExpired(element) else {
-                _persistedMap.storage.removeValue(forKey: id)
-                return nil
-            }
-            return element
+        guard let element = _persistedMap.storage[id] else { return nil }
+        guard !isExpired(element) else {
+            _persistedMap.storage.removeValue(forKey: id)
+            return nil
         }
+        return element
     }
 
     /// Sets or updates the value for the specified ID, unless the element has expired.
@@ -137,25 +125,23 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     /// - Returns: `true` if the element was stored or replaced; `false` if it was expired or unchanged.
     @discardableResult
     func set(_ element: Element, id: Key) -> Bool {
-        accessQueue.sync {
-            guard !isExpired(element) else { return false }
+        guard !isExpired(element) else { return false }
 
-            var working = _persistedMap
-            let previous = working.storage.updateValue(element, forKey: id)
+        var working = _persistedMap
+        let previous = working.storage.updateValue(element, forKey: id)
 
-            let didChange: Bool
-            // If there is a previously stored value, and a custom equivalence closure was set, apply it
-            // to determine if the new element should be saved
-            if let prev = previous, let customEquivalence = customEquivalence {
-                didChange = !customEquivalence(prev, element)
-            } else {
-                // If no previous entry or no custom equivalence logic is set, save new element
-                didChange = previous == nil || customEquivalence == nil
-            }
-
-            if didChange { _persistedMap = working }
-            return didChange
+        let didChange: Bool
+        // If there is a previously stored value, and a custom equivalence closure was set, apply it
+        // to determine if the new element should be saved
+        if let prev = previous, let customEquivalence = customEquivalence {
+            didChange = !customEquivalence(prev, element)
+        } else {
+            // If no previous entry or no custom equivalence logic is set, save new element
+            didChange = previous == nil || customEquivalence == nil
         }
+
+        if didChange { _persistedMap = working }
+        return didChange
     }
 
     /// Removes the element associated with the specified ID, if it exists.
@@ -164,14 +150,12 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     /// - Returns: `true` if an element was removed; `false` if no entry existed for the given ID.
     @discardableResult
     func remove(id: Key) -> Bool {
-        accessQueue.sync {
-            var working = _persistedMap
-            guard working.storage.removeValue(forKey: id) != nil else {
-                return false
-            }
-            _persistedMap = working
-            return true
+        var working = _persistedMap
+        guard working.storage.removeValue(forKey: id) != nil else {
+            return false
         }
+        _persistedMap = working
+        return true
     }
 
     // MARK: Persistence helpers
