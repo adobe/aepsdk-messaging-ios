@@ -48,13 +48,6 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         let event = createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
         simulateEventWithSharedStates(event)
 
-        // Wait for debouncer to fire (200ms debounce + buffer)
-        let expectation = expectation(description: "Wait for debounced edge event")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
-
         // verify edge event and shared state
         verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
         verifyPushToStartSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
@@ -74,20 +67,13 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         let event2 = createPushToStartEvent(token: token2, attributeType: attributeType2)
         simulateEventWithSharedStates(event2)
 
-        // Wait for debouncer to fire (200ms debounce + buffer)
-        let expectation = expectation(description: "Wait for debounced edge event")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
+        // there should be two edge events dispatched
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        let edgeEvent2 = mockRuntime.dispatchedEvents[1]
+        XCTAssertEqual(EventType.edge, edgeEvent2.type)
+        XCTAssertEqual(EventSource.requestContent, edgeEvent2.source)
 
-        // With debouncing, both tokens are batched into a single edge event
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        let edgeEvent = mockRuntime.dispatchedEvents[0]
-        XCTAssertEqual(EventType.edge, edgeEvent.type)
-        XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
-
-        // verify edge event contains both tokens in the array
+        // verify edge event for token 2 contains both tokens in the array
         let expected = """
         {
           "xdm": {
@@ -126,7 +112,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         }
         """
 
-        assertExactMatch(expected: expected, actual: edgeEvent, pathOptions: AnyOrderMatch(scope: .subtree))
+        assertExactMatch(expected: expected, actual: edgeEvent2, pathOptions: AnyOrderMatch(scope: .subtree))
 
         // verify the final shared state contains both tokens under their respective attribute types
         XCTAssertEqual(2, mockRuntime.createdSharedStates.count)
@@ -148,26 +134,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         // create and dispatch event with token 1
         let event1 = createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
         simulateEventWithSharedStates(event1)
-
-        // Wait for first debounce to complete
-        let expectation1 = expectation(description: "Wait for first debounced edge event")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            expectation1.fulfill()
-        }
-        wait(for: [expectation1], timeout: 1.0)
-
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
 
         // create and dispatch event with token 2
         let event2 = createPushToStartEvent(token: NEW_TOKEN, attributeType: ATTRIBUTE_TYPE)
         simulateEventWithSharedStates(event2)
-
-        // Wait for second debounce to complete
-        let expectation2 = expectation(description: "Wait for second debounced edge event")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            expectation2.fulfill()
-        }
-        wait(for: [expectation2], timeout: 1.0)
 
         // verify edge event and shared state contains latest token
         verifyPushToStartEdgeEvent(token: NEW_TOKEN, attributeType: ATTRIBUTE_TYPE)

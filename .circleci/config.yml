@@ -53,15 +53,14 @@ commands:
     steps:
       - macos/preboot-simulator:
           platform: "iOS"
-          version: "18.5"
+          version: "18.0"
           device: "iPhone 16"
 
 jobs:
   validate-code:
-    resource_class: m4pro.medium
     macos:
-      xcode: 16.4.0 # Specify the Xcode version to use
-    
+      xcode: 16.0.0 # Specify the Xcode version to use
+
     steps:
       - checkout
 
@@ -72,9 +71,8 @@ jobs:
           command: make lint
 
   test-ios:
-    resource_class: m4pro.medium
     macos:
-      xcode: 16.4.0 # Specify the Xcode version to use
+      xcode: 16.0.0 # Specify the Xcode version to use
 
     steps:
       - checkout
@@ -105,9 +103,8 @@ jobs:
           when: always # run even if unit tests fail
 
   test-spm-podspec-archive:  
-    resource_class: m4pro.medium
     macos:
-      xcode: 16.4.0 # Specify the Xcode version to use
+      xcode: 16.0.0 # Specify the Xcode version to use
     
     steps:
       - checkout
