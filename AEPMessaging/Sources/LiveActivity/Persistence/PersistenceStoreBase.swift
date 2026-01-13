@@ -32,7 +32,6 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     /// should be considered different.
     public typealias Equivalence = (_ old: Element, _ new: Element) -> Bool
 
-
     /// Serial queue for synchronizing access to the backing storage.
     /// Ensures thread-safe reads and writes from multiple queues.
     private let accessQueue: DispatchQueue
