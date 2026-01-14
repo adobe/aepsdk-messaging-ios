@@ -43,6 +43,19 @@ class UrlQueryParamsTests: XCTestCase {
         XCTAssertEqual("", result["param"])
     }
     
+    func testQueryParamMapValueContainsEquals() throws {
+        // setup
+        let url = URL(string: "adbinapp://dismiss?interaction=clicked&link=bos://pal?sport=3")!
+        
+        // test
+        let result = url.queryParamMap()
+        
+        // verify
+        XCTAssertEqual(2, result.count)
+        XCTAssertEqual("clicked", result["interaction"])
+        XCTAssertEqual("bos://pal?sport=3", result["link"])
+    }
+    
     func testQueryParamMapNoParams() throws {
         // setup
         let url = URL(string: "https://adobe.com/path")!
