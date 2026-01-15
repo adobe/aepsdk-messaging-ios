@@ -52,7 +52,7 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                               contentCardRulesEngine: mockContentCardRulesEngine,
                               expectedSurfaceUri: iamSurface.uri,
                               cache: mockCache,
-                              messagingProperties: .init())
+                              stateManager: .init())
         messaging.onRegistered()
     }
 

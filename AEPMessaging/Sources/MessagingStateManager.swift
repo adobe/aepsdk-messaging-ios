@@ -12,7 +12,7 @@
 
 import AEPServices
 
-class MessagingProperties {
+class MessagingStateManager {
     private var _pushIdentifier: String?
 
     public var pushIdentifier: String? {
@@ -35,5 +35,52 @@ class MessagingProperties {
             _pushIdentifier = newValue
             ServiceProvider.shared.namedKeyValueService.set(collectionName: MessagingConstants.DATA_STORE_NAME, key: MessagingConstants.NamedCollectionKeys.PUSH_IDENTIFIER, value: _pushIdentifier)
         }
+    }
+
+    let channelActivityStore = ChannelActivityStore()
+    let updateTokenStore = UpdateTokenStore()
+    let pushToStartTokenStore = PushToStartTokenStore()
+
+    // MARK: - Messaging shared state
+
+    func buildMessagingSharedState() -> [String: Any] {
+        var sharedStateData: [String: Any] = [:]
+        var liveActivity: [String: Any] = [:]
+
+        // Update tokens
+        if let updateTokens = updateTokenStore
+            .all()
+            .asDictionary(dateEncodingStrategy: .millisecondsSince1970),
+            !updateTokens.isEmpty {
+            liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.UPDATE_TOKENS] = updateTokens
+        }
+
+        // Push-to-start tokens
+        if let pushToStartTokens = pushToStartTokenStore
+            .all()
+            .asDictionary(dateEncodingStrategy: .millisecondsSince1970),
+            !pushToStartTokens.isEmpty {
+            liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.PUSH_TO_START_TOKENS] = pushToStartTokens
+        }
+
+        // Channel activities
+        if let channelActivities = channelActivityStore
+            .all()
+            .asDictionary(dateEncodingStrategy: .millisecondsSince1970),
+            !channelActivities.isEmpty {
+            liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.CHANNEL_ACTIVITIES] = channelActivities
+        }
+
+        // Only add "liveActivity" if any subkeys exist
+        if !liveActivity.isEmpty {
+            sharedStateData[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] = liveActivity
+        }
+
+        // Push identifier
+        if let pushId = pushIdentifier, !pushId.isEmpty {
+            sharedStateData[MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] = pushId
+        }
+
+        return sharedStateData
     }
 }
