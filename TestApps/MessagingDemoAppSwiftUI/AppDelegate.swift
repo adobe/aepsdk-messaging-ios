@@ -58,9 +58,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         }
         
         if #available(iOS 16.1, *) {
-            Messaging.registerLiveActivity(AirplaneTrackingAttributes.self)
-            Messaging.registerLiveActivity(FoodDeliveryLiveActivityAttributes.self)
-            Messaging.registerLiveActivity(GameScoreLiveActivityAttributes.self)
+            Messaging.registerLiveActivities([
+                AirplaneTrackingAttributes.self,
+                FoodDeliveryLiveActivityAttributes.self,
+                GameScoreLiveActivityAttributes.self
+            ])
         }
         
         return true
