@@ -91,18 +91,33 @@ public extension Messaging {
         }
     }
     
-    /// Registers a Live Activity type with the Adobe Experience Platform SDK.
+    /// Registers multiple Live Activity types with the Adobe Experience Platform SDK.
     ///
-    /// When called, this method enables the SDK to:
-    /// - Automatically collect push-to-start tokens for devices running iOS 17.2 or later
-    /// - Manage the complete lifecycle of Live Activities including:
-    ///   - Automatically collect the generated Live Activity update token
-    ///   - Monitor state transitions (start, update, end)
-    ///   - Event tracking for the registered activity type
+    /// Call this method at app launch to enable the SDK to:
+    /// - Automatically collect push-to-start tokens (iOS 17.2+) allowing remote Live Activity creation
+    /// - Collect update tokens for sending real-time updates to active Live Activities
+    /// - Track Live Activity lifecycle events (start, update, end)
+    ///
+    /// - Parameter types: An array of Live Activity types conforming to ``LiveActivityAttributes``.
+    ///
+    /// ## Example
+    /// ```swift
+    /// Messaging.registerLiveActivities([
+    ///     OrderTrackingAttributes.self,
+    ///     DeliveryStatusAttributes.self,
+    ///     GameScoreAttributes.self
+    /// ])
+    /// ```
+    static func registerLiveActivities(_ types: [any LiveActivityAttributes.Type]) {
+        for type in types {
+            registerLiveActivity(type)
+        }
+    }
+
+    /// Registers a single Live Activity type with the Adobe Experience Platform SDK.
     ///
     /// - Parameter type: The Live Activity type that conforms to the ``LiveActivityAttributes`` protocol.
-    ///                   This type defines the structure and content of your Live Activity.
-    static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
+    private static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
         let attributeType = T.attributeType
 
         Task {
