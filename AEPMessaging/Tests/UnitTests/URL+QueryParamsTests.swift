@@ -56,6 +56,33 @@ class UrlQueryParamsTests: XCTestCase {
         XCTAssertEqual("bos://pal?sport=3", result["link"])
     }
     
+    func testQueryParamMapValueContainsMultipleEquals() throws {
+        // setup
+        let url = URL(string: "adbinapp://dismiss?interaction=clicked&link=bos://pal?sport=3&team=celtics")!
+        
+        // test
+        let result = url.queryParamMap()
+        
+        // verify
+        XCTAssertEqual(3, result.count)
+        XCTAssertEqual("clicked", result["interaction"])
+        XCTAssertEqual("bos://pal?sport=3", result["link"])
+        XCTAssertEqual("celtics", result["team"])
+    }
+    
+    func testQueryParamMapValueContainsEncodedAmpersand() throws {
+        // setup - %26 is URL-encoded &
+        let url = URL(string: "adbinapp://dismiss?interaction=clicked&link=bos://pal?sport=3%26team=celtics")!
+        
+        // test
+        let result = url.queryParamMap()
+        
+        // verify - the encoded & becomes part of the link value
+        XCTAssertEqual(2, result.count)
+        XCTAssertEqual("clicked", result["interaction"])
+        XCTAssertEqual("bos://pal?sport=3&team=celtics", result["link"])
+    }
+    
     func testQueryParamMapNoParams() throws {
         // setup
         let url = URL(string: "https://adobe.com/path")!
