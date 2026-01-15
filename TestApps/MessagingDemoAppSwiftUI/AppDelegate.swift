@@ -85,6 +85,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
         let token = tokenParts.joined()
         print("Device token is - \(token)")
+        UserDefaults.standard.set(token, forKey: "devicePushToken")
         MobileCore.setPushIdentifier(deviceToken)
     }
 

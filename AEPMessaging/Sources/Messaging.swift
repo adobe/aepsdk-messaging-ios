@@ -113,11 +113,6 @@ public class Messaging: NSObject, Extension {
     /// the timestamp of the last push token sync
     private var lastPushTokenSyncTimestamp: Date?
 
-    // MARK: - Push-to-Start Token Debouncing
-
-    /// When multiple tokens arrive in quick succession, this ensures we send a single Edge event with all tokens.
-    private lazy var pushToStartDebouncer = LiveActivityEdgeEventDebouncer(interval: 0.2, queue: queue)
-
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -368,34 +363,9 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // handle live activity push-to-start token event
+        // Handle batched live activity push-to-start token event
         if event.isLiveActivityPushToStartTokenEvent {
-            guard let token = event.liveActivityPushToStartToken, !token.isEmpty else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid token could not be found in the event or token is empty.")
-                return
-            }
-            guard let attributeType = event.liveActivityAttributeType, !attributeType.isEmpty else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)) because a valid attribute type could not be found in the event or was empty.")
-                return
-            }
-
-            // Update the push to start token store and update the Messaging shared state.
-            let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
-            let didChange = stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
-            if !didChange {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping publishing push-to-start token because unchanged: \(pushToStartToken)")
-                return
-            }
-            runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
-
-            // Don't block shared state from being published because of ECID; check after
-            guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
-                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
-                return
-            }
-
-            // Schedule debounced Edge event to batch multiple tokens that arrive simultaneously
-            scheduleDebouncedPushToStartTokenSync(ecid: ecid, event: event)
+            handleBatchedPushToStartTokenEvent(event, edgeIdentitySharedState: edgeIdentitySharedState)
         }
 
         // handle push interaction event
@@ -468,32 +438,48 @@ public class Messaging: NSObject, Extension {
         return ecid
     }
 
-    /// Schedules a debounced sync of push-to-start tokens to Edge.
+    /// Processes a batched push-to-start token event from the Live Activity API layer.
     ///
-    /// When multiple Live Activity types are registered, their tokens arrive from ActivityKit nearly simultaneously.
-    /// Without debouncing, each token triggers an immediate Edge event with an incomplete token list.
-    /// This method batches tokens by waiting for a short period after the last token arrives before sending.
+    /// This method validates and stores each token in the batch, updates shared state if there are changes,
+    /// and sends all current tokens to Edge.
     ///
     /// - Parameters:
-    ///   - ecid: The Experience Cloud ID to include in the Edge event.
-    ///   - event: The event that triggered the token sync (used as parent for the Edge event).
-    private func scheduleDebouncedPushToStartTokenSync(ecid: String, event: Event) {
-        pushToStartDebouncer.schedule(ecid: ecid, event: event) { [weak self] storedECID, storedEvent in
-            guard let self = self else { return }
+    ///   - event: The event containing the batched push-to-start tokens.
+    ///   - edgeIdentitySharedState: The shared state from Edge Identity containing the ECID.
+    private func handleBatchedPushToStartTokenEvent(_ event: Event, edgeIdentitySharedState: [AnyHashable: Any]) {
+        guard let batchedTokens = event.liveActivityBatchedPushToStartTokens, !batchedTokens.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)): no tokens found.")
+            return
+        }
 
-            // Get all current push-to-start tokens after the debounce period
-            let tokenMap = self.stateManager.pushToStartTokenStore.all()
+        Log.debug(label: MessagingConstants.LOG_TAG, "Processing push-to-start tokens (\(batchedTokens.count) types)")
 
-            guard !tokenMap.isEmpty else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "No push-to-start tokens to sync after debounce.")
+        // Process each token in the batch and track if any were new/changed
+        let hasChanges = batchedTokens.reduce(into: false) { hasChanges, tokenData in
+            guard let token = tokenData[MessagingConstants.XDM.Push.TOKEN], !token.isEmpty,
+                  let attributeType = tokenData[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE], !attributeType.isEmpty
+            else {
                 return
             }
-
-            Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Sending \(tokenMap.count) push-to-start token(s) to Edge after debounce: \(tokenMap.keys.joined(separator: ", "))")
-
-            self.sendLiveActivityPushToStartTokens(ecid: storedECID, tokenMap: tokenMap, event: storedEvent)
+            let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
+            let didChange = stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
+            hasChanges = hasChanges || didChange
         }
+
+        guard hasChanges else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "No new tokens in batch")
+            return
+        }
+
+        runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+
+        // Get all current tokens and send them to Edge
+        let tokenMap = stateManager.pushToStartTokenStore.all()
+        guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
+            return
+        }
+        sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
     }
 
     /// Creates a shared state for the messaging extension with the provided push token.

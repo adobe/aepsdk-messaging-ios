@@ -32,6 +32,14 @@ public extension Messaging {
     /// Coordinates Live Activity type exclusive registration to prevent concurrent duplicate
     /// calls to `registerLiveActivity` for the same `attributeType`.
     private static let registrationCoordinator = LiveActivityRegistrationCoordinator()
+    
+    /// Collector for batching push-to-start tokens before dispatch.
+    /// When multiple Live Activity types are registered, their tokens are collected and
+    /// dispatched together in a single event after a short delay.
+    @available(iOS 17.2, *)
+    private static let batchTokenCollector = LiveActivityBatchTokenCollector { tokens in
+        dispatchBatchedPushToStartTokens(tokens: tokens)
+    }
 
     /// Represents the registration state of a Live Activity type.
     private enum RegistrationState {
@@ -82,7 +90,7 @@ public extension Messaging {
             }
         }
     }
-
+    
     /// Registers a Live Activity type with the Adobe Experience Platform SDK.
     ///
     /// When called, this method enables the SDK to:
@@ -181,7 +189,7 @@ public extension Messaging {
 
             for await tokenData in Activity<T>.pushToStartTokenUpdates {
                 let tokenHex = tokenData.hexEncodedString
-                dispatchPushToStartTokenEvent(attributeType: attributeType, token: tokenHex)
+                await batchTokenCollector.collectToken(attributeType: attributeType, token: tokenHex)
             }
         }
     }
@@ -254,31 +262,41 @@ public extension Messaging {
             }
         }
     }
-
-    /// Dispatches an event indicating that a Live Activity push-to-start token has been received.
+    
+    /// Dispatches a single event containing multiple push-to-start tokens.
     ///
-    /// This method constructs and dispatches an event to Messaging extension that represents
-    /// the push-to-start token and associated details for a specific Live Activity type.
+    /// This method is called by the `batchTokenCollector` after collecting tokens from
+    /// multiple Live Activity types. It dispatches a single batched event containing
+    /// all collected tokens, reducing the number of Edge events.
     ///
-    /// - Parameters:
-    ///   - attributeType: A unique string identifier representing the ``LiveActivityAttributes`` type associated with the Live Activity.
-    ///   - token: A `String` representing the push-to-start token for the Live Activity.
-    private static func dispatchPushToStartTokenEvent(attributeType: String, token: String) {
+    /// - Parameter tokens: Dictionary mapping attribute type names to their push-to-start tokens
+    @available(iOS 17.2, *)
+    fileprivate static func dispatchBatchedPushToStartTokens(tokens: [String: String]) {
+        guard !tokens.isEmpty else { return }
+        
         Log.debug(label: MessagingConstants.LOG_TAG,
                   """
-                  Dispatching Live Activity push-to-start token event.
-                  Token: \(token)
-                  Type: \(attributeType)
+                  Dispatching batched Live Activity push-to-start tokens.
+                  Types: \(tokens.keys.sorted().joined(separator: ", "))
+                  Count: \(tokens.count)
                   """)
-
-        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (\(attributeType))"
+        
+        // Convert to array format for event data
+        let tokensArray = tokens.map { attributeType, token in
+            [
+                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+                MessagingConstants.XDM.Push.TOKEN: token
+            ]
+        }
+        
+        // Dispatch as a batched event
+        let eventName = "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched)"
         let event = Event(name: eventName,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: [
                               MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
-                              MessagingConstants.XDM.Push.TOKEN: token,
-                              MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType
+                              MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
                           ])
         MobileCore.dispatch(event: event)
     }

@@ -305,6 +305,12 @@ extension Event {
         data?[MessagingConstants.XDM.Push.TOKEN] as? String
     }
 
+    /// Returns the batched push-to-start tokens array from the event data.
+    /// Each element is a dictionary with "attributeType" and "token" keys.
+    var liveActivityBatchedPushToStartTokens: [[String: String]]? {
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS] as? [[String: String]]
+    }
+
     var liveActivityUpdateToken: String? {
         data?[MessagingConstants.XDM.Push.TOKEN] as? String
     }

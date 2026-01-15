@@ -44,18 +44,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     // MARK: - PushToStartTokens Tests
 
     func test_LiveActivity_PushToStart_Happy() {
-        // create and dispatch event
+        // create and dispatch batched event
         let event = createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
         simulateEventWithSharedStates(event)
 
-        // Wait for debouncer to fire (200ms debounce + buffer)
-        let expectation = expectation(description: "Wait for debounced edge event")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
-
-        // verify edge event and shared state
+        // verify edge event and shared state (batching happens at API layer, so no delay needed here)
         verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
         verifyPushToStartSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
     }
@@ -66,22 +59,15 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         let attributeType1 = ATTRIBUTE_TYPE
         let attributeType2 = "TestLiveActivityAttributes2"
 
-        // dispatch event with token 1 and attributeType1
-        let event1 = createPushToStartEvent(token: token1, attributeType: attributeType1)
-        simulateEventWithSharedStates(event1)
+        // Dispatch a single batched event with multiple tokens
+        // (batching now happens at the API layer before dispatch)
+        let event = createBatchedPushToStartEvent(tokens: [
+            (token: token1, attributeType: attributeType1),
+            (token: token2, attributeType: attributeType2)
+        ])
+        simulateEventWithSharedStates(event)
 
-        // dispatch event with token 2 and attributeType2
-        let event2 = createPushToStartEvent(token: token2, attributeType: attributeType2)
-        simulateEventWithSharedStates(event2)
-
-        // Wait for debouncer to fire (200ms debounce + buffer)
-        let expectation = expectation(description: "Wait for debounced edge event")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
-
-        // With debouncing, both tokens are batched into a single edge event
+        // Both tokens are sent in a single edge event
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
@@ -128,12 +114,12 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
         assertExactMatch(expected: expected, actual: edgeEvent, pathOptions: AnyOrderMatch(scope: .subtree))
 
-        // verify the final shared state contains both tokens under their respective attribute types
-        XCTAssertEqual(2, mockRuntime.createdSharedStates.count)
-        let finalSharedState = mockRuntime.createdSharedStates[1]
-        XCTAssertNotNil(finalSharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY])
+        // verify the shared state contains both tokens under their respective attribute types
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
+        let sharedState = mockRuntime.createdSharedStates[0]
+        XCTAssertNotNil(sharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY])
 
-        if let pushToStartTokens = finalSharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
+        if let pushToStartTokens = sharedState?[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
            let tokens = pushToStartTokens[MessagingConstants.SharedState.Messaging.LiveActivity.PUSH_TO_START_TOKENS] as? [String: [String: Any]] {
             XCTAssertEqual(token1, tokens[attributeType1]?["token"] as? String)
             XCTAssertEqual(token2, tokens[attributeType2]?["token"] as? String)
@@ -145,29 +131,15 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     func test_LiveActivity_PushToStart_NewToken_OverwritesOldToken() {
         let NEW_TOKEN = "newToken"
 
-        // create and dispatch event with token 1
+        // create and dispatch batched event with first token
         let event1 = createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
         simulateEventWithSharedStates(event1)
 
-        // Wait for first debounce to complete
-        let expectation1 = expectation(description: "Wait for first debounced edge event")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            expectation1.fulfill()
-        }
-        wait(for: [expectation1], timeout: 1.0)
-
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
 
-        // create and dispatch event with token 2
+        // create and dispatch batched event with new token (same attribute type)
         let event2 = createPushToStartEvent(token: NEW_TOKEN, attributeType: ATTRIBUTE_TYPE)
         simulateEventWithSharedStates(event2)
-
-        // Wait for second debounce to complete
-        let expectation2 = expectation(description: "Wait for second debounced edge event")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            expectation2.fulfill()
-        }
-        wait(for: [expectation2], timeout: 1.0)
 
         // verify edge event and shared state contains latest token
         verifyPushToStartEdgeEvent(token: NEW_TOKEN, attributeType: ATTRIBUTE_TYPE)
@@ -175,8 +147,48 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     }
 
     func test_LiveActivity_PushToStart_EmptyToken() {
-        // create and dispatch event with empty token
+        // create and dispatch batched event with empty token
         let event = createPushToStartEvent(token: "", attributeType: ATTRIBUTE_TYPE)
+        simulateEventWithSharedStates(event)
+
+        // verify no edge event is dispatched (empty token is skipped)
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+
+        // verify no shared state is created
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_LiveActivity_PushToStart_EmptyBatchedTokensArray() {
+        // create batched event with empty tokens array
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: [] as [[String: String]]
+        ]
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: eventData)
+
+        simulateEventWithSharedStates(event)
+
+        // verify no edge event is dispatched
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+
+        // verify no shared state is created
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_LiveActivity_PushToStart_MissingBatchedTokensArray() {
+        // create push-to-start event without the batched tokens array
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true
+            // Missing BATCHED_PUSH_TO_START_TOKENS
+        ]
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: eventData)
+
         simulateEventWithSharedStates(event)
 
         // verify no edge event is dispatched
@@ -200,10 +212,14 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     }
 
     func test_LiveActivity_PushToStart_MissingAttributeType() {
-        // create event without attribute type
+        // create batched event with token missing attribute type
+        let tokensArray: [[String: String]] = [
+            [MessagingConstants.XDM.Push.TOKEN: PUSH_TO_START_TOKEN]
+            // Missing ATTRIBUTE_TYPE
+        ]
         let eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
-            MessagingConstants.XDM.Push.TOKEN: PUSH_TO_START_TOKEN
+            MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
         ]
         let event = Event(name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START,
                           type: EventType.messaging,
@@ -212,7 +228,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
         simulateEventWithSharedStates(event)
 
-        // verify no edge event is dispatched
+        // verify no edge event is dispatched (token skipped due to missing attribute type)
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
         // verify no shared state is created
@@ -220,11 +236,16 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     }
 
     func test_LiveActivity_PushToStart_InvalidTokenFormat() {
-        // create event with invalid token format (non-string)
+        // create batched event with invalid token format in the array
+        let tokensArray: [[String: Any]] = [
+            [
+                MessagingConstants.XDM.Push.TOKEN: 123, // Invalid token format (non-string)
+                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE
+            ]
+        ]
         let eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
-            MessagingConstants.XDM.Push.TOKEN: 123, // Invalid token format
-            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE
+            MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
         ]
         let event = Event(name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START,
                           type: EventType.messaging,
@@ -233,7 +254,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
         simulateEventWithSharedStates(event)
 
-        // verify no edge event is dispatched
+        // verify no edge event is dispatched (token skipped due to invalid format)
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
         // verify no shared state is created
@@ -590,13 +611,24 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
 
     // MARK: - Helper Methods
 
+    /// Creates a batched push-to-start event with a single token
     private func createPushToStartEvent(token: String, attributeType: String) -> Event {
+        createBatchedPushToStartEvent(tokens: [(token: token, attributeType: attributeType)])
+    }
+
+    /// Creates a batched push-to-start event with multiple tokens
+    private func createBatchedPushToStartEvent(tokens: [(token: String, attributeType: String)]) -> Event {
+        let tokensArray = tokens.map { tokenData in
+            [
+                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: tokenData.attributeType,
+                MessagingConstants.XDM.Push.TOKEN: tokenData.token
+            ]
+        }
         let eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
-            MessagingConstants.XDM.Push.TOKEN: token,
-            MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType
+            MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
         ]
-        return Event(name: MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START,
+        return Event(name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched)",
                      type: EventType.messaging,
                      source: EventSource.requestContent,
                      data: eventData)
