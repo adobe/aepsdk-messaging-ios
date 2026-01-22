@@ -132,10 +132,7 @@ public class Messaging: NSObject, Extension {
         contentCardRulesEngine = ContentCardRulesEngine(name: MessagingConstants.CONTENT_CARD_RULES_ENGINE_NAME, extensionRuntime: runtime)
         super.init()
         
-        // Set up the interceptor with access to PropositionInfo lookup
-        reevaluationInterceptor.propositionInfoProvider = { [weak self] messageId in
-            return self?.propositionInfoFor(messageId: messageId)
-        }
+    
         
         // Register the reevaluation interceptor to handle dynamic rule updates
         rulesEngine.launchRulesEngine.setReevaluationInterceptor(reevaluationInterceptor)
