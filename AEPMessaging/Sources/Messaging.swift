@@ -149,6 +149,10 @@ public class Messaging: NSObject, Extension {
         self.cache = cache
         self.messagingProperties = messagingProperties
         super.init()
+        
+        // Register the reevaluation interceptor to handle dynamic rule updates
+        rulesEngine.launchRulesEngine.setReevaluationInterceptor(reevaluationInterceptor)
+        
         loadCachedPropositions()
     }
 

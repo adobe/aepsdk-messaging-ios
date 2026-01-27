@@ -49,4 +49,11 @@ class MockLaunchRulesEngine: LaunchRulesEngine {
         addRulesCalled = true
         paramAddRulesRules = rules
     }
+    
+    var setReevaluationInterceptorCalled: Bool = false
+    var paramReevaluationInterceptor: RuleReevaluationInterceptor?
+    override func setReevaluationInterceptor(_ interceptor: RuleReevaluationInterceptor?) {
+        setReevaluationInterceptorCalled = true
+        paramReevaluationInterceptor = interceptor
+    }
 }
