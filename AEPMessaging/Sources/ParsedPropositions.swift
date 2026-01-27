@@ -54,7 +54,13 @@ struct ParsedPropositions {
                 switch firstPropositionItem.schema {
                 // - handle ruleset-item schemas
                 case .ruleset:
-                    guard let parsedRules = parseRule(firstPropositionItem.itemData) else {
+                    // Check if this is a fullscreen in-app message and mark it as reevaluable
+                    var rules = firstPropositionItem.itemData
+                    if isFullscreenInAppMessage(rules) {
+                        rules["reevaluable"] = true
+                    }
+                    
+                    guard let parsedRules = parseRule(rules) else {
                         continue
                     }
 
@@ -133,5 +139,14 @@ struct ParsedPropositions {
         }
 
         return propositionsSortedByRank
+    }
+    
+    // Mock function to demonstrate reEvaluation
+    private func isFullscreenInAppMessage(_ ruleData: [String: Any]) -> Bool {
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: ruleData),
+              let jsonString = String(data: jsonData, encoding: .utf8) else {
+            return false
+        }
+        return jsonString.contains("fullscreen_ss")
     }
 }
