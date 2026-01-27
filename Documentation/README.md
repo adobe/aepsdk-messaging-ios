@@ -17,6 +17,19 @@
 - Guides
   - [Displaying Rich Push Notification](./sources/push-messaging/guides/display-rich-push-notification.md)
 
+## Live Activities
+
+- Prerequisites
+  - [Enable push notifications in your app](./sources/push-messaging/prerequisites/enable-push-notifications.md)
+
+- Developer documentation
+  - [API usage](./sources/live-activities/developer-documentation/api-usage.md)
+  - Public classes
+    - [LiveActivityData](./sources/live-activities/developer-documentation/classes/live-activity-data.md)
+    - [LiveActivityAttributes](./sources/live-activities/developer-documentation/classes/live-activity-attributes.md)
+    - [LiveActivityOrigin](./sources/live-activities/developer-documentation/classes/live-activity-origin.md)
+    - [LiveActivityAssuranceDebuggable](./sources/live-activities/developer-documentation/classes/live-activity-assurance-debuggable.md)
+
 ## In-App messaging
 
 - Developer documentation

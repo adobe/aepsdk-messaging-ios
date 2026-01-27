@@ -11,6 +11,7 @@
   */
 
 import AEPCore
+import AEPMessagingLiveActivity
 import AEPServices
 import CoreGraphics
 import Foundation
@@ -173,8 +174,9 @@ extension Event {
 
     // MARK: - SetPushIdentifier Event
 
-    var isGenericIdentityRequestContentEvent: Bool {
-        type == EventType.genericIdentity && source == EventSource.requestContent
+    var isPushTokenEvent: Bool {
+        type == EventType.genericIdentity && source == EventSource.requestContent &&
+            data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String != nil
     }
 
     var token: String? {
@@ -182,6 +184,10 @@ extension Event {
     }
 
     // MARK: - Push tracking
+
+    var isPushInteractionEvent: Bool {
+        data?[MessagingConstants.Event.Data.Key.PUSH_INTERACTION] as? Bool ?? false
+    }
 
     var pushTrackingStatus: PushTrackingStatus? {
         guard let statusInt = data?[MessagingConstants.Event.Data.Key.PUSH_NOTIFICATION_TRACKING_STATUS] as? Int else {
@@ -259,5 +265,73 @@ extension Event {
 
     var schemaData: [String: Any]? {
         details?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
+    }
+
+    // MARK: - Live Activity events
+
+    var isLiveActivityUpdateTokenEvent: Bool {
+        isMessagingType && isRequestContentSource && liveActivityUpdateTokenFlag
+    }
+
+    var isLiveActivityPushToStartTokenEvent: Bool {
+        isMessagingType && isRequestContentSource && liveActivityPushToStartTokenFlag
+    }
+
+    var isLiveActivityStartEvent: Bool {
+        isMessagingType && isRequestContentSource && liveActivityTrackStartFlag
+    }
+
+    var isLiveActivityStateEvent: Bool {
+        isMessagingType && isRequestContentSource && liveActivityTrackStateFlag
+    }
+
+    private var liveActivityUpdateTokenFlag: Bool {
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN] as? Bool ?? false
+    }
+
+    private var liveActivityPushToStartTokenFlag: Bool {
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN] as? Bool ?? false
+    }
+
+    private var liveActivityTrackStartFlag: Bool {
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.TRACK_START] as? Bool ?? false
+    }
+
+    private var liveActivityTrackStateFlag: Bool {
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.TRACK_STATE] as? Bool ?? false
+    }
+
+    var liveActivityPushToStartToken: String? {
+        data?[MessagingConstants.XDM.Push.TOKEN] as? String
+    }
+
+    /// Returns the batched push-to-start tokens array from the event data.
+    /// Each element is a dictionary with "attributeType" and "token" keys.
+    var liveActivityBatchedPushToStartTokens: [[String: String]]? {
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS] as? [[String: String]]
+    }
+
+    var liveActivityUpdateToken: String? {
+        data?[MessagingConstants.XDM.Push.TOKEN] as? String
+    }
+
+    var liveActivityAttributeType: String? {
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE] as? String
+    }
+
+    var liveActivityID: String? {
+        data?[MessagingConstants.XDM.LiveActivity.ID] as? String
+    }
+
+    var liveActivityChannelID: String? {
+        data?[MessagingConstants.XDM.LiveActivity.CHANNEL_ID] as? String
+    }
+
+    var liveActivityOrigin: String? {
+        data?[MessagingConstants.XDM.LiveActivity.ORIGIN] as? String
+    }
+
+    var liveActivityState: String? {
+        data?[MessagingConstants.Event.Data.Key.LiveActivity.STATE] as? String
     }
 }

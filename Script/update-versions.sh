@@ -18,6 +18,7 @@ DEPENDENCIES=none
 declare "repos_AEPCore=https:\/\/github\.com\/adobe\/aepsdk-core-ios\.git"
 declare "repos_AEPEdge=https:\/\/github\.com\/adobe\/aepsdk-edge-ios\.git"
 declare "repos_AEPEdgeIdentity=https:\/\/github\.com\/adobe\/aepsdk-edgeidentity-ios\.git"
+declare "repos_AEPMessagingLiveActivity=https:\/\/github\.com\/adobe\/aepsdk-messaging-ios\.git"
 
 getRepo() {
     local extensionName=$1
@@ -92,11 +93,16 @@ if [ "$DEPENDENCIES" != "none" ]; then
 fi
 
 # Replace version in Constants file
-CONSTANTS_FILE=$ROOT_DIR"/AEP$NAME/Sources/"$NAME"Constants.swift"
-echo "Changing value of 'EXTENSION_VERSION' to '$NEW_VERSION' in '$CONSTANTS_FILE'"
-sed -i '' -E "/^ +static let EXTENSION_VERSION/{s/$VERSION_REGEX/$NEW_VERSION/;}" $CONSTANTS_FILE
+# Ignore for MessagingLiveActivity, since it does not have a Constants file
+if [ "$NAME" == "MessagingLiveActivity" ]; then
+    echo "No Constants file to update for MessagingLiveActivity"
+else
+    CONSTANTS_FILE=$ROOT_DIR"/AEP$NAME/Sources/"$NAME"Constants.swift"
+    echo "Changing value of 'EXTENSION_VERSION' to '$NEW_VERSION' in '$CONSTANTS_FILE'"
+    sed -i '' -E "/^ +static let EXTENSION_VERSION/{s/$VERSION_REGEX/$NEW_VERSION/;}" $CONSTANTS_FILE
+fi
 
 # Replace marketing versions in project.pbxproj
-PROJECT_PBX_FILE=$ROOT_DIR"/AEP$NAME.xcodeproj/project.pbxproj"
+PROJECT_PBX_FILE=$ROOT_DIR"/AEPMessaging.xcodeproj/project.pbxproj"
 echo "Changing value of 'MARKETING_VERSION' to '$NEW_VERSION' in '$PROJECT_PBX_FILE'"
 sed -i '' -E "/^\t+MARKETING_VERSION = /{s/$VERSION_REGEX/$NEW_VERSION/;}" $PROJECT_PBX_FILE
