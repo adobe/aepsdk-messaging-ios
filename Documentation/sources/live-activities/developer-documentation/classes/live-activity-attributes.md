@@ -48,7 +48,18 @@ After defining your attributes, register the Live Activity type with the SDK:
 
 ```swift
 if #available(iOS 16.1, *) {
-    Messaging.registerLiveActivity(FoodDeliveryLiveActivityAttributes.self)
+    Messaging.registerLiveActivities([FoodDeliveryLiveActivityAttributes.self])
+}
+```
+
+To register multiple Live Activity types at once:
+
+```swift
+if #available(iOS 16.1, *) {
+    Messaging.registerLiveActivities([
+        FoodDeliveryLiveActivityAttributes.self,
+        GameScoreLiveActivityAttributes.self
+    ])
 }
 ```
 

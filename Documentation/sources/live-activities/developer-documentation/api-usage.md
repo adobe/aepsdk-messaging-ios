@@ -63,23 +63,29 @@ Register your Live Activity types in your `AppDelegate` after SDK initialization
 - Automatic collection of Live Activity update tokens
 - Lifecycle management and event tracking
 
+#### Registering a single Live Activity type
+
 ```swift
 if #available(iOS 16.1, *) {
-    Messaging.registerLiveActivity(FoodDeliveryLiveActivityAttributes.self)
+    Messaging.registerLiveActivities([FoodDeliveryLiveActivityAttributes.self])
 }
 ```
 
 #### Registering multiple Live Activity types
 
-You can register multiple Live Activity types for your app:
+You can register multiple Live Activity types at once by passing an array:
 
 ```swift
 if #available(iOS 16.1, *) {
-    Messaging.registerLiveActivity(AirplaneTrackingAttributes.self)
-    Messaging.registerLiveActivity(FoodDeliveryLiveActivityAttributes.self)
-    Messaging.registerLiveActivity(GameScoreLiveActivityAttributes.self)
+    Messaging.registerLiveActivities([
+        AirplaneTrackingAttributes.self,
+        FoodDeliveryLiveActivityAttributes.self,
+        GameScoreLiveActivityAttributes.self
+    ])
 }
 ```
+
+> **Note**: The `registerLiveActivities` method accepts an array of Live Activity types. When registering multiple types, their push-to-start tokens are automatically batched together and dispatched in a single event, improving efficiency.
 
 ### Step 4: Create Live Activity widgets
 
