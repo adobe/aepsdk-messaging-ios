@@ -3463,7 +3463,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.8.1;
+				MARKETING_VERSION = 5.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -3498,7 +3498,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.8.1;
+				MARKETING_VERSION = 5.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messaging;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
