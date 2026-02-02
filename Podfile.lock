@@ -26,13 +26,13 @@ PODS:
 
 DEPENDENCIES:
   - AEPAssurance
-  - AEPCore
+  - AEPCore (from `https://github.com/akhiljain1907/aepsdk-core-ios.git`, branch `feat/ReEvaluation`)
   - AEPEdge
   - AEPEdgeConsent
   - AEPEdgeIdentity
   - AEPLifecycle
   - AEPRulesEngine
-  - AEPServices
+  - AEPServices (from `https://github.com/akhiljain1907/aepsdk-core-ios.git`, branch `feat/ReEvaluation`)
   - AEPSignal
   - AEPTestUtils (from `https://github.com/adobe/aepsdk-core-ios.git`, tag `testutils-5.6.0`)
   - SwiftLint (= 0.52.0)
@@ -40,22 +40,32 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - AEPAssurance
-    - AEPCore
     - AEPEdge
     - AEPEdgeConsent
     - AEPEdgeIdentity
     - AEPLifecycle
     - AEPRulesEngine
-    - AEPServices
     - AEPSignal
     - SwiftLint
 
 EXTERNAL SOURCES:
+  AEPCore:
+    :branch: feat/ReEvaluation
+    :git: https://github.com/akhiljain1907/aepsdk-core-ios.git
+  AEPServices:
+    :branch: feat/ReEvaluation
+    :git: https://github.com/akhiljain1907/aepsdk-core-ios.git
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-core-ios.git
     :tag: testutils-5.6.0
 
 CHECKOUT OPTIONS:
+  AEPCore:
+    :commit: d4df15c3b23bf9400a87097efd340c52fa13b705
+    :git: https://github.com/akhiljain1907/aepsdk-core-ios.git
+  AEPServices:
+    :commit: d4df15c3b23bf9400a87097efd340c52fa13b705
+    :git: https://github.com/akhiljain1907/aepsdk-core-ios.git
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-core-ios.git
     :tag: testutils-5.6.0
@@ -73,6 +83,6 @@ SPEC CHECKSUMS:
   AEPTestUtils: 2bbed995c8974f6f6d92058db88d6cd2e4a7f869
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: 9409285f62144fa4f7663784043d9c2458125cbc
+PODFILE CHECKSUM: e59a5b82018a35647bd8c55553c65dc3b4773182
 
 COCOAPODS: 1.16.2

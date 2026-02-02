@@ -122,12 +122,21 @@ public class Messaging: NSObject, Extension {
 
     // MARK: - Extension protocol methods
 
+    /// Interceptor for handling rule re-evaluation when reevaluable rules are triggered
+    private let reevaluationInterceptor = MessagingRuleEngineInterceptor()
+    
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
         MessagingMigrator.migrate(cache: cache)
         rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
         contentCardRulesEngine = ContentCardRulesEngine(name: MessagingConstants.CONTENT_CARD_RULES_ENGINE_NAME, extensionRuntime: runtime)
         super.init()
+        
+    
+        
+        // Register the reevaluation interceptor to handle dynamic rule updates
+        rulesEngine.launchRulesEngine.setReevaluationInterceptor(reevaluationInterceptor)
+        
         loadCachedPropositions()
     }
 
@@ -140,6 +149,10 @@ public class Messaging: NSObject, Extension {
         self.cache = cache
         self.messagingProperties = messagingProperties
         super.init()
+        
+        // Register the reevaluation interceptor to handle dynamic rule updates
+        rulesEngine.launchRulesEngine.setReevaluationInterceptor(reevaluationInterceptor)
+        
         loadCachedPropositions()
     }
 

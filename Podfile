@@ -17,12 +17,17 @@ pod 'SwiftLint', '0.52.0'
 $dev_repo = 'https://github.com/sbenedicadb/aepsdk-core-ios.git'
 $dev_branch = 'dev-v5.5.0'
 
+# ReEvaluation feature fork
+$reevaluation_repo = 'https://github.com/akhiljain1907/aepsdk-core-ios.git'
+$reevaluation_branch = 'feat/ReEvaluation'
+
 # ==================
 # SHARED POD GROUPS
 # ==================
 def lib_main
-    pod 'AEPCore'
-    pod 'AEPServices'
+    # Using akhiljain1907's fork with reevaluation feature
+    pod 'AEPCore', :git => $reevaluation_repo, :branch => $reevaluation_branch
+    pod 'AEPServices', :git => $reevaluation_repo, :branch => $reevaluation_branch
     pod 'AEPRulesEngine'
 end
 
