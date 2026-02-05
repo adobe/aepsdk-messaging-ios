@@ -20,14 +20,13 @@ extension URL {
     ///
     /// - Returns: a map containing key-value pairs represented by the query string.
     func queryParamMap() -> [String: String] {
-        query?.components(separatedBy: "&")
-            .map {
-                $0.components(separatedBy: "=")
-            }
-            .reduce(into: [String: String]()) { dict, pair in
-                if pair.count == 2 {
-                    dict[pair[0]] = pair[1]
-                }
-            } ?? [:]
+        guard let components = URLComponents(url: self, resolvingAgainstBaseURL: false),
+              let items = components.queryItems else {
+            return [:]
+        }
+        
+        return items.reduce(into: [:]) {
+            $0[$1.name] = $1.value ?? ""
+        }
     }
 }
