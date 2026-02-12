@@ -23,6 +23,7 @@
 /* Begin PBXBuildFile section */
 		01B9DD6617C6AD6E99EE8472 /* Pods_E2EFunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB180620A608D2821FE98F37 /* Pods_E2EFunctionalTests.framework */; };
 		04432BEC0CB7D32AE8D7791B /* MessagingRuleEngineInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8F4262E345FBBC814E3294 /* MessagingRuleEngineInterceptor.swift */; };
+		04432BEC0CB7D32AE8D7792C /* RefreshInAppHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8F4262E345FBBC814E3295 /* RefreshInAppHandler.swift */; };
 		090290C329D4EA9F00388226 /* MockCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2469A5E8274C107100E56457 /* MockCache.swift */; };
 		090290C529DCED0B00388226 /* ContentCardRulesEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C429DCED0B00388226 /* ContentCardRulesEngine.swift */; };
 		090290C929DD11EA00388226 /* RuleConsequence+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */; };
@@ -353,6 +354,7 @@
 		D66DF10F2DD533320021AC51 /* MockNamedKeyValueService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66DF10D2DD5332A0021AC51 /* MockNamedKeyValueService.swift */; };
 		D6C020412DC2B4880094C9CD /* MessagingProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6C020402DC2B4800094C9CD /* MessagingProperties.swift */; };
 		D8F12C4D9192ED50E10E7DC8 /* MessagingRuleEngineInterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E8C1E12F01D07AFBDF4F39 /* MessagingRuleEngineInterceptorTests.swift */; };
+		D8F12C4D9192ED50E10E7DC9 /* RefreshInAppHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E8C1E12F01D07AFBDF4F3A /* RefreshInAppHandlerTests.swift */; };
 		F03DEEFA3F66D2D96736F90A /* ReevaluationFunctionalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C2A8A4FA7DBAD4D894D4E42 /* ReevaluationFunctionalTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -517,6 +519,7 @@
 
 /* Begin PBXFileReference section */
 		04E8C1E12F01D07AFBDF4F39 /* MessagingRuleEngineInterceptorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MessagingRuleEngineInterceptorTests.swift; sourceTree = "<group>"; };
+		04E8C1E12F01D07AFBDF4F3A /* RefreshInAppHandlerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RefreshInAppHandlerTests.swift; sourceTree = "<group>"; };
 		090290C429DCED0B00388226 /* ContentCardRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardRulesEngine.swift; sourceTree = "<group>"; };
 		090290C829DD11EA00388226 /* RuleConsequence+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuleConsequence+Messaging.swift"; sourceTree = "<group>"; };
 		090290CA29DE3F8200388226 /* MockContentCardRulesEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MockContentCardRulesEngine.swift; path = AEPMessaging/Tests/TestHelpers/MockContentCardRulesEngine.swift; sourceTree = SOURCE_ROOT; };
@@ -865,6 +868,7 @@
 		DD29CE4BC879CE75AFEFF0D5 /* Pods_FunctionalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FunctionalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD674659DEB5142D8580C271 /* Pods-IntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegrationTests.release.xcconfig"; path = "Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
 		DE8F4262E345FBBC814E3294 /* MessagingRuleEngineInterceptor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MessagingRuleEngineInterceptor.swift; sourceTree = "<group>"; };
+		DE8F4262E345FBBC814E3295 /* RefreshInAppHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RefreshInAppHandler.swift; sourceTree = "<group>"; };
 		E9B29BC8FDB1668EB2D55D15 /* Pods_AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE70278DC8550367F00F9609 /* Pods-FunctionalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTests.debug.xcconfig"; path = "Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests.debug.xcconfig"; sourceTree = "<group>"; };
 		FB180620A608D2821FE98F37 /* Pods_E2EFunctionalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_E2EFunctionalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1230,6 +1234,7 @@
 				09B071E52A64D3D900F259C1 /* Surface.swift */,
 				92315438261E3B36004AE7D3 /* Info.plist */,
 				DE8F4262E345FBBC814E3294 /* MessagingRuleEngineInterceptor.swift */,
+				DE8F4262E345FBBC814E3295 /* RefreshInAppHandler.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -1292,6 +1297,7 @@
 				241B2DD52821C99500E4FF67 /* URL+QueryParamsTests.swift */,
 				245059612673DBFD00CC7CA0 /* Info.plist */,
 				04E8C1E12F01D07AFBDF4F39 /* MessagingRuleEngineInterceptorTests.swift */,
+				04E8C1E12F01D07AFBDF4F3A /* RefreshInAppHandlerTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -2723,6 +2729,7 @@
 				B6389A492A9B32D400B72FB4 /* PushTrackingStatus.swift in Sources */,
 				09F5D9402B5CF35F00117437 /* PropositionInteraction.swift in Sources */,
 				04432BEC0CB7D32AE8D7791B /* MessagingRuleEngineInterceptor.swift in Sources */,
+				04432BEC0CB7D32AE8D7792C /* RefreshInAppHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2812,6 +2819,7 @@
 				243EA6DC2739D48900195945 /* MockMessage.swift in Sources */,
 				24CA4BD92B6196DF00D16369 /* MessagingMigratorTests.swift in Sources */,
 				D8F12C4D9192ED50E10E7DC8 /* MessagingRuleEngineInterceptorTests.swift in Sources */,
+				D8F12C4D9192ED50E10E7DC9 /* RefreshInAppHandlerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

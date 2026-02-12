@@ -43,23 +43,20 @@ import UserNotifications
         let pushToInappIdentifier = notificationRequest.content.userInfo[MessagingConstants.PushNotification.UserInfoKey.PUSH_TO_INAPP] as? String
         if let pushToInappIdentifier = pushToInappIdentifier {
             // we found an in-app to trigger, make a call to refresh IAMs from the remote to make sure we have this message
-            DispatchQueue.global().async {
-                Log.trace(label: MessagingConstants.LOG_TAG, "Found an in-app message to show based on user interaction with a push notification. Downloading updated message definitions to ensure availability of the desired in-app message.")
-                let iamSurface = Surface()
-                Messaging.updatePropositionsForSurfaces([iamSurface]) { success in
-                    if !success {
-                        Log.debug(label: MessagingConstants.LOG_TAG, "Failed to download updated in-app message definitions. Attempting to show the in-app message anyway.")
-                    }
-
-                    // send the event to trigger the in-app notification
-                    let event = Event(name: MessagingConstants.Event.Name.PUSH_TO_IN_APP,
-                                      type: EventType.rulesEngine,
-                                      source: EventSource.requestContent,
-                                      data: [
-                                          MessagingConstants.PushNotification.UserInfoKey.PUSH_TO_INAPP: pushToInappIdentifier
-                                      ])
-                    MobileCore.dispatch(event: event)
+            Log.trace(label: MessagingConstants.LOG_TAG, "Found an in-app message to show based on user interaction with a push notification. Downloading updated message definitions to ensure availability of the desired in-app message.")
+            RefreshInAppHandler.shared.refresh { success in
+                if !success {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Failed to download updated in-app message definitions. Attempting to show the in-app message anyway.")
                 }
+
+                // send the event to trigger the in-app notification
+                let event = Event(name: MessagingConstants.Event.Name.PUSH_TO_IN_APP,
+                                  type: EventType.rulesEngine,
+                                  source: EventSource.requestContent,
+                                  data: [
+                                      MessagingConstants.PushNotification.UserInfoKey.PUSH_TO_INAPP: pushToInappIdentifier
+                                  ])
+                MobileCore.dispatch(event: event)
             }
         }
 
@@ -89,14 +86,9 @@ import UserNotifications
     }
 
     /// Initiates a network call to retrieve remote In-App Message definitions.
+    /// Uses RefreshInAppHandler for deduplication of concurrent refresh requests.
     static func refreshInAppMessages() {
-        let eventData: [String: Any] = [MessagingConstants.Event.Data.Key.REFRESH_MESSAGES: true]
-        let event = Event(name: MessagingConstants.Event.Name.REFRESH_MESSAGES,
-                          type: EventType.messaging,
-                          source: EventSource.requestContent,
-                          data: eventData)
-
-        MobileCore.dispatch(event: event)
+        RefreshInAppHandler.shared.refresh()
     }
 
     // MARK: Personalization via Surfaces

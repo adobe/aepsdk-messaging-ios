@@ -122,7 +122,8 @@ public class Messaging: NSObject, Extension {
 
     // MARK: - Extension protocol methods
 
-    /// Interceptor for handling rule re-evaluation when reevaluable rules are triggered
+    /// Interceptor for handling rule re-evaluation when reevaluable rules are triggered.
+    /// Uses the shared RefreshInAppHandler for deduplication of refresh requests.
     private let reevaluationInterceptor = MessagingRuleEngineInterceptor()
     
     public required init?(runtime: ExtensionRuntime) {
@@ -284,6 +285,10 @@ public class Messaging: NSObject, Extension {
         // handle an event for refreshing in-app messages from the remote
         if event.isRefreshMessageEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing manual request to refresh In-App Message definitions from the remote.")
+            // Register completion handler that notifies RefreshInAppHandler when done
+            Messaging.completionHandlers.append(CompletionHandler(originatingEvent: event) { success in
+                RefreshInAppHandler.shared.handleRefreshComplete(success: success)
+            })
             fetchPropositions(event)
             return
         }

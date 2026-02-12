@@ -66,6 +66,7 @@ class ReevaluationFunctionalTests: XCTestCase {
     /// Verifies that onReevaluationTriggered can be called without crashing
     func testOnReevaluationTriggeredDoesNotCrash() {
         // Setup
+        RefreshInAppHandler.shared.reset()
         let interceptor = MessagingRuleEngineInterceptor()
         let event = Event(name: "Test Event", type: EventType.genericTrack, source: EventSource.requestContent, data: nil)
         
@@ -76,33 +77,42 @@ class ReevaluationFunctionalTests: XCTestCase {
         let condition = ComparisonExpression(lhs: "true", operationName: "equals", rhs: "true")
         let rule = LaunchRule(condition: condition, consequences: [consequence])
         
-        let expectation = XCTestExpectation(description: "Method should not crash")
-        expectation.isInverted = true // We don't expect completion without real SDK setup
+        let expectation = XCTestExpectation(description: "Completion should be called")
         
         // Test - this should not crash
-        interceptor.onReevaluationTriggered(event: event, reevaluableRules: [rule]) {
+        interceptor.onReevaluationTriggered(event: event, reevaluableRules: [rule]) { _ in
             expectation.fulfill()
         }
         
-        // Verify - just verify no crash, completion won't fire in test environment
+        // Simulate completion from the handler
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+            RefreshInAppHandler.shared.handleRefreshComplete(success: true)
+        }
+        
+        // Verify - completion should be called
         wait(for: [expectation], timeout: 1.0)
     }
     
     /// Verifies that onReevaluationTriggered handles empty rules array gracefully
     func testOnReevaluationTriggeredWithEmptyRules() {
         // Setup
+        RefreshInAppHandler.shared.reset()
         let interceptor = MessagingRuleEngineInterceptor()
         let event = Event(name: "Test Event", type: EventType.genericTrack, source: EventSource.requestContent, data: nil)
         
-        let expectation = XCTestExpectation(description: "Method should handle empty rules")
-        expectation.isInverted = true
+        let expectation = XCTestExpectation(description: "Completion should be called")
         
         // Test - this should not crash even with empty rules
-        interceptor.onReevaluationTriggered(event: event, reevaluableRules: []) {
+        interceptor.onReevaluationTriggered(event: event, reevaluableRules: []) { _ in
             expectation.fulfill()
         }
         
-        // Verify - no crash
+        // Simulate completion from the handler
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+            RefreshInAppHandler.shared.handleRefreshComplete(success: true)
+        }
+        
+        // Verify - completion should be called
         wait(for: [expectation], timeout: 1.0)
     }
 }
