@@ -289,18 +289,19 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         wait(for: [eventExpectation], timeout: ASYNC_TIMEOUT)
     }
     
-    func testHandleNotificationResponse_when_userInfoHasPushToInapp_then_updatePropositionsCalled() throws {
+    func testHandleNotificationResponse_when_userInfoHasPushToInapp_then_refreshMessagesCalled() throws {
         // setup
+        RefreshInAppHandler.shared.reset()
         let iamId = "mockIamId"
         var trackingData = MessagingPublicApiTest.MOCK_TRACKING_DETAILS
         trackingData["adb_iam_id"] = iamId
         let notificationResponse = createNotificationResponse(trackingData: trackingData)
                 
-        // register listener for update propositions call
-        let updatePropositionsExpectation = XCTestExpectation(description: "UpdatePropositions should be called")
+        // register listener for refresh messages call (Push-to-InApp now uses RefreshInAppHandler)
+        let refreshMessagesExpectation = XCTestExpectation(description: "RefreshMessages should be called")
         MobileCore.registerEventListener(type: EventType.messaging, source: EventSource.requestContent) { event in
-            if event.name == "Update propositions" {
-                updatePropositionsExpectation.fulfill()
+            if event.name == MessagingConstants.Event.Name.REFRESH_MESSAGES {
+                refreshMessagesExpectation.fulfill()
             }
         }
         
@@ -308,12 +309,13 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         Messaging.handleNotificationResponse(notificationResponse)
         
         // verify
-        wait(for: [updatePropositionsExpectation], timeout: ASYNC_TIMEOUT)
+        wait(for: [refreshMessagesExpectation], timeout: ASYNC_TIMEOUT)
     }
     
     
     func testRefreshInAppMessages() throws {
         // setup
+        RefreshInAppHandler.shared.reset()
         let expectation = XCTestExpectation(description: "Refresh In app messages event")
         expectation.assertForOverFulfill = true
         

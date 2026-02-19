@@ -122,12 +122,20 @@ public class Messaging: NSObject, Extension {
 
     // MARK: - Extension protocol methods
 
+    /// Interceptor for handling rule re-evaluation when reevaluable rules are triggered.
+    /// Uses the shared RefreshInAppHandler for deduplication of refresh requests.
+    private let reevaluationInterceptor = MessagingRuleEngineInterceptor()
+    
     public required init?(runtime: ExtensionRuntime) {
         self.runtime = runtime
         MessagingMigrator.migrate(cache: cache)
         rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
         contentCardRulesEngine = ContentCardRulesEngine(name: MessagingConstants.CONTENT_CARD_RULES_ENGINE_NAME, extensionRuntime: runtime)
         super.init()
+        
+        // Register the reevaluation interceptor to handle dynamic rule updates
+        rulesEngine.launchRulesEngine.setReevaluationInterceptor(reevaluationInterceptor)
+        
         loadCachedPropositions()
     }
 
@@ -140,6 +148,10 @@ public class Messaging: NSObject, Extension {
         self.cache = cache
         self.messagingProperties = messagingProperties
         super.init()
+        
+        // Register the reevaluation interceptor to handle dynamic rule updates
+        rulesEngine.launchRulesEngine.setReevaluationInterceptor(reevaluationInterceptor)
+        
         loadCachedPropositions()
     }
 
@@ -271,6 +283,10 @@ public class Messaging: NSObject, Extension {
         // handle an event for refreshing in-app messages from the remote
         if event.isRefreshMessageEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing manual request to refresh In-App Message definitions from the remote.")
+            // Register completion handler that notifies RefreshInAppHandler when done
+            Messaging.completionHandlers.append(CompletionHandler(originatingEvent: event) { success in
+                RefreshInAppHandler.shared.handleRefreshComplete(success: success)
+            })
             fetchPropositions(event)
             return
         }
@@ -583,6 +599,11 @@ public class Messaging: NSObject, Extension {
                 // response event failed or timed out, need to remove this event from the queue
                 self.requestedSurfacesForEventId.removeValue(forKey: newEvent.id.uuidString)
                 self.eventsQueue.start()
+
+                // Call completion handler with failure so callers know the request failed
+                if let handler = self.completionHandlerFor(edgeRequestEventId: newEvent.id) {
+                    handler.handle?(false)
+                }
 
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to run completion logic for a personalization request event - unable to obtain parent event ID")
                 return

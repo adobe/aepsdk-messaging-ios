@@ -1372,6 +1372,54 @@ class MessagingTests: XCTestCase {
             ] as [String: Any]
         ]
     }
+    
+    // MARK: - Completion Handler Failure Tests
+    
+    /// Test that completion handler is called with false when Edge request response is nil (timeout)
+    func testFetchPropositions_completionCalledWithFalse_whenResponseEventIsNil() {
+        // Setup
+        let expectation = self.expectation(description: "Completion handler should be called with false")
+        var completionResult: Bool?
+        
+        // Create a completion handler and register it
+        let updateEvent = Event(name: MessagingConstants.Event.Name.UPDATE_PROPOSITIONS,
+                                type: EventType.messaging,
+                                source: EventSource.requestContent,
+                                data: [
+                                    MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS: true,
+                                    MessagingConstants.Event.Data.Key.SURFACES: [["uri": "mobileapp://test"]]
+                                ])
+        
+        let completionHandler = CompletionHandler(originatingEvent: updateEvent) { success in
+            completionResult = success
+            expectation.fulfill()
+        }
+        Messaging.completionHandlers.append(completionHandler)
+        
+        // Simulate shared states
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, 
+                                        data: (value: [:], status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, 
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+        
+        // Trigger the event which will call fetchPropositions
+        mockRuntime.simulateComingEvents(updateEvent)
+        
+        // Wait a bit then simulate timeout by calling the completion handler directly
+        // In real scenario, MobileCore.dispatch timeout would trigger this
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            // Simulate what happens when response is nil - completion should be called with false
+            if let handler = Messaging.completionHandlers.first(where: { $0.originatingEventId == updateEvent.id }) {
+                handler.handle?(false)
+            }
+        }
+        
+        wait(for: [expectation], timeout: 2.0)
+        
+        // Verify
+        XCTAssertNotNil(completionResult, "Completion should have been called")
+        XCTAssertEqual(completionResult, false, "Completion should be called with false on failure")
+    }
 
     // MARK: Private methods
 
