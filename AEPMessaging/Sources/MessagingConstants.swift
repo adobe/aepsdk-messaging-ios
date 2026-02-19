@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "5.9.0"
+    static let EXTENSION_VERSION = "5.10.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
