@@ -110,27 +110,32 @@ public extension Messaging {
     /// ])
     /// ```
     static func registerLiveActivities(_ types: [any LiveActivityAttributes.Type]) {
+        let forceReregister = Messaging.liveActivityNeedsReregistration
+        if forceReregister { Messaging.liveActivityNeedsReregistration = false }
         for type in types {
-            registerLiveActivity(type)
+            registerLiveActivity(type, forceReregister: forceReregister)
         }
     }
 
     /// Registers a single Live Activity type with the Adobe Experience Platform SDK.
     ///
-    /// - Parameter type: The Live Activity type that conforms to the ``LiveActivityAttributes`` protocol.
-    private static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
+    /// - Parameters:
+    ///   - type: The Live Activity type that conforms to the ``LiveActivityAttributes`` protocol.
+    ///   - forceReregister: When `true`, existing tasks are torn down and re-created
+    ///     so that fresh tokens are collected and synced to Edge.
+    private static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type, forceReregister: Bool = false) {
         let attributeType = T.attributeType
 
         Task {
             // Send the registration task through the coordinator
             await registrationCoordinator.withExclusiveRegistration(for: attributeType) {
-                await performRegistration(type: T.self, attributeType: attributeType)
+                await performRegistration(type: T.self, attributeType: attributeType, forceReregister: forceReregister)
             }
         }
     }
 
     /// Performs the actual task registration logic for a given Live Activity type.
-    private static func performRegistration<T: LiveActivityAttributes>(type _: T.Type, attributeType: String) async {
+    private static func performRegistration<T: LiveActivityAttributes>(type _: T.Type, attributeType: String, forceReregister: Bool = false) async {
         let registrationState = await getRegistrationState(for: T.self)
 
         switch registrationState {
@@ -139,10 +144,14 @@ public extension Messaging {
             break
 
         case .registered:
-            // The type is already registered. Skip duplicate registration.
+            guard forceReregister else {
+                Log.debug(label: MessagingConstants.LOG_TAG,
+                          "Live Activity type '\(attributeType)' is already fully registered. Skipping duplicate registration.")
+                return
+            }
             Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Live Activity type '\(attributeType)' is already fully registered. Skipping duplicate registration.")
-            return
+                      "Re-registering Live Activity type '\(attributeType)' after identity reset.")
+            await cleanupExistingTasks(for: attributeType)
 
         // Only possible in iOS 17.2+
         case let .partiallyRegistered(updateTaskRegistered, pushStartTaskRegistered):

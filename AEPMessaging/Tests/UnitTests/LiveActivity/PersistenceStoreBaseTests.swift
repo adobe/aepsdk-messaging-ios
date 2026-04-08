@@ -227,6 +227,47 @@ class PersistenceStoreBaseTests: XCTestCase {
         XCTAssertTrue(store.all().isEmpty)
     }
 
+    // MARK: - Clear tests
+
+    func testClear_removesAllElementsAndPersistence() {
+        // Given: Multiple elements are stored
+        store.set(createElement("value1"), id: ID)
+        store.set(createElement("value2"), id: ID_2)
+        XCTAssertEqual(2, store.all().count)
+
+        // When: The store is cleared
+        store.clear()
+
+        // Then: All elements should be removed from memory and persistence
+        XCTAssertTrue(store.all().isEmpty)
+        XCTAssertNil(store.value(for: ID))
+        XCTAssertNil(store.value(for: ID_2))
+        XCTAssertNil(mockDataStore.get(collectionName: COLLECTION, key: STORE_KEY))
+    }
+
+    func testClear_emptyStore_doesNotCrash() {
+        // Given: An empty store
+        XCTAssertTrue(store.all().isEmpty)
+
+        // When: The store is cleared
+        store.clear()
+
+        // Then: No crash, still empty
+        XCTAssertTrue(store.all().isEmpty)
+    }
+
+    func testClear_newInstanceAfterClear_returnsEmpty() {
+        // Given: Elements are stored and then the store is cleared
+        store.set(createElement("value"), id: ID)
+        store.clear()
+
+        // When: A new instance is created with the same store key
+        let newStore = PersistenceStoreBase<TestMap>(storeKey: STORE_KEY, ttl: TTL)
+
+        // Then: The new instance should have no data
+        XCTAssertTrue(newStore.all().isEmpty)
+    }
+
     func testTTLExpiry_removesExpiredElementsOnInit() {
         // Given: An expired element in the store
         insertExpiredElement()

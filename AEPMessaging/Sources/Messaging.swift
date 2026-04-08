@@ -113,6 +113,11 @@ public class Messaging: NSObject, Extension {
     /// the timestamp of the last push token sync
     private var lastPushTokenSyncTimestamp: Date?
 
+    /// Set to `true` by `handleResetIdentitiesEvent` so that the next
+    /// `registerLiveActivities` call re-creates tasks and re-syncs tokens to Edge.
+    @available(iOS 16.1, *)
+    static var liveActivityNeedsReregistration = false
+
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -519,17 +524,12 @@ public class Messaging: NSObject, Extension {
     /// - Parameter event: the `Event` that triggered the reset identities event
     private func handleResetIdentitiesEvent(_ event: Event) {
         Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier and live activity tokens.")
-        // clear the push identifier from persistence and shared state
         stateManager.pushIdentifier = nil
         stateManager.pushToStartTokenStore.clear()
         stateManager.updateTokenStore.clear()
 
-        // cancel running registration tasks so getRegistrationState returns .unregistered,
-        // allowing registerLiveActivities to re-create tasks and collect fresh tokens
         if #available(iOS 16.1, *) {
-            Task {
-                await Messaging.cancelAllRegistrationTasks()
-            }
+            Messaging.liveActivityNeedsReregistration = true
         }
 
         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)

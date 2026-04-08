@@ -68,6 +68,9 @@ class MessagingTests: XCTestCase {
     override func tearDown() {
         MobileCore.messagingDelegate = nil
         stateManager.pushIdentifier = nil
+        if #available(iOS 16.1, *) {
+            Messaging.liveActivityNeedsReregistration = false
+        }
     }
     
     /// validate the extension is registered without any error
@@ -1193,11 +1196,16 @@ class MessagingTests: XCTestCase {
 
     // MARK: - Reset Identities Event Handling Tests
 
-    func testHandleResetIdentitiesEvent_clearsPushToken() {
+    func testHandleResetIdentitiesEvent_clearsPushTokenAndLiveActivityTokens() {
         // setup
         let messagingState = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN] as [String : Any]
         mockRuntime.simulateSharedState(for: MessagingConstants.EXTENSION_NAME, data: (value: messagingState, status: SharedStateStatus.set))
         stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+
+        let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: Date(), token: "mock-push-to-start-token")
+        stateManager.pushToStartTokenStore.set(pushToStartToken, id: "TestAttribute")
+        let updateToken = LiveActivity.UpdateToken(attributeType: "TestAttribute", firstIssued: Date(), token: "mock-update-token")
+        stateManager.updateTokenStore.set(updateToken, id: "test-activity-id")
 
         let event = Event(name: "Reset Identities",
                          type: EventType.genericIdentity,
@@ -1207,12 +1215,24 @@ class MessagingTests: XCTestCase {
         // test
         mockRuntime.simulateComingEvents(event)
 
-        // verify
+        // verify push identifier cleared
         XCTAssertNil(stateManager.pushIdentifier)
+
+        // verify live activity token stores cleared
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
+        XCTAssertTrue(stateManager.updateTokenStore.all().isEmpty)
+
+        // verify reregistration flag is set
+        if #available(iOS 16.1, *) {
+            XCTAssertTrue(Messaging.liveActivityNeedsReregistration)
+            Messaging.liveActivityNeedsReregistration = false
+        }
+
+        // verify shared state rebuilt
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
         let sharedState = mockRuntime.createdSharedStates.last
         XCTAssertNotNil(sharedState as Any?)
-        XCTAssertEqual(nil, mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as? String)
+        XCTAssertNil(mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as? String)
     }
 
     // MARK: - Helpers
