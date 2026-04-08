@@ -668,6 +668,59 @@ public class Messaging: NSObject, Extension {
         }
     }
 
+    /// Authoritatively refreshes the content card cache using the response from a personalization network request.
+    ///
+    /// Called after a personalization response stream completes. Treats the response as the source of truth
+    /// for the requested surfaces:
+    /// - Any requested surface that returned no qualified propositions is removed from cache, preventing stale
+    ///   cards from persisting after a server-side change.
+    /// - For surfaces that did return propositions, the cached list is fully replaced (not merged) with the new results.
+    /// - Propositions that are new (not previously in the cache) generate a `trigger` event sent to Edge Network.
+    ///
+    /// - Parameters:
+    ///   - qualifiedContentCards: The propositions keyed by surface, as returned by the content card rules engine.
+    ///   - requestedSurfaces: The surfaces that were included in the originating personalization request;
+    ///     used to identify surfaces that should be cleared if absent from the response.
+    func removeOrReplaceContentCards(_ qualifiedContentCards: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
+        // Evict requested surfaces that returned no qualified propositions
+        for surface in requestedSurfaces {
+            if qualifiedContentCards[surface] == nil {
+                qualifiedContentCardsBySurface.removeValue(forKey: surface)
+            }
+        }
+
+        // Fully replace cached propositions for surfaces that have qualified content cards
+        for (surface, propositions) in qualifiedContentCards {
+            let existingPropositions = qualifiedContentCardsBySurface[surface] ?? []
+            let startingCount = existingPropositions.count
+
+            var newPropositionsToTrack: [PropositionItem] = []
+            for proposition in propositions {
+                if !existingPropositions.contains(proposition) {
+                    if let item = proposition.items.first {
+                        newPropositionsToTrack.append(item)
+                    }
+                }
+            }
+
+            // Replace the cached list entirely with the fresh response data
+            qualifiedContentCardsBySurface[surface] = propositions
+
+            if !newPropositionsToTrack.isEmpty {
+                newPropositionsToTrack.track(withEdgeEventType: .trigger)
+            }
+
+            let newCount = propositions.count
+            if startingCount != newCount {
+                if newCount > 0 {
+                    Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for \(newCount) content card(s) for surface \(surface.uri).")
+                } else {
+                    Log.trace(label: MessagingConstants.LOG_TAG, "User has not qualified for any content cards for surface \(surface.uri).")
+                }
+            }
+        }
+    }
+
     /// Removes the `Proposition` from `qualifiedContentCardsBySurface` based on provided `activityId`.
     ///
     /// - Parameter activityId: the activityId of the `Proposition` to be removed from cache.
@@ -925,12 +978,10 @@ public class Messaging: NSObject, Extension {
             let collectedContentCardRules = collectRules(from: contentCardRulesBySurface)
             contentCardRulesEngine.launchRulesEngine.replaceRules(with: collectedContentCardRules)
 
-            // Seed content cards qualification
+            // Seed content cards qualification using the authoritative path
             let seedEvent = Event(name: "Seed content cards", type: EventType.messaging, source: EventSource.requestContent, data: nil)
             let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
-            for (surface, propositions) in qualified {
-                addOrReplaceContentCards(propositions, forSurface: surface)
-            }
+            removeOrReplaceContentCards(qualified, requestedSurfaces: requestedSurfaces)
         }
 
         // In-app + event history rules engine
