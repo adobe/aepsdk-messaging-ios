@@ -518,11 +518,21 @@ public class Messaging: NSObject, Extension {
     /// Handles the reset identities event by clearing the push identifier from persistence and shared state.
     /// - Parameter event: the `Event` that triggered the reset identities event
     private func handleResetIdentitiesEvent(_ event: Event) {
-        Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier.")
-        // remove the push token from the shared state
-        createMessagingSharedState(token: nil, event: event)
-        // clear the push identifier from persistence
+        Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier and live activity tokens.")
+        // clear the push identifier from persistence and shared state
         stateManager.pushIdentifier = nil
+        stateManager.pushToStartTokenStore.clear()
+        stateManager.updateTokenStore.clear()
+
+        // cancel running registration tasks so getRegistrationState returns .unregistered,
+        // allowing registerLiveActivities to re-create tasks and collect fresh tokens
+        if #available(iOS 16.1, *) {
+            Task {
+                await Messaging.cancelAllRegistrationTasks()
+            }
+        }
+
+        runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
     }
 
     /// Checks if the push identifier can be synced
