@@ -1379,8 +1379,9 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(completionResult, false, "Completion should be called with false on failure")
     }
 
-    // MARK: - removeOrReplaceContentCards tests
+    // MARK: - removeOrReplaceContentCards tests (DEBUG: uses callRemoveOrReplaceContentCards)
 
+    #if DEBUG
     func testRemoveOrReplaceContentCards_evictsAllRequestedSurfaces_whenNoCardsQualify() {
         let surfaceA = Surface(path: "feed1")
         let surfaceB = Surface(path: "feed2")
@@ -1394,7 +1395,7 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(2, messaging.qualifiedContentCardsBySurface.count)
 
         // No qualified cards — empty map
-        messaging.removeOrReplaceContentCards([:], requestedSurfaces: [surfaceA, surfaceB])
+        messaging.callRemoveOrReplaceContentCards([:], requestedSurfaces: [surfaceA, surfaceB])
 
         XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface.count)
     }
@@ -1416,7 +1417,7 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(3, messaging.qualifiedContentCardsBySurface.count)
 
         // Request only A and B, no qualified cards
-        messaging.removeOrReplaceContentCards([:], requestedSurfaces: [surfaceA, surfaceB])
+        messaging.callRemoveOrReplaceContentCards([:], requestedSurfaces: [surfaceA, surfaceB])
 
         XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
         XCTAssertNotNil(messaging.qualifiedContentCardsBySurface[surfaceC])
@@ -1440,7 +1441,7 @@ class MessagingTests: XCTestCase {
                                    scopeDetails: ["activity": ["id": "newActivityA"]], items: [])
         let qualifiedCards: [Surface: [Proposition]] = [surfaceA: [newPropA]]
 
-        messaging.removeOrReplaceContentCards(qualifiedCards, requestedSurfaces: [surfaceA, surfaceB])
+        messaging.callRemoveOrReplaceContentCards(qualifiedCards, requestedSurfaces: [surfaceA, surfaceB])
 
         // surfaceA should have the new proposition (replaced, not merged)
         let resultA = messaging.qualifiedContentCardsBySurface[surfaceA]
@@ -1458,7 +1459,7 @@ class MessagingTests: XCTestCase {
                                 scopeDetails: ["activity": ["id": "activityA"]], items: [])
         messaging.qualifiedContentCardsBySurface[surfaceA] = [propA]
 
-        messaging.removeOrReplaceContentCards([:], requestedSurfaces: [])
+        messaging.callRemoveOrReplaceContentCards([:], requestedSurfaces: [])
 
         XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
         XCTAssertNotNil(messaging.qualifiedContentCardsBySurface[surfaceA])
@@ -1467,10 +1468,11 @@ class MessagingTests: XCTestCase {
     func testRemoveOrReplaceContentCards_noError_whenRequestedSurfaceNeverCached() {
         let surfaceA = Surface(path: "feed1")
 
-        messaging.removeOrReplaceContentCards([:], requestedSurfaces: [surfaceA])
+        messaging.callRemoveOrReplaceContentCards([:], requestedSurfaces: [surfaceA])
 
         XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface.count)
     }
+    #endif
 
     func testAddOrReplaceContentCards_doesNotEvictSurfaces_whenNoCardsQualify() {
         let surfaceA = Surface(path: "feed1")

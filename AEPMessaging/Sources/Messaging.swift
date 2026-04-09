@@ -681,7 +681,7 @@ public class Messaging: NSObject, Extension {
     ///   - qualifiedContentCards: The propositions keyed by surface, as returned by the content card rules engine.
     ///   - requestedSurfaces: The surfaces that were included in the originating personalization request;
     ///     used to identify surfaces that should be cleared if absent from the response.
-    func removeOrReplaceContentCards(_ qualifiedContentCards: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
+    private func removeOrReplaceContentCards(_ qualifiedContentCards: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
         // Evict requested surfaces that returned no qualified propositions
         for surface in requestedSurfaces {
             if qualifiedContentCards[surface] == nil {
@@ -973,32 +973,30 @@ public class Messaging: NSObject, Extension {
         processRulesForSchemaType(.contentCard, surfaceRulesBySchemaType: surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, rulesBySurface: &contentCardRulesBySurface)
         processRulesForSchemaType(.eventHistoryOperation, surfaceRulesBySchemaType: surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, rulesBySurface: &eventHistoryRulesBySurface)
 
-        // Content card rules engine
-        if surfaceRulesBySchemaType[.contentCard] != nil {
-            let collectedContentCardRules = collectRules(from: contentCardRulesBySurface)
-            contentCardRulesEngine.launchRulesEngine.replaceRules(with: collectedContentCardRules)
+        // Content card rules engine: always sync from `contentCardRulesBySurface` and refresh the qualified cache.
+        // `processRulesForSchemaType` clears rules for requested surfaces when `.contentCard` is absent from the
+        // response (e.g. campaign removed server-side); we must still replace rules and call `removeOrReplaceContentCards`
+        // in that case — not only when the key is present with an empty map.
+        let collectedContentCardRules = collectRules(from: contentCardRulesBySurface)
+        contentCardRulesEngine.launchRulesEngine.replaceRules(with: collectedContentCardRules)
 
-            // Seed content cards qualification using the authoritative path
-            let seedEvent = Event(name: "Seed content cards", type: EventType.messaging, source: EventSource.requestContent, data: nil)
-            let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
-            removeOrReplaceContentCards(qualified, requestedSurfaces: requestedSurfaces)
+        let seedEvent = Event(name: "Seed content cards", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+        let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
+        removeOrReplaceContentCards(qualified, requestedSurfaces: requestedSurfaces)
+
+        // Always sync the in-app + event history rules engine, for the same reason as content
+        // cards above: processRulesForSchemaType already cleared stale entries from
+        // inAppRulesBySurface / eventHistoryRulesBySurface, and the engine must reflect that.
+        let collectedInAppRules = collectRules(from: inAppRulesBySurface)
+
+        // Prefetch assets only when the response actually contained new in-app rules
+        if surfaceRulesBySchemaType[.inapp] != nil {
+            rulesEngine.cacheRemoteAssetsFor(collectedInAppRules)
         }
 
-        // In-app + event history rules engine
-        if surfaceRulesBySchemaType[.inapp] != nil || surfaceRulesBySchemaType[.eventHistoryOperation] != nil {
-            let collectedInAppRules = collectRules(from: inAppRulesBySurface)
-
-            // Prefetch assets only if we actually received in-app rules this time
-            if surfaceRulesBySchemaType[.inapp] != nil {
-                rulesEngine.cacheRemoteAssetsFor(collectedInAppRules)
-            }
-
-            // Combine in-app + event history rules
-            var combined = collectedInAppRules
-            combined.append(contentsOf: collectRules(from: eventHistoryRulesBySurface))
-
-            rulesEngine.launchRulesEngine.replaceRules(with: combined)
-        }
+        var combined = collectedInAppRules
+        combined.append(contentsOf: collectRules(from: eventHistoryRulesBySurface))
+        rulesEngine.launchRulesEngine.replaceRules(with: combined)
     }
 
     private func processRulesForSchemaType(
@@ -1195,6 +1193,10 @@ public class Messaging: NSObject, Extension {
 
         func callUpdateRulesEngines(with rules: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
             updateRulesEngines(with: rules, requestedSurfaces: requestedSurfaces)
+        }
+
+        func callRemoveOrReplaceContentCards(_ qualifiedContentCards: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
+            removeOrReplaceContentCards(qualifiedContentCards, requestedSurfaces: requestedSurfaces)
         }
     #endif
 }

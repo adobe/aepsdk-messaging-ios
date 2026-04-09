@@ -22,9 +22,9 @@ import AEPTestUtils
 /// Android parity: `MessagingPublicAPITests` content-card cases that drive Edge + rules;
 /// here we simulate the **authoritative refresh** slice using the DEBUG-only
 /// `callUpdateRulesEngines(with:requestedSurfaces:)` hook (same code path as
-/// `applyPropositionChangeFor` when the parsed response has no content-card rules for
-/// requested surfaces). Unit-level behavior of `removeOrReplaceContentCards` itself
-/// remains in `MessagingTests.swift`.
+/// `applyPropositionChangeFor` when the parsed response omits content-card rules for
+/// requested surfaces — including when the `.contentCard` key is missing entirely.
+/// Direct unit coverage uses the DEBUG-only `callRemoveOrReplaceContentCards` hook in `MessagingTests.swift`.
 #if DEBUG
 final class ContentCardCacheFunctionalTests: XCTestCase {
     var messaging: Messaging!
@@ -93,6 +93,24 @@ final class ContentCardCacheFunctionalTests: XCTestCase {
 
         XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
         XCTAssertEqual("cardA", messaging.qualifiedContentCardsBySurface[surfaceA]?.first?.uniqueId)
+    }
+
+    /// When the server omits the content-card schema entirely, `surfaceRulesBySchemaType[.contentCard]` is nil.
+    /// Rules for requested surfaces are cleared in `processRulesForSchemaType`, but the qualified cache must
+    /// still be refreshed (same outcome as an empty `.contentCard` map).
+    func testQualifiedContentCardsEvicted_whenContentCardKeyAbsentFromResponse() {
+        let propA = makeContentCardProposition(surface: surfaceA, uniqueId: "cardA")
+        let propB = makeContentCardProposition(surface: surfaceB, uniqueId: "cardB")
+        messaging.qualifiedContentCardsBySurface = [surfaceA: [propA], surfaceB: [propB]]
+        Thread.sleep(forTimeInterval: 0.1)
+
+        // No `.contentCard` entry — e.g. response only carries other schema types or an empty payload.
+        let rulesWithNoContentCardKey: [SchemaType: [Surface: [LaunchRule]]] = [:]
+        messaging.callUpdateRulesEngines(with: rulesWithNoContentCardKey, requestedSurfaces: [surfaceA, surfaceB])
+        Thread.sleep(forTimeInterval: 0.15)
+
+        XCTAssertTrue(messaging.qualifiedContentCardsBySurface.isEmpty,
+                      "Stale qualified cards must be evicted when the response has no content-card key")
     }
 
     // MARK: - Helpers
