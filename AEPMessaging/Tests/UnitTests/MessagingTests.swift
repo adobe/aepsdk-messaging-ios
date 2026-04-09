@@ -68,9 +68,6 @@ class MessagingTests: XCTestCase {
     override func tearDown() {
         MobileCore.messagingDelegate = nil
         stateManager.pushIdentifier = nil
-        if #available(iOS 16.1, *) {
-            Messaging.liveActivityNeedsReregistration = false
-        }
     }
     
     /// validate the extension is registered without any error
@@ -1221,12 +1218,6 @@ class MessagingTests: XCTestCase {
         // verify live activity token stores cleared
         XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
         XCTAssertTrue(stateManager.updateTokenStore.all().isEmpty)
-
-        // verify reregistration flag is set
-        if #available(iOS 16.1, *) {
-            XCTAssertTrue(Messaging.liveActivityNeedsReregistration)
-            Messaging.liveActivityNeedsReregistration = false
-        }
 
         // verify shared state rebuilt
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)

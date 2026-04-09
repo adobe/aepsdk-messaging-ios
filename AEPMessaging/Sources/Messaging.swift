@@ -113,11 +113,6 @@ public class Messaging: NSObject, Extension {
     /// the timestamp of the last push token sync
     private var lastPushTokenSyncTimestamp: Date?
 
-    /// Set to `true` by `handleResetIdentitiesEvent` so that the next
-    /// `registerLiveActivities` call re-creates tasks and re-syncs tokens to Edge.
-    @available(iOS 16.1, *)
-    static var liveActivityNeedsReregistration = false
-
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -527,9 +522,10 @@ public class Messaging: NSObject, Extension {
         stateManager.pushIdentifier = nil
         stateManager.pushToStartTokenStore.clear()
         stateManager.updateTokenStore.clear()
+        stateManager.channelActivityStore.clear()
 
         if #available(iOS 16.1, *) {
-            Messaging.liveActivityNeedsReregistration = true
+            Messaging.resetLiveActivityRegistration()
         }
 
         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)

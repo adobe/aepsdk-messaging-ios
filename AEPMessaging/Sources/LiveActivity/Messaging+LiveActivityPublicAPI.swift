@@ -73,6 +73,19 @@ public extension Messaging {
         }
     }
 
+    /// Cancels all running Live Activity registration tasks.
+    ///
+    /// Called by `handleResetIdentitiesEvent` so that all in-flight tasks are torn down.
+    /// The next `registerLiveActivities` call will see `.unregistered` and create fresh tasks.
+    internal static func resetLiveActivityRegistration() {
+        Task {
+            await activityUpdateTaskStore.cancelAll()
+            if #available(iOS 17.2, *) {
+                await pushToStartTaskStore.cancelAll()
+            }
+        }
+    }
+
     /// Cleans up any existing tasks for the given attribute type.
     ///
     /// - Parameter attributeType: The string identifier for the Live Activity type.
@@ -110,32 +123,27 @@ public extension Messaging {
     /// ])
     /// ```
     static func registerLiveActivities(_ types: [any LiveActivityAttributes.Type]) {
-        let forceReregister = Messaging.liveActivityNeedsReregistration
-        if forceReregister { Messaging.liveActivityNeedsReregistration = false }
         for type in types {
-            registerLiveActivity(type, forceReregister: forceReregister)
+            registerLiveActivity(type)
         }
     }
 
     /// Registers a single Live Activity type with the Adobe Experience Platform SDK.
     ///
-    /// - Parameters:
-    ///   - type: The Live Activity type that conforms to the ``LiveActivityAttributes`` protocol.
-    ///   - forceReregister: When `true`, existing tasks are torn down and re-created
-    ///     so that fresh tokens are collected and synced to Edge.
-    private static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type, forceReregister: Bool = false) {
+    /// - Parameter type: The Live Activity type that conforms to the ``LiveActivityAttributes`` protocol.
+    private static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
         let attributeType = T.attributeType
 
         Task {
             // Send the registration task through the coordinator
             await registrationCoordinator.withExclusiveRegistration(for: attributeType) {
-                await performRegistration(type: T.self, attributeType: attributeType, forceReregister: forceReregister)
+                await performRegistration(type: T.self, attributeType: attributeType)
             }
         }
     }
 
     /// Performs the actual task registration logic for a given Live Activity type.
-    private static func performRegistration<T: LiveActivityAttributes>(type _: T.Type, attributeType: String, forceReregister: Bool = false) async {
+    private static func performRegistration<T: LiveActivityAttributes>(type _: T.Type, attributeType: String) async {
         let registrationState = await getRegistrationState(for: T.self)
 
         switch registrationState {
@@ -144,14 +152,10 @@ public extension Messaging {
             break
 
         case .registered:
-            guard forceReregister else {
-                Log.debug(label: MessagingConstants.LOG_TAG,
-                          "Live Activity type '\(attributeType)' is already fully registered. Skipping duplicate registration.")
-                return
-            }
+            // The type is already registered. Skip duplicate registration.
             Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Re-registering Live Activity type '\(attributeType)' after identity reset.")
-            await cleanupExistingTasks(for: attributeType)
+                      "Live Activity type '\(attributeType)' is already fully registered. Skipping duplicate registration.")
+            return
 
         // Only possible in iOS 17.2+
         case let .partiallyRegistered(updateTaskRegistered, pushStartTaskRegistered):

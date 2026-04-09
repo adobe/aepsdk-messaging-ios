@@ -83,4 +83,10 @@ actor ActivityTaskStore<Key: Hashable> {
     func removeAll() {
         entries.removeAll()
     }
+
+    /// Cancels and removes all stored task entries.
+    func cancelAll() {
+        entries.values.forEach { $0.task.cancel() }
+        entries.removeAll()
+    }
 }
