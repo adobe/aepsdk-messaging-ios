@@ -73,19 +73,6 @@ public extension Messaging {
         }
     }
 
-    /// Cancels all running Live Activity registration tasks.
-    ///
-    /// Called by `handleResetIdentitiesEvent` so that all in-flight tasks are torn down.
-    /// The next `registerLiveActivities` call will see `.unregistered` and create fresh tasks.
-    internal static func resetLiveActivityRegistration() {
-        Task {
-            await activityUpdateTaskStore.cancelAll()
-            if #available(iOS 17.2, *) {
-                await pushToStartTaskStore.cancelAll()
-            }
-        }
-    }
-
     /// Cleans up any existing tasks for the given attribute type.
     ///
     /// - Parameter attributeType: The string identifier for the Live Activity type.
