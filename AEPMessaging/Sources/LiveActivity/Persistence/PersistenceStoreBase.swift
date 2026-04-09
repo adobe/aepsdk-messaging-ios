@@ -178,7 +178,6 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
     func clear() {
         accessQueue.sync {
             _persistedMap = Map()
-            ServiceProvider.shared.namedKeyValueService.remove(collectionName: datastoreName, key: storeKey)
         }
     }
 

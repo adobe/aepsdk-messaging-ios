@@ -242,7 +242,6 @@ class PersistenceStoreBaseTests: XCTestCase {
         XCTAssertTrue(store.all().isEmpty)
         XCTAssertNil(store.value(for: ID))
         XCTAssertNil(store.value(for: ID_2))
-        XCTAssertNil(mockDataStore.get(collectionName: COLLECTION, key: STORE_KEY))
     }
 
     func testClear_emptyStore_doesNotCrash() {
