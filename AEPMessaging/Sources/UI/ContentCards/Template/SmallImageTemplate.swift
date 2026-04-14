@@ -49,7 +49,7 @@ public class SmallImageTemplate: BaseTemplate, ContentCardTemplate {
 
     /// The SwiftUI view representing the content card.
     public lazy var view: some View = buildCardView {
-        rootHStack.view
+        self.rootHStack.view
     }
 
     /// Initializes a `SmallImageTemplate` with the given schema data.
@@ -62,7 +62,7 @@ public class SmallImageTemplate: BaseTemplate, ContentCardTemplate {
     ///    - customizer: An object conforming to ContentCardCustomizing protocol that allows for
     ///                 custom styling of the content card
     /// - Returns: An initialized `SmallImageTemplate` or `nil` if the required title is missing.
-    init?(_ schemaData: ContentCardSchemaData, _ customizer: ContentCardCustomizing?) {
+    init?(_ schemaData: ContentCardSchemaData, _ customizer: ContentCardCustomizing? = nil) {
         guard let title = schemaData.title else {
             return nil
         }

@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "5.11.0"
+    static let EXTENSION_VERSION = "5.13.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
@@ -52,6 +52,7 @@ enum MessagingConstants {
         static let DEFAULT_CONTENT = "https://ns.adobe.com/personalization/default-content-item"
         static let IN_APP = "https://ns.adobe.com/personalization/message/in-app"
         static let CONTENT_CARD = "https://ns.adobe.com/personalization/message/content-card"
+        static let INBOX = "https://ns.adobe.com/personalization/message/inbox"
         static let NATIVE_ALERT = "https://ns.adobe.com/personalization/message/native-alert"
         static let EVENT_HISTORY_OPERATION = "https://ns.adobe.com/personalization/eventHistoryOperation"
 

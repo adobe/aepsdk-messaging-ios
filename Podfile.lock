@@ -15,6 +15,7 @@ PODS:
     - AEPCore (< 6.0.0, >= 5.0.0)
   - AEPLifecycle (5.8.0):
     - AEPCore (< 6.0.0, >= 5.8.0)
+  - AEPMessagingNotification (5.13.0)
   - AEPRulesEngine (5.0.0)
   - AEPServices (5.8.0)
   - AEPSignal (5.8.0):
@@ -31,6 +32,7 @@ DEPENDENCIES:
   - AEPEdgeConsent
   - AEPEdgeIdentity
   - AEPLifecycle
+  - AEPMessagingNotification (from `./`)
   - AEPRulesEngine
   - AEPServices
   - AEPSignal
@@ -51,6 +53,8 @@ SPEC REPOS:
     - SwiftLint
 
 EXTERNAL SOURCES:
+  AEPMessagingNotification:
+    :path: "./"
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-core-ios.git
     :tag: testutils-5.6.0
@@ -67,12 +71,13 @@ SPEC CHECKSUMS:
   AEPEdgeConsent: 5f28a8ed6cd86812a73b1f5a4dbde9c81e486bf1
   AEPEdgeIdentity: 3161ff33434586962946912d6b8e9e8fca1c4d23
   AEPLifecycle: 1ff56cdd009b043c2ad412ddf8952beefd1f3e3d
+  AEPMessagingNotification: e6604109a7f6d5e7de8021363c0ec845f98f884d
   AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
   AEPServices: a5608a9d3749701030e12fe379f53e40fa6f8e6f
   AEPSignal: 63a1c25c5f99c775a78bc398d728ed50a3bc6184
   AEPTestUtils: 2bbed995c8974f6f6d92058db88d6cd2e4a7f869
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: ba8d317f89c7bc453f56638b6f8c8dd3ff240ed5
+PODFILE CHECKSUM: f75d3a5db6ed9c8ea3420047ecb7d0611f8601a7
 
 COCOAPODS: 1.16.2

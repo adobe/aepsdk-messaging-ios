@@ -1,0 +1,18 @@
+{
+  "content": {
+    "heading": {
+      "content": "Trending Now Container"
+    },
+    "layout": {
+      "orientation": "horizontal"
+    },
+    "capacity": 10,
+    "emptyStateSettings": {
+      "message": {
+        "content": "Check back soon!"
+      }
+    },
+    "isUnreadEnabled": true
+  }
+}
+

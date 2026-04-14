@@ -57,8 +57,41 @@ public extension Messaging {
                 // append the successfully created content card to the cards array.
                 cards.append(contentCard)
             }
+            
+            // Cleanup stale read status entries for this surface
+            // This ensures read statuses are removed when campaigns end
+            ReadStatusManager.shared.cleanupStaleReadStatus(
+                currentCards: cards,
+                surfaceUri: surface.uri
+            )
 
             completion(.success(cards))
         }
+    }
+    
+    /// Retrieves a content card container UI for a given surface.
+    /// 
+    /// Returns a ContainerUI immediately that starts in a loading state.
+    /// The container will automatically fetch content cards and container settings, 
+    /// then transition to loaded, empty, or error state.
+    ///
+    /// - Parameters:
+    ///   - surface: The surface for which to retrieve the container UI.
+    ///   - customizer: An optional ContentCardCustomizing object to customize the appearance of content cards.
+    ///   - listener: An optional InboxEventListening object to listen to container events.
+    /// - Returns: A ContainerUI instance that manages its own loading and display state.
+    static func getInboxUI(for surface: Surface,
+                                         customizer: ContentCardCustomizing? = nil,
+                                         listener: InboxEventListening? = nil) -> InboxUI {
+        
+        // Create and return the container UI immediately with default settings
+        // It will start in loading state and fetch both container settings and cards automatically
+        let inboxUI = InboxUI(
+            surface: surface,
+            customizer: customizer,
+            listener: listener
+        )
+        
+        return inboxUI
     }
 }

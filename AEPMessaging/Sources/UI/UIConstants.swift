@@ -102,4 +102,46 @@ enum UIConstants {
             }
         }
     }
+    
+    @available(iOS 15.0, *)
+    enum Inbox {
+        enum DefaultStyle {
+            enum Heading {
+                static let FONT = Font.title2
+                static let COLOR = Color.primary
+                static let HORIZONTAL_PADDING: CGFloat = 16
+                static let VERTICAL_PADDING: CGFloat = 12
+                static let BACKGROUND_COLOR = Color(.systemBackground)
+            }
+            
+            enum EmptyState {
+                static let VERTICAL_SPACING: CGFloat = 16
+                static let MESSAGE = "No content cards available"
+                static let MESSAGE_FONT = Font.headline
+                static let MESSAGE_COLOR = Color.secondary
+                static let IMAGE_MAX_SIZE: CGFloat = 120
+                static let PADDING: CGFloat = 16
+            }
+            
+            enum ErrorView {
+                static let VERTICAL_SPACING: CGFloat = 16
+                static let TITLE = "An error occurred while loading your inbox"
+                static let TITLE_FONT = Font.headline
+                static let TITLE_COLOR = Color.primary
+                static let BUTTON_TITLE = "Try Again"
+                static let PADDING: CGFloat = 16
+            }
+            
+            enum LoadingView {
+                static let VERTICAL_SPACING: CGFloat = 16
+                static let MESSAGE = "Loading..."
+                static let MESSAGE_COLOR = Color.secondary
+            }
+
+            enum UnreadIcon {
+                static let SIZE: CGFloat = 24
+                static let PADDING: CGFloat = 6
+            }
+        }
+    }
 }

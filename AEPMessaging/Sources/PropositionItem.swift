@@ -187,6 +187,17 @@ public extension PropositionItem {
         }
         return getTypedData(EventHistoryOperationSchemaData.self)
     }
+    
+    /// Tries to retrieve a `InboxSchemaData` object from this `PropositionItem`'s `content` property in `itemData`
+    /// Returns a `InboxSchemaData` object if the schema for this `PropositionItem` contains container settings and it is properly formed - `nil` otherwise
+    @available(iOS 15.0, *)
+    var inboxSchemaData: InboxSchemaData? {
+        guard let inboxSchemaData = getTypedData(InboxSchemaData.self) else {
+            return nil
+        }
+        inboxSchemaData.parent = self
+        return inboxSchemaData
+    }
 }
 
 /// extension for internal and private methods

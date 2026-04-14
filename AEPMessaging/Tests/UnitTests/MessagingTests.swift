@@ -1461,6 +1461,124 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(completionResult, false, "Completion should be called with false on failure")
     }
 
+    // MARK: - removeOrReplaceContentCards tests (DEBUG: uses callRemoveOrReplaceContentCards)
+
+    #if DEBUG
+    func testRemoveOrReplaceContentCards_evictsAllRequestedSurfaces_whenNoCardsQualify() {
+        let surfaceA = Surface(path: "feed1")
+        let surfaceB = Surface(path: "feed2")
+
+        let propA = Proposition(uniqueId: "propA", scope: surfaceA.uri,
+                                scopeDetails: ["activity": ["id": "activityA"]], items: [])
+        let propB = Proposition(uniqueId: "propB", scope: surfaceB.uri,
+                                scopeDetails: ["activity": ["id": "activityB"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surfaceA] = [propA]
+        messaging.qualifiedContentCardsBySurface[surfaceB] = [propB]
+        XCTAssertEqual(2, messaging.qualifiedContentCardsBySurface.count)
+
+        // No qualified cards — empty map
+        messaging.callRemoveOrReplaceContentCards([:], requestedSurfaces: [surfaceA, surfaceB])
+
+        XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface.count)
+    }
+
+    func testRemoveOrReplaceContentCards_preservesUnrequestedSurfaces() {
+        let surfaceA = Surface(path: "feed1")
+        let surfaceB = Surface(path: "feed2")
+        let surfaceC = Surface(path: "feed3")
+
+        let propA = Proposition(uniqueId: "propA", scope: surfaceA.uri,
+                                scopeDetails: ["activity": ["id": "activityA"]], items: [])
+        let propB = Proposition(uniqueId: "propB", scope: surfaceB.uri,
+                                scopeDetails: ["activity": ["id": "activityB"]], items: [])
+        let propC = Proposition(uniqueId: "propC", scope: surfaceC.uri,
+                                scopeDetails: ["activity": ["id": "activityC"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surfaceA] = [propA]
+        messaging.qualifiedContentCardsBySurface[surfaceB] = [propB]
+        messaging.qualifiedContentCardsBySurface[surfaceC] = [propC]
+        XCTAssertEqual(3, messaging.qualifiedContentCardsBySurface.count)
+
+        // Request only A and B, no qualified cards
+        messaging.callRemoveOrReplaceContentCards([:], requestedSurfaces: [surfaceA, surfaceB])
+
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        XCTAssertNotNil(messaging.qualifiedContentCardsBySurface[surfaceC])
+        XCTAssertNil(messaging.qualifiedContentCardsBySurface[surfaceA])
+        XCTAssertNil(messaging.qualifiedContentCardsBySurface[surfaceB])
+    }
+
+    func testRemoveOrReplaceContentCards_replacesQualifiedSurface_andEvictsAbsentSurface() {
+        let surfaceA = Surface(path: "feed1")
+        let surfaceB = Surface(path: "feed2")
+
+        let oldPropA = Proposition(uniqueId: "oldPropA", scope: surfaceA.uri,
+                                   scopeDetails: ["activity": ["id": "oldActivityA"]], items: [])
+        let oldPropB = Proposition(uniqueId: "oldPropB", scope: surfaceB.uri,
+                                   scopeDetails: ["activity": ["id": "oldActivityB"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surfaceA] = [oldPropA]
+        messaging.qualifiedContentCardsBySurface[surfaceB] = [oldPropB]
+
+        // New response returns cards only for surfaceA
+        let newPropA = Proposition(uniqueId: "newPropA", scope: surfaceA.uri,
+                                   scopeDetails: ["activity": ["id": "newActivityA"]], items: [])
+        let qualifiedCards: [Surface: [Proposition]] = [surfaceA: [newPropA]]
+
+        messaging.callRemoveOrReplaceContentCards(qualifiedCards, requestedSurfaces: [surfaceA, surfaceB])
+
+        // surfaceA should have the new proposition (replaced, not merged)
+        let resultA = messaging.qualifiedContentCardsBySurface[surfaceA]
+        XCTAssertNotNil(resultA)
+        XCTAssertEqual(1, resultA?.count)
+        XCTAssertEqual("newActivityA", resultA?.first?.activityId)
+
+        // surfaceB should be evicted
+        XCTAssertNil(messaging.qualifiedContentCardsBySurface[surfaceB])
+    }
+
+    func testRemoveOrReplaceContentCards_noOp_whenRequestedSurfacesEmpty() {
+        let surfaceA = Surface(path: "feed1")
+        let propA = Proposition(uniqueId: "propA", scope: surfaceA.uri,
+                                scopeDetails: ["activity": ["id": "activityA"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surfaceA] = [propA]
+
+        messaging.callRemoveOrReplaceContentCards([:], requestedSurfaces: [])
+
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        XCTAssertNotNil(messaging.qualifiedContentCardsBySurface[surfaceA])
+    }
+
+    func testRemoveOrReplaceContentCards_noError_whenRequestedSurfaceNeverCached() {
+        let surfaceA = Surface(path: "feed1")
+
+        messaging.callRemoveOrReplaceContentCards([:], requestedSurfaces: [surfaceA])
+
+        XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface.count)
+    }
+    #endif
+
+    func testAddOrReplaceContentCards_doesNotEvictSurfaces_whenNoCardsQualify() {
+        let surfaceA = Surface(path: "feed1")
+        let surfaceB = Surface(path: "feed2")
+
+        let propA = Proposition(uniqueId: "propA", scope: surfaceA.uri,
+                                scopeDetails: ["activity": ["id": "activityA"]], items: [])
+        let propB = Proposition(uniqueId: "propB", scope: surfaceB.uri,
+                                scopeDetails: ["activity": ["id": "activityB"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surfaceA] = [propA]
+        messaging.qualifiedContentCardsBySurface[surfaceB] = [propB]
+        XCTAssertEqual(2, messaging.qualifiedContentCardsBySurface.count)
+
+        // Simulate wildcard event where rules engine returns no qualified cards
+        // (default mock returns empty consequences)
+        let event = Event(name: "test", type: EventType.lifecycle, source: EventSource.responseContent, data: nil)
+        mockRuntime.simulateComingEvents(event)
+
+        // Additive path should preserve all surfaces
+        XCTAssertEqual(2, messaging.qualifiedContentCardsBySurface.count)
+        XCTAssertNotNil(messaging.qualifiedContentCardsBySurface[surfaceA])
+        XCTAssertNotNil(messaging.qualifiedContentCardsBySurface[surfaceB])
+    }
+
     // MARK: Private methods
 
     private var SampleEdgeIdentityState: [String: Any] {

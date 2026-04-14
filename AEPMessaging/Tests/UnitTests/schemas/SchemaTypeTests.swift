@@ -202,4 +202,29 @@ class SchemaTypeTests: XCTestCase {
         // verify
         XCTAssertEqual(.eventHistoryOperation, value)
     }
+
+    func testContainerItem() throws {
+        // setup
+        let value = SchemaType(rawValue: 11)
+
+        // verify
+        XCTAssertEqual(value, .inbox)
+        XCTAssertEqual(MessagingConstants.PersonalizationSchemas.INBOX, value?.toString())
+    }
+
+    func testInitFromSchemaContainerItem() throws {
+        // test
+        let value = SchemaType(from: MessagingConstants.PersonalizationSchemas.INBOX)
+
+        // verify
+        XCTAssertEqual(.inbox, value)
+    }
+
+    func testRawValueContainerItem() throws {
+        // test
+        let rawValue = SchemaType.inbox.rawValue
+        
+        // verify
+        XCTAssertEqual(11, rawValue)
+    }
 }

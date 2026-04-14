@@ -96,3 +96,6 @@ fastlane/test_output
 Pods/
 
 .vscode/
+
+# Claude Code
+CLAUDE.md

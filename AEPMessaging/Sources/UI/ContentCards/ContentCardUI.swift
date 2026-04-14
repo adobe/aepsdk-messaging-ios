@@ -20,6 +20,7 @@ import Foundation
 /// ContentCardUI is a class that holds data for a content card and provides a SwiftUI view representation of that content.
 @available(iOS 15.0, *)
 public class ContentCardUI: Identifiable {
+
     /// The underlying data model for the content card.
     let proposition: Proposition
 
@@ -45,7 +46,39 @@ public class ContentCardUI: Identifiable {
     public var meta: [String: Any]? {
         proposition.items.first?.contentCardSchemaData?.meta
     }
-
+    
+    /// Read status for content cards, persisted between app launches.
+    ///
+    /// The read status is managed by `ReadStatusManager` which tracks:
+    /// - Individual card read status (activityId → isRead)
+    /// - Surface ownership (activityId → Set of surface URIs)
+    ///
+    /// This ensures read status is preserved when the same campaign appears
+    /// across multiple surfaces, and is only deleted when no surface references
+    /// the campaign anymore.
+    ///
+    /// Defaults to `false` for new cards that haven't been interacted with.
+    public var isRead: Bool {
+        get {
+            return ReadStatusManager.shared.getReadStatus(for: proposition.activityId) ?? false
+        }
+        set {
+            ReadStatusManager.shared.setReadStatus(newValue, for: proposition.activityId)
+            template.updateUnreadStateForView(isRead: newValue)
+        }
+    }
+    
+    /// Marks this content card as read.
+    ///
+    /// The read status is persisted and will be maintained across app launches.
+    ///
+    /// This method is automatically called when the user interacts with the card
+    /// (button click, tap, etc.), but can also be called manually if needed.
+    ///
+    public func markAsRead() {
+        isRead = true
+    }
+    
     /// Factory method to create a `ContentCardUI` instance based on the provided schema data.
     /// - Parameters:
     ///    - proposition: The `Proposition` containing content card template information
@@ -68,6 +101,7 @@ public class ContentCardUI: Identifiable {
 
         // set the listener for the template
         template.eventHandler = contentCardUI
+        
         return contentCardUI
     }
 
@@ -85,5 +119,9 @@ public class ContentCardUI: Identifiable {
         self.template = template
         self.listener = listener
         self.schemaData = schemaData
+        
+        // Initialize the template's read state from ReadStatusManager
+        let currentReadStatus = ReadStatusManager.shared.getReadStatus(for: proposition.activityId) ?? false
+        template.updateUnreadStateForView(isRead: currentReadStatus)
     }
 }

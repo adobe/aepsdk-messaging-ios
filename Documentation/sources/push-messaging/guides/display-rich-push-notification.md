@@ -4,13 +4,40 @@ You must use a Notification Service app extension to download images or other me
 
 Follow Apple's documentation to [Add a Notification Service app extension to your project](https://developer.apple.com/documentation/usernotifications/modifying_content_in_newly_delivered_notifications#2942063).
 
+## Installation
 
-### Notification Service Extension Implementation
- 
- Here is an example of how to implement the Notification Service Extension to download the media attachment for the notification from Adobe Journey Optimizer.
+The `AEPMessagingNotification` package is a lightweight extension-safe library with no dependency on `AEPCore` or `AEPServices`. It is safe to import inside a `UNNotificationServiceExtension` target.
 
+**Swift Package Manager**
+
+Add `AEPMessagingNotification` as a dependency in your `Package.swift` or via Xcode's **File > Add Packages** menu.
+
+**CocoaPods**
+
+Add the pod to your Notification Service Extension target in your `Podfile`:
+
+```ruby
+target 'NotificationService' do
+  pod 'AEPMessagingNotification'
+end
+```
+
+## MessagingNotificationHelper
+
+`MessagingNotificationHelper` (Objective-C: `AEPMessagingNotificationHelper`) handles downloading the media from the `adb_media` key in the push payload and attaching it to the notification content.
+
+| Feature | Detail |
+|---|---|
+| Supported media | Images (JPG, PNG, GIF), Video (MP4), Audio (MP3, WAV, AIFF, M4A) |
+| URL scheme | HTTPS only |
+| Fallback | Notification delivers without attachment if download fails |
+
+## Notification Service Extension Implementation
+
+### Swift
 
 ```swift
+import AEPMessagingNotification
 import UserNotifications
 
 class NotificationService: UNNotificationServiceExtension {
@@ -18,77 +45,62 @@ class NotificationService: UNNotificationServiceExtension {
     var contentHandler: ((UNNotificationContent) -> Void)?
     var bestAttemptContent: UNMutableNotificationContent?
 
-    override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+    override func didReceive(_ request: UNNotificationRequest,
+                             withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
         self.contentHandler = contentHandler
-        bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
-        
-        // defer this block to be executed to call the callback
-        defer {
-            contentHandler(bestAttemptContent ?? request.content)
+        bestAttemptContent = request.content.mutableCopy() as? UNMutableNotificationContent
+
+        guard let content = bestAttemptContent else {
+            contentHandler(request.content)
+            return
         }
-        
-        guard let attachment = request.adobeAttachment else { return }
-        bestAttemptContent?.attachments = [attachment]
-        
+
+        MessagingNotificationHelper.processNotificationRequest(with: content, contentHandler: contentHandler)
     }
-    
+
     override func serviceExtensionTimeWillExpire() {
         // Called just before the extension will be terminated by the system.
-        // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
-        if let contentHandler = contentHandler, let bestAttemptContent =  bestAttemptContent {
+        // Deliver the best attempt at modified content, otherwise the original push payload will be used.
+        if let contentHandler = contentHandler, let bestAttemptContent = bestAttemptContent {
             contentHandler(bestAttemptContent)
         }
     }
-
 }
+```
 
+### Objective-C
 
-extension UNNotificationRequest {
-    var adobeAttachment: UNNotificationAttachment? {
-        // return nil if the notification does not contain a valid value for adb_media key
-        guard let attachmentString = content.userInfo["adb_media"] as? String else {
-            return nil
-        }
-        
-        // do not attach anything if it is not a valid URL
-        guard let attachmentURL = URL(string: attachmentString) else {
-            return nil
-        }
-        
-        // do not attach anything if the url does not contain downloadable data
-        guard let attachmentData = try? Data(contentsOf: attachmentURL) else {
-            return nil
-        }
-        
-        return try? UNNotificationAttachment(data: attachmentData, options: nil, attachmentURL: attachmentURL)
+```objc
+#import <AEPMessagingNotification/AEPMessagingNotification-Swift.h>
+#import <UserNotifications/UserNotifications.h>
+
+@interface NotificationService : UNNotificationServiceExtension
+@property (nonatomic, copy) void (^contentHandler)(UNNotificationContent *contentToDeliver);
+@property (nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
+@end
+
+@implementation NotificationService
+
+- (void)didReceiveNotificationRequest:(UNNotificationRequest *)request
+                   withContentHandler:(void (^)(UNNotificationContent *))contentHandler {
+    self.contentHandler = contentHandler;
+    self.bestAttemptContent = [request.content mutableCopy];
+
+    if (self.bestAttemptContent) {
+        [AEPMessagingNotificationHelper processContent:self.bestAttemptContent
+                                   withContentHandler:contentHandler];
+    } else {
+        contentHandler(request.content);
     }
 }
 
-extension UNNotificationAttachment {
-
-    /// Convenience initializer to create a UNNotificationAttachment from a URL
-    /// - Parameters:
-    ///  - data: the data to be displayed in the notification
-    ///  - options : options for the attachment
-    ///  - attachmentURL : the URL of the rich media to be displayed in the notification
-    convenience init(data: Data, options: [NSObject: AnyObject]?, attachmentURL: URL) throws {
-        let fileManager = FileManager.default
-        let temporaryFolderURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(ProcessInfo.processInfo.globallyUniqueString,
-                                                                                                     isDirectory: true)
-        try fileManager.createDirectory(at: temporaryFolderURL, withIntermediateDirectories: true, attributes: nil)
-        var attachmentType : String
-        
-        // determine the attachment type from the url
-        // common format are png, jpg, gif, mp3,  mpeg4, avi, mp4
-        // Reference Apple documentation for supported file types and maximum size : https://developer.apple.com/documentation/usernotifications/unnotificationattachment
-        /// NOTE : Please edit the below code according to the type of rich media notification that your app needs to support
-        attachmentType = ".jpg"
-        
-        let attachmentName = UUID().uuidString + attachmentType
-        let fileURL = temporaryFolderURL.appendingPathComponent(attachmentName)
-        try data.write(to: fileURL)
-        try self.init(identifier: attachmentName, url: fileURL, options: options)
+- (void)serviceExtensionTimeWillExpire {
+    // Called just before the extension will be terminated by the system.
+    // Deliver the best attempt at modified content, otherwise the original push payload will be used.
+    if (self.contentHandler && self.bestAttemptContent) {
+        self.contentHandler(self.bestAttemptContent);
     }
-    
 }
+
+@end
 ```

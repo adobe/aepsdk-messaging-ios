@@ -22,21 +22,25 @@ struct HomeView: View {
                 .tabItem {
                     Label("InApp", systemImage: "doc.richtext.fill")
                 }
-            PushView()
+            CardsView()
                 .tabItem {
-                    Label("Push", systemImage: "paperplane.fill")
+                    Label("Cards", systemImage: "rectangle.on.rectangle")
+                }
+            InboxView()
+                .tabItem {
+                    Label("Inbox", systemImage: "tray.fill")
+                }
+            LiveActivityView()
+                .tabItem {
+                    Label("Live Activity", systemImage: "app.badge")
                 }
             CodeBasedView()
                 .tabItem {
                     Label("Code Experiences", systemImage: "newspaper.fill")
                 }
-            CardsView()
+            PushView()
                 .tabItem {
-                    Label("Cards", systemImage: "tray.and.arrow.down.fill")
-                }
-            LiveActivityView()
-                .tabItem {
-                    Label("Live Activity", systemImage: "app.badge")
+                    Label("Push", systemImage: "paperplane.fill")
                 }
         }
     }

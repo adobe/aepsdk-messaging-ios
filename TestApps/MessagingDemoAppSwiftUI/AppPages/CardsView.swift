@@ -14,12 +14,12 @@ import AEPMessaging
 import SwiftUI
 
 struct CardsView: View, ContentCardUIEventListening {
-    
+
     let cardsSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
-    @State var savedCards : [ContentCardUI] = []
+    @State var savedCards: [ContentCardUI] = []
     @State private var viewLoaded: Bool = false
     @State private var showLoadingIndicator: Bool = false
-    
+
     var body: some View {
         VStack {
             TabHeader(title: "Content Cards", refreshAction: {
@@ -28,21 +28,17 @@ struct CardsView: View, ContentCardUIEventListening {
                 downloadCards()
                 refreshCards()
             })
-            
+
             ZStack {
-                ScrollView (.vertical, showsIndicators: false){
+                ScrollView(.vertical, showsIndicators: false) {
                     LazyVStack(spacing: 20) {
                         ForEach(savedCards) { card in
                             card.view
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .stroke(Color(.systemGray3), lineWidth: 1)
-                                )
-                                .padding()
+                                .padding(.horizontal, 16)
                         }
                     }
                 }
-                
+
                 if showLoadingIndicator {
                     ProgressView("Loading...")
                         .progressViewStyle(CircularProgressViewStyle())
@@ -60,13 +56,13 @@ struct CardsView: View, ContentCardUIEventListening {
             }
         }
     }
-    
+
     func refreshCards() {
         showLoadingIndicator = true
         let cardsPageSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
         Messaging.getContentCardsUI(for: cardsPageSurface,
-                                     customizer: CardCustomizer(),
-                                     listener: self) { result in
+                                    customizer: CardCustomizer(),
+                                    listener: self) { result in
             showLoadingIndicator = false
             switch result {
             case .success(let cards):
@@ -77,125 +73,156 @@ struct CardsView: View, ContentCardUIEventListening {
             }
         }
     }
-    
+
     func downloadCards() {
         showLoadingIndicator = true
         Messaging.updatePropositionsForSurfaces([cardsSurface])
     }
-    
+
     func onDisplay(_ card: ContentCardUI) {
         print("TestAppLog : ContentCard Displayed")
     }
-    
+
     func onDismiss(_ card: ContentCardUI) {
         print("TestAppLog : ContentCard Dismissed")
         savedCards.removeAll(where: { $0.id == card.id })
     }
-    
+
     func onInteract(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
         print("TestAppLog : ContentCard Interacted : Interaction - \(interactionId)")
         return false
     }
 }
 
-class CardCustomizer : ContentCardCustomizing {
+class CardCustomizer: ContentCardCustomizing {
     func customize(template: AEPMessaging.LargeImageTemplate) {
-        // customize UI elements
         template.title.textColor = .primary
-        template.title.font = .subheadline
+        template.title.font = .system(size: 16, weight: .bold)
         template.body?.textColor = .secondary
         template.body?.font = .caption
-        
-        template.buttons?.first?.text.font = .system(size: 13)
-        template.buttons?.first?.text.textColor = .primary
-        template.buttons?.first?.modifier = AEPViewModifier(ButtonModifier())
-        
-        
-        // customize stack structure
-        template.rootVStack.spacing = 10
-        template.textVStack.alignment = .leading
-        template.textVStack.spacing = 10
-        
-        // add custom modifiers
-        template.buttonHStack.modifier = AEPViewModifier(ButtonHStackModifier())
-        template.rootVStack.modifier = AEPViewModifier(RootVStackModifier())
-        
-        // customize the dismiss buttons
-        template.dismissButton?.image.iconColor = .primary
-        template.dismissButton?.image.iconFont = .system(size: 10)
-    }
-    
-    
-    func customize(template: SmallImageTemplate) {
-        // customize UI elements
-        template.title.textColor = .primary
-        template.title.font = .subheadline
-        template.body?.textColor = .secondary
-        template.body?.font = .caption
-        
-        template.buttons?.first?.text.font = .system(size: 13)
-        template.buttons?.first?.text.textColor = .primary
-        template.buttons?.first?.modifier = AEPViewModifier(ButtonModifier())
-        
-        
-        // customize stack structure
-        template.rootHStack.spacing = 10
-        template.textVStack.alignment = .leading
-        template.textVStack.spacing = 10
-        
-        // add custom modifiers
-        template.buttonHStack.modifier = AEPViewModifier(ButtonHStackModifier())
-        template.rootHStack.modifier = AEPViewModifier(RootHStackModifier())
-        
-        // customize the dismiss buttons
-        template.dismissButton?.image.iconColor = .primary
-        template.dismissButton?.image.iconFont = .system(size: 10)
-    }
-    
-    func customize(template: ImageOnlyTemplate) {
-        // customize UI elements
-        // customize the dismiss buttons
-        template.dismissButton?.image.iconColor = .primary
-        template.dismissButton?.image.iconFont = .system(size: 10)
 
+        template.buttons?.first?.text.font = .system(size: 13)
+        template.buttons?.first?.text.textColor = .primary
+        template.buttons?.first?.modifier = AEPViewModifier(ButtonModifier())
+
+        // Image: full width, fixed height, flush to top/left/right edges
+        template.image?.contentMode = .fill
+        template.image?.modifier = AEPViewModifier(LargeImageModifier())
+
+        // No spacing so image sits flush against card top
+        template.rootVStack.spacing = 0
+        template.textVStack.alignment = .leading
+        template.textVStack.spacing = 4
+        // Padding only on the text area
+        template.textVStack.modifier = AEPViewModifier(TextAreaModifier())
+        template.buttonHStack.modifier = AEPViewModifier(LargeButtonHStackModifier())
+        // Card container — no inner padding so image reaches edges
+        template.rootVStack.modifier = AEPViewModifier(CardContainerModifier())
+
+        template.dismissButton?.image.iconColor = .white
+        template.dismissButton?.image.iconFont = .system(size: 12, weight: .semibold)
     }
-    
-    struct RootVStackModifier : ViewModifier {
+
+    func customize(template: SmallImageTemplate) {
+        template.title.textColor = .primary
+        template.title.font = .system(size: 15, weight: .bold)
+        template.body?.textColor = .secondary
+        template.body?.font = .caption
+
+        template.buttons?.first?.text.font = .system(size: 13)
+        template.buttons?.first?.text.textColor = .primary
+        template.buttons?.first?.modifier = AEPViewModifier(ButtonModifier())
+
+        // Image: fixed size, flush to left/top/bottom edges
+        template.image?.modifier = AEPViewModifier(SmallImageModifier())
+
+        template.rootHStack.spacing = 0
+        template.textVStack.alignment = .leading
+        template.textVStack.spacing = 4
+        // Padding only on the text area
+        template.textVStack.modifier = AEPViewModifier(TextAreaModifier())
+        template.buttonHStack.modifier = AEPViewModifier(SmallButtonHStackModifier())
+        // Card container — no inner padding so image reaches edges
+        template.rootHStack.modifier = AEPViewModifier(CardContainerModifier())
+
+        template.dismissButton?.image.iconColor = .primary
+        template.dismissButton?.image.iconFont = .system(size: 10, weight: .semibold)
+    }
+
+    func customize(template: ImageOnlyTemplate) {
+        template.dismissButton?.image.iconColor = .white
+        template.dismissButton?.image.iconFont = .system(size: 10)
+    }
+
+    // MARK: - Large Image Modifiers
+
+    struct LargeImageModifier: ViewModifier {
         func body(content: Content) -> some View {
             content
-                .frame(maxHeight: .infinity, alignment: .leading)
-                .padding()
+                .frame(maxWidth: .infinity, minHeight: 180, maxHeight: 180)
+                .clipped()
         }
     }
-    
-    struct RootHStackModifier : ViewModifier {
+
+    // MARK: - Small Image Modifiers
+
+    struct SmallImageModifier: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .frame(width: 110)
+                .frame(maxHeight: .infinity)
+                .clipped()
+        }
+    }
+
+    // MARK: - Shared Modifiers
+
+    /// Padding applied to the text+body area only
+    struct TextAreaModifier: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .padding(.horizontal, 14)
+                .padding(.top, 12)
+                .padding(.bottom, 4)
+        }
+    }
+
+    /// Card container: rounded corners + subtle shadow
+    struct CardContainerModifier: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .frame(maxWidth: .infinity)
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+        }
+    }
+
+    struct LargeButtonHStackModifier: ViewModifier {
         func body(content: Content) -> some View {
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
+                .padding(.horizontal, 14)
+                .padding(.bottom, 14)
         }
     }
-    
-    struct ButtonHStackModifier : ViewModifier {
+
+    struct SmallButtonHStackModifier: ViewModifier {
         func body(content: Content) -> some View {
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
         }
     }
-    
-    struct ImageModifier : ViewModifier {
+
+    struct ButtonModifier: ViewModifier {
         func body(content: Content) -> some View {
             content
-                .frame(width: 100, height: 100)
-        }
-    }
-    
-    struct ButtonModifier : ViewModifier {
-        func body(content: Content) -> some View {
-            content
-                .padding()
-                .background(Color.primary.opacity(0.1))
-                .cornerRadius(10)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 14)
+                .background(Color.primary.opacity(0.08))
+                .cornerRadius(8)
         }
     }
 }
