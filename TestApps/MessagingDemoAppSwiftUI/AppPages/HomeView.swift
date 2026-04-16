@@ -42,6 +42,10 @@ struct HomeView: View {
                 .tabItem {
                     Label("Push", systemImage: "paperplane.fill")
                 }
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape.fill")
+                }
         }
     }
 }
