@@ -120,6 +120,9 @@ public class Messaging: NSObject, Extension {
     /// the timestamp of the last push token sync
     private var lastPushTokenSyncTimestamp: Date?
 
+    /// Last collect-consent value observed; used to re-sync only on transition into "y".
+    private var lastObservedCollectConsent: String?
+
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -202,6 +205,11 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.system,
                          source: EventSource.debug,
                          listener: handleDebugEvent)
+
+        // Re-sync persisted tokens when collect consent transitions to "y".
+        registerListener(type: EventType.edgeConsent,
+                         source: EventSource.responseContent,
+                         listener: handleEdgeConsentResponse)
 
         // Handler function called for each queued event. If the queued event is a get propositions event, process it
         // otherwise if it is an Edge event to update propositions, process it only if it is completed.
@@ -531,6 +539,49 @@ public class Messaging: NSObject, Extension {
         createMessagingSharedState(token: nil, event: event)
         // clear the push identifier from persistence
         stateManager.pushIdentifier = nil
+    }
+
+    /// Re-syncs persisted push and push-to-start tokens on a collect-consent transition into "y".
+    private func handleEdgeConsentResponse(_ event: Event) {
+        let collectVal = extractCollectConsent(from: event.data)
+        guard collectVal == MessagingConstants.SharedState.Consent.YES,
+              lastObservedCollectConsent != MessagingConstants.SharedState.Consent.YES
+        else {
+            lastObservedCollectConsent = collectVal
+            return
+        }
+        lastObservedCollectConsent = collectVal
+
+        resyncTokensOnConsentGranted(event: event)
+    }
+
+    private func resyncTokensOnConsentGranted(event: Event) {
+        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                                              event: event)?.value,
+              let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Skipping token re-sync on consent grant — ECID is not available yet.")
+            return
+        }
+
+        if let token = stateManager.pushIdentifier, !token.isEmpty {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Re-syncing persisted push token to Edge following consent grant.")
+            sendPushToken(ecid: ecid, token: token, event: event)
+        }
+
+        let pushToStartTokens = stateManager.pushToStartTokenStore.all()
+        if !pushToStartTokens.isEmpty {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Re-syncing \(pushToStartTokens.count) persisted push-to-start token(s) to Edge following consent grant.")
+            sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: pushToStartTokens, event: event)
+        }
+    }
+
+    private func extractCollectConsent(from data: [String: Any]?) -> String? {
+        return (data?[MessagingConstants.SharedState.Consent.CONSENTS] as? [String: Any])
+            .flatMap { $0[MessagingConstants.SharedState.Consent.COLLECT] as? [String: Any] }
+            .flatMap { $0[MessagingConstants.SharedState.Consent.VAL] as? String }
     }
 
     /// Checks if the push identifier can be synced
