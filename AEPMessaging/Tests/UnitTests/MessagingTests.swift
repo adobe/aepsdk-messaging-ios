@@ -1479,6 +1479,9 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(1, batchedTokens?.count)
         XCTAssertEqual("AttrTypeA", batchedTokens?.first?[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE])
         XCTAssertEqual("pts-token-1", batchedTokens?.first?[MessagingConstants.XDM.Push.TOKEN])
+        // Store cleared so the dispatched re-sync re-populates it via `handleBatchedPushToStartTokenEvent`
+        // instead of being dropped by the same-token equivalence guard.
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
     }
 
     // MARK: - Edge Consent Response: Live Activity Push-to-Start Token Re-sync Tests
@@ -1503,6 +1506,7 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(EventSource.requestContent, ptsEvents.first?.source)
         let batchedTokens = ptsEvents.first?.liveActivityBatchedPushToStartTokens
         XCTAssertEqual(2, batchedTokens?.count)
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
     }
 
     func testConsentResponse_collectYes_noPersistedPushToStartTokens_doesNotDispatch() {

@@ -573,6 +573,9 @@ public class Messaging: NSObject, Extension {
                                               pushToStartTokens: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
                                               event: Event) {
         if !pushToStartTokens.isEmpty {
+            // Cleared first so the same-token equivalence guard in `handleBatchedPushToStartTokenEvent`
+            // does not drop the re-flow. The snapshot has already been captured in `pushToStartTokens`.
+            stateManager.pushToStartTokenStore.clear()
             let tokensArray = pushToStartTokens.map { attributeType, tokenData in
                 [
                     MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
