@@ -1309,8 +1309,8 @@ class MessagingTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))
 
-        XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
-        XCTAssertEqual(0, dispatchedPushToStartEdgeEvents().count)
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
     }
 
     func testConsentResponse_collectPending_doesNotResync() {
@@ -1320,8 +1320,8 @@ class MessagingTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "p"))
 
-        XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
-        XCTAssertEqual(0, dispatchedPushToStartEdgeEvents().count)
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
     }
 
     func testConsentResponse_repeatedYes_onlyResyncsOnTransition() {
@@ -1330,10 +1330,12 @@ class MessagingTests: XCTestCase {
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        // Re-set the persisted push identifier because the first re-sync clears it.
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
-        XCTAssertEqual(1, dispatchedPushProfileEdgeEvents().count)
+        XCTAssertEqual(1, dispatchedPushTokenResyncEvents().count)
     }
 
     func testConsentResponse_resyncsAgainAfterToggle() {
@@ -1342,17 +1344,23 @@ class MessagingTests: XCTestCase {
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        // Re-set the persisted push identifier because the first re-sync clears it.
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
-        XCTAssertEqual(2, dispatchedPushProfileEdgeEvents().count)
+        XCTAssertEqual(2, dispatchedPushTokenResyncEvents().count)
     }
 
-    func testConsentResponse_collectYes_noEdgeIdentityState_doesNotResync() {
+    func testConsentResponse_collectYes_noEdgeIdentityState_dispatchesResyncForPipeline() {
+        // The consent listener no longer pre-checks Edge Identity; the dispatched re-sync events
+        // re-flow through `handleProcessEvent`, which itself defers until Edge Identity is ready.
+        // This mirrors how `handleResetIdentitiesEvent` operates and removes duplicated guards.
         stateManager.pushIdentifier = MOCK_PUSH_TOKEN
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
+        XCTAssertEqual(1, dispatchedPushTokenResyncEvents().count)
         XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
         XCTAssertEqual(0, dispatchedPushToStartEdgeEvents().count)
     }
@@ -1378,8 +1386,8 @@ class MessagingTests: XCTestCase {
                                                    data: data))
         }
 
-        XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
-        XCTAssertEqual(0, dispatchedPushToStartEdgeEvents().count)
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
     }
 
     // MARK: - Edge Consent Response: Push Token Re-sync Tests
@@ -1391,11 +1399,14 @@ class MessagingTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
-        let pushEvents = dispatchedPushProfileEdgeEvents()
-        XCTAssertEqual(1, pushEvents.count)
-        XCTAssertEqual(EventType.edge, pushEvents.first?.type)
-        XCTAssertEqual(EventSource.requestContent, pushEvents.first?.source)
-        XCTAssertEqual(MOCK_PUSH_TOKEN, getDispatchedEventPushToken(event: pushEvents.first))
+        let resyncEvents = dispatchedPushTokenResyncEvents()
+        XCTAssertEqual(1, resyncEvents.count)
+        XCTAssertEqual(EventType.genericIdentity, resyncEvents.first?.type)
+        XCTAssertEqual(EventSource.requestContent, resyncEvents.first?.source)
+        XCTAssertEqual(MOCK_PUSH_TOKEN, tokenFromResyncEvent(resyncEvents.first))
+        // Persisted token is cleared by the helper so handleProcessEvent's same-token
+        // optimization does not block the re-sync.
+        XCTAssertNil(stateManager.pushIdentifier)
     }
 
     func testConsentResponse_collectYes_noPersistedPushToken_doesNotDispatch() {
@@ -1405,7 +1416,7 @@ class MessagingTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
-        XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
     }
 
     func testConsentResponse_collectYes_emptyPushIdentifier_doesNotDispatch() {
@@ -1415,7 +1426,7 @@ class MessagingTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
-        XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
     }
 
     // MARK: - Edge Consent Response: End-to-End Scenario (MOB-24789)
@@ -1429,6 +1440,7 @@ class MessagingTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))
         XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
 
         let setPushEvent = Event(name: "setPushIdentifier",
                                  type: EventType.genericIdentity,
@@ -1441,10 +1453,15 @@ class MessagingTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
-        let pushEvents = dispatchedPushProfileEdgeEvents()
-        XCTAssertEqual(2, pushEvents.count)
-        XCTAssertEqual(MOCK_PUSH_TOKEN, getDispatchedEventPushToken(event: pushEvents[0]))
-        XCTAssertEqual(MOCK_PUSH_TOKEN, getDispatchedEventPushToken(event: pushEvents[1]))
+        // Outbound Edge sync from setPushIdentifier still counts as 1; the consent re-sync
+        // produces an internal genericIdentity / requestContent event that re-flows through
+        // handleProcessEvent in production.
+        XCTAssertEqual(1, dispatchedPushProfileEdgeEvents().count)
+        let resyncEvents = dispatchedPushTokenResyncEvents()
+        // Both the original setPushEvent and the consent re-sync match the resync filter shape.
+        XCTAssertTrue(resyncEvents.contains { tokenFromResyncEvent($0) == MOCK_PUSH_TOKEN })
+        // Persisted push identifier was cleared by the helper to bypass the same-token guard.
+        XCTAssertNil(stateManager.pushIdentifier)
     }
 
     func testEndToEnd_pushToStartTokenSetWhileConsentNo_thenRemoteConsentYes_resyncs() {
@@ -1455,7 +1472,7 @@ class MessagingTests: XCTestCase {
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))
-        XCTAssertEqual(0, dispatchedPushToStartEdgeEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
 
         stateManager.pushToStartTokenStore.set(
             LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-1"),
@@ -1465,10 +1482,14 @@ class MessagingTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
-        let ptsEvents = dispatchedPushToStartEdgeEvents()
+        let ptsEvents = dispatchedPushToStartResyncEvents()
         XCTAssertEqual(1, ptsEvents.count)
-        XCTAssertEqual(EventType.edge, ptsEvents.first?.type)
+        XCTAssertEqual(EventType.messaging, ptsEvents.first?.type)
         XCTAssertEqual(EventSource.requestContent, ptsEvents.first?.source)
+        let batchedTokens = ptsEvents.first?.liveActivityBatchedPushToStartTokens
+        XCTAssertEqual(1, batchedTokens?.count)
+        XCTAssertEqual("AttrTypeA", batchedTokens?.first?[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE])
+        XCTAssertEqual("pts-token-1", batchedTokens?.first?[MessagingConstants.XDM.Push.TOKEN])
     }
 
     // MARK: - Edge Consent Response: Live Activity Push-to-Start Token Re-sync Tests
@@ -1487,10 +1508,12 @@ class MessagingTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
-        let ptsEvents = dispatchedPushToStartEdgeEvents()
+        let ptsEvents = dispatchedPushToStartResyncEvents()
         XCTAssertEqual(1, ptsEvents.count)
-        XCTAssertEqual(EventType.edge, ptsEvents.first?.type)
+        XCTAssertEqual(EventType.messaging, ptsEvents.first?.type)
         XCTAssertEqual(EventSource.requestContent, ptsEvents.first?.source)
+        let batchedTokens = ptsEvents.first?.liveActivityBatchedPushToStartTokens
+        XCTAssertEqual(2, batchedTokens?.count)
     }
 
     func testConsentResponse_collectYes_noPersistedPushToStartTokens_doesNotDispatch() {
@@ -1499,7 +1522,7 @@ class MessagingTests: XCTestCase {
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
-        XCTAssertEqual(0, dispatchedPushToStartEdgeEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
     }
 
     // MARK: - Helpers
@@ -1823,5 +1846,26 @@ class MessagingTests: XCTestCase {
         mockRuntime.dispatchedEvents.filter {
             $0.name == MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START_EDGE
         }
+    }
+
+    /// Internal push-identifier re-sync events dispatched by `dispatchPersistedTokenResync`.
+    /// These are the same shape as a `setPushIdentifier` request event (genericIdentity / requestContent
+    /// with `pushidentifier` in the data) and are routed back through `handleProcessEvent`.
+    private func dispatchedPushTokenResyncEvents() -> [Event] {
+        mockRuntime.dispatchedEvents.filter {
+            $0.type == EventType.genericIdentity
+                && $0.source == EventSource.requestContent
+                && ($0.data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String) != nil
+        }
+    }
+
+    /// Internal push-to-start re-sync events dispatched by `dispatchPersistedTokenResync`.
+    /// These are routed back through `handleProcessEvent` → `handleBatchedPushToStartTokenEvent`.
+    private func dispatchedPushToStartResyncEvents() -> [Event] {
+        mockRuntime.dispatchedEvents.filter { $0.isLiveActivityPushToStartTokenEvent }
+    }
+
+    private func tokenFromResyncEvent(_ event: Event?) -> String? {
+        event?.data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String
     }
 }

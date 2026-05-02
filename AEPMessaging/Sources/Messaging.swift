@@ -531,29 +531,69 @@ public class Messaging: NSObject, Extension {
         runtime.createSharedState(data: state, event: event)
     }
 
-    /// Handles the reset identities event by clearing the push identifier from persistence and shared state.
+    /// Handles the reset identities event by clearing the push identifier and live activity stores,
+    /// then re-dispatching the persisted push-to-start tokens so they re-flow to Edge with the new ECID.
     /// - Parameter event: the `Event` that triggered the reset identities event
     private func handleResetIdentitiesEvent(_ event: Event) {
         Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier and live activity tokens.")
         stateManager.pushIdentifier = nil
 
-        let currentPushToStartTokens = stateManager.pushToStartTokenStore.all()
+        // Capture push-to-start tokens before clearing the store so they can be re-dispatched.
+        let preservedPushToStartTokens = stateManager.pushToStartTokenStore.all()
         stateManager.pushToStartTokenStore.clear()
         stateManager.updateTokenStore.clear()
         stateManager.channelActivityStore.clear()
 
         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
-        // Re-dispatch saved push-to-start tokens so they are synced to Edge with the new ECID
-        if !currentPushToStartTokens.isEmpty {
-            let tokensArray = currentPushToStartTokens.map { attributeType, tokenData in
+        // Push token is intentionally not re-dispatched on reset (it was just cleared).
+        dispatchPersistedTokenResync(includePushToken: false,
+                                     pushToStartTokens: preservedPushToStartTokens,
+                                     event: event)
+    }
+
+    /// Listens for `edgeConsent` response events and triggers a token re-sync the first time
+    /// `consents.collect.val` transitions into `"y"`.
+    private func handleEdgeConsentResponse(_ event: Event) {
+        let collectVal = extractCollectConsent(from: event.data)
+        defer { lastObservedCollectConsent = collectVal }
+
+        guard collectVal == MessagingConstants.SharedState.Consent.YES,
+              lastObservedCollectConsent != MessagingConstants.SharedState.Consent.YES
+        else {
+            return
+        }
+
+        // Push token must be re-flowed alongside push-to-start tokens because Edge dropped
+        // any sync attempts made while collect consent was not "y".
+        dispatchPersistedTokenResync(includePushToken: true,
+                                     pushToStartTokens: stateManager.pushToStartTokenStore.all(),
+                                     event: event)
+    }
+
+    /// Re-dispatches persisted tokens as Messaging events so they re-flow through the
+    /// normal event pipeline (and on to Edge) using the current ECID.
+    ///
+    /// Used by both reset-identities and consent-granted flows to keep Edge state consistent.
+    /// - Parameters:
+    ///   - includePushToken: when `true`, the persisted push identifier is also re-dispatched.
+    ///     Reset-identities passes `false` (the push token was just cleared by design);
+    ///     consent-granted passes `true`.
+    ///   - pushToStartTokens: the push-to-start token map to re-dispatch (typically a snapshot
+    ///     of `stateManager.pushToStartTokenStore` taken before any clearing).
+    ///   - event: the triggering event, used as the parent for chaining/log correlation.
+    private func dispatchPersistedTokenResync(includePushToken: Bool,
+                                              pushToStartTokens: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
+                                              event: Event) {
+        if !pushToStartTokens.isEmpty {
+            let tokensArray = pushToStartTokens.map { attributeType, tokenData in
                 [
                     MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
                     MessagingConstants.XDM.Push.TOKEN: tokenData.token
                 ]
             }
             let resyncEvent = Event(
-                name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched) After Identity Reset",
+                name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched) Re-sync",
                 type: EventType.messaging,
                 source: EventSource.requestContent,
                 data: [
@@ -562,42 +602,18 @@ public class Messaging: NSObject, Extension {
                 ])
             dispatch(event: resyncEvent)
         }
-    }
 
-    /// Re-syncs persisted push and push-to-start tokens on a collect-consent transition into "y".
-    private func handleEdgeConsentResponse(_ event: Event) {
-        let collectVal = extractCollectConsent(from: event.data)
-        guard collectVal == MessagingConstants.SharedState.Consent.YES,
-              lastObservedCollectConsent != MessagingConstants.SharedState.Consent.YES
-        else {
-            lastObservedCollectConsent = collectVal
-            return
-        }
-        lastObservedCollectConsent = collectVal
-
-        resyncTokensOnConsentGranted(event: event)
-    }
-
-    private func resyncTokensOnConsentGranted(event: Event) {
-        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME,
-                                                              event: event)?.value,
-              let ecid = retrieveECID(from: edgeIdentitySharedState) else {
-            Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Skipping token re-sync on consent grant — ECID is not available yet.")
-            return
-        }
-
-        if let token = stateManager.pushIdentifier, !token.isEmpty {
-            Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Re-syncing persisted push token to Edge following consent grant.")
-            sendPushToken(ecid: ecid, token: token, event: event)
-        }
-
-        let pushToStartTokens = stateManager.pushToStartTokenStore.all()
-        if !pushToStartTokens.isEmpty {
-            Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Re-syncing \(pushToStartTokens.count) persisted push-to-start token(s) to Edge following consent grant.")
-            sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: pushToStartTokens, event: event)
+        // Re-dispatch the persisted push identifier when requested. The persisted token is
+        // cleared first so `shouldSyncPushToken` does not short-circuit the re-flow on a
+        // "same token" comparison; `handleProcessEvent` will re-persist it after the sync.
+        if includePushToken, let token = stateManager.pushIdentifier, !token.isEmpty {
+            stateManager.pushIdentifier = nil
+            let pushTokenResyncEvent = Event(
+                name: "Push Identifier Re-sync",
+                type: EventType.genericIdentity,
+                source: EventSource.requestContent,
+                data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: token])
+            dispatch(event: pushTokenResyncEvent)
         }
     }
 
