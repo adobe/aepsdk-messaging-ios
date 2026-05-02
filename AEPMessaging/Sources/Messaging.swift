@@ -551,11 +551,13 @@ public class Messaging: NSObject, Extension {
 
     /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
     private func handleEdgeConsentResponse(_ event: Event) {
-        let collectVal = extractCollectConsent(from: event.data)
+        guard let collectVal = extractCollectConsent(from: event.data) else {
+            return
+        }
         defer { lastObservedCollectConsent = collectVal }
 
-        guard collectVal == MessagingConstants.SharedState.Consent.YES,
-              lastObservedCollectConsent != MessagingConstants.SharedState.Consent.YES
+        guard collectVal == MessagingConstants.Event.Data.Key.Consent.YES,
+              lastObservedCollectConsent != MessagingConstants.Event.Data.Key.Consent.YES
         else {
             return
         }
@@ -601,9 +603,9 @@ public class Messaging: NSObject, Extension {
     }
 
     private func extractCollectConsent(from data: [String: Any]?) -> String? {
-        return (data?[MessagingConstants.SharedState.Consent.CONSENTS] as? [String: Any])
-            .flatMap { $0[MessagingConstants.SharedState.Consent.COLLECT] as? [String: Any] }
-            .flatMap { $0[MessagingConstants.SharedState.Consent.VAL] as? String }
+        return (data?[MessagingConstants.Event.Data.Key.Consent.CONSENTS] as? [String: Any])
+            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.COLLECT] as? [String: Any] }
+            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.VAL] as? String }
     }
 
     /// Checks if the push identifier can be synced

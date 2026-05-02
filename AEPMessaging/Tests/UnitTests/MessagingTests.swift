@@ -1369,9 +1369,9 @@ class MessagingTests: XCTestCase {
         let badPayloads: [[String: Any]?] = [
             nil,
             [:],
-            [MessagingConstants.SharedState.Consent.CONSENTS: "not-a-dictionary"],
-            [MessagingConstants.SharedState.Consent.CONSENTS: [
-                "adID": [MessagingConstants.SharedState.Consent.VAL: "y"]
+            [MessagingConstants.Event.Data.Key.Consent.CONSENTS: "not-a-dictionary"],
+            [MessagingConstants.Event.Data.Key.Consent.CONSENTS: [
+                "adID": [MessagingConstants.Event.Data.Key.Consent.VAL: "y"]
             ]]
         ]
 
@@ -1814,10 +1814,10 @@ class MessagingTests: XCTestCase {
         var data: [String: Any] = [:]
         var collectBlock: [String: Any] = [:]
         if let collect = collect {
-            collectBlock[MessagingConstants.SharedState.Consent.VAL] = collect
+            collectBlock[MessagingConstants.Event.Data.Key.Consent.VAL] = collect
         }
-        data[MessagingConstants.SharedState.Consent.CONSENTS] = [
-            MessagingConstants.SharedState.Consent.COLLECT: collectBlock
+        data[MessagingConstants.Event.Data.Key.Consent.CONSENTS] = [
+            MessagingConstants.Event.Data.Key.Consent.COLLECT: collectBlock
         ]
         return Event(name: "Consent Preferences Updated",
                      type: EventType.edgeConsent,
