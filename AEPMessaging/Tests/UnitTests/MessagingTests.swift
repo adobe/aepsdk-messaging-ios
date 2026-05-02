@@ -1196,11 +1196,18 @@ class MessagingTests: XCTestCase {
 
     // MARK: - Reset Identities Event Handling Tests
 
-    func testHandleResetIdentitiesEvent_clearsPushToken() {
+    func testHandleResetIdentitiesEvent_clearsPushTokenAndAllLiveActivityStores() {
         // setup
         let messagingState = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN] as [String : Any]
         mockRuntime.simulateSharedState(for: MessagingConstants.EXTENSION_NAME, data: (value: messagingState, status: SharedStateStatus.set))
         stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+
+        let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: Date(), token: "mock-push-to-start-token")
+        stateManager.pushToStartTokenStore.set(pushToStartToken, id: "TestAttribute")
+        let updateToken = LiveActivity.UpdateToken(attributeType: "TestAttribute", firstIssued: Date(), token: "mock-update-token")
+        stateManager.updateTokenStore.set(updateToken, id: "test-activity-id")
+        let channelActivity = LiveActivity.ChannelActivity(attributeType: "TestAttribute", startedAt: Date())
+        stateManager.channelActivityStore.set(channelActivity, id: "test-channel-id")
 
         let event = Event(name: "Reset Identities",
                          type: EventType.genericIdentity,
@@ -1210,12 +1217,87 @@ class MessagingTests: XCTestCase {
         // test
         mockRuntime.simulateComingEvents(event)
 
-        // verify
+        // verify push identifier cleared
         XCTAssertNil(stateManager.pushIdentifier)
+
+        // verify all live activity token stores cleared
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
+        XCTAssertTrue(stateManager.updateTokenStore.all().isEmpty)
+        XCTAssertTrue(stateManager.channelActivityStore.all().isEmpty)
+
+        // verify shared state rebuilt
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
-        let sharedState = mockRuntime.createdSharedStates.last
-        XCTAssertNotNil(sharedState as Any?)
-        XCTAssertEqual(nil, mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as? String)
+        XCTAssertNil(mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as? String)
+
+        // verify push-to-start tokens are re-dispatched for new ECID sync
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let resyncEvent = mockRuntime.dispatchedEvents.first
+        XCTAssertEqual(EventType.messaging, resyncEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, resyncEvent?.source)
+        XCTAssertTrue(resyncEvent?.isLiveActivityPushToStartTokenEvent == true)
+
+        let batchedTokens = resyncEvent?.liveActivityBatchedPushToStartTokens
+        XCTAssertEqual(1, batchedTokens?.count)
+        XCTAssertEqual("TestAttribute", batchedTokens?.first?[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE])
+        XCTAssertEqual("mock-push-to-start-token", batchedTokens?.first?[MessagingConstants.XDM.Push.TOKEN])
+    }
+
+    func testHandleResetIdentitiesEvent_noPushToStartTokens_doesNotDispatchResyncEvent() {
+        // setup — only push identifier and update tokens, no push-to-start tokens
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        let updateToken = LiveActivity.UpdateToken(attributeType: "TestAttribute", firstIssued: Date(), token: "mock-update-token")
+        stateManager.updateTokenStore.set(updateToken, id: "test-activity-id")
+
+        let event = Event(name: "Reset Identities",
+                         type: EventType.genericIdentity,
+                         source: EventSource.requestReset,
+                         data: nil)
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify stores are cleared
+        XCTAssertNil(stateManager.pushIdentifier)
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
+        XCTAssertTrue(stateManager.updateTokenStore.all().isEmpty)
+
+        // verify shared state rebuilt but no resync event dispatched
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+
+    func testHandleResetIdentitiesEvent_multiplePushToStartTokens_reDispatchesAll() {
+        // setup — two push-to-start tokens from different attribute types
+        let token1 = LiveActivity.PushToStartToken(firstIssued: Date(), token: "token-aaa")
+        let token2 = LiveActivity.PushToStartToken(firstIssued: Date(), token: "token-bbb")
+        stateManager.pushToStartTokenStore.set(token1, id: "AttributeA")
+        stateManager.pushToStartTokenStore.set(token2, id: "AttributeB")
+
+        let event = Event(name: "Reset Identities",
+                         type: EventType.genericIdentity,
+                         source: EventSource.requestReset,
+                         data: nil)
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify stores cleared
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
+
+        // verify a single resync event is dispatched with both tokens
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let resyncEvent = mockRuntime.dispatchedEvents.first
+        let batchedTokens = resyncEvent?.liveActivityBatchedPushToStartTokens
+        XCTAssertEqual(2, batchedTokens?.count)
+
+        let tokensByType = Dictionary(uniqueKeysWithValues:
+            (batchedTokens ?? []).compactMap { entry -> (String, String)? in
+                guard let attr = entry[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE],
+                      let tok = entry[MessagingConstants.XDM.Push.TOKEN] else { return nil }
+                return (attr, tok)
+            })
+        XCTAssertEqual("token-aaa", tokensByType["AttributeA"])
+        XCTAssertEqual("token-bbb", tokensByType["AttributeB"])
     }
 
     // MARK: - Edge Consent Response: Transition & Guard Tests
