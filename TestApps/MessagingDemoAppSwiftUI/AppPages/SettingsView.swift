@@ -10,8 +10,11 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+import AEPCore
 import AEPEdgeConsent
+import AEPEdgeIdentity
 import SwiftUI
+import UIKit
 
 struct SettingsView: View {
     @State private var collectConsent: CollectConsentValue = .unknown
@@ -48,6 +51,7 @@ struct SettingsView: View {
             List {
                 currentConsentSection
                 changeConsentSection
+                identityResetSection
                 if !lastAction.isEmpty {
                     lastActionSection
                 }
@@ -118,6 +122,20 @@ struct SettingsView: View {
         }
     }
 
+    private var identityResetSection: some View {
+        Section {
+            Button(role: .destructive) {
+                resetIdentity()
+            } label: {
+                Label("Reset Identity", systemImage: "arrow.counterclockwise.circle")
+            }
+        } header: {
+            Text("Identity Reset")
+        } footer: {
+            Text("Calls MobileCore.resetIdentities() and re-registers for remote notifications.")
+        }
+    }
+
     private var lastActionSection: some View {
         Section {
             HStack(spacing: 8) {
@@ -167,6 +185,22 @@ struct SettingsView: View {
         lastAction = "Called Consent.update(collect: \"\(value)\")"
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             readConsent()
+        }
+    }
+
+    private func resetIdentity() {
+        Identity.getExperienceCloudId { oldEcid, _ in
+            MobileCore.resetIdentities()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                UIApplication.shared.registerForRemoteNotifications()
+                Identity.getExperienceCloudId { newEcid, _ in
+                    DispatchQueue.main.async {
+                        let from = oldEcid?.prefix(8) ?? "nil"
+                        let to = newEcid?.prefix(8) ?? "nil"
+                        lastAction = "Reset identities. ECID: \(from)... -> \(to)..."
+                    }
+                }
+            }
         }
     }
 
