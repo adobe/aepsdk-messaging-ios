@@ -526,11 +526,34 @@ public class Messaging: NSObject, Extension {
     /// Handles the reset identities event by clearing the push identifier from persistence and shared state.
     /// - Parameter event: the `Event` that triggered the reset identities event
     private func handleResetIdentitiesEvent(_ event: Event) {
-        Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier.")
-        // remove the push token from the shared state
-        createMessagingSharedState(token: nil, event: event)
-        // clear the push identifier from persistence
+        Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier and live activity tokens.")
         stateManager.pushIdentifier = nil
+
+        let currentPushToStartTokens = stateManager.pushToStartTokenStore.all()
+        stateManager.pushToStartTokenStore.clear()
+        stateManager.updateTokenStore.clear()
+        stateManager.channelActivityStore.clear()
+
+        runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+
+        // Re-dispatch saved push-to-start tokens so they are synced to Edge with the new ECID
+        if !currentPushToStartTokens.isEmpty {
+            let tokensArray = currentPushToStartTokens.map { attributeType, tokenData in
+                [
+                    MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+                    MessagingConstants.XDM.Push.TOKEN: tokenData.token
+                ]
+            }
+            let resyncEvent = Event(
+                name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched) After Identity Reset",
+                type: EventType.messaging,
+                source: EventSource.requestContent,
+                data: [
+                    MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
+                    MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
+                ])
+            dispatch(event: resyncEvent)
+        }
     }
 
     /// Checks if the push identifier can be synced
