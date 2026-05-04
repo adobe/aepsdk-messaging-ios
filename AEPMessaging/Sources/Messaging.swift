@@ -498,8 +498,7 @@ public class Messaging: NSObject, Extension {
             hasChanges = hasChanges || didChange
         }
 
-        guard hasChanges else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "No new tokens in batch")
+        guard shouldSyncPushToStartTokens(event: event, hasChanges: hasChanges) else {
             return
         }
 
@@ -573,8 +572,7 @@ public class Messaging: NSObject, Extension {
                                               pushToStartTokens: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
                                               event: Event) {
         if !pushToStartTokens.isEmpty {
-            // Cleared first so the same-token equivalence guard in `handleBatchedPushToStartTokenEvent`
-            // does not drop the re-flow. The snapshot has already been captured in `pushToStartTokens`.
+            // Cleared so the same-token equivalence guard does not drop the re-flow.
             stateManager.pushToStartTokenStore.clear()
             let tokensArray = pushToStartTokens.map { attributeType, tokenData in
                 [
@@ -593,7 +591,7 @@ public class Messaging: NSObject, Extension {
             dispatch(event: resyncEvent)
         }
 
-        // Cleared first so `shouldSyncPushToken`'s same-token guard does not block the re-flow.
+        // Cleared so `shouldSyncPushToken`'s same-token guard does not block the re-flow.
         if includePushToken, let token = stateManager.pushIdentifier, !token.isEmpty {
             stateManager.pushIdentifier = nil
             let pushTokenResyncEvent = Event(
@@ -657,6 +655,26 @@ public class Messaging: NSObject, Extension {
             return true
         }
         return eventTimestamp.timeIntervalSince(lastPushTokenSyncTimestamp) > MessagingConstants.IGNORE_PUSH_SYNC_TIMEOUT_SECONDS
+    }
+
+    private func shouldSyncPushToStartTokens(event: Event, hasChanges: Bool) -> Bool {
+        if hasChanges {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push-to-start token is new or changed. The push-to-start tokens will be synced.")
+            return true
+        }
+
+        let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
+        let optimizePushSync = configSharedState?.value?[MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC] as? Bool ?? true
+        if !optimizePushSync {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push-to-start sync optimization is disabled. The push-to-start tokens will be synced.")
+            return true
+        }
+
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  "Push-to-start sync optimization is enabled. The push-to-start tokens will not be synced.")
+        return false
     }
 
     // MARK: - In-app Messaging methods

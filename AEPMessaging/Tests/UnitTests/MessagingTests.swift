@@ -1194,6 +1194,50 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(self.MOCK_PUSH_TOKEN, self.getDispatchedEventPushToken(event: thirdPushTokenEvent))
     }
 
+    // MARK: - Push-to-Start Token Sync Optimization Tests
+
+    func testPushToStartTokenSync_whenTokenMatches_OptimizePushSyncIsTrue() {
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String: Any]
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-1"),
+            id: "AttrTypeA"
+        )
+
+        mockRuntime.simulateComingEvents(makeBatchedPushToStartEvent(tokens: [(token: "pts-token-1", attributeType: "AttrTypeA")]))
+
+        XCTAssertEqual(0, dispatchedPushToStartEdgeEvents().count)
+    }
+
+    func testPushToStartTokenSync_whenTokenMatches_OptimizePushSyncIsFalse_forcesSync() {
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false] as [String: Any]
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-1"),
+            id: "AttrTypeA"
+        )
+
+        mockRuntime.simulateComingEvents(makeBatchedPushToStartEvent(tokens: [(token: "pts-token-1", attributeType: "AttrTypeA")]))
+
+        XCTAssertEqual(1, dispatchedPushToStartEdgeEvents().count)
+    }
+
+    func testPushToStartTokenSync_whenNewToken_alwaysSyncs() {
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String: Any]
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-1"),
+            id: "AttrTypeA"
+        )
+
+        mockRuntime.simulateComingEvents(makeBatchedPushToStartEvent(tokens: [(token: "pts-token-2", attributeType: "AttrTypeA")]))
+
+        XCTAssertEqual(1, dispatchedPushToStartEdgeEvents().count)
+    }
+
     // MARK: - Reset Identities Event Handling Tests
 
     func testHandleResetIdentitiesEvent_clearsPushTokenAndAllLiveActivityStores() {
@@ -1479,8 +1523,6 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(1, batchedTokens?.count)
         XCTAssertEqual("AttrTypeA", batchedTokens?.first?[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE])
         XCTAssertEqual("pts-token-1", batchedTokens?.first?[MessagingConstants.XDM.Push.TOKEN])
-        // Store cleared so the dispatched re-sync re-populates it via `handleBatchedPushToStartTokenEvent`
-        // instead of being dropped by the same-token equivalence guard.
         XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
     }
 
@@ -1851,6 +1893,23 @@ class MessagingTests: XCTestCase {
 
     private func dispatchedPushToStartResyncEvents() -> [Event] {
         mockRuntime.dispatchedEvents.filter { $0.isLiveActivityPushToStartTokenEvent }
+    }
+
+    private func makeBatchedPushToStartEvent(tokens: [(token: String, attributeType: String)]) -> Event {
+        let tokensArray = tokens.map { tokenData in
+            [
+                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: tokenData.attributeType,
+                MessagingConstants.XDM.Push.TOKEN: tokenData.token
+            ]
+        }
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
+        ]
+        return Event(name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched)",
+                     type: EventType.messaging,
+                     source: EventSource.requestContent,
+                     data: eventData)
     }
 
     private func tokenFromResyncEvent(_ event: Event?) -> String? {
