@@ -123,9 +123,12 @@ class CardCustomizer : ContentCardCustomizing {
         // customize the dismiss buttons
         template.dismissButton?.image.iconColor = .primary
         template.dismissButton?.image.iconFont = .system(size: 10)
+
+        template.isGlassEffectEnabled = true
+        template.dismissButton?.isGlassEffectEnabled = true
     }
-    
-    
+
+
     func customize(template: SmallImageTemplate) {
         // customize UI elements
         template.title.textColor = .primary
@@ -150,8 +153,11 @@ class CardCustomizer : ContentCardCustomizing {
         // customize the dismiss buttons
         template.dismissButton?.image.iconColor = .primary
         template.dismissButton?.image.iconFont = .system(size: 10)
+
+        template.isGlassEffectEnabled = true
+        template.dismissButton?.isGlassEffectEnabled = true
     }
-    
+
     func customize(template: ImageOnlyTemplate) {
         // customize UI elements
         // customize the dismiss buttons

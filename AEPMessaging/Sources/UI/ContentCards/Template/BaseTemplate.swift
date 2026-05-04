@@ -31,6 +31,17 @@ public class BaseTemplate: ObservableObject {
     /// Use this property to set the background color for the content card.
     @Published public var backgroundColor: Color?
 
+    /// When true, applies a Liquid Glass material to the card background on iOS 26+.
+    /// On older OS versions this property has no effect and the card renders with its normal background.
+    /// Defaults to false to preserve existing visual behaviour.
+    @Published public var isGlassEffectEnabled: Bool = false
+
+    /// Corner radius used for the Liquid Glass shape when `isGlassEffectEnabled` is true.
+    /// Set this to match the corner radius of your card's clip shape.
+    /// Defaults to 5.
+    @Published public var glassCornerRadius: CGFloat = 5
+
+
     /// the dismiss button model
     @Published public var dismissButton: AEPDismissButton?
 
@@ -58,7 +69,13 @@ public class BaseTemplate: ObservableObject {
     /// - Returns: A SwiftUI view of the templated Content Card
     func buildCardView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         content()
-            .background(backgroundColor)
+            .background {
+                if isGlassEffectEnabled, #available(iOS 26.0, *) {
+                    Color.clear.glassEffect(.regular, in: RoundedRectangle(cornerRadius: glassCornerRadius))
+                } else {
+                    backgroundColor
+                }
+            }
             .onTapGesture {
                 self.eventHandler?.onInteract(interactionId: UIConstants.CardTemplate.InteractionID.cardTapped, actionURL: self.actionURL)
             }.onAppear(perform: {

@@ -30,6 +30,7 @@ struct AEPDismissButtonView: View {
             model.parentTemplate?.eventHandler?.onDismiss()
         }, label: {
             model.image.view
+                .applyGlassEffect(model.isGlassEffectEnabled, cornerRadius: 16.0)
         })
         .background(
             // Invisible expanded touch area

@@ -40,4 +40,37 @@ extension View {
             self
         }
     }
+    
+    /// Conditionally applies a modifier to a view.
+    /// - Parameters:
+    ///   - condition: The condition to evaluate
+    ///   - transform: The modifier to apply if condition is true
+    /// - Returns: The modified view if condition is true, otherwise the original view
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
+
+    /// Applies a Liquid Glass effect with a rounded rectangle shape when enabled and running on iOS 26+.
+    /// Falls back to the unmodified view on older OS versions or when disabled.
+    /// - Parameters:
+    ///   - enabled: Whether the glass effect should be applied.
+    ///   - cornerRadius: Corner radius of the glass shape, matching the card's clip shape.
+    /// - Returns: The view with a glass material background, or unchanged if unavailable/disabled.
+    @ViewBuilder
+    func applyGlassEffect(_ enabled: Bool, cornerRadius: CGFloat) -> some View {
+        if enabled {
+            if #available(iOS 26.0, *) {
+                self.glassEffect(.regular, in: RoundedRectangle(cornerRadius: cornerRadius))
+            } else {
+                self
+            }
+        } else {
+            self
+        }
+    }
 }

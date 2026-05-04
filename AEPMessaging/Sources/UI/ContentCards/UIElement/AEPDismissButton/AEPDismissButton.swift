@@ -27,6 +27,11 @@ public class AEPDismissButton: ObservableObject, AEPViewModel {
     /// Alignment for the dismiss button rendered as an overlay on the card's template
     @Published public var alignment: Alignment = UIConstants.CardTemplate.DefaultStyle.DismissButton.ALIGNMENT
 
+    /// When true, applies a Liquid Glass material behind the dismiss button icon on iOS 26+.
+    /// On older OS versions this property has no effect.
+    /// Defaults to false to preserve existing visual behaviour.
+    @Published public var isGlassEffectEnabled: Bool = false
+
     /// The parent template that contains this button.
     weak var parentTemplate: (any ContentCardTemplate)?
 
