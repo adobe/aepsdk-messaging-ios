@@ -182,6 +182,13 @@ enum MessagingConstants {
                     static let PRIORITY = "priority"
                     static let ID = "id"
                 }
+
+                enum Consent {
+                    static let CONSENTS = "consents"
+                    static let COLLECT = "collect"
+                    static let VAL = "val"
+                    static let YES = "y"
+                }
             }
         }
 

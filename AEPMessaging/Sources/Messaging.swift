@@ -120,6 +120,9 @@ public class Messaging: NSObject, Extension {
     /// the timestamp of the last push token sync
     private var lastPushTokenSyncTimestamp: Date?
 
+    /// last observed collect-consent value, used to detect transitions into "y"
+    private var lastObservedCollectConsent: String?
+
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -202,6 +205,11 @@ public class Messaging: NSObject, Extension {
         registerListener(type: EventType.system,
                          source: EventSource.debug,
                          listener: handleDebugEvent)
+
+        // Re-sync persisted tokens when collect consent transitions to "y".
+        registerListener(type: EventType.edgeConsent,
+                         source: EventSource.responseContent,
+                         listener: handleEdgeConsentResponse)
 
         // Handler function called for each queued event. If the queued event is a get propositions event, process it
         // otherwise if it is an Edge event to update propositions, process it only if it is completed.
@@ -490,8 +498,7 @@ public class Messaging: NSObject, Extension {
             hasChanges = hasChanges || didChange
         }
 
-        guard hasChanges else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "No new tokens in batch")
+        guard shouldSyncPushToStartTokens(event: event, hasChanges: hasChanges) else {
             return
         }
 
@@ -523,29 +530,58 @@ public class Messaging: NSObject, Extension {
         runtime.createSharedState(data: state, event: event)
     }
 
-    /// Handles the reset identities event by clearing the push identifier from persistence and shared state.
-    /// - Parameter event: the `Event` that triggered the reset identities event
+    /// Handles the reset identities event: clears persisted state and re-dispatches push-to-start
+    /// tokens so they re-flow to Edge with the new ECID.
     private func handleResetIdentitiesEvent(_ event: Event) {
         Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier and live activity tokens.")
         stateManager.pushIdentifier = nil
 
-        let currentPushToStartTokens = stateManager.pushToStartTokenStore.all()
+        let preservedPushToStartTokens = stateManager.pushToStartTokenStore.all()
         stateManager.pushToStartTokenStore.clear()
         stateManager.updateTokenStore.clear()
         stateManager.channelActivityStore.clear()
 
         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
-        // Re-dispatch saved push-to-start tokens so they are synced to Edge with the new ECID
-        if !currentPushToStartTokens.isEmpty {
-            let tokensArray = currentPushToStartTokens.map { attributeType, tokenData in
+        dispatchPersistedTokenResync(includePushToken: false,
+                                     pushToStartTokens: preservedPushToStartTokens,
+                                     event: event)
+    }
+
+    /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
+    private func handleEdgeConsentResponse(_ event: Event) {
+        guard let collectVal = extractCollectConsent(from: event.data) else {
+            return
+        }
+        defer { lastObservedCollectConsent = collectVal }
+
+        guard collectVal == MessagingConstants.Event.Data.Key.Consent.YES,
+              lastObservedCollectConsent != MessagingConstants.Event.Data.Key.Consent.YES
+        else {
+            return
+        }
+
+        dispatchPersistedTokenResync(includePushToken: true,
+                                     pushToStartTokens: stateManager.pushToStartTokenStore.all(),
+                                     event: event)
+    }
+
+    /// Re-dispatches persisted tokens as Messaging events so they re-flow through `handleProcessEvent`
+    /// using the current ECID. Shared by reset-identities and consent-granted flows.
+    private func dispatchPersistedTokenResync(includePushToken: Bool,
+                                              pushToStartTokens: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
+                                              event: Event) {
+        if !pushToStartTokens.isEmpty {
+            // Cleared so the same-token equivalence guard does not drop the re-flow.
+            stateManager.pushToStartTokenStore.clear()
+            let tokensArray = pushToStartTokens.map { attributeType, tokenData in
                 [
                     MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
                     MessagingConstants.XDM.Push.TOKEN: tokenData.token
                 ]
             }
             let resyncEvent = Event(
-                name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched) After Identity Reset",
+                name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched) Re-sync",
                 type: EventType.messaging,
                 source: EventSource.requestContent,
                 data: [
@@ -554,6 +590,23 @@ public class Messaging: NSObject, Extension {
                 ])
             dispatch(event: resyncEvent)
         }
+
+        // Cleared so `shouldSyncPushToken`'s same-token guard does not block the re-flow.
+        if includePushToken, let token = stateManager.pushIdentifier, !token.isEmpty {
+            stateManager.pushIdentifier = nil
+            let pushTokenResyncEvent = Event(
+                name: "Push Identifier Re-sync",
+                type: EventType.genericIdentity,
+                source: EventSource.requestContent,
+                data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: token])
+            dispatch(event: pushTokenResyncEvent)
+        }
+    }
+
+    private func extractCollectConsent(from data: [String: Any]?) -> String? {
+        return (data?[MessagingConstants.Event.Data.Key.Consent.CONSENTS] as? [String: Any])
+            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.COLLECT] as? [String: Any] }
+            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.VAL] as? String }
     }
 
     /// Checks if the push identifier can be synced
@@ -602,6 +655,26 @@ public class Messaging: NSObject, Extension {
             return true
         }
         return eventTimestamp.timeIntervalSince(lastPushTokenSyncTimestamp) > MessagingConstants.IGNORE_PUSH_SYNC_TIMEOUT_SECONDS
+    }
+
+    private func shouldSyncPushToStartTokens(event: Event, hasChanges: Bool) -> Bool {
+        if hasChanges {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push-to-start token is new or changed. The push-to-start tokens will be synced.")
+            return true
+        }
+
+        let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
+        let optimizePushSync = configSharedState?.value?[MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC] as? Bool ?? true
+        if !optimizePushSync {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push-to-start sync optimization is disabled. The push-to-start tokens will be synced.")
+            return true
+        }
+
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  "Push-to-start sync optimization is enabled. The push-to-start tokens will not be synced.")
+        return false
     }
 
     // MARK: - In-app Messaging methods

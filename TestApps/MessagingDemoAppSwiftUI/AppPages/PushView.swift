@@ -11,14 +11,11 @@ governing permissions and limitations under the License.
 */
 
 import SwiftUI
-import AEPCore
 import AEPEdgeIdentity
-import AEPMessaging
 
 struct PushView: View {
     @State private var ECID: String?
     @State private var devicePushToken: String?
-    @State private var resetStatus: String?
 
     var body: some View {
         VStack {
@@ -36,30 +33,6 @@ struct PushView: View {
                 UIPasteboard.general.string = devicePushToken
             }
             
-            Divider().frame(height: 30)
-
-            VStack(spacing: 12) {
-                Text("Identity Reset")
-                    .font(.title3)
-                    .foregroundColor(.accentColor)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                Button {
-                    resetAndReregister()
-                } label: {
-                    Text("Reset Identity")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-
-                if let status = resetStatus {
-                    Text(status)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .padding(.horizontal)
-
             Spacer()
         }
         .padding()
@@ -76,25 +49,6 @@ struct PushView: View {
         }
         
         devicePushToken = UserDefaults.standard.string(forKey: "devicePushToken")
-    }
-
-    private func resetAndReregister() {
-        let oldEcid = ECID ?? "unknown"
-        resetStatus = "Resetting identities..."
-
-        MobileCore.resetIdentities()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            // Re-register for remote notifications so the APNs callback
-            // fires and setPushIdentifier is called with the device token.
-            // Live Activity tokens are automatically re-synced by the SDK.
-            UIApplication.shared.registerForRemoteNotifications()
-
-            Identity.getExperienceCloudId { (ecid, error) in
-                ECID = ecid
-                resetStatus = "Done. ECID changed: \(oldEcid.prefix(8))... -> \(ecid?.prefix(8) ?? "nil")..."
-            }
-        }
     }
 }
 
