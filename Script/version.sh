@@ -48,4 +48,15 @@ else
     exit -1
 fi
 
+echo "----------------AEPMessagingNotification-----------------"
+PODSPEC_VERSION_IN_AEPMessagingNotification=$(pod ipc spec AEPMessagingNotification.podspec | jq '.version' | tr -d '"')
+echo "Local podspec version - ${BLUE}${PODSPEC_VERSION_IN_AEPMessagingNotification}${NC}"
+
+if [[ "$1" == "$PODSPEC_VERSION_IN_AEPMessagingNotification" ]]; then
+    echo "${GREEN}Pass!${NC}"
+else
+    echo "${RED}[Error]${NC} Version do not match!"
+    exit -1
+fi
+
 exit 0

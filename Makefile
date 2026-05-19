@@ -5,6 +5,8 @@ PROJECT_NAME = $(EXTENSION_NAME)
 TARGET_NAME_XCFRAMEWORK = $(EXTENSION_NAME).xcframework
 LIVE_ACTIVITY_NAME = AEPMessagingLiveActivity
 TARGET_NAME_LIVE_ACTIVITY_XCFRAMEWORK = $(LIVE_ACTIVITY_NAME).xcframework
+NOTIFICATION_NAME = AEPMessagingNotification
+TARGET_NAME_NOTIFICATION_XCFRAMEWORK = $(NOTIFICATION_NAME).xcframework
 SCHEME_NAME_XCFRAMEWORK = AEPMessagingAllXCF
 
 SIMULATOR_ARCHIVE_PATH = $(CURRENT_DIRECTORY)/build/ios_simulator.xcarchive/Products/Library/Frameworks/
@@ -61,6 +63,10 @@ _archive: clean build
 		-framework $(SIMULATOR_ARCHIVE_PATH)$(LIVE_ACTIVITY_NAME).framework -debug-symbols $(SIMULATOR_ARCHIVE_DSYM_PATH)$(LIVE_ACTIVITY_NAME).framework.dSYM \
 		-framework $(IOS_ARCHIVE_PATH)$(LIVE_ACTIVITY_NAME).framework -debug-symbols $(IOS_ARCHIVE_DSYM_PATH)$(LIVE_ACTIVITY_NAME).framework.dSYM \
 		-output ./build/$(TARGET_NAME_LIVE_ACTIVITY_XCFRAMEWORK)
+	xcodebuild -create-xcframework \
+		-framework $(SIMULATOR_ARCHIVE_PATH)$(NOTIFICATION_NAME).framework -debug-symbols $(SIMULATOR_ARCHIVE_DSYM_PATH)$(NOTIFICATION_NAME).framework.dSYM \
+		-framework $(IOS_ARCHIVE_PATH)$(NOTIFICATION_NAME).framework -debug-symbols $(IOS_ARCHIVE_DSYM_PATH)$(NOTIFICATION_NAME).framework.dSYM \
+		-output ./build/$(TARGET_NAME_NOTIFICATION_XCFRAMEWORK)
 
 build:
 	xcodebuild archive -workspace $(PROJECT_NAME).xcworkspace -scheme $(SCHEME_NAME_XCFRAMEWORK) -archivePath "./build/ios.xcarchive" -sdk iphoneos -destination="iOS" SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
@@ -71,6 +77,8 @@ zip:
 	swift package compute-checksum build/$(PROJECT_NAME).xcframework.zip
 	cd build && zip -r -X $(LIVE_ACTIVITY_NAME).xcframework.zip $(LIVE_ACTIVITY_NAME).xcframework/
 	swift package compute-checksum build/$(LIVE_ACTIVITY_NAME).xcframework.zip
+	cd build && zip -r -X $(NOTIFICATION_NAME).xcframework.zip $(NOTIFICATION_NAME).xcframework/
+	swift package compute-checksum build/$(NOTIFICATION_NAME).xcframework.zip
 
 unit-test: clean
 	@echo "######################################################################"

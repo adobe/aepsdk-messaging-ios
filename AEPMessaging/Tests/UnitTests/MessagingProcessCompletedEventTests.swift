@@ -416,8 +416,10 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                                  data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
         messaging.handleProcessCompletedEvent(processEvent)
 
-        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled, "In-app rules engine should NOT be invoked for code-based propositions")
-        XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled, "Content-card rules engine should NOT be invoked for code-based propositions")
+        XCTAssertTrue(mockLaunchRulesEngine.replaceRulesCalled, "In-app rules engine should always be synced after a personalization response")
+        XCTAssertEqual(0, mockLaunchRulesEngine.paramReplaceRulesRules?.count ?? -1, "No in-app rules expected for code-based propositions")
+        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled, "Content-card rules engine should always be synced after a personalization response")
+        XCTAssertEqual(0, mockContentCardLaunchRulesEngine.paramReplaceRulesRules?.count ?? -1, "No content-card rules expected for code-based propositions")
 
         // One notification event should be dispatched containing the propositions
         XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
@@ -463,9 +465,11 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                                  data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
         messaging.handleProcessCompletedEvent(processEvent)
 
-        // Validate: no rules engines invoked, no notification dispatched
-        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
-        XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled)
+        // Validate: rules engines synced with empty rules, no notification dispatched
+        XCTAssertTrue(mockLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockLaunchRulesEngine.paramReplaceRulesRules?.count ?? -1)
+        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockContentCardLaunchRulesEngine.paramReplaceRulesRules?.count ?? -1)
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
 
@@ -517,9 +521,11 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                                  data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
         messaging.handleProcessCompletedEvent(processEvent)
 
-        // Validate: rules engines not invoked, no notification dispatched
-        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled)
-        XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled)
+        // Validate: rules engines synced with empty rules (invalid rules produce nothing), no notification dispatched
+        XCTAssertTrue(mockLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockLaunchRulesEngine.paramReplaceRulesRules?.count ?? -1)
+        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled)
+        XCTAssertEqual(0, mockContentCardLaunchRulesEngine.paramReplaceRulesRules?.count ?? -1)
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
 
