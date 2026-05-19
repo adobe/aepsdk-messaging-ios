@@ -9,7 +9,7 @@ on:
     # Inputs the workflow accepts.
     inputs:
       version:
-        description: 'New version to use for the Messaging and MessagingLiveActivity extensions.  Example: 5.0.0'
+        description: 'New version to use for the Messaging, MessagingLiveActivity and MessagingNotification extensions.  Example: 5.0.0'
         required: true
         
       branch:
@@ -50,6 +50,9 @@ jobs:
 
     - name: Update AEPMessagingLiveActivity
       run: (sh ./Script/update-versions.sh -n MessagingLiveActivity -v ${{ github.event.inputs.version }})
+
+    - name: Update AEPMessagingNotification
+      run: (sh ./Script/update-versions.sh -n MessagingNotification -v ${{ github.event.inputs.version }})
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4.2.3

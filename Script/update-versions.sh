@@ -93,9 +93,9 @@ if [ "$DEPENDENCIES" != "none" ]; then
 fi
 
 # Replace version in Constants file
-# Ignore for MessagingLiveActivity, since it does not have a Constants file
-if [ "$NAME" == "MessagingLiveActivity" ]; then
-    echo "No Constants file to update for MessagingLiveActivity"
+# Ignore for MessagingLiveActivity and MessagingNotification, since they do not have a Constants file
+if [ "$NAME" == "MessagingLiveActivity" ] || [ "$NAME" == "MessagingNotification" ]; then
+    echo "No Constants file to update for $NAME"
 else
     CONSTANTS_FILE=$ROOT_DIR"/AEP$NAME/Sources/"$NAME"Constants.swift"
     echo "Changing value of 'EXTENSION_VERSION' to '$NEW_VERSION' in '$CONSTANTS_FILE'"

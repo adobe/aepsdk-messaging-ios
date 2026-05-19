@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = 'AEPMessagingNotification'
-  s.version      = '5.13.0'
+  s.version      = '5.14.0'
   s.summary      = 'Lightweight helper for rich push notifications in Adobe Experience Platform Mobile SDK.'
   s.description  = <<-DESC
                    AEPMessagingNotification provides a lightweight helper for processing rich push notifications
