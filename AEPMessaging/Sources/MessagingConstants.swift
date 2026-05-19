@@ -274,7 +274,7 @@ enum MessagingConstants {
                 static let DISMISS = "decisioning.propositionDismiss"
                 static let DISQUALIFY = "decisioning.propositionDisqualify"
                 static let SUPPRESSED_DISPLAY = "decisioning.propositionSuppressDisplay"
-                static let PERSONALIZATION_REQUEST = "personalization.request"
+                static let PROPOSITION_FETCH = "decisioning.propositionFetch"
             }
 
             enum PropositionEventType {
