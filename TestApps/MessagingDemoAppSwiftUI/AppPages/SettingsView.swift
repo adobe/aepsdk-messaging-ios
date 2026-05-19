@@ -20,6 +20,7 @@ struct SettingsView: View {
     @State private var collectConsent: CollectConsentValue = .unknown
     @State private var isLoading = false
     @State private var lastAction: String = ""
+    @State private var pushToken: String? = UserDefaults.standard.string(forKey: "devicePushToken")
 
     enum CollectConsentValue: String {
         case yes = "y"
@@ -51,6 +52,7 @@ struct SettingsView: View {
             List {
                 currentConsentSection
                 changeConsentSection
+                pushTokenSection
                 identityResetSection
                 if !lastAction.isEmpty {
                     lastActionSection
@@ -58,7 +60,10 @@ struct SettingsView: View {
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Settings")
-            .onAppear { readConsent() }
+            .onAppear {
+                readConsent()
+                pushToken = UserDefaults.standard.string(forKey: "devicePushToken")
+            }
         }
     }
 
@@ -119,6 +124,31 @@ struct SettingsView: View {
             Text("Change Consent")
         } footer: {
             Text("Calls Consent.update(with:) and refreshes the displayed value.")
+        }
+    }
+
+    private var pushTokenSection: some View {
+        Section {
+            HStack {
+                Label("Device Token", systemImage: "bell.badge")
+                Spacer()
+                Text(pushToken.map { String($0.prefix(12)) + "…" } ?? "Not Available")
+                    .font(.footnote)
+                    .foregroundColor(pushToken == nil ? .secondary : .primary)
+                    .lineLimit(1)
+            }
+            .padding(.vertical, 4)
+
+            Button {
+                sendPushToken()
+            } label: {
+                Label("Send Push Token", systemImage: "paperplane")
+            }
+            .disabled(pushToken == nil)
+        } header: {
+            Text("Push Token")
+        } footer: {
+            Text("Manually calls MobileCore.setPushIdentifier() with the stored device token.")
         }
     }
 
@@ -202,6 +232,27 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+
+    private func sendPushToken() {
+        guard let hexToken = pushToken, !hexToken.isEmpty else {
+            lastAction = "No push token available to send."
+            return
+        }
+        var tokenData = Data()
+        var index = hexToken.startIndex
+        while index < hexToken.endIndex {
+            let nextIndex = hexToken.index(index, offsetBy: 2)
+            guard nextIndex <= hexToken.endIndex,
+                  let byte = UInt8(hexToken[index..<nextIndex], radix: 16) else {
+                lastAction = "Failed to parse push token."
+                return
+            }
+            tokenData.append(byte)
+            index = nextIndex
+        }
+        MobileCore.setPushIdentifier(tokenData)
+        lastAction = "Called setPushIdentifier with token: \(String(hexToken.prefix(12)))…"
     }
 
     private func readConsent() {
