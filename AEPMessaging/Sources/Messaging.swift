@@ -875,9 +875,9 @@ public class Messaging: NSObject, Extension {
             ]
         ]
 
-        // add `xdm` with an event type of `personalization.request`
+        // add `xdm` with an event type of `decisioning.propositionFetch`
         eventData[MessagingConstants.XDM.Key.XDM] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Inbound.EventType.PERSONALIZATION_REQUEST
+            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Inbound.EventType.PROPOSITION_FETCH
         ]
 
         // add a `data` object to the request specifying the format desired in the response from XAS
