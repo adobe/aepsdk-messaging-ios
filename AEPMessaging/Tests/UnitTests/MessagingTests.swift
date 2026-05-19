@@ -68,6 +68,9 @@ class MessagingTests: XCTestCase {
     override func tearDown() {
         MobileCore.messagingDelegate = nil
         stateManager.pushIdentifier = nil
+        for id in stateManager.pushToStartTokenStore.all().keys {
+            stateManager.pushToStartTokenStore.remove(id: id)
+        }
     }
     
     /// validate the extension is registered without any error
@@ -75,9 +78,9 @@ class MessagingTests: XCTestCase {
         XCTAssertNoThrow(MobileCore.registerExtensions([Messaging.self]))
     }
     
-    /// validate that 8 listeners are registered onRegister
-    func testOnRegistered_eightListenersAreRegistered() {
-        XCTAssertEqual(mockRuntime.listeners.count, 8)
+    /// validate that 9 listeners are registered onRegister
+    func testOnRegistered_nineListenersAreRegistered() {
+        XCTAssertEqual(mockRuntime.listeners.count, 9)
     }
     
     func testOnUnregisteredCallable() throws {
@@ -1191,13 +1194,64 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(self.MOCK_PUSH_TOKEN, self.getDispatchedEventPushToken(event: thirdPushTokenEvent))
     }
 
+    // MARK: - Push-to-Start Token Sync Optimization Tests
+
+    func testPushToStartTokenSync_whenTokenMatches_OptimizePushSyncIsTrue() {
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String: Any]
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-1"),
+            id: "AttrTypeA"
+        )
+
+        mockRuntime.simulateComingEvents(makeBatchedPushToStartEvent(tokens: [(token: "pts-token-1", attributeType: "AttrTypeA")]))
+
+        XCTAssertEqual(0, dispatchedPushToStartEdgeEvents().count)
+    }
+
+    func testPushToStartTokenSync_whenTokenMatches_OptimizePushSyncIsFalse_forcesSync() {
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false] as [String: Any]
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-1"),
+            id: "AttrTypeA"
+        )
+
+        mockRuntime.simulateComingEvents(makeBatchedPushToStartEvent(tokens: [(token: "pts-token-1", attributeType: "AttrTypeA")]))
+
+        XCTAssertEqual(1, dispatchedPushToStartEdgeEvents().count)
+    }
+
+    func testPushToStartTokenSync_whenNewToken_alwaysSyncs() {
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID, MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true] as [String: Any]
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME, data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-1"),
+            id: "AttrTypeA"
+        )
+
+        mockRuntime.simulateComingEvents(makeBatchedPushToStartEvent(tokens: [(token: "pts-token-2", attributeType: "AttrTypeA")]))
+
+        XCTAssertEqual(1, dispatchedPushToStartEdgeEvents().count)
+    }
+
     // MARK: - Reset Identities Event Handling Tests
 
-    func testHandleResetIdentitiesEvent_clearsPushToken() {
+    func testHandleResetIdentitiesEvent_clearsPushTokenAndAllLiveActivityStores() {
         // setup
         let messagingState = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN] as [String : Any]
         mockRuntime.simulateSharedState(for: MessagingConstants.EXTENSION_NAME, data: (value: messagingState, status: SharedStateStatus.set))
         stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+
+        let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: Date(), token: "mock-push-to-start-token")
+        stateManager.pushToStartTokenStore.set(pushToStartToken, id: "TestAttribute")
+        let updateToken = LiveActivity.UpdateToken(attributeType: "TestAttribute", firstIssued: Date(), token: "mock-update-token")
+        stateManager.updateTokenStore.set(updateToken, id: "test-activity-id")
+        let channelActivity = LiveActivity.ChannelActivity(attributeType: "TestAttribute", startedAt: Date())
+        stateManager.channelActivityStore.set(channelActivity, id: "test-channel-id")
 
         let event = Event(name: "Reset Identities",
                          type: EventType.genericIdentity,
@@ -1207,12 +1261,303 @@ class MessagingTests: XCTestCase {
         // test
         mockRuntime.simulateComingEvents(event)
 
-        // verify
+        // verify push identifier cleared
         XCTAssertNil(stateManager.pushIdentifier)
+
+        // verify all live activity token stores cleared
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
+        XCTAssertTrue(stateManager.updateTokenStore.all().isEmpty)
+        XCTAssertTrue(stateManager.channelActivityStore.all().isEmpty)
+
+        // verify shared state rebuilt
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
-        let sharedState = mockRuntime.createdSharedStates.last
-        XCTAssertNotNil(sharedState as Any?)
-        XCTAssertEqual(nil, mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as? String)
+        XCTAssertNil(mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as? String)
+
+        // verify push-to-start tokens are re-dispatched for new ECID sync
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let resyncEvent = mockRuntime.dispatchedEvents.first
+        XCTAssertEqual(EventType.messaging, resyncEvent?.type)
+        XCTAssertEqual(EventSource.requestContent, resyncEvent?.source)
+        XCTAssertTrue(resyncEvent?.isLiveActivityPushToStartTokenEvent == true)
+
+        let batchedTokens = resyncEvent?.liveActivityBatchedPushToStartTokens
+        XCTAssertEqual(1, batchedTokens?.count)
+        XCTAssertEqual("TestAttribute", batchedTokens?.first?[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE])
+        XCTAssertEqual("mock-push-to-start-token", batchedTokens?.first?[MessagingConstants.XDM.Push.TOKEN])
+    }
+
+    func testHandleResetIdentitiesEvent_noPushToStartTokens_doesNotDispatchResyncEvent() {
+        // setup — only push identifier and update tokens, no push-to-start tokens
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        let updateToken = LiveActivity.UpdateToken(attributeType: "TestAttribute", firstIssued: Date(), token: "mock-update-token")
+        stateManager.updateTokenStore.set(updateToken, id: "test-activity-id")
+
+        let event = Event(name: "Reset Identities",
+                         type: EventType.genericIdentity,
+                         source: EventSource.requestReset,
+                         data: nil)
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify stores are cleared
+        XCTAssertNil(stateManager.pushIdentifier)
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
+        XCTAssertTrue(stateManager.updateTokenStore.all().isEmpty)
+
+        // verify shared state rebuilt but no resync event dispatched
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+    }
+
+    func testHandleResetIdentitiesEvent_multiplePushToStartTokens_reDispatchesAll() {
+        // setup — two push-to-start tokens from different attribute types
+        let token1 = LiveActivity.PushToStartToken(firstIssued: Date(), token: "token-aaa")
+        let token2 = LiveActivity.PushToStartToken(firstIssued: Date(), token: "token-bbb")
+        stateManager.pushToStartTokenStore.set(token1, id: "AttributeA")
+        stateManager.pushToStartTokenStore.set(token2, id: "AttributeB")
+
+        let event = Event(name: "Reset Identities",
+                         type: EventType.genericIdentity,
+                         source: EventSource.requestReset,
+                         data: nil)
+
+        // test
+        mockRuntime.simulateComingEvents(event)
+
+        // verify stores cleared
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
+
+        // verify a single resync event is dispatched with both tokens
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        let resyncEvent = mockRuntime.dispatchedEvents.first
+        let batchedTokens = resyncEvent?.liveActivityBatchedPushToStartTokens
+        XCTAssertEqual(2, batchedTokens?.count)
+
+        let tokensByType = Dictionary(uniqueKeysWithValues:
+            (batchedTokens ?? []).compactMap { entry -> (String, String)? in
+                guard let attr = entry[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE],
+                      let tok = entry[MessagingConstants.XDM.Push.TOKEN] else { return nil }
+                return (attr, tok)
+            })
+        XCTAssertEqual("token-aaa", tokensByType["AttributeA"])
+        XCTAssertEqual("token-bbb", tokensByType["AttributeB"])
+    }
+
+    // MARK: - Edge Consent Response: Transition & Guard Tests
+
+    func testConsentResponse_collectNo_doesNotResync() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
+    }
+
+    func testConsentResponse_collectPending_doesNotResync() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "p"))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
+    }
+
+    func testConsentResponse_repeatedYes_onlyResyncsOnTransition() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        // re-sync clears the persisted token; restore it so subsequent transitions are exercised
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        XCTAssertEqual(1, dispatchedPushTokenResyncEvents().count)
+    }
+
+    func testConsentResponse_resyncsAgainAfterToggle() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        XCTAssertEqual(2, dispatchedPushTokenResyncEvents().count)
+    }
+
+    func testConsentResponse_collectYes_noEdgeIdentityState_dispatchesResyncForPipeline() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        XCTAssertEqual(1, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartEdgeEvents().count)
+    }
+
+    func testConsentResponse_malformedOrMissingData_doesNotCrashOrResync() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        let badPayloads: [[String: Any]?] = [
+            nil,
+            [:],
+            [MessagingConstants.Event.Data.Key.Consent.CONSENTS: "not-a-dictionary"],
+            [MessagingConstants.Event.Data.Key.Consent.CONSENTS: [
+                "adID": [MessagingConstants.Event.Data.Key.Consent.VAL: "y"]
+            ]]
+        ]
+
+        for data in badPayloads {
+            mockRuntime.simulateComingEvents(Event(name: "Consent Preferences Updated",
+                                                   type: EventType.edgeConsent,
+                                                   source: EventSource.responseContent,
+                                                   data: data))
+        }
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
+    }
+
+    // MARK: - Edge Consent Response: Push Token Re-sync Tests
+
+    func testConsentResponse_collectYes_resyncsPersistedPushToken() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        let resyncEvents = dispatchedPushTokenResyncEvents()
+        XCTAssertEqual(1, resyncEvents.count)
+        XCTAssertEqual(EventType.genericIdentity, resyncEvents.first?.type)
+        XCTAssertEqual(EventSource.requestContent, resyncEvents.first?.source)
+        XCTAssertEqual(MOCK_PUSH_TOKEN, tokenFromResyncEvent(resyncEvents.first))
+        XCTAssertNil(stateManager.pushIdentifier)
+    }
+
+    func testConsentResponse_collectYes_noPersistedPushToken_doesNotDispatch() {
+        stateManager.pushIdentifier = nil
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+    }
+
+    func testConsentResponse_collectYes_emptyPushIdentifier_doesNotDispatch() {
+        stateManager.pushIdentifier = ""
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+    }
+
+    // MARK: - Edge Consent Response: End-to-End Scenario (MOB-24789)
+
+    func testEndToEnd_pushTokenSetWhileConsentNo_thenRemoteConsentYes_resyncs() {
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+                                        data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))
+        XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+
+        let setPushEvent = Event(name: "setPushIdentifier",
+                                 type: EventType.genericIdentity,
+                                 source: EventSource.requestContent,
+                                 data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: MOCK_PUSH_TOKEN])
+        messaging.handleProcessEvent(setPushEvent)
+
+        XCTAssertEqual(MOCK_PUSH_TOKEN, stateManager.pushIdentifier)
+        XCTAssertEqual(1, dispatchedPushProfileEdgeEvents().count)
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        XCTAssertEqual(1, dispatchedPushProfileEdgeEvents().count)
+        let resyncEvents = dispatchedPushTokenResyncEvents()
+        XCTAssertTrue(resyncEvents.contains { tokenFromResyncEvent($0) == MOCK_PUSH_TOKEN })
+        XCTAssertNil(stateManager.pushIdentifier)
+    }
+
+    func testEndToEnd_pushToStartTokenSetWhileConsentNo_thenRemoteConsentYes_resyncs() {
+        let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+                                        data: (value: mockConfig, status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
+
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-1"),
+            id: "AttrTypeA"
+        )
+        XCTAssertEqual(1, stateManager.pushToStartTokenStore.all().count)
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        let ptsEvents = dispatchedPushToStartResyncEvents()
+        XCTAssertEqual(1, ptsEvents.count)
+        XCTAssertEqual(EventType.messaging, ptsEvents.first?.type)
+        XCTAssertEqual(EventSource.requestContent, ptsEvents.first?.source)
+        let batchedTokens = ptsEvents.first?.liveActivityBatchedPushToStartTokens
+        XCTAssertEqual(1, batchedTokens?.count)
+        XCTAssertEqual("AttrTypeA", batchedTokens?.first?[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE])
+        XCTAssertEqual("pts-token-1", batchedTokens?.first?[MessagingConstants.XDM.Push.TOKEN])
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
+    }
+
+    // MARK: - Edge Consent Response: Live Activity Push-to-Start Token Re-sync Tests
+
+    func testConsentResponse_collectYes_resyncsPersistedPushToStartTokens() {
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-1"),
+            id: "AttrTypeA"
+        )
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-2"),
+            id: "AttrTypeB"
+        )
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        let ptsEvents = dispatchedPushToStartResyncEvents()
+        XCTAssertEqual(1, ptsEvents.count)
+        XCTAssertEqual(EventType.messaging, ptsEvents.first?.type)
+        XCTAssertEqual(EventSource.requestContent, ptsEvents.first?.source)
+        let batchedTokens = ptsEvents.first?.liveActivityBatchedPushToStartTokens
+        XCTAssertEqual(2, batchedTokens?.count)
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty)
+    }
+
+    func testConsentResponse_collectYes_noPersistedPushToStartTokens_doesNotDispatch() {
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
     }
 
     // MARK: - Helpers
@@ -1507,5 +1852,67 @@ class MessagingTests: XCTestCase {
         let pushTokenEventData = event?.data?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
         let pushNotificationDetails = pushTokenEventData?[MessagingConstants.XDM.Push.PUSH_NOTIFICATION_DETAILS] as? [[String: Any]]
         return pushNotificationDetails?.first?[MessagingConstants.XDM.Push.TOKEN] as? String
+    }
+
+    // MARK: - Consent test helpers
+
+    private func makeConsentEvent(collect: String?) -> Event {
+        var data: [String: Any] = [:]
+        var collectBlock: [String: Any] = [:]
+        if let collect = collect {
+            collectBlock[MessagingConstants.Event.Data.Key.Consent.VAL] = collect
+        }
+        data[MessagingConstants.Event.Data.Key.Consent.CONSENTS] = [
+            MessagingConstants.Event.Data.Key.Consent.COLLECT: collectBlock
+        ]
+        return Event(name: "Consent Preferences Updated",
+                     type: EventType.edgeConsent,
+                     source: EventSource.responseContent,
+                     data: data)
+    }
+
+    private func dispatchedPushProfileEdgeEvents() -> [Event] {
+        mockRuntime.dispatchedEvents.filter {
+            $0.name == MessagingConstants.Event.Name.PUSH_PROFILE_EDGE
+        }
+    }
+
+    private func dispatchedPushToStartEdgeEvents() -> [Event] {
+        mockRuntime.dispatchedEvents.filter {
+            $0.name == MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START_EDGE
+        }
+    }
+
+    private func dispatchedPushTokenResyncEvents() -> [Event] {
+        mockRuntime.dispatchedEvents.filter {
+            $0.type == EventType.genericIdentity
+                && $0.source == EventSource.requestContent
+                && ($0.data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String) != nil
+        }
+    }
+
+    private func dispatchedPushToStartResyncEvents() -> [Event] {
+        mockRuntime.dispatchedEvents.filter { $0.isLiveActivityPushToStartTokenEvent }
+    }
+
+    private func makeBatchedPushToStartEvent(tokens: [(token: String, attributeType: String)]) -> Event {
+        let tokensArray = tokens.map { tokenData in
+            [
+                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: tokenData.attributeType,
+                MessagingConstants.XDM.Push.TOKEN: tokenData.token
+            ]
+        }
+        let eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
+            MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
+        ]
+        return Event(name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched)",
+                     type: EventType.messaging,
+                     source: EventSource.requestContent,
+                     data: eventData)
+    }
+
+    private func tokenFromResyncEvent(_ event: Event?) -> String? {
+        event?.data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String
     }
 }

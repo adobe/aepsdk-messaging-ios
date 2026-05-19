@@ -174,6 +174,13 @@ class PersistenceStoreBase<Map: Codable & LiveActivity.DefaultInitializable & Li
         }
     }
 
+    /// Removes all elements from the store and clears the persisted data.
+    func clear() {
+        accessQueue.sync {
+            _persistedMap = Map()
+        }
+    }
+
     // MARK: Persistence helpers
 
     /// Persists the current in‑memory element map to the named key‑value service.

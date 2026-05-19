@@ -39,7 +39,6 @@ struct PushView: View {
         .onAppear(perform: fetchInfo)
     }
 
-    // Function to fetch ECID and Push Token
     private func fetchInfo() {
         Identity.getExperienceCloudId { (ecid, error) in
             if let error = error {
@@ -49,7 +48,6 @@ struct PushView: View {
             }
         }
         
-        // Retrieve the device push token from UserDefaults
         devicePushToken = UserDefaults.standard.string(forKey: "devicePushToken")
     }
 }
