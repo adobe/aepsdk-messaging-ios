@@ -120,9 +120,6 @@ public class Messaging: NSObject, Extension {
     /// the timestamp of the last push token sync
     private var lastPushTokenSyncTimestamp: Date?
 
-    /// last observed collect-consent value, used to detect transitions into "y"
-    private var lastObservedCollectConsent: String?
-
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -543,70 +540,97 @@ public class Messaging: NSObject, Extension {
 
         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
-        dispatchPersistedTokenResync(includePushToken: false,
-                                     pushToStartTokens: preservedPushToStartTokens,
-                                     event: event)
+        resyncPushToStartTokens(preservedPushToStartTokens, event: event)
     }
 
-    /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
+    /// Triggers a token re-sync when AEPEdgeConsent signals that `consents.collect.val`
+    /// just transitioned to `"y"` from a non-`"y"` value.
+    ///
+    /// Transition detection lives inside AEPEdgeConsent (which owns consent state),
+    /// not Messaging. Messaging simply consumes the `collectConsentResyncRequired` boolean
+    /// on the `CONSENT_PREFERENCES_UPDATED` event payload. When that flag is `true`,
+    /// any data Messaging persisted under the assumption that consent was granted
+    /// (push token, live-activity push-to-start tokens) may have been silently dropped
+    /// at Edge and should be re-dispatched.
     private func handleEdgeConsentResponse(_ event: Event) {
-        guard let collectVal = extractCollectConsent(from: event.data) else {
-            return
-        }
-        defer { lastObservedCollectConsent = collectVal }
-
-        guard collectVal == MessagingConstants.Event.Data.Key.Consent.YES,
-              lastObservedCollectConsent != MessagingConstants.Event.Data.Key.Consent.YES
+        guard event.data?[MessagingConstants.Event.Data.Key.Consent.COLLECT_CONSENT_RESYNC_REQUIRED] as? Bool == true
         else {
             return
         }
-
-        dispatchPersistedTokenResync(includePushToken: true,
-                                     pushToStartTokens: stateManager.pushToStartTokenStore.all(),
-                                     event: event)
+        dispatchPersistedTokenResync(event: event)
     }
 
-    /// Re-dispatches persisted tokens as Messaging events so they re-flow through `handleProcessEvent`
-    /// using the current ECID. Shared by reset-identities and consent-granted flows.
-    private func dispatchPersistedTokenResync(includePushToken: Bool,
-                                              pushToStartTokens: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
-                                              event: Event) {
-        if !pushToStartTokens.isEmpty {
-            // Cleared so the same-token equivalence guard does not drop the re-flow.
-            stateManager.pushToStartTokenStore.clear()
-            let tokensArray = pushToStartTokens.map { attributeType, tokenData in
-                [
-                    MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
-                    MessagingConstants.XDM.Push.TOKEN: tokenData.token
-                ]
-            }
-            let resyncEvent = Event(
-                name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched) Re-sync",
-                type: EventType.messaging,
-                source: EventSource.requestContent,
-                data: [
-                    MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
-                    MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
-                ])
-            dispatch(event: resyncEvent)
-        }
-
-        // Cleared so `shouldSyncPushToken`'s same-token guard does not block the re-flow.
-        if includePushToken, let token = stateManager.pushIdentifier, !token.isEmpty {
-            stateManager.pushIdentifier = nil
-            let pushTokenResyncEvent = Event(
-                name: "Push Identifier Re-sync",
-                type: EventType.genericIdentity,
-                source: EventSource.requestContent,
-                data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: token])
-            dispatch(event: pushTokenResyncEvent)
-        }
+    /// Consent-path orchestrator: re-syncs all persisted token types that may have been
+    /// silently dropped by Edge while collect-consent was non-`"y"`.
+    ///
+    /// Mirrors Android's `dispatchPersistedTokenResync(Event)`. The push token resync
+    /// calls `sendPushToken` directly (no intermediate event), consistent with Android's
+    /// `resyncPushToken → dispatchPushTokenSyncEdgeEvent(token, event, true)` pattern.
+    private func dispatchPersistedTokenResync(event: Event) {
+        resyncPushToken(event: event)
+        resyncPushToStartTokens(stateManager.pushToStartTokenStore.all(), event: event)
     }
 
-    private func extractCollectConsent(from data: [String: Any]?) -> String? {
-        return (data?[MessagingConstants.Event.Data.Key.Consent.CONSENTS] as? [String: Any])
-            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.COLLECT] as? [String: Any] }
-            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.VAL] as? String }
+    /// Re-syncs the persisted push token directly to Edge, bypassing the normal
+    /// `shouldSyncPushToken` guard.
+    ///
+    /// Mirrors Android's `resyncPushToken(Event)` which calls
+    /// `dispatchPushTokenSyncEdgeEvent(token, event, true)` — the same method as
+    /// normal push token sync, just with `isResync: true` to select the
+    /// `PUSH_IDENTIFIER_RESYNC_EVENT` name. No intermediate `genericIdentity` event
+    /// is dispatched and `pushIdentifier` is not cleared before sending.
+    private func resyncPushToken(event: Event) {
+        guard let token = stateManager.pushIdentifier, !token.isEmpty else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Unable to re-sync push token - no persisted push token available.")
+            return
+        }
+
+        // ECID lookup — same extraction used in handleEdgeIdentityDependentEvents.
+        guard let edgeIdentitySharedState = getXDMSharedState(
+            extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME,
+            event: event)?.value,
+              let identityMap = edgeIdentitySharedState[
+                  MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any],
+              let ecidArray = identityMap[
+                  MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
+              !ecidArray.isEmpty,
+              let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
+              !ecid.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Unable to re-sync push token - ECID unavailable.")
+            return
+        }
+
+        // Update shared state (same as normal flow), then dispatch directly to Edge.
+        createMessagingSharedState(token: token, event: event)
+        sendPushToken(ecid: ecid, token: token, event: event, isResync: true)
+    }
+
+    /// Re-dispatches persisted push-to-start tokens as a batched Messaging event.
+    /// Called from both the consent-resync path and the reset-identities path.
+    private func resyncPushToStartTokens(
+        _ tokens: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
+        event: Event
+    ) {
+        guard !tokens.isEmpty else { return }
+        // Cleared so the same-token equivalence guard does not drop the re-flow.
+        stateManager.pushToStartTokenStore.clear()
+        let tokensArray = tokens.map { attributeType, tokenData in
+            [
+                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+                MessagingConstants.XDM.Push.TOKEN: tokenData.token
+            ]
+        }
+        let resyncEvent = Event(
+            name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched) Re-sync",
+            type: EventType.messaging,
+            source: EventSource.requestContent,
+            data: [
+                MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
+                MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
+            ])
+        dispatch(event: resyncEvent)
     }
 
     /// Checks if the push identifier can be synced

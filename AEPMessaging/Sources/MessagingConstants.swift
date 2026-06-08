@@ -65,6 +65,7 @@ enum MessagingConstants {
             static let MESSAGE_INTERACTION = "Messaging interaction event"
             static let PUSH_NOTIFICATION_INTERACTION = "Push notification interaction event"
             static let PUSH_PROFILE_EDGE = "Push notification token profile Edge event"
+            static let PUSH_IDENTIFIER_RESYNC_EVENT = "Push Identifier Re-sync"
             static let PUSH_TRACKING_EDGE = "Push tracking edge event"
             static let REFRESH_MESSAGES = "Refresh in-app messages"
             static let RETRIEVE_MESSAGE_DEFINITIONS = "Retrieve message definitions"
@@ -188,6 +189,12 @@ enum MessagingConstants {
                     static let COLLECT = "collect"
                     static let VAL = "val"
                     static let YES = "y"
+                    /// Top-level boolean field on `CONSENT_PREFERENCES_UPDATED` events emitted
+                    /// by AEPEdgeConsent. When `true`, collect-consent just transitioned to
+                    /// `"y"` from a non-`"y"` value (including null) — Messaging should re-sync
+                    /// any data that was gated by consent. The transition detection is now
+                    /// owned by AEPEdgeConsent; Messaging only consumes the signal.
+                    static let COLLECT_CONSENT_RESYNC_REQUIRED = "collectConsentResyncRequired"
                 }
             }
         }

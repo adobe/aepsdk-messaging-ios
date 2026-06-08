@@ -8,14 +8,14 @@ PODS:
   - AEPEdge (5.0.3):
     - AEPCore (< 6.0.0, >= 5.3.1)
     - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
-  - AEPEdgeConsent (5.0.1):
+  - AEPEdgeConsent (5.0.2):
     - AEPCore (< 6.0.0, >= 5.0.0)
     - AEPEdge (< 6.0.0, >= 5.0.0)
   - AEPEdgeIdentity (5.0.0):
     - AEPCore (< 6.0.0, >= 5.0.0)
   - AEPLifecycle (5.8.0):
     - AEPCore (< 6.0.0, >= 5.8.0)
-  - AEPMessagingNotification (5.13.0)
+  - AEPMessagingNotification (5.14.0)
   - AEPRulesEngine (5.0.0)
   - AEPServices (5.8.0)
   - AEPSignal (5.8.0):
@@ -68,10 +68,10 @@ SPEC CHECKSUMS:
   AEPAssurance: 3ab00d47a40bc6c6cb2000689e0dcfa595cda250
   AEPCore: 65d2f2c9ef750ce89557dba59a71e729306f0629
   AEPEdge: 105afc7958acd7c016d57f7ac1d6f632bf05e6ee
-  AEPEdgeConsent: 5f28a8ed6cd86812a73b1f5a4dbde9c81e486bf1
+  AEPEdgeConsent: b5a54985b79ee0222b1f1fc4b0859f8b8afed07a
   AEPEdgeIdentity: 3161ff33434586962946912d6b8e9e8fca1c4d23
   AEPLifecycle: 1ff56cdd009b043c2ad412ddf8952beefd1f3e3d
-  AEPMessagingNotification: e6604109a7f6d5e7de8021363c0ec845f98f884d
+  AEPMessagingNotification: 6f906b8694f2e541e5f3b2e2811fa94ce0b58ec3
   AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
   AEPServices: a5608a9d3749701030e12fe379f53e40fa6f8e6f
   AEPSignal: 63a1c25c5f99c775a78bc398d728ed50a3bc6184
