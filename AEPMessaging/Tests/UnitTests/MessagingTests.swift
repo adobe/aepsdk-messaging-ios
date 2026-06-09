@@ -1653,6 +1653,51 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
     }
 
+    /// Both push token and live-activity push-to-start tokens are persisted.
+    /// A single consent event with the flag should trigger both resync dispatches.
+    func testConsentResponse_flagPresent_bothTokenTypes_resyncsAll() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-A"),
+            id: "AttrTypeA"
+        )
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
+
+        // Both token types must resync from a single consent event.
+        let resyncEvents = dispatchedPushTokenResyncEvents()
+        XCTAssertEqual(1, resyncEvents.count, "Expected exactly one push token resync event")
+        XCTAssertEqual(MOCK_PUSH_TOKEN, tokenFromResyncEvent(resyncEvents.first))
+
+        let ptsEvents = dispatchedPushToStartResyncEvents()
+        XCTAssertEqual(1, ptsEvents.count, "Expected exactly one push-to-start resync event")
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty,
+                      "Push-to-start store should be cleared after resync")
+    }
+
+    /// ECID is present in the EdgeIdentity shared state but resolves to an empty string.
+    /// `resyncPushToken` should treat an empty ECID the same as an absent one and not dispatch.
+    func testConsentResponse_flagPresent_ecidEmptyString_doesNotDispatch() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        // Simulate XDM state where ECID resolves to ""
+        let emptyEcidState: [String: Any] = [
+            MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [
+                MessagingConstants.SharedState.EdgeIdentity.ECID: [
+                    [MessagingConstants.SharedState.EdgeIdentity.ID: ""]
+                ]
+            ]
+        ]
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: emptyEcidState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count,
+                       "Empty ECID string should be treated as unavailable — no dispatch")
+    }
+
     // MARK: - Helpers
     
     func getGenericEventHistoryDisqualifyEvent(iamMap: [String: String]? = nil) -> Event {
