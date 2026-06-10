@@ -71,7 +71,12 @@ extension Messaging {
     ///   - ecid: Experience cloud id
     ///   - token: Push token for the device
     ///   - event: `Event` that triggered this request to sync a push token
-    func sendPushToken(ecid: String, token: String, event: Event) {
+    ///   - isResync: When `true`, the dispatched Edge event uses `PUSH_IDENTIFIER_RESYNC_EVENT`
+    ///     as its name instead of `PUSH_PROFILE_EDGE`, signalling that this is a consent-recovery
+    ///     re-sync rather than a fresh token registration. Mirrors Android's
+    ///     `dispatchPushTokenSyncEdgeEvent(token, event, isResync)`. Defaults to `false` so all
+    ///     existing call sites (normal push token flow) are unaffected.
+    func sendPushToken(ecid: String, token: String, event: Event, isResync: Bool = false) {
         // send the request
         guard let appId: String = Bundle.main.bundleIdentifier else {
             Log.warning(label: MessagingConstants.LOG_TAG, "Failed to sync the push token, App bundle identifier is invalid.")
@@ -98,8 +103,11 @@ extension Messaging {
 
         // Creating xdm edge event data
         let xdmEventData: [String: Any] = [MessagingConstants.XDM.Key.DATA: profileEventData]
-        // Creating xdm edge event with request content source type
-        let pushTokenEdgeEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.PUSH_PROFILE_EDGE,
+        // Use the resync event name when this is a consent-recovery re-dispatch; normal event name otherwise.
+        let eventName = isResync
+            ? MessagingConstants.Event.Name.PUSH_IDENTIFIER_RESYNC_EVENT
+            : MessagingConstants.Event.Name.PUSH_PROFILE_EDGE
+        let pushTokenEdgeEvent = event.createChainedEvent(name: eventName,
                                                           type: EventType.edge,
                                                           source: EventSource.requestContent,
                                                           data: xdmEventData)

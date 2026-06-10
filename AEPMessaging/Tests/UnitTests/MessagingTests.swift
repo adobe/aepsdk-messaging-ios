@@ -1368,16 +1368,18 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
     }
 
+    /// AEPEdgeConsent only sets `collectConsentResyncRequired` on the first event of a
+    /// transition burst — subsequent "y" broadcasts (no actual state change) omit the flag.
+    /// These tests simulate that contract: only the flagged event triggers a resync.
     func testConsentResponse_repeatedYes_onlyResyncsOnTransition() {
         stateManager.pushIdentifier = MOCK_PUSH_TOKEN
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
-        // re-sync clears the persisted token; restore it so subsequent transitions are exercised
-        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
+        // Token is NOT cleared by resyncPushToken, so no restore needed between events.
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))   // no flag — Consent suppressed
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))   // no flag — Consent suppressed
 
         XCTAssertEqual(1, dispatchedPushTokenResyncEvents().count)
     }
@@ -1387,22 +1389,27 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
-        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        // Token is NOT cleared by resyncPushToken, so no restore needed between events.
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))   // no flag — not a y-transition
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
 
         XCTAssertEqual(2, dispatchedPushTokenResyncEvents().count)
     }
 
-    func testConsentResponse_collectYes_noEdgeIdentityState_dispatchesResyncForPipeline() {
+    /// After the Phase-6 refactor, `resyncPushToken` performs the ECID lookup itself.
+    /// If EdgeIdentity shared state is unavailable, the method returns early — no event
+    /// is dispatched. This matches Android's `dispatchPushTokenSyncEdgeEvent` behaviour.
+    /// (The old approach dispatched an intermediate genericIdentity event that sat in the
+    /// queue until ECID was ready; the new approach requires ECID at the point of call.)
+    func testConsentResponse_collectYes_noEdgeIdentityState_doesNotDispatch() {
         stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        // No EdgeIdentity XDM shared state simulated.
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
 
-        XCTAssertEqual(1, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
         XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
-        XCTAssertEqual(0, dispatchedPushToStartEdgeEvents().count)
     }
 
     func testConsentResponse_malformedOrMissingData_doesNotCrashOrResync() {
@@ -1437,14 +1444,17 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
 
         let resyncEvents = dispatchedPushTokenResyncEvents()
         XCTAssertEqual(1, resyncEvents.count)
-        XCTAssertEqual(EventType.genericIdentity, resyncEvents.first?.type)
+        // After Phase-6 refactor: sendPushToken(isResync:true) dispatches an Edge event directly.
+        XCTAssertEqual(EventType.edge, resyncEvents.first?.type)
         XCTAssertEqual(EventSource.requestContent, resyncEvents.first?.source)
+        XCTAssertEqual(MessagingConstants.Event.Name.PUSH_IDENTIFIER_RESYNC_EVENT, resyncEvents.first?.name)
         XCTAssertEqual(MOCK_PUSH_TOKEN, tokenFromResyncEvent(resyncEvents.first))
-        XCTAssertNil(stateManager.pushIdentifier)
+        // Token is NOT cleared — resyncPushToken reads it without modifying pushIdentifier.
+        XCTAssertEqual(MOCK_PUSH_TOKEN, stateManager.pushIdentifier)
     }
 
     func testConsentResponse_collectYes_noPersistedPushToken_doesNotDispatch() {
@@ -1452,7 +1462,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
 
         XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
     }
@@ -1462,9 +1472,89 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+    }
+
+    // MARK: - Edge Consent Response: `collectConsentResyncRequired` Flag Tests
+    //
+    // Transition detection lives in AEPEdgeConsent now. Messaging just checks the
+    // boolean flag on the event payload — present and true => resync; otherwise no-op.
+
+    /// Flag present and `true` with a persisted push token → resync fires.
+    func testConsentResponse_flagPresent_dispatchesResync() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
+
+        let resyncEvents = dispatchedPushTokenResyncEvents()
+        XCTAssertEqual(1, resyncEvents.count)
+        XCTAssertEqual(MOCK_PUSH_TOKEN, tokenFromResyncEvent(resyncEvents.first))
+    }
+
+    /// Flag missing from the event payload (e.g. AEPEdgeConsent already considered
+    /// `"y"` definitive and emitted no transition signal) → Messaging stays silent.
+    func testConsentResponse_flagAbsent_doesNotResync() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // `collect: "y"` but newlyGranted defaults to false → key omitted from payload.
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
 
         XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
+    }
+
+    /// Flag explicitly `false` → Messaging stays silent. Defensive against a future
+    /// AEPEdgeConsent build that always emits the key.
+    func testConsentResponse_flagFalse_doesNotResync() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        let payload: [String: Any] = [
+            MessagingConstants.Event.Data.Key.Consent.CONSENTS: [
+                MessagingConstants.Event.Data.Key.Consent.COLLECT: [
+                    MessagingConstants.Event.Data.Key.Consent.VAL: "y"
+                ]
+            ],
+            MessagingConstants.Event.Data.Key.Consent.COLLECT_CONSENT_RESYNC_REQUIRED: false
+        ]
+        mockRuntime.simulateComingEvents(Event(name: "Consent Preferences Updated",
+                                               type: EventType.edgeConsent,
+                                               source: EventSource.responseContent,
+                                               data: payload))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+    }
+
+    /// Flag present, push token persisted, but EdgeIdentity XDM shared state unavailable
+    /// (e.g. extension not yet initialised) → `resyncPushToken` returns early, no dispatch.
+    /// Consistent with Android's `dispatchPushTokenSyncEdgeEvent` which also guards on ECID.
+    func testConsentResponse_flagPresent_ecidUnavailable_doesNotDispatch() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        // No EdgeIdentity XDM shared state simulated.
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+    }
+
+    /// Flag present but no persisted push token (and no push-to-start tokens) →
+    /// orchestrator runs but the per-token-type helpers find nothing to dispatch.
+    func testConsentResponse_flagPresentButNoPushIdentifier_doesNotDispatch() {
+        stateManager.pushIdentifier = nil
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
     }
 
     // MARK: - Edge Consent Response: End-to-End Scenario (MOB-24789)
@@ -1489,12 +1579,14 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(MOCK_PUSH_TOKEN, stateManager.pushIdentifier)
         XCTAssertEqual(1, dispatchedPushProfileEdgeEvents().count)
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        // AEPEdgeConsent detected the `n -> y` transition and set the flag.
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
 
         XCTAssertEqual(1, dispatchedPushProfileEdgeEvents().count)
         let resyncEvents = dispatchedPushTokenResyncEvents()
         XCTAssertTrue(resyncEvents.contains { tokenFromResyncEvent($0) == MOCK_PUSH_TOKEN })
-        XCTAssertNil(stateManager.pushIdentifier)
+        // After Phase-6 refactor: token is NOT cleared — resyncPushToken reads without modifying.
+        XCTAssertEqual(MOCK_PUSH_TOKEN, stateManager.pushIdentifier)
     }
 
     func testEndToEnd_pushToStartTokenSetWhileConsentNo_thenRemoteConsentYes_resyncs() {
@@ -1513,7 +1605,8 @@ class MessagingTests: XCTestCase {
         )
         XCTAssertEqual(1, stateManager.pushToStartTokenStore.all().count)
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        // AEPEdgeConsent detected the `n -> y` transition and set the flag.
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
 
         let ptsEvents = dispatchedPushToStartResyncEvents()
         XCTAssertEqual(1, ptsEvents.count)
@@ -1540,7 +1633,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
 
         let ptsEvents = dispatchedPushToStartResyncEvents()
         XCTAssertEqual(1, ptsEvents.count)
@@ -1555,9 +1648,54 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
 
         XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
+    }
+
+    /// Both push token and live-activity push-to-start tokens are persisted.
+    /// A single consent event with the flag should trigger both resync dispatches.
+    func testConsentResponse_flagPresent_bothTokenTypes_resyncsAll() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-A"),
+            id: "AttrTypeA"
+        )
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
+
+        // Both token types must resync from a single consent event.
+        let resyncEvents = dispatchedPushTokenResyncEvents()
+        XCTAssertEqual(1, resyncEvents.count, "Expected exactly one push token resync event")
+        XCTAssertEqual(MOCK_PUSH_TOKEN, tokenFromResyncEvent(resyncEvents.first))
+
+        let ptsEvents = dispatchedPushToStartResyncEvents()
+        XCTAssertEqual(1, ptsEvents.count, "Expected exactly one push-to-start resync event")
+        XCTAssertTrue(stateManager.pushToStartTokenStore.all().isEmpty,
+                      "Push-to-start store should be cleared after resync")
+    }
+
+    /// ECID is present in the EdgeIdentity shared state but resolves to an empty string.
+    /// `resyncPushToken` should treat an empty ECID the same as an absent one and not dispatch.
+    func testConsentResponse_flagPresent_ecidEmptyString_doesNotDispatch() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        // Simulate XDM state where ECID resolves to ""
+        let emptyEcidState: [String: Any] = [
+            MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [
+                MessagingConstants.SharedState.EdgeIdentity.ECID: [
+                    [MessagingConstants.SharedState.EdgeIdentity.ID: ""]
+                ]
+            ]
+        ]
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: emptyEcidState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", newlyGranted: true))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count,
+                       "Empty ECID string should be treated as unavailable — no dispatch")
     }
 
     // MARK: - Helpers
@@ -1856,7 +1994,11 @@ class MessagingTests: XCTestCase {
 
     // MARK: - Consent test helpers
 
-    private func makeConsentEvent(collect: String?) -> Event {
+    /// Builds an `edgeConsent / responseContent` event matching the shape AEPEdgeConsent
+    /// dispatches. The `newlyGranted` parameter controls whether the new top-level
+    /// `collectConsentResyncRequired` flag is included — Messaging consumes only this flag,
+    /// so it is the dimension that matters for these tests.
+    private func makeConsentEvent(collect: String?, newlyGranted: Bool = false) -> Event {
         var data: [String: Any] = [:]
         var collectBlock: [String: Any] = [:]
         if let collect = collect {
@@ -1865,6 +2007,9 @@ class MessagingTests: XCTestCase {
         data[MessagingConstants.Event.Data.Key.Consent.CONSENTS] = [
             MessagingConstants.Event.Data.Key.Consent.COLLECT: collectBlock
         ]
+        if newlyGranted {
+            data[MessagingConstants.Event.Data.Key.Consent.COLLECT_CONSENT_RESYNC_REQUIRED] = true
+        }
         return Event(name: "Consent Preferences Updated",
                      type: EventType.edgeConsent,
                      source: EventSource.responseContent,
@@ -1884,10 +2029,11 @@ class MessagingTests: XCTestCase {
     }
 
     private func dispatchedPushTokenResyncEvents() -> [Event] {
+        // After the Phase-6 refactor, consent-triggered resyncs call sendPushToken(isResync:true)
+        // directly, producing an EventType.edge event named PUSH_IDENTIFIER_RESYNC_EVENT — not
+        // the old intermediate genericIdentity.requestContent event.
         mockRuntime.dispatchedEvents.filter {
-            $0.type == EventType.genericIdentity
-                && $0.source == EventSource.requestContent
-                && ($0.data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String) != nil
+            $0.name == MessagingConstants.Event.Name.PUSH_IDENTIFIER_RESYNC_EVENT
         }
     }
 
@@ -1913,6 +2059,8 @@ class MessagingTests: XCTestCase {
     }
 
     private func tokenFromResyncEvent(_ event: Event?) -> String? {
-        event?.data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String
+        // Resync events are now EventType.edge dispatched by sendPushToken(isResync:true).
+        // Token lives inside the XDM data structure — same layout as a normal PUSH_PROFILE_EDGE event.
+        getDispatchedEventPushToken(event: event)
     }
 }
