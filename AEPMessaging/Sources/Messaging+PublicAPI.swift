@@ -97,7 +97,7 @@ import UserNotifications
     /// - Parameters:
     ///   - surfaces: An array of `Surface` objects.
     static func updatePropositionsForSurfaces(_ surfaces: [Surface]) {
-        updatePropositionsForSurfaces(surfaces, nil)
+        updatePropositionsForSurfaces(surfaces, withXdm: nil, andData: nil, nil)
     }
 
     /// Dispatches an event to fetch propositions for the provided surfaces from remote.
@@ -108,6 +108,34 @@ import UserNotifications
     ///   - completion: An optional completion handler to be called once the proposition response has been processed by the Messaging extension
     @objc(updatePropositionsForSurfaces:completion:)
     static func updatePropositionsForSurfaces(_ surfaces: [Surface], _ completion: ((Bool) -> Void)? = nil) {
+        updatePropositionsForSurfaces(surfaces, withXdm: nil, andData: nil, completion)
+    }
+
+    /// Dispatches an event to fetch propositions for the provided surfaces from remote, attaching custom XDM and/or free-form data to the personalization request.
+    ///
+    /// Any fields provided in `xdm` are merged into the request's XDM object, and any fields provided in `data` are merged into the request's free-form data object.
+    /// Internal keys required by the SDK (for example, the personalization request `eventType`) always take precedence and cannot be overwritten by the caller.
+    /// - Parameters:
+    ///   - surfaces: An array of `Surface` objects.
+    ///   - xdm: An optional dictionary of custom XDM fields to attach to the personalization request (for example, context fields used by decisioning eligibility rules).
+    ///   - data: An optional dictionary of custom free-form data to attach to the personalization request.
+    static func updatePropositionsForSurfaces(_ surfaces: [Surface], withXdm xdm: [String: Any]?, andData data: [String: Any]? = nil) {
+        updatePropositionsForSurfaces(surfaces, withXdm: xdm, andData: data, nil)
+    }
+
+    /// Dispatches an event to fetch propositions for the provided surfaces from remote, attaching custom XDM and/or free-form data to the personalization request.
+    ///
+    /// Any fields provided in `xdm` are merged into the request's XDM object, and any fields provided in `data` are merged into the request's free-form data object.
+    /// Internal keys required by the SDK (for example, the personalization request `eventType`) always take precedence and cannot be overwritten by the caller.
+    /// If provided, `completion` will be called on the Messaging extension's background thread once the response has been fully processed.
+    /// `true` will be passed to the `completion` method if a network response was returned and successfully processed.
+    /// - Parameters:
+    ///   - surfaces: An array of `Surface` objects.
+    ///   - xdm: An optional dictionary of custom XDM fields to attach to the personalization request (for example, context fields used by decisioning eligibility rules).
+    ///   - data: An optional dictionary of custom free-form data to attach to the personalization request.
+    ///   - completion: An optional completion handler to be called once the proposition response has been processed by the Messaging extension
+    @objc(updatePropositionsForSurfaces:withXdm:andData:completion:)
+    static func updatePropositionsForSurfaces(_ surfaces: [Surface], withXdm xdm: [String: Any]?, andData data: [String: Any]? = nil, _ completion: ((Bool) -> Void)? = nil) {
         let validSurfaces = surfaces
             .filter { $0.isValid }
 
@@ -118,10 +146,18 @@ import UserNotifications
             return
         }
 
-        let eventData: [String: Any] = [
+        var eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS: true,
             MessagingConstants.Event.Data.Key.SURFACES: validSurfaces.compactMap { $0.asDictionary() }
         ]
+
+        if let xdm = xdm, !xdm.isEmpty {
+            eventData[MessagingConstants.Event.Data.Key.XDM] = xdm
+        }
+
+        if let data = data, !data.isEmpty {
+            eventData[MessagingConstants.Event.Data.Key.DATA] = data
+        }
 
         let event = Event(name: MessagingConstants.Event.Name.UPDATE_PROPOSITIONS,
                           type: EventType.messaging,
