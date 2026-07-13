@@ -19,6 +19,8 @@ struct CardsView: View, ContentCardUIEventListening {
     @State var savedCards: [ContentCardUI] = []
     @State private var viewLoaded: Bool = false
     @State private var showLoadingIndicator: Bool = false
+    @State private var lastLoadSource: String = ""
+    @State private var propositionLog: String = ""
 
     var body: some View {
         VStack {
@@ -27,7 +29,34 @@ struct CardsView: View, ContentCardUIEventListening {
             }, redownloadAction: {
                 downloadCards()
                 refreshCards()
+            }, offlineFallbackAction: {
+                updatePropositionsWithOfflineFallback()
+            }, logPropositionsAction: {
+                updateAndLogPropositions()
             })
+
+            if !lastLoadSource.isEmpty {
+                Text("Loaded from: \(lastLoadSource)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+            }
+
+            if !propositionLog.isEmpty {
+                ScrollView {
+                    Text(propositionLog)
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .frame(maxHeight: 120)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(8)
+                .padding(.horizontal, 16)
+            }
 
             ZStack {
                 ScrollView(.vertical, showsIndicators: false) {
@@ -58,24 +87,128 @@ struct CardsView: View, ContentCardUIEventListening {
     }
 
     func refreshCards() {
+        fetchPropositionsAndLoadUI(usePersistedContentCards: false, sourceLabel: "Memory")
+    }
+
+    /// Demo: update from network; on success get from memory, on failure get from persisted storage.
+    func updatePropositionsWithOfflineFallback() {
         showLoadingIndicator = true
-        let cardsPageSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
-        Messaging.getContentCardsUI(for: cardsPageSurface,
+        Messaging.updatePropositionsForSurfacesWithCompletionHandler([cardsSurface]) { success in
+            DispatchQueue.main.async {
+                if success {
+                    self.fetchPropositionsAndLoadUI(usePersistedContentCards: false,
+                                                    sourceLabel: "Network (memory)",
+                                                    notePersistSuccess: true)
+                } else {
+                    self.fetchPropositionsAndLoadUI(usePersistedContentCards: true,
+                                                    sourceLabel: "Phone cache (offline fallback)")
+                }
+            }
+        }
+    }
+
+    /// Demo: update from network, then log raw propositions — memory on success, persisted storage on failure.
+    func updateAndLogPropositions() {
+        showLoadingIndicator = true
+        Messaging.updatePropositionsForSurfacesWithCompletionHandler([cardsSurface]) { success in
+            DispatchQueue.main.async {
+                if success {
+                    self.fetchAndLogPropositions(usePersistedContentCards: false,
+                                                 sourceLabel: "Memory",
+                                                 notePersistSuccess: true)
+                } else {
+                    self.fetchAndLogPropositions(usePersistedContentCards: true,
+                                                sourceLabel: "Phone cache (usePersistedContentCards: true)")
+                }
+            }
+        }
+    }
+
+    private static let persistSuccessMessage = """
+    updatePropositions: SUCCESS
+    Content cards saved to persisted disk successfully (contentCardPropositions cache).
+    """
+
+    private func fetchAndLogPropositions(usePersistedContentCards: Bool, sourceLabel: String, notePersistSuccess: Bool = false) {
+        Messaging.getPropositionsForSurfaces([cardsSurface], usePersistedContentCards: usePersistedContentCards) { propositionsDict, error in
+            DispatchQueue.main.async {
+                showLoadingIndicator = false
+                if let error = error {
+                    propositionLog = "getPropositions failed (\(sourceLabel))\n\(error)\n\(error.localizedDescription)"
+                    print("TestAppLog Propositions: \(propositionLog)")
+                    return
+                }
+                let prepend = notePersistSuccess && !(propositionsDict?[cardsSurface]?.isEmpty ?? true)
+                    ? Self.persistSuccessMessage
+                    : ""
+                propositionLog = formatPropositionsLog(propositionsDict?[cardsSurface], source: sourceLabel,
+                                                       usePersisted: usePersistedContentCards,
+                                                       prepend: prepend)
+                if !prepend.isEmpty {
+                    lastLoadSource = "Persisted to disk"
+                    print("TestAppLog Persist: \(Self.persistSuccessMessage)")
+                }
+                print("TestAppLog Propositions:\n\(propositionLog)")
+            }
+        }
+    }
+
+    private func formatPropositionsLog(_ propositions: [Proposition]?, source: String, usePersisted: Bool, prepend: String = "") -> String {
+        var lines = [String]()
+        if !prepend.isEmpty {
+            lines.append(prepend.trimmingCharacters(in: .whitespacesAndNewlines))
+            lines.append("")
+        }
+        lines.append(contentsOf: [
+            "getPropositionsForSurfaces",
+            "usePersistedContentCards: \(usePersisted)",
+            "Source: \(source)"
+        ])
+        guard let propositions = propositions, !propositions.isEmpty else {
+            lines.append("Result: no propositions")
+            return lines.joined(separator: "\n")
+        }
+        lines.append("Count: \(propositions.count)")
+        for (index, proposition) in propositions.enumerated() {
+            let schema = proposition.items.first?.schema.toString() ?? "unknown"
+            lines.append("[\(index)] id=\(proposition.uniqueId) scope=\(proposition.scope) schema=\(schema) items=\(proposition.items.count)")
+        }
+        return lines.joined(separator: "\n")
+    }
+
+    private func fetchPropositionsAndLoadUI(usePersistedContentCards: Bool, sourceLabel: String, notePersistSuccess: Bool = false) {
+        Messaging.getContentCardsUI(for: cardsSurface,
+                                    usePersistedContentCards: usePersistedContentCards,
                                     customizer: CardCustomizer(),
                                     listener: self) { result in
-            showLoadingIndicator = false
-            switch result {
-            case .success(let cards):
-                // sort the cards by priority order and save them to our state property
-                savedCards = cards.sorted { $0.priority > $1.priority }
-            case .failure(let error):
-                print(error)
+            DispatchQueue.main.async {
+                showLoadingIndicator = false
+                switch result {
+                case .failure(let error):
+                    print("TestAppLog getContentCardsUI (\(sourceLabel)): \(error)")
+                    lastLoadSource = "Failed — \(sourceLabel)"
+                    savedCards = []
+                case .success(let cards):
+                    if cards.isEmpty {
+                        print("TestAppLog getContentCardsUI (\(sourceLabel)): no cards")
+                        lastLoadSource = "Empty — \(sourceLabel)"
+                        savedCards = []
+                    } else {
+                        if notePersistSuccess {
+                            propositionLog = Self.persistSuccessMessage
+                            lastLoadSource = "Persisted to disk"
+                            print("TestAppLog Persist: \(Self.persistSuccessMessage)")
+                        }
+                        savedCards = cards.sorted { $0.priority > $1.priority }
+                        lastLoadSource = sourceLabel
+                        print("TestAppLog getContentCardsUI (\(sourceLabel)): \(cards.count) card(s), usePersistedContentCards=\(usePersistedContentCards)")
+                    }
+                }
             }
         }
     }
 
     func downloadCards() {
-        showLoadingIndicator = true
         Messaging.updatePropositionsForSurfaces([cardsSurface])
     }
 

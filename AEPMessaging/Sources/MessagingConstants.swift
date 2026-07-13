@@ -38,6 +38,7 @@ enum MessagingConstants {
         static let CACHE_NAME = "com.adobe.messaging.cache"
         static let CONTENT_CARD_UI_CACHE_NAME = "com.adobe.messaging.contentcard.ui.cache"
         static let PROPOSITIONS = "propositions"
+        static let CONTENT_CARD_PROPOSITIONS = "contentCardPropositions"
         static let PATH = "PATH"
     }
 
@@ -108,6 +109,7 @@ enum MessagingConstants {
                 static let IAM_HISTORY = "iam"
                 static let UPDATE_PROPOSITIONS = "updatepropositions"
                 static let GET_PROPOSITIONS = "getpropositions"
+                static let USE_PERSISTED_CONTENT_CARDS = "usepersistedcontentcards"
                 static let TRACK_PROPOSITIONS = "trackpropositions"
                 static let PROPOSITION_INTERACTION = "propositioninteraction"
                 static let SURFACES = "surfaces"

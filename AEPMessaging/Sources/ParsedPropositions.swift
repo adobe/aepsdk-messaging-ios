@@ -32,6 +32,9 @@ struct ParsedPropositions {
     // also need to store tracking info for in-app propositions as `PropositionInfo`
     var propositionsToPersist: [Surface: [Proposition]] = [:]
 
+    // content card ruleset propositions persisted to disk (separate from IAM)
+    var contentCardPropositionsToPersist: [Surface: [Proposition]] = [:]
+
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
 
@@ -86,6 +89,7 @@ struct ParsedPropositions {
                             mergeRules(parsedRule, for: surface, with: .inapp)
                         case .feed, .contentCard:
                             propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+                            contentCardPropositionsToPersist.add(proposition, forKey: surface)
                             mergeRules(parsedRule, for: surface, with: .contentCard)
                         case .eventHistoryOperation:
                             // Event history operations don't have proposition info that needs to be cached unlike the cards they are tied to

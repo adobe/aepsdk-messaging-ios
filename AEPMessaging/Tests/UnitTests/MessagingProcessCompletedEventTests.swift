@@ -130,20 +130,21 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         let cardRuleCount = mockContentCardLaunchRulesEngine.paramReplaceRulesRules?.count ?? 0
         XCTAssertEqual(4, cardRuleCount)
 
-        // Verify propositions were cached once
+        // Verify IAM propositions were cached (separate from content card cache)
         XCTAssertTrue(mockCache.setCalled, "Cache should have been updated with new propositions")
-        if let entry = mockCache.setParamEntry {
-            // Decode cached data into dictionary
-            if let decoded = try? JSONDecoder().decode([String: [Proposition]].self, from: entry.data) {
-                // Only IAM surface should be present (mockSurface removed)
-                XCTAssertEqual(1, decoded.count)
-                if let iamCached = decoded[iamSurface.uri] {
-                    XCTAssertEqual(3, iamCached.count, "Three IAM propositions should be cached")
-                } else {
-                    XCTFail("IAM surface not found in cached propositions")
-                }
+        let iamCacheEntry = mockCache.setCalls.first { $0.key == MessagingConstants.Caches.PROPOSITIONS }?.entry
+        XCTAssertNotNil(iamCacheEntry, "IAM propositions cache entry should exist")
+        if let entry = iamCacheEntry,
+           let decoded = try? JSONDecoder().decode([String: [Proposition]].self, from: entry.data) {
+            XCTAssertEqual(1, decoded.count)
+            if let iamCached = decoded[iamSurface.uri] {
+                XCTAssertEqual(3, iamCached.count, "Three IAM propositions should be cached")
+            } else {
+                XCTFail("IAM surface not found in cached propositions")
             }
         }
+        XCTAssertNotNil(mockCache.setCalls.first { $0.key == MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS },
+                        "Content card propositions should be cached separately")
         // Cache.remove should NOT be invoked because the propositions file remains with other surfaces
         XCTAssertFalse(mockCache.removeCalled)
         // Notification event should NOT be dispatched
@@ -193,6 +194,8 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         mockContentCardLaunchRulesEngine.replaceRulesCalled = false
         mockCache.setCalled = false
         mockCache.removeCalled = false
+        mockCache.setCalls.removeAll()
+        mockCache.removeCalls.removeAll()
 
         let secondPayload = cardPropositions.compactMap { $0.asDictionary() }
         let secondRequestId = "TESTING_ID_2"
@@ -229,9 +232,13 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         }
         XCTAssertEqual(0, secondIamRules.count, "Second response should not contain any IAM rules")
 
-        // Cache behavior: set should NOT be called, but propositions file should be removed (removeCalled)
-        XCTAssertFalse(mockCache.setCalled)
-        XCTAssertTrue(mockCache.removeCalled, "Cache file should be deleted when no IAM propositions remain")
+        // Cache behavior: IAM propositions file removed; content cards still persisted
+        XCTAssertFalse(mockCache.setCalls.contains { $0.key == MessagingConstants.Caches.PROPOSITIONS },
+                       "IAM cache should not be written when no IAM propositions remain")
+        XCTAssertTrue(mockCache.removeCalls.contains(MessagingConstants.Caches.PROPOSITIONS),
+                      "IAM cache file should be deleted when no IAM propositions remain")
+        XCTAssertTrue(mockCache.setCalls.contains { $0.key == MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS },
+                      "Content card cache should still be updated")
 
         // No proposition-received event dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -599,5 +606,25 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                                "activity": [MessagingConstants.Event.Data.Key.Personalization.RANK: index]
                            ],
                            items: [item])
+    }
+
+    func test_handleProcessCompletedEvent_noDecisions_preservesContentCardDiskCache() throws {
+        let cardProposition = makeCardProposition(surface: cardSurface, index: 0)
+        mockCache.updateContentCardPropositions([cardSurface: [cardProposition]])
+
+        let requestId = "NO_DECISIONS_ID"
+        messaging.setRequestedSurfacesforEventId(requestId, expectedSurfaces: [cardSurface])
+
+        let processEvent = Event(name: "process complete",
+                                 type: EventType.messaging,
+                                 source: EventSource.contentComplete,
+                                 data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
+
+        messaging.handleProcessCompletedEvent(processEvent)
+
+        XCTAssertFalse(mockCache.removeCalls.contains(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS),
+                       "Failed fetch must not clear persisted content card propositions")
+        XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled,
+                       "Content-card rules engine must not be updated when no decisions were received")
     }
 }

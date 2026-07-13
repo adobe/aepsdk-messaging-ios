@@ -27,10 +27,12 @@ class MockCache: Cache {
 
     var removeCalled = false
     var removeParamKey: String?
+    var removeCalls: [String] = []
     var removeShouldThrow = false
     override func remove(key: String) throws {
         removeCalled = true
         removeParamKey = key
+        removeCalls.append(key)
         if removeShouldThrow {
             throw MockCacheError.mockThrow
         }
@@ -40,11 +42,13 @@ class MockCache: Cache {
     var setCalledExpectation: XCTestExpectation?
     var setParamKey: String?
     var setParamEntry: CacheEntry?
+    var setCalls: [(key: String, entry: CacheEntry)] = []
     var setShouldThrow = false
     override func set(key: String, entry: CacheEntry) throws {
         setCalled = true
         setParamKey = key
         setParamEntry = entry
+        setCalls.append((key: key, entry: entry))
         if setShouldThrow {
             throw MockCacheError.mockThrow
         }

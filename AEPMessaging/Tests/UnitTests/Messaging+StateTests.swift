@@ -149,4 +149,63 @@ class MessagingPlusStateTests: XCTestCase {
         XCTAssertEqual(1, messaging.inMemoryPropositions.count)
         XCTAssertNil(messaging.inMemoryPropositions[mockIamSurface])
     }
+
+    func testHydrateContentCardRulesEngineFromDiskEmptyCacheDoesNothing() throws {
+        mockCache.getReturnValue = nil
+
+        messaging.hydrateContentCardRulesEngineFromDisk(for: [mockIamSurface])
+
+        XCTAssertFalse(mockLaunchRulesEngineForFeeds.replaceRulesCalled)
+    }
+
+    func testHydrateContentCardRulesEngineFromDiskLoadsRules() throws {
+        let feedSurface = Surface(uri: "feed")
+        let feedContent = JSONFileLoader.getRulesJsonFromFile("feedPropositionContent")
+        let feedItem = PropositionItem(itemId: "feedItem", schema: .ruleset, itemData: feedContent)
+        let feedProp = Proposition(uniqueId: "feedProp", scope: feedSurface.uri, scopeDetails: ["key": "value"], items: [feedItem])
+        let encoder = JSONEncoder()
+        let cacheData = try encoder.encode([feedSurface.uri: [feedProp]])
+        mockCache.getReturnValue = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
+
+        messaging.hydrateContentCardRulesEngineFromDisk(for: [feedSurface])
+
+        XCTAssertTrue(mockLaunchRulesEngineForFeeds.replaceRulesCalled)
+    }
+
+    func testGetPropositionsWithPersistedFlagHydratesFromDisk() throws {
+        messaging.onRegistered()
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        let feedSurface = Surface(uri: "feed")
+        let feedContent = JSONFileLoader.getRulesJsonFromFile("feedPropositionContent")
+        let feedItem = PropositionItem(itemId: "feedItem", schema: .ruleset, itemData: feedContent)
+        let feedProp = Proposition(uniqueId: "feedProp", scope: feedSurface.uri, scopeDetails: ["key": "value"], items: [feedItem])
+        let encoder = JSONEncoder()
+        let cacheData = try encoder.encode([feedSurface.uri: [feedProp]])
+        mockCache.getReturnValue = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
+
+        var eventData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
+            MessagingConstants.Event.Data.Key.SURFACES: [feedSurface].compactMap { $0.asDictionary() },
+            MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS: true
+        ]
+        let getEvent = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
+                             type: EventType.messaging,
+                             source: EventSource.requestContent,
+                             data: eventData)
+
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+                                        data: (["messaging.eventDataset": "mockDataset"], .set))
+        mockRuntime.simulateComingEvents(getEvent)
+        Thread.sleep(forTimeInterval: 0.2)
+
+        let responseEvent = mockRuntime.dispatchedEvents.first {
+            $0.type == EventType.messaging && $0.source == EventSource.responseContent
+        }
+        XCTAssertNotNil(responseEvent, "A propositions response event should be dispatched")
+        XCTAssertNotNil(responseEvent?.propositions,
+                        "Response must include propositions array (possibly empty) after disk hydrate")
+        XCTAssertTrue(mockLaunchRulesEngineForFeeds.replaceRulesCalled,
+                      "Persisted content card rules should hydrate the rules engine")
+    }
 }

@@ -82,6 +82,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
     
@@ -100,6 +101,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
     
@@ -159,6 +161,8 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual("feed", feedPropositionInfo?.id)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(1, result.contentCardPropositionsToPersist.count, "feed ruleset should persist to CC bucket")
+        XCTAssertEqual(mockFeedSurface, result.contentCardPropositionsToPersist.keys.first)
         XCTAssertEqual(1, result.surfaceRulesBySchemaType.count, "should have one rule to insert in the feeds rules engine")
         let feedRules = result.surfaceRulesBySchemaType[.contentCard]
         XCTAssertNotNil(feedRules)
@@ -181,6 +185,7 @@ class ParsedPropositionTests: XCTestCase {
         let codeBasedPropItem = result.propositionsToCache[mockCodeBasedSurface]?.first?.items.first
         XCTAssertEqual(mockCodeBasedContent["content"] as? String, codeBasedPropItem?.htmlContent)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
     
@@ -220,6 +225,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
     
@@ -240,6 +246,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
     
@@ -260,6 +267,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
     
@@ -279,6 +287,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
     
@@ -297,6 +306,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
     
@@ -442,6 +452,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
 
@@ -461,6 +472,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(0, result.propositionInfoToCache.count)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
         XCTAssertEqual(1, result.inboxPropositionsToCache.count)
         XCTAssertEqual(1, result.inboxPropositionsToCache[mockInboxSurface]?.count)

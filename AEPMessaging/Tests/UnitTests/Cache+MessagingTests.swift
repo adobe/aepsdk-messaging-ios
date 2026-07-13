@@ -282,4 +282,47 @@ class CacheMessagingTests: XCTestCase {
         XCTAssertEqual("inapp4", paramProp?.scope)
         XCTAssertEqual(1, paramProp?.items.count)
     }
+
+    // MARK: - contentCardPropositions
+
+    func testContentCardPropositionsHappy() throws {
+        let ccSurface = Surface(uri: "mobileapp://feeds/homeCards")
+        let ccProposition = Proposition(uniqueId: "ccProp1", scope: ccSurface.uri, scopeDetails: ["key": "value"], items: [])
+        mockCache.getReturnValue = getPropositionCacheEntry([ccSurface.uri: [ccProposition]])
+
+        let result = mockCache.contentCardPropositions
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(1, result?.count)
+        XCTAssertEqual("ccProp1", result?[ccSurface]?.first?.uniqueId)
+    }
+
+    func testContentCardPropositionsNoneInCache() throws {
+        mockCache.getReturnValue = nil
+        XCTAssertNil(mockCache.contentCardPropositions)
+    }
+
+    func testUpdateContentCardPropositionsHappy() throws {
+        let surface = Surface(uri: "ccSurface")
+        let item = PropositionItem(itemId: "ccItem", schema: .ruleset, itemData: [:])
+        let prop = Proposition(uniqueId: "ccProp", scope: surface.uri, scopeDetails: ["key": "value"], items: [item])
+
+        mockCache.updateContentCardPropositions([surface: [prop]])
+
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertEqual(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS, mockCache.setParamKey)
+        let decoder = JSONDecoder()
+        let decoded = try? decoder.decode([String: [Proposition]].self, from: mockCache.setParamEntry!.data)
+        XCTAssertEqual("ccProp", decoded?[surface.uri]?.first?.uniqueId)
+    }
+
+    func testUpdateContentCardPropositionsDoesNotAffectIAMCacheKey() throws {
+        let surface = Surface(uri: "ccSurface")
+        let item = PropositionItem(itemId: "ccItem", schema: .ruleset, itemData: [:])
+        let prop = Proposition(uniqueId: "ccProp", scope: surface.uri, scopeDetails: ["key": "value"], items: [item])
+
+        mockCache.updateContentCardPropositions([surface: [prop]])
+
+        XCTAssertNotEqual(MessagingConstants.Caches.PROPOSITIONS, mockCache.setParamKey)
+    }
 }

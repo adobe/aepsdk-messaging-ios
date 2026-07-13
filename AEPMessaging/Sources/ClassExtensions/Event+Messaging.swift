@@ -150,6 +150,10 @@ extension Event {
         isMessagingType && isRequestContentSource && getPropositions
     }
 
+    var usePersistedContentCards: Bool {
+        data?[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] as? Bool ?? false
+    }
+
     private var getPropositions: Bool {
         data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false
     }

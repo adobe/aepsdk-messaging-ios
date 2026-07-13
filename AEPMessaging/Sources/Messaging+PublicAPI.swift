@@ -136,12 +136,27 @@ import UserNotifications
         MobileCore.dispatch(event: event)
     }
 
-    /// Retrieves the previously fetched (and cached) feeds content from the SDK for the provided surfaces.
-    /// If the feeds content for one or more surfaces isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
+    /// Dispatches an event to fetch propositions for the provided surfaces from remote.
+    /// The completion handler is called once the Edge response has been fully processed.
     /// - Parameters:
     ///   - surfaces: An array of `Surface` objects.
-    ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Proposition objects.
-    static func getPropositionsForSurfaces(_ surfaces: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
+    ///   - completionHandler: Called with `true` if the network response was returned and successfully processed; `false` on failure or invalid surfaces.
+    @objc(updatePropositionsForSurfacesWithCompletionHandler:completionHandler:)
+    static func updatePropositionsForSurfacesWithCompletionHandler(_ surfaces: [Surface],
+                                                                   completionHandler: @escaping (Bool) -> Void) {
+        updatePropositionsForSurfaces(surfaces, completionHandler)
+    }
+
+    /// Retrieves propositions for the provided surfaces from the SDK cache.
+    /// By default returns in-memory qualified content cards from the current session.
+    /// Set `usePersistedContentCards` to `true` to hydrate from disk persistence (e.g. offline fallback after a failed update).
+    /// - Parameters:
+    ///   - surfaces: An array of `Surface` objects.
+    ///   - usePersistedContentCards: When `true`, content cards are loaded from persistent storage before returning. Defaults to `false`.
+    ///   - completion: The completion handler invoked with propositions keyed by surface.
+    static func getPropositionsForSurfaces(_ surfaces: [Surface],
+                                         usePersistedContentCards: Bool = false,
+                                         _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
         let validSurfaces = surfaces
             .filter { $0.isValid }
 
@@ -152,17 +167,21 @@ import UserNotifications
             return
         }
 
-        let eventData: [String: Any] = [
+        var eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
             MessagingConstants.Event.Data.Key.SURFACES: validSurfaces.compactMap { $0.asDictionary() }
         ]
+        if usePersistedContentCards {
+            eventData[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] = true
+        }
 
         let event = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
 
-        MobileCore.dispatch(event: event, timeout: 5) { responseEvent in
+        let timeout = usePersistedContentCards ? 10.0 : 5.0
+        MobileCore.dispatch(event: event, timeout: timeout) { responseEvent in
             guard let responseEvent = responseEvent else {
                 completion(nil, AEPError.callbackTimeout)
                 return
@@ -173,12 +192,8 @@ import UserNotifications
                 return
             }
 
-            guard let propositions = responseEvent.propositions else {
-                completion(nil, AEPError.unexpected)
-                return
-            }
-
-            completion(propositions.toDictionary { Surface(uri: $0.scope) }, .none)
+            let propositions = responseEvent.propositions ?? []
+            completion(propositions.toDictionary { Surface(uri: $0.scope) }, nil)
         }
     }
 

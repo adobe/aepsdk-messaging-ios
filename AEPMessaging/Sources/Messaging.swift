@@ -284,9 +284,14 @@ public class Messaging: NSObject, Extension {
         // handle an event to get cached propositions from the SDK
         if event.isGetPropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
-            // Queue the get propositions event in internal events queue to ensure any prior update requests are completed
-            // before it is processed.
-            eventsQueue.add(event)
+            if event.usePersistedContentCards {
+                // Offline disk hydrate does not depend on in-flight Edge updates; process immediately so
+                // callers are not blocked behind queued network requests (which can exceed the public API timeout).
+                retrieveMessages(for: event.surfaces ?? [], event: event)
+            } else {
+                // Queue memory reads so any prior update requests finish before returning in-session cache.
+                eventsQueue.add(event)
+            }
             return
         }
 
@@ -541,11 +546,22 @@ public class Messaging: NSObject, Extension {
         stateManager.updateTokenStore.clear()
         stateManager.channelActivityStore.clear()
 
+        clearContentCards()
+
         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
         dispatchPersistedTokenResync(includePushToken: false,
                                      pushToStartTokens: preservedPushToStartTokens,
                                      event: event)
+    }
+
+    /// Clears in-memory content card state and persisted disk cache (identity reset).
+    private func clearContentCards() {
+        qualifiedContentCardsBySurface = [:]
+        contentCardRulesBySurface = [:]
+        contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
+        try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
+        Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared on identity reset.")
     }
 
     /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
@@ -957,7 +973,7 @@ public class Messaging: NSObject, Extension {
         dispatchNotificationEventFor(event, requestedSurfaces: requestedSurfaces)
     }
 
-    private func getPropositionsFromContentCardRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
+    func getPropositionsFromContentCardRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
         var surfacePropositions: [Surface: [Proposition]] = [:]
 
         if let propositionItemsBySurface = contentCardRulesEngine.evaluate(event: event) {
@@ -1022,6 +1038,19 @@ public class Messaging: NSObject, Extension {
     }
 
     private func endRequestFor(eventId: String) {
+        // Failed fetch: stream closed without any personalization:decisions payloads.
+        // Do not mutate in-memory or persisted propositions (offline / network failure).
+        guard !inProgressPropositions.isEmpty else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Skipping proposition cache update — no personalization decisions received for event '\(eventId)'.")
+            requestedSurfacesForEventId.removeValue(forKey: eventId)
+
+            if let handler = completionHandlerFor(edgeRequestEventId: UUID(uuidString: eventId)) {
+                handler.handle?(false)
+            }
+            return
+        }
+
         // update in memory propositions
         applyPropositionChangeFor(eventId: eventId)
 
@@ -1058,6 +1087,14 @@ public class Messaging: NSObject, Extension {
         updateInboxPropositions(parsedPropositions.inboxPropositionsToCache, removing: surfacesToRemove)
         updatePropositionInfo(parsedPropositions.propositionInfoToCache, removing: surfacesToRemove)
         cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
+        cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
+
+        if !parsedPropositions.contentCardPropositionsToPersist.isEmpty {
+            let surfaceCount = parsedPropositions.contentCardPropositionsToPersist.count
+            let propositionCount = parsedPropositions.contentCardPropositionsToPersist.values.reduce(0) { $0 + $1.count }
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Content card propositions saved to persisted disk successfully (\(propositionCount) proposition(s) across \(surfaceCount) surface(s)).")
+        }
 
         // apply rules
         updateRulesEngines(with: parsedPropositions.surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces)
@@ -1124,6 +1161,45 @@ public class Messaging: NSObject, Extension {
         rulesBySurface.flatMap { $0.value }
     }
 
+    /// Loads persisted content card propositions for the requested surfaces, hydrates the CC rules engine,
+    /// and populates `qualifiedContentCardsBySurface` without sending trigger events.
+    func hydrateContentCardRulesEngineFromDisk(for surfaces: [Surface]) {
+        guard let cachedPropositions = cache.contentCardPropositions, !cachedPropositions.isEmpty else {
+            return
+        }
+
+        let filteredPropositions = cachedPropositions.filter { surfaces.contains($0.key) }
+        guard !filteredPropositions.isEmpty else {
+            return
+        }
+
+        let parsedPropositions = ParsedPropositions(with: filteredPropositions, requestedSurfaces: surfaces, runtime: runtime)
+        updatePropositionInfo(parsedPropositions.propositionInfoToCache)
+
+        guard let contentCardRules = parsedPropositions.surfaceRulesBySchemaType[.contentCard],
+              !contentCardRules.isEmpty else {
+            return
+        }
+
+        for (surface, rules) in contentCardRules {
+            contentCardRulesBySurface[surface] = rules
+        }
+
+        contentCardRulesEngine.launchRulesEngine.replaceRules(with: contentCardRulesBySurface.flatMap { $0.value })
+
+        let seedEvent = Event(name: "Seed content cards from persistence",
+                              type: EventType.messaging,
+                              source: EventSource.requestContent,
+                              data: nil)
+        let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
+        for (surface, propositions) in qualified where surfaces.contains(surface) {
+            qualifiedContentCardsBySurface[surface] = propositions
+        }
+
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  "Hydrated content card rules from disk for \(qualified.count) surface(s).")
+    }
+
     /// Dispatch an event containing all propositions for the given surface
     private func retrieveMessages(for surfaces: [Surface], event: Event) {
         let requestedSurfaces = surfaces.filter { $0.isValid }
@@ -1132,6 +1208,10 @@ public class Messaging: NSObject, Extension {
             Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve propositions, no valid surface paths found.")
             dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
             return
+        }
+
+        if event.usePersistedContentCards {
+            hydrateContentCardRulesEngineFromDisk(for: requestedSurfaces)
         }
 
         // get requested content cards from cache
@@ -1152,13 +1232,16 @@ public class Messaging: NSObject, Extension {
             mergedPropositions.addArray(propositions, forKey: surface)
         }
 
-        let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: mergedPropositions.flatMap { $0.value }].asDictionary()
+        let propositionPayload = mergedPropositions.flatMap { $0.value }.compactMap { $0.asDictionary() }
+        let responseData: [String: Any] = [
+            MessagingConstants.Event.Data.Key.PROPOSITIONS: propositionPayload
+        ]
 
         let responseEvent = event.createResponseEvent(
             name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_RESPONSE,
             type: EventType.messaging,
             source: EventSource.responseContent,
-            data: eventData
+            data: responseData
         )
         dispatch(event: responseEvent)
     }
