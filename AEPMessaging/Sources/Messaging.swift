@@ -909,7 +909,7 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    /// Builds the event data for a `personalization.request` edge event for the provided surfaces.
+    /// Builds the event data for a `decisioning.propositionFetch` edge event for the provided surfaces.
     ///
     /// Any caller-provided `xdm` is merged into the request's XDM object and any caller-provided `data` is merged into the
     /// request's free-form data object. Internal keys required by the SDK — the personalization request `eventType` in XDM and
