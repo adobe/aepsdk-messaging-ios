@@ -111,6 +111,7 @@ enum MessagingConstants {
                 static let TRACK_PROPOSITIONS = "trackpropositions"
                 static let PROPOSITION_INTERACTION = "propositioninteraction"
                 static let SURFACES = "surfaces"
+                static let XDM = "xdm"
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
                 static let ENDING_EVENT_ID = "endingEventId"

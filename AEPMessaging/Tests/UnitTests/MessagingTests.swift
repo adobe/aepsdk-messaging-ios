@@ -666,6 +666,123 @@ class MessagingTests: XCTestCase {
     //        XCTAssertEqual("mobileapp://com.apple.dt.xctest.tool/promos/feed1", surfaces[0])
     //    }
 
+    // MARK: - createPersonalizationRequestEventData (custom XDM / data merge)
+
+    private let CUSTOM_XDM_SURFACE = Surface(uri: "mobileapp://com.test.app/homescreen")
+
+    func testCreatePersonalizationRequestEventData_baseStructureWithoutCustomXdmOrData() throws {
+        // test
+        let eventData = messaging.createPersonalizationRequestEventData(for: [CUSTOM_XDM_SURFACE], xdm: nil, data: nil)
+
+        // verify query.personalization.surfaces and schemas
+        let query = try XCTUnwrap(eventData["query"] as? [String: Any])
+        let personalization = try XCTUnwrap(query["personalization"] as? [String: Any])
+        let surfaces = try XCTUnwrap(personalization["surfaces"] as? [String])
+        XCTAssertEqual(["mobileapp://com.test.app/homescreen"], surfaces)
+        XCTAssertEqual(Messaging.supportedSchemas, personalization["schemas"] as? [String])
+
+        // verify xdm carries only the internal eventType
+        let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
+        XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
+        XCTAssertEqual(1, xdm.count)
+
+        // verify data carries only the internal __adobe response-format namespace
+        let data = try XCTUnwrap(eventData["data"] as? [String: Any])
+        let adobe = try XCTUnwrap(data["__adobe"] as? [String: Any])
+        let ajo = try XCTUnwrap(adobe["ajo"] as? [String: Any])
+        XCTAssertEqual(2, ajo["in-app-response-format"] as? Int)
+        XCTAssertEqual(1, data.count)
+
+        // verify request.sendCompletion
+        let request = try XCTUnwrap(eventData["request"] as? [String: Any])
+        XCTAssertEqual(true, request["sendCompletion"] as? Bool)
+    }
+
+    func testCreatePersonalizationRequestEventData_withCustomXdm() throws {
+        // setup
+        let customXdm: [String: Any] = ["_chipotle": ["restaurantId": "6099"]]
+
+        // test
+        let eventData = messaging.createPersonalizationRequestEventData(for: [CUSTOM_XDM_SURFACE], xdm: customXdm, data: nil)
+
+        // verify custom xdm rides alongside the internal eventType
+        let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
+        XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
+        let chipotle = try XCTUnwrap(xdm["_chipotle"] as? [String: Any])
+        XCTAssertEqual("6099", chipotle["restaurantId"] as? String)
+    }
+
+    func testCreatePersonalizationRequestEventData_withCustomData() throws {
+        // setup
+        let customData: [String: Any] = ["customKey": "customValue"]
+
+        // test
+        let eventData = messaging.createPersonalizationRequestEventData(for: [CUSTOM_XDM_SURFACE], xdm: nil, data: customData)
+
+        // verify custom data rides alongside the internal __adobe namespace
+        let data = try XCTUnwrap(eventData["data"] as? [String: Any])
+        XCTAssertNotNil(data["__adobe"] as? [String: Any])
+        XCTAssertEqual("customValue", data["customKey"] as? String)
+    }
+
+    func testCreatePersonalizationRequestEventData_withCustomXdmAndData() throws {
+        // setup
+        let customXdm: [String: Any] = ["_chipotle": ["restaurantId": "6099"]]
+        let customData: [String: Any] = ["customKey": "customValue"]
+
+        // test
+        let eventData = messaging.createPersonalizationRequestEventData(for: [CUSTOM_XDM_SURFACE], xdm: customXdm, data: customData)
+
+        // verify both merged, internal keys intact
+        let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
+        XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
+        XCTAssertNotNil(xdm["_chipotle"] as? [String: Any])
+        let data = try XCTUnwrap(eventData["data"] as? [String: Any])
+        XCTAssertNotNil(data["__adobe"] as? [String: Any])
+        XCTAssertEqual("customValue", data["customKey"] as? String)
+    }
+
+    func testCreatePersonalizationRequestEventData_customXdmCannotOverrideInternalEventType() throws {
+        // setup - caller maliciously/accidentally tries to override the internal eventType
+        let customXdm: [String: Any] = ["eventType": "some.other.type", "_chipotle": ["restaurantId": "6099"]]
+
+        // test
+        let eventData = messaging.createPersonalizationRequestEventData(for: [CUSTOM_XDM_SURFACE], xdm: customXdm, data: nil)
+
+        // verify internal eventType wins, custom sibling field still present
+        let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
+        XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
+        XCTAssertNotNil(xdm["_chipotle"] as? [String: Any])
+    }
+
+    func testCreatePersonalizationRequestEventData_customDataCannotOverrideInternalAdobeNamespace() throws {
+        // setup - caller tries to override the internal __adobe response-format namespace
+        let customData: [String: Any] = ["__adobe": ["ajo": ["in-app-response-format": 999]], "customKey": "customValue"]
+
+        // test
+        let eventData = messaging.createPersonalizationRequestEventData(for: [CUSTOM_XDM_SURFACE], xdm: nil, data: customData)
+
+        // verify internal __adobe namespace wins, custom sibling field still present
+        let data = try XCTUnwrap(eventData["data"] as? [String: Any])
+        let adobe = try XCTUnwrap(data["__adobe"] as? [String: Any])
+        let ajo = try XCTUnwrap(adobe["ajo"] as? [String: Any])
+        XCTAssertEqual(2, ajo["in-app-response-format"] as? Int)
+        XCTAssertEqual("customValue", data["customKey"] as? String)
+    }
+
+    func testCreatePersonalizationRequestEventData_multipleSurfaces() throws {
+        // test
+        let eventData = messaging.createPersonalizationRequestEventData(
+            for: [Surface(uri: "mobileapp://com.test.app/one"), Surface(uri: "mobileapp://com.test.app/two")],
+            xdm: nil, data: nil)
+
+        // verify
+        let query = try XCTUnwrap(eventData["query"] as? [String: Any])
+        let personalization = try XCTUnwrap(query["personalization"] as? [String: Any])
+        let surfaces = try XCTUnwrap(personalization["surfaces"] as? [String])
+        XCTAssertEqual(["mobileapp://com.test.app/one", "mobileapp://com.test.app/two"], surfaces)
+    }
+
     func testHandleProcessEventNoIdentityMap() throws {
         // setup
         let mockConfig = [EXPERIENCE_CLOUD_ORG: MOCK_EXP_ORG_ID]
