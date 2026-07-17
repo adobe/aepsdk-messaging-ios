@@ -909,7 +909,7 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    /// Builds the event data for a `personalization.request` edge event for the provided surfaces.
+    /// Builds the event data for a `decisioning.propositionFetch` edge event for the provided surfaces.
     ///
     /// Any caller-provided `xdm` is merged into the request's XDM object and any caller-provided `data` is merged into the
     /// request's free-form data object. Internal keys required by the SDK — the personalization request `eventType` in XDM and
@@ -930,10 +930,10 @@ public class Messaging: NSObject, Extension {
             ]
         ]
 
-        // add `xdm` with an event type of `personalization.request`, merging any caller-provided XDM.
+        // add `xdm` with an event type of `decisioning.propositionFetch`, merging any caller-provided XDM.
         // the internal `eventType` is required and always wins over a caller-provided value on collision.
         var requestXdm: [String: Any] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Inbound.EventType.PERSONALIZATION_REQUEST
+            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Inbound.EventType.PROPOSITION_FETCH
         ]
         if let customXdm = customXdm {
             requestXdm.merge(customXdm) { internalValue, _ in internalValue }

@@ -658,7 +658,7 @@ class MessagingTests: XCTestCase {
     //
     //        let eventData = try XCTUnwrap(dispatchedEvent?.data)
     //        let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
-    //        XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
+    //        XCTAssertEqual("decisioning.propositionFetch", xdm["eventType"] as? String)
     //        let query =  try XCTUnwrap(eventData["query"] as? [String: Any])
     //        let personalization =  try XCTUnwrap(query["personalization"] as? [String: Any])
     //        let surfaces = try XCTUnwrap(personalization["surfaces"] as? [String])
@@ -683,7 +683,7 @@ class MessagingTests: XCTestCase {
 
         // verify xdm carries only the internal eventType
         let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
-        XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
+        XCTAssertEqual("decisioning.propositionFetch", xdm["eventType"] as? String)
         XCTAssertEqual(1, xdm.count)
 
         // verify data carries only the internal __adobe response-format namespace
@@ -707,7 +707,7 @@ class MessagingTests: XCTestCase {
 
         // verify custom xdm rides alongside the internal eventType
         let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
-        XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
+        XCTAssertEqual("decisioning.propositionFetch", xdm["eventType"] as? String)
         let chipotle = try XCTUnwrap(xdm["_chipotle"] as? [String: Any])
         XCTAssertEqual("6099", chipotle["restaurantId"] as? String)
     }
@@ -735,7 +735,7 @@ class MessagingTests: XCTestCase {
 
         // verify both merged, internal keys intact
         let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
-        XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
+        XCTAssertEqual("decisioning.propositionFetch", xdm["eventType"] as? String)
         XCTAssertNotNil(xdm["_chipotle"] as? [String: Any])
         let data = try XCTUnwrap(eventData["data"] as? [String: Any])
         XCTAssertNotNil(data["__adobe"] as? [String: Any])
@@ -751,7 +751,7 @@ class MessagingTests: XCTestCase {
 
         // verify internal eventType wins, custom sibling field still present
         let xdm = try XCTUnwrap(eventData["xdm"] as? [String: Any])
-        XCTAssertEqual("personalization.request", xdm["eventType"] as? String)
+        XCTAssertEqual("decisioning.propositionFetch", xdm["eventType"] as? String)
         XCTAssertNotNil(xdm["_chipotle"] as? [String: Any])
     }
 
