@@ -38,13 +38,14 @@ class MessagingUIPublicApiTest: XCTestCase {
         semaphore.wait()
     }
 
-    func testGetContentCardsUIDefaultDoesNotSetPersistedFlag() {
+    func testGetContentCardsUIDispatchesGetPropositionsEvent() {
         let eventExpectation = expectation(description: "get propositions event")
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
             type: EventType.messaging,
             source: EventSource.requestContent
         ) { event in
-            XCTAssertNil(event.data?[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] as? Bool)
+            // offline hydration is now automatic — no persisted-flag in the event
+            XCTAssertTrue(event.data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false)
             eventExpectation.fulfill()
             let responseEvent = event.createResponseEvent(
                 name: "name", type: "type", source: "source", data: ["propositions": []]
@@ -54,28 +55,6 @@ class MessagingUIPublicApiTest: XCTestCase {
 
         let completionExpectation = expectation(description: "completion")
         Messaging.getContentCardsUI(for: surface) { _ in
-            completionExpectation.fulfill()
-        }
-
-        wait(for: [completionExpectation, eventExpectation], timeout: ASYNC_TIMEOUT)
-    }
-
-    func testGetContentCardsUIUsePersistedContentCardsSetsFlag() {
-        let eventExpectation = expectation(description: "get propositions event")
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
-            type: EventType.messaging,
-            source: EventSource.requestContent
-        ) { event in
-            XCTAssertEqual(true, event.data?[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] as? Bool)
-            eventExpectation.fulfill()
-            let responseEvent = event.createResponseEvent(
-                name: "name", type: "type", source: "source", data: ["propositions": []]
-            )
-            MobileCore.dispatch(event: responseEvent)
-        }
-
-        let completionExpectation = expectation(description: "completion")
-        Messaging.getContentCardsUI(for: surface, usePersistedContentCards: true) { _ in
             completionExpectation.fulfill()
         }
 

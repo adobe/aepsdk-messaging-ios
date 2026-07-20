@@ -106,6 +106,23 @@ extension Proposition {
         }
     }
 
+    /// Whether this proposition should be persisted to disk for offline availability.
+    /// Reads from the proposition's mobileParameters.offline flag when present.
+    /// TODO: once server-side flag is active, remove the default-true fallback.
+    var offlineAvailable: Bool {
+        let characteristics: [String: Any]?
+        if let codable = scopeDetails as? [String: AnyCodable] {
+            characteristics = codable["characteristics"]?.dictionaryValue as? [String: Any]
+        } else {
+            characteristics = scopeDetails["characteristics"] as? [String: Any]
+        }
+        if let mobileParams = characteristics?["mobileParameters"] as? [String: Any],
+           let flag = mobileParams["offline"] as? Bool {
+            return flag
+        }
+        return true
+    }
+
     /// rank is an ordinal value computed by IDS, used for prioritization
     /// it is expected that IDS will always return a value for rank
     /// a default value of -1 is used in the absense of rank in the IDS response and should be considered an error state

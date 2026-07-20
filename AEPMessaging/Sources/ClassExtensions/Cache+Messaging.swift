@@ -28,9 +28,22 @@ extension Cache {
                           emptyLogMessage: "No content card proposition definitions found in cache.")
     }
 
+    var codeBasedPropositions: [Surface: [Proposition]]? {
+        propositionsByKey(MessagingConstants.Caches.CODE_BASED_PROPOSITIONS,
+                          logTag: "Unable to load cached code-based propositions, cache file not found.",
+                          emptyLogMessage: "No code-based proposition definitions found in cache.")
+    }
+
+    var inboxPropositions: [Surface: [Proposition]]? {
+        propositionsByKey(MessagingConstants.Caches.INBOX_PROPOSITIONS,
+                          logTag: "Unable to load cached inbox propositions, cache file not found.",
+                          emptyLogMessage: "No inbox proposition definitions found in cache.")
+    }
+
     // MARK: setters
 
-    func updatePropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) {
+    @discardableResult
+    func updatePropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) -> Bool {
         updatePropositionsByKey(MessagingConstants.Caches.PROPOSITIONS,
                                 existing: propositions,
                                 new: newPropositions,
@@ -40,7 +53,8 @@ extension Cache {
                                 writeErrorPrefix: "Error creating in-app messaging cache")
     }
 
-    func updateContentCardPropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) {
+    @discardableResult
+    func updateContentCardPropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) -> Bool {
         updatePropositionsByKey(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS,
                                 existing: contentCardPropositions,
                                 new: newPropositions,
@@ -48,6 +62,28 @@ extension Cache {
                                 cacheCreatedMessage: "Content card messaging cache has been created.",
                                 encodeErrorMessage: "Error creating content card messaging cache, unable to encode proposition.",
                                 writeErrorPrefix: "Error creating content card messaging cache")
+    }
+
+    @discardableResult
+    func updateCodeBasedPropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) -> Bool {
+        updatePropositionsByKey(MessagingConstants.Caches.CODE_BASED_PROPOSITIONS,
+                                existing: codeBasedPropositions,
+                                new: newPropositions,
+                                removing: surfaces,
+                                cacheCreatedMessage: "Code-based propositions cache has been created.",
+                                encodeErrorMessage: "Error creating code-based propositions cache, unable to encode proposition.",
+                                writeErrorPrefix: "Error creating code-based propositions cache")
+    }
+
+    @discardableResult
+    func updateInboxPropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) -> Bool {
+        updatePropositionsByKey(MessagingConstants.Caches.INBOX_PROPOSITIONS,
+                                existing: inboxPropositions,
+                                new: newPropositions,
+                                removing: surfaces,
+                                cacheCreatedMessage: "Inbox propositions cache has been created.",
+                                encodeErrorMessage: "Error creating inbox propositions cache, unable to encode proposition.",
+                                writeErrorPrefix: "Error creating inbox propositions cache")
     }
 
     // MARK: - Private helpers
@@ -71,6 +107,7 @@ extension Cache {
         return retrievedPropositions
     }
 
+    @discardableResult
     private func updatePropositionsByKey(
         _ key: String,
         existing: [Surface: [Proposition]]?,
@@ -79,7 +116,7 @@ extension Cache {
         cacheCreatedMessage: String,
         encodeErrorMessage: String,
         writeErrorPrefix: String
-    ) {
+    ) -> Bool {
         let existingPropositions = existing ?? [:]
         var updatedPropositions = existingPropositions.merging(newPropositions ?? [:]) { _, new in new }
         if let surfaces = surfaces {
@@ -89,8 +126,12 @@ extension Cache {
         }
 
         guard !updatedPropositions.isEmpty else {
-            try? remove(key: key)
-            return
+            // Only remove if there was data in cache that needs to be cleared.
+            // Avoids spurious remove calls when no existing entry exists and nothing was added.
+            if !existingPropositions.isEmpty {
+                try? remove(key: key)
+            }
+            return true
         }
 
         var propositionsToCache: [String: [Proposition]] = [:]
@@ -101,14 +142,16 @@ extension Cache {
         let encoder = JSONEncoder()
         guard let cacheData = try? encoder.encode(propositionsToCache) else {
             Log.warning(label: MessagingConstants.LOG_TAG, encodeErrorMessage)
-            return
+            return false
         }
         let cacheEntry = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
         do {
             try set(key: key, entry: cacheEntry)
             Log.trace(label: MessagingConstants.LOG_TAG, cacheCreatedMessage)
+            return true
         } catch {
             Log.warning(label: MessagingConstants.LOG_TAG, "\(writeErrorPrefix): \(error).")
+            return false
         }
     }
 }

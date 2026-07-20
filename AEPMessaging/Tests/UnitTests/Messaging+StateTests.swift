@@ -172,7 +172,7 @@ class MessagingPlusStateTests: XCTestCase {
         XCTAssertTrue(mockLaunchRulesEngineForFeeds.replaceRulesCalled)
     }
 
-    func testGetPropositionsWithPersistedFlagHydratesFromDisk() throws {
+    func testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty() throws {
         messaging.onRegistered()
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
 
@@ -184,10 +184,10 @@ class MessagingPlusStateTests: XCTestCase {
         let cacheData = try encoder.encode([feedSurface.uri: [feedProp]])
         mockCache.getReturnValue = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
 
-        var eventData: [String: Any] = [
+        // No USE_PERSISTED_CONTENT_CARDS flag needed — disk hydration is automatic
+        let eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
-            MessagingConstants.Event.Data.Key.SURFACES: [feedSurface].compactMap { $0.asDictionary() },
-            MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS: true
+            MessagingConstants.Event.Data.Key.SURFACES: [feedSurface].compactMap { $0.asDictionary() }
         ]
         let getEvent = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
                              type: EventType.messaging,
@@ -204,8 +204,8 @@ class MessagingPlusStateTests: XCTestCase {
         }
         XCTAssertNotNil(responseEvent, "A propositions response event should be dispatched")
         XCTAssertNotNil(responseEvent?.propositions,
-                        "Response must include propositions array (possibly empty) after disk hydrate")
+                        "Response must include propositions array after automatic disk hydration")
         XCTAssertTrue(mockLaunchRulesEngineForFeeds.replaceRulesCalled,
-                      "Persisted content card rules should hydrate the rules engine")
+                      "Content card rules engine should hydrate from disk when in-memory is empty")
     }
 }

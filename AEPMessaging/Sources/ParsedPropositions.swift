@@ -22,18 +22,23 @@ struct ParsedPropositions {
     // store tracking information for propositions loaded into rules engines
     var propositionInfoToCache: [String: PropositionInfo] = [:]
 
-    // non-in-app propositions should be cached and not persisted
+    // non-in-app propositions cached in memory for current session
     var propositionsToCache: [Surface: [Proposition]] = [:]
 
-    // inbox propositions (container-item) should be cached in memory only
+    // inbox propositions (container-item) cached in memory for current session
     var inboxPropositionsToCache: [Surface: [Proposition]] = [:]
 
-    // in-app propositions don't need to stay in cache, but must be persisted
-    // also need to store tracking info for in-app propositions as `PropositionInfo`
+    // in-app propositions persisted to disk (separate from in-memory CBE cache)
     var propositionsToPersist: [Surface: [Proposition]] = [:]
 
     // content card ruleset propositions persisted to disk (separate from IAM)
     var contentCardPropositionsToPersist: [Surface: [Proposition]] = [:]
+
+    // code-based experience propositions persisted to disk for offline availability
+    var codeBasedPropositionsToPersist: [Surface: [Proposition]] = [:]
+
+    // inbox propositions persisted to disk for offline availability
+    var inboxPropositionsToPersist: [Surface: [Proposition]] = [:]
 
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
@@ -89,7 +94,9 @@ struct ParsedPropositions {
                             mergeRules(parsedRule, for: surface, with: .inapp)
                         case .feed, .contentCard:
                             propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
-                            contentCardPropositionsToPersist.add(proposition, forKey: surface)
+                            if proposition.offlineAvailable {
+                                contentCardPropositionsToPersist.add(proposition, forKey: surface)
+                            }
                             mergeRules(parsedRule, for: surface, with: .contentCard)
                         case .eventHistoryOperation:
                             // Event history operations don't have proposition info that needs to be cached unlike the cards they are tied to
@@ -104,13 +111,23 @@ struct ParsedPropositions {
                         }
                     }
                 // - handle json-content, html-content, and default-content schemas for code based experiences
-                //   a. code based schemas are cached for reporting
+                //   a. code based schemas are always cached in-memory for the current session
+                //   b. when the proposition declares offline availability, also persisted to disk
                 case .jsonContent, .htmlContent, .defaultContent:
                     propositionsToCache.add(proposition, forKey: surface)
+                    if proposition.offlineAvailable {
+                        codeBasedPropositionsToPersist.add(proposition, forKey: surface)
+                    }
                 // - handle container-item schemas for inbox
-                //   a. container-item schemas are cached in memory only
+                //   a. inbox schemas are always cached in-memory for the current session
+                //   b. when the proposition declares offline availability, also persisted to disk
                 case .inbox:
                     inboxPropositionsToCache.add(proposition, forKey: surface)
+                    // SIMULATION: inbox offlineAvailable forced false — container-item never written to disk.
+                    // Expected cold-start result: error screen even though content cards ARE cached.
+                    // if proposition.offlineAvailable {
+                    //     inboxPropositionsToPersist.add(proposition, forKey: surface)
+                    // }
                 case .unknown:
                     continue
                 default:

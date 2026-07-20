@@ -16,6 +16,8 @@ import SwiftUI
 struct CardsView: View, ContentCardUIEventListening {
 
     let cardsSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
+    let inboxSurface = Surface(path: Constants.SurfaceName.INBOX)
+    private var logSurfaces: [Surface] { [ inboxSurface] }
     @State var savedCards: [ContentCardUI] = []
     @State private var viewLoaded: Bool = false
     @State private var showLoadingIndicator: Bool = false
@@ -50,7 +52,7 @@ struct CardsView: View, ContentCardUIEventListening {
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxHeight: 120)
+                .frame(maxHeight: 280)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background(Color(.secondarySystemBackground))
@@ -110,7 +112,7 @@ struct CardsView: View, ContentCardUIEventListening {
     /// Demo: update from network, then log raw propositions — memory on success, persisted storage on failure.
     func updateAndLogPropositions() {
         showLoadingIndicator = true
-        Messaging.updatePropositionsForSurfacesWithCompletionHandler([cardsSurface]) { success in
+        Messaging.updatePropositionsForSurfacesWithCompletionHandler(logSurfaces) { success in
             DispatchQueue.main.async {
                 if success {
                     self.fetchAndLogPropositions(usePersistedContentCards: false,
@@ -130,7 +132,7 @@ struct CardsView: View, ContentCardUIEventListening {
     """
 
     private func fetchAndLogPropositions(usePersistedContentCards: Bool, sourceLabel: String, notePersistSuccess: Bool = false) {
-        Messaging.getPropositionsForSurfaces([cardsSurface], usePersistedContentCards: usePersistedContentCards) { propositionsDict, error in
+        Messaging.getPropositionsForSurfaces(logSurfaces) { propositionsDict, error in
             DispatchQueue.main.async {
                 showLoadingIndicator = false
                 if let error = error {
@@ -138,10 +140,11 @@ struct CardsView: View, ContentCardUIEventListening {
                     print("TestAppLog Propositions: \(propositionLog)")
                     return
                 }
-                let prepend = notePersistSuccess && !(propositionsDict?[cardsSurface]?.isEmpty ?? true)
-                    ? Self.persistSuccessMessage
-                    : ""
-                propositionLog = formatPropositionsLog(propositionsDict?[cardsSurface], source: sourceLabel,
+                let hasCards = !(propositionsDict?[cardsSurface]?.isEmpty ?? true)
+                let prepend = notePersistSuccess && hasCards ? Self.persistSuccessMessage : ""
+                propositionLog = formatPropositionsLog(propositionsDict,
+                                                       surfaces: logSurfaces,
+                                                       source: sourceLabel,
                                                        usePersisted: usePersistedContentCards,
                                                        prepend: prepend)
                 if !prepend.isEmpty {
@@ -153,7 +156,11 @@ struct CardsView: View, ContentCardUIEventListening {
         }
     }
 
-    private func formatPropositionsLog(_ propositions: [Proposition]?, source: String, usePersisted: Bool, prepend: String = "") -> String {
+    private func formatPropositionsLog(_ propositionsDict: [Surface: [Proposition]]?,
+                                       surfaces: [Surface],
+                                       source: String,
+                                       usePersisted: Bool,
+                                       prepend: String = "") -> String {
         var lines = [String]()
         if !prepend.isEmpty {
             lines.append(prepend.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -162,23 +169,44 @@ struct CardsView: View, ContentCardUIEventListening {
         lines.append(contentsOf: [
             "getPropositionsForSurfaces",
             "usePersistedContentCards: \(usePersisted)",
-            "Source: \(source)"
+            "Source: \(source)",
+            "Surfaces: \(surfaces.map { $0.uri }.joined(separator: ", "))"
         ])
-        guard let propositions = propositions, !propositions.isEmpty else {
-            lines.append("Result: no propositions")
-            return lines.joined(separator: "\n")
-        }
-        lines.append("Count: \(propositions.count)")
-        for (index, proposition) in propositions.enumerated() {
-            let schema = proposition.items.first?.schema.toString() ?? "unknown"
-            lines.append("[\(index)] id=\(proposition.uniqueId) scope=\(proposition.scope) schema=\(schema) items=\(proposition.items.count)")
+
+        for surface in surfaces {
+            lines.append("")
+            lines.append("--- Surface: \(surface.uri) ---")
+            guard let propositions = propositionsDict?[surface], !propositions.isEmpty else {
+                lines.append("Result: no propositions")
+                continue
+            }
+            lines.append("Count: \(propositions.count)")
+            for (index, proposition) in propositions.enumerated() {
+                lines.append("[\(index)] id=\(proposition.uniqueId)")
+                lines.append("    scope=\(proposition.scope)")
+                lines.append("    priority=\(proposition.priority) items=\(proposition.items.count)")
+                for (itemIndex, item) in proposition.items.enumerated() {
+                    lines.append("    item[\(itemIndex)] id=\(item.itemId) schema=\(item.schema.toString())")
+                    if let dataLog = Self.formatItemData(item.itemData) {
+                        lines.append("    item[\(itemIndex)] data=\(dataLog)")
+                    }
+                }
+            }
         }
         return lines.joined(separator: "\n")
     }
 
+    private static func formatItemData(_ itemData: [String: Any]) -> String? {
+        guard !itemData.isEmpty,
+              let data = try? JSONSerialization.data(withJSONObject: itemData, options: [.sortedKeys]),
+              let json = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+        return json
+    }
+
     private func fetchPropositionsAndLoadUI(usePersistedContentCards: Bool, sourceLabel: String, notePersistSuccess: Bool = false) {
         Messaging.getContentCardsUI(for: cardsSurface,
-                                    usePersistedContentCards: usePersistedContentCards,
                                     customizer: CardCustomizer(),
                                     listener: self) { result in
             DispatchQueue.main.async {

@@ -325,4 +325,72 @@ class CacheMessagingTests: XCTestCase {
 
         XCTAssertNotEqual(MessagingConstants.Caches.PROPOSITIONS, mockCache.setParamKey)
     }
+
+    // MARK: - codeBasedPropositions
+
+    func testCodeBasedPropositionsHappy() throws {
+        let cbeSurface = Surface(uri: "mobileapp://com.example/cbeOffers")
+        let cbeProp = Proposition(uniqueId: "cbeProp1", scope: cbeSurface.uri, scopeDetails: ["key": "value"], items: [])
+        mockCache.getReturnValue = getPropositionCacheEntry([cbeSurface.uri: [cbeProp]])
+
+        let result = mockCache.codeBasedPropositions
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(1, result?.count)
+        XCTAssertEqual("cbeProp1", result?[cbeSurface]?.first?.uniqueId)
+    }
+
+    func testCodeBasedPropositionsNoneInCache() throws {
+        mockCache.getReturnValue = nil
+        XCTAssertNil(mockCache.codeBasedPropositions)
+    }
+
+    func testUpdateCodeBasedPropositionsHappy() throws {
+        let surface = Surface(uri: "cbeSurface")
+        let prop = Proposition(uniqueId: "cbeProp", scope: surface.uri, scopeDetails: ["key": "value"], items: [])
+
+        mockCache.updateCodeBasedPropositions([surface: [prop]])
+
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertEqual(MessagingConstants.Caches.CODE_BASED_PROPOSITIONS, mockCache.setParamKey)
+        XCTAssertNotEqual(MessagingConstants.Caches.PROPOSITIONS, mockCache.setParamKey)
+        XCTAssertNotEqual(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS, mockCache.setParamKey)
+        let decoder = JSONDecoder()
+        let decoded = try? decoder.decode([String: [Proposition]].self, from: mockCache.setParamEntry!.data)
+        XCTAssertEqual("cbeProp", decoded?[surface.uri]?.first?.uniqueId)
+    }
+
+    // MARK: - inboxPropositions
+
+    func testInboxPropositionsHappy() throws {
+        let inboxSurface = Surface(uri: "mobileapp://com.example/inbox")
+        let inboxProp = Proposition(uniqueId: "inboxProp1", scope: inboxSurface.uri, scopeDetails: ["key": "value"], items: [])
+        mockCache.getReturnValue = getPropositionCacheEntry([inboxSurface.uri: [inboxProp]])
+
+        let result = mockCache.inboxPropositions
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(1, result?.count)
+        XCTAssertEqual("inboxProp1", result?[inboxSurface]?.first?.uniqueId)
+    }
+
+    func testInboxPropositionsNoneInCache() throws {
+        mockCache.getReturnValue = nil
+        XCTAssertNil(mockCache.inboxPropositions)
+    }
+
+    func testUpdateInboxPropositionsHappy() throws {
+        let surface = Surface(uri: "inboxSurface")
+        let prop = Proposition(uniqueId: "inboxProp", scope: surface.uri, scopeDetails: ["key": "value"], items: [])
+
+        mockCache.updateInboxPropositions([surface: [prop]])
+
+        XCTAssertTrue(mockCache.setCalled)
+        XCTAssertEqual(MessagingConstants.Caches.INBOX_PROPOSITIONS, mockCache.setParamKey)
+        XCTAssertNotEqual(MessagingConstants.Caches.PROPOSITIONS, mockCache.setParamKey)
+        XCTAssertNotEqual(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS, mockCache.setParamKey)
+        let decoder = JSONDecoder()
+        let decoded = try? decoder.decode([String: [Proposition]].self, from: mockCache.setParamEntry!.data)
+        XCTAssertEqual("inboxProp", decoded?[surface.uri]?.first?.uniqueId)
+    }
 }

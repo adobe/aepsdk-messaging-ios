@@ -16,22 +16,20 @@ import Foundation
 @available(iOS 15.0, *)
 public extension Messaging {
     /// Retrieves the content cards UI for a given surface.
-    /// By default returns in-memory qualified content cards from the current session.
-    /// Set `usePersistedContentCards` to `true` to hydrate from disk persistence (e.g. offline fallback after a failed update).
+    /// Returns in-memory qualified content cards for the current session. On cold start or after a
+    /// failed network update, cards are transparently loaded from persistent storage when available.
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the content cards.
-    ///   - usePersistedContentCards: When `true`, content cards are loaded from persistent storage before building UI. Defaults to `false`.
     ///   - customizer: An optional ContentCardCustomizable object to customize the appearance of the content card template.
     ///   - listener: An optional ContentCardUIEventListening object to listen to UI events from the content card.
     ///   - completion: A completion handler that is called with a `Result` type containing either:
     ///     - success([ContentCardUI]):  An array of `ContentCardUI` objects if the operation is successful.
     ///     - failure(Error) : An error indicating the failure reason
     static func getContentCardsUI(for surface: Surface,
-                                  usePersistedContentCards: Bool = false,
                                   customizer: ContentCardCustomizing? = nil,
                                   listener: ContentCardUIEventListening? = nil,
                                   _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
-        Messaging.getPropositionsForSurfaces([surface], usePersistedContentCards: usePersistedContentCards) { propositionDict, error in
+        Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
             if let error = error {
                 Log.error(label: UIConstants.LOG_TAG,
                           "Error retrieving content cards UI for surface, \(surface.uri). Error \(error)")

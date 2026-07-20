@@ -623,10 +623,11 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
     }
 
-    func testGetPropositionsForSurfacesDefaultDoesNotSetPersistedFlag() throws {
+    func testGetPropositionsForSurfacesDoesNotSetPersistedFlag() throws {
         let eventExpectation = XCTestExpectation(description: "event should be dispatched")
         EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: EventType.messaging, source: EventSource.requestContent) { event in
-            XCTAssertNil(event.data?[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] as? Bool)
+            // the persisted-flag approach has been removed; offline hydration is automatic
+            XCTAssertTrue(event.data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false)
             eventExpectation.fulfill()
             let responseEvent = event.createResponseEvent(name: "name", type: "type", source: "source", data: ["propositions": []])
             MobileCore.dispatch(event: responseEvent)
@@ -634,23 +635,6 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
 
         let expectation = XCTestExpectation(description: "completion")
         Messaging.getPropositionsForSurfaces([Surface(uri: MOCK_FEEDS_SURFACE)]) { _, _ in
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
-    }
-
-    func testGetPropositionsForSurfacesUsePersistedContentCardsSetsFlag() throws {
-        let eventExpectation = XCTestExpectation(description: "event should be dispatched")
-        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: EventType.messaging, source: EventSource.requestContent) { event in
-            XCTAssertEqual(true, event.data?[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] as? Bool)
-            eventExpectation.fulfill()
-            let responseEvent = event.createResponseEvent(name: "name", type: "type", source: "source", data: ["propositions": []])
-            MobileCore.dispatch(event: responseEvent)
-        }
-
-        let expectation = XCTestExpectation(description: "completion")
-        Messaging.getPropositionsForSurfaces([Surface(uri: MOCK_FEEDS_SURFACE)], usePersistedContentCards: true) { _, _ in
             expectation.fulfill()
         }
 

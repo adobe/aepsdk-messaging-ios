@@ -430,6 +430,7 @@
 		B6F7CCB92CCA186600C35C64 /* ContentCardTrackingTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CCB22CCA186600C35C64 /* ContentCardTrackingTest.swift */; };
 		B6F7CCBA2CCA186600C35C64 /* SmallImageCustomizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CCB62CCA186600C35C64 /* SmallImageCustomizer.swift */; };
 		B6F7CCBB2CCA186600C35C64 /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CCB52CCA186600C35C64 /* MockNetworkService.swift */; };
+		B8A1C01024BE5FF30019F01 /* MockNetworkConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A1C00024BE5FF30019F01 /* MockNetworkConnectivityService.swift */; };
 		B6F7CCBC2CCA186600C35C64 /* IntegrationTestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CCB42CCA186600C35C64 /* IntegrationTestBase.swift */; };
 		B6F7CCBD2CCA186600C35C64 /* ContentCardEventListeningTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CCB12CCA186600C35C64 /* ContentCardEventListeningTest.swift */; };
 		B6F7CCBE2CCA186600C35C64 /* GetContentCardUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F7CCB32CCA186600C35C64 /* GetContentCardUITest.swift */; };
@@ -1124,6 +1125,7 @@
 		B6F7CCB32CCA186600C35C64 /* GetContentCardUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetContentCardUITest.swift; sourceTree = "<group>"; };
 		B6F7CCB42CCA186600C35C64 /* IntegrationTestBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTestBase.swift; sourceTree = "<group>"; };
 		B6F7CCB52CCA186600C35C64 /* MockNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkService.swift; sourceTree = "<group>"; };
+		B8A1C00024BE5FF30019F01 /* MockNetworkConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkConnectivityService.swift; sourceTree = "<group>"; };
 		B6F7CCB62CCA186600C35C64 /* SmallImageCustomizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallImageCustomizer.swift; sourceTree = "<group>"; };
 		B6F7CCB82CCA186600C35C64 /* SmallImageTemplateTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallImageTemplateTest.swift; sourceTree = "<group>"; };
 		B6F7CCC82CCAB18700C35C64 /* IntegrationTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = IntegrationTestPlan.xctestplan; sourceTree = "<group>"; };
@@ -1704,6 +1706,7 @@
 				243EA6D92739D47400195945 /* MockMessaging.swift */,
 				243EA6E1273B436400195945 /* MockMessagingRulesEngine.swift */,
 				D66DF10D2DD5332A0021AC51 /* MockNamedKeyValueService.swift */,
+				B8A1C00024BE5FF30019F01 /* MockNetworkConnectivityService.swift */,
 				92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */,
 				240436CD2C76685C008CCD6D /* MockProposition.swift */,
 				240436CB2C765C41008CCD6D /* MockPropositionItem.swift */,
@@ -3609,6 +3612,7 @@
 				245059702673DBFE00CC7CA0 /* Messaging+PublicApiTest.swift in Sources */,
 				243EA6D0273325DC00195945 /* MessageTests.swift in Sources */,
 				D66DF10F2DD533320021AC51 /* MockNamedKeyValueService.swift in Sources */,
+				B8A1C01024BE5FF30019F01 /* MockNetworkConnectivityService.swift in Sources */,
 				244FEA4629B6A5D30058FA1C /* FeedItemTests.swift in Sources */,
 				4CB003F52E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift in Sources */,
 				24CA4BC12B6178EE00D16369 /* InAppSchemaDataTests.swift in Sources */,

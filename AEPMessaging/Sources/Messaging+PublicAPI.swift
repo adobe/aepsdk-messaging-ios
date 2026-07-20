@@ -148,14 +148,13 @@ import UserNotifications
     }
 
     /// Retrieves propositions for the provided surfaces from the SDK cache.
-    /// By default returns in-memory qualified content cards from the current session.
-    /// Set `usePersistedContentCards` to `true` to hydrate from disk persistence (e.g. offline fallback after a failed update).
+    /// Returns in-memory propositions for the current session. For surfaces with no in-memory data
+    /// (e.g. cold start or after a failed network update), propositions are transparently loaded from
+    /// persistent storage when available.
     /// - Parameters:
     ///   - surfaces: An array of `Surface` objects.
-    ///   - usePersistedContentCards: When `true`, content cards are loaded from persistent storage before returning. Defaults to `false`.
     ///   - completion: The completion handler invoked with propositions keyed by surface.
     static func getPropositionsForSurfaces(_ surfaces: [Surface],
-                                         usePersistedContentCards: Bool = false,
                                          _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
         let validSurfaces = surfaces
             .filter { $0.isValid }
@@ -167,21 +166,17 @@ import UserNotifications
             return
         }
 
-        var eventData: [String: Any] = [
+        let eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
             MessagingConstants.Event.Data.Key.SURFACES: validSurfaces.compactMap { $0.asDictionary() }
         ]
-        if usePersistedContentCards {
-            eventData[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] = true
-        }
 
         let event = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: eventData)
 
-        let timeout = usePersistedContentCards ? 10.0 : 5.0
-        MobileCore.dispatch(event: event, timeout: timeout) { responseEvent in
+        MobileCore.dispatch(event: event, timeout: 5.0) { responseEvent in
             guard let responseEvent = responseEvent else {
                 completion(nil, AEPError.callbackTimeout)
                 return
@@ -192,7 +187,11 @@ import UserNotifications
                 return
             }
 
-            let propositions = responseEvent.propositions ?? []
+            guard let propositions = responseEvent.propositions else {
+                completion(nil, AEPError.unexpected)
+                return
+            }
+
             completion(propositions.toDictionary { Surface(uri: $0.scope) }, nil)
         }
     }

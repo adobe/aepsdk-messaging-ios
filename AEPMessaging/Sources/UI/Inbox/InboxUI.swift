@@ -148,14 +148,14 @@ public class InboxUI: Identifiable, ObservableObject {
     private func performRefresh(completion: @escaping () -> Void) {
         state = .loading
         listener?.onLoading(self)
-        
+
         // First update propositions from the server
         Messaging.updatePropositionsForSurfaces([surface]) { [weak self] _ in
             guard let self = self else {
                 completion()
                 return
             }
-            
+
             // Then get the updated propositions
             Messaging.getPropositionsForSurfaces([self.surface]) { propositionDict, error in
                 DispatchQueue.main.async {

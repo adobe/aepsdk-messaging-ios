@@ -181,14 +181,16 @@ class ParsedPropositionTests: XCTestCase {
         // verify
         XCTAssertNotNil(result)
         XCTAssertEqual(0, result.propositionInfoToCache.count)
-        XCTAssertEqual(1, result.propositionsToCache.count, "code based proposition should be cached")
+        XCTAssertEqual(1, result.propositionsToCache.count, "code based proposition should be cached in memory")
         let codeBasedPropItem = result.propositionsToCache[mockCodeBasedSurface]?.first?.items.first
         XCTAssertEqual(mockCodeBasedContent["content"] as? String, codeBasedPropItem?.htmlContent)
         XCTAssertEqual(0, result.propositionsToPersist.count)
         XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
+        XCTAssertEqual(1, result.codeBasedPropositionsToPersist.count, "code based proposition should be persisted to disk")
+        XCTAssertEqual(mockCodeBasedSurface, result.codeBasedPropositionsToPersist.keys.first)
         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
     }
-    
+
     func testInitWithDefaultContentConsequence() throws {
         // setup
         let defaultContentRule = JSONFileLoader.getRulesJsonFromFile("ruleWithDefaultContentConsequence")
@@ -477,6 +479,10 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual(1, result.inboxPropositionsToCache.count)
         XCTAssertEqual(1, result.inboxPropositionsToCache[mockInboxSurface]?.count)
         XCTAssertEqual("inbox", result.inboxPropositionsToCache[mockInboxSurface]?.first?.uniqueId)
+        // SIMULATION: inbox offlineAvailable forced false — container-item never written to disk.
+        // XCTAssertEqual(1, result.inboxPropositionsToPersist.count, "inbox proposition should be persisted to disk")
+        // XCTAssertEqual(mockInboxSurface, result.inboxPropositionsToPersist.keys.first)
+        XCTAssertEqual(0, result.inboxPropositionsToPersist.count, "simulation: inbox must not persist to disk")
     }
 
     func testInitWithMixedPropositionsIncludingInbox() throws {
@@ -527,11 +533,16 @@ class ParsedPropositionTests: XCTestCase {
         // test
         let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInboxSurface], runtime: mockRuntime)
 
-        // verify - inbox should NOT be in propositionsToCache or propositionsToPersist
+        // verify - inbox goes to its own buckets; must NOT bleed into IAM or CBE caches
         XCTAssertNotNil(result)
-        XCTAssertEqual(0, result.propositionsToCache.count)
-        XCTAssertEqual(0, result.propositionsToPersist.count)
+        XCTAssertEqual(0, result.propositionsToCache.count, "inbox must not go to CBE in-memory cache")
+        XCTAssertEqual(0, result.propositionsToPersist.count, "inbox must not go to IAM disk cache")
+        XCTAssertEqual(0, result.codeBasedPropositionsToPersist.count, "inbox must not go to CBE disk cache")
+        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count, "inbox must not go to CC disk cache")
         XCTAssertEqual(1, result.inboxPropositionsToCache.count)
+        // SIMULATION: inbox offlineAvailable forced false — container-item never written to disk.
+        // XCTAssertEqual(1, result.inboxPropositionsToPersist.count, "inbox must go to its own disk cache")
+        XCTAssertEqual(0, result.inboxPropositionsToPersist.count, "simulation: inbox must not persist to disk")
     }
     
     private func getPropItemFile(_ fileName: String) -> PropositionItem {

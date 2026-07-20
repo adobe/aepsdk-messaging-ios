@@ -277,6 +277,11 @@ public class Messaging: NSObject, Extension {
         // handle an event to request propositions from the remote
         if event.isUpdatePropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update propositions from the remote.")
+            guard isNetworkAvailable() else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition update - device network is unavailable.")
+                completeUpdatePropositionsRequest(for: event, success: false)
+                return
+            }
             fetchPropositions(event, for: event.surfaces ?? [])
             return
         }
@@ -284,14 +289,9 @@ public class Messaging: NSObject, Extension {
         // handle an event to get cached propositions from the SDK
         if event.isGetPropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
-            if event.usePersistedContentCards {
-                // Offline disk hydrate does not depend on in-flight Edge updates; process immediately so
-                // callers are not blocked behind queued network requests (which can exceed the public API timeout).
-                retrieveMessages(for: event.surfaces ?? [], event: event)
-            } else {
-                // Queue memory reads so any prior update requests finish before returning in-session cache.
-                eventsQueue.add(event)
-            }
+            // Process immediately so callers are not blocked behind in-flight Edge requests or Event Hub timeouts.
+            // retrieveMessages auto-hydrates from disk for surfaces that have no in-memory data.
+            retrieveMessages(for: event.surfaces ?? [], event: event)
             return
         }
 
@@ -848,6 +848,16 @@ public class Messaging: NSObject, Extension {
         }
     }
 
+    private func isNetworkAvailable() -> Bool {
+        return MobileCore.isNetworkAvailable()
+    }
+
+    private func completeUpdatePropositionsRequest(for event: Event, success: Bool) {
+        if let handler = completionHandlerFor(originatingEventId: event.id) {
+            handler.handle?(success)
+        }
+    }
+
     /// Generates and dispatches an event prompting the Edge extension to fetch propositions (in-app, content cards, or code-based experiences).
     ///
     /// The surface URIs used in the request are generated using the `bundleIdentifier` for the app.
@@ -859,6 +869,12 @@ public class Messaging: NSObject, Extension {
     private func fetchPropositions(_ event: Event, for surfaces: [Surface]? = nil) {
         // check for completion handler for requesting event
         let handler = completionHandlerFor(originatingEventId: event.id)
+
+        guard isNetworkAvailable() else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition fetch - device network is unavailable.")
+            handler?.handle?(false)
+            return
+        }
 
         var requestedSurfaces: [Surface] = []
 
@@ -1038,19 +1054,6 @@ public class Messaging: NSObject, Extension {
     }
 
     private func endRequestFor(eventId: String) {
-        // Failed fetch: stream closed without any personalization:decisions payloads.
-        // Do not mutate in-memory or persisted propositions (offline / network failure).
-        guard !inProgressPropositions.isEmpty else {
-            Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Skipping proposition cache update — no personalization decisions received for event '\(eventId)'.")
-            requestedSurfacesForEventId.removeValue(forKey: eventId)
-
-            if let handler = completionHandlerFor(edgeRequestEventId: UUID(uuidString: eventId)) {
-                handler.handle?(false)
-            }
-            return
-        }
-
         // update in memory propositions
         applyPropositionChangeFor(eventId: eventId)
 
@@ -1074,27 +1077,28 @@ public class Messaging: NSObject, Extension {
 
         let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces, runtime: runtime)
 
-        // we need to preserve cache for any surfaces that were not a part of this request
-        // any requested surface that is absent from the response needs to be removed from cache and persistence
+        // surfaces requested but not returned must be cleared from both in-memory and disk
         let returnedSurfaces = Array(inProgressPropositions.keys) as [Surface]
         let surfacesToRemove = requestedSurfaces.minus(returnedSurfaces)
 
-        // update persistence, reporting data cache, and finally rules engine for in-app messages
-        // order matters here because the rules engine must be a full replace, and when we update
-        // persistence we will be removing empty surfaces and making sure unrequested surfaces
-        // continue to have their rules active
+        // DISK FIRST (MVVM): persistent storage is the source of truth. Write all proposition types
+        // to disk before updating in-memory so in-memory always reflects what is on disk or newer.
+        // Failures are non-fatal: the current session still works via in-memory; offline availability
+        // for future cold starts may be degraded. Log warnings so the app can observe the issue.
+        let iamWriteOK = cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
+        let ccWriteOK = cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
+        let cbeWriteOK = cache.updateCodeBasedPropositions(parsedPropositions.codeBasedPropositionsToPersist, removing: surfacesToRemove)
+        let inboxWriteOK = cache.updateInboxPropositions(parsedPropositions.inboxPropositionsToPersist, removing: surfacesToRemove)
+
+        if !iamWriteOK || !ccWriteOK || !cbeWriteOK || !inboxWriteOK {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "One or more proposition types failed to persist to disk — offline availability may be degraded for the next session.")
+        }
+
+        // IN-MEMORY: update all in-memory caches after disk writes so the view layer sees a consistent state
         updatePropositions(parsedPropositions.propositionsToCache, removing: surfacesToRemove)
         updateInboxPropositions(parsedPropositions.inboxPropositionsToCache, removing: surfacesToRemove)
         updatePropositionInfo(parsedPropositions.propositionInfoToCache, removing: surfacesToRemove)
-        cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
-        cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
-
-        if !parsedPropositions.contentCardPropositionsToPersist.isEmpty {
-            let surfaceCount = parsedPropositions.contentCardPropositionsToPersist.count
-            let propositionCount = parsedPropositions.contentCardPropositionsToPersist.values.reduce(0) { $0 + $1.count }
-            Log.debug(label: MessagingConstants.LOG_TAG,
-                      "Content card propositions saved to persisted disk successfully (\(propositionCount) proposition(s) across \(surfaceCount) surface(s)).")
-        }
 
         // apply rules
         updateRulesEngines(with: parsedPropositions.surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces)
@@ -1200,6 +1204,30 @@ public class Messaging: NSObject, Extension {
                   "Hydrated content card rules from disk for \(qualified.count) surface(s).")
     }
 
+    /// Reads code-based experience propositions from disk into `inMemoryPropositions` for the given surfaces.
+    func hydrateCodeBasedPropositionsFromDisk(for surfaces: [Surface]) {
+        guard let cached = cache.codeBasedPropositions, !cached.isEmpty else { return }
+        let filtered = cached.filter { surfaces.contains($0.key) }
+        guard !filtered.isEmpty else { return }
+        for (surface, propositions) in filtered {
+            inMemoryPropositions[surface] = propositions
+        }
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  "Hydrated code-based propositions from disk for \(filtered.count) surface(s).")
+    }
+
+    /// Reads inbox propositions from disk into `inboxPropositionsBySurface` for the given surfaces.
+    func hydrateInboxPropositionsFromDisk(for surfaces: [Surface]) {
+        guard let cached = cache.inboxPropositions, !cached.isEmpty else { return }
+        let filtered = cached.filter { surfaces.contains($0.key) }
+        guard !filtered.isEmpty else { return }
+        for (surface, propositions) in filtered {
+            inboxPropositionsBySurface[surface] = propositions
+        }
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  "Hydrated inbox propositions from disk for \(filtered.count) surface(s).")
+    }
+
     /// Dispatch an event containing all propositions for the given surface
     private func retrieveMessages(for surfaces: [Surface], event: Event) {
         let requestedSurfaces = surfaces.filter { $0.isValid }
@@ -1210,8 +1238,19 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        if event.usePersistedContentCards {
-            hydrateContentCardRulesEngineFromDisk(for: requestedSurfaces)
+        let surfacesWithoutCCInMemory = requestedSurfaces.filter { qualifiedContentCardsBySurface[$0] == nil }
+        if !surfacesWithoutCCInMemory.isEmpty {
+            hydrateContentCardRulesEngineFromDisk(for: surfacesWithoutCCInMemory)
+        }
+
+        let surfacesWithoutCBEInMemory = requestedSurfaces.filter { inMemoryPropositions[$0] == nil }
+        if !surfacesWithoutCBEInMemory.isEmpty {
+            hydrateCodeBasedPropositionsFromDisk(for: surfacesWithoutCBEInMemory)
+        }
+
+        let surfacesWithoutInboxInMemory = requestedSurfaces.filter { inboxPropositionsBySurface[$0] == nil }
+        if !surfacesWithoutInboxInMemory.isEmpty {
+            hydrateInboxPropositionsFromDisk(for: surfacesWithoutInboxInMemory)
         }
 
         // get requested content cards from cache
