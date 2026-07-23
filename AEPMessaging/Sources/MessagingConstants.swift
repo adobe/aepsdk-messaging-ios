@@ -308,6 +308,9 @@ enum MessagingConstants {
                 static let CHARACTERISTICS = "characteristics"
                 static let TOKENS = "tokens"
                 static let EXPERIENCE_DECISIONING_REQUEST_ID = "exdRequestID"
+                /// Flag added to a content card interaction XDM indicating the card was served
+                /// from the persisted on-disk cache rather than a live network response.
+                static let SERVED_FROM_PERSISTENT_CACHE = "servedFromPersistentCache"
             }
 
             enum Value {

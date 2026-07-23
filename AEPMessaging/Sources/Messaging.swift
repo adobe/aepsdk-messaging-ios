@@ -14,6 +14,20 @@ import AEPCore
 import AEPServices
 import Foundation
 
+/// Describes where a content card surface's currently-loaded rules originated.
+///
+/// This is a **provenance** signal — it answers "were these cards read from the persisted
+/// disk cache?" — and intentionally not a connectivity/freshness signal. It is tracked in
+/// memory only (see `Messaging.contentCardOriginBySurface`) and is never encoded into the
+/// persisted proposition cache, so it cannot leak into or corrupt on-disk data.
+enum CardOrigin: String {
+    /// Rules were loaded from a successful live personalization (network) response.
+    case network
+
+    /// Rules were hydrated from the persisted on-disk content card cache.
+    case disk
+}
+
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
     // MARK: - Class members
@@ -105,6 +119,59 @@ public class Messaging: NSObject, Extension {
     var qualifiedContentCardsBySurface: [Surface: [Proposition]] {
         get { queue.sync { self._qualifiedContentCardsBySurface } }
         set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
+    }
+
+    /// Tracks whether the content card rules currently loaded for each surface came from the
+    /// network (`.network`) or the persisted disk cache (`.disk`). Written in lockstep with
+    /// `contentCardRulesBySurface` so it can never drift from the data it describes.
+    /// In-memory only — never persisted, so it cannot leak into the on-disk cache.
+    private var _contentCardOriginBySurface: [Surface: CardOrigin] = [:]
+    var contentCardOriginBySurface: [Surface: CardOrigin] {
+        get { queue.sync { self._contentCardOriginBySurface } }
+        set { queue.async { self._contentCardOriginBySurface = newValue } }
+    }
+
+    /// Enriches a proposition interaction XDM with a `servedFromPersistentCache` flag per proposition,
+    /// derived from `contentCardOriginBySurface`.
+    ///
+    /// Only propositions whose surface has a tracked content card origin are annotated — IAM, CBE, and
+    /// inbox container-item interactions are left untouched, so the flag self-scopes to content cards.
+    /// `true` means the card was served from the persisted disk cache (offline); `false` means it came
+    /// from a live network response held in memory (online).
+    ///
+    /// - Parameter xdm: the proposition interaction XDM built by `PropositionInteraction`.
+    /// - Returns: the XDM, with the flag injected into each applicable proposition entry.
+    func enrichWithContentCardOrigin(_ xdm: [String: Any]) -> [String: Any] {
+        guard
+            var experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any],
+            var decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any],
+            var propositions = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]]
+        else {
+            return xdm
+        }
+
+        let origins = contentCardOriginBySurface
+        var didEnrich = false
+        propositions = propositions.map { proposition in
+            guard
+                let scope = proposition[MessagingConstants.XDM.Inbound.Key.SCOPE] as? String,
+                let origin = origins[Surface(uri: scope)]
+            else {
+                return proposition
+            }
+            var updated = proposition
+            updated[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE] = (origin == .disk)
+            didEnrich = true
+            return updated
+        }
+
+        guard didEnrich else { return xdm }
+
+        decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] = propositions
+        experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] = decisioning
+        var enriched = xdm
+        enriched[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experience
+        return enriched
     }
 
     /// holds inbox propositions (container-item) for each surface
@@ -304,7 +371,7 @@ public class Messaging: NSObject, Extension {
                 return
             }
 
-            sendPropositionInteraction(withXdm: propositionInteractionXdm)
+            sendPropositionInteraction(withXdm: enrichWithContentCardOrigin(propositionInteractionXdm))
             return
         }
 
@@ -559,6 +626,7 @@ public class Messaging: NSObject, Extension {
     private func clearContentCards() {
         qualifiedContentCardsBySurface = [:]
         contentCardRulesBySurface = [:]
+        contentCardOriginBySurface = [:]
         contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
         try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
         Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared on identity reset.")
@@ -798,6 +866,8 @@ public class Messaging: NSObject, Extension {
         for surface in requestedSurfaces {
             if qualifiedContentCards[surface] == nil {
                 qualifiedContentCardsBySurface.removeValue(forKey: surface)
+                // origin tracking must be cleared alongside the evicted memory so it cannot go stale
+                contentCardOriginBySurface.removeValue(forKey: surface)
             }
         }
 
@@ -1117,6 +1187,17 @@ public class Messaging: NSObject, Extension {
         let collectedContentCardRules = collectRules(from: contentCardRulesBySurface)
         contentCardRulesEngine.launchRulesEngine.replaceRules(with: collectedContentCardRules)
 
+        // Tag origin as `.network` for the content card surfaces actually present in THIS response.
+        // We must not tag every qualified surface here: re-seeding also re-qualifies surfaces whose
+        // rules were previously hydrated from disk, and those must retain their `.disk` origin.
+        if let networkContentCardRules = surfaceRulesBySchemaType[.contentCard] {
+            var origins = contentCardOriginBySurface
+            for surface in networkContentCardRules.keys {
+                origins[surface] = .network
+            }
+            contentCardOriginBySurface = origins
+        }
+
         let seedEvent = Event(name: "Seed content cards", type: EventType.messaging, source: EventSource.requestContent, data: nil)
         let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
         removeOrReplaceContentCards(qualified, requestedSurfaces: requestedSurfaces)
@@ -1196,9 +1277,14 @@ public class Messaging: NSObject, Extension {
                               source: EventSource.requestContent,
                               data: nil)
         let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
+        var origins = contentCardOriginBySurface
         for (surface, propositions) in qualified where surfaces.contains(surface) {
             qualifiedContentCardsBySurface[surface] = propositions
+            // tag origin as `.disk` in lockstep with the memory write, so a later display event
+            // can report that these cards were served from the persisted cache (offline)
+            origins[surface] = .disk
         }
+        contentCardOriginBySurface = origins
 
         Log.debug(label: MessagingConstants.LOG_TAG,
                   "Hydrated content card rules from disk for \(qualified.count) surface(s).")

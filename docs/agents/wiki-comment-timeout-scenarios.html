@@ -1,0 +1,36 @@
+<p><strong>PM Q&amp;A — Offline vs low network vs 5s timeout (OQ-1)</strong></p>
+
+<p><strong>Three situations (don&apos;t mix them up)</strong></p>
+<table class="wrapped"><tbody>
+<tr><th>Situation</th><th>Device</th><th>Typical wait</th></tr>
+<tr><td><strong>Offline</strong></td><td>No path (airplane / no route)</td><td>Disk serve target &lt;200ms–1s</td></tr>
+<tr><td><strong>Low network</strong></td><td>Online but Edge slow</td><td>3–10s+ for fresh content</td></tr>
+<tr><td><strong>5s timeout today</strong></td><td>Often queued update + slow Edge</td><td>API callback limit — not disk I/O</td></tr>
+</table>
+
+<p><strong>Scenario 1 — True offline</strong> (e.g. park with no signal; cards saved yesterday)<br/>
+<em>Bad:</em> <code>update</code> → <code>get</code> chained → GET blocked behind UPDATE ~5s → empty UI / callbackTimeout even though disk has cards.<br/>
+<em>Good:</em> path monitor skips Edge → cache-first <code>get</code> → cards in &lt;1s. <strong>200ms is realistic for disk read, not network.</strong></p>
+
+<p><strong>Scenario 2 — Low network</strong> (connected, congested Wi‑Fi)<br/>
+Edge may return fresh campaigns in 2–5s. A <strong>200ms network timeout would always fall back to stale cache</strong> on degraded Wi‑Fi — product tradeoff (speed vs freshness), not a safe universal default.<br/>
+<em>Recommended hybrid:</em> show disk immediately → background <code>update</code> (configurable 3–5s) → refresh UI if network succeeds.</p>
+
+<p><strong>Scenario 3 — Why 5s is not &quot;disk is slow&quot;</strong><br/>
+<code>eventsQueue</code> runs UPDATE before GET; public API waits max 5s for Messaging. Disk hydrate when it runs is &lt;200ms. Fixes: cache-first get, bypass read queue, skip update when offline.</p>
+
+<p><strong>Configurable timeout (Optimize-style analogy)</strong></p>
+<table class="wrapped"><tbody>
+<tr><th>Knob</th><th>Where</th><th>Controls</th></tr>
+<tr><td>Update fail-fast timeout</td><td>Launch / app config</td><td>Max wait for background refresh (e.g. 3–5s)</td></tr>
+<tr><td>Get callback timeout</td><td>SDK default</td><td>Max wait for <code>getPropositions</code> response (5s today)</td></tr>
+<tr><td>Disk hydrate</td><td>N/A</td><td>Always fast — no timeout</td></tr>
+</table>
+<p>Timeout is an <strong>app/network policy</strong>, not per-card authoring (same pattern as Optimize sync settings).</p>
+
+<p><strong>Decision guide</strong></p>
+<ul>
+<li><strong>No network</strong> → skip Edge; serve disk immediately</li>
+<li><strong>Bad Wi‑Fi opening feed</strong> → cache-first + configurable update timeout (3–5s), not 200ms</li>
+<li><strong>Good network</strong> → normal update; 5s callback is fine</li>
+</ul>
