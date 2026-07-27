@@ -34,9 +34,6 @@ struct ParsedPropositions {
     // content card ruleset propositions persisted to disk (separate from IAM)
     var contentCardPropositionsToPersist: [Surface: [Proposition]] = [:]
 
-    // code-based experience propositions persisted to disk for offline availability
-    var codeBasedPropositionsToPersist: [Surface: [Proposition]] = [:]
-
     // inbox propositions persisted to disk for offline availability
     var inboxPropositionsToPersist: [Surface: [Proposition]] = [:]
 
@@ -94,7 +91,9 @@ struct ParsedPropositions {
                             mergeRules(parsedRule, for: surface, with: .inapp)
                         case .feed, .contentCard:
                             propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
-                            if proposition.offlineAvailable {
+                            // TODO: gate on shared-state-driven config once available; hardcoded true for now
+                            // so all content cards are persisted to disk for offline availability.
+                            if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED {
                                 contentCardPropositionsToPersist.add(proposition, forKey: surface)
                             }
                             mergeRules(parsedRule, for: surface, with: .contentCard)
@@ -111,23 +110,19 @@ struct ParsedPropositions {
                         }
                     }
                 // - handle json-content, html-content, and default-content schemas for code based experiences
-                //   a. code based schemas are always cached in-memory for the current session
-                //   b. when the proposition declares offline availability, also persisted to disk
+                //   a. code based schemas are cached for reporting
                 case .jsonContent, .htmlContent, .defaultContent:
                     propositionsToCache.add(proposition, forKey: surface)
-                    if proposition.offlineAvailable {
-                        codeBasedPropositionsToPersist.add(proposition, forKey: surface)
-                    }
                 // - handle container-item schemas for inbox
                 //   a. inbox schemas are always cached in-memory for the current session
                 //   b. when the proposition declares offline availability, also persisted to disk
                 case .inbox:
                     inboxPropositionsToCache.add(proposition, forKey: surface)
-                    // SIMULATION: inbox offlineAvailable forced false — container-item never written to disk.
-                    // Expected cold-start result: error screen even though content cards ARE cached.
-                    // if proposition.offlineAvailable {
-                    //     inboxPropositionsToPersist.add(proposition, forKey: surface)
-                    // }
+                    // TODO: gate on shared-state-driven config once available; hardcoded true for now
+                    // so all inbox container-items are persisted to disk for offline availability.
+                    if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED {
+                        inboxPropositionsToPersist.add(proposition, forKey: surface)
+                    }
                 case .unknown:
                     continue
                 default:

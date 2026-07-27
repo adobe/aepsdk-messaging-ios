@@ -15,9 +15,10 @@ import Foundation
 
 @available(iOS 15.0, *)
 public extension Messaging {
-    /// Retrieves the content cards UI for a given surface.
-    /// Returns in-memory qualified content cards for the current session. On cold start or after a
-    /// failed network update, cards are transparently loaded from persistent storage when available.
+    /// Retrieves the content cards UI for a given surface from the SDK's in-memory cache.
+    /// Recommended usage: call `updatePropositionsForSurfacesWithCompletionHandler` first; on success,
+    /// call this method. On failure, call `getContentCardsUI(for:usePersistedContentCards:...)` with
+    /// the flag set to `true` to explicitly read from the persisted disk cache instead.
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the content cards.
     ///   - customizer: An optional ContentCardCustomizable object to customize the appearance of the content card template.
@@ -29,7 +30,25 @@ public extension Messaging {
                                   customizer: ContentCardCustomizing? = nil,
                                   listener: ContentCardUIEventListening? = nil,
                                   _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
-        Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
+        getContentCardsUI(for: surface, usePersistedContentCards: false, customizer: customizer, listener: listener, completion)
+    }
+
+    /// Retrieves the content cards UI for a given surface.
+    /// - Parameters:
+    ///   - surface: The surface for which to retrieve the content cards.
+    ///   - usePersistedContentCards: When `true`, explicitly loads content cards from the persisted
+    ///     disk cache for this surface. When `false` (default), only in-memory cards are returned.
+    ///   - customizer: An optional ContentCardCustomizable object to customize the appearance of the content card template.
+    ///   - listener: An optional ContentCardUIEventListening object to listen to UI events from the content card.
+    ///   - completion: A completion handler that is called with a `Result` type containing either:
+    ///     - success([ContentCardUI]):  An array of `ContentCardUI` objects if the operation is successful.
+    ///     - failure(Error) : An error indicating the failure reason
+    static func getContentCardsUI(for surface: Surface,
+                                  usePersistedContentCards: Bool,
+                                  customizer: ContentCardCustomizing? = nil,
+                                  listener: ContentCardUIEventListening? = nil,
+                                  _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
+        Messaging.getPropositionsForSurfaces([surface], usePersistedContentCards: usePersistedContentCards) { propositionDict, error in
             if let error = error {
                 Log.error(label: UIConstants.LOG_TAG,
                           "Error retrieving content cards UI for surface, \(surface.uri). Error \(error)")
@@ -67,28 +86,33 @@ public extension Messaging {
     }
     
     /// Retrieves a content card container UI for a given surface.
-    /// 
+    ///
     /// Returns a ContainerUI immediately that starts in a loading state.
-    /// The container will automatically fetch content cards and container settings, 
+    /// The container will automatically fetch content cards and container settings,
     /// then transition to loaded, empty, or error state.
     ///
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the container UI.
+    ///   - usePersistedContentCards: When `true`, the inbox container-item and its content cards are
+    ///     read directly from the persisted disk cache and the network is never contacted. When
+    ///     `false` (default), propositions are updated from the server first, then read from memory.
     ///   - customizer: An optional ContentCardCustomizing object to customize the appearance of content cards.
     ///   - listener: An optional InboxEventListening object to listen to container events.
     /// - Returns: A ContainerUI instance that manages its own loading and display state.
     static func getInboxUI(for surface: Surface,
+                                         usePersistedContentCards: Bool = false,
                                          customizer: ContentCardCustomizing? = nil,
                                          listener: InboxEventListening? = nil) -> InboxUI {
-        
+
         // Create and return the container UI immediately with default settings
         // It will start in loading state and fetch both container settings and cards automatically
         let inboxUI = InboxUI(
             surface: surface,
+            usePersistedContentCards: usePersistedContentCards,
             customizer: customizer,
             listener: listener
         )
-        
+
         return inboxUI
     }
 }

@@ -16,8 +16,6 @@ struct TabHeader: View {
     var title: String
     var refreshAction: (() -> Void)?
     var redownloadAction: (() -> Void)?
-    var offlineFallbackAction: (() -> Void)?
-    var logPropositionsAction: (() -> Void)?
 
     var body: some View {
         ZStack {
@@ -29,24 +27,6 @@ struct TabHeader: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack {
-                if let logPropositionsAction = logPropositionsAction {
-                    Button(action: logPropositionsAction, label: {
-                        VStack {
-                            Image(systemName: "doc.text.magnifyingglass")
-                            Text("Log Props")
-                                .font(.system(size: 12, weight: .light))
-                        }
-                    })
-                }
-                if let offlineFallbackAction = offlineFallbackAction {
-                    Button(action: offlineFallbackAction, label: {
-                        VStack {
-                            Image(systemName: "arrow.triangle.2.circlepath.icloud")
-                            Text("Offline")
-                                .font(.system(size: 12, weight: .light))
-                        }
-                    })
-                }
                 if let redownloadAction = redownloadAction {
                     Button(action: redownloadAction, label: {
                         VStack {

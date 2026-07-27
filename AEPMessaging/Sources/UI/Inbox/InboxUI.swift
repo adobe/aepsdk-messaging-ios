@@ -96,20 +96,29 @@ public class InboxUI: Identifiable, ObservableObject {
     
     // MARK: - Initialization
     
+    /// When `true`, refresh reads the inbox container-item and its content cards directly from the
+    /// persisted disk cache and never contacts the network. When `false` (default), refresh updates
+    /// propositions from the server first, then reads the result from memory.
+    private let usePersistedContentCards: Bool
+
     /// Initializes a new InboxUI that will fetch InboxSchemaData dynamically
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the content cards
+    ///   - usePersistedContentCards: When `true`, reads the inbox container-item and content cards
+    ///     from the persisted disk cache instead of fetching from the network. Default is `false`.
     ///   - customizer: Optional customizer for content cards
     ///   - listener: Optional listener for inbox events
     public init(surface: Surface,
+                usePersistedContentCards: Bool = false,
                 customizer: ContentCardCustomizing? = nil,
                 listener: InboxEventListening? = nil) {
         self.surface = surface
+        self.usePersistedContentCards = usePersistedContentCards
         self.inboxSchemaData = nil // Will be fetched from propositions
         self.customizer = customizer
         self.listener = listener
         self.cardEventListener = self
-        
+
         // Start downloading content cards and inboxSchemaData immediately
         refresh()
     }
@@ -141,13 +150,31 @@ public class InboxUI: Identifiable, ObservableObject {
     
     // MARK: - Private Methods
     
-    /// Performs the refresh operation by updating propositions from the server and fetching them.
+    /// Performs the refresh operation, either from the persisted disk cache (no network) or by
+    /// updating propositions from the server and then fetching them.
     ///
     /// This is the core refresh logic used by both `refresh()` and `refreshAsync()`.
     /// - Parameter completion: Called when the refresh operation completes (success or failure)
     private func performRefresh(completion: @escaping () -> Void) {
         state = .loading
         listener?.onLoading(self)
+
+        if usePersistedContentCards {
+            // Explicit disk read — no network call. Mirrors getContentCardsUI(usePersistedContentCards: true),
+            // which also never contacts the server. A single flag drives both the content card and
+            // inbox disk hydration gates inside Messaging.retrieveMessages.
+            Messaging.getPropositionsForSurfaces([surface], usePersistedContentCards: true) { [weak self] propositionDict, error in
+                DispatchQueue.main.async {
+                    guard let self = self else {
+                        completion()
+                        return
+                    }
+                    self.processInboxPropositions(propositionDict, error: error)
+                    completion()
+                }
+            }
+            return
+        }
 
         // First update propositions from the server
         Messaging.updatePropositionsForSurfaces([surface]) { [weak self] _ in

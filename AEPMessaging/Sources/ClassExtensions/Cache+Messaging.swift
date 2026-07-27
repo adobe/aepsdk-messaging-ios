@@ -28,12 +28,6 @@ extension Cache {
                           emptyLogMessage: "No content card proposition definitions found in cache.")
     }
 
-    var codeBasedPropositions: [Surface: [Proposition]]? {
-        propositionsByKey(MessagingConstants.Caches.CODE_BASED_PROPOSITIONS,
-                          logTag: "Unable to load cached code-based propositions, cache file not found.",
-                          emptyLogMessage: "No code-based proposition definitions found in cache.")
-    }
-
     var inboxPropositions: [Surface: [Proposition]]? {
         propositionsByKey(MessagingConstants.Caches.INBOX_PROPOSITIONS,
                           logTag: "Unable to load cached inbox propositions, cache file not found.",
@@ -62,17 +56,6 @@ extension Cache {
                                 cacheCreatedMessage: "Content card messaging cache has been created.",
                                 encodeErrorMessage: "Error creating content card messaging cache, unable to encode proposition.",
                                 writeErrorPrefix: "Error creating content card messaging cache")
-    }
-
-    @discardableResult
-    func updateCodeBasedPropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) -> Bool {
-        updatePropositionsByKey(MessagingConstants.Caches.CODE_BASED_PROPOSITIONS,
-                                existing: codeBasedPropositions,
-                                new: newPropositions,
-                                removing: surfaces,
-                                cacheCreatedMessage: "Code-based propositions cache has been created.",
-                                encodeErrorMessage: "Error creating code-based propositions cache, unable to encode proposition.",
-                                writeErrorPrefix: "Error creating code-based propositions cache")
     }
 
     @discardableResult

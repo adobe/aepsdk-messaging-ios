@@ -19,34 +19,80 @@ struct InboxView: View, ContentCardUIEventListening, InboxEventListening {
 
     var body: some View {
         VStack(spacing: 0) {
+            actionPanel
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+
             if let inboxUI = inboxUI {
                 inboxUI.view
+            } else {
+                Spacer()
+                Text("Tap Online Inbox or Offline Inbox to load")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                Spacer()
             }
         }
         .navigationTitle("Inbox Demo")
-        .onAppear {
-            // Only initialize once
-            guard inboxUI == nil else { return }
-            let surface = Surface(path: Constants.SurfaceName.INBOX)
-            // Get InboxUI immediately - it starts in loading state
-            let inbox = Messaging.getInboxUI(
-                for: surface,
-                customizer: InboxCustomizer(),
-                listener: self
-            )
-            inboxUI = inbox
+        // No auto-load on appear — landing on this screen does not fetch anything.
+        // Fetch only happens when the user taps Online Inbox or Offline Inbox below.
+    }
 
-            // Configure inbox properties
-            inbox.isPullToRefreshEnabled = true
-            inbox.cardSpacing = 20
-            inbox.contentPadding = EdgeInsets(top: 20, leading: 10, bottom: 20, trailing: 10)
+    // MARK: - Action Panel
 
-            // Uncomment to apply custom views:
-            // applyCustomHeadingView(inbox)
-            // applyCustomLoadingView(inbox)
-            // applyCustomErrorView(inbox)
-            // applyCustomEmptyView(inbox)
+    private var actionPanel: some View {
+        HStack(spacing: 10) {
+            actionButton(title: "Online Inbox", systemImage: "network") {
+                loadInbox(usePersistedContentCards: false)
+            }
+            actionButton(title: "Offline Inbox", systemImage: "icloud.slash") {
+                loadInbox(usePersistedContentCards: true)
+            }
         }
+    }
+
+    private func actionButton(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: systemImage)
+                Text(title)
+                    .font(.system(size: 13, weight: .medium))
+                    .multilineTextAlignment(.leading)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 8)
+            .background(Color(.secondarySystemBackground))
+            .cornerRadius(10)
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Recreates the InboxUI with the given persistence mode.
+    /// `usePersistedContentCards: true` reads the inbox container-item and its content cards
+    /// directly from the persisted disk cache and never contacts the network.
+    /// `usePersistedContentCards: false` updates propositions from the server first, then reads
+    /// from memory (default behavior).
+    private func loadInbox(usePersistedContentCards: Bool) {
+        let surface = Surface(path: Constants.SurfaceName.INBOX)
+        let inbox = Messaging.getInboxUI(
+            for: surface,
+            usePersistedContentCards: usePersistedContentCards,
+            customizer: InboxCustomizer(),
+            listener: self
+        )
+        inboxUI = inbox
+
+        // Configure inbox properties
+        inbox.isPullToRefreshEnabled = true
+        inbox.cardSpacing = 20
+        inbox.contentPadding = EdgeInsets(top: 20, leading: 10, bottom: 20, trailing: 10)
+
+        // Uncomment to apply custom views:
+        // applyCustomHeadingView(inbox)
+        // applyCustomLoadingView(inbox)
+        // applyCustomErrorView(inbox)
+        // applyCustomEmptyView(inbox)
     }
 
     // MARK: - Custom View Helpers

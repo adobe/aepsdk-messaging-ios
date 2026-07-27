@@ -43,6 +43,18 @@ extension Event {
         isEdgeType && isPersonalizationSource
     }
 
+    /// True when this is an Edge `errorResponseContent` event — dispatched by the Edge extension
+    /// for both server-side per-event errors and network/HTTP-level failures, before or instead of
+    /// a `personalization:decisions` event.
+    var isEdgeErrorResponseEvent: Bool {
+        isEdgeType && source == MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE
+    }
+
+    /// HTTP-equivalent status code carried on an Edge error response event, if present.
+    var edgeErrorStatus: Int? {
+        data?[MessagingConstants.Event.Data.Key.EdgeError.STATUS] as? Int
+    }
+
     var requestEventId: String? {
         parentID?.uuidString as? String ?? data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
     }
@@ -152,6 +164,23 @@ extension Event {
 
     private var getPropositions: Bool {
         data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false
+    }
+
+    /// Explicit request to read content card / inbox propositions from the persisted disk cache,
+    /// via `getPropositionsForSurfaces(_:usePersistedContentCards:_:)`. When `false` (default),
+    /// the get is a pure in-memory read with no disk access.
+    var usePersistedContentCards: Bool {
+        data?[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] as? Bool ?? false
+    }
+
+    // MARK: - Clear persisted propositions public API event
+
+    var isClearPersistedPropositionsEvent: Bool {
+        isMessagingType && isRequestContentSource && clearPersistedPropositions
+    }
+
+    private var clearPersistedPropositions: Bool {
+        data?[MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS] as? Bool ?? false
     }
 
     var propositions: [Proposition]? {

@@ -16,48 +16,26 @@ import SwiftUI
 struct CardsView: View, ContentCardUIEventListening {
 
     let cardsSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
-    let inboxSurface = Surface(path: Constants.SurfaceName.INBOX)
-    private var logSurfaces: [Surface] { [ inboxSurface] }
     @State var savedCards: [ContentCardUI] = []
     @State private var viewLoaded: Bool = false
     @State private var showLoadingIndicator: Bool = false
-    @State private var lastLoadSource: String = ""
-    @State private var propositionLog: String = ""
+    @State private var statusMessage: String = ""
 
     var body: some View {
-        VStack {
-            TabHeader(title: "Content Cards", refreshAction: {
-                refreshCards()
-            }, redownloadAction: {
-                downloadCards()
-                refreshCards()
-            }, offlineFallbackAction: {
-                updatePropositionsWithOfflineFallback()
-            }, logPropositionsAction: {
-                updateAndLogPropositions()
-            })
+        VStack(spacing: 0) {
+            TabHeader(title: "Content Cards")
 
-            if !lastLoadSource.isEmpty {
-                Text("Loaded from: \(lastLoadSource)")
+            actionPanel
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+
+            if !statusMessage.isEmpty {
+                Text(statusMessage)
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
-            }
-
-            if !propositionLog.isEmpty {
-                ScrollView {
-                    Text(propositionLog)
-                        .font(.system(.caption, design: .monospaced))
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .frame(maxHeight: 280)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(8)
-                .padding(.horizontal, 16)
+                    .padding(.top, 8)
             }
 
             ZStack {
@@ -68,6 +46,7 @@ struct CardsView: View, ContentCardUIEventListening {
                                 .padding(.horizontal, 16)
                         }
                     }
+                    .padding(.top, 12)
                 }
 
                 if showLoadingIndicator {
@@ -83,161 +62,106 @@ struct CardsView: View, ContentCardUIEventListening {
         .onAppear() {
             if !viewLoaded {
                 viewLoaded = true
-                refreshCards()
+                fetchContentCards()
             }
         }
     }
 
-    func refreshCards() {
-        fetchPropositionsAndLoadUI(usePersistedContentCards: false, sourceLabel: "Memory")
+    // MARK: - Action Panel
+
+    private var actionPanel: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                actionButton(title: "Download", systemImage: "arrow.down.circle") {
+                    downloadCards()
+                }
+                actionButton(title: "Fetch Content Cards", systemImage: "arrow.clockwise.circle") {
+                    fetchContentCards()
+                }
+            }
+            HStack(spacing: 10) {
+                actionButton(title: "Fetch Offline Content Cards", systemImage: "icloud.slash") {
+                    fetchOfflineContentCards()
+                }
+                actionButton(title: "Clear Cache", systemImage: "trash") {
+                    clearPersistedPropositions()
+                }
+            }
+        }
     }
 
-    /// Demo: update from network; on success get from memory, on failure get from persisted storage.
-    func updatePropositionsWithOfflineFallback() {
+    private func actionButton(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: systemImage)
+                Text(title)
+                    .font(.system(size: 13, weight: .medium))
+                    .multilineTextAlignment(.leading)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 8)
+            .background(Color(.secondarySystemBackground))
+            .cornerRadius(10)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Actions
+
+    /// Fires a network update for the content card surface (fire-and-forget, no callback).
+    func downloadCards() {
+        Messaging.updatePropositionsForSurfaces([cardsSurface])
+        statusMessage = "Download requested for surface: \(cardsSurface.uri)"
+    }
+
+    /// Reads content cards from the SDK's in-memory cache only.
+    func fetchContentCards() {
         showLoadingIndicator = true
-        Messaging.updatePropositionsForSurfacesWithCompletionHandler([cardsSurface]) { success in
-            DispatchQueue.main.async {
-                if success {
-                    self.fetchPropositionsAndLoadUI(usePersistedContentCards: false,
-                                                    sourceLabel: "Network (memory)",
-                                                    notePersistSuccess: true)
-                } else {
-                    self.fetchPropositionsAndLoadUI(usePersistedContentCards: true,
-                                                    sourceLabel: "Phone cache (offline fallback)")
-                }
-            }
-        }
-    }
-
-    /// Demo: update from network, then log raw propositions — memory on success, persisted storage on failure.
-    func updateAndLogPropositions() {
-        showLoadingIndicator = true
-        Messaging.updatePropositionsForSurfacesWithCompletionHandler(logSurfaces) { success in
-            DispatchQueue.main.async {
-                if success {
-                    self.fetchAndLogPropositions(usePersistedContentCards: false,
-                                                 sourceLabel: "Memory",
-                                                 notePersistSuccess: true)
-                } else {
-                    self.fetchAndLogPropositions(usePersistedContentCards: true,
-                                                sourceLabel: "Phone cache (usePersistedContentCards: true)")
-                }
-            }
-        }
-    }
-
-    private static let persistSuccessMessage = """
-    updatePropositions: SUCCESS
-    Content cards saved to persisted disk successfully (contentCardPropositions cache).
-    """
-
-    private func fetchAndLogPropositions(usePersistedContentCards: Bool, sourceLabel: String, notePersistSuccess: Bool = false) {
-        Messaging.getPropositionsForSurfaces(logSurfaces) { propositionsDict, error in
-            DispatchQueue.main.async {
-                showLoadingIndicator = false
-                if let error = error {
-                    propositionLog = "getPropositions failed (\(sourceLabel))\n\(error)\n\(error.localizedDescription)"
-                    print("TestAppLog Propositions: \(propositionLog)")
-                    return
-                }
-                let hasCards = !(propositionsDict?[cardsSurface]?.isEmpty ?? true)
-                let prepend = notePersistSuccess && hasCards ? Self.persistSuccessMessage : ""
-                propositionLog = formatPropositionsLog(propositionsDict,
-                                                       surfaces: logSurfaces,
-                                                       source: sourceLabel,
-                                                       usePersisted: usePersistedContentCards,
-                                                       prepend: prepend)
-                if !prepend.isEmpty {
-                    lastLoadSource = "Persisted to disk"
-                    print("TestAppLog Persist: \(Self.persistSuccessMessage)")
-                }
-                print("TestAppLog Propositions:\n\(propositionLog)")
-            }
-        }
-    }
-
-    private func formatPropositionsLog(_ propositionsDict: [Surface: [Proposition]]?,
-                                       surfaces: [Surface],
-                                       source: String,
-                                       usePersisted: Bool,
-                                       prepend: String = "") -> String {
-        var lines = [String]()
-        if !prepend.isEmpty {
-            lines.append(prepend.trimmingCharacters(in: .whitespacesAndNewlines))
-            lines.append("")
-        }
-        lines.append(contentsOf: [
-            "getPropositionsForSurfaces",
-            "usePersistedContentCards: \(usePersisted)",
-            "Source: \(source)",
-            "Surfaces: \(surfaces.map { $0.uri }.joined(separator: ", "))"
-        ])
-
-        for surface in surfaces {
-            lines.append("")
-            lines.append("--- Surface: \(surface.uri) ---")
-            guard let propositions = propositionsDict?[surface], !propositions.isEmpty else {
-                lines.append("Result: no propositions")
-                continue
-            }
-            lines.append("Count: \(propositions.count)")
-            for (index, proposition) in propositions.enumerated() {
-                lines.append("[\(index)] id=\(proposition.uniqueId)")
-                lines.append("    scope=\(proposition.scope)")
-                lines.append("    priority=\(proposition.priority) items=\(proposition.items.count)")
-                for (itemIndex, item) in proposition.items.enumerated() {
-                    lines.append("    item[\(itemIndex)] id=\(item.itemId) schema=\(item.schema.toString())")
-                    if let dataLog = Self.formatItemData(item.itemData) {
-                        lines.append("    item[\(itemIndex)] data=\(dataLog)")
-                    }
-                }
-            }
-        }
-        return lines.joined(separator: "\n")
-    }
-
-    private static func formatItemData(_ itemData: [String: Any]) -> String? {
-        guard !itemData.isEmpty,
-              let data = try? JSONSerialization.data(withJSONObject: itemData, options: [.sortedKeys]),
-              let json = String(data: data, encoding: .utf8) else {
-            return nil
-        }
-        return json
-    }
-
-    private func fetchPropositionsAndLoadUI(usePersistedContentCards: Bool, sourceLabel: String, notePersistSuccess: Bool = false) {
         Messaging.getContentCardsUI(for: cardsSurface,
                                     customizer: CardCustomizer(),
                                     listener: self) { result in
             DispatchQueue.main.async {
                 showLoadingIndicator = false
-                switch result {
-                case .failure(let error):
-                    print("TestAppLog getContentCardsUI (\(sourceLabel)): \(error)")
-                    lastLoadSource = "Failed — \(sourceLabel)"
-                    savedCards = []
-                case .success(let cards):
-                    if cards.isEmpty {
-                        print("TestAppLog getContentCardsUI (\(sourceLabel)): no cards")
-                        lastLoadSource = "Empty — \(sourceLabel)"
-                        savedCards = []
-                    } else {
-                        if notePersistSuccess {
-                            propositionLog = Self.persistSuccessMessage
-                            lastLoadSource = "Persisted to disk"
-                            print("TestAppLog Persist: \(Self.persistSuccessMessage)")
-                        }
-                        savedCards = cards.sorted { $0.priority > $1.priority }
-                        lastLoadSource = sourceLabel
-                        print("TestAppLog getContentCardsUI (\(sourceLabel)): \(cards.count) card(s), usePersistedContentCards=\(usePersistedContentCards)")
-                    }
-                }
+                handleResult(result, source: "Memory")
             }
         }
     }
 
-    func downloadCards() {
-        Messaging.updatePropositionsForSurfaces([cardsSurface])
+    /// Explicitly reads content cards from the persisted disk cache.
+    func fetchOfflineContentCards() {
+        showLoadingIndicator = true
+        Messaging.getContentCardsUI(for: cardsSurface,
+                                    usePersistedContentCards: true,
+                                    customizer: CardCustomizer(),
+                                    listener: self) { result in
+            DispatchQueue.main.async {
+                showLoadingIndicator = false
+                handleResult(result, source: "Persisted disk cache")
+            }
+        }
+    }
+
+    /// Clears the persisted content card and inbox disk cache.
+    func clearPersistedPropositions() {
+        Messaging.clearPersistedPropositions()
+        statusMessage = "Persisted content card and inbox caches cleared."
+    }
+
+    private func handleResult(_ result: Result<[ContentCardUI], Error>, source: String) {
+        switch result {
+        case .failure(let error):
+            statusMessage = "Fetch failed (\(source)): \(error.localizedDescription)"
+            savedCards = []
+        case .success(let cards):
+            if cards.isEmpty {
+                statusMessage = "No cards found (\(source))"
+                savedCards = []
+            } else {
+                statusMessage = "Loaded \(cards.count) card(s) from \(source)"
+                savedCards = cards.sorted { $0.priority > $1.priority }
+            }
+        }
     }
 
     func onDisplay(_ card: ContentCardUI) {

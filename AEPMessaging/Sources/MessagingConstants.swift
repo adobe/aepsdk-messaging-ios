@@ -27,6 +27,17 @@ enum MessagingConstants {
     static let OPTIMIZE_PUSH_SYNC_ENABLED = "Push token sync optimization is enabled"
     static let OPTIMIZE_PUSH_SYNC_DISABLED_SYNC_WITHIN_TIMEOUT = "Push registration sync optimization is disabled but the sync is within the 1 second timeout"
 
+    /// Global gate controlling whether content card and inbox propositions are persisted to disk
+    /// for offline availability. Hardcoded `true` for now so all content cards and inbox
+    /// container-items are cached. TODO: replace with a value read from shared state configuration
+    /// once that config flag is available, instead of this hardcoded default.
+    static let OFFLINE_AVAILABILITY_ENABLED = true
+
+    /// HTTP status codes that Edge's own PersistentHitQueue already retries. When an
+    /// errorResponseContent event carries one of these, Edge will resolve it on its own
+    /// (success or eventual drop) — Messaging should not treat it as a definitive failure.
+    static let RECOVERABLE_EDGE_ERROR_STATUS_CODES: Set<Int> = [408, 429, 502, 503, 504, 507]
+
     enum ContentTypes {
         static let APPLICATION_JSON = "application/json"
         static let TEXT_HTML = "text/html"
@@ -39,7 +50,6 @@ enum MessagingConstants {
         static let CONTENT_CARD_UI_CACHE_NAME = "com.adobe.messaging.contentcard.ui.cache"
         static let PROPOSITIONS = "propositions"
         static let CONTENT_CARD_PROPOSITIONS = "contentCardPropositions"
-        static let CODE_BASED_PROPOSITIONS = "codeBasedPropositions"
         static let INBOX_PROPOSITIONS = "inboxPropositions"
         static let PATH = "PATH"
     }
@@ -74,6 +84,7 @@ enum MessagingConstants {
             static let UPDATE_PROPOSITIONS = "Update propositions"
             static let GET_PROPOSITIONS = "Get propositions"
             static let TRACK_PROPOSITIONS = "Track propositions"
+            static let CLEAR_PERSISTED_PROPOSITIONS = "Clear persisted propositions"
             static let MESSAGE_PROPOSITIONS_RESPONSE = "Message propositions response"
             static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
             static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
@@ -96,6 +107,7 @@ enum MessagingConstants {
         enum Source {
             static let EVENT_HISTORY_WRITE = "com.adobe.eventSource.eventHistoryWrite"
             static let PERSONALIZATION_DECISIONS = "personalization:decisions"
+            static let EDGE_ERROR_RESPONSE = "com.adobe.eventSource.errorResponseContent"
         }
 
         enum Data {
@@ -111,7 +123,9 @@ enum MessagingConstants {
                 static let IAM_HISTORY = "iam"
                 static let UPDATE_PROPOSITIONS = "updatepropositions"
                 static let GET_PROPOSITIONS = "getpropositions"
+                static let USE_PERSISTED_CONTENT_CARDS = "usepersistedcontentcards"
                 static let TRACK_PROPOSITIONS = "trackpropositions"
+                static let CLEAR_PERSISTED_PROPOSITIONS = "clearpersistedpropositions"
                 static let PROPOSITION_INTERACTION = "propositioninteraction"
                 static let SURFACES = "surfaces"
                 static let PROPOSITIONS = "propositions"
@@ -123,6 +137,12 @@ enum MessagingConstants {
                 static let TYPE = "type"
                 static let SCHEMA = "schema"
                 static let DATA = "data"
+
+                // MARK: Edge error response event keys (com.adobe.eventSource.errorResponseContent)
+
+                enum EdgeError {
+                    static let STATUS = "status"
+                }
 
                 // MARK: Push Notification event keys
 
