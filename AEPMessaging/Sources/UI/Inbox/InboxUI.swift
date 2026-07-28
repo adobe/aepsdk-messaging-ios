@@ -99,7 +99,12 @@ public class InboxUI: Identifiable, ObservableObject {
     /// When `true`, refresh reads the inbox container-item and its content cards directly from the
     /// persisted disk cache and never contacts the network. When `false` (default), refresh updates
     /// propositions from the server first, then reads the result from memory.
-    private let usePersistedContentCards: Bool
+    ///
+    /// This is the mode used whenever `refresh()`/`refreshAsync()` is called without an explicit
+    /// override. Passing an explicit value to either method updates this stored mode, so it becomes
+    /// the new default for any subsequent parameterless refresh (including pull-to-refresh) —
+    /// callers are not locked into whatever mode the instance was originally constructed with.
+    private var usePersistedContentCards: Bool
 
     /// Initializes a new InboxUI that will fetch InboxSchemaData dynamically
     /// - Parameters:
@@ -127,31 +132,44 @@ public class InboxUI: Identifiable, ObservableObject {
     
     /// Refreshes the inbox by fetching the latest propositions.
     ///
-    /// First updates propositions from the server, then fetches the updated propositions.
-    /// The state transitions to `.loading` during the fetch, then to `.loaded`, `.empty`, or `.error`
-    /// based on the results. The listener is notified at each state change.
-    public func refresh() {
+    /// By default, uses whichever mode this instance is currently set to (see
+    /// `usePersistedContentCards` on `init`). Pass an explicit value to override the mode for this
+    /// call — doing so also updates the instance's mode going forward, so a later parameterless
+    /// `refresh()`/`refreshAsync()` (including pull-to-refresh) keeps using the new mode instead of
+    /// silently reverting to whatever was originally passed to `init`.
+    ///
+    /// - Parameter usePersistedContentCards: When `true`, reads from the persisted disk cache only
+    ///   and never contacts the network. When `false`, updates from the server first, then reads
+    ///   from memory. When `nil` (default), uses the instance's current mode.
+    public func refresh(usePersistedContentCards: Bool? = nil) {
+        if let usePersistedContentCards {
+            self.usePersistedContentCards = usePersistedContentCards
+        }
         performRefresh(completion: {})
     }
-    
+
     /// Asynchronously refreshes the inbox by fetching the latest propositions.
     ///
-    /// This method is designed for use with SwiftUI's `.refreshable` modifier.
-    /// First updates propositions from the server, then fetches the updated propositions.
-    /// It suspends until the refresh operation completes (success or failure).
+    /// This method is designed for use with SwiftUI's `.refreshable` modifier. Suspends until the
+    /// refresh operation completes (success or failure). See `refresh(usePersistedContentCards:)`
+    /// for the meaning of the parameter.
     @MainActor
-    internal func refreshAsync() async {
+    internal func refreshAsync(usePersistedContentCards: Bool? = nil) async {
+        if let usePersistedContentCards {
+            self.usePersistedContentCards = usePersistedContentCards
+        }
         await withCheckedContinuation { continuation in
             performRefresh {
                 continuation.resume()
             }
         }
     }
-    
+
     // MARK: - Private Methods
-    
+
     /// Performs the refresh operation, either from the persisted disk cache (no network) or by
-    /// updating propositions from the server and then fetching them.
+    /// updating propositions from the server and then fetching them, based on the instance's
+    /// current `usePersistedContentCards` mode.
     ///
     /// This is the core refresh logic used by both `refresh()` and `refreshAsync()`.
     /// - Parameter completion: Called when the refresh operation completes (success or failure)
