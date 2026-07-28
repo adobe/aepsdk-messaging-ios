@@ -640,7 +640,9 @@ public class Messaging: NSObject, Extension {
         stateManager.updateTokenStore.clear()
         stateManager.channelActivityStore.clear()
 
-        clearContentCards()
+        // Clear both content card AND inbox persisted state (not just content cards) so no
+        // per-user Inbox data survives an identity switch on shared/kiosk devices.
+        clearPersistedContentCardAndInboxPropositions()
 
         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
@@ -1161,6 +1163,15 @@ public class Messaging: NSObject, Extension {
     }
 
     private func endRequestFor(eventId: String) {
+        // KNOWN ISSUE: this does not reflect whether the request actually succeeded. If the
+        // request had a non-recoverable Edge error (see `nonRecoverableErrorEventIds` below),
+        // `applyPropositionChangeFor` will have preserved existing data instead of applying a
+        // fresh response, but `handler.handle?(true)` further down still unconditionally reports
+        // success. A caller using `updatePropositionsForSurfacesWithCompletionHandler` to decide
+        // "did this call return fresh data, or should I fall back to a persisted-disk read"
+        // cannot currently distinguish this case from a genuine success. To fix: capture
+        // `nonRecoverableErrorEventIds.contains(eventId)` before it's cleared below, and pass
+        // `!requestFailed` to `handler.handle?(...)` instead of a hardcoded `true`.
         // update in memory propositions
         applyPropositionChangeFor(eventId: eventId)
 
