@@ -37,7 +37,7 @@ struct ParsedPropositions {
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
 
-    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime) {
+    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime, contentCardOfflineAvailable: Bool) {
         self.runtime = runtime
 
         // sort these propositions by ordinal rank before processing them
@@ -88,9 +88,7 @@ struct ParsedPropositions {
                             mergeRules(parsedRule, for: surface, with: .inapp)
                         case .feed, .contentCard:
                             propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
-                            // TODO: gate on shared-state-driven config once available; hardcoded true for now
-                            // so all content cards are persisted to disk for offline availability.
-                            if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED {
+                            if contentCardOfflineAvailable {
                                 contentCardPropositionsToPersist.add(proposition, forKey: surface)
                             }
                             mergeRules(parsedRule, for: surface, with: .contentCard)

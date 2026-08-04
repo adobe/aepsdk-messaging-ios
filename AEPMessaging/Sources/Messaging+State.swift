@@ -113,7 +113,8 @@ extension Messaging {
     // MARK: - private methods
 
     private func hydratePropositionsRulesEngine() {
-        let parsedPropositions = ParsedPropositions(with: inMemoryPropositions, requestedSurfaces: inMemoryPropositions.map { $0.key }, runtime: runtime)
+        let parsedPropositions = ParsedPropositions(with: inMemoryPropositions, requestedSurfaces: inMemoryPropositions.map { $0.key }, runtime: runtime,
+                                                    contentCardOfflineAvailable: false)
         if let inAppRules = parsedPropositions.surfaceRulesBySchemaType[.inapp] {
             // Record the loaded IAM rules in `inAppRulesBySurface` so the dictionary stays an accurate
             // source of truth for what's in the shared `rulesEngine`. Without this, a later rebuild of the

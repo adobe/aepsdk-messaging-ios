@@ -27,12 +27,6 @@ enum MessagingConstants {
     static let OPTIMIZE_PUSH_SYNC_ENABLED = "Push token sync optimization is enabled"
     static let OPTIMIZE_PUSH_SYNC_DISABLED_SYNC_WITHIN_TIMEOUT = "Push registration sync optimization is disabled but the sync is within the 1 second timeout"
 
-    /// Global gate controlling whether content card and inbox propositions are persisted to disk
-    /// for offline availability. Hardcoded `true` for now so all content cards and inbox
-    /// container-items are cached. TODO: replace with a value read from shared state configuration
-    /// once that config flag is available, instead of this hardcoded default.
-    static let OFFLINE_AVAILABILITY_ENABLED = true
-
     /// HTTP status codes that Edge's own PersistentHitQueue already retries. When an
     /// errorResponseContent event carries one of these, Edge will resolve it on its own
     /// (success or eventual drop) — Messaging should not treat it as a definitive failure.
@@ -404,6 +398,9 @@ enum MessagingConstants {
 
             // config for disabling the push token sync optimization
             static let OPTIMIZE_PUSH_SYNC = "messaging.optimizePushSync"
+
+            // config for enabling offline content card availability (disk persistence)
+            static let CONTENT_CARD_OFFLINE_AVAILABLE = "messaging.contentCardOfflineAvailable"
         }
 
         enum EdgeIdentity {

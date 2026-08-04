@@ -370,7 +370,7 @@ public class Messaging: NSObject, Extension {
         // once we have valid configuration, fetch message definitions from offers if we haven't already
         if !initialLoadComplete {
             initialLoadComplete = true
-            if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED {
+            if isContentCardOfflineAvailable(for: event) {
                 // Boot: seed qualified content cards from the persisted disk cache before the network fetch,
                 // so cards are ready (and live events can qualify cards) even offline. Runs once, here, because
                 // config + Edge Identity are now ready — same gate the initial fetch uses.
@@ -1004,6 +1004,14 @@ public class Messaging: NSObject, Extension {
         return true
     }
 
+    /// Reads `messaging.contentCardOfflineAvailable` from the Configuration shared state.
+    /// Defaults to `true` when the key is absent (backwards-compatible: offline availability is on
+    /// unless the operator explicitly disables it). Pass `event: nil` to read the latest state.
+    private func isContentCardOfflineAvailable(for event: Event? = nil) -> Bool {
+        let config = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
+        return config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? false
+    }
+
     private func completeUpdatePropositionsRequest(for event: Event, success: Bool) {
         if let handler = completionHandlerFor(originatingEventId: event.id) {
             handler.handle?(success)
@@ -1240,7 +1248,8 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces, runtime: runtime)
+        let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces, runtime: runtime,
+                                                    contentCardOfflineAvailable: isContentCardOfflineAvailable())
 
         // A non-recoverable Edge error means this request FAILED — an empty response here does not
         // mean "the campaign is gone," it means "we don't know." Surfaces that returned no data in
@@ -1367,7 +1376,8 @@ public class Messaging: NSObject, Extension {
         let filtered = inMemoryContentCardPropositions.filter { surfaces.contains($0.key) }
         guard !filtered.isEmpty else { return }
 
-        let parsedPropositions = ParsedPropositions(with: filtered, requestedSurfaces: surfaces, runtime: runtime)
+        let parsedPropositions = ParsedPropositions(with: filtered, requestedSurfaces: surfaces, runtime: runtime,
+                                                    contentCardOfflineAvailable: true)
         updatePropositionInfo(parsedPropositions.propositionInfoToCache)
 
         if let ccRules = parsedPropositions.surfaceRulesBySchemaType[.contentCard] {
