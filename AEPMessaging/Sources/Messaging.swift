@@ -368,18 +368,15 @@ public class Messaging: NSObject, Extension {
         }
 
         // once we have valid configuration, fetch message definitions from offers if we haven't already
+        let ccOfflineKeyPresent = configurationSharedState.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] != nil
+        Log.debug(label: MessagingConstants.LOG_TAG, "readyForEvent — key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(ccOfflineKeyPresent ? "PRESENT" : "ABSENT") in config shared state")
         if !initialLoadComplete {
             initialLoadComplete = true
-            if isContentCardOfflineAvailable(for: event) {
-                // Boot: seed qualified content cards from the persisted disk cache before the network fetch,
-                // so cards are ready (and live events can qualify cards) even offline. Runs once, here, because
-                // config + Edge Identity are now ready — same gate the initial fetch uses.
-                hydrateAllPersistedContentCards()
-            } else {
-                // Persistence is disabled — wipe any stale disk data written when it was previously enabled,
-                // so the disk does not keep accumulating across sessions with the feature off.
-                clearPersistedContentCardPropositions()
-            }
+            // Always hydrate from disk at boot — config is not yet fully settled here (race with
+            // configureWith(filePath:)), so we must not gate on the flag. Hydration is a no-op when
+            // the disk is empty, so this is always safe.
+            Log.debug(label: MessagingConstants.LOG_TAG, "Boot — unconditionally hydrating content cards from disk.")
+            hydrateAllPersistedContentCards()
             fetchPropositions(event)
         }
 
@@ -409,6 +406,7 @@ public class Messaging: NSObject, Extension {
         // handle an event to request propositions from the remote
         if event.isUpdatePropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update propositions from the remote.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "contentCardOfflineAvailable flag at updatePropositions: \(isContentCardOfflineAvailable(for: event))")
             guard isNetworkAvailable() else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition update - device network is unavailable.")
                 completeUpdatePropositionsRequest(for: event, success: false)
@@ -421,6 +419,7 @@ public class Messaging: NSObject, Extension {
         // handle an event to get cached propositions from the SDK
         if event.isGetPropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
+            Log.debug(label: MessagingConstants.LOG_TAG, "contentCardOfflineAvailable flag at getPropositions: \(isContentCardOfflineAvailable(for: event))")
             // Process immediately so callers are not blocked behind in-flight Edge requests or Event Hub timeouts.
             // In-memory only unless usePersistedContentCards is set — see retrieveMessages.
             retrieveMessages(for: event.surfaces ?? [], event: event)
@@ -1009,7 +1008,9 @@ public class Messaging: NSObject, Extension {
     /// unless the operator explicitly disables it). Pass `event: nil` to read the latest state.
     private func isContentCardOfflineAvailable(for event: Event? = nil) -> Bool {
         let config = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
-        return config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? false
+        let value = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? false
+        Log.debug(label: MessagingConstants.LOG_TAG, "isContentCardOfflineAvailable: \(value) (key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] == nil ? "absent from config — defaulting to false" : "found in config"))")
+        return value
     }
 
     private func completeUpdatePropositionsRequest(for event: Event, success: Bool) {
@@ -1248,8 +1249,9 @@ public class Messaging: NSObject, Extension {
             return
         }
 
+        let ccOfflineAvailable = isContentCardOfflineAvailable()
         let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces, runtime: runtime,
-                                                    contentCardOfflineAvailable: isContentCardOfflineAvailable())
+                                                    contentCardOfflineAvailable: ccOfflineAvailable)
 
         // A non-recoverable Edge error means this request FAILED — an empty response here does not
         // mean "the campaign is gone," it means "we don't know." Surfaces that returned no data in
@@ -1271,7 +1273,17 @@ public class Messaging: NSObject, Extension {
         // Failures are non-fatal: the current session still works via in-memory; offline availability
         // for future cold starts may be degraded. Log warnings so the app can observe the issue.
         let iamWriteOK = cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
-        let ccWriteOK = cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
+        let ccWriteOK: Bool
+        if ccOfflineAvailable {
+            ccWriteOK = cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
+        } else {
+            // Feature disabled — ensure no stale data accumulates.
+            // Optimization disabled: always clear explicitly for now.
+            // if !inMemoryContentCardPropositions.isEmpty {
+            clearPersistedContentCardPropositions()
+            // }
+            ccWriteOK = true
+        }
 
         if !iamWriteOK || !ccWriteOK {
             Log.warning(label: MessagingConstants.LOG_TAG,
@@ -1412,6 +1424,7 @@ public class Messaging: NSObject, Extension {
     /// the rules engines from that in-memory data. Two-step parallel to IAM's `loadCachedPropositions`
     /// + `hydratePropositionsRulesEngine`. Origin is tagged `.disk` in `loadCachedContentCardPropositions`.
     func hydrateContentCardRulesEngineFromDisk(for surfaces: [Surface]) {
+        Log.debug(label: MessagingConstants.LOG_TAG, "hydrateContentCardRulesEngineFromDisk — hydrating \(surfaces.count) surface(s): \(surfaces.map(\.uri))")
         loadCachedContentCardPropositions(for: surfaces)
         hydrateContentCardPropositionsRulesEngine(for: surfaces)
     }
@@ -1425,8 +1438,10 @@ public class Messaging: NSObject, Extension {
     /// nothing has been persisted.
     func hydrateAllPersistedContentCards() {
         guard let persisted = cache.contentCardPropositions, !persisted.isEmpty else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "hydrateAllPersistedContentCards — no persisted content cards found, skipping.")
             return
         }
+        Log.debug(label: MessagingConstants.LOG_TAG, "hydrateAllPersistedContentCards — found \(persisted.keys.count) surface(s): \(persisted.keys.map(\.uri))")
         hydrateContentCardRulesEngineFromDisk(for: Array(persisted.keys))
     }
 
@@ -1447,6 +1462,17 @@ public class Messaging: NSObject, Extension {
         }
 
         if event.usePersistedContentCards {
+            guard isContentCardOfflineAvailable(for: event) else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "usePersistedContentCards requested but contentCardOfflineAvailable is false — returning empty.")
+                let responseData: [String: Any] = [MessagingConstants.Event.Data.Key.PROPOSITIONS: [[String: Any]]()]
+                dispatch(event: event.createResponseEvent(
+                    name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_RESPONSE,
+                    type: EventType.messaging,
+                    source: EventSource.responseContent,
+                    data: responseData
+                ))
+                return
+            }
             hydrateContentCardRulesEngineFromDisk(for: requestedSurfaces)
         }
 
