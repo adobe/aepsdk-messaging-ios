@@ -627,4 +627,32 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled,
                        "Content-card rules engine must not be updated when no decisions were received")
     }
+
+    /// Offline hydration must load the event-history (qualify/disqualify) rules that ride inside the
+    /// persisted content-card proposition into the MAIN rules engine — not just the content-card rules —
+    /// so dismiss/disqualify (and later re-qualify) behave identically offline, matching the in-memory
+    /// (network) path. `contentCardPropositionContent.json` carries both a content-card consequence and
+    /// eventHistoryOperation (disqualify) consequences. Before the fix, hydration touched only the
+    /// content-card engine and dropped the disqualify rules, so the main engine was never updated.
+    func test_hydrateContentCardRulesEngineFromDisk_loadsDisqualifyRulesIntoMainRulesEngine() {
+        // Persist a content-card proposition (which also carries eventHistoryOperation/disqualify rules).
+        let cardProposition = makeCardProposition(surface: cardSurface, index: 0)
+        mockCache.updateContentCardPropositions([cardSurface: [cardProposition]])
+
+        // Sanity: the main rules engine has not been touched yet.
+        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled,
+                       "Precondition: main rules engine untouched before hydration")
+
+        // Hydrate offline from disk.
+        messaging.hydrateContentCardRulesEngineFromDisk(for: [cardSurface])
+
+        // The content-card rules must load into the content-card engine (as before)...
+        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled,
+                      "Content-card rules should load into the content-card engine on hydration")
+        // ...AND the disqualify (eventHistoryOperation) rules must now load into the MAIN engine.
+        XCTAssertTrue(mockLaunchRulesEngine.replaceRulesCalled,
+                      "Offline hydration must load the disqualify rules into the main rules engine")
+        XCTAssertFalse(mockLaunchRulesEngine.paramReplaceRulesRules?.isEmpty ?? true,
+                       "The disqualify rules loaded into the main engine must be non-empty")
+    }
 }

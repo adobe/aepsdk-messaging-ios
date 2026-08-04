@@ -34,9 +34,6 @@ struct ParsedPropositions {
     // content card ruleset propositions persisted to disk (separate from IAM)
     var contentCardPropositionsToPersist: [Surface: [Proposition]] = [:]
 
-    // inbox propositions persisted to disk for offline availability
-    var inboxPropositionsToPersist: [Surface: [Proposition]] = [:]
-
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
 
@@ -118,11 +115,6 @@ struct ParsedPropositions {
                 //   b. when the proposition declares offline availability, also persisted to disk
                 case .inbox:
                     inboxPropositionsToCache.add(proposition, forKey: surface)
-                    // TODO: gate on shared-state-driven config once available; hardcoded true for now
-                    // so all inbox container-items are persisted to disk for offline availability.
-                    if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED {
-                        inboxPropositionsToPersist.add(proposition, forKey: surface)
-                    }
                 case .unknown:
                     continue
                 default:

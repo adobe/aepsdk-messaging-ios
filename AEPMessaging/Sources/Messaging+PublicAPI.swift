@@ -213,9 +213,9 @@ import UserNotifications
         }
     }
 
-    /// Clears the persisted disk cache for content card and inbox propositions, along with their
-    /// in-memory state (qualified content cards, inbox propositions, content card rules, and the
-    /// content card origin tracking used for `servedFromPersistentCache` reporting).
+    /// Clears the persisted disk cache for content card propositions, along with their
+    /// in-memory state (qualified content cards, content card rules, and the content card
+    /// origin tracking used for `servedFromPersistentCache` reporting).
     ///
     /// Code-based experience (CBE) persisted propositions are not affected by this call.
     @objc(clearPersistedPropositions)

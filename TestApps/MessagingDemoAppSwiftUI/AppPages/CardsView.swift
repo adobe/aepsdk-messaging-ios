@@ -62,7 +62,7 @@ struct CardsView: View, ContentCardUIEventListening {
         .onAppear() {
             if !viewLoaded {
                 viewLoaded = true
-                fetchContentCards()
+               // fetchContentCards()
             }
         }
     }
@@ -142,10 +142,10 @@ struct CardsView: View, ContentCardUIEventListening {
         }
     }
 
-    /// Clears the persisted content card and inbox disk cache.
+    /// Clears the persisted content card disk cache.
     func clearPersistedPropositions() {
         Messaging.clearPersistedPropositions()
-        statusMessage = "Persisted content card and inbox caches cleared."
+        statusMessage = "Persisted content card cache cleared."
     }
 
     private func handleResult(_ result: Result<[ContentCardUI], Error>, source: String) {

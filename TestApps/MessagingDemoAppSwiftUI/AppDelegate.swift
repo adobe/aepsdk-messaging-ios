@@ -54,7 +54,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             let cardSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
             let cbeSurface1 = Surface(path: Constants.SurfaceName.CBE_HTML)
             let cbeSurface2 = Surface(path: Constants.SurfaceName.CBE_JSON)
-            Messaging.updatePropositionsForSurfaces([cardSurface,cbeSurface1, cbeSurface2])
+            Messaging.updatePropositionsForSurfaces([cbeSurface1, cbeSurface2])
         }
         
         if #available(iOS 16.1, *) {

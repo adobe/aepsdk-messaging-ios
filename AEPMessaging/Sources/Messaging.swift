@@ -108,8 +108,13 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Stores rules for processing by the Messaging rules engine, where `.process` is called on each rule.
+    /// This dictionary is the source of truth for the IAM rules currently loaded in the shared `rulesEngine`;
+    /// any code that rebuilds that engine (e.g. `updateRulesEngines`, or content-card disk hydration adding
+    /// event-history rules) collects from here to avoid clobbering IAM. It must be kept in sync wherever
+    /// IAM rules are loaded — including init-time hydration in `Messaging+State.hydratePropositionsRulesEngine`,
+    /// which is why this is internal rather than private.
     private var _inAppRulesBySurface: [Surface: [LaunchRule]] = [:]
-    private var inAppRulesBySurface: [Surface: [LaunchRule]] {
+    var inAppRulesBySurface: [Surface: [LaunchRule]] {
         get { queue.sync { self._inAppRulesBySurface } }
         set { queue.async { self._inAppRulesBySurface = newValue } }
     }
@@ -144,6 +149,16 @@ public class Messaging: NSObject, Extension {
     var contentCardOriginByProposition: [String: CardOrigin] {
         get { queue.sync { self._contentCardOriginByProposition } }
         set { queue.async { self._contentCardOriginByProposition = newValue } }
+    }
+
+    /// Raw content card propositions held in memory for the current session — the CC parallel to
+    /// `inMemoryPropositions` (IAM/CBE). Populated from disk by `loadCachedContentCardPropositions`
+    /// and from the network by `updateContentCardPropositions`. Engine hydration reads from here
+    /// rather than re-reading disk on every call. Internal so `Messaging+State` can write to it.
+    private var _inMemoryContentCardPropositions: [Surface: [Proposition]] = [:]
+    var inMemoryContentCardPropositions: [Surface: [Proposition]] {
+        get { queue.sync { self._inMemoryContentCardPropositions } }
+        set { queue.async { self._inMemoryContentCardPropositions = newValue } }
     }
 
     /// Enriches a proposition interaction XDM with a `servedFromPersistentCache` flag per proposition,
@@ -355,11 +370,15 @@ public class Messaging: NSObject, Extension {
         // once we have valid configuration, fetch message definitions from offers if we haven't already
         if !initialLoadComplete {
             initialLoadComplete = true
-            // Boot: seed qualified content cards from the persisted disk cache before the network fetch,
-            // so cards are ready (and live events can qualify cards) even offline. Runs once, here, because
-            // config + Edge Identity are now ready — same gate the initial fetch uses.
             if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED {
+                // Boot: seed qualified content cards from the persisted disk cache before the network fetch,
+                // so cards are ready (and live events can qualify cards) even offline. Runs once, here, because
+                // config + Edge Identity are now ready — same gate the initial fetch uses.
                 hydrateAllPersistedContentCards()
+            } else {
+                // Persistence is disabled — wipe any stale disk data written when it was previously enabled,
+                // so the disk does not keep accumulating across sessions with the feature off.
+                clearPersistedContentCardPropositions()
             }
             fetchPropositions(event)
         }
@@ -408,10 +427,10 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // handle an event to clear persisted content card and inbox propositions
+        // handle an event to clear persisted content card propositions
         if event.isClearPersistedPropositionsEvent {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to clear persisted content card and inbox propositions.")
-            clearPersistedContentCardAndInboxPropositions()
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to clear persisted content card propositions.")
+            clearPersistedContentCardPropositions()
             return
         }
 
@@ -666,9 +685,7 @@ public class Messaging: NSObject, Extension {
         stateManager.updateTokenStore.clear()
         stateManager.channelActivityStore.clear()
 
-        // Clear both content card AND inbox persisted state (not just content cards) so no
-        // per-user Inbox data survives an identity switch on shared/kiosk devices.
-        clearPersistedContentCardAndInboxPropositions()
+        clearPersistedContentCardPropositions()
 
         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
 
@@ -682,18 +699,17 @@ public class Messaging: NSObject, Extension {
         qualifiedContentCardsBySurface = [:]
         contentCardRulesBySurface = [:]
         contentCardOriginByProposition = [:]
+        inMemoryContentCardPropositions = [:]
         contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
         try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
         Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared on identity reset.")
     }
 
-    /// Clears persisted content card and inbox propositions (disk) along with their in-memory state.
-    /// Handles `clearPersistedPropositions()` public API requests. Does not affect CBE persisted propositions.
-    private func clearPersistedContentCardAndInboxPropositions() {
+    /// Clears persisted content card propositions (disk) along with their in-memory state.
+    /// Handles `clearPersistedPropositions()` public API requests. Does not affect CBE or inbox propositions.
+    private func clearPersistedContentCardPropositions() {
         clearContentCards()
-        inboxPropositionsBySurface = [:]
-        try? cache.remove(key: MessagingConstants.Caches.INBOX_PROPOSITIONS)
-        Log.debug(label: MessagingConstants.LOG_TAG, "Persisted content card and inbox propositions cleared.")
+        Log.debug(label: MessagingConstants.LOG_TAG, "Persisted content card propositions cleared.")
     }
 
     /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
@@ -1247,15 +1263,17 @@ public class Messaging: NSObject, Extension {
         // for future cold starts may be degraded. Log warnings so the app can observe the issue.
         let iamWriteOK = cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
         let ccWriteOK = cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
-        let inboxWriteOK = cache.updateInboxPropositions(parsedPropositions.inboxPropositionsToPersist, removing: surfacesToRemove)
 
-        if !iamWriteOK || !ccWriteOK || !inboxWriteOK {
+        if !iamWriteOK || !ccWriteOK {
             Log.warning(label: MessagingConstants.LOG_TAG,
                         "One or more proposition types failed to persist to disk — offline availability may be degraded for the next session.")
         }
 
-        // IN-MEMORY: update all in-memory caches after disk writes so the view layer sees a consistent state
+        // IN-MEMORY: update all in-memory caches after disk writes so the view layer sees a consistent state.
+        // `updateContentCardPropositions` also tags all incoming CC propositions `.network` so the origin
+        // map is accurate before `updateRulesEngines` seeds the CC engine.
         updatePropositions(parsedPropositions.propositionsToCache, removing: surfacesToRemove)
+        updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
         updateInboxPropositions(parsedPropositions.inboxPropositionsToCache, removing: surfacesToRemove)
         updatePropositionInfo(parsedPropositions.propositionInfoToCache, removing: surfacesToRemove)
 
@@ -1279,28 +1297,13 @@ public class Messaging: NSObject, Extension {
         let collectedContentCardRules = collectRules(from: contentCardRulesBySurface)
         contentCardRulesEngine.launchRulesEngine.replaceRules(with: collectedContentCardRules)
 
-        // Capture the content card surfaces actually present in THIS network response. Only the
-        // propositions qualifying for these surfaces are tagged `.network` below; surfaces whose rules
-        // were previously hydrated from disk (and merely re-qualify here during re-seeding) must keep
-        // their per-proposition `.disk` origin.
-        let networkContentCardSurfaces = Set((surfaceRulesBySchemaType[.contentCard] ?? [:]).keys)
-
         let seedEvent = Event(name: "Seed content cards", type: EventType.messaging, source: EventSource.requestContent, data: nil)
         let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
         removeOrReplaceContentCards(qualified, requestedSurfaces: requestedSurfaces)
 
-        // Tag origin `.network` per proposition (not per surface) for the cards that came from this
-        // response, so a later display/interaction reports `servedFromPersistentCache` based on the
-        // exact card served rather than on shared surface-level state.
-        if !networkContentCardSurfaces.isEmpty {
-            var origins = contentCardOriginByProposition
-            for surface in networkContentCardSurfaces {
-                for proposition in qualified[surface] ?? [] {
-                    origins[proposition.uniqueId] = .network
-                }
-            }
-            contentCardOriginByProposition = origins
-        }
+        // Origin tagging (`.network` / `.disk`) is now done upstream in `updateContentCardPropositions`
+        // and `loadCachedContentCardPropositions` at the point raw propositions enter memory, not here
+        // after seeding. Prune stale entries so the origin map stays aligned with qualified cards.
         pruneContentCardOrigins()
 
         // Always sync the in-app + event history rules engine, for the same reason as content
@@ -1313,9 +1316,7 @@ public class Messaging: NSObject, Extension {
             rulesEngine.cacheRemoteAssetsFor(collectedInAppRules)
         }
 
-        var combined = collectedInAppRules
-        combined.append(contentsOf: collectRules(from: eventHistoryRulesBySurface))
-        rulesEngine.launchRulesEngine.replaceRules(with: combined)
+        rebuildMainRulesEngine()
     }
 
     private func processRulesForSchemaType(
@@ -1347,51 +1348,62 @@ public class Messaging: NSObject, Extension {
         rulesBySurface.flatMap { $0.value }
     }
 
-    /// Loads persisted content card propositions for the requested surfaces, hydrates the CC rules engine,
-    /// and populates `qualifiedContentCardsBySurface` without sending trigger events.
-    func hydrateContentCardRulesEngineFromDisk(for surfaces: [Surface]) {
-        guard let cachedPropositions = cache.contentCardPropositions, !cachedPropositions.isEmpty else {
-            return
-        }
+    /// Rebuilds the shared `rulesEngine` from the current `inAppRulesBySurface` and
+    /// `eventHistoryRulesBySurface` dictionaries in one atomic `replaceRules` call.
+    /// Called from both the network path (`updateRulesEngines`) and the offline disk-hydration
+    /// path (`hydrateContentCardRulesEngineFromDisk`) so both use identical logic.
+    private func rebuildMainRulesEngine() {
+        var combined = collectRules(from: inAppRulesBySurface)
+        combined.append(contentsOf: collectRules(from: eventHistoryRulesBySurface))
+        rulesEngine.launchRulesEngine.replaceRules(with: combined)
+    }
 
-        let filteredPropositions = cachedPropositions.filter { surfaces.contains($0.key) }
-        guard !filteredPropositions.isEmpty else {
-            return
-        }
+    /// Reads from `inMemoryContentCardPropositions` (already loaded by `loadCachedContentCardPropositions`),
+    /// hydrates both rules engines, seeds the CC engine, and populates `qualifiedContentCardsBySurface`.
+    /// Origin tagging (`.disk` / `.network`) is intentionally done upstream — in `loadCachedContentCardPropositions`
+    /// and `updateContentCardPropositions` — so this function only needs to prune stale entries after seeding.
+    /// Mirrors `hydratePropositionsRulesEngine()` (IAM), which also reads from in-memory, not disk directly.
+    func hydrateContentCardPropositionsRulesEngine(for surfaces: [Surface]) {
+        let filtered = inMemoryContentCardPropositions.filter { surfaces.contains($0.key) }
+        guard !filtered.isEmpty else { return }
 
-        let parsedPropositions = ParsedPropositions(with: filteredPropositions, requestedSurfaces: surfaces, runtime: runtime)
+        let parsedPropositions = ParsedPropositions(with: filtered, requestedSurfaces: surfaces, runtime: runtime)
         updatePropositionInfo(parsedPropositions.propositionInfoToCache)
 
-        guard let contentCardRules = parsedPropositions.surfaceRulesBySchemaType[.contentCard],
-              !contentCardRules.isEmpty else {
-            return
+        if let ccRules = parsedPropositions.surfaceRulesBySchemaType[.contentCard] {
+            for (surface, rules) in ccRules {
+                contentCardRulesBySurface[surface] = rules
+            }
+            contentCardRulesEngine.launchRulesEngine.replaceRules(with: collectRules(from: contentCardRulesBySurface))
         }
 
-        for (surface, rules) in contentCardRules {
-            contentCardRulesBySurface[surface] = rules
+        if let ehRules = parsedPropositions.surfaceRulesBySchemaType[.eventHistoryOperation] {
+            for (surface, rules) in ehRules {
+                eventHistoryRulesBySurface[surface] = rules
+            }
+            rebuildMainRulesEngine()
         }
-
-        contentCardRulesEngine.launchRulesEngine.replaceRules(with: contentCardRulesBySurface.flatMap { $0.value })
 
         let seedEvent = Event(name: "Seed content cards from persistence",
                               type: EventType.messaging,
                               source: EventSource.requestContent,
                               data: nil)
         let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
-        var origins = contentCardOriginByProposition
         for (surface, propositions) in qualified where surfaces.contains(surface) {
             qualifiedContentCardsBySurface[surface] = propositions
-            // tag origin `.disk` per proposition in lockstep with the memory write, so a later
-            // display event reports `servedFromPersistentCache` for the exact card served from disk
-            for proposition in propositions {
-                origins[proposition.uniqueId] = .disk
-            }
         }
-        contentCardOriginByProposition = origins
         pruneContentCardOrigins()
 
         Log.debug(label: MessagingConstants.LOG_TAG,
-                  "Hydrated content card rules from disk for \(qualified.count) surface(s).")
+                  "Hydrated content card rules engine for \(qualified.count) surface(s).")
+    }
+
+    /// Loads persisted content card propositions for the requested surfaces into memory, then hydrates
+    /// the rules engines from that in-memory data. Two-step parallel to IAM's `loadCachedPropositions`
+    /// + `hydratePropositionsRulesEngine`. Origin is tagged `.disk` in `loadCachedContentCardPropositions`.
+    func hydrateContentCardRulesEngineFromDisk(for surfaces: [Surface]) {
+        loadCachedContentCardPropositions(for: surfaces)
+        hydrateContentCardPropositionsRulesEngine(for: surfaces)
     }
 
     /// Hydrates the content card rules engine from EVERY persisted surface. Called once at boot from
@@ -1406,18 +1418,6 @@ public class Messaging: NSObject, Extension {
             return
         }
         hydrateContentCardRulesEngineFromDisk(for: Array(persisted.keys))
-    }
-
-    /// Reads inbox propositions from disk into `inboxPropositionsBySurface` for the given surfaces.
-    func hydrateInboxPropositionsFromDisk(for surfaces: [Surface]) {
-        guard let cached = cache.inboxPropositions, !cached.isEmpty else { return }
-        let filtered = cached.filter { surfaces.contains($0.key) }
-        guard !filtered.isEmpty else { return }
-        for (surface, propositions) in filtered {
-            inboxPropositionsBySurface[surface] = propositions
-        }
-        Log.debug(label: MessagingConstants.LOG_TAG,
-                  "Hydrated inbox propositions from disk for \(filtered.count) surface(s).")
     }
 
     /// Dispatch an event containing all propositions for the given surface
@@ -1438,7 +1438,6 @@ public class Messaging: NSObject, Extension {
 
         if event.usePersistedContentCards {
             hydrateContentCardRulesEngineFromDisk(for: requestedSurfaces)
-            hydrateInboxPropositionsFromDisk(for: requestedSurfaces)
         }
 
         // get requested content cards from cache
