@@ -22,7 +22,23 @@ import AEPMessaging
 final class AppDelegate: NSObject, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        #if DEBUG
+        print("[AppDelegate] Build configuration: DEBUG")
+        #else
+        print("[AppDelegate] Build configuration: RELEASE")
+        #endif
+
         MobileCore.setLogLevel(.trace)
+
+        // Listen for the configuration response event so we can confirm the config was applied.
+        MobileCore.registerEventListener(type: "com.adobe.eventType.configuration",
+                                         source: "com.adobe.eventSource.responseContent") { event in
+            #if DEBUG
+            if let keys = event.data?.keys {
+                print("[AppDelegate] Configuration applied — keys present: \(Array(keys).sorted())")
+            }
+            #endif
+        }
 
         let extensions = [
             Identity.self,
@@ -34,10 +50,20 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             Assurance.self,
             TokenCollector.self
         ]
-        
+
         MobileCore.registerExtensions(extensions) {
+            #if DEBUG
+            if let configPath = Bundle.main.path(forResource: "ADBMobileConfig", ofType: "json") {
+                print("[AppDelegate] ADBMobileConfig.json found in bundle — loading local config")
+                MobileCore.configureWith(filePath: configPath)
+            } else {
+                print("[AppDelegate] ADBMobileConfig.json NOT found in bundle — falling back to remote appId")
+                MobileCore.configureWith(appId: Constants.APPID)
+            }
+            #else
             MobileCore.configureWith(appId: Constants.APPID)
-            
+            #endif
+
             if Constants.isStage {
                 MobileCore.updateConfigurationWith(configDict: ["edge.environment": "int"])
             }

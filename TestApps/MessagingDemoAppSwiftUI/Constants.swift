@@ -35,6 +35,8 @@ enum Constants {
        // static let CONTENT_CARD = "largeImageCards"
         // static let INBOX = "inboxcard"
         static let CONTENT_CARD = "shwetansh_cc_mda"
+        static let wrong_cc = "wrong_cc"
+
         static let CBE_HTML = "cbehtml"
         static let CBE_JSON = "cbejson"
     }
