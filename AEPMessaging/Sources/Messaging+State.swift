@@ -87,27 +87,13 @@ extension Messaging {
         contentCardOriginByProposition = origins
     }
 
-    /// Reads content card propositions from disk for the requested surfaces into `inMemoryContentCardPropositions`
-    /// and tags every loaded proposition `.disk` (unless already `.network` from a prior live fetch).
-    /// Mirrors `loadCachedPropositions` (IAM). Called from `hydrateContentCardRulesEngineFromDisk` as step 1.
-    func loadCachedContentCardPropositions(for surfaces: [Surface]) {
-        guard let cached = cache.contentCardPropositions, !cached.isEmpty else { return }
-        let filtered = cached.filter { surfaces.contains($0.key) }
-        guard !filtered.isEmpty else { return }
-        for (surface, propositions) in filtered {
-            inMemoryContentCardPropositions[surface] = propositions
-        }
-        // Tag loaded propositions `.disk`. Preserves any existing `.network` tag so a card refreshed
-        // from the network in the same session is never downgraded to `.disk` by a subsequent disk read.
-        var origins = contentCardOriginByProposition
-        for (_, propositions) in filtered {
-            for proposition in propositions {
-                if origins[proposition.uniqueId] != .network {
-                    origins[proposition.uniqueId] = .disk
-                }
-            }
-        }
-        contentCardOriginByProposition = origins
+    /// Reads raw content card propositions from disk for the requested surfaces.
+    /// Used exclusively by `hydrateContentCardRulesEngineFromDisk` to seed the rules engine at boot.
+    /// Do NOT use for `retrieveMessages` — raw disk propositions are ruleset-item wrappers and
+    /// cannot be converted to `ContentCardUI` directly; use `getPropositionsFromContentCardRulesEngine`.
+    func readContentCardPropositionsFromDisk(for surfaces: [Surface]) -> [Surface: [Proposition]] {
+        guard let cached = cache.contentCardPropositions, !cached.isEmpty else { return [:] }
+        return cached.filter { surfaces.contains($0.key) }
     }
 
     // MARK: - private methods
