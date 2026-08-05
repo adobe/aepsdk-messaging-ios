@@ -68,7 +68,7 @@ extension Color {
             r = 0
             g = 0
             b = 0
-            a = 1
+            a = 0
         }
         
         self.init(.sRGB, red: r, green: g, blue: b, opacity: a)

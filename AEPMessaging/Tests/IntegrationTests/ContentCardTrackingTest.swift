@@ -56,7 +56,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          
          // verify events
          #expect(mockNetwork.edgeRequests.count == 3)
-         #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionFetch").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionDisplay").count == 1)
      }
@@ -77,7 +77,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          
          // verify events
          #expect(mockNetwork.edgeRequests.count == 3)
-         #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionFetch").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionInteract").count == 1)
      }
@@ -98,7 +98,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          
          // verify events
          #expect(mockNetwork.edgeRequests.count == 3)
-         #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionFetch").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionDismiss").count == 1)
      }
@@ -119,7 +119,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          
          // verify events
          #expect(mockNetwork.edgeRequests.count == 3)
-         #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionFetch").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionDisplay").count == 1)
      }
@@ -140,7 +140,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          
          // verify events
          #expect(mockNetwork.edgeRequests.count == 3)
-         #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionFetch").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionInteract").count == 1)
      }
@@ -161,7 +161,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          
          // verify events
          #expect(mockNetwork.edgeRequests.count == 3)
-         #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionFetch").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
          #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionDismiss").count == 1)
      }
@@ -182,7 +182,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
         
         // verify events
         #expect(mockNetwork.edgeRequests.count == 3)
-        #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionFetch").count == 1)
         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionDisplay").count == 1)
     }
@@ -203,7 +203,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
         
         // verify events
         #expect(mockNetwork.edgeRequests.count == 3)
-        #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionFetch").count == 1)
         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionInteract").count == 1)
     }
@@ -224,7 +224,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
         
         // verify events
         #expect(mockNetwork.edgeRequests.count == 3)
-        #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 1)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionFetch").count == 1)
         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionDismiss").count == 1)
     }
@@ -246,7 +246,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
         
         // verify events
         #expect(mockNetwork.edgeRequests.count == 3)
-        #expect(mockNetwork.getEdgeRequestsWith(eventType: "personalization.request").count == 2)
+        #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionFetch").count == 2)
         #expect(mockNetwork.getEdgeRequestsWith(eventType: "decisioning.propositionTrigger").count == 1)
     }
     
