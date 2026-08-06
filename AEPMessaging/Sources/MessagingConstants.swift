@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "5.14.0"
+    static let EXTENSION_VERSION = "5.15.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
@@ -111,6 +111,7 @@ enum MessagingConstants {
                 static let TRACK_PROPOSITIONS = "trackpropositions"
                 static let PROPOSITION_INTERACTION = "propositioninteraction"
                 static let SURFACES = "surfaces"
+                static let XDM = "xdm"
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
                 static let ENDING_EVENT_ID = "endingEventId"
@@ -274,7 +275,7 @@ enum MessagingConstants {
                 static let DISMISS = "decisioning.propositionDismiss"
                 static let DISQUALIFY = "decisioning.propositionDisqualify"
                 static let SUPPRESSED_DISPLAY = "decisioning.propositionSuppressDisplay"
-                static let PERSONALIZATION_REQUEST = "personalization.request"
+                static let PROPOSITION_FETCH = "decisioning.propositionFetch"
             }
 
             enum PropositionEventType {

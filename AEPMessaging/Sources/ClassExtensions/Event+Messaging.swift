@@ -124,6 +124,16 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS] as? Bool ?? false
     }
 
+    /// Custom XDM fields provided by the caller of `updatePropositionsForSurfaces(_:withXdm:andData:)` to attach to the personalization request.
+    var updatePropositionsXdm: [String: Any]? {
+        data?[MessagingConstants.Event.Data.Key.XDM] as? [String: Any]
+    }
+
+    /// Custom free-form data provided by the caller of `updatePropositionsForSurfaces(_:withXdm:andData:)` to attach to the personalization request.
+    var updatePropositionsData: [String: Any]? {
+        data?[MessagingConstants.Event.Data.Key.DATA] as? [String: Any]
+    }
+
     // MARK: - Track Propositions Public API event
 
     var isTrackPropositionsEvent: Bool {
