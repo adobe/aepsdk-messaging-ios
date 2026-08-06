@@ -7,6 +7,7 @@ This document details the Messaging SDK APIs that can be used to implement propo
 - [getPropositionsForSurfaces(\_:\_:)](#getpropositionsforsurfaces__)
 - [updatePropositionsForSurfaces(\_:)](#updatepropositionsforsurfaces_)
 - [updatePropositionsForSurfaces(\_:\_:)](#updatepropositionsforsurfaces__)
+- [updatePropositionsForSurfaces(\_:withXdm:andData:\_:)](#updatepropositionsforsurfaceswithxdmanddata_)
 
 ---
 
@@ -168,6 +169,93 @@ AEPSurface* surface1 = [[AEPSurface alloc] initWithPath: @"myView#button"];
 AEPSurface* surface2 = [[AEPSurface alloc] initWithPath: @"myViewAttributes"];
 
 [AEPMobileMessaging updatePropositionsForSurfaces:@[surface1, surface2] completion:^(BOOL success) {
+    if (success) {
+        // handle success scenario
+    } else {
+        // handle error scenario
+    }
+}];
+```
+
+---
+
+### updatePropositionsForSurfaces(\_:withXdm:andData:\_:)
+
+Dispatches an event for the Edge network extension to fetch personalization decisions from the AJO campaigns for the provided `Surface`s array, attaching optional custom XDM and free-form data fields to the personalization request.
+
+Any fields provided in `xdm` are merged into the XDM object of the outgoing personalization request. Any fields provided in `data` are merged into the free-form data object of the request. Internal keys required by the SDK — for example, the personalization request `eventType` — always take precedence and cannot be overwritten by the caller.
+
+The returned decision `Proposition`s are cached in-memory by the Messaging extension.
+
+If provided, `completion` will be called on the Messaging extension's background thread once the response has been fully processed. `true` will be passed to the `completion` method if a network response was returned and successfully processed.
+
+To retrieve previously cached decision `Proposition`s, use the `getPropositionsForSurfaces(_:_:)` API.
+
+#### Swift
+
+##### Syntax
+```swift
+static func updatePropositionsForSurfaces(_ surfaces: [Surface],
+                                          withXdm xdm: [String: Any]?,
+                                          andData data: [String: Any]? = nil,
+                                          _ completion: ((Bool) -> Void)? = nil)
+```
+
+##### Example
+```swift
+let surface1 = Surface(path: "myView#button")
+let surface2 = Surface(path: "myViewAttributes")
+
+// Custom XDM fields — e.g. context data used by decisioning eligibility rules
+let xdmData: [String: Any] = [
+    "userTier": "gold",
+    "loyaltyPoints": 1200
+]
+
+// Optional free-form data attached to the request
+let freeFormData: [String: Any] = [
+    "campaignSource": "homeScreen"
+]
+
+Messaging.updatePropositionsForSurfaces([surface1, surface2], withXdm: xdmData, andData: freeFormData) { success in
+    if success {
+        // handle success scenario
+    } else {
+        // handle error scenario
+    }
+}
+```
+
+#### Objective-C
+
+##### Syntax
+```objc
++ (void) updatePropositionsForSurfaces: (NSArray<AEPSurface*>* _Nonnull) surfaces
+                               withXdm: (NSDictionary* _Nullable) xdm
+                               andData: (NSDictionary* _Nullable) data
+                            completion: (void (^_Nullable)(BOOL)) completion;
+```
+
+##### Example
+```objc
+AEPSurface* surface1 = [[AEPSurface alloc] initWithPath: @"myView#button"];
+AEPSurface* surface2 = [[AEPSurface alloc] initWithPath: @"myViewAttributes"];
+
+// Custom XDM fields — e.g. context data used by decisioning eligibility rules
+NSDictionary* xdmData = @{
+    @"userTier": @"gold",
+    @"loyaltyPoints": @1200
+};
+
+// Optional free-form data attached to the request
+NSDictionary* freeFormData = @{
+    @"campaignSource": @"homeScreen"
+};
+
+[AEPMobileMessaging updatePropositionsForSurfaces:@[surface1, surface2]
+                                          withXdm:xdmData
+                                          andData:freeFormData
+                                       completion:^(BOOL success) {
     if (success) {
         // handle success scenario
     } else {
