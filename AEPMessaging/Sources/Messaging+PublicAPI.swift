@@ -164,7 +164,7 @@ import UserNotifications
     /// Retrieves propositions for the provided surfaces from the SDK cache.
     /// - Parameters:
     ///   - surfaces: An array of `Surface` objects.
-    ///   - usePersistedContentCards: When `true`, explicitly loads content card and inbox propositions
+    ///   - usePersistedContentCards: When `true`, explicitly loads content card propositions
     ///     from the persisted disk cache (in addition to the in-memory cache) for the requested surfaces.
     ///     When `false` (default), only in-memory propositions are returned.
     ///   - completion: The completion handler invoked with propositions keyed by surface.
