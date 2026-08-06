@@ -22,13 +22,14 @@ struct ParsedPropositions {
     // store tracking information for propositions loaded into rules engines
     var propositionInfoToCache: [String: PropositionInfo] = [:]
 
-    // non-in-app propositions cached in memory for current session
+    // non-in-app propositions should be cached and not persisted
     var propositionsToCache: [Surface: [Proposition]] = [:]
 
-    // inbox propositions (container-item) cached in memory for current session
+    // inbox propositions (container-item) should be cached in memory only
     var inboxPropositionsToCache: [Surface: [Proposition]] = [:]
 
-    // in-app propositions persisted to disk (separate from in-memory CBE cache)
+    // in-app propositions don't need to stay in cache, but must be persisted
+    // also need to store tracking info for in-app propositions as `PropositionInfo`
     var propositionsToPersist: [Surface: [Proposition]] = [:]
 
     // content card ruleset propositions persisted to disk (separate from IAM)
@@ -37,7 +38,7 @@ struct ParsedPropositions {
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
 
-    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime, contentCardOfflineAvailable: Bool) {
+    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime, contentCardOfflineAvailable: Bool = true) {
         self.runtime = runtime
 
         // sort these propositions by ordinal rank before processing them
@@ -109,8 +110,7 @@ struct ParsedPropositions {
                 case .jsonContent, .htmlContent, .defaultContent:
                     propositionsToCache.add(proposition, forKey: surface)
                 // - handle container-item schemas for inbox
-                //   a. inbox schemas are always cached in-memory for the current session
-                //   b. when the proposition declares offline availability, also persisted to disk
+                //   a. container-item schemas are cached in memory only
                 case .inbox:
                     inboxPropositionsToCache.add(proposition, forKey: surface)
                 case .unknown:
