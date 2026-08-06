@@ -84,8 +84,8 @@ class MessagingTests: XCTestCase {
     }
     
     /// validate that 9 listeners are registered onRegister
-    func testOnRegistered_nineListenersAreRegistered() {
-        XCTAssertEqual(mockRuntime.listeners.count, 9)
+    func testOnRegistered_tenListenersAreRegistered() {
+        XCTAssertEqual(mockRuntime.listeners.count, 10)
     }
     
     func testOnUnregisteredCallable() throws {
@@ -1682,37 +1682,7 @@ class MessagingTests: XCTestCase {
     }
     
     // MARK: - Completion Handler Failure Tests
-    
-    func testHandleProcessEvent_updatePropositions_skipsEdgeWhenOffline() {
-        mockNetworkConnectivityService.isAvailable = false
-        let expectation = self.expectation(description: "Completion handler should be called with false when offline")
-        var completionResult: Bool?
-        
-        let updateEvent = Event(name: MessagingConstants.Event.Name.UPDATE_PROPOSITIONS,
-                                type: EventType.messaging,
-                                source: EventSource.requestContent,
-                                data: [
-                                    MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS: true,
-                                    MessagingConstants.Event.Data.Key.SURFACES: [["uri": mockSurface.uri]]
-                                ])
-        
-        Messaging.completionHandlers.append(CompletionHandler(originatingEvent: updateEvent) { success in
-            completionResult = success
-            expectation.fulfill()
-        })
-        
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
-                                        data: (value: [:], status: SharedStateStatus.set))
-        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
-                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-        
-        messaging.handleProcessEvent(updateEvent)
-        
-        wait(for: [expectation], timeout: 1.0)
-        XCTAssertEqual(completionResult, false)
-        XCTAssertTrue(mockRuntime.dispatchedEvents.filter { $0.type == EventType.edge }.isEmpty)
-    }
-    
+
     func testHandleProcessEvent_getPropositions_returnsWithoutQueueingBehindUpdate() {
         let getEvent = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
                              type: EventType.messaging,

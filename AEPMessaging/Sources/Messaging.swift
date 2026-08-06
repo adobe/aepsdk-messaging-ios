@@ -151,16 +151,6 @@ public class Messaging: NSObject, Extension {
         set { queue.async { self._contentCardOriginByProposition = newValue } }
     }
 
-    /// Raw content card propositions held in memory for the current session — the CC parallel to
-    /// `inMemoryPropositions` (IAM/CBE). Populated only from live network responses; disk reads never
-    /// and from the network by `updateContentCardPropositions`. Engine hydration reads from here
-    /// rather than re-reading disk on every call. Internal so `Messaging+State` can write to it.
-    private var _inMemoryContentCardPropositions: [Surface: [Proposition]] = [:]
-    var inMemoryContentCardPropositions: [Surface: [Proposition]] {
-        get { queue.sync { self._inMemoryContentCardPropositions } }
-        set { queue.async { self._inMemoryContentCardPropositions = newValue } }
-    }
-
     /// Enriches a proposition interaction XDM with a `servedFromPersistentCache` flag per proposition,
     /// derived from `contentCardOriginByProposition` (keyed by proposition id).
     ///
@@ -368,15 +358,7 @@ public class Messaging: NSObject, Extension {
         }
 
         // once we have valid configuration, fetch message definitions from offers if we haven't already
-        let ccOfflineKeyPresent = configurationSharedState.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] != nil
-        Log.debug(label: MessagingConstants.LOG_TAG, "readyForEvent — key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(ccOfflineKeyPresent ? "PRESENT" : "ABSENT") in config shared state")
         if !initialLoadComplete {
-            
-            // once we have valid configuration, fetch message definitions from offers if we haven't already
-            let ccOfflineKeyPresent = configurationSharedState.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] != nil
-            Log.debug(label: MessagingConstants.LOG_TAG, "initial code — key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(ccOfflineKeyPresent ? "PRESENT" : "ABSENT") in config shared state")
-
-            
             initialLoadComplete = true
             // Always hydrate from disk at boot — config is not yet fully settled here (race with
             // configureWith(filePath:)), so we must not gate on the flag. Hydration is a no-op when
@@ -412,12 +394,6 @@ public class Messaging: NSObject, Extension {
         // handle an event to request propositions from the remote
         if event.isUpdatePropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update propositions from the remote.")
-            Log.debug(label: MessagingConstants.LOG_TAG, "contentCardOfflineAvailable flag at updatePropositions: \(isContentCardOfflineAvailable(for: event))")
-            guard isNetworkAvailable() else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition update - device network is unavailable.")
-                completeUpdatePropositionsRequest(for: event, success: false)
-                return
-            }
             fetchPropositions(event, for: event.surfaces ?? [])
             return
         }
@@ -425,7 +401,6 @@ public class Messaging: NSObject, Extension {
         // handle an event to get cached propositions from the SDK
         if event.isGetPropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
-            Log.debug(label: MessagingConstants.LOG_TAG, "contentCardOfflineAvailable flag at getPropositions: \(isContentCardOfflineAvailable(for: event))")
             // Process immediately so callers are not blocked behind in-flight Edge requests or Event Hub timeouts.
             // In-memory only unless usePersistedContentCards is set — see retrieveMessages.
             retrieveMessages(for: event.surfaces ?? [], event: event)
@@ -704,10 +679,9 @@ public class Messaging: NSObject, Extension {
         qualifiedContentCardsBySurface = [:]
         contentCardRulesBySurface = [:]
         contentCardOriginByProposition = [:]
-        inMemoryContentCardPropositions = [:]
         contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
         try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
-        Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared on identity reset.")
+        Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared.")
     }
 
     /// Clears persisted content card propositions (disk) along with their in-memory state.
@@ -1012,15 +986,9 @@ public class Messaging: NSObject, Extension {
     /// unless the operator explicitly disables it). Pass `event: nil` to read the latest state.
     private func isContentCardOfflineAvailable(for event: Event? = nil) -> Bool {
         let config = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
-        let value = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? false
-        Log.debug(label: MessagingConstants.LOG_TAG, "isContentCardOfflineAvailable: \(value) (key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] == nil ? "absent from config — defaulting to false" : "found in config"))")
+        let value = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? true
+        Log.debug(label: MessagingConstants.LOG_TAG, "isContentCardOfflineAvailable: \(value) (key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] == nil ? "absent from config — defaulting to true" : "found in config"))")
         return value
-    }
-
-    private func completeUpdatePropositionsRequest(for event: Event, success: Bool) {
-        if let handler = completionHandlerFor(originatingEventId: event.id) {
-            handler.handle?(success)
-        }
     }
 
     /// Generates and dispatches an event prompting the Edge extension to fetch propositions (in-app, content cards, or code-based experiences).
@@ -1034,12 +1002,6 @@ public class Messaging: NSObject, Extension {
     private func fetchPropositions(_ event: Event, for surfaces: [Surface]? = nil) {
         // check for completion handler for requesting event
         let handler = completionHandlerFor(originatingEventId: event.id)
-
-        guard isNetworkAvailable() else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition fetch - device network is unavailable.")
-            handler?.handle?(false)
-            return
-        }
 
         var requestedSurfaces: [Surface] = []
 
@@ -1220,30 +1182,13 @@ public class Messaging: NSObject, Extension {
     }
 
     private func endRequestFor(eventId: String) {
-        // KNOWN ISSUE: this does not reflect whether the request actually succeeded. If the
-        // request had a non-recoverable Edge error (see `nonRecoverableErrorEventIds` below),
-        // `applyPropositionChangeFor` will have preserved existing data instead of applying a
-        // fresh response, but `handler.handle?(true)` further down still unconditionally reports
-        // success. A caller using `updatePropositionsForSurfacesWithCompletionHandler` to decide
-        // "did this call return fresh data, or should I fall back to a persisted-disk read"
-        // cannot currently distinguish this case from a genuine success. To fix: capture
-        // `nonRecoverableErrorEventIds.contains(eventId)` before it's cleared below, and pass
-        // `!requestFailed` to `handler.handle?(...)` instead of a hardcoded `true`.
-        // update in memory propositions
+        let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
         applyPropositionChangeFor(eventId: eventId)
-
-        // remove event from surfaces dictionary
         requestedSurfacesForEventId.removeValue(forKey: eventId)
-
-        // clear any recorded non-recoverable error for this request now that it's been applied
         nonRecoverableErrorEventIds.remove(eventId)
-
-        // clear pending propositions
         inProgressPropositions.removeAll()
-
-        // call the handler if we have one
         if let handler = completionHandlerFor(edgeRequestEventId: UUID(uuidString: eventId)) {
-            handler.handle?(true)
+            handler.handle?(!requestFailed)
         }
     }
 
@@ -1281,11 +1226,10 @@ public class Messaging: NSObject, Extension {
         if ccOfflineAvailable {
             ccWriteOK = cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
         } else {
-            // Feature disabled — ensure no stale data accumulates.
-            // Optimization disabled: always clear explicitly for now.
-            // if !inMemoryContentCardPropositions.isEmpty {
-            clearPersistedContentCardPropositions()
-            // }
+            // Feature disabled — clear stale data only when the request actually succeeded.
+            if !requestFailed {
+                clearPersistedContentCardPropositions()
+            }
             ccWriteOK = true
         }
 

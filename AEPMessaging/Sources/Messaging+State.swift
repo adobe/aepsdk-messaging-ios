@@ -64,20 +64,10 @@ extension Messaging {
         }
     }
 
-    /// Stores raw content card propositions from a live network response into `inMemoryContentCardPropositions`
-    /// and tags every incoming proposition `.network` in the origin map. Mirrors `updatePropositions` (IAM/CBE).
-    /// Called from `applyPropositionChangeFor` after the disk write, before `updateRulesEngines`.
+    /// Tags every incoming network proposition as `.network` in the origin map so analytics correctly
+    /// reports `servedFromPersistentCache: false` for live-fetch cards. Called from `applyPropositionChangeFor`
+    /// before `updateRulesEngines`.
     func updateContentCardPropositions(_ newPropositions: [Surface: [Proposition]], removing surfaces: [Surface]? = nil) {
-        for (surface, propositionsArray) in newPropositions {
-            inMemoryContentCardPropositions[surface] = propositionsArray
-        }
-        if let surfaces = surfaces {
-            for surface in surfaces {
-                inMemoryContentCardPropositions.removeValue(forKey: surface)
-            }
-        }
-        // Network propositions always win — overwrite any prior `.disk` tag so analytics correctly
-        // reports `servedFromPersistentCache: false` for cards that came from a live fetch.
         var origins = contentCardOriginByProposition
         for (_, propositions) in newPropositions {
             for proposition in propositions {
