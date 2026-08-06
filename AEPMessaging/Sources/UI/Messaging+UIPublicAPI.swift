@@ -93,14 +93,10 @@ public extension Messaging {
     ///
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the container UI.
-    ///   - usePersistedContentCards: When `true`, the inbox container-item and its content cards are
-    ///     read directly from the persisted disk cache and the network is never contacted. When
-    ///     `false` (default), propositions are updated from the server first, then read from memory.
     ///   - customizer: An optional ContentCardCustomizing object to customize the appearance of content cards.
     ///   - listener: An optional InboxEventListening object to listen to container events.
     /// - Returns: A ContainerUI instance that manages its own loading and display state.
     static func getInboxUI(for surface: Surface,
-                                         usePersistedContentCards: Bool = false,
                                          customizer: ContentCardCustomizing? = nil,
                                          listener: InboxEventListening? = nil) -> InboxUI {
 
@@ -108,7 +104,6 @@ public extension Messaging {
         // It will start in loading state and fetch both container settings and cards automatically
         let inboxUI = InboxUI(
             surface: surface,
-            usePersistedContentCards: usePersistedContentCards,
             customizer: customizer,
             listener: listener
         )
