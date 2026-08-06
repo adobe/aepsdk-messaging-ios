@@ -44,7 +44,6 @@ enum MessagingConstants {
         static let CONTENT_CARD_UI_CACHE_NAME = "com.adobe.messaging.contentcard.ui.cache"
         static let PROPOSITIONS = "propositions"
         static let CONTENT_CARD_PROPOSITIONS = "contentCardPropositions"
-        static let INBOX_PROPOSITIONS = "inboxPropositions"
         static let PATH = "PATH"
     }
 
