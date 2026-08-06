@@ -548,9 +548,50 @@ class EventPlusMessagingTests: XCTestCase {
     func testSurfacesNoSurfaces() throws {
         // setup
         let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: [:])
-        
+
         // verify
-        XCTAssertNil(event.surfaces)        
+        XCTAssertNil(event.surfaces)
+    }
+
+    // MARK: - update propositions custom xdm / data
+
+    func testUpdatePropositionsXdm() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: [
+            "xdm": ["_chipotle": ["restaurantId": "6099"]]
+        ])
+
+        // verify
+        let xdm = try XCTUnwrap(event.updatePropositionsXdm)
+        let chipotle = try XCTUnwrap(xdm["_chipotle"] as? [String: Any])
+        XCTAssertEqual("6099", chipotle["restaurantId"] as? String)
+    }
+
+    func testUpdatePropositionsXdmWhenAbsent() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: [:])
+
+        // verify
+        XCTAssertNil(event.updatePropositionsXdm)
+    }
+
+    func testUpdatePropositionsData() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: [
+            "data": ["customKey": "customValue"]
+        ])
+
+        // verify
+        let data = try XCTUnwrap(event.updatePropositionsData)
+        XCTAssertEqual("customValue", data["customKey"] as? String)
+    }
+
+    func testUpdatePropositionsDataWhenAbsent() throws {
+        // setup
+        let event = Event(name: "s", type: EventType.messaging, source: EventSource.requestContent, data: [:])
+
+        // verify
+        XCTAssertNil(event.updatePropositionsData)
     }
     
     // MARK: - get propositions api events

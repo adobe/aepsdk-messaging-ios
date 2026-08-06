@@ -277,7 +277,7 @@ public class Messaging: NSObject, Extension {
         // handle an event to request propositions from the remote
         if event.isUpdatePropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update propositions from the remote.")
-            fetchPropositions(event, for: event.surfaces ?? [])
+            fetchPropositions(event, for: event.surfaces ?? [], xdm: event.updatePropositionsXdm, data: event.updatePropositionsData)
             return
         }
 
@@ -840,7 +840,7 @@ public class Messaging: NSObject, Extension {
     /// - Parameters:
     ///   - event - parent event requesting that the messages be fetched. Used for event chaining to help with debugging.
     ///   - surfaces: an array of surface path strings for fetching propositions, if available.
-    private func fetchPropositions(_ event: Event, for surfaces: [Surface]? = nil) {
+    private func fetchPropositions(_ event: Event, for surfaces: [Surface]? = nil, xdm customXdm: [String: Any]? = nil, data customData: [String: Any]? = nil) {
         // check for completion handler for requesting event
         let handler = completionHandlerFor(originatingEventId: event.id)
 
@@ -864,36 +864,8 @@ public class Messaging: NSObject, Extension {
             requestedSurfaces = [Surface(uri: appSurface)]
         }
 
-        // begin construction of event data
-        var eventData: [String: Any] = [:]
-
-        // add `query` parameters containing supported schemas and requested surfaces
-        eventData[MessagingConstants.XDM.Inbound.Key.QUERY] = [
-            MessagingConstants.XDM.Inbound.Key.PERSONALIZATION: [
-                MessagingConstants.XDM.Inbound.Key.SCHEMAS: Messaging.supportedSchemas,
-                MessagingConstants.XDM.Inbound.Key.SURFACES: requestedSurfaces.compactMap { $0.uri }
-            ]
-        ]
-
-        // add `xdm` with an event type of `personalization.request`
-        eventData[MessagingConstants.XDM.Key.XDM] = [
-            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Inbound.EventType.PERSONALIZATION_REQUEST
-        ]
-
-        // add a `data` object to the request specifying the format desired in the response from XAS
-        eventData[MessagingConstants.Event.Data.Key.DATA] = [
-            MessagingConstants.Event.Data.AdobeKeys.NAMESPACE: [
-                MessagingConstants.Event.Data.AdobeKeys.AJO: [
-                    MessagingConstants.Event.Data.AdobeKeys.INAPP_RESPONSE_FORMAT: MessagingConstants.XDM.Inbound.Value.IAM_RESPONSE_FORMAT
-                ]
-            ]
-        ]
-
-        // add a `request` object so we get a response event from edge when the propositions stream is closed for this event
-        eventData[MessagingConstants.XDM.Key.REQUEST] = [
-            MessagingConstants.XDM.Key.SEND_COMPLETION: true
-        ]
-        // end construction of event data
+        // build the personalization request event data, merging any caller-provided custom XDM/data
+        let eventData = createPersonalizationRequestEventData(for: requestedSurfaces, xdm: customXdm, data: customData)
 
         let newEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.RETRIEVE_MESSAGE_DEFINITIONS,
                                                 type: EventType.edge,
@@ -935,6 +907,59 @@ public class Messaging: NSObject, Extension {
                                                                          data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: endingEventId])
             self.dispatch(event: processCompletedEvent)
         }
+    }
+
+    /// Builds the event data for a `decisioning.propositionFetch` edge event for the provided surfaces.
+    ///
+    /// Any caller-provided `xdm` is merged into the request's XDM object and any caller-provided `data` is merged into the
+    /// request's free-form data object. Internal keys required by the SDK — the personalization request `eventType` in XDM and
+    /// the `__adobe` in-app response format in data — always take precedence and cannot be overwritten by the caller.
+    /// - Parameters:
+    ///   - surfaces: the valid surfaces to request propositions for.
+    ///   - customXdm: optional custom XDM fields to merge into the request XDM.
+    ///   - customData: optional custom free-form data to merge into the request data.
+    /// - Returns: the event data dictionary for the chained edge request event.
+    func createPersonalizationRequestEventData(for surfaces: [Surface], xdm customXdm: [String: Any]?, data customData: [String: Any]?) -> [String: Any] {
+        var eventData: [String: Any] = [:]
+
+        // add `query` parameters containing supported schemas and requested surfaces
+        eventData[MessagingConstants.XDM.Inbound.Key.QUERY] = [
+            MessagingConstants.XDM.Inbound.Key.PERSONALIZATION: [
+                MessagingConstants.XDM.Inbound.Key.SCHEMAS: Messaging.supportedSchemas,
+                MessagingConstants.XDM.Inbound.Key.SURFACES: surfaces.compactMap { $0.uri }
+            ]
+        ]
+
+        // add `xdm` with an event type of `decisioning.propositionFetch`, merging any caller-provided XDM.
+        // the internal `eventType` is required and always wins over a caller-provided value on collision.
+        var requestXdm: [String: Any] = [
+            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Inbound.EventType.PROPOSITION_FETCH
+        ]
+        if let customXdm = customXdm {
+            requestXdm.merge(customXdm) { internalValue, _ in internalValue }
+        }
+        eventData[MessagingConstants.XDM.Key.XDM] = requestXdm
+
+        // add a `data` object to the request specifying the format desired in the response from XAS, merging any
+        // caller-provided data. the internal `__adobe` namespace is required and always wins on collision.
+        var requestData: [String: Any] = [
+            MessagingConstants.Event.Data.AdobeKeys.NAMESPACE: [
+                MessagingConstants.Event.Data.AdobeKeys.AJO: [
+                    MessagingConstants.Event.Data.AdobeKeys.INAPP_RESPONSE_FORMAT: MessagingConstants.XDM.Inbound.Value.IAM_RESPONSE_FORMAT
+                ]
+            ]
+        ]
+        if let customData = customData {
+            requestData.merge(customData) { internalValue, _ in internalValue }
+        }
+        eventData[MessagingConstants.Event.Data.Key.DATA] = requestData
+
+        // add a `request` object so we get a response event from edge when the propositions stream is closed for this event
+        eventData[MessagingConstants.XDM.Key.REQUEST] = [
+            MessagingConstants.XDM.Key.SEND_COMPLETION: true
+        ]
+
+        return eventData
     }
 
     func handleProcessCompletedEvent(_ event: Event) {
