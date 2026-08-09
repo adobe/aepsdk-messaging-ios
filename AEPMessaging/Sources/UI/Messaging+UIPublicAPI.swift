@@ -15,40 +15,21 @@ import Foundation
 
 @available(iOS 15.0, *)
 public extension Messaging {
-    /// Retrieves the content cards UI for a given surface from the SDK's in-memory cache.
-    /// Recommended usage: call `updatePropositionsForSurfacesWithCompletionHandler` first; on success,
-    /// call this method. On failure, call `getContentCardsUI(for:usePersistedContentCards:...)` with
-    /// the flag set to `true` to explicitly read from the persisted disk cache instead.
-    /// - Parameters:
-    ///   - surface: The surface for which to retrieve the content cards.
-    ///   - customizer: An optional ContentCardCustomizable object to customize the appearance of the content card template.
-    ///   - listener: An optional ContentCardUIEventListening object to listen to UI events from the content card.
-    ///   - completion: A completion handler that is called with a `Result` type containing either:
-    ///     - success([ContentCardUI]):  An array of `ContentCardUI` objects if the operation is successful.
-    ///     - failure(Error) : An error indicating the failure reason
-    static func getContentCardsUI(for surface: Surface,
-                                  customizer: ContentCardCustomizing? = nil,
-                                  listener: ContentCardUIEventListening? = nil,
-                                  _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
-        getContentCardsUI(for: surface, usePersistedContentCards: false, customizer: customizer, listener: listener, completion)
-    }
-
     /// Retrieves the content cards UI for a given surface.
+    /// Both boot-hydrated disk cards and live network cards are included. Use `ContentCardUI.proposition.cardOrigin`
+    /// to distinguish them for tracking purposes.
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the content cards.
-    ///   - usePersistedContentCards: When `true`, explicitly loads content cards from the persisted
-    ///     disk cache for this surface. When `false` (default), only in-memory cards are returned.
     ///   - customizer: An optional ContentCardCustomizable object to customize the appearance of the content card template.
     ///   - listener: An optional ContentCardUIEventListening object to listen to UI events from the content card.
     ///   - completion: A completion handler that is called with a `Result` type containing either:
     ///     - success([ContentCardUI]):  An array of `ContentCardUI` objects if the operation is successful.
     ///     - failure(Error) : An error indicating the failure reason
     static func getContentCardsUI(for surface: Surface,
-                                  usePersistedContentCards: Bool,
                                   customizer: ContentCardCustomizing? = nil,
                                   listener: ContentCardUIEventListening? = nil,
                                   _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
-        Messaging.getPropositionsForSurfaces([surface], usePersistedContentCards: usePersistedContentCards) { propositionDict, error in
+        Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
             if let error = error {
                 Log.error(label: UIConstants.LOG_TAG,
                           "Error retrieving content cards UI for surface, \(surface.uri). Error \(error)")

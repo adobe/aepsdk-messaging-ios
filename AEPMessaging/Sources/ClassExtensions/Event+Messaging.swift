@@ -166,20 +166,13 @@ extension Event {
         data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false
     }
 
-    /// Explicit request to read content card / inbox propositions from the persisted disk cache,
-    /// via `getPropositionsForSurfaces(_:usePersistedContentCards:_:)`. When `false` (default),
-    /// the get is a pure in-memory read with no disk access.
-    var usePersistedContentCards: Bool {
-        data?[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] as? Bool ?? false
+    // MARK: - Clear cached propositions public API event
+
+    var isClearCachedPropositionsEvent: Bool {
+        isMessagingType && isRequestContentSource && clearCachedPropositions
     }
 
-    // MARK: - Clear persisted propositions public API event
-
-    var isClearPersistedPropositionsEvent: Bool {
-        isMessagingType && isRequestContentSource && clearPersistedPropositions
-    }
-
-    private var clearPersistedPropositions: Bool {
+    private var clearCachedPropositions: Bool {
         data?[MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS] as? Bool ?? false
     }
 

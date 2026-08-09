@@ -77,8 +77,7 @@ enum MessagingConstants {
             static let UPDATE_PROPOSITIONS = "Update propositions"
             static let GET_PROPOSITIONS = "Get propositions"
             static let TRACK_PROPOSITIONS = "Track propositions"
-            static let CLEAR_PERSISTED_PROPOSITIONS = "Clear persisted propositions"
-            static let CONTENT_CARDS_SERVED_FROM_DISK = "Content cards served from disk"
+            static let CLEAR_PERSISTED_PROPOSITIONS = "Clear cached propositions"
             static let MESSAGE_PROPOSITIONS_RESPONSE = "Message propositions response"
             static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
             static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
@@ -117,7 +116,6 @@ enum MessagingConstants {
                 static let IAM_HISTORY = "iam"
                 static let UPDATE_PROPOSITIONS = "updatepropositions"
                 static let GET_PROPOSITIONS = "getpropositions"
-                static let USE_PERSISTED_CONTENT_CARDS = "usepersistedcontentcards"
                 static let TRACK_PROPOSITIONS = "trackpropositions"
                 static let CLEAR_PERSISTED_PROPOSITIONS = "clearpersistedpropositions"
                 static let PROPOSITION_INTERACTION = "propositioninteraction"
@@ -440,4 +438,5 @@ enum MessagingConstants {
             static let ENDED = "ended"
         }
     }
+
 }

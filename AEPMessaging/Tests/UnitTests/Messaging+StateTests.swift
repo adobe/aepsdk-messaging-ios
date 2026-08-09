@@ -184,7 +184,7 @@ class MessagingPlusStateTests: XCTestCase {
         let cacheData = try encoder.encode([feedSurface.uri: [feedProp]])
         mockCache.getReturnValue = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
 
-        // No USE_PERSISTED_CONTENT_CARDS flag needed — disk hydration is automatic
+        // disk hydration is automatic at boot; all qualified cards are returned
         let eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
             MessagingConstants.Event.Data.Key.SURFACES: [feedSurface].compactMap { $0.asDictionary() }

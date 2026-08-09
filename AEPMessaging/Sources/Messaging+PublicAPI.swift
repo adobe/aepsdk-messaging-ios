@@ -148,32 +148,14 @@ import UserNotifications
     }
 
     /// Retrieves propositions for the provided surfaces from the SDK's in-memory cache.
-    /// Returns only in-memory propositions for the current session — does not read from persisted
-    /// disk storage. Recommended usage: call `updatePropositionsForSurfacesWithCompletionHandler`
-    /// first; on success, call this method to read the freshly updated in-memory data. On failure,
-    /// call `getPropositionsForSurfaces(_:usePersistedContentCards:_:)` with the flag set to `true`
-    /// to explicitly read from the persisted disk cache instead.
+    /// Both boot-hydrated disk cards and live network cards are included. Use `proposition.cardOrigin`
+    /// to distinguish them for tracking purposes.
     /// - Parameters:
     ///   - surfaces: An array of `Surface` objects.
     ///   - completion: The completion handler invoked with propositions keyed by surface.
     static func getPropositionsForSurfaces(_ surfaces: [Surface],
                                          _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
-        getPropositionsForSurfaces(surfaces, usePersistedContentCards: false, completion)
-    }
-
-    /// Retrieves propositions for the provided surfaces from the SDK cache.
-    /// - Parameters:
-    ///   - surfaces: An array of `Surface` objects.
-    ///   - usePersistedContentCards: When `true`, explicitly loads content card propositions
-    ///     from the persisted disk cache (in addition to the in-memory cache) for the requested surfaces.
-    ///     When `false` (default), only in-memory propositions are returned.
-    ///   - completion: The completion handler invoked with propositions keyed by surface.
-    @objc(getPropositionsForSurfaces:usePersistedContentCards:completion:)
-    static func getPropositionsForSurfaces(_ surfaces: [Surface],
-                                         usePersistedContentCards: Bool,
-                                         _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
-        let validSurfaces = surfaces
-            .filter { $0.isValid }
+        let validSurfaces = surfaces.filter { $0.isValid }
 
         guard !validSurfaces.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG,
@@ -184,8 +166,7 @@ import UserNotifications
 
         let eventData: [String: Any] = [
             MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
-            MessagingConstants.Event.Data.Key.SURFACES: validSurfaces.compactMap { $0.asDictionary() },
-            MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS: usePersistedContentCards
+            MessagingConstants.Event.Data.Key.SURFACES: validSurfaces.compactMap { $0.asDictionary() }
         ]
 
         let event = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
@@ -213,13 +194,12 @@ import UserNotifications
         }
     }
 
-    /// Clears the persisted disk cache for content card propositions, along with their
-    /// in-memory state (qualified content cards, content card rules, and the content card
-    /// origin tracking used for `servedFromPersistentCache` reporting).
+    /// Clears cached content card propositions — both the in-memory state (qualified cards,
+    /// content card rules, and origin tracking) and the persisted disk cache.
     ///
-    /// Code-based experience (CBE) persisted propositions are not affected by this call.
-    @objc(clearPersistedPropositions)
-    static func clearPersistedPropositions() {
+    /// Code-based experience (CBE) propositions are not affected by this call.
+    @objc(clearCachedPropositions)
+    static func clearCachedPropositions() {
         let event = Event(name: MessagingConstants.Event.Name.CLEAR_PERSISTED_PROPOSITIONS,
                           type: EventType.messaging,
                           source: EventSource.requestContent,

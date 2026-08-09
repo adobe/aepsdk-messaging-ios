@@ -64,18 +64,6 @@ extension Messaging {
         }
     }
 
-    /// Tags every incoming network proposition as `.network` in the origin map so analytics correctly
-    /// reports `servedFromPersistentCache: false` for live-fetch cards. Called from `applyPropositionChangeFor`
-    /// before `updateRulesEngines`.
-    func updateContentCardPropositions(_ newPropositions: [Surface: [Proposition]], removing surfaces: [Surface]? = nil) {
-        var origins = contentCardOriginByProposition
-        for (_, propositions) in newPropositions {
-            for proposition in propositions {
-                origins[proposition.uniqueId] = .network
-            }
-        }
-        contentCardOriginByProposition = origins
-    }
 
     /// Reads raw content card propositions from disk for the requested surfaces.
     /// Used exclusively by `hydrateContentCardRulesEngineFromDisk` to seed the rules engine at boot.
