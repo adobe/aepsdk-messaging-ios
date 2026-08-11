@@ -172,10 +172,10 @@ class MessagingPlusStateTests: XCTestCase {
         XCTAssertTrue(mockLaunchRulesEngineForFeeds.replaceRulesCalled)
     }
 
-    func testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty() throws {
-        messaging.onRegistered()
-        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
-
+    func testBootHydrationLoadsContentCardRulesFromDisk() throws {
+        // Mirrors the IAM pattern: loadCachedPropositions() is called directly in those tests;
+        // the CC equivalent is hydrateAllPersistedContentCards(). Both represent the boot path
+        // that fires via readyForEvent in production.
         let feedSurface = Surface(uri: "feed")
         let feedContent = JSONFileLoader.getRulesJsonFromFile("feedPropositionContent")
         let feedItem = PropositionItem(itemId: "feedItem", schema: .ruleset, itemData: feedContent)
@@ -184,28 +184,9 @@ class MessagingPlusStateTests: XCTestCase {
         let cacheData = try encoder.encode([feedSurface.uri: [feedProp]])
         mockCache.getReturnValue = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
 
-        // disk hydration is automatic at boot; all qualified cards are returned
-        let eventData: [String: Any] = [
-            MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
-            MessagingConstants.Event.Data.Key.SURFACES: [feedSurface].compactMap { $0.asDictionary() }
-        ]
-        let getEvent = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
-                             type: EventType.messaging,
-                             source: EventSource.requestContent,
-                             data: eventData)
+        messaging.hydrateAllPersistedContentCards()
 
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
-                                        data: (["messaging.eventDataset": "mockDataset"], .set))
-        mockRuntime.simulateComingEvents(getEvent)
-        Thread.sleep(forTimeInterval: 0.2)
-
-        let responseEvent = mockRuntime.dispatchedEvents.first {
-            $0.type == EventType.messaging && $0.source == EventSource.responseContent
-        }
-        XCTAssertNotNil(responseEvent, "A propositions response event should be dispatched")
-        XCTAssertNotNil(responseEvent?.propositions,
-                        "Response must include propositions array after automatic disk hydration")
         XCTAssertTrue(mockLaunchRulesEngineForFeeds.replaceRulesCalled,
-                      "Content card rules engine should hydrate from disk when in-memory is empty")
+                      "Boot hydration should load content card rules from disk into the rules engine")
     }
 }

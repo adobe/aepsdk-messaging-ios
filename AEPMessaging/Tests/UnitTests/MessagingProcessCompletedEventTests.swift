@@ -608,7 +608,7 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                            items: [item])
     }
 
-    func test_handleProcessCompletedEvent_noDecisions_preservesContentCardDiskCache() throws {
+    func test_handleProcessCompletedEvent_noDecisions_clearsContentCardForRequestedSurface() throws {
         let cardProposition = makeCardProposition(surface: cardSurface, index: 0)
         mockCache.updateContentCardPropositions([cardSurface: [cardProposition]])
 
@@ -622,10 +622,13 @@ class MessagingProcessCompletedEventTests: XCTestCase {
 
         messaging.handleProcessCompletedEvent(processEvent)
 
-        XCTAssertFalse(mockCache.removeCalls.contains(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS),
-                       "Failed fetch must not clear persisted content card propositions")
-        XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled,
-                       "Content-card rules engine must not be updated when no decisions were received")
+        // An empty/zero-decision response (e.g. HTTP 204) means the server has nothing for this
+        // surface — the content card cache for that surface should be cleared, not preserved.
+        // Non-recoverable network errors are handled separately via requestFailed / nonRecoverableErrorEventIds.
+        XCTAssertTrue(mockCache.removeCalls.contains(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS),
+                      "Zero-decision response must clear the persisted content card propositions for the requested surface")
+        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled,
+                      "Content-card rules engine must be updated to reflect the empty server response")
     }
 
     /// Offline hydration must load the event-history (qualify/disqualify) rules that ride inside the
