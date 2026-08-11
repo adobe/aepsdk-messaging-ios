@@ -980,6 +980,12 @@ public class Messaging: NSObject, Extension {
         // check for completion handler for requesting event
         let handler = completionHandlerFor(originatingEventId: event.id)
 
+        guard isNetworkAvailable() else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition fetch - device network is unavailable.")
+            handler?.handle?(false)
+            return
+        }
+
         var requestedSurfaces: [Surface] = []
 
         // if surfaces are provided, use them - otherwise assume the request is for base surface (mobileapp://{bundle identifier})
