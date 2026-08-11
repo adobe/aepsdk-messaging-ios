@@ -316,6 +316,13 @@ public class Messaging: NSObject, Extension {
             }
             return true
         }
+
+        // Warm up NWPathMonitor so it has time to report the real path status before
+        // the user's first updatePropositionsForSurfaces call. Without this, the lazy
+        // NetworkPathMonitorProvider singleton would be created at the moment of the
+        // first user-triggered fetch, returning .unsatisfied before the monitor stabilizes.
+        _ = isNetworkAvailable()
+
         eventsQueue.start()
         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: nil)
     }
