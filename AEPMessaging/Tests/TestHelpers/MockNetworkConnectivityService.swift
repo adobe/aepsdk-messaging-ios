@@ -12,33 +12,16 @@
 
 import AEPServices
 
-class MockNetworkAvailabilityService: NetworkAvailabilityProviding, NetworkConnectivityService {
-    var configuration = NetworkAvailabilityConfiguration()
-    var isAvailable = true
+class MockNetworkAvailabilityService: Networking {
+    var isAvailable: Bool
 
     init(isAvailable: Bool = true) {
         self.isAvailable = isAvailable
     }
 
+    func connectAsync(networkRequest: NetworkRequest, completionHandler: ((HttpConnection) -> Void)?) {}
+
     func isNetworkAvailable() -> Bool {
         return isAvailable
-    }
-
-    func isDeviceNetworkConnected() -> Bool {
-        return isNetworkAvailable()
-    }
-
-    func checkNetworkAvailability(completion: @escaping (NetworkAvailabilityResult) -> Void) {
-        let status: NetworkAvailabilityStatus = isAvailable ? .available : .deviceOffline
-        completion(NetworkAvailabilityResult(status: status))
-    }
-
-    func setPathProvider(_ provider: NetworkPathAvailabilityProviding) {}
-
-    func setHealthCheckProvider(_ provider: NetworkHealthCheckProviding?) {}
-
-    func resetToDefaults() {
-        isAvailable = true
-        configuration = NetworkAvailabilityConfiguration()
     }
 }

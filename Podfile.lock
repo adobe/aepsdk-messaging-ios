@@ -2,9 +2,9 @@ PODS:
   - AEPAssurance (5.0.3):
     - AEPCore (< 6.0.0, >= 5.0.0)
     - AEPServices (< 6.0.0, >= 5.0.0)
-  - AEPCore (5.9.0):
+  - AEPCore (5.10.0):
     - AEPRulesEngine (< 6.0.0, >= 5.0.0)
-    - AEPServices (< 6.0.0, >= 5.9.0)
+    - AEPServices (< 6.0.0, >= 5.10.0)
   - AEPEdge (5.0.3):
     - AEPCore (< 6.0.0, >= 5.3.1)
     - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
@@ -17,7 +17,7 @@ PODS:
     - AEPCore (< 6.0.0, >= 5.9.0)
   - AEPMessagingNotification (5.14.0)
   - AEPRulesEngine (5.0.0)
-  - AEPServices (5.9.0)
+  - AEPServices (5.10.0)
   - AEPSignal (5.9.0):
     - AEPCore (< 6.0.0, >= 5.9.0)
   - AEPTestUtils (5.6.0):
@@ -27,14 +27,14 @@ PODS:
 
 DEPENDENCIES:
   - AEPAssurance
-  - AEPCore (from `../aepsdk-core-ios`)
+  - AEPCore (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `MOB-25282/network-availabilty`)
   - AEPEdge
   - AEPEdgeConsent
   - AEPEdgeIdentity
   - AEPLifecycle
   - AEPMessagingNotification (from `./`)
   - AEPRulesEngine
-  - AEPServices (from `../aepsdk-core-ios`)
+  - AEPServices (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `MOB-25282/network-availabilty`)
   - AEPSignal
   - AEPTestUtils (from `https://github.com/adobe/aepsdk-core-ios.git`, tag `testutils-5.6.0`)
   - SwiftLint (= 0.52.0)
@@ -52,34 +52,42 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   AEPCore:
-    :path: "../aepsdk-core-ios"
+    :branch: MOB-25282/network-availabilty
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPMessagingNotification:
     :path: "./"
   AEPServices:
-    :path: "../aepsdk-core-ios"
+    :branch: MOB-25282/network-availabilty
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-core-ios.git
     :tag: testutils-5.6.0
 
 CHECKOUT OPTIONS:
+  AEPCore:
+    :commit: 9dd26000818ed6811c2c2ce056505cbbd795a759
+    :git: https://github.com/adobe/aepsdk-core-ios.git
+  AEPServices:
+    :commit: 9dd26000818ed6811c2c2ce056505cbbd795a759
+    :git: https://github.com/adobe/aepsdk-core-ios.git
   AEPTestUtils:
     :git: https://github.com/adobe/aepsdk-core-ios.git
     :tag: testutils-5.6.0
 
 SPEC CHECKSUMS:
   AEPAssurance: 3ab00d47a40bc6c6cb2000689e0dcfa595cda250
-  AEPCore: e5ef4c85d3527c7466c008904597e72ac1355390
+  AEPCore: f3340981c5f734f52cf1f6570ec1ba27765c4a37
   AEPEdge: 105afc7958acd7c016d57f7ac1d6f632bf05e6ee
   AEPEdgeConsent: b5a54985b79ee0222b1f1fc4b0859f8b8afed07a
   AEPEdgeIdentity: 3161ff33434586962946912d6b8e9e8fca1c4d23
   AEPLifecycle: fa857186177957ef32bfc23a8a3151dca91b6e35
   AEPMessagingNotification: 6f906b8694f2e541e5f3b2e2811fa94ce0b58ec3
   AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
-  AEPServices: 21a47dd62c85b99c497976dc17ec1a273b47f8e8
+  AEPServices: eaa574567b585ba5588a633dfd0f3e2c2d50f525
   AEPSignal: bd71d5f82f961b9f91d4a65c6eba1b269c5c9c44
   AEPTestUtils: 2bbed995c8974f6f6d92058db88d6cd2e4a7f869
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: 1bca792d4f942d73acf272a19d57573fe1e2bf6a
+PODFILE CHECKSUM: e2cd7d885b47a2ad30be0b1c6fd3f8b7005c9a76
 
 COCOAPODS: 1.16.2

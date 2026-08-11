@@ -410,7 +410,6 @@ struct CardsView: View, ContentCardUIEventListening {
     func fetchOfflineContentCards() {
         showLoadingIndicator = true
         Messaging.getContentCardsUI(for: cardsSurface,
-                                    usePersistedContentCards: true,
                                     customizer: CardCustomizer(),
                                     listener: self) { result in
             DispatchQueue.main.async {
@@ -421,7 +420,8 @@ struct CardsView: View, ContentCardUIEventListening {
     }
 
     func clearPersistedPropositions() {
-        Messaging.clearPersistedPropositions()
+        Messaging.clearCachedPropositions()
+        savedCards = []
         statusMessage = "Persisted content card cache cleared."
     }
 

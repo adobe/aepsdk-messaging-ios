@@ -20,15 +20,13 @@ $dev_branch = 'dev-v5.5.0'
 # ==================
 # SHARED POD GROUPS
 # ==================
-def lib_main
-    # Local path for co-development with aepsdk-core-ios; switch to CDN pods for release CI.
-    pod 'AEPCore', :path => '../aepsdk-core-ios'
-    pod 'AEPServices', :path => '../aepsdk-core-ios'
-    pod 'AEPRulesEngine'
-end
+$network_repo = 'https://github.com/adobe/aepsdk-core-ios.git'
+$network_branch = 'MOB-25282/network-availabilty'
 
-def lib_local
-    lib_main
+def lib_main
+    pod 'AEPCore', :git => $network_repo, :branch => $network_branch
+    pod 'AEPServices', :git => $network_repo, :branch => $network_branch
+    pod 'AEPRulesEngine'
 end
 
 def lib_dev

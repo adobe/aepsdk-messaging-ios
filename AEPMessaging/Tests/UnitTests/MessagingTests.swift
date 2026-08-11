@@ -30,8 +30,6 @@ class MessagingTests: XCTestCase {
     let mockSurface = Surface(path: "promos/feed1")
     var mockProposition: MockProposition!
     var stateManager: MessagingStateManager!
-    var mockNetworkConnectivityService: MockNetworkAvailabilityService!
-
 
     // Mock constants
     let MOCK_ECID = "mock_ecid"
@@ -62,15 +60,10 @@ class MessagingTests: XCTestCase {
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
         mockNetworkService = MockNetworkService()
         ServiceProvider.shared.networkService = mockNetworkService!
-        mockNetworkConnectivityService = MockNetworkAvailabilityService(isAvailable: true)
-        ServiceProvider.shared.networkAvailabilityService = mockNetworkConnectivityService
-        
         MobileCore.messagingDelegate = nil
     }
     
     override func tearDown() {
-        mockNetworkConnectivityService.isAvailable = true
-        ServiceProvider.shared.networkAvailabilityService = mockNetworkConnectivityService
         MobileCore.messagingDelegate = nil
         stateManager.pushIdentifier = nil
         for id in stateManager.pushToStartTokenStore.all().keys {
