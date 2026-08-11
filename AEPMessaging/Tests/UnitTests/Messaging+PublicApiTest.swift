@@ -480,11 +480,124 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         
         // test
         Messaging.updatePropositionsForSurfaces([])
-        
+
         // verify
         wait(for: [expectation], timeout: ASYNC_TIMEOUT)
     }
-    
+
+    func testUpdatePropositionsForSurfaces_withXdm() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should dispatch an event carrying custom XDM.")
+        expectation.assertForOverFulfill = true
+
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+            type: "com.adobe.eventType.messaging",
+            source: "com.adobe.eventSource.requestContent") { event in
+                XCTAssertEqual(true, event.data?["updatepropositions"] as? Bool)
+                let xdm = event.data?["xdm"] as? [String: Any]
+                XCTAssertNotNil(xdm)
+                let chipotle = xdm?["_chipotle"] as? [String: Any]
+                XCTAssertEqual("6099", chipotle?["restaurantId"] as? String)
+                // data should be absent when not provided
+                XCTAssertNil(event.data?["data"])
+                expectation.fulfill()
+            }
+
+        // test
+        Messaging.updatePropositionsForSurfaces([Surface(path: "promos/feed1")],
+                                                withXdm: ["_chipotle": ["restaurantId": "6099"]])
+
+        // verify
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+    }
+
+    func testUpdatePropositionsForSurfaces_withData() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should dispatch an event carrying custom data.")
+        expectation.assertForOverFulfill = true
+
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+            type: "com.adobe.eventType.messaging",
+            source: "com.adobe.eventSource.requestContent") { event in
+                XCTAssertEqual(true, event.data?["updatepropositions"] as? Bool)
+                let data = event.data?["data"] as? [String: Any]
+                XCTAssertEqual("customValue", data?["customKey"] as? String)
+                XCTAssertNil(event.data?["xdm"])
+                expectation.fulfill()
+            }
+
+        // test
+        Messaging.updatePropositionsForSurfaces([Surface(path: "promos/feed1")],
+                                                withXdm: nil,
+                                                andData: ["customKey": "customValue"])
+
+        // verify
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+    }
+
+    func testUpdatePropositionsForSurfaces_withXdmAndData_andCompletion() throws {
+        // setup
+        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should dispatch an event carrying custom XDM and data.")
+        expectation.assertForOverFulfill = true
+
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+            type: "com.adobe.eventType.messaging",
+            source: "com.adobe.eventSource.requestContent") { event in
+                let xdm = event.data?["xdm"] as? [String: Any]
+                XCTAssertNotNil(xdm?["_chipotle"] as? [String: Any])
+                let data = event.data?["data"] as? [String: Any]
+                XCTAssertEqual("customValue", data?["customKey"] as? String)
+                expectation.fulfill()
+            }
+
+        // test - exercise the completion-bearing overload
+        Messaging.updatePropositionsForSurfaces([Surface(path: "promos/feed1")],
+                                                withXdm: ["_chipotle": ["restaurantId": "6099"]],
+                                                andData: ["customKey": "customValue"]) { _ in }
+
+        // verify
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+    }
+
+    func testUpdatePropositionsForSurfaces_backwardCompatible_noXdmOrDataKeys() throws {
+        // setup - the existing surfaces-only overload should not attach xdm/data keys
+        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should dispatch an event without xdm/data keys.")
+        expectation.assertForOverFulfill = true
+
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+            type: "com.adobe.eventType.messaging",
+            source: "com.adobe.eventSource.requestContent") { event in
+                XCTAssertEqual(true, event.data?["updatepropositions"] as? Bool)
+                XCTAssertNil(event.data?["xdm"])
+                XCTAssertNil(event.data?["data"])
+                expectation.fulfill()
+            }
+
+        // test
+        Messaging.updatePropositionsForSurfaces([Surface(path: "promos/feed1")])
+
+        // verify
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+    }
+
+    func testUpdatePropositionsForSurfaces_withXdm_whenEmptySurfacesArray_doesNotDispatch() {
+        // setup
+        let expectation = XCTestExpectation(description: "updatePropositionsForSurfaces should not dispatch an event for empty surfaces even when xdm provided.")
+        expectation.isInverted = true
+
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+            type: "com.adobe.eventType.messaging",
+            source: "com.adobe.eventSource.requestContent") { _ in
+                expectation.fulfill()
+            }
+
+        // test
+        Messaging.updatePropositionsForSurfaces([], withXdm: ["_chipotle": ["restaurantId": "6099"]])
+
+        // verify
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+    }
+
     // MARK: - getPropositionsForSurfaces
     
     func testGetPropositionsForSurfacesNoValidSurfaces() throws {
