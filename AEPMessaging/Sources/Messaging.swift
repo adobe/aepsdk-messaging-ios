@@ -980,10 +980,14 @@ public class Messaging: NSObject, Extension {
         // check for completion handler for requesting event
         let handler = completionHandlerFor(originatingEventId: event.id)
 
-        guard isNetworkAvailable() else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition fetch - device network is unavailable.")
-            handler?.handle?(false)
-            return
+        // Only gate explicit user-triggered update requests on network availability.
+        // Boot-time fetches are intentionally allowed through — Edge handles offline gracefully on its own.
+        if event.isUpdatePropositionsEvent {
+            guard isNetworkAvailable() else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition fetch - device network is unavailable.")
+                handler?.handle?(false)
+                return
+            }
         }
 
         var requestedSurfaces: [Surface] = []

@@ -14,7 +14,7 @@ import Foundation
 @testable import AEPCore
 @testable import AEPMessaging
 import AEPEdgeIdentity
-import AEPServices
+@testable import AEPServices
 import AEPTestUtils
 import XCTest
 
@@ -70,6 +70,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
     override func setUp() {
         super.setUp()
 
+        NetworkPathMonitorProvider.shared.pathStatusProvider = { true }
         ServiceProvider.shared.networkService = mockNetworkService
         continueAfterFailure = true
         FileManager.default.clearCache()
@@ -100,6 +101,7 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
     override func tearDown() {
         super.tearDown()
         mockNetworkService.reset()
+        NetworkPathMonitorProvider.shared.pathStatusProvider = nil
     }
     
     // MARK: - Tests
