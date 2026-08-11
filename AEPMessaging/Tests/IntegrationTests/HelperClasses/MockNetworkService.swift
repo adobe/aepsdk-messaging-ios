@@ -26,6 +26,9 @@ class MockNetworkService: Networking {
     
     let validResponse = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)
     
+    var networkAvailable: Bool = true
+    func isNetworkAvailable() -> Bool { networkAvailable }
+
     func connectAsync(networkRequest: AEPServices.NetworkRequest, completionHandler: ((AEPServices.HttpConnection) -> Void)?) {
         /// Collect and mock only edge requests
         if !networkRequest.url.absoluteString.starts(with: EDGE_URL) {
