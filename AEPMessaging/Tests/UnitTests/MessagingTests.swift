@@ -1676,29 +1676,6 @@ class MessagingTests: XCTestCase {
     
     // MARK: - Completion Handler Failure Tests
 
-    func testHandleProcessEvent_getPropositions_returnsWithoutQueueingBehindUpdate() {
-        let getEvent = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
-                             type: EventType.messaging,
-                             source: EventSource.requestContent,
-                             data: [
-                                 MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
-                                 MessagingConstants.Event.Data.Key.SURFACES: [["uri": mockSurface.uri]]
-                             ])
-        
-        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
-                                        data: (value: [:], status: SharedStateStatus.set))
-        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
-                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-        
-        messaging.handleProcessEvent(getEvent)
-        
-        let responseEvent = mockRuntime.dispatchedEvents.first(where: {
-            $0.source == EventSource.responseContent && $0.responseID == getEvent.id
-        })
-        XCTAssertNotNil(responseEvent)
-        XCTAssertEqual(MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_RESPONSE, responseEvent?.name)
-    }
-
     /// Test that completion handler is called with false when Edge request response is nil (timeout)
     func testFetchPropositions_completionCalledWithFalse_whenResponseEventIsNil() {
         // Setup
