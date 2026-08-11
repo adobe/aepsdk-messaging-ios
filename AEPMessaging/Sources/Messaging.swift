@@ -384,8 +384,8 @@ public class Messaging: NSObject, Extension {
         // handle an event to get cached propositions from the SDK
         if event.isGetPropositionsEvent {
             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
-            // Process immediately so callers are not blocked behind in-flight Edge requests or Event Hub timeouts.
-            retrieveMessages(for: event.surfaces ?? [], event: event)
+            // Queue behind the eventsQueue so any in-flight update propositions request completes first.
+            eventsQueue.add(event)
             return
         }
 

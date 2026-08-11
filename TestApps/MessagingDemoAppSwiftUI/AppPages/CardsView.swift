@@ -165,6 +165,9 @@ struct CardsView: View, ContentCardUIEventListening {
                     fetchContentCards()
                 }
             }
+            actionButton(title: "Clear Cache", systemImage: "trash.circle") {
+                clearPersistedPropositions()
+            }
             // Error simulation toggle row
             Button(action: { showErrorPanel.toggle() }) {
                 HStack(spacing: 6) {
