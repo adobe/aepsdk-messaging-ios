@@ -165,15 +165,6 @@ struct CardsView: View, ContentCardUIEventListening {
                     fetchContentCards()
                 }
             }
-            HStack(spacing: 10) {
-                actionButton(title: "Fetch Offline Content Cards", systemImage: "icloud.slash") {
-                    fetchOfflineContentCards()
-                }
-                actionButton(title: "Clear Cache", systemImage: "trash") {
-                    clearPersistedPropositions()
-                }
-            }
-
             // Error simulation toggle row
             Button(action: { showErrorPanel.toggle() }) {
                 HStack(spacing: 6) {
