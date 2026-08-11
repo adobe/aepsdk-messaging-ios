@@ -853,6 +853,12 @@ public class Messaging: NSObject, Extension {
 
             for proposition in propositions {
                 if let index = existingPropositionsArray.firstIndex(of: proposition) {
+                    // Rules engine re-evaluation always produces new Proposition instances
+                    // that default to .network — preserve .disk origin from the previous
+                    // entry so disk-hydrated cards keep their servedFromPersistentCache flag.
+                    if existingPropositionsArray[index].cardOrigin == .disk {
+                        proposition.cardOrigin = .disk
+                    }
                     existingPropositionsArray.remove(at: index)
                 } else {
                     // Add to batch tracking array if it's a new proposition
@@ -902,41 +908,42 @@ public class Messaging: NSObject, Extension {
     ///   - requestedSurfaces: The surfaces that were included in the originating personalization request;
     ///     used to identify surfaces that should be cleared if absent from the response.
     private func removeOrReplaceContentCards(_ qualifiedContentCards: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
-        // Evict requested surfaces that returned no qualified propositions
+        // Only touch surfaces that were explicitly part of this network request.
+        // The CC rules engine re-evaluates ALL loaded rules on every call, so `qualifiedContentCards`
+        // may include surfaces that were hydrated from disk for a different (or previous) request.
+        // Overwriting those with new .network-origin propositions would clobber the .disk tag and
+        // cause `servedFromPersistentCache` to report false for disk-loaded cards.
         for surface in requestedSurfaces {
-            if qualifiedContentCards[surface] == nil {
-                qualifiedContentCardsBySurface.removeValue(forKey: surface)
-            }
-        }
+            if let propositions = qualifiedContentCards[surface] {
+                let existingPropositions = qualifiedContentCardsBySurface[surface] ?? []
+                let startingCount = existingPropositions.count
 
-        // Fully replace cached propositions for surfaces that have qualified content cards
-        for (surface, propositions) in qualifiedContentCards {
-            let existingPropositions = qualifiedContentCardsBySurface[surface] ?? []
-            let startingCount = existingPropositions.count
-
-            var newPropositionsToTrack: [PropositionItem] = []
-            for proposition in propositions {
-                if !existingPropositions.contains(proposition) {
-                    if let item = proposition.items.first {
-                        newPropositionsToTrack.append(item)
+                var newPropositionsToTrack: [PropositionItem] = []
+                for proposition in propositions {
+                    if !existingPropositions.contains(proposition) {
+                        if let item = proposition.items.first {
+                            newPropositionsToTrack.append(item)
+                        }
                     }
                 }
-            }
 
-            // Replace the cached list entirely with the fresh response data
-            qualifiedContentCardsBySurface[surface] = propositions
+                qualifiedContentCardsBySurface[surface] = propositions
 
-            if !newPropositionsToTrack.isEmpty {
-                newPropositionsToTrack.track(withEdgeEventType: .trigger)
-            }
-
-            let newCount = propositions.count
-            if startingCount != newCount {
-                if newCount > 0 {
-                    Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for \(newCount) content card(s) for surface \(surface.uri).")
-                } else {
-                    Log.trace(label: MessagingConstants.LOG_TAG, "User has not qualified for any content cards for surface \(surface.uri).")
+                if !newPropositionsToTrack.isEmpty {
+                    newPropositionsToTrack.track(withEdgeEventType: .trigger)
                 }
+
+                let newCount = propositions.count
+                if startingCount != newCount {
+                    if newCount > 0 {
+                        Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for \(newCount) content card(s) for surface \(surface.uri).")
+                    } else {
+                        Log.trace(label: MessagingConstants.LOG_TAG, "User has not qualified for any content cards for surface \(surface.uri).")
+                    }
+                }
+            } else {
+                // Requested surface returned no CC propositions — evict it (campaign ended server-side).
+                qualifiedContentCardsBySurface.removeValue(forKey: surface)
             }
         }
     }
@@ -1592,6 +1599,10 @@ public class Messaging: NSObject, Extension {
 
         func callUpdateRulesEngines(with rules: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
             updateRulesEngines(with: rules, requestedSurfaces: requestedSurfaces)
+        }
+
+        func callAddOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface) {
+            addOrReplaceContentCards(propositions, forSurface: surface)
         }
 
         func callRemoveOrReplaceContentCards(_ qualifiedContentCards: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
