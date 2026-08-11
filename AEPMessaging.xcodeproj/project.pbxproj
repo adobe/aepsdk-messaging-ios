@@ -248,7 +248,6 @@
 		610D7694C87747DA9FBA2602 /* InboxErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5CB0ADD5CD4B09B46D6A6D /* InboxErrorTests.swift */; };
 		66A544B390364C269E47365C /* DefaultHeadingViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE401ECA108F4EF3ADB6F667 /* DefaultHeadingViewTests.swift */; };
 		6C2343E8785E6B47C8D961F7 /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D55E83254139642A1CAA76E /* Pods_FunctionalTests.framework */; };
-		741BE62630219E3F004545B2 /* ADBMobileConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 741BE62530219E3F004545B2 /* ADBMobileConfig.json */; };
 		7454DD310E3A41F883456325 /* DefaultLoadingViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3783B7834D4427ABDFAEE02 /* DefaultLoadingViewTests.swift */; };
 		754F49E92DFCA9EF002601E9 /* LargeImageTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754F49E82DFCA9EA002601E9 /* LargeImageTemplate.swift */; };
 		754F49EB2E007FD4002601E9 /* LargeImageTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = 754F49EA2E007FC1002601E9 /* LargeImageTemplate.json */; };
@@ -292,7 +291,6 @@
 		928594152522880900B2BE47 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 925DF4472522785700A5DE31 /* Assets.xcassets */; };
 		928594162522880900B2BE47 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF4482522785700A5DE31 /* LaunchScreen.storyboard */; };
 		9285941C2522899700B2BE47 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44A2522785700A5DE31 /* Main.storyboard */; };
-		9285941E25228A1500B2BE47 /* ADBMobileConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44E2522785700A5DE31 /* ADBMobileConfig.json */; };
 		92863A022637706F000AFA53 /* MessagingFunctionalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92863A012637706F000AFA53 /* MessagingFunctionalTests.swift */; };
 		9296BA862537BFC0002C88F7 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
 		92FC587B2636840C005BAE02 /* MessagingPublicAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC587A2636840C005BAE02 /* MessagingPublicAPITests.swift */; };
@@ -918,7 +916,6 @@
 		6A301B4C9BC74A618FBA92EC /* LayoutSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutSettingsTests.swift; sourceTree = "<group>"; };
 		6D215989BF9365E7165510B0 /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
 		71895CC75A7A5B934C60718F /* Pods-E2EFunctionalTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTestApp.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp.debug.xcconfig"; sourceTree = "<group>"; };
-		741BE62530219E3F004545B2 /* ADBMobileConfig.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ADBMobileConfig.json; sourceTree = "<group>"; };
 		754F49E82DFCA9EA002601E9 /* LargeImageTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeImageTemplate.swift; sourceTree = "<group>"; };
 		754F49EA2E007FC1002601E9 /* LargeImageTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LargeImageTemplate.json; sourceTree = "<group>"; };
 		755DB8AA2E02003100F3B21B /* LargeImageCustomizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeImageCustomizer.swift; sourceTree = "<group>"; };
@@ -972,7 +969,6 @@
 		925DF4492522785700A5DE31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		925DF44B2522785700A5DE31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		925DF44C2522785700A5DE31 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		925DF44E2522785700A5DE31 /* ADBMobileConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ADBMobileConfig.json; sourceTree = "<group>"; };
 		925DF44F2522785700A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		925DF4502522785700A5DE31 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		925DF4A525227C4700A5DE31 /* AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1303,7 +1299,6 @@
 				B61BDAA82DA4ECEA007FE12E /* MessagingDemoAppSwiftUI.entitlements */,
 				B6F7CC932CC80E2800C35C64 /* AppPages */,
 				B6F7CC962CC873A400C35C64 /* AppDelegate.swift */,
-				741BE62530219E3F004545B2 /* ADBMobileConfig.json */,
 				091881E62A16BAE300615481 /* MessagingDemoAppSwiftUIApp.swift */,
 				B6F7CC942CC80F4800C35C64 /* Constants.swift */,
 				09305F0B2AC2EAFF00406607 /* MessagingDemoAppSwiftUI-Info.plist */,
@@ -1741,7 +1736,6 @@
 			isa = PBXGroup;
 			children = (
 				2415598428D1217500729136 /* nativeMethodCallingSample.html */,
-				925DF44E2522785700A5DE31 /* ADBMobileConfig.json */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -2752,7 +2746,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0969D6D12A7AFB3800A00BF7 /* Preview Content in Resources */,
-				741BE62630219E3F004545B2 /* ADBMobileConfig.json in Resources */,
 				091881EB2A16BAE400615481 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2807,7 +2800,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2415598528D1217500729136 /* nativeMethodCallingSample.html in Resources */,
-				9285941E25228A1500B2BE47 /* ADBMobileConfig.json in Resources */,
 				9285941C2522899700B2BE47 /* Main.storyboard in Resources */,
 				928594152522880900B2BE47 /* Assets.xcassets in Resources */,
 				928594162522880900B2BE47 /* LaunchScreen.storyboard in Resources */,
