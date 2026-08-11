@@ -39,7 +39,11 @@ public extension Messaging {
 
             var cards: [ContentCardUI] = []
 
-            let propositions = propositionDict?[surface] ?? []
+            // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
+            guard let propositions = propositionDict?[surface] else {
+                completion(.failure(ContentCardUIError.dataUnavailable))
+                return
+            }
 
             for proposition in propositions {
                 // attempt to create a ContentCardUI instance with the schema data.

@@ -26,7 +26,7 @@ class GetContentCardUITest : IntegrationTestBase {
     func noCards() async throws {
         // setup
         setContentCardResponse(fromFile: "NoCard")
-        
+
         // test and verify
         await #expect(throws: ContentCardUIError.dataUnavailable) {
             try await getContentCardUI(homeSurface)
