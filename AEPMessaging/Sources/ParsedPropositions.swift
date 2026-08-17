@@ -38,7 +38,7 @@ struct ParsedPropositions {
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
 
-    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime, contentCardOfflineAvailable: Bool = true) {
+    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime, contentCardOfflineAvailable: Bool = false) {
         self.runtime = runtime
 
         // sort these propositions by ordinal rank before processing them

@@ -968,17 +968,20 @@ public class Messaging: NSObject, Extension {
         }
     }
 
+    // TODO: Replace with MobileCore.isNetworkAvailable() once AEPCore exposes it as a public API.
+    // Reaching into ServiceProvider.shared is an internal coupling that extensions should not need.
     private func isNetworkAvailable() -> Bool {
         ServiceProvider.shared.networkService.isNetworkAvailable()
     }
 
     /// Reads `messaging.contentCardOfflineAvailable` from the Configuration shared state.
-    /// Defaults to `true` when the key is absent (backwards-compatible: offline availability is on
-    /// unless the operator explicitly disables it). Pass `event: nil` to read the latest state.
+    /// Defaults to `false` when the key is absent — disk persistence is opt-in. Apps must
+    /// explicitly set `messaging.contentCardOfflineAvailable = true` in their config to enable
+    /// content card persistence across sessions. Pass `event: nil` to read the latest state.
     private func isContentCardOfflineAvailable(for event: Event? = nil) -> Bool {
         let config = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
-        let value = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? true
-        Log.debug(label: MessagingConstants.LOG_TAG, "isContentCardOfflineAvailable: \(value) (key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] == nil ? "absent from config — defaulting to true" : "found in config"))")
+        let value = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? false
+        Log.debug(label: MessagingConstants.LOG_TAG, "isContentCardOfflineAvailable: \(value) (key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] == nil ? "absent from config — defaulting to false" : "found in config"))")
         return value
     }
 
@@ -1039,6 +1042,27 @@ public class Messaging: NSObject, Extension {
             handler.edgeRequestEventId = newEvent.id
             Messaging.completionHandlers.append(handler)
         }
+
+        // TODO: Timeout mismatch between eventsQueue consumers and the Edge fetch.
+        // The Edge stream-close response has a 10-second timeout (below). Any event sitting
+        // behind a paused eventsQueue — e.g. a GET_PROPOSITIONS event dispatched by
+        // getContentCardsUI — has its OWN 5-second callback timeout (Messaging+PublicAPI.swift,
+        // MobileCore.dispatch(event:, timeout: 5)).
+        //
+        // Race when network is slow/offline and the network guard is NOT applied at boot:
+        //   t=0s  Boot IAM fetch → Edge event dispatched → eventsQueue PAUSED
+        //   t=0s  getContentCardsUI → GET_PROPOSITIONS added to queue (stuck behind boot event)
+        //   t=5s  GET_PROPOSITIONS 5s callback fires → AEPError.callbackTimeout → ❌ caller sees error
+        //   t=10s Edge 10s timeout fires → eventsQueue.start() called → queue unblocks (too late)
+        //
+        // Resolution options (deferred):
+        //   A. Raise GET_PROPOSITIONS timeout above the Edge fetch timeout (e.g. 15s), so
+        //      the queue has time to unblock before the caller gives up.
+        //   B. Keep the current approach: unconditional isNetworkAvailable() guard skips the
+        //      boot Edge dispatch entirely when offline, so the queue never pauses and
+        //      GET_PROPOSITIONS runs immediately from cache.
+        //
+        // Currently using Option B. If the guard is ever relaxed or removed, revisit Option A.
 
         // dispatch the event and implement handler for the completion event
         MobileCore.dispatch(event: newEvent, timeout: 10.0) { responseEvent in

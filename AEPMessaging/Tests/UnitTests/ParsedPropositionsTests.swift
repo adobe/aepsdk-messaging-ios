@@ -150,9 +150,9 @@ class ParsedPropositionTests: XCTestCase {
             mockFeedSurface: [mockFeedProposition]
         ]
         
-        // test
-        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockFeedSurface], runtime: mockRuntime)
-        
+        // test — explicitly opt-in to offline persistence to verify the CC persist bucket
+        let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockFeedSurface], runtime: mockRuntime, contentCardOfflineAvailable: true)
+
         // verify
         XCTAssertNotNil(result)
         XCTAssertEqual(1, result.propositionInfoToCache.count, "should have one entry in proposition info for tracking purposes")
@@ -161,7 +161,7 @@ class ParsedPropositionTests: XCTestCase {
         XCTAssertEqual("feed", feedPropositionInfo?.id)
         XCTAssertEqual(0, result.propositionsToCache.count)
         XCTAssertEqual(0, result.propositionsToPersist.count)
-        XCTAssertEqual(1, result.contentCardPropositionsToPersist.count, "feed ruleset should persist to CC bucket")
+        XCTAssertEqual(1, result.contentCardPropositionsToPersist.count, "feed ruleset should persist to CC bucket when offline available")
         XCTAssertEqual(mockFeedSurface, result.contentCardPropositionsToPersist.keys.first)
         XCTAssertEqual(1, result.surfaceRulesBySchemaType.count, "should have one rule to insert in the feeds rules engine")
         let feedRules = result.surfaceRulesBySchemaType[.contentCard]
