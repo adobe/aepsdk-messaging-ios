@@ -53,6 +53,17 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                               expectedSurfaceUri: iamSurface.uri,
                               cache: mockCache,
                               stateManager: .init())
+
+        // Opt-in to content card offline persistence so tests that assert on
+        // CC cache writes reflect the expected "offline available" configuration.
+        // Without this, isContentCardOfflineAvailable() returns false (the default
+        // when the key is absent) and contentCardPropositionsToPersist stays empty.
+        mockRuntime.simulateSharedState(
+            for: MessagingConstants.SharedState.Configuration.NAME,
+            data: (value: [MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE: true],
+                   status: SharedStateStatus.set)
+        )
+
         messaging.onRegistered()
     }
 
