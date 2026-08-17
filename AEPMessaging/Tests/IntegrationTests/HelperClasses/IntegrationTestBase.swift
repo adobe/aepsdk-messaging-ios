@@ -104,6 +104,7 @@ class IntegrationTestBase {
         MobileCore.registerExtensions([Messaging.self, Identity.self, Edge.self, Consent.self], {
             MobileCore.updateConfigurationWith(configDict: ["edge.configId": "edgeDomain",
                                                             "edge.domain" : "adobe.dc.net",
+                                                            "messaging.contentCardOfflineAvailable": true,
                                                             "consent.default" : [
                                                                 "consents": [
                                                                     "collect": [
