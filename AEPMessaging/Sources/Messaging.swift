@@ -14,16 +14,6 @@ import AEPCore
 import AEPServices
 import Foundation
 
-/// Describes where a content card proposition originated.
-/// Stored directly on each `Proposition.cardOrigin` — transient, never persisted to disk.
-enum CardOrigin: String {
-    /// Proposition came from a live network (Edge personalization) response.
-    case network
-
-    /// Proposition was hydrated from the persisted on-disk content card cache at boot.
-    case disk
-}
-
 @objc(AEPMobileMessaging)
 public class Messaging: NSObject, Extension {
     // MARK: - Class members
@@ -89,11 +79,27 @@ public class Messaging: NSObject, Extension {
     ///
     /// Checked in `applyPropositionChangeFor` to distinguish "server genuinely has nothing for this
     /// surface" (an empty `personalization:decisions` response — should evict) from "the request itself
-    /// failed" (should NOT evict memory, disk, or the content card origin flag).
+    /// failed" (should NOT evict memory, disk, or change the content card network-refreshed set).
     private var _nonRecoverableErrorEventIds: Set<String> = []
     private var nonRecoverableErrorEventIds: Set<String> {
         get { queue.sync { self._nonRecoverableErrorEventIds } }
         set { queue.async { self._nonRecoverableErrorEventIds = newValue } }
+    }
+
+    /// Surfaces whose currently-qualified content cards were refreshed from a live Edge network
+    /// response during **this** app session. This is the single source of truth for content card
+    /// provenance and replaces the per-`Proposition` origin flag: a content card display is reported
+    /// as `servedFromPersistentCache` when its surface is NOT in this set.
+    ///
+    /// It is intentionally in-memory only (never persisted) and starts empty on every launch, so a
+    /// card served after a cold start — before any successful network refresh — is correctly reported
+    /// as served from the persisted cache. It is maintained in exactly one place on the network path
+    /// (`removeOrReplaceContentCards`: insert on refresh, remove on eviction) and cleared with the
+    /// content card state (`clearContentCards`). Disk hydration deliberately does NOT add to it.
+    private var _networkRefreshedSurfaces: Set<Surface> = []
+    private var networkRefreshedSurfaces: Set<Surface> {
+        get { queue.sync { self._networkRefreshedSurfaces } }
+        set { queue.async { self._networkRefreshedSurfaces = newValue } }
     }
 
     /// used while processing streaming payloads for a single request
@@ -137,10 +143,12 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Enriches a proposition interaction XDM with a `servedFromPersistentCache` flag per proposition,
-    /// reading the origin directly from each `Proposition.cardOrigin` in `qualifiedContentCardsBySurface`.
+    /// derived from `networkRefreshedSurfaces`: a content card is reported as served from the persisted
+    /// cache when its surface has NOT been refreshed from a live network response this session.
     ///
-    /// Scoped to **content card display events only**. Non-display interactions and non-content-card
-    /// interactions (IAM, CBE, inbox) are left untouched.
+    /// Scoped to **content card display events only**. Only propositions that are currently qualified
+    /// content cards (present in `qualifiedContentCardsBySurface`) are annotated; non-display
+    /// interactions and non-content-card interactions (IAM, CBE, inbox) are left untouched.
     func enrichWithContentCardOrigin(_ xdm: [String: Any]) -> [String: Any] {
         guard
             var experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any],
@@ -158,20 +166,27 @@ public class Messaging: NSObject, Extension {
             return xdm
         }
 
-        let qualifiedById = Dictionary(
-            qualifiedContentCardsBySurface.values.flatMap { $0 }.map { ($0.uniqueId, $0.cardOrigin) },
-            uniquingKeysWith: { first, _ in first }
-        )
+        // Map each qualified content card proposition id to its surface so provenance can be looked up
+        // from `networkRefreshedSurfaces`. Presence in this map is also what scopes enrichment to
+        // content cards only.
+        var surfaceByPropositionId: [String: Surface] = [:]
+        for (surface, cards) in qualifiedContentCardsBySurface {
+            for proposition in cards where surfaceByPropositionId[proposition.uniqueId] == nil {
+                surfaceByPropositionId[proposition.uniqueId] = surface
+            }
+        }
+        let refreshedSurfaces = networkRefreshedSurfaces
+
         var didEnrich = false
         propositions = propositions.map { proposition in
             guard
                 let propositionId = proposition[MessagingConstants.XDM.Inbound.Key.ID] as? String,
-                let origin = qualifiedById[propositionId],
+                let surface = surfaceByPropositionId[propositionId],
                 let items = proposition[MessagingConstants.XDM.Inbound.Key.ITEMS] as? [[String: Any]]
             else {
                 return proposition
             }
-            let servedFromCache = (origin == .disk)
+            let servedFromCache = !refreshedSurfaces.contains(surface)
             let enrichedItems: [[String: Any]] = items.map { item in
                 var updatedItem = item
                 var data = updatedItem["data"] as? [String: Any] ?? [:]
@@ -667,6 +682,7 @@ public class Messaging: NSObject, Extension {
     private func clearContentCards() {
         qualifiedContentCardsBySurface = [:]
         contentCardRulesBySurface = [:]
+        networkRefreshedSurfaces = []
         contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
         try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
         Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared.")
@@ -860,12 +876,9 @@ public class Messaging: NSObject, Extension {
 
             for proposition in propositions {
                 if let index = existingPropositionsArray.firstIndex(of: proposition) {
-                    // Rules engine re-evaluation always produces new Proposition instances
-                    // that default to .network — preserve .disk origin from the previous
-                    // entry so disk-hydrated cards keep their servedFromPersistentCache flag.
-                    if existingPropositionsArray[index].cardOrigin == .disk {
-                        proposition.cardOrigin = .disk
-                    }
+                    // Re-qualification of an already-present card: replace the instance in place.
+                    // Provenance is tracked per-surface in `networkRefreshedSurfaces`, not on the
+                    // proposition, so no per-instance origin needs to be carried over here.
                     existingPropositionsArray.remove(at: index)
                 } else {
                     // Add to batch tracking array if it's a new proposition
@@ -918,8 +931,13 @@ public class Messaging: NSObject, Extension {
         // Only touch surfaces that were explicitly part of this network request.
         // The CC rules engine re-evaluates ALL loaded rules on every call, so `qualifiedContentCards`
         // may include surfaces that were hydrated from disk for a different (or previous) request.
-        // Overwriting those with new .network-origin propositions would clobber the .disk tag and
-        // cause `servedFromPersistentCache` to report false for disk-loaded cards.
+        // Leaving non-requested surfaces untouched keeps them out of `networkRefreshedSurfaces`, so
+        // disk-hydrated cards continue to report `servedFromPersistentCache = true`.
+        //
+        // This is also the single place that maintains `networkRefreshedSurfaces`: a requested surface
+        // that returned content cards is marked network-refreshed for this session; a requested surface
+        // that returned nothing is evicted and removed from the set.
+        var refreshedSurfaces = networkRefreshedSurfaces
         for surface in requestedSurfaces {
             if let propositions = qualifiedContentCards[surface] {
                 let existingPropositions = qualifiedContentCardsBySurface[surface] ?? []
@@ -935,6 +953,7 @@ public class Messaging: NSObject, Extension {
                 }
 
                 qualifiedContentCardsBySurface[surface] = propositions
+                refreshedSurfaces.insert(surface)
 
                 if !newPropositionsToTrack.isEmpty {
                     newPropositionsToTrack.track(withEdgeEventType: .trigger)
@@ -951,8 +970,10 @@ public class Messaging: NSObject, Extension {
             } else {
                 // Requested surface returned no CC propositions — evict it (campaign ended server-side).
                 qualifiedContentCardsBySurface.removeValue(forKey: surface)
+                refreshedSurfaces.remove(surface)
             }
         }
+        networkRefreshedSurfaces = refreshedSurfaces
     }
 
     /// Removes the `Proposition` matching `activityId` from both the live and disk qualified caches.
@@ -1049,20 +1070,22 @@ public class Messaging: NSObject, Extension {
         // getContentCardsUI — has its OWN 5-second callback timeout (Messaging+PublicAPI.swift,
         // MobileCore.dispatch(event:, timeout: 5)).
         //
-        // Race when network is slow/offline and the network guard is NOT applied at boot:
-        //   t=0s  Boot IAM fetch → Edge event dispatched → eventsQueue PAUSED
+        // Race when network is slow/offline and the boot IAM fetch fires:
+        //   t=0s  Boot IAM fetch → Edge event dispatched → eventsQueue PAUSED (boot is NOT gated)
         //   t=0s  getContentCardsUI → GET_PROPOSITIONS added to queue (stuck behind boot event)
         //   t=5s  GET_PROPOSITIONS 5s callback fires → AEPError.callbackTimeout → ❌ caller sees error
         //   t=10s Edge 10s timeout fires → eventsQueue.start() called → queue unblocks (too late)
         //
+        // Current state: the isNetworkAvailable() guard is scoped to isUpdatePropositionsEvent
+        // (write path only — see fetchPropositions). Boot IAM fetches are intentionally NOT gated,
+        // so the race above is still possible on first launch when offline.
+        //
         // Resolution options (deferred):
         //   A. Raise GET_PROPOSITIONS timeout above the Edge fetch timeout (e.g. 15s), so
         //      the queue has time to unblock before the caller gives up.
-        //   B. Keep the current approach: unconditional isNetworkAvailable() guard skips the
-        //      boot Edge dispatch entirely when offline, so the queue never pauses and
-        //      GET_PROPOSITIONS runs immediately from cache.
-        //
-        // Currently using Option B. If the guard is ever relaxed or removed, revisit Option A.
+        //   B. Extend the network guard unconditionally to include boot fetches, so the queue
+        //      never pauses when offline and GET_PROPOSITIONS runs immediately from cache.
+        //      Trade-off: boot fetch would never fire when offline, even if Edge could handle it.
 
         // dispatch the event and implement handler for the completion event
         MobileCore.dispatch(event: newEvent, timeout: 10.0) { responseEvent in
@@ -1254,8 +1277,8 @@ public class Messaging: NSObject, Extension {
 
         // A non-recoverable Edge error means this request FAILED — an empty response here does not
         // mean "the campaign is gone," it means "we don't know." Surfaces that returned no data in
-        // this scenario must NOT be evicted from disk, memory, rules engines, or the content card
-        // origin tag; their last-known-good state is preserved until a future request succeeds.
+        // this scenario must NOT be evicted from disk, memory, rules engines, nor have their
+        // network-refreshed state changed; their last-known-good state is preserved until a future request succeeds.
         let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
         if requestFailed {
             Log.warning(label: MessagingConstants.LOG_TAG,
@@ -1289,8 +1312,9 @@ public class Messaging: NSObject, Extension {
         }
 
         // IN-MEMORY: update all in-memory caches after disk writes.
-        // New Proposition instances created by the rules engine default to .network cardOrigin,
-        // so no explicit origin tagging is needed for the network path.
+        // Content card provenance is tracked per-surface in `networkRefreshedSurfaces`, maintained by
+        // `removeOrReplaceContentCards` (called via `updateRulesEngines` below); no per-proposition
+        // tagging is needed on the network path.
         updatePropositions(parsedPropositions.propositionsToCache, removing: surfacesToRemove)
         updateInboxPropositions(parsedPropositions.inboxPropositionsToCache, removing: surfacesToRemove)
         updatePropositionInfo(parsedPropositions.propositionInfoToCache, removing: surfacesToRemove)
@@ -1404,9 +1428,9 @@ public class Messaging: NSObject, Extension {
                                   data: nil)
         let diskQualified = getPropositionsFromContentCardRulesEngine(diskSeedEvent)
         for (surface, propositions) in diskQualified where surfaces.contains(surface) {
-            for proposition in propositions {
-                proposition.cardOrigin = .disk
-            }
+            // Disk-hydrated surfaces are intentionally NOT added to `networkRefreshedSurfaces`, so any
+            // card served for them reports `servedFromPersistentCache = true` until a live network
+            // response refreshes the surface this session.
             qualifiedContentCardsBySurface[surface] = propositions
         }
 
@@ -1438,8 +1462,8 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Dispatches a response event containing all propositions for the requested surfaces.
-    /// All qualified content cards (both boot-hydrated disk cards and live network cards) are served —
-    /// the caller uses `proposition.cardOrigin` to differentiate them for tracking purposes.
+    /// All qualified content cards (both boot-hydrated disk cards and live network cards) are served;
+    /// provenance for tracking is derived at interaction time from `networkRefreshedSurfaces`.
     private func retrieveMessages(for surfaces: [Surface], event: Event) {
         let requestedSurfaces = surfaces.filter { $0.isValid }
 
@@ -1499,8 +1523,8 @@ public class Messaging: NSObject, Extension {
     /// failures. Recoverable statuses (see `RECOVERABLE_EDGE_ERROR_STATUS_CODES`) are already being retried
     /// by Edge's own `PersistentHitQueue` and are intentionally ignored here — Edge may still resolve them.
     /// Non-recoverable statuses (and errors with no status at all, e.g. a dropped connection-level error)
-    /// are recorded so `applyPropositionChangeFor` can avoid evicting a surface's disk, memory, and content
-    /// card origin tag when the request failed rather than the server legitimately returning nothing.
+    /// are recorded so `applyPropositionChangeFor` can avoid evicting a surface's disk, memory, or
+    /// network-refreshed state when the request failed rather than the server legitimately returning nothing.
     private func handleEdgeErrorResponse(_ event: Event) {
         guard event.isEdgeErrorResponseEvent,
               let requestEventId = event.requestEventId,
@@ -1642,6 +1666,14 @@ public class Messaging: NSObject, Extension {
 
         func callEnrichWithContentCardOrigin(_ xdm: [String: Any]) -> [String: Any] {
             enrichWithContentCardOrigin(xdm)
+        }
+
+        func setNetworkRefreshedSurfaces(_ surfaces: Set<Surface>) {
+            networkRefreshedSurfaces = surfaces
+        }
+
+        func getNetworkRefreshedSurfaces() -> Set<Surface> {
+            networkRefreshedSurfaces
         }
     #endif
 }

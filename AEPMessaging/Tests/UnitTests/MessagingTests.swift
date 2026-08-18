@@ -1937,28 +1937,28 @@ class MessagingTests: XCTestCase {
         // Regression test: the CC rules engine re-evaluates ALL surfaces on every call to
         // `updateRulesEngines`. During a boot-time IAM fetch (requestedSurfaces = [mobileapp://]),
         // `qualifiedContentCards` may contain disk-hydrated CC surfaces. Those surfaces must NOT
-        // be overwritten with .network-origin propositions just because the rules engine returned them.
+        // be touched, so they stay out of `networkRefreshedSurfaces` and keep reporting as disk-served.
         let iamSurface = Surface(uri: "mobileapp://test-bundle")
         let ccSurface = Surface(path: "feed1")
 
+        // disk-hydrated surface: qualified but not marked network-refreshed
         let diskProp = Proposition(uniqueId: "diskProp", scope: ccSurface.uri,
                                    scopeDetails: ["activity": ["id": "diskActivity"]], items: [])
-        diskProp.cardOrigin = .disk
         messaging.qualifiedContentCardsBySurface[ccSurface] = [diskProp]
 
         // CC rules engine returned cards for ccSurface, but the request was only for iamSurface
         let networkProp = Proposition(uniqueId: "diskProp", scope: ccSurface.uri,
                                       scopeDetails: ["activity": ["id": "diskActivity"]], items: [])
-        // networkProp.cardOrigin defaults to .network
         let qualifiedCards: [Surface: [Proposition]] = [ccSurface: [networkProp]]
 
         messaging.callRemoveOrReplaceContentCards(qualifiedCards, requestedSurfaces: [iamSurface])
 
-        // ccSurface was NOT in requestedSurfaces — must remain untouched with .disk origin
+        // ccSurface was NOT in requestedSurfaces — must remain untouched and stay disk-served
         let resultCC = messaging.qualifiedContentCardsBySurface[ccSurface]
         XCTAssertNotNil(resultCC)
         XCTAssertEqual(1, resultCC?.count)
-        XCTAssertEqual(CardOrigin.disk, resultCC?.first?.cardOrigin)
+        XCTAssertFalse(messaging.getNetworkRefreshedSurfaces().contains(ccSurface),
+                       "a surface not in the request must not be marked network-refreshed")
         // iamSurface had no CC cards but was requested — evict it (was never present, so count stays 1)
         XCTAssertNil(messaging.qualifiedContentCardsBySurface[iamSurface])
         XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
@@ -1966,26 +1966,25 @@ class MessagingTests: XCTestCase {
     #endif
 
     #if DEBUG
-    func testAddOrReplaceContentCards_preservesDiskOrigin_whenRulesEngineRequalifiesWithNewInstance() {
-        // Regression test: handleWildcardEvent creates new Proposition instances (.network by default)
-        // for propositions that were boot-hydrated from disk. addOrReplaceContentCards must copy
-        // the .disk origin from the existing entry so servedFromPersistentCache stays true.
+    func testAddOrReplaceContentCards_keepsSurfaceDiskServed_whenRulesEngineRequalifiesWithNewInstance() {
+        // Regression test: handleWildcardEvent creates new Proposition instances for propositions that
+        // were boot-hydrated from disk. addOrReplaceContentCards must not mark the surface
+        // network-refreshed, so servedFromPersistentCache stays true for that display.
         let ccSurface = Surface(path: "feed1")
         let diskProp = Proposition(uniqueId: "prop1", scope: ccSurface.uri,
                                    scopeDetails: ["activity": ["id": "activity1"]], items: [])
-        diskProp.cardOrigin = .disk
         messaging.qualifiedContentCardsBySurface[ccSurface] = [diskProp]
 
-        // Simulate the rules engine producing a new .network instance for the same proposition
+        // Simulate the rules engine producing a new instance for the same proposition
         let requalifiedProp = Proposition(uniqueId: "prop1", scope: ccSurface.uri,
                                           scopeDetails: ["activity": ["id": "activity1"]], items: [])
-        XCTAssertEqual(requalifiedProp.cardOrigin, .network)
 
         messaging.callAddOrReplaceContentCards([requalifiedProp], forSurface: ccSurface)
 
         let result = messaging.qualifiedContentCardsBySurface[ccSurface]
         XCTAssertEqual(1, result?.count)
-        XCTAssertEqual(CardOrigin.disk, result?.first?.cardOrigin)
+        XCTAssertFalse(messaging.getNetworkRefreshedSurfaces().contains(ccSurface),
+                       "in-session re-qualification must not flip a disk-served surface to network")
     }
     #endif
 

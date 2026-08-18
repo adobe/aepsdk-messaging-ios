@@ -172,8 +172,8 @@ import UserNotifications
     }
 
     /// Retrieves propositions for the provided surfaces from the SDK's in-memory cache.
-    /// Both boot-hydrated disk cards and live network cards are included. Use `proposition.cardOrigin`
-    /// to distinguish them for tracking purposes.
+    /// Both boot-hydrated disk cards and live network cards are included; content card interaction
+    /// tracking automatically records whether each card was served from the persisted cache.
     /// - Parameters:
     ///   - surfaces: An array of `Surface` objects.
     ///   - completion: The completion handler invoked with propositions keyed by surface.

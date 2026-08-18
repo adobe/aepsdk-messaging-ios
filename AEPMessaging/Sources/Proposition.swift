@@ -49,11 +49,6 @@ public class Proposition: NSObject, Codable {
         return propositionItems
     }()
 
-    /// Tracks where this proposition was loaded from. `.network` for live fetch responses;
-    /// `.disk` for propositions hydrated from the persisted on-disk cache at boot.
-    /// Transient — not encoded or decoded, so it never leaks into the persisted cache.
-    var cardOrigin: CardOrigin = .network
-
     enum CodingKeys: String, CodingKey {
         case id
         case scope

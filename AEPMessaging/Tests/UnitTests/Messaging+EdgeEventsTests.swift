@@ -688,10 +688,10 @@ class MessagingEdgeEventsTests: XCTestCase {
             ]
         ]
 
-        // seed a .disk-tagged proposition in memory so the enrichment can find it
+        // seed a disk-served proposition in memory: it is qualified but its surface is NOT in
+        // networkRefreshedSurfaces (the default), so enrichment reports servedFromPersistentCache = true
         let propItem = PropositionItem(itemId: "item1", schema: .ruleset, itemData: [:])
         let prop = Proposition(uniqueId: "prop1", scope: "surface1", scopeDetails: [:], items: [propItem])
-        prop.cardOrigin = .disk
         messaging.qualifiedContentCardsBySurface = [Surface(uri: "surface1"): [prop]]
 
         let enriched = messaging.enrichWithContentCardOrigin(xdm)
@@ -730,8 +730,9 @@ class MessagingEdgeEventsTests: XCTestCase {
 
         let propItem = PropositionItem(itemId: "item2", schema: .ruleset, itemData: [:])
         let prop = Proposition(uniqueId: "prop2", scope: "surface1", scopeDetails: [:], items: [propItem])
-        // default cardOrigin is .network
         messaging.qualifiedContentCardsBySurface = [Surface(uri: "surface1"): [prop]]
+        // mark the surface as refreshed from the network this session → servedFromPersistentCache = false
+        messaging.setNetworkRefreshedSurfaces([Surface(uri: "surface1")])
 
         let enriched = messaging.enrichWithContentCardOrigin(xdm)
 

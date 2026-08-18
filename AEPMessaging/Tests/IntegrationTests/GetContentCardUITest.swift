@@ -92,9 +92,11 @@ class BootHydratePersistedContentCardsTest: IntegrationTestBase {
         #expect(messaging.qualifiedContentCardsBySurface[homeSurface]?.isEmpty == false,
                 "Network update should have qualified content cards into memory")
 
-        // 2. Simulate a fresh cold boot: clear the in-memory qualified cache (disk cache is left
-        //    intact). If hydration did NOT read disk, the array would stay empty below.
+        // 2. Simulate a fresh cold boot: clear the in-memory qualified cache AND the in-memory
+        //    network-refreshed set (both start empty on a real launch); the disk cache is left intact.
+        //    If hydration did NOT read disk, the array would stay empty below.
         messaging.qualifiedContentCardsBySurface = [:]
+        messaging.setNetworkRefreshedSurfaces([])
         #expect(messaging.qualifiedContentCardsBySurface[homeSurface] == nil)
 
         // 3. Run the boot hydration (exactly what readyForEvent does at boot). No get API is called.
@@ -105,10 +107,9 @@ class BootHydratePersistedContentCardsTest: IntegrationTestBase {
         #expect(!hydratedCards.isEmpty,
                 "Boot hydration must repopulate qualified content cards from the persisted disk cache")
 
-        // 5. Every hydrated card must be tagged `.disk`, so servedFromPersistentCache reports offline.
-        for card in hydratedCards {
-            #expect(card.cardOrigin == .disk,
-                    "Boot-hydrated card \(card.uniqueId) must be tagged .disk for accurate analytics")
-        }
+        // 5. The hydrated surface must NOT be in the network-refreshed set, so any card served for it
+        //    reports servedFromPersistentCache = true until a live network response refreshes it.
+        #expect(messaging.getNetworkRefreshedSurfaces().contains(homeSurface) == false,
+                "Boot-hydrated surface must report as disk-served for accurate analytics")
     }
 }
