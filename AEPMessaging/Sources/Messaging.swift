@@ -693,10 +693,27 @@ public class Messaging: NSObject, Extension {
         Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared.")
     }
 
-    /// Clears persisted content card propositions (disk) along with their in-memory state.
-    /// Handles `clearCachedPropositions()` public API requests. Does not affect CBE or inbox propositions.
+    /// Full clear: in-memory qualified cards, rules engines, networkRefreshedSurfaces, and disk cache.
+    /// Used by `resetIdentities` and the public `clearCachedPropositions()` API where a complete
+    /// wipe is required. Does not affect CBE or inbox propositions.
     private func clearCachedContentCardPropositions() {
         clearContentCards()
+    }
+
+    /// Evicts only the persisted disk cache for content cards.
+    /// In-memory state (`qualifiedContentCardsBySurface`, `contentCardRulesBySurface`,
+    /// `networkRefreshedSurfaces`, and the rules engine) is left intact so that the current
+    /// session's network-fetched cards continue to be served.
+    ///
+    /// Used in two places:
+    ///  - `applyPropositionChangeFor` when the offline flag is `false` — disk is cleared after a
+    ///    successful network response; `updateRulesEngines` immediately follows and rebuilds memory.
+    ///  - `retrieveMessages` when the offline flag is `false` — stale leftover disk data from a
+    ///    prior session (when the flag was `true`) is evicted; the network-origin in-memory cards
+    ///    are served normally.
+    private func clearContentCardDiskCache() {
+        try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
+        Log.debug(label: MessagingConstants.LOG_TAG, "Content card disk cache cleared (in-memory state preserved).")
     }
 
     /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
@@ -1279,9 +1296,11 @@ public class Messaging: NSObject, Extension {
         if ccOfflineAvailable {
             cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
         } else {
-            // Feature disabled — clear stale data only when the request actually succeeded.
+            // Feature disabled — evict stale disk data only when the request actually succeeded.
+            // In-memory state is intentionally left intact; updateRulesEngines follows immediately
+            // and rebuilds qualifiedContentCardsBySurface from the network response.
             if !requestFailed {
-                clearCachedContentCardPropositions()
+                clearContentCardDiskCache()
             }
         }
 
@@ -1370,10 +1389,16 @@ public class Messaging: NSObject, Extension {
         rulesEngine.launchRulesEngine.replaceRules(with: combined)
     }
 
-    /// Loads CC and event-history rules from the provided propositions into their respective rules engines,
-    /// evaluates them against a seed event, and writes qualifying propositions into
-    /// `qualifiedContentCardsBySurface` tagged `.disk`. Writing directly (not via `addOrReplaceContentCards`)
-    /// avoids spurious `.trigger` analytics events for boot-seeded disk cards.
+    /// Loads CC and event-history rules from the provided propositions into their respective rules engines.
+    ///
+    /// Disk-hydrated cards are intentionally NOT written to `qualifiedContentCardsBySurface` here.
+    /// `qualifiedContentCardsBySurface` is a network-only store: only `removeOrReplaceContentCards`
+    /// (on the network path) writes to it. Disk cards are served lazily via a rules engine re-seed
+    /// inside `retrieveMessages` when `messaging.contentCardOfflineAvailable` is `true`, keeping
+    /// `networkRefreshedSurfaces` as the single, unambiguous source of card origin.
+    ///
+    /// Writing directly to `qualifiedContentCardsBySurface` is also avoided to prevent spurious
+    /// `.trigger` analytics events for boot-seeded disk cards.
     func hydrateContentCardPropositionsRulesEngine(for surfaces: [Surface], from propositions: [Surface: [Proposition]]) {
         let filtered = propositions.filter { surfaces.contains($0.key) }
         guard !filtered.isEmpty else { return }
@@ -1396,21 +1421,9 @@ public class Messaging: NSObject, Extension {
             rebuildMainRulesEngine()
         }
 
-        let diskSeedEvent = Event(name: "Disk qualification at boot",
-                                  type: EventType.messaging,
-                                  source: EventSource.requestContent,
-                                  data: nil)
-        let diskQualified = getPropositionsFromContentCardRulesEngine(diskSeedEvent)
-        for (surface, propositions) in diskQualified where surfaces.contains(surface) {
-            // Disk-hydrated surfaces are intentionally NOT added to `networkRefreshedSurfaces`, so any
-            // card served for them reports `servedFromPersistentCache = true` until a live network
-            // response refreshes the surface this session.
-            qualifiedContentCardsBySurface[surface] = propositions
-        }
-
-        let diskCardCount = diskQualified.values.flatMap { $0 }.count
+        let ruleCount = parsedPropositions.surfaceRulesBySchemaType[.contentCard]?.values.flatMap { $0 }.count ?? 0
         Log.debug(label: MessagingConstants.LOG_TAG,
-                  "hydrateContentCardPropositionsRulesEngine — rules loaded, \(diskCardCount) disk-qualified card(s).")
+                  "hydrateContentCardPropositionsRulesEngine — \(ruleCount) CC rule(s) loaded for \(surfaces.count) surface(s); disk cards served lazily in retrieveMessages when offline flag is enabled.")
     }
 
     /// Reads persisted content card propositions from disk and hydrates the rules engines directly.
@@ -1438,8 +1451,16 @@ public class Messaging: NSObject, Extension {
     }
 
     /// Dispatches a response event containing all propositions for the requested surfaces.
-    /// All qualified content cards (both boot-hydrated disk cards and live network cards) are served;
-    /// provenance for tracking is derived at interaction time from `networkRefreshedSurfaces`.
+    ///
+    /// Content card origin gating:
+    ///  - `messaging.contentCardOfflineAvailable = false` (default): only cards whose surface was
+    ///    refreshed from the network **this session** (`networkRefreshedSurfaces`) are served.
+    ///    Disk-hydrated cards (cold-start only, surfaces absent from `networkRefreshedSurfaces`)
+    ///    are excluded entirely and never even looked up in `qualifiedContentCardsBySurface`.
+    ///  - `messaging.contentCardOfflineAvailable = true`: network-refreshed surfaces are served
+    ///    directly from `qualifiedContentCardsBySurface`; surfaces not yet refreshed this session
+    ///    are disk-origin and served via a lazy re-seed of the content card rules engine, without
+    ///    ever writing disk data into `qualifiedContentCardsBySurface` (which stays network-only).
     private func retrieveMessages(for surfaces: [Surface], event: Event) {
         let requestedSurfaces = surfaces.filter { $0.isValid }
 
@@ -1449,14 +1470,36 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        // If offline caching is disabled and stale disk data exists, evict it now in one shot
-        // rather than iterating per-card. Skipped when disk is already clean (nil check avoids
-        // redundant eviction when applyPropositionChangeFor already ran this session).
-        if !isContentCardOfflineAvailable(), cache.contentCardPropositions != nil {
-            clearCachedContentCardPropositions()
+        let offlineAvailable = isContentCardOfflineAvailable()
+
+        // Stale disk data from a prior session (when the flag was true) is evicted here.
+        // Only evicts the disk cache — in-memory network cards are left intact.
+        // Skipped when disk is already clean (nil check avoids redundant work).
+        if !offlineAvailable, cache.contentCardPropositions != nil {
+            clearContentCardDiskCache()
         }
 
-        let requestedContentCards = qualifiedContentCardsBySurface.filter { requestedSurfaces.contains($0.key) }
+        // Build the content card result set based on the offline availability flag.
+        // `networkRefreshedSurfaces` is the source of truth for card origin:
+        //   - surfaces IN the set  → refreshed from Edge this session (network cards)
+        //   - surfaces NOT in set  → loaded from disk at boot (disk-origin cards)
+        //
+        // flag=true:  serve all cards for the requested surfaces from the in-memory cache.
+        // flag=false: serve only surfaces that were refreshed from the network this session;
+        //             disk-origin cards are excluded entirely.
+        let refreshed = networkRefreshedSurfaces
+        let eligibleSurfaces: [Surface]
+
+        if offlineAvailable {
+            eligibleSurfaces = requestedSurfaces
+        } else {
+            eligibleSurfaces = requestedSurfaces.filter { refreshed.contains($0) }
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "retrieveMessages — offline flag disabled; serving only network-refreshed surfaces (\(eligibleSurfaces.count) of \(requestedSurfaces.count) requested).")
+        }
+
+        let requestedContentCards = qualifiedContentCardsBySurface.filter { eligibleSurfaces.contains($0.key) }
+
         let requestedPropositions = retrieveCachedPropositions(for: requestedSurfaces)
         let requestedInboxPropositions = inboxPropositionsBySurface.filter { surfaces.contains($0.key) }
 
