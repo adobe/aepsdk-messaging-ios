@@ -955,43 +955,59 @@ public class Messaging: NSObject, Extension {
         // Leaving non-requested surfaces untouched keeps them out of `networkRefreshedSurfaces`, so
         // disk-hydrated cards continue to report `servedFromPersistentCache = true`.
         //
-        // This is also the single place that maintains `networkRefreshedSurfaces`: a requested surface
-        // that returned content cards is marked network-refreshed for this session; a requested surface
-        // that returned nothing is evicted and removed from the set.
+        // This is also the single place that maintains `networkRefreshedSurfaces`. A surface is
+        // marked network-refreshed when this network response delivered content card rules for it
+        // — not when a card qualifies. Trigger-gated content cards qualify later (via
+        // `addOrReplaceContentCards` on a matching event), so keying off rule delivery keeps those
+        // surfaces marked network-refreshed until the campaign is removed server-side.
         var refreshedSurfaces = networkRefreshedSurfaces
         for surface in requestedSurfaces {
-            if let propositions = qualifiedContentCards[surface] {
-                let existingPropositions = qualifiedContentCardsBySurface[surface] ?? []
-                let startingCount = existingPropositions.count
+            let hasNetworkRules = !(contentCardRulesBySurface[surface]?.isEmpty ?? true)
+            let propositions = qualifiedContentCards[surface]
 
-                var newPropositionsToTrack: [PropositionItem] = []
-                for proposition in propositions {
-                    if !existingPropositions.contains(proposition) {
-                        if let item = proposition.items.first {
-                            newPropositionsToTrack.append(item)
-                        }
-                    }
-                }
-
-                qualifiedContentCardsBySurface[surface] = propositions
+            // Mark network-refreshed when this response delivered content card rules for the
+            // surface OR a card qualified immediately. Content cards are always rule-based, so
+            // `hasNetworkRules` covers every case; the qualified-card check is a defensive fallback
+            // that guarantees this never regresses the previous qualification-based behavior.
+            if hasNetworkRules || propositions != nil {
                 refreshedSurfaces.insert(surface)
+            } else {
+                refreshedSurfaces.remove(surface)
+            }
 
-                if !newPropositionsToTrack.isEmpty {
-                    newPropositionsToTrack.track(withEdgeEventType: .trigger)
-                }
+            guard let propositions = propositions else {
+                // Requested surface has no currently-qualified content cards (campaign ended
+                // server-side, or a trigger-gated card has not qualified yet). Evict any stale
+                // cached cards; the surface's network-refreshed state is governed above.
+                qualifiedContentCardsBySurface.removeValue(forKey: surface)
+                continue
+            }
 
-                let newCount = propositions.count
-                if startingCount != newCount {
-                    if newCount > 0 {
-                        Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for \(newCount) content card(s) for surface \(surface.uri).")
-                    } else {
-                        Log.trace(label: MessagingConstants.LOG_TAG, "User has not qualified for any content cards for surface \(surface.uri).")
+            let existingPropositions = qualifiedContentCardsBySurface[surface] ?? []
+            let startingCount = existingPropositions.count
+
+            var newPropositionsToTrack: [PropositionItem] = []
+            for proposition in propositions {
+                if !existingPropositions.contains(proposition) {
+                    if let item = proposition.items.first {
+                        newPropositionsToTrack.append(item)
                     }
                 }
-            } else {
-                // Requested surface returned no CC propositions — evict it (campaign ended server-side).
-                qualifiedContentCardsBySurface.removeValue(forKey: surface)
-                refreshedSurfaces.remove(surface)
+            }
+
+            qualifiedContentCardsBySurface[surface] = propositions
+
+            if !newPropositionsToTrack.isEmpty {
+                newPropositionsToTrack.track(withEdgeEventType: .trigger)
+            }
+
+            let newCount = propositions.count
+            if startingCount != newCount {
+                if newCount > 0 {
+                    Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for \(newCount) content card(s) for surface \(surface.uri).")
+                } else {
+                    Log.trace(label: MessagingConstants.LOG_TAG, "User has not qualified for any content cards for surface \(surface.uri).")
+                }
             }
         }
         networkRefreshedSurfaces = refreshedSurfaces
@@ -1469,9 +1485,12 @@ public class Messaging: NSObject, Extension {
         }
 
         let offlineAvailable = isContentCardOfflineAvailable()
-         // Stale disk data from a prior session (when the flag was true) is evicted here.
-        // Only evicts the disk cache — in-memory network cards are left intact.
-        // Skipped when disk is already clean (nil check avoids redundant work).
+
+        // Offline caching disabled — reclaim disk space by evicting any stale persisted content
+        // cards left over from a prior session (when the flag was enabled). This is a pure
+        // storage cleanup: it does NOT influence what is served, since the response is gated
+        // below purely by `networkRefreshedSurfaces` (in-memory). Skipped when the disk cache is
+        // already clean (nil check avoids redundant work).
         if !offlineAvailable, cache.contentCardPropositions != nil {
             clearContentCardDiskCache()
         }
@@ -1678,6 +1697,10 @@ public class Messaging: NSObject, Extension {
 
         func getNetworkRefreshedSurfaces() -> Set<Surface> {
             networkRefreshedSurfaces
+        }
+
+        func setContentCardRulesBySurface(_ rulesBySurface: [Surface: [LaunchRule]]) {
+            contentCardRulesBySurface = rulesBySurface
         }
     #endif
 }

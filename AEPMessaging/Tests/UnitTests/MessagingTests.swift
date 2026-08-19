@@ -11,6 +11,7 @@
  */
 
 @testable import AEPCore
+@testable import AEPRulesEngine
 import AEPServices
 import AEPTestUtils
 import XCTest
@@ -1962,6 +1963,39 @@ class MessagingTests: XCTestCase {
         // iamSurface had no CC cards but was requested — evict it (was never present, so count stays 1)
         XCTAssertNil(messaging.qualifiedContentCardsBySurface[iamSurface])
         XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+    }
+
+    func testRemoveOrReplaceContentCards_marksSurfaceNetworkRefreshed_whenRulesDeliveredButNoCardQualifiesYet() {
+        // A trigger-gated content card: the network response delivers the card's RULE for the
+        // surface, but the card does not qualify immediately (its trigger has not fired). The
+        // surface must still be marked network-refreshed based on rule delivery, otherwise the
+        // card would later be wrongly treated as a disk/offline card and filtered out.
+        let surface = Surface(path: "feed1")
+
+        let consequence = RuleConsequence(id: "ccConsequence", type: "schema", details: [:])
+        let condition = ComparisonExpression(lhs: "true", operationName: "equals", rhs: "true")
+        let rule = LaunchRule(condition: condition, consequences: [consequence])
+        // network response delivered content card rules for the surface
+        messaging.setContentCardRulesBySurface([surface: [rule]])
+
+        // ...but no card has qualified yet (empty qualified map)
+        messaging.callRemoveOrReplaceContentCards([:], requestedSurfaces: [surface])
+
+        XCTAssertTrue(messaging.getNetworkRefreshedSurfaces().contains(surface),
+                      "a surface whose content card rules were delivered this session must be marked network-refreshed")
+    }
+
+    func testRemoveOrReplaceContentCards_removesFromNetworkRefreshed_whenNoRulesAndNoCards() {
+        // Campaign removed server-side: no rules delivered and no cards qualify → the surface must
+        // be dropped from networkRefreshedSurfaces.
+        let surface = Surface(path: "feed1")
+        messaging.setNetworkRefreshedSurfaces([surface])
+        messaging.setContentCardRulesBySurface([:])
+
+        messaging.callRemoveOrReplaceContentCards([:], requestedSurfaces: [surface])
+
+        XCTAssertFalse(messaging.getNetworkRefreshedSurfaces().contains(surface),
+                       "a surface with no delivered rules and no qualified cards must not stay network-refreshed")
     }
     #endif
 
