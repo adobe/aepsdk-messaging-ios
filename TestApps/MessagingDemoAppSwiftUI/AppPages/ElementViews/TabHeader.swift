@@ -16,7 +16,7 @@ struct TabHeader: View {
     var title: String
     var refreshAction: (() -> Void)?
     var redownloadAction: (() -> Void)?
-
+    
     var body: some View {
         ZStack {
             Text("\(title)")

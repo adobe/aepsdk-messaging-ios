@@ -14,7 +14,7 @@ import Foundation
 @testable import AEPCore
 @testable import AEPMessaging
 import AEPEdgeIdentity
-@testable import AEPServices
+import AEPServices
 import AEPTestUtils
 import XCTest
 
