@@ -17,21 +17,42 @@ extension Cache {
     // MARK: - getters
 
     var propositions: [Surface: [Proposition]]? {
-        propositionsByKey(MessagingConstants.Caches.PROPOSITIONS,
-                          logTag: "Unable to load cached messages, cache file not found.",
-                          emptyLogMessage: "No message definitions found in cache.")
+        guard let cachedPropositions = get(key: MessagingConstants.Caches.PROPOSITIONS) else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages, cache file not found.")
+            return nil
+        }
+        let decoder = JSONDecoder()
+        guard let propositionsDict: [String: [Proposition]] = try? decoder.decode([String: [Proposition]].self, from: cachedPropositions.data) else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "No message definitions found in cache.")
+            return nil
+        }
+        var retrievedPropositions: [Surface: [Proposition]] = [:]
+        for (key, value) in propositionsDict {
+            retrievedPropositions[Surface(uri: key)] = value
+        }
+        return retrievedPropositions
     }
 
     var contentCardPropositions: [Surface: [Proposition]]? {
-        propositionsByKey(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS,
-                          logTag: "Unable to load cached content card propositions, cache file not found.",
-                          emptyLogMessage: "No content card proposition definitions found in cache.")
+        guard let cachedPropositions = get(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS) else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached content card propositions, cache file not found.")
+            return nil
+        }
+        let decoder = JSONDecoder()
+        guard let propositionsDict: [String: [Proposition]] = try? decoder.decode([String: [Proposition]].self, from: cachedPropositions.data) else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "No content card proposition definitions found in cache.")
+            return nil
+        }
+        var retrievedPropositions: [Surface: [Proposition]] = [:]
+        for (key, value) in propositionsDict {
+            retrievedPropositions[Surface(uri: key)] = value
+        }
+        return retrievedPropositions
     }
 
     // MARK: setters
 
-    @discardableResult
-    func updatePropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) -> Bool {
+    func updatePropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) {
         updatePropositionsByKey(MessagingConstants.Caches.PROPOSITIONS,
                                 existing: propositions,
                                 new: newPropositions,
@@ -41,8 +62,7 @@ extension Cache {
                                 writeErrorPrefix: "Error creating in-app messaging cache")
     }
 
-    @discardableResult
-    func updateContentCardPropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) -> Bool {
+    func updateContentCardPropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) {
         updatePropositionsByKey(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS,
                                 existing: contentCardPropositions,
                                 new: newPropositions,
@@ -54,26 +74,6 @@ extension Cache {
 
     // MARK: - Private helpers
 
-    private func propositionsByKey(_ key: String, logTag: String, emptyLogMessage: String) -> [Surface: [Proposition]]? {
-        guard let cachedPropositions = get(key: key) else {
-            Log.trace(label: MessagingConstants.LOG_TAG, logTag)
-            return nil
-        }
-
-        let decoder = JSONDecoder()
-        guard let propositionsDict: [String: [Proposition]] = try? decoder.decode([String: [Proposition]].self, from: cachedPropositions.data) else {
-            Log.debug(label: MessagingConstants.LOG_TAG, emptyLogMessage)
-            return nil
-        }
-
-        var retrievedPropositions: [Surface: [Proposition]] = [:]
-        for (cacheKey, value) in propositionsDict {
-            retrievedPropositions[Surface(uri: cacheKey)] = value
-        }
-        return retrievedPropositions
-    }
-
-    @discardableResult
     private func updatePropositionsByKey(
         _ key: String,
         existing: [Surface: [Proposition]]?,
@@ -82,7 +82,7 @@ extension Cache {
         cacheCreatedMessage: String,
         encodeErrorMessage: String,
         writeErrorPrefix: String
-    ) -> Bool {
+    ) {
         let existingPropositions = existing ?? [:]
         var updatedPropositions = existingPropositions.merging(newPropositions ?? [:]) { _, new in new }
         if let surfaces = surfaces {
@@ -97,7 +97,7 @@ extension Cache {
             if !existingPropositions.isEmpty {
                 try? remove(key: key)
             }
-            return true
+            return
         }
 
         var propositionsToCache: [String: [Proposition]] = [:]
@@ -108,16 +108,14 @@ extension Cache {
         let encoder = JSONEncoder()
         guard let cacheData = try? encoder.encode(propositionsToCache) else {
             Log.warning(label: MessagingConstants.LOG_TAG, encodeErrorMessage)
-            return false
+            return
         }
         let cacheEntry = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
         do {
             try set(key: key, entry: cacheEntry)
             Log.trace(label: MessagingConstants.LOG_TAG, cacheCreatedMessage)
-            return true
         } catch {
             Log.warning(label: MessagingConstants.LOG_TAG, "\(writeErrorPrefix): \(error).")
-            return false
         }
     }
 }

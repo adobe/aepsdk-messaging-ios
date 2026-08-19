@@ -160,26 +160,14 @@ import UserNotifications
         MobileCore.dispatch(event: event)
     }
 
-    /// Dispatches an event to fetch propositions for the provided surfaces from remote.
-    /// The completion handler is called once the Edge response has been fully processed.
+    /// Retrieves the previously fetched (and cached) feeds content from the SDK for the provided surfaces.
+    /// If the feeds content for one or more surfaces isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
     /// - Parameters:
     ///   - surfaces: An array of `Surface` objects.
-    ///   - completionHandler: Called with `true` if the network response was returned and successfully processed; `false` on failure or invalid surfaces.
-    @objc(updatePropositionsForSurfacesWithCompletionHandler:completionHandler:)
-    static func updatePropositionsForSurfacesWithCompletionHandler(_ surfaces: [Surface],
-                                                                   completionHandler: @escaping (Bool) -> Void) {
-        updatePropositionsForSurfaces(surfaces, completionHandler)
-    }
-
-    /// Retrieves propositions for the provided surfaces from the SDK's in-memory cache.
-    /// Both boot-hydrated disk cards and live network cards are included; content card interaction
-    /// tracking automatically records whether each card was served from the persisted cache.
-    /// - Parameters:
-    ///   - surfaces: An array of `Surface` objects.
-    ///   - completion: The completion handler invoked with propositions keyed by surface.
-    static func getPropositionsForSurfaces(_ surfaces: [Surface],
-                                         _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
-        let validSurfaces = surfaces.filter { $0.isValid }
+    ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Proposition objects.
+    static func getPropositionsForSurfaces(_ surfaces: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
+        let validSurfaces = surfaces
+            .filter { $0.isValid }
 
         guard !validSurfaces.isEmpty else {
             Log.warning(label: MessagingConstants.LOG_TAG,
@@ -214,7 +202,7 @@ import UserNotifications
                 return
             }
 
-            completion(propositions.toDictionary { Surface(uri: $0.scope) }, nil)
+            completion(propositions.toDictionary { Surface(uri: $0.scope) }, .none)
         }
     }
 

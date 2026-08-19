@@ -16,8 +16,6 @@ import Foundation
 @available(iOS 15.0, *)
 public extension Messaging {
     /// Retrieves the content cards UI for a given surface.
-    /// Both boot-hydrated disk cards and live network cards are included; content card interaction
-    /// tracking automatically records whether each card was served from the persisted cache.
     /// - Parameters:
     ///   - surface: The surface for which to retrieve the content cards.
     ///   - customizer: An optional ContentCardCustomizable object to customize the appearance of the content card template.
@@ -29,6 +27,7 @@ public extension Messaging {
                                   customizer: ContentCardCustomizing? = nil,
                                   listener: ContentCardUIEventListening? = nil,
                                   _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
+        // Request propositions for the specified surface from Messaging extension.
         Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
             if let error = error {
                 Log.error(label: UIConstants.LOG_TAG,
@@ -41,8 +40,6 @@ public extension Messaging {
 
             // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
             guard let propositions = propositionDict?[surface] else {
-                Log.debug(label: UIConstants.LOG_TAG,
-                          "No propositions found for surface '\(surface.uri)' — surface may not have been fetched or hydrated. Returning dataUnavailable.")
                 completion(.failure(ContentCardUIError.dataUnavailable))
                 return
             }

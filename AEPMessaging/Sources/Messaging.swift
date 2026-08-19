@@ -189,11 +189,11 @@ public class Messaging: NSObject, Extension {
             let servedFromCache = !refreshedSurfaces.contains(surface)
             let enrichedItems: [[String: Any]] = items.map { item in
                 var updatedItem = item
-                var data = updatedItem["data"] as? [String: Any] ?? [:]
+                var data = updatedItem[MessagingConstants.XDM.Inbound.Key.DATA] as? [String: Any] ?? [:]
                 var characteristics = data[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] as? [String: Any] ?? [:]
                 characteristics[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE] = servedFromCache
                 data[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] = characteristics
-                updatedItem["data"] = data
+                updatedItem[MessagingConstants.XDM.Inbound.Key.DATA] = data
                 return updatedItem
             }
             var updated = proposition
@@ -336,7 +336,7 @@ public class Messaging: NSObject, Extension {
         // the user's first updatePropositionsForSurfaces call. Without this, the lazy
         // NetworkPathMonitorProvider singleton would be created at the moment of the
         // first user-triggered fetch, returning .unsatisfied before the monitor stabilizes.
-        _ = isNetworkAvailable()
+        _ = isInternetAvailable()
 
         eventsQueue.start()
         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: nil)
@@ -682,8 +682,10 @@ public class Messaging: NSObject, Extension {
     private func clearContentCards() {
         qualifiedContentCardsBySurface = [:]
         contentCardRulesBySurface = [:]
+        eventHistoryRulesBySurface = [:]
         networkRefreshedSurfaces = []
         contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
+        rebuildMainRulesEngine()
         try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
         Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared.")
     }
@@ -692,7 +694,6 @@ public class Messaging: NSObject, Extension {
     /// Handles `clearCachedPropositions()` public API requests. Does not affect CBE or inbox propositions.
     private func clearCachedContentCardPropositions() {
         clearContentCards()
-        Log.debug(label: MessagingConstants.LOG_TAG, "Persisted content card propositions cleared.")
     }
 
     /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
@@ -976,9 +977,11 @@ public class Messaging: NSObject, Extension {
         networkRefreshedSurfaces = refreshedSurfaces
     }
 
-    /// Removes the `Proposition` matching `activityId` from both the live and disk qualified caches.
+    /// Removes the `Proposition` matching `activityId` from the in-memory qualified cards map.
     /// Called by `handleRulesResponse` when an eventHistoryOperation consequence fires with
     /// a disqualify/unqualify event type (triggered on card dismiss).
+    /// NOTE: Disk eviction on dismiss (Option B, P0) is not yet implemented — on the next cold start
+    /// the dismissed card may reappear if the disk cache still contains it.
     private func removePropositionFromQualifiedCards(for activityId: String) {
         for (surface, propositions) in qualifiedContentCardsBySurface {
             if let matchedProposition = propositions.first(where: { $0.activityId == activityId }),
@@ -989,10 +992,8 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    // TODO: Replace with MobileCore.isNetworkAvailable() once AEPCore exposes it as a public API.
-    // Reaching into ServiceProvider.shared is an internal coupling that extensions should not need.
-    private func isNetworkAvailable() -> Bool {
-        ServiceProvider.shared.networkService.isNetworkAvailable()
+    private func isInternetAvailable() -> Bool {
+        ServiceProvider.shared.networkService.isInternetAvailable()
     }
 
     /// Reads `messaging.contentCardOfflineAvailable` from the Configuration shared state.
@@ -1001,8 +1002,9 @@ public class Messaging: NSObject, Extension {
     /// content card persistence across sessions. Pass `event: nil` to read the latest state.
     private func isContentCardOfflineAvailable(for event: Event? = nil) -> Bool {
         let config = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
-        let value = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? false
-        Log.debug(label: MessagingConstants.LOG_TAG, "isContentCardOfflineAvailable: \(value) (key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] == nil ? "absent from config — defaulting to false" : "found in config"))")
+        let rawValue = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE]
+        let value = rawValue as? Bool ?? false
+        Log.debug(label: MessagingConstants.LOG_TAG, "isContentCardOfflineAvailable: \(value) (key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(rawValue == nil ? "absent from config — defaulting to false" : "found in config"))")
         return value
     }
 
@@ -1021,7 +1023,7 @@ public class Messaging: NSObject, Extension {
         // Only gate explicit user-triggered update requests on network availability.
         // Boot-time fetches are intentionally allowed through — Edge handles offline gracefully on its own.
         if event.isUpdatePropositionsEvent {
-            guard isNetworkAvailable() else {
+            guard isInternetAvailable() else {
                 Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition fetch - device network is unavailable.")
                 handler?.handle?(false)
                 return
@@ -1076,7 +1078,7 @@ public class Messaging: NSObject, Extension {
         //   t=5s  GET_PROPOSITIONS 5s callback fires → AEPError.callbackTimeout → ❌ caller sees error
         //   t=10s Edge 10s timeout fires → eventsQueue.start() called → queue unblocks (too late)
         //
-        // Current state: the isNetworkAvailable() guard is scoped to isUpdatePropositionsEvent
+        // Current state: the isInternetAvailable() guard is scoped to isUpdatePropositionsEvent
         // (write path only — see fetchPropositions). Boot IAM fetches are intentionally NOT gated,
         // so the race above is still possible on first launch when offline.
         //
@@ -1290,25 +1292,17 @@ public class Messaging: NSObject, Extension {
         let returnedSurfaces = Array(inProgressPropositions.keys) as [Surface]
         let surfacesToRemove = requestFailed ? [] : requestedSurfaces.minus(returnedSurfaces)
 
-        // DISK FIRST (MVVM): persistent storage is the source of truth. Write all proposition types
-        // to disk before updating in-memory so in-memory always reflects what is on disk or newer.
-        // Failures are non-fatal: the current session still works via in-memory; offline availability
-        // for future cold starts may be degraded. Log warnings so the app can observe the issue.
-        let iamWriteOK = cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
-        let ccWriteOK: Bool
+        // DISK FIRST: write all proposition types to disk before updating in-memory.
+        // Failures are non-fatal and already logged inside cache.update*; the current session
+        // still works via in-memory state.
+        cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
         if ccOfflineAvailable {
-            ccWriteOK = cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
+            cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
         } else {
             // Feature disabled — clear stale data only when the request actually succeeded.
             if !requestFailed {
                 clearCachedContentCardPropositions()
             }
-            ccWriteOK = true
-        }
-
-        if !iamWriteOK || !ccWriteOK {
-            Log.warning(label: MessagingConstants.LOG_TAG,
-                        "One or more proposition types failed to persist to disk — offline availability may be degraded for the next session.")
         }
 
         // IN-MEMORY: update all in-memory caches after disk writes.
@@ -1450,7 +1444,9 @@ public class Messaging: NSObject, Extension {
 
     /// Hydrates the content card rules engine from EVERY persisted surface. Called once at boot from
     /// `readyForEvent`, mirroring the `bootupIfReady`/`bootupIfNeeded` pattern used by Edge and Edge Identity.
-    /// Qualified cards are tagged `.disk` so `servedFromPersistentCache` reports correctly at tracking time.
+    /// Disk-hydrated surfaces are intentionally not added to `networkRefreshedSurfaces` (which starts
+    /// empty each session), so any card served for a boot-hydrated surface reports
+    /// `servedFromPersistentCache = true` until a live network response refreshes it this session.
     /// No-op if nothing has been persisted.
     func hydrateAllPersistedContentCards() {
         guard let persisted = cache.contentCardPropositions, !persisted.isEmpty else {

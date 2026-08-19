@@ -81,7 +81,7 @@ class BootHydratePersistedContentCardsTest: IntegrationTestBase {
         //    completion handler — by the time it fires, applyPropositionChangeFor has written disk.
         setContentCardResponse(fromFile: "MultipleCards")
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            Messaging.updatePropositionsForSurfacesWithCompletionHandler([homeSurface]) { _ in
+            Messaging.updatePropositionsForSurfaces([homeSurface]) { _ in
                 continuation.resume()
             }
         }

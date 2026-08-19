@@ -21,7 +21,7 @@ class MockNetworkAvailabilityService: Networking {
 
     func connectAsync(networkRequest: NetworkRequest, completionHandler: ((HttpConnection) -> Void)?) {}
 
-    func isNetworkAvailable() -> Bool {
+    func isInternetAvailable() -> Bool {
         return isAvailable
     }
 }
