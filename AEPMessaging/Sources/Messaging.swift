@@ -687,10 +687,8 @@ public class Messaging: NSObject, Extension {
     private func clearContentCards() {
         qualifiedContentCardsBySurface = [:]
         contentCardRulesBySurface = [:]
-        eventHistoryRulesBySurface = [:]
         networkRefreshedSurfaces = []
         contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
-        rebuildMainRulesEngine()
         try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
         Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared.")
     }
