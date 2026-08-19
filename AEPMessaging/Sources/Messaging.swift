@@ -1452,15 +1452,13 @@ public class Messaging: NSObject, Extension {
 
     /// Dispatches a response event containing all propositions for the requested surfaces.
     ///
-    /// Content card origin gating:
-    ///  - `messaging.contentCardOfflineAvailable = false` (default): only cards whose surface was
-    ///    refreshed from the network **this session** (`networkRefreshedSurfaces`) are served.
-    ///    Disk-hydrated cards (cold-start only, surfaces absent from `networkRefreshedSurfaces`)
-    ///    are excluded entirely and never even looked up in `qualifiedContentCardsBySurface`.
-    ///  - `messaging.contentCardOfflineAvailable = true`: network-refreshed surfaces are served
-    ///    directly from `qualifiedContentCardsBySurface`; surfaces not yet refreshed this session
-    ///    are disk-origin and served via a lazy re-seed of the content card rules engine, without
-    ///    ever writing disk data into `qualifiedContentCardsBySurface` (which stays network-only).
+    /// Content card origin gating (applied at read time to the response only):
+    ///  - `messaging.contentCardOfflineAvailable = false` (default): only content cards whose
+    ///    surface was refreshed from the network **this session** (`networkRefreshedSurfaces`) are
+    ///    returned. Disk-origin cards (surfaces absent from `networkRefreshedSurfaces`) are filtered
+    ///    out of the response, while remaining untouched in memory and on disk.
+    ///  - `messaging.contentCardOfflineAvailable = true`: all qualified content cards for the
+    ///    requested surfaces are returned, regardless of origin.
     private func retrieveMessages(for surfaces: [Surface], event: Event) {
         let requestedSurfaces = surfaces.filter { $0.isValid }
 
@@ -1471,34 +1469,21 @@ public class Messaging: NSObject, Extension {
         }
 
         let offlineAvailable = isContentCardOfflineAvailable()
-
-        // Stale disk data from a prior session (when the flag was true) is evicted here.
+         // Stale disk data from a prior session (when the flag was true) is evicted here.
         // Only evicts the disk cache — in-memory network cards are left intact.
         // Skipped when disk is already clean (nil check avoids redundant work).
         if !offlineAvailable, cache.contentCardPropositions != nil {
             clearContentCardDiskCache()
         }
 
-        // Build the content card result set based on the offline availability flag.
-        // `networkRefreshedSurfaces` is the source of truth for card origin:
-        //   - surfaces IN the set  → refreshed from Edge this session (network cards)
-        //   - surfaces NOT in set  → loaded from disk at boot (disk-origin cards)
-        //
-        // flag=true:  serve all cards for the requested surfaces from the in-memory cache.
-        // flag=false: serve only surfaces that were refreshed from the network this session;
-        //             disk-origin cards are excluded entirely.
-        let refreshed = networkRefreshedSurfaces
-        let eligibleSurfaces: [Surface]
+        var requestedContentCards = qualifiedContentCardsBySurface.filter { requestedSurfaces.contains($0.key) }
 
-        if offlineAvailable {
-            eligibleSurfaces = requestedSurfaces
-        } else {
-            eligibleSurfaces = requestedSurfaces.filter { refreshed.contains($0) }
-            Log.debug(label: MessagingConstants.LOG_TAG,
-                      "retrieveMessages — offline flag disabled; serving only network-refreshed surfaces (\(eligibleSurfaces.count) of \(requestedSurfaces.count) requested).")
+        // When offline availability is disabled, show only content cards refreshed from the network
+        // this session. Surfaces absent from `networkRefreshedSurfaces` are disk-origin (offline)
+        // cards and are filtered out of the response. When enabled, everything is served.
+        if !offlineAvailable {
+            requestedContentCards = requestedContentCards.filter { networkRefreshedSurfaces.contains($0.key) }
         }
-
-        let requestedContentCards = qualifiedContentCardsBySurface.filter { eligibleSurfaces.contains($0.key) }
 
         let requestedPropositions = retrieveCachedPropositions(for: requestedSurfaces)
         let requestedInboxPropositions = inboxPropositionsBySurface.filter { surfaces.contains($0.key) }
