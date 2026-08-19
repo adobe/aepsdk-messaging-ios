@@ -107,6 +107,8 @@ struct CardsView: View, ContentCardUIEventListening {
     @State private var statusMessage: String = ""
     @State private var showErrorPanel: Bool = false
     @State private var activeSimLabel: String? = nil
+    @State private var propositionsLog: String = ""
+    @State private var showPropositionsLog: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -123,6 +125,38 @@ struct CardsView: View, ContentCardUIEventListening {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
+            }
+
+            if showPropositionsLog && !propositionsLog.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("getPropositionsForSurfaces log")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Button(action: {
+                            showPropositionsLog = false
+                            propositionsLog = ""
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                                .font(.system(size: 14))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    ScrollView(.vertical, showsIndicators: true) {
+                        Text(propositionsLog)
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxHeight: 180)
+                }
+                .padding(10)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                .padding(.horizontal, 16)
+                .padding(.top, 6)
             }
 
             ZStack {
@@ -158,15 +192,20 @@ struct CardsView: View, ContentCardUIEventListening {
     private var actionPanel: some View {
         VStack(spacing: 10) {
             HStack(spacing: 10) {
-                actionButton(title: "Download", systemImage: "arrow.down.circle") {
+                actionButton(title: "Update propositions", systemImage: "arrow.down.circle") {
                     downloadCards()
                 }
-                actionButton(title: "Fetch Content Cards", systemImage: "arrow.clockwise.circle") {
+                actionButton(title: "Get Content card UI", systemImage: "arrow.clockwise.circle") {
                     fetchContentCards()
                 }
             }
-            actionButton(title: "Clear Cache", systemImage: "trash.circle") {
-                clearPersistedPropositions()
+            HStack(spacing: 10) {
+                actionButton(title: "Clear Cache proposition", systemImage: "trash.circle") {
+                    clearPersistedPropositions()
+                }
+                actionButton(title: "GetProposition and log ", systemImage: "list.bullet.rectangle") {
+                    logPropositions()
+                }
             }
             // Error simulation toggle row
             Button(action: { showErrorPanel.toggle() }) {
@@ -383,7 +422,19 @@ struct CardsView: View, ContentCardUIEventListening {
     // MARK: - SDK Actions
 
     func downloadCards() {
-        Messaging.updatePropositionsForSurfaces([cardsSurface])
+        Messaging.updatePropositionsForSurfaces([cardsSurface]) { success in
+            DispatchQueue.main.async {
+                if success {
+                    // Auto-refresh so new ContentCardUI objects appear and fire fresh display
+                    // tracking events — this is the only way to see servedFromPersistentCache: false
+                    // for cards that were previously loaded from disk.
+                self.fetchContentCards()
+                }
+                else{
+                    debugPrint("Failure in updatePropositionsForSurfaces")
+                }
+            }
+        }
         if activeSimLabel == nil {
             statusMessage = "Download requested for surface: \(cardsSurface.uri)"
         }
@@ -391,12 +442,31 @@ struct CardsView: View, ContentCardUIEventListening {
 
     func fetchContentCards() {
         showLoadingIndicator = true
-        Messaging.getContentCardsUI(for: cardsSurface,
-                                    customizer: CardCustomizer(),
-                                    listener: self) { result in
-            DispatchQueue.main.async {
-                showLoadingIndicator = false
-                handleResult(result, source: "Memory")
+        let group = DispatchGroup()
+        var allCards: [ContentCardUI] = []
+        var firstError: Error?
+
+        for surface in [cardsSurface] {
+            group.enter()
+            Messaging.getContentCardsUI(for: surface,
+                                        customizer: CardCustomizer(),
+                                        listener: self) { result in
+                switch result {
+                case .success(let cards): allCards += cards
+                case .failure(let error):
+                    print("getContentCardsUI failed: \(error)")
+                    if firstError == nil { firstError = error }
+                }
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) {
+            showLoadingIndicator = false
+            if let error = firstError, allCards.isEmpty {
+                handleResult(.failure(error), source: "Memory")
+            } else {
+                handleResult(.success(allCards), source: "Memory")
             }
         }
     }
@@ -409,6 +479,50 @@ struct CardsView: View, ContentCardUIEventListening {
             DispatchQueue.main.async {
                 showLoadingIndicator = false
                 handleResult(result, source: "Persisted disk cache")
+            }
+        }
+    }
+
+    func logPropositions() {
+        statusMessage = "Calling getPropositionsForSurfaces..."
+        Messaging.getPropositionsForSurfaces([cardsSurface]) { propositionDict, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    propositionsLog = "ERROR: \(error)"
+                    statusMessage = "getPropositionsForSurfaces failed: \(error)"
+                    showPropositionsLog = true
+                    print("getPropositionsForSurfaces error: \(error)")
+                    return
+                }
+
+                guard let dict = propositionDict, !dict.isEmpty else {
+                    propositionsLog = "Result: empty (no surfaces in response)"
+                    statusMessage = "getPropositionsForSurfaces returned empty dict"
+                    showPropositionsLog = true
+                    print("getPropositionsForSurfaces: empty result")
+                    return
+                }
+
+                var lines: [String] = []
+                for surface in [cardsSurface] {
+                    if let props = dict[surface] {
+                        lines.append("[\(surface.uri)]  →  \(props.count) proposition(s)")
+                        for (i, prop) in props.enumerated() {
+                            lines.append("  [\(i)] id: \(prop.uniqueId)")
+                            lines.append("       scope: \(prop.scope)")
+                            lines.append("       items: \(prop.items.count)")
+                            for (j, item) in prop.items.enumerated() {
+                                lines.append("         item[\(j)] schema: \(item.schema)")
+                            }
+                        }
+                    } else {
+                        lines.append("[\(surface.uri)]  →  not in response (key missing)")
+                    }
+                }
+                propositionsLog = lines.joined(separator: "\n")
+                statusMessage = "getPropositionsForSurfaces: \(dict.values.flatMap { $0 }.count) total proposition(s)"
+                showPropositionsLog = true
+                print("getPropositionsForSurfaces result:\n\(propositionsLog)")
             }
         }
     }
