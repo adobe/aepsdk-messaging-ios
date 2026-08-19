@@ -1024,7 +1024,7 @@ public class Messaging: NSObject, Extension {
         // Boot-time fetches are intentionally allowed through — Edge handles offline gracefully on its own.
         if event.isUpdatePropositionsEvent {
             guard isInternetAvailable() else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition fetch - device network is unavailable.")
+                Log.debug(label: MessagingConstants.LOG_TAG, "S]rk is unavailable.")
                 handler?.handle?(false)
                 return
             }

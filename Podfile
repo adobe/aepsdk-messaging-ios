@@ -20,12 +20,9 @@ $dev_branch = 'dev-v5.5.0'
 # ==================
 # SHARED POD GROUPS
 # ==================
-$network_repo = 'https://github.com/adobe/aepsdk-core-ios.git'
-$network_branch = 'MOB-25282/network-availabilty'
-
 def lib_main
-    pod 'AEPCore', :git => $network_repo, :branch => $network_branch
-    pod 'AEPServices', :git => $network_repo, :branch => $network_branch
+    pod 'AEPCore', '>= 5.11.0'
+    pod 'AEPServices', '>= 5.11.0'
     pod 'AEPRulesEngine'
 end
 
