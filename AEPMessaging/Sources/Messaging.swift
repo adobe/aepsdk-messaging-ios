@@ -155,6 +155,7 @@ public class Messaging: NSObject, Extension {
             var decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any],
             var propositions = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]]
         else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "enrichWithContentCardOrigin: XDM missing experience/decisioning/propositions structure, returning unchanged.")
             return xdm
         }
 
@@ -184,6 +185,7 @@ public class Messaging: NSObject, Extension {
                 let surface = surfaceByPropositionId[propositionId],
                 let items = proposition[MessagingConstants.XDM.Inbound.Key.ITEMS] as? [[String: Any]]
             else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "enrichWithContentCardOrigin: skipping proposition — not a qualified content card or missing items.")
                 return proposition
             }
             let servedFromCache = !refreshedSurfaces.contains(surface)
@@ -202,7 +204,10 @@ public class Messaging: NSObject, Extension {
             return updated
         }
 
-        guard didEnrich else { return xdm }
+        guard didEnrich else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "enrichWithContentCardOrigin: no content card propositions matched — returning XDM unchanged.")
+            return xdm
+        }
 
         decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] = propositions
         experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] = decisioning
@@ -1065,29 +1070,6 @@ public class Messaging: NSObject, Extension {
             handler.edgeRequestEventId = newEvent.id
             Messaging.completionHandlers.append(handler)
         }
-
-        // TODO: Timeout mismatch between eventsQueue consumers and the Edge fetch.
-        // The Edge stream-close response has a 10-second timeout (below). Any event sitting
-        // behind a paused eventsQueue — e.g. a GET_PROPOSITIONS event dispatched by
-        // getContentCardsUI — has its OWN 5-second callback timeout (Messaging+PublicAPI.swift,
-        // MobileCore.dispatch(event:, timeout: 5)).
-        //
-        // Race when network is slow/offline and the boot IAM fetch fires:
-        //   t=0s  Boot IAM fetch → Edge event dispatched → eventsQueue PAUSED (boot is NOT gated)
-        //   t=0s  getContentCardsUI → GET_PROPOSITIONS added to queue (stuck behind boot event)
-        //   t=5s  GET_PROPOSITIONS 5s callback fires → AEPError.callbackTimeout → ❌ caller sees error
-        //   t=10s Edge 10s timeout fires → eventsQueue.start() called → queue unblocks (too late)
-        //
-        // Current state: the isInternetAvailable() guard is scoped to isUpdatePropositionsEvent
-        // (write path only — see fetchPropositions). Boot IAM fetches are intentionally NOT gated,
-        // so the race above is still possible on first launch when offline.
-        //
-        // Resolution options (deferred):
-        //   A. Raise GET_PROPOSITIONS timeout above the Edge fetch timeout (e.g. 15s), so
-        //      the queue has time to unblock before the caller gives up.
-        //   B. Extend the network guard unconditionally to include boot fetches, so the queue
-        //      never pauses when offline and GET_PROPOSITIONS runs immediately from cache.
-        //      Trade-off: boot fetch would never fire when offline, even if Edge could handle it.
 
         // dispatch the event and implement handler for the completion event
         MobileCore.dispatch(event: newEvent, timeout: 10.0) { responseEvent in
