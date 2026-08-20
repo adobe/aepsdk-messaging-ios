@@ -100,12 +100,24 @@ class BootHydratePersistedContentCardsTest: IntegrationTestBase {
         #expect(messaging.qualifiedContentCardsBySurface[homeSurface] == nil)
 
         // 3. Run the boot hydration (exactly what readyForEvent does at boot). No get API is called.
+        //    Hydration loads the disk CC rules into the rules engine ONLY — it deliberately does not
+        //    write to `qualifiedContentCardsBySurface` (that is a network-only store), so no spurious
+        //    `.trigger` analytics fire for boot-seeded disk cards.
         messaging.hydrateAllPersistedContentCards()
+
+        // 3b. Fire a generic event so the wildcard listener (`handleWildcardEvent`) re-evaluates the
+        //     just-loaded disk rules. This is the "seed" that requalifies disk cards into the in-memory
+        //     cache via `addOrReplaceContentCards` — mirroring what happens on the first real event after
+        //     a cold boot. `addOrReplaceContentCards` does NOT add the surface to `networkRefreshedSurfaces`,
+        //     so the hydrated cards stay disk-served for analytics (verified in step 5).
+        MobileCore.dispatch(event: Event(name: "Seed content cards", type: EventType.messaging,
+                                         source: EventSource.requestContent, data: nil))
+        try? await Task.sleep(nanoseconds: 500_000_000)
 
         // 4. The qualified array must be repopulated FROM DISK (proves disk was read + rules re-ran).
         let hydratedCards = messaging.qualifiedContentCardsBySurface[homeSurface] ?? []
         #expect(!hydratedCards.isEmpty,
-                "Boot hydration must repopulate qualified content cards from the persisted disk cache")
+                "Boot hydration + first event must repopulate qualified content cards from the persisted disk cache")
 
         // 5. The hydrated surface must NOT be in the network-refreshed set, so any card served for it
         //    reports servedFromPersistentCache = true until a live network response refreshes it.
