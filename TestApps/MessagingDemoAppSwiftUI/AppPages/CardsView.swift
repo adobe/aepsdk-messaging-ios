@@ -10,8 +10,94 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+import AEPCore
 import AEPMessaging
+import AEPServices
 import SwiftUI
+
+// MARK: - Edge Network Simulator
+
+/// Wraps the real `Networking` service installed in `ServiceProvider.shared.networkService` and
+/// intercepts requests to `*.adobedc.net` (Edge Network only). All other traffic passes through
+/// unchanged. This mirrors the exact mechanism used by aepsdk-edge-ios functional tests.
+///
+/// Recoverable HTTP codes (from Edge SDK): 408, 429, 502, 503, 504, 507 — SDK retries.
+/// Recoverable URLError codes: timedOut, cannotConnectToHost, networkConnectionLost,
+///   notConnectedToInternet, dataNotAllowed — SDK retries.
+/// Everything else is non-recoverable — SDK drops the hit and dispatches an error event.
+private final class EdgeNetworkSimulator: Networking {
+
+    enum Simulation {
+        case httpStatus(Int, body: String?)
+        case urlError(URLError)
+
+        var label: String {
+            switch self {
+            case .httpStatus(let code, _): return "HTTP \(code)"
+            case .urlError(let e): return "URLError.\(e.code)"
+            }
+        }
+
+        /// Derived from Edge SDK's recoverable code set + AEPServices URLError.isRecoverable.
+        var isRecoverable: Bool {
+            switch self {
+            case .httpStatus(let code, _):
+                return [408, 429, 502, 503, 504, 507].contains(code)
+            case .urlError(let e):
+                return [URLError.Code.timedOut, .cannotConnectToHost, .networkConnectionLost,
+                        .notConnectedToInternet, .dataNotAllowed].contains(e.code)
+            }
+        }
+
+        var behaviorNote: String {
+            isRecoverable
+                ? "Recoverable — SDK will retry automatically."
+                : "Non-recoverable — SDK drops hit, dispatches error event."
+        }
+    }
+
+    // Singleton: install once, configure/clear as needed.
+    private static var _instance: EdgeNetworkSimulator?
+    private let realService: Networking
+
+    private(set) var current: Simulation?
+    var onIntercepted: ((Simulation) -> Void)?
+
+    static func install() -> EdgeNetworkSimulator {
+        if let existing = _instance { return existing }
+        let real = ServiceProvider.shared.networkService
+        let sim = EdgeNetworkSimulator(real: real)
+        ServiceProvider.shared.networkService = sim
+        _instance = sim
+        return sim
+    }
+
+    func configure(_ sim: Simulation) { current = sim }
+    func clear() { current = nil }
+
+    private init(real: Networking) { self.realService = real }
+
+    func connectAsync(networkRequest: NetworkRequest, completionHandler: ((HttpConnection) -> Void)?) {
+        guard let sim = current, networkRequest.url.host?.contains("adobedc.net") == true else {
+            realService.connectAsync(networkRequest: networkRequest, completionHandler: completionHandler)
+            return
+        }
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            self?.onIntercepted?(sim)
+            switch sim {
+            case .httpStatus(let code, let body):
+                guard let httpResponse = HTTPURLResponse(url: networkRequest.url, statusCode: code,
+                                                         httpVersion: nil, headerFields: nil) else { return }
+                completionHandler?(HttpConnection(data: body?.data(using: .utf8),
+                                                  response: httpResponse, error: nil))
+            case .urlError(let error):
+                completionHandler?(HttpConnection(data: nil, response: nil, error: error))
+            }
+        }
+    }
+}
+
+// MARK: - CardsView
 
 struct CardsView: View, ContentCardUIEventListening {
 
@@ -19,15 +105,61 @@ struct CardsView: View, ContentCardUIEventListening {
     @State var savedCards: [ContentCardUI] = []
     @State private var viewLoaded: Bool = false
     @State private var showLoadingIndicator: Bool = false
+    @State private var statusMessage: String = ""
+    @State private var showErrorPanel: Bool = false
+    @State private var activeSimLabel: String? = nil
+    @State private var propositionsLog: String = ""
+    @State private var showPropositionsLog: Bool = false
+    @State private var offlineAvailable: Bool = false
 
     var body: some View {
-        VStack {
-            TabHeader(title: "Content Cards", refreshAction: {
-                refreshCards()
-            }, redownloadAction: {
-                downloadCards()
-                refreshCards()
-            })
+        VStack(spacing: 0) {
+            TabHeader(title: "Content Cards")
+
+            actionPanel
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+
+            if !statusMessage.isEmpty {
+                Text(statusMessage)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+            }
+
+            if showPropositionsLog && !propositionsLog.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("getPropositionsForSurfaces log")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Button(action: {
+                            showPropositionsLog = false
+                            propositionsLog = ""
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                                .font(.system(size: 14))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    ScrollView(.vertical, showsIndicators: true) {
+                        Text(propositionsLog)
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxHeight: 180)
+                }
+                .padding(10)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                .padding(.horizontal, 16)
+                .padding(.top, 6)
+            }
 
             ZStack {
                 ScrollView(.vertical, showsIndicators: false) {
@@ -37,6 +169,7 @@ struct CardsView: View, ContentCardUIEventListening {
                                 .padding(.horizontal, 16)
                         }
                     }
+                    .padding(.top, 12)
                 }
 
                 if showLoadingIndicator {
@@ -49,35 +182,461 @@ struct CardsView: View, ContentCardUIEventListening {
                 }
             }
         }
-        .onAppear() {
+        .onAppear {
             if !viewLoaded {
                 viewLoaded = true
-                refreshCards()
+            }
+            refreshOfflineFlag()
+        }
+    }
+
+    // MARK: - Action Panel
+
+    private var actionPanel: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                actionButton(title: "Update propositions", systemImage: "arrow.down.circle") {
+                    downloadCards()
+                }
+                actionButton(title: "Get Content card UI", systemImage: "arrow.clockwise.circle") {
+                    fetchContentCards()
+                }
+            }
+            HStack(spacing: 10) {
+                actionButton(title: "Clear Cache proposition", systemImage: "trash.circle") {
+                    clearPersistedPropositions()
+                }
+                actionButton(title: "GetProposition and log ", systemImage: "list.bullet.rectangle") {
+                    logPropositions()
+                }
+            }
+            // Per-surface controls — cardsSurface
+            HStack(spacing: 10) {
+                actionButton(title: "Update prop (cardsSurface)", systemImage: "arrow.down.circle.fill") {
+                    updatePropCardsSurface()
+                }
+                actionButton(title: "Get prop (cardsSurface)", systemImage: "arrow.clockwise.circle.fill") {
+                    getPropCardsSurface()
+                }
+            }
+            // Offline available config toggle row
+            Button(action: {
+                offlineAvailable.toggle()
+                MobileCore.updateConfigurationWith(configDict: [
+                    "messaging.contentCardOfflineAvailable": offlineAvailable
+                ])
+                statusMessage = "messaging.contentCardOfflineAvailable → \(offlineAvailable)"
+                // Read back from shared state to confirm the config update landed
+                refreshOfflineFlag()
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: offlineAvailable ? "internaldrive.fill" : "internaldrive")
+                    Text("Offline Available")
+                        .font(.system(size: 13, weight: .medium))
+                    Spacer()
+                    Text(offlineAvailable ? "ON" : "OFF")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(offlineAvailable ? .green : .secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(offlineAvailable ? Color.green.opacity(0.1) : Color(.tertiarySystemBackground))
+                        .cornerRadius(4)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 12)
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(10)
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(offlineAvailable ? .green : .primary)
+
+            // Error simulation toggle row
+            Button(action: { showErrorPanel.toggle() }) {
+                HStack(spacing: 6) {
+                    Image(systemName: showErrorPanel ? "bolt.circle.fill" : "bolt.circle")
+                    Text("Error Simulation")
+                        .font(.system(size: 13, weight: .medium))
+                    Spacer()
+                    if activeSimLabel != nil {
+                        Text("ACTIVE")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.red.opacity(0.1))
+                            .cornerRadius(4)
+                    }
+                    Image(systemName: showErrorPanel ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 12)
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(10)
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(activeSimLabel != nil ? .red : .primary)
+
+            if showErrorPanel {
+                errorSimulationPanel
             }
         }
     }
 
-    func refreshCards() {
-        showLoadingIndicator = true
-        let cardsPageSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
-        Messaging.getContentCardsUI(for: cardsPageSurface,
-                                    customizer: CardCustomizer(),
-                                    listener: self) { result in
-            showLoadingIndicator = false
-            switch result {
-            case .success(let cards):
-                // sort the cards by priority order and save them to our state property
-                savedCards = cards.sorted { $0.priority > $1.priority }
-            case .failure(let error):
-                print(error)
+    // MARK: - Error Simulation Panel
+
+    private var errorSimulationPanel: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            // Active simulation banner
+            if let label = activeSimLabel {
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.orange)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Active: \(label)")
+                            .font(.system(size: 12, weight: .medium))
+                        Text("All Edge Network requests are intercepted.")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Button("Restore") {
+                        restoreRealNetwork()
+                    }
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.blue)
+                }
+                .padding(10)
+                .background(Color.orange.opacity(0.12))
+                .cornerRadius(8)
+            }
+
+            // Info banner
+            Text("Intercepts *.adobedc.net requests only (same mechanism as Edge SDK tests). Other SDK traffic is unaffected. Tap a button then watch logs/Assurance.")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 2)
+
+            // HTTP error buttons
+            Text("HTTP Errors")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(.secondary)
+                .padding(.top, 2)
+
+            HStack(spacing: 8) {
+                simButton(
+                    title: "400 Bad Request",
+                    subtitle: "Non-recoverable · hit dropped",
+                    color: .red
+                ) {
+                    // Proper 400 body matching the EdgeResponse schema so NetworkResponseHandler
+                    // can decode and dispatch an errorResponseContent event with full detail.
+                    let body = """
+                    {"requestId":"sim-400","errors":[{"status":400,"title":"Bad Request (Demo)",\
+                    "detail":"Simulated by demo app.","type":"https://ns.adobe.com/aep/errors/EXEG-0103-400"}]}
+                    """
+                    activateSim(.httpStatus(400, body: body), label: "HTTP 400 (non-recoverable)")
+                }
+                simButton(
+                    title: "502 Bad Gateway",
+                    subtitle: "Recoverable · SDK retries",
+                    color: .orange
+                ) {
+                    activateSim(.httpStatus(502, body: nil), label: "HTTP 502 (recoverable, SDK retries)")
+                }
+            }
+
+            // URLError buttons
+            Text("URLError (transport-level)")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(.secondary)
+                .padding(.top, 2)
+
+            HStack(spacing: 8) {
+                simButton(
+                    title: "Network Down",
+                    subtitle: "notConnectedToInternet · recoverable",
+                    color: .orange
+                ) {
+                    activateSim(
+                        .urlError(URLError(.notConnectedToInternet)),
+                        label: "URLError.notConnectedToInternet (recoverable)"
+                    )
+                }
+                simButton(
+                    title: "DNS Failure",
+                    subtitle: "cannotFindHost · non-recoverable",
+                    color: .red
+                ) {
+                    activateSim(
+                        .urlError(URLError(.cannotFindHost)),
+                        label: "URLError.cannotFindHost (non-recoverable)"
+                    )
+                }
+            }
+
+            // Restore button (always visible in expanded panel as a fallback)
+            Button(action: restoreRealNetwork) {
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle")
+                    Text("Restore Real Network")
+                        .font(.system(size: 13, weight: .medium))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 9)
+                .background(activeSimLabel != nil ? Color.green.opacity(0.15) : Color(.secondarySystemBackground))
+                .cornerRadius(10)
+                .foregroundColor(activeSimLabel != nil ? .green : .secondary)
+            }
+            .buttonStyle(.plain)
+            .disabled(activeSimLabel == nil)
+        }
+        .padding(12)
+        .background(Color(.secondarySystemBackground).opacity(0.5))
+        .cornerRadius(12)
+    }
+
+    // MARK: - Helpers
+
+    private func actionButton(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: systemImage)
+                Text(title)
+                    .font(.system(size: 13, weight: .medium))
+                    .multilineTextAlignment(.leading)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 8)
+            .background(Color(.secondarySystemBackground))
+            .cornerRadius(10)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func simButton(title: String, subtitle: String, color: Color,
+                           action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 3) {
+                Text(title)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(color)
+                Text(subtitle)
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 6)
+            .background(color.opacity(0.08))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(color.opacity(0.3), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Config Helpers
+
+    /// Reads `messaging.contentCardOfflineAvailable` from the Configuration shared state and
+    /// updates the `offlineAvailable` toggle to reflect the actual persisted value.
+    /// AEPCore processes events sequentially, so this read arrives after any preceding
+    /// `updateConfigurationWith` call and will see the updated value.
+    private func refreshOfflineFlag() {
+        let event = Event(name: "Read Configuration",
+                          type: EventType.configuration,
+                          source: EventSource.requestContent,
+                          data: ["config.getData": true])
+        MobileCore.dispatch(event: event, timeout: 2) { responseEvent in
+            guard let flag = responseEvent?.data?["messaging.contentCardOfflineAvailable"] as? Bool else { return }
+            DispatchQueue.main.async { offlineAvailable = flag }
+        }
+    }
+
+    // MARK: - Simulation Actions
+
+    private func activateSim(_ sim: EdgeNetworkSimulator.Simulation, label: String) {
+        let simulator = EdgeNetworkSimulator.install()
+        simulator.configure(sim)
+        activeSimLabel = label
+        statusMessage = "Armed: \(label). Now tap Download — that request will be intercepted."
+        simulator.onIntercepted = { intercepted in
+            DispatchQueue.main.async {
+                statusMessage = "⚡ Intercepted! Returned \(intercepted.label). \(intercepted.behaviorNote)"
             }
         }
     }
+
+    private func restoreRealNetwork() {
+        EdgeNetworkSimulator.install().clear()
+        activeSimLabel = nil
+        statusMessage = "Real network restored. Next download goes to the live Edge Network."
+    }
+
+    // MARK: - SDK Actions
 
     func downloadCards() {
-        showLoadingIndicator = true
-        Messaging.updatePropositionsForSurfaces([cardsSurface])
+        Messaging.updatePropositionsForSurfaces([cardsSurface]) { success in
+            DispatchQueue.main.async {
+                if success {
+                    // Auto-refresh so new ContentCardUI objects appear and fire fresh display
+                    // tracking events — this is the only way to see servedFromPersistentCache: false
+                    // for cards that were previously loaded from disk.
+               // self.fetchContentCards()
+                }
+                else{
+                    debugPrint("Failure in updatePropositionsForSurfaces")
+                }
+            }
+        }
+        if activeSimLabel == nil {
+            statusMessage = "Download requested for surface: \(cardsSurface.uri)"
+        }
     }
+
+    func fetchContentCards() {
+        showLoadingIndicator = true
+        let group = DispatchGroup()
+        var allCards: [ContentCardUI] = []
+        var firstError: Error?
+
+        for surface in [cardsSurface] {
+            group.enter()
+            Messaging.getContentCardsUI(for: surface,
+                                        customizer: CardCustomizer(),
+                                        listener: self) { result in
+                switch result {
+                case .success(let cards): allCards += cards
+                case .failure(let error):
+                    print("getContentCardsUI failed: \(error)")
+                    if firstError == nil { firstError = error }
+                }
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) {
+            showLoadingIndicator = false
+            if let error = firstError, allCards.isEmpty {
+                handleResult(.failure(error), source: "Memory")
+            } else {
+                handleResult(.success(allCards), source: "Memory")
+            }
+        }
+    }
+
+    func fetchOfflineContentCards() {
+        showLoadingIndicator = true
+        Messaging.getContentCardsUI(for: cardsSurface,
+                                    customizer: CardCustomizer(),
+                                    listener: self) { result in
+            DispatchQueue.main.async {
+                showLoadingIndicator = false
+                handleResult(result, source: "Persisted disk cache")
+            }
+        }
+    }
+
+    /// Calls `updatePropositionsForSurfaces` for `cardsSurface` only (no fetch).
+    func updatePropCardsSurface() {
+        statusMessage = "Updating propositions for cardsSurface…"
+        Messaging.updatePropositionsForSurfaces([cardsSurface]) { success in
+            DispatchQueue.main.async {
+                statusMessage = success
+                    ? "updatePropositionsForSurfaces succeeded for cardsSurface"
+                    : "updatePropositionsForSurfaces failed for cardsSurface"
+            }
+        }
+    }
+
+    /// Calls `getContentCardsUI` for `cardsSurface` only and loads the results into `savedCards`.
+    func getPropCardsSurface() {
+        showLoadingIndicator = true
+        statusMessage = "Fetching content cards for cardsSurface…"
+        Messaging.getContentCardsUI(for: cardsSurface,
+                                    customizer: CardCustomizer(),
+                                    listener: self) { result in
+            DispatchQueue.main.async {
+                showLoadingIndicator = false
+                handleResult(result, source: "cardsSurface")
+            }
+        }
+    }
+
+    func logPropositions() {
+        statusMessage = "Calling getPropositionsForSurfaces..."
+        Messaging.getPropositionsForSurfaces([ cardsSurface]) { propositionDict, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    propositionsLog = "ERROR: \(error)"
+                    statusMessage = "getPropositionsForSurfaces failed: \(error)"
+                    showPropositionsLog = true
+                    print("getPropositionsForSurfaces error: \(error)")
+                    return
+                }
+
+                guard let dict = propositionDict, !dict.isEmpty else {
+                    propositionsLog = "Result: empty (no surfaces in response)"
+                    statusMessage = "getPropositionsForSurfaces returned empty dict"
+                    showPropositionsLog = true
+                    print("getPropositionsForSurfaces: empty result")
+                    return
+                }
+
+                var lines: [String] = []
+                for surface in [ cardsSurface] {
+                    if let props = dict[surface] {
+                        lines.append("[\(surface.uri)]  →  \(props.count) proposition(s)")
+                        for (i, prop) in props.enumerated() {
+                            lines.append("  [\(i)] id: \(prop.uniqueId)")
+                            lines.append("       scope: \(prop.scope)")
+                            lines.append("       items: \(prop.items.count)")
+                            for (j, item) in prop.items.enumerated() {
+                                lines.append("         item[\(j)] schema: \(item.schema)")
+                            }
+                        }
+                    } else {
+                        lines.append("[\(surface.uri)]  →  not in response (key missing)")
+                    }
+                }
+                propositionsLog = lines.joined(separator: "\n")
+                statusMessage = "getPropositionsForSurfaces: \(dict.values.flatMap { $0 }.count) total proposition(s)"
+                showPropositionsLog = true
+                print("getPropositionsForSurfaces result:\n\(propositionsLog)")
+            }
+        }
+    }
+
+    func clearPersistedPropositions() {
+        Messaging.clearCachedPropositions()
+        savedCards = []
+        statusMessage = "Persisted content card cache cleared."
+    }
+
+    private func handleResult(_ result: Result<[ContentCardUI], Error>, source: String) {
+        switch result {
+        case .failure(let error):
+            statusMessage = "Fetch failed (\(source)): \(error.localizedDescription)"
+            savedCards = []
+        case .success(let cards):
+            if cards.isEmpty {
+                statusMessage = "No cards found (\(source))"
+                savedCards = []
+            } else {
+                statusMessage = "Loaded \(cards.count) card(s) from \(source)"
+                savedCards = cards.sorted { $0.priority > $1.priority }
+            }
+        }
+    }
+
+    // MARK: - ContentCardUIEventListening
 
     func onDisplay(_ card: ContentCardUI) {
         print("TestAppLog : ContentCard Displayed")
@@ -94,6 +653,8 @@ struct CardsView: View, ContentCardUIEventListening {
     }
 }
 
+// MARK: - Card Customizer
+
 class CardCustomizer: ContentCardCustomizing {
     func customize(template: AEPMessaging.LargeImageTemplate) {
         template.title.textColor = .primary
@@ -105,18 +666,14 @@ class CardCustomizer: ContentCardCustomizing {
         template.buttons?.first?.text.textColor = .primary
         template.buttons?.first?.modifier = AEPViewModifier(ButtonModifier())
 
-        // Image: full width, fixed height, flush to top/left/right edges
         template.image?.contentMode = .fill
         template.image?.modifier = AEPViewModifier(LargeImageModifier())
 
-        // No spacing so image sits flush against card top
         template.rootVStack.spacing = 0
         template.textVStack.alignment = .leading
         template.textVStack.spacing = 4
-        // Padding only on the text area
         template.textVStack.modifier = AEPViewModifier(TextAreaModifier())
         template.buttonHStack.modifier = AEPViewModifier(LargeButtonHStackModifier())
-        // Card container — no inner padding so image reaches edges
         template.rootVStack.modifier = AEPViewModifier(CardContainerModifier())
 
         template.dismissButton?.image.iconColor = .white
@@ -133,16 +690,13 @@ class CardCustomizer: ContentCardCustomizing {
         template.buttons?.first?.text.textColor = .primary
         template.buttons?.first?.modifier = AEPViewModifier(ButtonModifier())
 
-        // Image: fixed size, flush to left/top/bottom edges
         template.image?.modifier = AEPViewModifier(SmallImageModifier())
 
         template.rootHStack.spacing = 0
         template.textVStack.alignment = .leading
         template.textVStack.spacing = 4
-        // Padding only on the text area
         template.textVStack.modifier = AEPViewModifier(TextAreaModifier())
         template.buttonHStack.modifier = AEPViewModifier(SmallButtonHStackModifier())
-        // Card container — no inner padding so image reaches edges
         template.rootHStack.modifier = AEPViewModifier(CardContainerModifier())
 
         template.dismissButton?.image.iconColor = .primary
@@ -177,7 +731,6 @@ class CardCustomizer: ContentCardCustomizing {
 
     // MARK: - Shared Modifiers
 
-    /// Padding applied to the text+body area only
     struct TextAreaModifier: ViewModifier {
         func body(content: Content) -> some View {
             content
@@ -187,7 +740,6 @@ class CardCustomizer: ContentCardCustomizing {
         }
     }
 
-    /// Card container: rounded corners + subtle shadow
     struct CardContainerModifier: ViewModifier {
         func body(content: Content) -> some View {
             content

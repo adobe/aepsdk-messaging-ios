@@ -53,6 +53,17 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                               expectedSurfaceUri: iamSurface.uri,
                               cache: mockCache,
                               stateManager: .init())
+
+        // Opt-in to content card offline persistence so tests that assert on
+        // CC cache writes reflect the expected "offline available" configuration.
+        // Without this, isContentCardOfflineAvailable() returns false (the default
+        // when the key is absent) and contentCardPropositionsToPersist stays empty.
+        mockRuntime.simulateSharedState(
+            for: MessagingConstants.SharedState.Configuration.NAME,
+            data: (value: [MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE: true],
+                   status: SharedStateStatus.set)
+        )
+
         messaging.onRegistered()
     }
 
@@ -130,20 +141,21 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         let cardRuleCount = mockContentCardLaunchRulesEngine.paramReplaceRulesRules?.count ?? 0
         XCTAssertEqual(4, cardRuleCount)
 
-        // Verify propositions were cached once
+        // Verify IAM propositions were cached (separate from content card cache)
         XCTAssertTrue(mockCache.setCalled, "Cache should have been updated with new propositions")
-        if let entry = mockCache.setParamEntry {
-            // Decode cached data into dictionary
-            if let decoded = try? JSONDecoder().decode([String: [Proposition]].self, from: entry.data) {
-                // Only IAM surface should be present (mockSurface removed)
-                XCTAssertEqual(1, decoded.count)
-                if let iamCached = decoded[iamSurface.uri] {
-                    XCTAssertEqual(3, iamCached.count, "Three IAM propositions should be cached")
-                } else {
-                    XCTFail("IAM surface not found in cached propositions")
-                }
+        let iamCacheEntry = mockCache.setCalls.first { $0.key == MessagingConstants.Caches.PROPOSITIONS }?.entry
+        XCTAssertNotNil(iamCacheEntry, "IAM propositions cache entry should exist")
+        if let entry = iamCacheEntry,
+           let decoded = try? JSONDecoder().decode([String: [Proposition]].self, from: entry.data) {
+            XCTAssertEqual(1, decoded.count)
+            if let iamCached = decoded[iamSurface.uri] {
+                XCTAssertEqual(3, iamCached.count, "Three IAM propositions should be cached")
+            } else {
+                XCTFail("IAM surface not found in cached propositions")
             }
         }
+        XCTAssertNotNil(mockCache.setCalls.first { $0.key == MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS },
+                        "Content card propositions should be cached separately")
         // Cache.remove should NOT be invoked because the propositions file remains with other surfaces
         XCTAssertFalse(mockCache.removeCalled)
         // Notification event should NOT be dispatched
@@ -193,6 +205,8 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         mockContentCardLaunchRulesEngine.replaceRulesCalled = false
         mockCache.setCalled = false
         mockCache.removeCalled = false
+        mockCache.setCalls.removeAll()
+        mockCache.removeCalls.removeAll()
 
         let secondPayload = cardPropositions.compactMap { $0.asDictionary() }
         let secondRequestId = "TESTING_ID_2"
@@ -229,9 +243,13 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         }
         XCTAssertEqual(0, secondIamRules.count, "Second response should not contain any IAM rules")
 
-        // Cache behavior: set should NOT be called, but propositions file should be removed (removeCalled)
-        XCTAssertFalse(mockCache.setCalled)
-        XCTAssertTrue(mockCache.removeCalled, "Cache file should be deleted when no IAM propositions remain")
+        // Cache behavior: IAM propositions file removed; content cards still persisted
+        XCTAssertFalse(mockCache.setCalls.contains { $0.key == MessagingConstants.Caches.PROPOSITIONS },
+                       "IAM cache should not be written when no IAM propositions remain")
+        XCTAssertTrue(mockCache.removeCalls.contains(MessagingConstants.Caches.PROPOSITIONS),
+                      "IAM cache file should be deleted when no IAM propositions remain")
+        XCTAssertTrue(mockCache.setCalls.contains { $0.key == MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS },
+                      "Content card cache should still be updated")
 
         // No proposition-received event dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
@@ -599,5 +617,56 @@ class MessagingProcessCompletedEventTests: XCTestCase {
                                "activity": [MessagingConstants.Event.Data.Key.Personalization.RANK: index]
                            ],
                            items: [item])
+    }
+
+    func test_handleProcessCompletedEvent_noDecisions_clearsContentCardForRequestedSurface() throws {
+        let cardProposition = makeCardProposition(surface: cardSurface, index: 0)
+        mockCache.updateContentCardPropositions([cardSurface: [cardProposition]])
+
+        let requestId = "NO_DECISIONS_ID"
+        messaging.setRequestedSurfacesforEventId(requestId, expectedSurfaces: [cardSurface])
+
+        let processEvent = Event(name: "process complete",
+                                 type: EventType.messaging,
+                                 source: EventSource.contentComplete,
+                                 data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
+
+        messaging.handleProcessCompletedEvent(processEvent)
+
+        // An empty/zero-decision response (e.g. HTTP 204) means the server has nothing for this
+        // surface — the content card cache for that surface should be cleared, not preserved.
+        // Non-recoverable network errors are handled separately via requestFailed / nonRecoverableErrorEventIds.
+        XCTAssertTrue(mockCache.removeCalls.contains(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS),
+                      "Zero-decision response must clear the persisted content card propositions for the requested surface")
+        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled,
+                      "Content-card rules engine must be updated to reflect the empty server response")
+    }
+
+    /// Offline hydration must load the event-history (qualify/disqualify) rules that ride inside the
+    /// persisted content-card proposition into the MAIN rules engine — not just the content-card rules —
+    /// so dismiss/disqualify (and later re-qualify) behave identically offline, matching the in-memory
+    /// (network) path. `contentCardPropositionContent.json` carries both a content-card consequence and
+    /// eventHistoryOperation (disqualify) consequences. Before the fix, hydration touched only the
+    /// content-card engine and dropped the disqualify rules, so the main engine was never updated.
+    func test_hydrateContentCardRulesEngineFromDisk_loadsDisqualifyRulesIntoMainRulesEngine() {
+        // Persist a content-card proposition (which also carries eventHistoryOperation/disqualify rules).
+        let cardProposition = makeCardProposition(surface: cardSurface, index: 0)
+        mockCache.updateContentCardPropositions([cardSurface: [cardProposition]])
+
+        // Sanity: the main rules engine has not been touched yet.
+        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled,
+                       "Precondition: main rules engine untouched before hydration")
+
+        // Hydrate offline from disk.
+        messaging.hydrateContentCardRulesEngineFromDisk(for: [cardSurface])
+
+        // The content-card rules must load into the content-card engine (as before)...
+        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled,
+                      "Content-card rules should load into the content-card engine on hydration")
+        // ...AND the disqualify (eventHistoryOperation) rules must now load into the MAIN engine.
+        XCTAssertTrue(mockLaunchRulesEngine.replaceRulesCalled,
+                      "Offline hydration must load the disqualify rules into the main rules engine")
+        XCTAssertFalse(mockLaunchRulesEngine.paramReplaceRulesRules?.isEmpty ?? true,
+                       "The disqualify rules loaded into the main engine must be non-empty")
     }
 }

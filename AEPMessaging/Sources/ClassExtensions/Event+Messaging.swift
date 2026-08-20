@@ -43,8 +43,20 @@ extension Event {
         isEdgeType && isPersonalizationSource
     }
 
+    /// True when this is an Edge `errorResponseContent` event — dispatched by the Edge extension
+    /// for both server-side per-event errors and network/HTTP-level failures, before or instead of
+    /// a `personalization:decisions` event.
+    var isEdgeErrorResponseEvent: Bool {
+        isEdgeType && source == MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE
+    }
+
+    /// HTTP-equivalent status code carried on an Edge error response event, if present.
+    var edgeErrorStatus: Int? {
+        data?[MessagingConstants.Event.Data.Key.EdgeError.STATUS] as? Int
+    }
+
     var requestEventId: String? {
-        parentID?.uuidString as? String ?? data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
+        parentID?.uuidString ?? data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
     }
 
     /// payload is an array of `Proposition` objects, each containing inbound content and related tracking information
@@ -162,6 +174,16 @@ extension Event {
 
     private var getPropositions: Bool {
         data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false
+    }
+
+    // MARK: - Clear cached propositions public API event
+
+    var isClearCachedPropositionsEvent: Bool {
+        isMessagingType && isRequestContentSource && clearCachedPropositions
+    }
+
+    private var clearCachedPropositions: Bool {
+        data?[MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS] as? Bool ?? false
     }
 
     var propositions: [Proposition]? {

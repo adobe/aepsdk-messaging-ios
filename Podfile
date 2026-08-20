@@ -21,8 +21,8 @@ $dev_branch = 'dev-v5.5.0'
 # SHARED POD GROUPS
 # ==================
 def lib_main
-    pod 'AEPCore'
-    pod 'AEPServices'
+    pod 'AEPCore', '>= 5.11.0'
+    pod 'AEPServices', '>= 5.11.0'
     pod 'AEPRulesEngine'
 end
 
