@@ -735,7 +735,25 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
         // verify
         wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
     }
-    
+
+    func testGetPropositionsForSurfacesDoesNotSetPersistedFlag() throws {
+        let eventExpectation = XCTestExpectation(description: "event should be dispatched")
+        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: EventType.messaging, source: EventSource.requestContent) { event in
+            // the persisted-flag approach has been removed; offline hydration is automatic
+            XCTAssertTrue(event.data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false)
+            eventExpectation.fulfill()
+            let responseEvent = event.createResponseEvent(name: "name", type: "type", source: "source", data: ["propositions": []])
+            MobileCore.dispatch(event: responseEvent)
+        }
+
+        let expectation = XCTestExpectation(description: "completion")
+        Messaging.getPropositionsForSurfaces([Surface(uri: MOCK_FEEDS_SURFACE)]) { _, _ in
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
+    }
+
     /// Private Helper methods
     private func createNotificationResponse(actionId : String = UNNotificationDefaultActionIdentifier,
                                             trackingData : [String : Any]? = MOCK_TRACKING_DETAILS,

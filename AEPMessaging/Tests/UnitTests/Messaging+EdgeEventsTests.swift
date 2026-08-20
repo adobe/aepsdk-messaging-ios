@@ -663,4 +663,86 @@ class MessagingEdgeEventsTests: XCTestCase {
 //        // verify
 //        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 //    }
+
+    // MARK: - enrichWithContentCardOrigin
+
+    func testEnrichWithContentCardOriginInjectsAtItemsCharacteristicsLevel() {
+        // build a proposition item dict matching the XDM wire format
+        let itemDict: [String: Any] = [
+            "id": "item1",
+            "schema": "https://ns.adobe.com/personalization/ruleset-item",
+            "data": ["someKey": "someVal"]
+        ]
+        let propositionDict: [String: Any] = [
+            MessagingConstants.XDM.Inbound.Key.ID: "prop1",
+            MessagingConstants.XDM.Inbound.Key.ITEMS: [itemDict]
+        ]
+        let xdm: [String: Any] = [
+            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: [
+                MessagingConstants.XDM.Inbound.Key.DECISIONING: [
+                    MessagingConstants.XDM.Inbound.Key.PROPOSITIONS: [propositionDict],
+                    MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE: [
+                        MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY: 1
+                    ]
+                ]
+            ]
+        ]
+
+        // seed a disk-served proposition in memory: it is qualified but its surface is NOT in
+        // networkRefreshedSurfaces (the default), so enrichment reports servedFromPersistentCache = true
+        let propItem = PropositionItem(itemId: "item1", schema: .ruleset, itemData: [:])
+        let prop = Proposition(uniqueId: "prop1", scope: "surface1", scopeDetails: [:], items: [propItem])
+        messaging.qualifiedContentCardsBySurface = [Surface(uri: "surface1"): [prop]]
+
+        let enriched = messaging.enrichWithContentCardOrigin(xdm)
+
+        // navigate to items[0].data.characteristics
+        let experience = enriched[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
+        let decisioning = experience?[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any]
+        let propositions = decisioning?[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]]
+        let enrichedItem = (propositions?.first?[MessagingConstants.XDM.Inbound.Key.ITEMS] as? [[String: Any]])?.first
+        let characteristics = (enrichedItem?["data"] as? [String: Any])?[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] as? [String: Any]
+
+        XCTAssertEqual(true, characteristics?[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE] as? Bool,
+                       "servedFromPersistentCache must be true at items[].data.characteristics for a .disk card")
+
+        // verify it is NOT at the proposition level
+        XCTAssertNil(propositions?.first?[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE],
+                     "servedFromPersistentCache must not appear at the proposition level")
+    }
+
+    func testEnrichWithContentCardOriginNetworkCardSetsFalse() {
+        let itemDict: [String: Any] = ["id": "item2", "schema": "schema", "data": [:] as [String: Any]]
+        let propositionDict: [String: Any] = [
+            MessagingConstants.XDM.Inbound.Key.ID: "prop2",
+            MessagingConstants.XDM.Inbound.Key.ITEMS: [itemDict]
+        ]
+        let xdm: [String: Any] = [
+            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: [
+                MessagingConstants.XDM.Inbound.Key.DECISIONING: [
+                    MessagingConstants.XDM.Inbound.Key.PROPOSITIONS: [propositionDict],
+                    MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE: [
+                        MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY: 1
+                    ]
+                ]
+            ]
+        ]
+
+        let propItem = PropositionItem(itemId: "item2", schema: .ruleset, itemData: [:])
+        let prop = Proposition(uniqueId: "prop2", scope: "surface1", scopeDetails: [:], items: [propItem])
+        messaging.qualifiedContentCardsBySurface = [Surface(uri: "surface1"): [prop]]
+        // mark the surface as refreshed from the network this session → servedFromPersistentCache = false
+        messaging.setNetworkRefreshedSurfaces([Surface(uri: "surface1")])
+
+        let enriched = messaging.enrichWithContentCardOrigin(xdm)
+
+        let experience = enriched[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
+        let decisioning = experience?[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any]
+        let propositions = decisioning?[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]]
+        let enrichedItem = (propositions?.first?[MessagingConstants.XDM.Inbound.Key.ITEMS] as? [[String: Any]])?.first
+        let characteristics = (enrichedItem?["data"] as? [String: Any])?[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] as? [String: Any]
+
+        XCTAssertEqual(false, characteristics?[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE] as? Bool,
+                       "servedFromPersistentCache must be false at items[].data.characteristics for a .network card")
+    }
 }

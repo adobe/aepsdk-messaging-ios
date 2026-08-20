@@ -16,21 +16,29 @@ import Foundation
 import XCTest
 
 class MockCache: Cache {
+    /// Simulates real cache storage so that get() reflects what was previously set().
+    /// This allows multi-step tests (write then read) to work correctly.
+    private var internalStorage: [String: CacheEntry] = [:]
+
     var getCalled = false
     var getParamKey: String?
+    /// Fallback return value used when no matching entry is in `internalStorage`.
     var getReturnValue: CacheEntry?
     override func get(key: String) -> CacheEntry? {
         getCalled = true
         getParamKey = key
-        return getReturnValue
+        return internalStorage[key] ?? getReturnValue
     }
 
     var removeCalled = false
     var removeParamKey: String?
+    var removeCalls: [String] = []
     var removeShouldThrow = false
     override func remove(key: String) throws {
         removeCalled = true
         removeParamKey = key
+        removeCalls.append(key)
+        internalStorage.removeValue(forKey: key)
         if removeShouldThrow {
             throw MockCacheError.mockThrow
         }
@@ -40,14 +48,17 @@ class MockCache: Cache {
     var setCalledExpectation: XCTestExpectation?
     var setParamKey: String?
     var setParamEntry: CacheEntry?
+    var setCalls: [(key: String, entry: CacheEntry)] = []
     var setShouldThrow = false
     override func set(key: String, entry: CacheEntry) throws {
         setCalled = true
         setParamKey = key
         setParamEntry = entry
+        setCalls.append((key: key, entry: entry))
         if setShouldThrow {
             throw MockCacheError.mockThrow
         }
+        internalStorage[key] = entry
         if let expectation = setCalledExpectation {
             expectation.fulfill()
         }

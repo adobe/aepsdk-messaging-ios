@@ -149,4 +149,44 @@ class MessagingPlusStateTests: XCTestCase {
         XCTAssertEqual(1, messaging.inMemoryPropositions.count)
         XCTAssertNil(messaging.inMemoryPropositions[mockIamSurface])
     }
+
+    func testHydrateContentCardRulesEngineFromDiskEmptyCacheDoesNothing() throws {
+        mockCache.getReturnValue = nil
+
+        messaging.hydrateContentCardRulesEngineFromDisk(for: [mockIamSurface])
+
+        XCTAssertFalse(mockLaunchRulesEngineForFeeds.replaceRulesCalled)
+    }
+
+    func testHydrateContentCardRulesEngineFromDiskLoadsRules() throws {
+        let feedSurface = Surface(uri: "feed")
+        let feedContent = JSONFileLoader.getRulesJsonFromFile("feedPropositionContent")
+        let feedItem = PropositionItem(itemId: "feedItem", schema: .ruleset, itemData: feedContent)
+        let feedProp = Proposition(uniqueId: "feedProp", scope: feedSurface.uri, scopeDetails: ["key": "value"], items: [feedItem])
+        let encoder = JSONEncoder()
+        let cacheData = try encoder.encode([feedSurface.uri: [feedProp]])
+        mockCache.getReturnValue = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
+
+        messaging.hydrateContentCardRulesEngineFromDisk(for: [feedSurface])
+
+        XCTAssertTrue(mockLaunchRulesEngineForFeeds.replaceRulesCalled)
+    }
+
+    func testBootHydrationLoadsContentCardRulesFromDisk() throws {
+        // Mirrors the IAM pattern: loadCachedPropositions() is called directly in those tests;
+        // the CC equivalent is hydrateAllPersistedContentCards(). Both represent the boot path
+        // that fires via readyForEvent in production.
+        let feedSurface = Surface(uri: "feed")
+        let feedContent = JSONFileLoader.getRulesJsonFromFile("feedPropositionContent")
+        let feedItem = PropositionItem(itemId: "feedItem", schema: .ruleset, itemData: feedContent)
+        let feedProp = Proposition(uniqueId: "feedProp", scope: feedSurface.uri, scopeDetails: ["key": "value"], items: [feedItem])
+        let encoder = JSONEncoder()
+        let cacheData = try encoder.encode([feedSurface.uri: [feedProp]])
+        mockCache.getReturnValue = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
+
+        messaging.hydrateAllPersistedContentCards()
+
+        XCTAssertTrue(mockLaunchRulesEngineForFeeds.replaceRulesCalled,
+                      "Boot hydration should load content card rules from disk into the rules engine")
+    }
 }

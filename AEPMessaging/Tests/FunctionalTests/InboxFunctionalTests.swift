@@ -248,6 +248,11 @@ class InboxFunctionalTests: XCTestCase {
                                           scopeDetails: ["decisionProvider": "AJO"],
                                           items: [cardItem])
         messaging.qualifiedContentCardsBySurface = [inboxSurface: [cardProposition]]
+        // Mark the surface as network-refreshed this session so the qualified card is served.
+        // With `messaging.contentCardOfflineAvailable` at its default (false), retrieveMessages only
+        // returns content cards for surfaces present in `networkRefreshedSurfaces`; a card placed
+        // directly into `qualifiedContentCardsBySurface` represents a live network-qualified card.
+        messaging.setNetworkRefreshedSurfaces([inboxSurface])
         Thread.sleep(forTimeInterval: 0.1)
 
         let getEvent = makeGetPropositionsEvent(surfaces: [inboxSurface])
