@@ -421,9 +421,21 @@ public class Messaging: NSObject, Extension {
 
         // handle an event to get cached propositions from the SDK
         if event.isGetPropositionsEvent {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
-            // Queue behind the eventsQueue so any in-flight update propositions request completes first.
-            eventsQueue.add(event)
+            let requestedSurfaces = event.surfaces ?? []
+            // Surfaces currently being fetched by any in-flight update propositions request.
+            let surfacesInProgress = requestedSurfacesForEventId.values.flatMap { $0 }
+            if requestedSurfaces.contains(where: { surfacesInProgress.contains($0) }) {
+                // A requested surface is being updated right now - queue behind the eventsQueue so the
+                // in-flight update completes first and the get is fulfilled from the latest content.
+                Log.debug(label: MessagingConstants.LOG_TAG,
+                          "Queuing get propositions request; one or more requested surfaces are currently being updated.")
+                eventsQueue.add(event)
+            } else {
+                // No requested surface overlaps an in-flight update - serve immediately from cache,
+                // independent of unrelated update propositions requests for different surfaces.
+                Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
+                retrieveMessages(for: requestedSurfaces, event: event)
+            }
             return
         }
 
@@ -1680,6 +1692,13 @@ public class Messaging: NSObject, Extension {
 
         func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
             requestedSurfacesForEventId[eventId] = expectedSurfaces
+        }
+
+        /// Simulates an in-flight update propositions request for unit testing by registering the given
+        /// surfaces and adding the (blocking) Edge request event to the internal events queue, mirroring
+        /// the real `fetchPropositions` -> `beginRequestFor` flow without dispatching a live Edge event.
+        func callBeginRequestFor(_ event: Event, with surfaces: [Surface]) {
+            beginRequestFor(event, with: surfaces)
         }
 
         func callUpdateRulesEngines(with rules: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
