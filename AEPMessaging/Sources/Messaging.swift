@@ -95,7 +95,7 @@ public class Messaging: NSObject, Extension {
     /// card served after a cold start — before any successful network refresh — is correctly reported
     /// as served from the persisted cache. It is maintained in exactly one place on the network path
     /// (`removeOrReplaceContentCards`: insert on refresh, remove on eviction) and cleared with the
-    /// content card state (`clearContentCards`). Disk hydration deliberately does NOT add to it.
+    /// content card state (`clearCachedContentCardPropositions`). Disk hydration deliberately does NOT add to it.
     private var _networkRefreshedSurfaces: Set<Surface> = []
     private var networkRefreshedSurfaces: Set<Surface> {
         get { queue.sync { self._networkRefreshedSurfaces } }
@@ -155,15 +155,19 @@ public class Messaging: NSObject, Extension {
             var decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any],
             var propositions = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]]
         else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "enrichWithContentCardOrigin: XDM missing experience/decisioning/propositions structure, returning unchanged.")
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "enrichWithContentCardOrigin: XDM is missing the expected experience/decisioning/propositions structure — returning it unchanged without a servedFromPersistentCache annotation.")
             return xdm
         }
 
-        // Only annotate display events.
+        // Only annotate display events; interactions (interact/dismiss) and any other event type
+        // must not carry the servedFromPersistentCache flag.
         guard
             let propositionEventType = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE] as? [String: Any],
             propositionEventType[MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY] != nil
         else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "enrichWithContentCardOrigin: event is not a content card display (propositionEventType keys: \(decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE].map { "\(($0 as? [String: Any])?.keys.map { $0 } ?? [])" } ?? "none")) — returning XDM unchanged.")
             return xdm
         }
 
@@ -180,15 +184,19 @@ public class Messaging: NSObject, Extension {
 
         var didEnrich = false
         propositions = propositions.map { proposition in
+            let propositionId = proposition[MessagingConstants.XDM.Inbound.Key.ID] as? String
             guard
-                let propositionId = proposition[MessagingConstants.XDM.Inbound.Key.ID] as? String,
+                let propositionId = propositionId,
                 let surface = surfaceByPropositionId[propositionId],
                 let items = proposition[MessagingConstants.XDM.Inbound.Key.ITEMS] as? [[String: Any]]
             else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "enrichWithContentCardOrigin: skipping proposition — not a qualified content card or missing items.")
+                Log.debug(label: MessagingConstants.LOG_TAG,
+                          "enrichWithContentCardOrigin: skipping proposition '\(propositionId ?? "unknown")' — it is not a currently-qualified content card (or has no items), leaving it unannotated.")
                 return proposition
             }
             let servedFromCache = !refreshedSurfaces.contains(surface)
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "enrichWithContentCardOrigin: annotating content card proposition '\(propositionId)' for surface '\(surface.uri)' with servedFromPersistentCache = \(servedFromCache).")
             let enrichedItems: [[String: Any]] = items.map { item in
                 var updatedItem = item
                 var data = updatedItem[MessagingConstants.XDM.Inbound.Key.DATA] as? [String: Any] ?? [:]
@@ -205,7 +213,8 @@ public class Messaging: NSObject, Extension {
         }
 
         guard didEnrich else {
-            Log.debug(label: MessagingConstants.LOG_TAG, "enrichWithContentCardOrigin: no content card propositions matched — returning XDM unchanged.")
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "enrichWithContentCardOrigin: none of the \(propositions.count) proposition(s) in this display event matched a currently-qualified content card — returning XDM unchanged.")
             return xdm
         }
 
@@ -213,6 +222,8 @@ public class Messaging: NSObject, Extension {
         experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] = decisioning
         var enriched = xdm
         enriched[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experience
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  "enrichWithContentCardOrigin: annotated content card display XDM with servedFromPersistentCache for \(propositions.count) proposition(s).")
         return enriched
     }
 
@@ -683,21 +694,17 @@ public class Messaging: NSObject, Extension {
                                      event: event)
     }
 
-    /// Clears in-memory content card state and persisted disk cache.
-    private func clearContentCards() {
+    /// Full clear of all content card state: in-memory qualified cards, the content card rules engine,
+    /// `networkRefreshedSurfaces`, and the persisted disk cache. Used by `resetIdentities` and the
+    /// public `clearCachedPropositions()` API where a complete wipe is required. Does not affect CBE
+    /// or inbox propositions.
+    private func clearCachedContentCardPropositions() {
         qualifiedContentCardsBySurface = [:]
         contentCardRulesBySurface = [:]
         networkRefreshedSurfaces = []
         contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
         try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
         Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared.")
-    }
-
-    /// Full clear: in-memory qualified cards, rules engines, networkRefreshedSurfaces, and disk cache.
-    /// Used by `resetIdentities` and the public `clearCachedPropositions()` API where a complete
-    /// wipe is required. Does not affect CBE or inbox propositions.
-    private func clearCachedContentCardPropositions() {
-        clearContentCards()
     }
 
     /// Evicts only the persisted disk cache for content cards.
@@ -1714,9 +1721,9 @@ public class Messaging: NSObject, Extension {
             handleEdgeErrorResponse(event)
         }
 
-        /// Directly invokes the private `clearContentCards` for unit testing.
-        func callClearContentCards() {
-            clearContentCards()
+        /// Directly invokes the private `clearCachedContentCardPropositions` for unit testing.
+        func callClearCachedContentCardPropositions() {
+            clearCachedContentCardPropositions()
         }
     #endif
 }

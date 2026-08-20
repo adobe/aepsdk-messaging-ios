@@ -2137,10 +2137,10 @@ class MessagingTests: XCTestCase {
     }
     #endif
 
-    // MARK: - clearContentCards tests
+    // MARK: - clearCachedContentCardPropositions tests
 
     #if DEBUG
-    func testClearContentCards_clearsAllInMemoryAndDiskContentCardState() {
+    func testClearCachedContentCardPropositions_clearsAllInMemoryAndDiskContentCardState() {
         // Seed all content card in-memory and disk state.
         let surface = Surface(path: "promo/feed")
         let prop = Proposition(uniqueId: "propId", scope: surface.uri,
@@ -2150,19 +2150,19 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
         XCTAssertFalse(messaging.getNetworkRefreshedSurfaces().isEmpty)
 
-        // Invoke clearContentCards directly via the debug accessor.
-        messaging.callClearContentCards()
+        // Invoke clearCachedContentCardPropositions directly via the debug accessor.
+        messaging.callClearCachedContentCardPropositions()
         Thread.sleep(forTimeInterval: 0.1)
 
         XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface.count,
-                       "qualifiedContentCardsBySurface must be empty after clearContentCards")
+                       "qualifiedContentCardsBySurface must be empty after clearCachedContentCardPropositions")
         XCTAssertTrue(messaging.getNetworkRefreshedSurfaces().isEmpty,
                       "networkRefreshedSurfaces must be cleared")
         XCTAssertTrue(mockCache.removeCalls.contains(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS),
-                      "Content card disk cache must be evicted on clearContentCards")
+                      "Content card disk cache must be evicted on clearCachedContentCardPropositions")
     }
 
-    func testClearCachedPropositionsEvent_routesToClearContentCards() {
+    func testClearCachedPropositionsEvent_routesToClearCachedContentCardPropositions() {
         // Verify the event-routing path: isClearCachedPropositionsEvent → clearCachedContentCardPropositions.
         // Requires configuration shared state to pass handleProcessEvent's guard.
         let surface = Surface(path: "promo/feed")
