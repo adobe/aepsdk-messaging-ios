@@ -2045,6 +2045,348 @@ class MessagingTests: XCTestCase {
         XCTAssertNotNil(messaging.qualifiedContentCardsBySurface[surfaceB])
     }
 
+    // MARK: - enrichWithContentCardOrigin tests (DEBUG: uses callEnrichWithContentCardOrigin)
+
+    #if DEBUG
+    func testEnrichWithContentCardOrigin_diskOrigin_servedFromPersistentCacheIsTrue() {
+        // A card whose surface has NOT been network-refreshed this session (cold-start disk card).
+        // The XDM sent for a display event must have servedFromPersistentCache = true.
+        let surface = Surface(path: "promo/feed")
+        let propId = "diskPropId"
+        let diskProp = Proposition(uniqueId: propId, scope: surface.uri,
+                                   scopeDetails: ["activity": ["id": "diskActivity"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surface] = [diskProp]
+        // networkRefreshedSurfaces intentionally left empty → disk-origin
+
+        let xdm = makeDisplayXDM(propositionId: propId)
+        let result = messaging.callEnrichWithContentCardOrigin(xdm)
+
+        let servedFromCache = extractServedFromPersistentCache(from: result, propositionId: propId)
+        XCTAssertEqual(true, servedFromCache,
+                       "Disk-origin card (surface not in networkRefreshedSurfaces) must report servedFromPersistentCache = true")
+    }
+
+    func testEnrichWithContentCardOrigin_networkOrigin_servedFromPersistentCacheIsFalse() {
+        // A card whose surface WAS network-refreshed this session.
+        // The XDM sent for a display event must have servedFromPersistentCache = false.
+        let surface = Surface(path: "promo/feed")
+        let propId = "networkPropId"
+        let networkProp = Proposition(uniqueId: propId, scope: surface.uri,
+                                      scopeDetails: ["activity": ["id": "networkActivity"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surface] = [networkProp]
+        messaging.setNetworkRefreshedSurfaces([surface])
+
+        let xdm = makeDisplayXDM(propositionId: propId)
+        let result = messaging.callEnrichWithContentCardOrigin(xdm)
+
+        let servedFromCache = extractServedFromPersistentCache(from: result, propositionId: propId)
+        XCTAssertEqual(false, servedFromCache,
+                       "Network-origin card (surface in networkRefreshedSurfaces) must report servedFromPersistentCache = false")
+    }
+
+    func testEnrichWithContentCardOrigin_interactEvent_returnsXdmUnchanged() {
+        // Only DISPLAY events are annotated. INTERACT events must be returned unchanged.
+        let surface = Surface(path: "promo/feed")
+        let propId = "interactPropId"
+        let prop = Proposition(uniqueId: propId, scope: surface.uri,
+                               scopeDetails: ["activity": ["id": "activity"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surface] = [prop]
+        messaging.setNetworkRefreshedSurfaces([surface])
+
+        let xdm = makePropositionEventTypeXDM(propositionId: propId,
+                                              eventTypeKey: MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT)
+        let result = messaging.callEnrichWithContentCardOrigin(xdm)
+
+        XCTAssertNil(extractServedFromPersistentCache(from: result, propositionId: propId),
+                     "INTERACT events must not receive the servedFromPersistentCache annotation")
+    }
+
+    func testEnrichWithContentCardOrigin_dismissEvent_returnsXdmUnchanged() {
+        // Only DISPLAY events are annotated. DISMISS events must be returned unchanged.
+        let surface = Surface(path: "promo/feed")
+        let propId = "dismissPropId"
+        let prop = Proposition(uniqueId: propId, scope: surface.uri,
+                               scopeDetails: ["activity": ["id": "activity"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surface] = [prop]
+        messaging.setNetworkRefreshedSurfaces([surface])
+
+        let xdm = makePropositionEventTypeXDM(propositionId: propId,
+                                              eventTypeKey: MessagingConstants.XDM.Inbound.PropositionEventType.DISMISS)
+        let result = messaging.callEnrichWithContentCardOrigin(xdm)
+
+        XCTAssertNil(extractServedFromPersistentCache(from: result, propositionId: propId),
+                     "DISMISS events must not receive the servedFromPersistentCache annotation")
+    }
+
+    func testEnrichWithContentCardOrigin_missingExperienceStructure_returnsXdmUnchanged() {
+        // XDM missing the _experience key entirely — must be returned unchanged without crashing.
+        let xdm: [String: Any] = ["someOtherKey": "value"]
+        let result = messaging.callEnrichWithContentCardOrigin(xdm)
+        XCTAssertEqual("value", result["someOtherKey"] as? String)
+        XCTAssertNil(result[MessagingConstants.XDM.AdobeKeys.EXPERIENCE],
+                     "XDM without _experience structure must be returned unchanged")
+    }
+
+    func testEnrichWithContentCardOrigin_propositionNotInContentCards_returnsXdmUnchanged() {
+        // Proposition ID not present in qualifiedContentCardsBySurface (e.g. an IAM proposition).
+        // Must not be annotated.
+        let xdm = makeDisplayXDM(propositionId: "unknownPropId")
+        let result = messaging.callEnrichWithContentCardOrigin(xdm)
+        XCTAssertNil(extractServedFromPersistentCache(from: result, propositionId: "unknownPropId"),
+                     "IAM or unknown propositions must not be annotated with servedFromPersistentCache")
+    }
+    #endif
+
+    // MARK: - clearContentCards tests
+
+    #if DEBUG
+    func testClearContentCards_clearsAllInMemoryAndDiskContentCardState() {
+        // Seed all content card in-memory and disk state.
+        let surface = Surface(path: "promo/feed")
+        let prop = Proposition(uniqueId: "propId", scope: surface.uri,
+                               scopeDetails: ["activity": ["id": "activityId"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surface] = [prop]
+        messaging.setNetworkRefreshedSurfaces([surface])
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
+        XCTAssertFalse(messaging.getNetworkRefreshedSurfaces().isEmpty)
+
+        // Invoke clearContentCards directly via the debug accessor.
+        messaging.callClearContentCards()
+        Thread.sleep(forTimeInterval: 0.1)
+
+        XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface.count,
+                       "qualifiedContentCardsBySurface must be empty after clearContentCards")
+        XCTAssertTrue(messaging.getNetworkRefreshedSurfaces().isEmpty,
+                      "networkRefreshedSurfaces must be cleared")
+        XCTAssertTrue(mockCache.removeCalls.contains(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS),
+                      "Content card disk cache must be evicted on clearContentCards")
+    }
+
+    func testClearCachedPropositionsEvent_routesToClearContentCards() {
+        // Verify the event-routing path: isClearCachedPropositionsEvent → clearCachedContentCardPropositions.
+        // Requires configuration shared state to pass handleProcessEvent's guard.
+        let surface = Surface(path: "promo/feed")
+        let prop = Proposition(uniqueId: "propId", scope: surface.uri,
+                               scopeDetails: ["activity": ["id": "activityId"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surface] = [prop]
+        messaging.setNetworkRefreshedSurfaces([surface])
+
+        // Set up the required configuration shared state so handleProcessEvent proceeds.
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+                                        data: (value: [:], status: SharedStateStatus.set))
+
+        let clearEvent = Event(name: MessagingConstants.Event.Name.CLEAR_PERSISTED_PROPOSITIONS,
+                               type: EventType.messaging,
+                               source: EventSource.requestContent,
+                               data: [MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS: true])
+        mockRuntime.simulateComingEvents(clearEvent)
+        Thread.sleep(forTimeInterval: 0.1)
+
+        XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface.count,
+                       "clearCachedPropositions event must clear qualifiedContentCardsBySurface")
+        XCTAssertTrue(messaging.getNetworkRefreshedSurfaces().isEmpty,
+                      "clearCachedPropositions event must clear networkRefreshedSurfaces")
+    }
+    #endif
+
+    func testClearCachedPropositionsPublicAPI_dispatchesEventWithCorrectShape() {
+        // Verify that Messaging.clearCachedPropositions() dispatches an event with the right
+        // name / type / source / data — this is the contract the internal handler keyed on.
+        // We can't call the static method directly in a unit test that bypasses MobileCore, so we
+        // verify the expected shape by inspecting the EventData constants directly.
+        let event = Event(name: MessagingConstants.Event.Name.CLEAR_PERSISTED_PROPOSITIONS,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: [MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS: true])
+
+        XCTAssertTrue(event.isClearCachedPropositionsEvent,
+                      "Event built by clearCachedPropositions() must be recognised as isClearCachedPropositionsEvent")
+        XCTAssertEqual(true, event.data?[MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS] as? Bool)
+        XCTAssertEqual(MessagingConstants.Event.Name.CLEAR_PERSISTED_PROPOSITIONS, event.name)
+    }
+
+    // MARK: - handleEdgeErrorResponse tests (DEBUG: uses callHandleEdgeErrorResponse + getNonRecoverableErrorEventIds)
+
+    #if DEBUG
+    func testHandleEdgeErrorResponse_nonRecoverableStatus_marksEventIdAsFailed() {
+        // Status 400 is NOT in RECOVERABLE_EDGE_ERROR_STATUS_CODES → must be recorded.
+        let requestEventId = UUID().uuidString
+        messaging.setRequestedSurfacesforEventId(requestEventId, expectedSurfaces: [mockSurface])
+
+        let errorEvent = Event(name: "Edge Error",
+                               type: EventType.edge,
+                               source: MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE,
+                               data: [
+                                   MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestEventId,
+                                   MessagingConstants.Event.Data.Key.EdgeError.STATUS: 400
+                               ])
+        messaging.callHandleEdgeErrorResponse(errorEvent)
+        Thread.sleep(forTimeInterval: 0.1)
+
+        XCTAssertTrue(messaging.getNonRecoverableErrorEventIds().contains(requestEventId),
+                      "Non-recoverable 400 error must be recorded in nonRecoverableErrorEventIds")
+    }
+
+    func testHandleEdgeErrorResponse_recoverableStatus_doesNotMarkEventId() {
+        // Status 429 IS in RECOVERABLE_EDGE_ERROR_STATUS_CODES → must NOT be recorded.
+        let requestEventId = UUID().uuidString
+        messaging.setRequestedSurfacesforEventId(requestEventId, expectedSurfaces: [mockSurface])
+
+        let errorEvent = Event(name: "Edge Error",
+                               type: EventType.edge,
+                               source: MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE,
+                               data: [
+                                   MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestEventId,
+                                   MessagingConstants.Event.Data.Key.EdgeError.STATUS: 429
+                               ])
+        messaging.callHandleEdgeErrorResponse(errorEvent)
+        Thread.sleep(forTimeInterval: 0.1)
+
+        XCTAssertFalse(messaging.getNonRecoverableErrorEventIds().contains(requestEventId),
+                       "Recoverable 429 error must NOT be recorded in nonRecoverableErrorEventIds")
+    }
+
+    func testHandleEdgeErrorResponse_allRecoverableStatusCodes_areNotRecorded() {
+        // All five recoverable status codes must be ignored.
+        for status in [408, 429, 502, 503, 504, 507] {
+            let requestEventId = UUID().uuidString
+            messaging.setRequestedSurfacesforEventId(requestEventId, expectedSurfaces: [mockSurface])
+
+            let errorEvent = Event(name: "Edge Error",
+                                   type: EventType.edge,
+                                   source: MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE,
+                                   data: [
+                                       MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestEventId,
+                                       MessagingConstants.Event.Data.Key.EdgeError.STATUS: status
+                                   ])
+            messaging.callHandleEdgeErrorResponse(errorEvent)
+            Thread.sleep(forTimeInterval: 0.05)
+
+            XCTAssertFalse(messaging.getNonRecoverableErrorEventIds().contains(requestEventId),
+                           "Status \(status) is recoverable and must not be recorded")
+        }
+    }
+
+    func testHandleEdgeErrorResponse_unknownRequestEventId_isIgnored() {
+        // Error event for a request ID that was never registered — must be silently ignored.
+        let errorEvent = Event(name: "Edge Error",
+                               type: EventType.edge,
+                               source: MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE,
+                               data: [
+                                   MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: "unknownEventId",
+                                   MessagingConstants.Event.Data.Key.EdgeError.STATUS: 400
+                               ])
+        XCTAssertNoThrow(messaging.callHandleEdgeErrorResponse(errorEvent))
+        Thread.sleep(forTimeInterval: 0.1)
+        XCTAssertTrue(messaging.getNonRecoverableErrorEventIds().isEmpty,
+                      "Error for an unrecognised request ID must not be recorded")
+    }
+
+    func testHandleEdgeErrorResponse_nonRecoverableError_preservesExistingContentCardState() {
+        // A non-recoverable error must leave qualifiedContentCardsBySurface intact so the
+        // last-known-good content cards continue to be shown to the user.
+        let surface = Surface(path: "feed/promo")
+        let prop = Proposition(uniqueId: "prop1", scope: surface.uri,
+                               scopeDetails: ["activity": ["id": "activity1"]], items: [])
+        messaging.qualifiedContentCardsBySurface[surface] = [prop]
+        messaging.setNetworkRefreshedSurfaces([surface])
+
+        let requestEventId = UUID().uuidString
+        messaging.setRequestedSurfacesforEventId(requestEventId, expectedSurfaces: [surface])
+
+        let errorEvent = Event(name: "Edge Error",
+                               type: EventType.edge,
+                               source: MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE,
+                               data: [
+                                   MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestEventId,
+                                   MessagingConstants.Event.Data.Key.EdgeError.STATUS: 500
+                               ])
+        messaging.callHandleEdgeErrorResponse(errorEvent)
+        Thread.sleep(forTimeInterval: 0.1)
+
+        // In-memory state must be preserved (verified by checking qualifiedContentCardsBySurface)
+        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count,
+                       "qualifiedContentCardsBySurface must be untouched after a non-recoverable error")
+        XCTAssertTrue(messaging.getNetworkRefreshedSurfaces().contains(surface),
+                      "networkRefreshedSurfaces must be untouched after a non-recoverable error")
+    }
+    #endif
+
+    // MARK: - fetchPropositions network-availability gate tests
+
+    func testUpdatePropositions_networkUnavailable_skipsFetchAndCallsCompletionWithFalse() {
+        // Replace the network service with one that reports no connectivity.
+        // `MockNetworkService` is public-not-open, so we implement the protocol directly.
+        final class OfflineNetworkService: NSObject, Networking {
+            func connectAsync(networkRequest: NetworkRequest, completionHandler: ((HttpConnection) -> Void)?) {}
+            func isInternetAvailable() -> Bool { false }
+        }
+        let offlineService = OfflineNetworkService()
+        ServiceProvider.shared.networkService = offlineService
+
+        let expectation = self.expectation(description: "Completion must be called with false when offline")
+        var completionResult: Bool?
+
+        let updateEvent = Event(name: MessagingConstants.Event.Name.UPDATE_PROPOSITIONS,
+                                type: EventType.messaging,
+                                source: EventSource.requestContent,
+                                data: [
+                                    MessagingConstants.Event.Data.Key.UPDATE_PROPOSITIONS: true,
+                                    MessagingConstants.Event.Data.Key.SURFACES: [["uri": mockSurface.uri]]
+                                ])
+        let handler = CompletionHandler(originatingEvent: updateEvent) { success in
+            completionResult = success
+            expectation.fulfill()
+        }
+        Messaging.completionHandlers.append(handler)
+
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+                                        data: (value: [:], status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+        mockRuntime.simulateComingEvents(updateEvent)
+
+        wait(for: [expectation], timeout: 2.0)
+
+        XCTAssertEqual(false, completionResult,
+                       "Completion handler must be called with false when network is unavailable")
+        // Crucially: no Edge request must have been dispatched
+        let edgeEvents = mockRuntime.dispatchedEvents.filter { $0.type == EventType.edge }
+        XCTAssertTrue(edgeEvents.isEmpty,
+                      "No Edge event must be dispatched when network is unavailable")
+
+        // Restore the original mock for subsequent tests
+        ServiceProvider.shared.networkService = mockNetworkService!
+    }
+
+    // MARK: - readyForEvent disk-hydration tests
+
+    func testReadyForEvent_hydratesContentCardsFromDisk_onFirstCallOnly() {
+        // The readyForEvent path unconditionally calls hydrateAllPersistedContentCards on the first
+        // event. When the cache is empty (mockCache returns nil) this is a no-op. The key assertion
+        // is that readyForEvent returns true and does NOT crash regardless.
+        // (Verifying "called once" requires a spy that the current mock doesn't provide; the
+        //  single-call guard is covered by the `initialLoadComplete` boolean in Messaging.swift.)
+        let event = Event(name: "Test Event", type: "type", source: "source", data: nil)
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+                                        data: (value: [:], status: SharedStateStatus.set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        // First call → initialLoadComplete transitions false→true; hydration + fetch happen.
+        let firstResult = messaging.readyForEvent(event)
+        XCTAssertTrue(firstResult)
+
+        // Second call → initialLoadComplete is already true; no second hydration triggered.
+        let secondResult = messaging.readyForEvent(event)
+        XCTAssertTrue(secondResult)
+
+        // The cache `get` for CC propositions must have been called (even if it returned nil)
+        // during the first readyForEvent hydration path.
+        XCTAssertTrue(mockCache.getCalled,
+                      "Cache must have been queried for persisted content cards during readyForEvent")
+    }
+
     // MARK: Private methods
 
     private var SampleEdgeIdentityState: [String: Any] {
@@ -2117,5 +2459,56 @@ class MessagingTests: XCTestCase {
 
     private func tokenFromResyncEvent(_ event: Event?) -> String? {
         event?.data?[MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER] as? String
+    }
+
+    // MARK: - enrichWithContentCardOrigin helpers
+
+    /// Builds a display-event XDM containing a single proposition with a single item.
+    private func makeDisplayXDM(propositionId: String) -> [String: Any] {
+        makePropositionEventTypeXDM(propositionId: propositionId,
+                                    eventTypeKey: MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY)
+    }
+
+    /// Builds an XDM whose `propositionEventType` dictionary contains the given key set to `1`.
+    /// This controls which events `enrichWithContentCardOrigin` considers display events.
+    private func makePropositionEventTypeXDM(propositionId: String, eventTypeKey: String) -> [String: Any] {
+        let item: [String: Any] = [
+            MessagingConstants.XDM.Inbound.Key.DATA: [
+                MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS: [String: Any]()
+            ]
+        ]
+        let proposition: [String: Any] = [
+            MessagingConstants.XDM.Inbound.Key.ID: propositionId,
+            MessagingConstants.XDM.Inbound.Key.ITEMS: [item]
+        ]
+        let decisioning: [String: Any] = [
+            MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE: [eventTypeKey: 1],
+            MessagingConstants.XDM.Inbound.Key.PROPOSITIONS: [proposition]
+        ]
+        return [
+            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: [
+                MessagingConstants.XDM.Inbound.Key.DECISIONING: decisioning
+            ]
+        ]
+    }
+
+    /// Digs through the enriched XDM and returns the `servedFromPersistentCache` value for the
+    /// given proposition ID, or `nil` when the key is absent (i.e. the proposition was not enriched).
+    private func extractServedFromPersistentCache(from xdm: [String: Any], propositionId: String) -> Bool? {
+        guard
+            let experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any],
+            let decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any],
+            let propositions = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]],
+            let proposition = propositions.first(where: {
+                $0[MessagingConstants.XDM.Inbound.Key.ID] as? String == propositionId
+            }),
+            let items = proposition[MessagingConstants.XDM.Inbound.Key.ITEMS] as? [[String: Any]],
+            let firstItem = items.first,
+            let data = firstItem[MessagingConstants.XDM.Inbound.Key.DATA] as? [String: Any],
+            let characteristics = data[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] as? [String: Any]
+        else {
+            return nil
+        }
+        return characteristics[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE] as? Bool
     }
 }

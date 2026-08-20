@@ -1060,7 +1060,7 @@ public class Messaging: NSObject, Extension {
         // Boot-time fetches are intentionally allowed through — Edge handles offline gracefully on its own.
         if event.isUpdatePropositionsEvent {
             guard isInternetAvailable() else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "S]rk is unavailable.")
+                Log.debug(label: MessagingConstants.LOG_TAG, "Network is unavailable.")
                 handler?.handle?(false)
                 return
             }
@@ -1701,6 +1701,22 @@ public class Messaging: NSObject, Extension {
 
         func setContentCardRulesBySurface(_ rulesBySurface: [Surface: [LaunchRule]]) {
             contentCardRulesBySurface = rulesBySurface
+        }
+
+        /// Returns a snapshot of the event IDs that received a non-recoverable Edge error this session.
+        func getNonRecoverableErrorEventIds() -> Set<String> {
+            nonRecoverableErrorEventIds
+        }
+
+        /// Directly invokes the private `handleEdgeErrorResponse` handler for unit testing without
+        /// going through the event listener routing.
+        func callHandleEdgeErrorResponse(_ event: Event) {
+            handleEdgeErrorResponse(event)
+        }
+
+        /// Directly invokes the private `clearContentCards` for unit testing.
+        func callClearContentCards() {
+            clearContentCards()
         }
     #endif
 }
