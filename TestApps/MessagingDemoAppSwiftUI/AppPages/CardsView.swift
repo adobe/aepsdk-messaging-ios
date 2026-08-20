@@ -10,6 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+import AEPCore
 import AEPMessaging
 import AEPServices
 import SwiftUI
@@ -109,6 +110,7 @@ struct CardsView: View, ContentCardUIEventListening {
     @State private var activeSimLabel: String? = nil
     @State private var propositionsLog: String = ""
     @State private var showPropositionsLog: Bool = false
+    @State private var offlineAvailable: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -184,6 +186,7 @@ struct CardsView: View, ContentCardUIEventListening {
             if !viewLoaded {
                 viewLoaded = true
             }
+            refreshOfflineFlag()
         }
     }
 
@@ -207,6 +210,47 @@ struct CardsView: View, ContentCardUIEventListening {
                     logPropositions()
                 }
             }
+            // Per-surface controls — cardsSurface
+            HStack(spacing: 10) {
+                actionButton(title: "Update prop (cardsSurface)", systemImage: "arrow.down.circle.fill") {
+                    updatePropCardsSurface()
+                }
+                actionButton(title: "Get prop (cardsSurface)", systemImage: "arrow.clockwise.circle.fill") {
+                    getPropCardsSurface()
+                }
+            }
+            // Offline available config toggle row
+            Button(action: {
+                offlineAvailable.toggle()
+                MobileCore.updateConfigurationWith(configDict: [
+                    "messaging.contentCardOfflineAvailable": offlineAvailable
+                ])
+                statusMessage = "messaging.contentCardOfflineAvailable → \(offlineAvailable)"
+                // Read back from shared state to confirm the config update landed
+                refreshOfflineFlag()
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: offlineAvailable ? "internaldrive.fill" : "internaldrive")
+                    Text("Offline Available")
+                        .font(.system(size: 13, weight: .medium))
+                    Spacer()
+                    Text(offlineAvailable ? "ON" : "OFF")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(offlineAvailable ? .green : .secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(offlineAvailable ? Color.green.opacity(0.1) : Color(.tertiarySystemBackground))
+                        .cornerRadius(4)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 12)
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(10)
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(offlineAvailable ? .green : .primary)
+
             // Error simulation toggle row
             Button(action: { showErrorPanel.toggle() }) {
                 HStack(spacing: 6) {
@@ -399,6 +443,23 @@ struct CardsView: View, ContentCardUIEventListening {
         .buttonStyle(.plain)
     }
 
+    // MARK: - Config Helpers
+
+    /// Reads `messaging.contentCardOfflineAvailable` from the Configuration shared state and
+    /// updates the `offlineAvailable` toggle to reflect the actual persisted value.
+    /// AEPCore processes events sequentially, so this read arrives after any preceding
+    /// `updateConfigurationWith` call and will see the updated value.
+    private func refreshOfflineFlag() {
+        let event = Event(name: "Read Configuration",
+                          type: EventType.configuration,
+                          source: EventSource.requestContent,
+                          data: ["config.getData": true])
+        MobileCore.dispatch(event: event, timeout: 2) { responseEvent in
+            guard let flag = responseEvent?.data?["messaging.contentCardOfflineAvailable"] as? Bool else { return }
+            DispatchQueue.main.async { offlineAvailable = flag }
+        }
+    }
+
     // MARK: - Simulation Actions
 
     private func activateSim(_ sim: EdgeNetworkSimulator.Simulation, label: String) {
@@ -428,7 +489,7 @@ struct CardsView: View, ContentCardUIEventListening {
                     // Auto-refresh so new ContentCardUI objects appear and fire fresh display
                     // tracking events — this is the only way to see servedFromPersistentCache: false
                     // for cards that were previously loaded from disk.
-                self.fetchContentCards()
+               // self.fetchContentCards()
                 }
                 else{
                     debugPrint("Failure in updatePropositionsForSurfaces")
@@ -483,9 +544,35 @@ struct CardsView: View, ContentCardUIEventListening {
         }
     }
 
+    /// Calls `updatePropositionsForSurfaces` for `cardsSurface` only (no fetch).
+    func updatePropCardsSurface() {
+        statusMessage = "Updating propositions for cardsSurface…"
+        Messaging.updatePropositionsForSurfaces([cardsSurface]) { success in
+            DispatchQueue.main.async {
+                statusMessage = success
+                    ? "updatePropositionsForSurfaces succeeded for cardsSurface"
+                    : "updatePropositionsForSurfaces failed for cardsSurface"
+            }
+        }
+    }
+
+    /// Calls `getContentCardsUI` for `cardsSurface` only and loads the results into `savedCards`.
+    func getPropCardsSurface() {
+        showLoadingIndicator = true
+        statusMessage = "Fetching content cards for cardsSurface…"
+        Messaging.getContentCardsUI(for: cardsSurface,
+                                    customizer: CardCustomizer(),
+                                    listener: self) { result in
+            DispatchQueue.main.async {
+                showLoadingIndicator = false
+                handleResult(result, source: "cardsSurface")
+            }
+        }
+    }
+
     func logPropositions() {
         statusMessage = "Calling getPropositionsForSurfaces..."
-        Messaging.getPropositionsForSurfaces([cardsSurface]) { propositionDict, error in
+        Messaging.getPropositionsForSurfaces([ cardsSurface]) { propositionDict, error in
             DispatchQueue.main.async {
                 if let error = error {
                     propositionsLog = "ERROR: \(error)"
@@ -504,7 +591,7 @@ struct CardsView: View, ContentCardUIEventListening {
                 }
 
                 var lines: [String] = []
-                for surface in [cardsSurface] {
+                for surface in [ cardsSurface] {
                     if let props = dict[surface] {
                         lines.append("[\(surface.uri)]  →  \(props.count) proposition(s)")
                         for (i, prop) in props.enumerated() {
