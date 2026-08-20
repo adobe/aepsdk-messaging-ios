@@ -64,11 +64,30 @@ extension Messaging {
         }
     }
 
+
+    /// Reads raw content card propositions from disk for the requested surfaces.
+    /// Used exclusively by `hydrateContentCardRulesEngineFromDisk` to seed the rules engine at boot.
+    /// Do NOT use for `retrieveMessages` — raw disk propositions are ruleset-item wrappers and
+    /// cannot be converted to `ContentCardUI` directly; use `getPropositionsFromContentCardRulesEngine`.
+    func readContentCardPropositionsFromDisk(for surfaces: [Surface]) -> [Surface: [Proposition]] {
+        guard let cached = cache.contentCardPropositions, !cached.isEmpty else { return [:] }
+        return cached.filter { surfaces.contains($0.key) }
+    }
+
     // MARK: - private methods
 
     private func hydratePropositionsRulesEngine() {
-        let parsedPropositions = ParsedPropositions(with: inMemoryPropositions, requestedSurfaces: inMemoryPropositions.map { $0.key }, runtime: runtime)
+        let parsedPropositions = ParsedPropositions(with: inMemoryPropositions, requestedSurfaces: inMemoryPropositions.map { $0.key }, runtime: runtime,
+                                                    contentCardOfflineAvailable: false)
         if let inAppRules = parsedPropositions.surfaceRulesBySchemaType[.inapp] {
+            // Record the loaded IAM rules in `inAppRulesBySurface` so the dictionary stays an accurate
+            // source of truth for what's in the shared `rulesEngine`. Without this, a later rebuild of the
+            // shared engine (e.g. content-card disk hydration adding event-history rules) would collect an
+            // empty in-app set and silently erase these IAM rules on `replaceRules`. Mirrors the network
+            // path (`updateRulesEngines` → `processRulesForSchemaType(.inapp, ...)`).
+            for (surface, rules) in inAppRules {
+                inAppRulesBySurface[surface] = rules
+            }
             rulesEngine.launchRulesEngine.replaceRules(with: inAppRules.flatMap { $0.value })
         }
         updatePropositionInfo(parsedPropositions.propositionInfoToCache)

@@ -248,6 +248,11 @@ class InboxFunctionalTests: XCTestCase {
                                           scopeDetails: ["decisionProvider": "AJO"],
                                           items: [cardItem])
         messaging.qualifiedContentCardsBySurface = [inboxSurface: [cardProposition]]
+        // Mark the surface as network-refreshed this session so the qualified card is served.
+        // With `messaging.contentCardOfflineAvailable` at its default (false), retrieveMessages only
+        // returns content cards for surfaces present in `networkRefreshedSurfaces`; a card placed
+        // directly into `qualifiedContentCardsBySurface` represents a live network-qualified card.
+        messaging.setNetworkRefreshedSurfaces([inboxSurface])
         Thread.sleep(forTimeInterval: 0.1)
 
         let getEvent = makeGetPropositionsEvent(surfaces: [inboxSurface])
@@ -266,7 +271,114 @@ class InboxFunctionalTests: XCTestCase {
         XCTAssertEqual(2, uniqueIds.count)
     }
 
+    // MARK: - getPropositions surface-independence from in-flight updates
+
+    func testGetPropositions_differentSurfaceServedWhileUpdateInProgress() {
+        // An update propositions request for `cardSurface` is in flight (blocking the events queue).
+        // A get propositions request for a DIFFERENT surface (`inboxSurface`) must be served
+        // immediately from cache, independent of the unrelated in-flight update.
+        let inboxProposition = makeInboxProposition(surface: inboxSurface, index: 0)
+        messaging.inboxPropositionsBySurface = [inboxSurface: [inboxProposition]]
+
+        // Simulate an in-flight update for cardSurface (adds a blocking edge event to the queue).
+        let updateEdgeEvent = makeUpdateEdgeEvent()
+        messaging.callBeginRequestFor(updateEdgeEvent, with: [cardSurface])
+        Thread.sleep(forTimeInterval: 0.1)
+
+        let getEvent = makeGetPropositionsEvent(surfaces: [inboxSurface])
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+                                        data: (["messaging.eventDataset": "mockDataset"], .set))
+        mockRuntime.simulateComingEvents(getEvent)
+        Thread.sleep(forTimeInterval: 0.2)
+
+        let responseEvent = mockRuntime.dispatchedEvents.first {
+            $0.type == EventType.messaging && $0.source == EventSource.responseContent
+        }
+        XCTAssertNotNil(responseEvent, "Get for a different surface should be served while an unrelated update is in flight")
+        XCTAssertEqual(1, responseEvent?.propositions?.count)
+        XCTAssertEqual("inboxProp_0", responseEvent?.propositions?.first?.uniqueId)
+    }
+
+    func testGetPropositions_sameSurfaceQueuedUntilUpdateCompletes() {
+        // An update propositions request for `inboxSurface` is in flight (blocking the events queue).
+        // A get propositions request for the SAME surface must be queued and NOT served until the
+        // in-flight update completes.
+        let updateEdgeEvent = makeUpdateEdgeEvent()
+        let requestId = updateEdgeEvent.id.uuidString
+        messaging.callBeginRequestFor(updateEdgeEvent, with: [inboxSurface])
+        Thread.sleep(forTimeInterval: 0.1)
+
+        let getEvent = makeGetPropositionsEvent(surfaces: [inboxSurface])
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+                                        data: (["messaging.eventDataset": "mockDataset"], .set))
+        mockRuntime.simulateComingEvents(getEvent)
+        Thread.sleep(forTimeInterval: 0.2)
+
+        // The get must be blocked behind the in-flight update for the same surface.
+        var responseEvent = mockRuntime.dispatchedEvents.first {
+            $0.type == EventType.messaging && $0.source == EventSource.responseContent
+        }
+        XCTAssertNil(responseEvent, "Get for the same surface must be queued while an update for that surface is in flight")
+
+        // The in-flight update streams in a proposition for the surface, then completes.
+        let inboxProposition = makeInboxProposition(surface: inboxSurface, index: 0)
+        mockRuntime.simulateComingEvents(makeDecisionsEvent(payload: [inboxProposition].compactMap { $0.asDictionary() }, requestId: requestId))
+        messaging.handleProcessCompletedEvent(makeProcessCompleteEvent(requestId: requestId))
+        Thread.sleep(forTimeInterval: 0.2)
+
+        // With the update complete, the queued get should now be processed and return the surface's content.
+        responseEvent = mockRuntime.dispatchedEvents.first {
+            $0.type == EventType.messaging && $0.source == EventSource.responseContent
+        }
+        XCTAssertNotNil(responseEvent, "Queued get should be served after the in-flight update completes")
+        XCTAssertEqual(1, responseEvent?.propositions?.count)
+        XCTAssertEqual("inboxProp_0", responseEvent?.propositions?.first?.uniqueId)
+    }
+
+    func testGetPropositions_contentCardSurfaceNotBlockedByColdBootInAppFetch() {
+        // At cold boot / readyForEvent the SDK auto-fetches in-app messages for the BASE surface
+        // (mobileapp://{bundleId}) via fetchPropositions(event) with no surfaces. A getPropositions
+        // for a content-card sub-surface (mobileapp://{bundleId}/path) must NOT be blocked by that
+        // in-flight base-surface fetch, since the URIs differ and matching is exact.
+        let baseSurface = Surface(uri: "mobileapp://test.app")
+        let cardSubSurface = Surface(uri: "mobileapp://test.app/homepage")
+
+        // Seed a qualified, network-refreshed content card for the sub-surface.
+        let cardItem = PropositionItem(itemId: "card_0", schema: .contentCard, itemData: [:])
+        let cardProposition = Proposition(uniqueId: "cardProp_0",
+                                          scope: cardSubSurface.uri,
+                                          scopeDetails: ["decisionProvider": "AJO"],
+                                          items: [cardItem])
+        messaging.qualifiedContentCardsBySurface = [cardSubSurface: [cardProposition]]
+        messaging.setNetworkRefreshedSurfaces([cardSubSurface])
+
+        // Simulate the cold-boot in-app fetch in flight for the BASE surface.
+        let inAppFetchEvent = makeUpdateEdgeEvent()
+        messaging.callBeginRequestFor(inAppFetchEvent, with: [baseSurface])
+        Thread.sleep(forTimeInterval: 0.1)
+
+        let getEvent = makeGetPropositionsEvent(surfaces: [cardSubSurface])
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+                                        data: (["messaging.eventDataset": "mockDataset"], .set))
+        mockRuntime.simulateComingEvents(getEvent)
+        Thread.sleep(forTimeInterval: 0.2)
+
+        let responseEvent = mockRuntime.dispatchedEvents.first {
+            $0.type == EventType.messaging && $0.source == EventSource.responseContent
+        }
+        XCTAssertNotNil(responseEvent, "Content-card get must be served while the base-surface in-app fetch is in flight")
+        XCTAssertEqual(1, responseEvent?.propositions?.count)
+        XCTAssertEqual("cardProp_0", responseEvent?.propositions?.first?.uniqueId)
+    }
+
     // MARK: - Private helpers
+
+    private func makeUpdateEdgeEvent() -> Event {
+        Event(name: MessagingConstants.Event.Name.RETRIEVE_MESSAGE_DEFINITIONS,
+              type: EventType.edge,
+              source: EventSource.requestContent,
+              data: [:])
+    }
 
     private func makeInboxProposition(surface: Surface, index: Int) -> Proposition {
         let inboxContent: [String: Any] = [

@@ -70,9 +70,9 @@ public extension Messaging {
     }
     
     /// Retrieves a content card container UI for a given surface.
-    /// 
+    ///
     /// Returns a ContainerUI immediately that starts in a loading state.
-    /// The container will automatically fetch content cards and container settings, 
+    /// The container will automatically fetch content cards and container settings,
     /// then transition to loaded, empty, or error state.
     ///
     /// - Parameters:
@@ -83,7 +83,7 @@ public extension Messaging {
     static func getInboxUI(for surface: Surface,
                                          customizer: ContentCardCustomizing? = nil,
                                          listener: InboxEventListening? = nil) -> InboxUI {
-        
+
         // Create and return the container UI immediately with default settings
         // It will start in loading state and fetch both container settings and cards automatically
         let inboxUI = InboxUI(
@@ -91,7 +91,7 @@ public extension Messaging {
             customizer: customizer,
             listener: listener
         )
-        
+
         return inboxUI
     }
 }

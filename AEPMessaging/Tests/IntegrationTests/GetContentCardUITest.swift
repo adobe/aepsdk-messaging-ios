@@ -12,6 +12,7 @@
 
 import Testing
 import SwiftUI
+@testable import AEPCore
 @testable import AEPMessaging
 
 @Suite("GetContentCardUI", .serialized)
@@ -25,7 +26,7 @@ class GetContentCardUITest : IntegrationTestBase {
     func noCards() async throws {
         // setup
         setContentCardResponse(fromFile: "NoCard")
-        
+
         // test and verify
         await #expect(throws: ContentCardUIError.dataUnavailable) {
             try await getContentCardUI(homeSurface)
@@ -48,10 +49,79 @@ class GetContentCardUITest : IntegrationTestBase {
     func invalidSurface() async throws {
         // setup
         setContentCardResponse(fromFile: "SmallImageCard")
-        
+
         // test and verify
         await #expect(throws: ContentCardUIError.dataUnavailable) {
             try await getContentCardUI(invalidSurface)
         }
+    }
+}
+
+/// Covers the app-boot hydration path: `hydrateAllPersistedContentCards()`, which is invoked once from
+/// `readyForEvent` (after Configuration + Edge Identity are ready) mirroring the Edge/Edge Identity
+/// `bootupIfReady` pattern. After a successful network update has persisted content cards to disk, a
+/// fresh boot must repopulate the in-memory qualified-card cache FROM DISK — without any
+/// `getContentCardsUI`/`getPropositionsForSurfaces` call — and tag those cards `.disk` so their display
+/// analytics correctly report `servedFromPersistentCache`.
+@Suite("BootHydratePersistedContentCards", .serialized)
+class BootHydratePersistedContentCardsTest: IntegrationTestBase {
+
+    override init() {
+        super.init()
+    }
+
+    /// The live Messaging extension instance registered with the Event Hub.
+    private var messagingExtension: Messaging? {
+        EventHub.shared.getExtensionContainer(Messaging.self)?.exten as? Messaging
+    }
+
+    @Test("boot hydration repopulates qualified cards from disk and tags them .disk, with no get call")
+    func bootHydrationServesQualifiedCardsFromDisk() async throws {
+        // 1. Persist real content card rules to disk via a successful network update. Wait on the real
+        //    completion handler — by the time it fires, applyPropositionChangeFor has written disk.
+        setContentCardResponse(fromFile: "MultipleCards")
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            Messaging.updatePropositionsForSurfaces([homeSurface]) { _ in
+                continuation.resume()
+            }
+        }
+
+        let messaging = try #require(messagingExtension, "Messaging extension should be registered")
+
+        // sanity: the network update qualified cards into memory
+        #expect(messaging.qualifiedContentCardsBySurface[homeSurface]?.isEmpty == false,
+                "Network update should have qualified content cards into memory")
+
+        // 2. Simulate a fresh cold boot: clear the in-memory qualified cache AND the in-memory
+        //    network-refreshed set (both start empty on a real launch); the disk cache is left intact.
+        //    If hydration did NOT read disk, the array would stay empty below.
+        messaging.qualifiedContentCardsBySurface = [:]
+        messaging.setNetworkRefreshedSurfaces([])
+        #expect(messaging.qualifiedContentCardsBySurface[homeSurface] == nil)
+
+        // 3. Run the boot hydration (exactly what readyForEvent does at boot). No get API is called.
+        //    Hydration loads the disk CC rules into the rules engine ONLY — it deliberately does not
+        //    write to `qualifiedContentCardsBySurface` (that is a network-only store), so no spurious
+        //    `.trigger` analytics fire for boot-seeded disk cards.
+        messaging.hydrateAllPersistedContentCards()
+
+        // 3b. Fire a generic event so the wildcard listener (`handleWildcardEvent`) re-evaluates the
+        //     just-loaded disk rules. This is the "seed" that requalifies disk cards into the in-memory
+        //     cache via `addOrReplaceContentCards` — mirroring what happens on the first real event after
+        //     a cold boot. `addOrReplaceContentCards` does NOT add the surface to `networkRefreshedSurfaces`,
+        //     so the hydrated cards stay disk-served for analytics (verified in step 5).
+        MobileCore.dispatch(event: Event(name: "Seed content cards", type: EventType.messaging,
+                                         source: EventSource.requestContent, data: nil))
+        try? await Task.sleep(nanoseconds: 500_000_000)
+
+        // 4. The qualified array must be repopulated FROM DISK (proves disk was read + rules re-ran).
+        let hydratedCards = messaging.qualifiedContentCardsBySurface[homeSurface] ?? []
+        #expect(!hydratedCards.isEmpty,
+                "Boot hydration + first event must repopulate qualified content cards from the persisted disk cache")
+
+        // 5. The hydrated surface must NOT be in the network-refreshed set, so any card served for it
+        //    reports servedFromPersistentCache = true until a live network response refreshes it.
+        #expect(messaging.getNetworkRefreshedSurfaces().contains(homeSurface) == false,
+                "Boot-hydrated surface must report as disk-served for accurate analytics")
     }
 }

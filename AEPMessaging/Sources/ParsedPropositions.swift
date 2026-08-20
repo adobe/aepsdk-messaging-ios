@@ -32,10 +32,13 @@ struct ParsedPropositions {
     // also need to store tracking info for in-app propositions as `PropositionInfo`
     var propositionsToPersist: [Surface: [Proposition]] = [:]
 
+    // content card ruleset propositions persisted to disk (separate from IAM)
+    var contentCardPropositionsToPersist: [Surface: [Proposition]] = [:]
+
     // in-app and feed rules that need to be applied to their respective rules engines
     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
 
-    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime) {
+    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime, contentCardOfflineAvailable: Bool = false) {
         self.runtime = runtime
 
         // sort these propositions by ordinal rank before processing them
@@ -86,6 +89,9 @@ struct ParsedPropositions {
                             mergeRules(parsedRule, for: surface, with: .inapp)
                         case .feed, .contentCard:
                             propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+                            if contentCardOfflineAvailable {
+                                contentCardPropositionsToPersist.add(proposition, forKey: surface)
+                            }
                             mergeRules(parsedRule, for: surface, with: .contentCard)
                         case .eventHistoryOperation:
                             // Event history operations don't have proposition info that needs to be cached unlike the cards they are tied to

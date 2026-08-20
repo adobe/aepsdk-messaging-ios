@@ -206,6 +206,19 @@ import UserNotifications
         }
     }
 
+    /// Clears cached content card propositions — both the in-memory state (qualified cards,
+    /// content card rules, and origin tracking) and the persisted disk cache.
+    ///
+    /// Code-based experience (CBE) propositions are not affected by this call.
+    @objc(clearCachedPropositions)
+    static func clearCachedPropositions() {
+        let event = Event(name: MessagingConstants.Event.Name.CLEAR_PERSISTED_PROPOSITIONS,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: [MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS: true])
+        MobileCore.dispatch(event: event)
+    }
+
     // MARK: - Private Helper Methods
 
     /// Determines whether the user's response to a notification has caused the application to open

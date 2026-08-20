@@ -37,6 +37,10 @@ class IntegrationTestBase {
     
     init() {
         EventHub.reset()
+        // Extensions shut down asynchronously after EventHub.reset(). Without a brief pause,
+        // clearCache() deletes the Edge SQLite database while Edge still has it open, causing
+        // "vnode unlinked while in use" and cascading disk I/O failures in subsequent tests.
+        Thread.sleep(forTimeInterval: 0.5)
         FileManager.default.clearCache()
         FileManager.default.clearDirectory()
         mockNetwork.clear()
@@ -100,6 +104,7 @@ class IntegrationTestBase {
         MobileCore.registerExtensions([Messaging.self, Identity.self, Edge.self, Consent.self], {
             MobileCore.updateConfigurationWith(configDict: ["edge.configId": "edgeDomain",
                                                             "edge.domain" : "adobe.dc.net",
+                                                            "messaging.contentCardOfflineAvailable": true,
                                                             "consent.default" : [
                                                                 "consents": [
                                                                     "collect": [

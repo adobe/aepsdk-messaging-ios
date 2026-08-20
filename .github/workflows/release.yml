@@ -31,6 +31,10 @@ on:
 jobs:
   release_messaging:
     runs-on: macos-15
+    # Least-privilege token scopes. contents: write is required for the release step to create/
+    # update the GH release and upload the XCFramework archives.
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v2
       with:
@@ -78,48 +82,38 @@ jobs:
         make archive
         make zip
 
-    - name: Create GH release
-      id: create_release
-      uses: release-drafter/release-drafter@v5
+    # Give the XCFramework archives their versioned names before upload (preserves the naming
+    # used by prior releases, e.g. AEPMessaging-5.16.0.xcframework.zip).
+    - name: Rename XCFramework archives with version
       if: ${{ github.event.inputs.action_tag == 'yes' }}
+      run: |
+        set -eo pipefail
+        cd build
+        cp AEPMessaging.xcframework.zip "AEPMessaging-${{ github.event.inputs.tag }}.xcframework.zip"
+        cp AEPMessagingLiveActivity.xcframework.zip "AEPMessagingLiveActivity-${{ github.event.inputs.tag }}.xcframework.zip"
+        cp AEPMessagingNotification.xcframework.zip "AEPMessagingNotification-${{ github.event.inputs.tag }}.xcframework.zip"
+
+    # Idempotent release: creates the GH release for the tag, or UPDATES it if the tag/release
+    # already exists, and uploads all three XCFramework archives in one step (overwriting existing
+    # assets of the same name). This replaces the previous release-drafter + three
+    # upload-release-asset@v1 steps, which hard-failed with
+    #   HttpError: Validation Failed: {"resource":"Release","code":"already_exists","field":"tag_name"}
+    # whenever the tag already existed — leaving `upload_url` empty and cascading into
+    # "Input required and not supplied: upload_url" on every upload step. With create-or-update
+    # semantics, re-running the release for an existing version no longer fails.
+    - name: Create GH release and upload XCFramework archives
+      if: ${{ github.event.inputs.action_tag == 'yes' }}
+      uses: softprops/action-gh-release@v2
       with:
         name: v${{ github.event.inputs.tag }}
-        tag: ${{ github.event.inputs.tag }}
-        version: ${{ github.event.inputs.tag }}
-        publish: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Upload - AEPMessaging
-      uses: actions/upload-release-asset@v1
-      if: ${{ github.event.inputs.action_tag == 'yes' }}  
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./build/AEPMessaging.xcframework.zip
-        asset_name: AEPMessaging-${{ github.event.inputs.tag }}.xcframework.zip
-        asset_content_type: application/zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Upload - AEPMessagingLiveActivity
-      uses: actions/upload-release-asset@v1
-      if: ${{ github.event.inputs.action_tag == 'yes' }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/AEPMessagingLiveActivity.xcframework.zip
-        asset_name: AEPMessagingLiveActivity-${{ github.event.inputs.tag }}.xcframework.zip
-        asset_content_type: application/zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Upload - AEPMessagingNotification
-      uses: actions/upload-release-asset@v1
-      if: ${{ github.event.inputs.action_tag == 'yes' }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/AEPMessagingNotification.xcframework.zip
-        asset_name: AEPMessagingNotification-${{ github.event.inputs.tag }}.xcframework.zip
-        asset_content_type: application/zip
+        tag_name: ${{ github.event.inputs.tag }}
+        target_commitish: main
+        generate_release_notes: true
+        make_latest: "true"
+        files: |
+          ./build/AEPMessaging-${{ github.event.inputs.tag }}.xcframework.zip
+          ./build/AEPMessagingLiveActivity-${{ github.event.inputs.tag }}.xcframework.zip
+          ./build/AEPMessagingNotification-${{ github.event.inputs.tag }}.xcframework.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
