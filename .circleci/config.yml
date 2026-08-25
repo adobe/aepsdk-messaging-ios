@@ -46,7 +46,7 @@ commands:
           name: Configure SSH to use port 443 for GitHub
           command: |
             mkdir -p ~/.ssh
-            cat >> ~/.ssh/config << 'EOF'
+            cat >> ~/.ssh/config \<< 'EOF'
             Host github.com
               Hostname ssh.github.com
               Port 443
