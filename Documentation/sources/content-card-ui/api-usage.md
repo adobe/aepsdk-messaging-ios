@@ -53,3 +53,21 @@ Messaging.getContentCardsUI(for: homePageSurface) { result in
     }
 }
 ```
+
+### clearCachedPropositions
+
+Clears all content card state from the SDK — both the in-memory cache (qualified cards, rules, and origin tracking) and the persisted disk cache used for offline content card availability. This does not affect the in-app message (IAM) cache or code-based experiences.
+
+Use this method to clear stale offline content cards, for example after a user logs out.
+
+#### Syntax
+
+```swift
+public static func clearCachedPropositions()
+```
+
+#### Example
+
+```swift
+Messaging.clearCachedPropositions()
+```
