@@ -40,19 +40,6 @@ commands:
           paths:
             - vendor/bundle
 
-      # GitHub blocks port 22 on this CI runner tier; use SSH over port 443 instead.
-      # ssh.github.com:443 is GitHub's official alternative SSH endpoint.
-      - run:
-          name: Configure SSH to use port 443 for GitHub
-          command: |
-            mkdir -p ~/.ssh
-            cat >> ~/.ssh/config \<< 'EOF'
-            Host github.com
-              Hostname ssh.github.com
-              Port 443
-              User git
-            EOF
-
       # install CocoaPods - using default CocoaPods version, not the bundle
       - run:
           name: Repo Update & Install CocoaPods
@@ -71,7 +58,6 @@ commands:
 
 jobs:
   validate-code:
-    resource_class: m4pro.medium
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
     
@@ -85,7 +71,6 @@ jobs:
           command: make lint
 
   test-ios:
-    resource_class: m4pro.medium
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
 
@@ -117,8 +102,7 @@ jobs:
           command: make integration-test
           when: always # run even if unit tests fail
 
-  test-spm-podspec-archive:  
-    resource_class: m4pro.medium
+  test-spm-podspec-archive:
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
     
