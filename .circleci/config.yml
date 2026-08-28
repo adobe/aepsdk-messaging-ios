@@ -40,6 +40,18 @@ commands:
           paths:
             - vendor/bundle
 
+      # CircleCI's `checkout` injects a global git rule that rewrites https://github.com -> SSH.
+      # On this resource class SSH egress is blocked, so CocoaPods' HTTPS clone URLs fail.
+      # Remove that rewrite (so HTTPS is used as-is) and force any SSH GitHub URLs back to HTTPS.
+      - run:
+          name: Force git to use HTTPS for GitHub
+          command: |
+            git config --global --get-regexp 'url\..*\.insteadof' | awk '{print $1}' | while read -r key; do
+              git config --global --unset-all "$key" || true
+            done
+            git config --global url."https://github.com/".insteadOf "git@github.com:"
+            git config --global --add url."https://github.com/".insteadOf "ssh://git@github.com/"
+
       # install CocoaPods - using default CocoaPods version, not the bundle
       - run:
           name: Repo Update & Install CocoaPods
@@ -58,9 +70,10 @@ commands:
 
 jobs:
   validate-code:
+    resource_class: m4pro.medium
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
-    
+
     steps:
       - checkout
 
@@ -71,6 +84,7 @@ jobs:
           command: make lint
 
   test-ios:
+    resource_class: m4pro.medium
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
 
@@ -103,9 +117,10 @@ jobs:
           when: always # run even if unit tests fail
 
   test-spm-podspec-archive:
+    resource_class: m4pro.medium
     macos:
       xcode: 16.4.0 # Specify the Xcode version to use
-    
+
     steps:
       - checkout
       - install_dependencies
