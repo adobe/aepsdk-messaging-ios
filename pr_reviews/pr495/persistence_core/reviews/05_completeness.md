@@ -1,0 +1,151 @@
+# Completeness Validation: persistence_core (PR #495)
+
+## Summary
+The four headline behaviors of this module — the `usePersistedContentCards` flag, the new `clearPersistedPropositions()` API, the non-recoverable-error preservation guard, and the CBE-to-memory-only revert — are implemented, and the CBE revert is clean, but three of the four have **zero real test coverage of their positive/true-path behavior**, one existing test appears to assert the opposite of what the shipped code does, and there is a completely unproven silent-failure mode in the new clear API.
+
+---
+
+## Missing/Incomplete Requirements
+
+**CRITICAL: `usePersistedContentCards: true` path is never exercised, and existing tests describe a discarded design**
+- **What's missing:** No test in `AEPMessaging/Tests/` sets `USE_PERSISTED_CONTENT_CARDS`/`usePersistedContentCards` to `true` and drives it through the real `getPropositionsForSurfaces(_:usePersistedContentCards:_:)` -> `handleProcessEvent` -> `retrieveMessages` -> `hydrateContentCardRulesEngineFromDisk`/`hydrateInboxPropositionsFromDisk` path. Worse, `Messaging+StateTests.swift::testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty` (comment: "No USE_PERSISTED_CONTENT_CARDS flag needed — disk hydration is automatic") and `Messaging+PublicApiTest.swift::testGetPropositionsForSurfacesDoesNotSetPersistedFlag` (comment: "the persisted-flag approach has been removed; offline hydration is automatic") both describe/assume a design where hydration is automatic and flag-free — the opposite of what `Messaging.swift`'s `retrieveMessages` actually does (`if event.usePersistedContentCards { hydrateContentCardRulesEngineFromDisk... }`, doc comment: "there is no automatic/implicit memory-first-disk-fallback").
+- **Impact:** The single most important new behavior in this PR (explicit opt-in offline read) has no proof it works when actually invoked as designed. A regression that silently breaks the flag plumbing (Messaging+PublicAPI.swift -> Event+Messaging.swift -> Messaging.swift) would ship undetected. The stale tests actively mislead future maintainers about the shipped design.
+- **Action:** Add a test that calls `getPropositionsForSurfaces(_:usePersistedContentCards: true,_:)` with disk-only seeded data and asserts the response includes the persisted content. Rewrite or delete the two tests whose names/comments contradict the shipped design.
+
+**CRITICAL: `clearPersistedPropositions()` — brand-new public API — has zero test coverage**
+- **What's missing:** No test anywhere calls `Messaging.clearPersistedPropositions()`, dispatches a `CLEAR_PERSISTED_PROPOSITIONS` event, or exercises `isClearPersistedPropositionsEvent` / `clearPersistedContentCardAndInboxPropositions()`.
+- **Impact:** No proof that the static API dispatches correctly, that `handleProcessEvent` routes it, that in-memory state (`qualifiedContentCardsBySurface`, `contentCardRulesBySurface`, `contentCardOriginBySurface`, `inboxPropositionsBySurface`) is actually cleared, that disk keys are actually removed, or that CBE (`propositions` cache key) is left alone as the doc comment promises.
+- **Action:** Add tests covering the static API dispatch, the event-routing in `handleProcessEvent`, and the resulting in-memory/disk state.
+
+**CRITICAL: Non-recoverable Edge error preservation guard is completely untested**
+- **What's missing:** `handleEdgeErrorResponse`, `nonRecoverableErrorEventIds`, `isEdgeErrorResponseEvent`, `RECOVERABLE_EDGE_ERROR_STATUS_CODES`, and `edgeErrorStatus` are never referenced anywhere in `AEPMessaging/Tests/`. No test dispatches an `errorResponseContent` event at all.
+- **Impact:** This is the core safety mechanism for preventing data loss on failed Edge requests — one of the four headline behaviors. A regression (wrong status-code set, wrong event source string, broken "already cleaned up" guard) that causes real failures to wipe offline content would not be caught.
+- **Action:** Add tests for: non-recoverable status recorded, recoverable status ignored, and error-for-already-completed-request is a no-op.
+
+---
+
+## Incomplete / Missing Operational Aspects
+
+### HIGH: `test_handleProcessCompletedEvent_noDecisions_preservesContentCardDiskCache` does not test the non-recoverable-error path and appears to assert the opposite of what the code does
+- **What's missing:** This test (`MessagingProcessCompletedEventTests.swift`) seeds the CC disk cache and calls `setRequestedSurfacesforEventId`, but that helper only sets `requestedSurfacesForEventId` — it never populates `nonRecoverableErrorEventIds`. Tracing `applyPropositionChangeFor`: with no error recorded, `requestFailed` is `false`, so `surfacesToRemove = [cardSurface]`, which is passed to `cache.updateContentCardPropositions(_, removing: [cardSurface])`. The shared `updatePropositionsByKey` helper will find the existing (seeded) entry, filter it to empty, and — since the existing entry was non-empty — call `remove(key: CONTENT_CARD_PROPOSITIONS)`. That is exactly what the test asserts does **not** happen.
+- **Impact:** Either this test currently fails in CI (an undetected build/test problem), or it passes for a reason not visible in the diff — either way, the claimed proof for "non-recoverable error preserves disk cache" does not actually exist, compounding the critical gap above.
+- **Action:** Rewrite the test to actually simulate a non-recoverable error (dispatch the error event, or add a debug/test setter for `nonRecoverableErrorEventIds`) before calling `handleProcessCompletedEvent`. If the intent was instead to test "empty response evicts unreturned surfaces," rename it to say so.
+- **Caveat:** Could not execute the test suite to empirically confirm pass/fail — `xcodebuild test` against the `UnitTests` scheme in this environment failed with an unrelated Pods/`AEPTestUtils` build error ("`super.init` isn't called on all paths before returning from initializer"), a pre-existing toolchain/environment issue not introduced by this PR. This finding is based on static code tracing of `Messaging.swift` and `Cache+Messaging.swift` against the test body.
+
+### HIGH: `clearPersistedPropositions()` silently swallows disk-removal failures
+- **What's missing:** `clearContentCards()` / `clearPersistedContentCardAndInboxPropositions()` (`Messaging.swift`) use `try? cache.remove(key: ...)` and then unconditionally log "cleared" regardless of whether the removal actually threw. The public API has no completion handler or return value.
+- **Impact:** A caller of a privacy/cleanup-oriented API has no way to learn a disk removal actually failed — the log claims success either way, so stale persisted data could silently remain on disk after the app believes it cleared it.
+- **Action:** Capture the remove result and log a warning on failure, matching the pattern already used for `iamWriteOK`/`ccWriteOK`/`inboxWriteOK` in `applyPropositionChangeFor`.
+
+### HIGH: Dead/unreachable `eventsQueue` handler branch left over from the get-propositions refactor
+- **What's missing:** `onRegistered()`'s `eventsQueue.setHandler` still contains `if event.isGetPropositionsEvent { self.retrieveMessages(...) }`, but this PR changed `handleProcessEvent` to call `retrieveMessages` directly and immediately, bypassing the queue entirely (with a comment explaining callers should no longer be blocked behind in-flight updates). Grepping `Messaging.swift` for `eventsQueue.add` shows the only remaining call site is for Edge update-propositions events in `beginRequestFor` — no path ever queues a get-propositions event anymore.
+- **Impact:** Misleading leftover code from a mid-PR design pivot; a future maintainer would wrongly conclude get-propositions events can still queue behind updates.
+- **Action:** Remove the dead branch and its now-inaccurate comment.
+
+### MEDIUM: `Proposition.offlineAvailable` is dead code with a misleading doc comment
+- **What's missing:** `Proposition.swift` adds `offlineAvailable`, documented as gating disk persistence based on a server-side `mobileParameters.offline` flag — but it is referenced nowhere else in `Sources/` or `Tests/`. The actual persist gate in `ParsedPropositions.swift` uses only the hardcoded `MessagingConstants.OFFLINE_AVAILABILITY_ENABLED = true`, never `proposition.offlineAvailable`.
+- **Impact:** The doc comment overstates what the code guarantees — a reader would assume the server-side flag already suppresses persistence for specific propositions; it currently does nothing.
+- **Action:** Wire `proposition.offlineAvailable` into the `ParsedPropositions.swift` gate, or remove the property/TODO until it's used, with a tracking ticket for the follow-up.
+
+### MEDIUM: TODOs for the hardcoded `OFFLINE_AVAILABILITY_ENABLED` gate have no tracking-ticket reference
+- **What's missing:** Four TODOs (`MessagingConstants.swift:32`, `ParsedPropositions.swift:94,121`, `Proposition.swift:111`) describe replacing the hardcoded `true` gate with real config, none reference a ticket. `.swiftlint.yml` disables the `todo` rule, so lint won't catch this either.
+- **Impact:** A globally-hardcoded feature gate (all content cards/inbox items persisted for every app on this SDK version) with no kill switch and no tracked follow-up is a common source of forgotten debt.
+- **Action:** Add ticket references to each TODO; confirm with the team whether shipping a hardcoded gate (vs. an actual feature flag) is acceptable for this release.
+
+### MEDIUM: `clearPersistedPropositions()` racing an in-flight update can silently resurrect just-cleared data
+- **What's missing:** `clearPersistedContentCardAndInboxPropositions()` doesn't touch `requestedSurfacesForEventId`, `inProgressPropositions`, or `nonRecoverableErrorEventIds`. If an update-propositions request is still streaming when a clear event runs, the in-flight request's later `applyPropositionChangeFor` will still write freshly-fetched data back to disk/memory for its surfaces — even though the user just cleared persisted state.
+- **Impact:** Silent, timing-dependent partial resurrection of cleared data, with no logging, guard, or test.
+- **Action:** Either document this as accepted behavior (clear applies to data existing at call time; concurrently-fetched data legitimately repopulates), or add coordination/logging and a reproducing test.
+
+### MEDIUM: Asymmetric decode-failure test coverage across the three parallel cache getters
+- **What's missing:** The pre-existing `propositions` getter has `testPropositionsCachedItemsAreNotDecodable`; the new `contentCardPropositions`/`inboxPropositions` getters (sharing the same private helper) only got "happy"/"none in cache" tests — no corrupted-JSON test for either.
+- **Impact:** Lower risk since the decode logic is shared, but an inconsistent completeness pattern that could hide a future divergence between the three cache paths.
+- **Action:** Add `testContentCardPropositionsCachedItemsAreNotDecodable` / `testInboxPropositionsCachedItemsAreNotDecodable` mirroring the existing IAM test.
+
+### MEDIUM: New `CardOrigin`/`servedFromPersistentCache` observability feature has zero test coverage
+- **What's missing:** `CardOrigin`, `contentCardOriginBySurface`, and `enrichWithContentCardOrigin(_:)` (which tags interaction XDM with `servedFromPersistentCache`) are new in this PR and directly part of the offline-availability story (lets analytics distinguish offline- vs online-served cards). No test references any of `enrichWithContentCardOrigin`, `contentCardOriginBySurface`, `CardOrigin`, or `servedFromPersistentCache`/`SERVED_FROM_PERSISTENT_CACHE`.
+- **Impact:** No proof that origin tagging is scoped correctly (only surfaces actually in a live response get `.network`; only disk-hydrated surfaces get `.disk`), that it's cleared on eviction, or that XDM enrichment doesn't corrupt unrelated (IAM/CBE/inbox) interaction payloads.
+- **Action:** Add unit tests for `enrichWithContentCardOrigin` and for origin-tag transitions across `updateRulesEngines`, `hydrateContentCardRulesEngineFromDisk`, `removeOrReplaceContentCards`, and `clearContentCards`.
+
+### LOW: `hydrateInboxPropositionsFromDisk` has no direct or indirect test coverage
+- **What's missing:** Never called directly by a test; its only production call site is gated by `usePersistedContentCards`, which (per the CRITICAL finding above) no test ever sets to `true` through the real flow.
+- **Impact:** Inbox offline-read hydration — half of the flag feature — has no proof it works.
+- **Action:** Add a direct unit test seeding disk data and calling `hydrateInboxPropositionsFromDisk(for:)`, mirroring the existing content-card hydration test.
+
+### LOW: No test forces a disk-write failure through `applyPropositionChangeFor`
+- **What's missing:** The new `iamWriteOK`/`ccWriteOK`/`inboxWriteOK` degraded-mode warning-log logic is never exercised with `mockCache.setShouldThrow = true` through the actual completed-event flow.
+- **Impact:** New resilience logic (three independent write results combined into one warning) has no regression protection.
+- **Action:** Add a test forcing a cache write failure during `handleProcessCompletedEvent` and assert the warning path / continued in-memory update.
+
+---
+
+## Review Inputs Used
+- `pr_reviews/pr495/persistence_core/files.md` — module scope (7 source files, 8 test/helper files)
+- `pr_reviews/pr495/pr495_unresolved_comments.md` — 0 unresolved comments (nothing to avoid duplicating)
+- `pr_reviews/pr495/pr495_template.md` — PR description (largely template placeholders, no filled-in testing/motivation detail)
+- `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/*.swift.diff` and `.../ClassExtensions/*.swift.diff` — per-file diffs for all 7 in-scope source files
+- `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/**/*.swift.diff` — per-file diffs for all 8 in-scope test/helper files
+- Live repository source (`AEPMessaging/Sources/Messaging.swift`, `Cache+Messaging.swift`, etc.) — used to trace actual current behavior beyond the diff context, and to grep for cross-references
+- `.swiftlint.yml` — confirmed `todo` rule is disabled (relevant to TODO-hygiene finding)
+- `AGENTS.md` — offline CC persistence design context
+
+---
+
+## Exploration Coverage
+- **Entry points checked:** `Messaging.handleProcessEvent` (update/get/clear/track-proposition branches), `onRegistered` listener registrations (including the new `errorResponseContent` listener and the `eventsQueue.setHandler`), the four public API entry points in `Messaging+PublicAPI.swift`.
+- **Callers/callees traced:** `getPropositionsForSurfaces` (both overloads) -> event dispatch -> `Event+Messaging.usePersistedContentCards` -> `retrieveMessages` -> `hydrateContentCardRulesEngineFromDisk`/`hydrateInboxPropositionsFromDisk`; `clearPersistedPropositions()` -> event -> `isClearPersistedPropositionsEvent` -> `clearPersistedContentCardAndInboxPropositions`; Edge `errorResponseContent` -> `handleEdgeErrorResponse` -> `nonRecoverableErrorEventIds` -> `applyPropositionChangeFor`'s `requestFailed` branch; `Cache+Messaging.swift`'s shared `propositionsByKey`/`updatePropositionsByKey` helpers across all three (IAM/CC/inbox) call sites.
+- **Blast radius checked:** Ran repo-wide greps (not just diff review) for every new symbol (`usePersistedContentCards`, `clearPersistedPropositions`, `nonRecoverableErrorEventIds`, `handleEdgeErrorResponse`, `offlineAvailable`, `CardOrigin`, `codeBasedPropositionsToPersist`/CBE remnants, dead `eventsQueue` branch) across both `Sources/` and `Tests/` to find coverage gaps and leftover code invisible from the diff alone.
+- **Runtime/data flow followed:** Traced the exact `applyPropositionChangeFor` write path (disk-first, then in-memory) for both the "empty response evicts" and "non-recoverable error preserves" branches to identify the mismatch in finding PR495-PC-COMPLETE-004.
+
+---
+
+## Test Quality Risks
+- **CRITICAL:** `testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty` and `testGetPropositionsForSurfacesDoesNotSetPersistedFlag` assert/describe a design ("automatic hydration, no flag") that contradicts the shipped `retrieveMessages` implementation and its own doc comment.
+- **HIGH:** `test_handleProcessCompletedEvent_noDecisions_preservesContentCardDiskCache` does not set up the state (`nonRecoverableErrorEventIds`) needed to exercise the behavior its name claims to prove, and by static trace should hit the eviction path it asserts against.
+- **MEDIUM:** New CC/inbox cache getters lack the decode-failure test their IAM sibling has (asymmetric coverage).
+- **MEDIUM:** No test forces cache-write failure through the real `applyPropositionChangeFor` flow to prove the new degraded-mode logging.
+
+---
+
+## Comment & Doc Accuracy
+- **MEDIUM:** `Proposition.offlineAvailable`'s doc comment implies the property already participates in the persist decision; it is dead code and is not consulted anywhere.
+- Verified accurate (no issue): `getPropositionsForSurfaces` (both overloads), `clearPersistedPropositions()`, `updatePropositionsForSurfacesWithCompletionHandler`, and the `retrieveMessages`/`handleEdgeErrorResponse` inline comments all correctly describe the shipped behavior as traced through the source.
+
+---
+
+## Hygiene & Communication Checklist
+- [FAIL] PR/ticket/breaking-change communication — `pr495_template.md` description, motivation, and "how tested" sections are all left as unfilled template placeholders; no ticket link.
+- [FAIL] TODO hygiene — 4 TODOs referencing the hardcoded `OFFLINE_AVAILABILITY_ENABLED` gate have no ticket reference.
+- [FAIL] Leftover/dead code — unreachable `eventsQueue.setHandler` get-propositions branch; unused `Proposition.offlineAvailable`.
+- [N/A] `.env.example` / config docs — no new env vars in this module's scope.
+- [N/A] API/error-code/deprecation communication — no REST/HTTP API surface in this module (SDK public Swift API only); doc comments checked separately above.
+- [N/A] dependency pinning — no new dependencies in this module's scope.
+
+---
+
+## Summary
+
+**Feature Completeness:**
+- Requirements implemented: 4/4 (flag API, clear API, error guard, CBE revert — all present in source)
+- Requirements with real, non-contradictory test coverage: 1/4 (CBE revert only; confirmed via `testInitWithCodeBasedProposition` and no CBE persistence remnants found anywhere)
+
+**Operational Completeness:**
+- Critical gaps: 3
+- High priority: 3
+- Medium priority: 5
+- Low priority: 2
+
+**Recommendation:** BLOCK — the three headline non-CBE-revert behaviors (persisted-flag reads, clear API, non-recoverable-error guard) are functionally implemented but effectively unproven by tests, and one existing test appears to contradict the shipped design. Do not merge until at minimum the three CRITICAL gaps are closed with tests that actually exercise the true/positive path.
+
+---
+
+## Findings (structured)
+Total findings: 13 (CRITICAL: 3, HIGH: 3, MEDIUM: 5, LOW: 2)
+Overall confidence in this review: 0.82
+
+**Areas I could NOT adequately assess:**
+- Could not execute the unit test suite (`xcodebuild test` against the `UnitTests` scheme) in this environment — build failed on an unrelated Pods/`AEPTestUtils` Swift compiler error ("`super.init` isn't called on all paths before returning from initializer"), which appears to be a pre-existing toolchain/Xcode-version issue in this environment, not something introduced by this PR. As a result, the claim that `test_handleProcessCompletedEvent_noDecisions_preservesContentCardDiskCache` (and the two stale `usePersistedContentCards` tests) would actually fail in CI is based on static code tracing, not an observed test run, and is flagged with `requires_verification: true` in the structured findings.
+- Did not review the `docs/agents/*.md` design documents in depth for consistency with the final shipped implementation (out of this module's file scope per `files.md`).
+- Did not assess the `ui_layer` or `demo_app` modules' consumption of these new APIs (out of scope for this module).
+
+Structured findings written to: `pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json`

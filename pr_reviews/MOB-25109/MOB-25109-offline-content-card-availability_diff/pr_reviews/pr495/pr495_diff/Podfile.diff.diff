@@ -1,0 +1,26 @@
+diff --git a/pr_reviews/pr495/pr495_diff/Podfile.diff b/pr_reviews/pr495/pr495_diff/Podfile.diff
+new file mode 100644
+index 0000000..799bfaa
+--- /dev/null
++++ b/pr_reviews/pr495/pr495_diff/Podfile.diff
+@@ -0,0 +1,19 @@
++diff --git a/Podfile b/Podfile
++index 2b042cf..1bfd99b 100644
++--- a/Podfile
+++++ b/Podfile
++@@ -20,9 +20,12 @@ $dev_branch = 'dev-v5.5.0'
++ # ==================
++ # SHARED POD GROUPS
++ # ==================
+++$network_repo = 'https://github.com/adobe/aepsdk-core-ios.git'
+++$network_branch = 'MOB-25282/network-availabilty'
+++
++ def lib_main
++-    pod 'AEPCore'
++-    pod 'AEPServices'
+++    pod 'AEPCore', :git => $network_repo, :branch => $network_branch
+++    pod 'AEPServices', :git => $network_repo, :branch => $network_branch
++     pod 'AEPRulesEngine'
++ end
++ 
+\ No newline at end of file

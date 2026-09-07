@@ -1,0 +1,2906 @@
+diff --git a/pr_reviews/pr495/pr495.diff b/pr_reviews/pr495/pr495.diff
+new file mode 100644
+index 0000000..3362464
+--- /dev/null
++++ b/pr_reviews/pr495/pr495.diff
+@@ -0,0 +1,2900 @@
++diff --git a/.gitignore b/.gitignore
++index ea939a5..049ba34 100644
++--- a/.gitignore
+++++ b/.gitignore
++@@ -98,4 +98,6 @@ Pods/
++ .vscode/
++ 
++ # Claude Code
++-CLAUDE.md
++\ No newline at end of file
+++CLAUDE.md
+++AGENTS.md
+++docs/agents/
++\ No newline at end of file
++diff --git a/AEPMessaging.xcodeproj/project.pbxproj b/AEPMessaging.xcodeproj/project.pbxproj
++index a7463db..6c0c8d5 100644
++--- a/AEPMessaging.xcodeproj/project.pbxproj
+++++ b/AEPMessaging.xcodeproj/project.pbxproj
++@@ -291,7 +291,6 @@
++ 		928594152522880900B2BE47 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 925DF4472522785700A5DE31 /* Assets.xcassets */; };
++ 		928594162522880900B2BE47 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF4482522785700A5DE31 /* LaunchScreen.storyboard */; };
++ 		9285941C2522899700B2BE47 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44A2522785700A5DE31 /* Main.storyboard */; };
++-		9285941E25228A1500B2BE47 /* ADBMobileConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 925DF44E2522785700A5DE31 /* ADBMobileConfig.json */; };
++ 		92863A022637706F000AFA53 /* MessagingFunctionalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92863A012637706F000AFA53 /* MessagingFunctionalTests.swift */; };
++ 		9296BA862537BFC0002C88F7 /* AEPMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925DF4A525227C4700A5DE31 /* AEPMessaging.framework */; };
++ 		92FC587B2636840C005BAE02 /* MessagingPublicAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FC587A2636840C005BAE02 /* MessagingPublicAPITests.swift */; };
++@@ -441,9 +440,11 @@
++ 		B6F7CCC52CCA1D7100C35C64 /* small image no image.json in Resources */ = {isa = PBXBuildFile; fileRef = B6F7CC132CC2EFE400C35C64 /* small image no image.json */; };
++ 		B6F7CCC62CCA1D7C00C35C64 /* NoCard.json in Resources */ = {isa = PBXBuildFile; fileRef = B6F7CC182CC2EFE400C35C64 /* NoCard.json */; };
++ 		B6F7CCC72CCA1D7C00C35C64 /* MultipleCards.json in Resources */ = {isa = PBXBuildFile; fileRef = B6F7CC172CC2EFE400C35C64 /* MultipleCards.json */; };
+++		B8A1C01024BE5FF30019F01 /* MockNetworkConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A1C00024BE5FF30019F01 /* MockNetworkConnectivityService.swift */; };
++ 		C6B8865ECCA5AFACDB7A2794 /* NotificationServiceSwiftUI.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 245ADEB8419B6E777CF08F6D /* NotificationServiceSwiftUI.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
++ 		CB4DB3613E8FD4B78B164916 /* Pods_FunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1331B50C344AD02FE0C9E2BF /* Pods_FunctionalTestApp.framework */; };
++ 		CBE050CB53BF402086329301 /* HeadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC56DFB8D444A25BC205CAD /* HeadingTests.swift */; };
+++		CCUIPUBLIC001TEST00000001 /* Messaging+UIPublicApiTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCUIPUBLIC001TEST00000002 /* Messaging+UIPublicApiTest.swift */; };
++ 		D14F4F38212749F7AAEF4EAF /* DefaultEmptyStateViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF126D339E6043AF9BA26807 /* DefaultEmptyStateViewTests.swift */; };
++ 		D4E3F2A15C6B708901234502 /* ContentCardCacheFunctionalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E3F2A15C6B708901234501 /* ContentCardCacheFunctionalTests.swift */; };
++ 		D63FC3AC2E00DACB00037B50 /* String+DataConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63FC3AB2E00DAB800037B50 /* String+DataConversion.swift */; };
++@@ -968,7 +969,6 @@
++ 		925DF4492522785700A5DE31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
++ 		925DF44B2522785700A5DE31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
++ 		925DF44C2522785700A5DE31 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
++-		925DF44E2522785700A5DE31 /* ADBMobileConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ADBMobileConfig.json; sourceTree = "<group>"; };
++ 		925DF44F2522785700A5DE31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
++ 		925DF4502522785700A5DE31 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
++ 		925DF4A525227C4700A5DE31 /* AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
++@@ -1128,11 +1128,13 @@
++ 		B6F7CCC82CCAB18700C35C64 /* IntegrationTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = IntegrationTestPlan.xctestplan; sourceTree = "<group>"; };
++ 		B7B411B1F9538EB09000C67E /* Pods_AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
++ 		B86A865B6338E5FAFD760F08 /* Pods_UnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+++		B8A1C00024BE5FF30019F01 /* MockNetworkConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkConnectivityService.swift; sourceTree = "<group>"; };
++ 		BC044480E85745A0A6FE4C4F /* InboxUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxUITests.swift; sourceTree = "<group>"; };
++ 		BE401ECA108F4EF3ADB6F667 /* DefaultHeadingViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultHeadingViewTests.swift; sourceTree = "<group>"; };
++ 		BF126D339E6043AF9BA26807 /* DefaultEmptyStateViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultEmptyStateViewTests.swift; sourceTree = "<group>"; };
++ 		BF90DF53585960AE051234A9 /* Pods-IntegrationTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegrationTests.debug.xcconfig"; path = "Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests.debug.xcconfig"; sourceTree = "<group>"; };
++ 		C7465CB5D942426740F36F97 /* Pods-MessagingDemoAppSwiftUI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoAppSwiftUI.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI.debug.xcconfig"; sourceTree = "<group>"; };
+++		CCUIPUBLIC001TEST00000002 /* Messaging+UIPublicApiTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+UIPublicApiTest.swift"; sourceTree = "<group>"; };
++ 		D4E3F2A15C6B708901234501 /* ContentCardCacheFunctionalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardCacheFunctionalTests.swift; sourceTree = "<group>"; };
++ 		D5773DB866CADAB59B3043AE /* Pods-FunctionalTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTestApp.release.xcconfig"; path = "Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp.release.xcconfig"; sourceTree = "<group>"; };
++ 		D63FC3AB2E00DAB800037B50 /* String+DataConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+DataConversion.swift"; sourceTree = "<group>"; };
++@@ -1702,6 +1704,7 @@
++ 				243EA6D92739D47400195945 /* MockMessaging.swift */,
++ 				243EA6E1273B436400195945 /* MockMessagingRulesEngine.swift */,
++ 				D66DF10D2DD5332A0021AC51 /* MockNamedKeyValueService.swift */,
+++				B8A1C00024BE5FF30019F01 /* MockNetworkConnectivityService.swift */,
++ 				92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */,
++ 				240436CD2C76685C008CCD6D /* MockProposition.swift */,
++ 				240436CB2C765C41008CCD6D /* MockPropositionItem.swift */,
++@@ -1733,7 +1736,6 @@
++ 			isa = PBXGroup;
++ 			children = (
++ 				2415598428D1217500729136 /* nativeMethodCallingSample.html */,
++-				925DF44E2522785700A5DE31 /* ADBMobileConfig.json */,
++ 			);
++ 			path = Assets;
++ 			sourceTree = "<group>";
++@@ -2119,6 +2121,7 @@
++ 				385094F2A3B648BC820CEFA9 /* InboxStateTests.swift */,
++ 				0EB4C861868845FFA51C3132 /* InboxEventListeningTests.swift */,
++ 				BC044480E85745A0A6FE4C4F /* InboxUITests.swift */,
+++				CCUIPUBLIC001TEST00000002 /* Messaging+UIPublicApiTest.swift */,
++ 				BE401ECA108F4EF3ADB6F667 /* DefaultHeadingViewTests.swift */,
++ 				BF126D339E6043AF9BA26807 /* DefaultEmptyStateViewTests.swift */,
++ 				F3783B7834D4427ABDFAEE02 /* DefaultLoadingViewTests.swift */,
++@@ -2797,7 +2800,6 @@
++ 			buildActionMask = 2147483647;
++ 			files = (
++ 				2415598528D1217500729136 /* nativeMethodCallingSample.html in Resources */,
++-				9285941E25228A1500B2BE47 /* ADBMobileConfig.json in Resources */,
++ 				9285941C2522899700B2BE47 /* Main.storyboard in Resources */,
++ 				928594152522880900B2BE47 /* Assets.xcassets in Resources */,
++ 				928594162522880900B2BE47 /* LaunchScreen.storyboard in Resources */,
++@@ -2939,14 +2941,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks.sh\"\n";
++@@ -3048,14 +3046,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks.sh\"\n";
++@@ -3091,14 +3085,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks.sh\"\n";
++@@ -3178,14 +3168,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks.sh\"\n";
++@@ -3199,14 +3185,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks.sh\"\n";
++@@ -3220,14 +3202,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks.sh\"\n";
++@@ -3241,14 +3219,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks.sh\"\n";
++@@ -3284,14 +3258,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks.sh\"\n";
++@@ -3327,14 +3297,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks.sh\"\n";
++@@ -3642,6 +3608,7 @@
++ 				245059702673DBFE00CC7CA0 /* Messaging+PublicApiTest.swift in Sources */,
++ 				243EA6D0273325DC00195945 /* MessageTests.swift in Sources */,
++ 				D66DF10F2DD533320021AC51 /* MockNamedKeyValueService.swift in Sources */,
+++				B8A1C01024BE5FF30019F01 /* MockNetworkConnectivityService.swift in Sources */,
++ 				244FEA4629B6A5D30058FA1C /* FeedItemTests.swift in Sources */,
++ 				4CB003F52E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift in Sources */,
++ 				24CA4BC12B6178EE00D16369 /* InAppSchemaDataTests.swift in Sources */,
++@@ -3674,6 +3641,7 @@
++ 				E09CA04F82054CB4A8AC5D2E /* InboxStateTests.swift in Sources */,
++ 				21E9FEC362EF41B9A7D57D3F /* InboxEventListeningTests.swift in Sources */,
++ 				AB98D09FDC6D47C1B79DC26B /* InboxUITests.swift in Sources */,
+++				CCUIPUBLIC001TEST00000001 /* Messaging+UIPublicApiTest.swift in Sources */,
++ 				66A544B390364C269E47365C /* DefaultHeadingViewTests.swift in Sources */,
++ 				D14F4F38212749F7AAEF4EAF /* DefaultEmptyStateViewTests.swift in Sources */,
++ 				7454DD310E3A41F883456325 /* DefaultLoadingViewTests.swift in Sources */,
++@@ -5097,91 +5065,6 @@
++ 			};
++ 			name = Release;
++ 		};
++-		AA00000FAAAA0001000AA001 /* Debug */ = {
++-			isa = XCBuildConfiguration;
++-			buildSettings = {
++-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
++-				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
++-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
++-				CODE_SIGN_STYLE = Automatic;
++-				CURRENT_PROJECT_VERSION = 1;
++-				DEFINES_MODULE = YES;
++-				DYLIB_COMPATIBILITY_VERSION = 1;
++-				DYLIB_CURRENT_VERSION = 1;
++-				DYLIB_INSTALL_NAME_BASE = "@rpath";
++-				ENABLE_MODULE_VERIFIER = YES;
++-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
++-				GCC_C_LANGUAGE_STANDARD = gnu17;
++-				GENERATE_INFOPLIST_FILE = YES;
++-				INFOPLIST_FILE = AEPMessagingNotification/Sources/Info.plist;
++-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
++-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
++-				LD_RUNPATH_SEARCH_PATHS = (
++-					"$(inherited)",
++-					"@executable_path/Frameworks",
++-					"@loader_path/Frameworks",
++-				);
++-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
++-				MARKETING_VERSION = 5.14.0;
++-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
++-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
++-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messagingnotification;
++-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
++-				SKIP_INSTALL = YES;
++-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
++-				SUPPORTS_MACCATALYST = NO;
++-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
++-				SWIFT_EMIT_LOC_STRINGS = YES;
++-				SWIFT_INSTALL_OBJC_HEADER = NO;
++-				SWIFT_VERSION = 5.0;
++-				TARGETED_DEVICE_FAMILY = "1,2";
++-				VERSIONING_SYSTEM = "apple-generic";
++-				VERSION_INFO_PREFIX = "";
++-			};
++-			name = Debug;
++-		};
++-		AA000010AAAA0001000AA001 /* Release */ = {
++-			isa = XCBuildConfiguration;
++-			buildSettings = {
++-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
++-				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
++-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
++-				CODE_SIGN_STYLE = Automatic;
++-				CURRENT_PROJECT_VERSION = 1;
++-				DEFINES_MODULE = YES;
++-				DYLIB_COMPATIBILITY_VERSION = 1;
++-				DYLIB_CURRENT_VERSION = 1;
++-				DYLIB_INSTALL_NAME_BASE = "@rpath";
++-				ENABLE_MODULE_VERIFIER = YES;
++-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
++-				GCC_C_LANGUAGE_STANDARD = gnu17;
++-				GENERATE_INFOPLIST_FILE = YES;
++-				INFOPLIST_FILE = AEPMessagingNotification/Sources/Info.plist;
++-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
++-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
++-				LD_RUNPATH_SEARCH_PATHS = (
++-					"$(inherited)",
++-					"@executable_path/Frameworks",
++-					"@loader_path/Frameworks",
++-				);
++-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
++-				MARKETING_VERSION = 5.14.0;
++-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
++-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
++-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messagingnotification;
++-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
++-				SKIP_INSTALL = YES;
++-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
++-				SUPPORTS_MACCATALYST = NO;
++-				SWIFT_EMIT_LOC_STRINGS = YES;
++-				SWIFT_INSTALL_OBJC_HEADER = NO;
++-				SWIFT_VERSION = 5.0;
++-				TARGETED_DEVICE_FAMILY = "1,2";
++-				VERSIONING_SYSTEM = "apple-generic";
++-				VERSION_INFO_PREFIX = "";
++-			};
++-			name = Release;
++-		};
++ 		B6F7CCAC2CCA165B00C35C64 /* Debug */ = {
++ 			isa = XCBuildConfiguration;
++ 			baseConfigurationReference = BF90DF53585960AE051234A9 /* Pods-IntegrationTests.debug.xcconfig */;
++diff --git a/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved b/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
++deleted file mode 100644
++index 8ecdedf..0000000
++--- a/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+++++ /dev/null
++@@ -1,34 +0,0 @@
++-{
++-  "object": {
++-    "pins": [
++-      {
++-        "package": "AEPCore",
++-        "repositoryURL": "https://github.com/adobe/aepsdk-core-ios.git",
++-        "state": {
++-          "branch": "main",
++-          "revision": "d58558f0b7b135e77572c642cf34370d0442587d",
++-          "version": null
++-        }
++-      },
++-      {
++-        "package": "AEPEdge",
++-        "repositoryURL": "https://github.com/adobe/aepsdk-platform-ios.git",
++-        "state": {
++-          "branch": "dev",
++-          "revision": "52982db176e0ed204e3e1fca91475ba09a71405b",
++-          "version": null
++-        }
++-      },
++-      {
++-        "package": "AEPRulesEngine",
++-        "repositoryURL": "https://github.com/adobe/aepsdk-rulesengine-ios.git",
++-        "state": {
++-          "branch": "dev",
++-          "revision": "61cf5c92fc1e40bf3419cef1ac13928725971f5a",
++-          "version": null
++-        }
++-      }
++-    ]
++-  },
++-  "version": 1
++-}
++diff --git a/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift b/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift
++index d18d013..e8ffc95 100644
++--- a/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift
+++++ b/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift
++@@ -17,31 +17,73 @@ extension Cache {
++     // MARK: - getters
++ 
++     var propositions: [Surface: [Proposition]]? {
++-        guard let cachedPropositions = get(key: MessagingConstants.Caches.PROPOSITIONS) else {
++-            Log.trace(label: MessagingConstants.LOG_TAG, "Unable to load cached messages, cache file not found.")
+++        propositionsByKey(MessagingConstants.Caches.PROPOSITIONS,
+++                          logTag: "Unable to load cached messages, cache file not found.",
+++                          emptyLogMessage: "No message definitions found in cache.")
+++    }
+++
+++    var contentCardPropositions: [Surface: [Proposition]]? {
+++        propositionsByKey(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS,
+++                          logTag: "Unable to load cached content card propositions, cache file not found.",
+++                          emptyLogMessage: "No content card proposition definitions found in cache.")
+++    }
+++
+++    // MARK: setters
+++
+++    @discardableResult
+++    func updatePropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) -> Bool {
+++        updatePropositionsByKey(MessagingConstants.Caches.PROPOSITIONS,
+++                                existing: propositions,
+++                                new: newPropositions,
+++                                removing: surfaces,
+++                                cacheCreatedMessage: "In-app messaging cache has been created.",
+++                                encodeErrorMessage: "Error creating in-app messaging cache, unable to encode proposition.",
+++                                writeErrorPrefix: "Error creating in-app messaging cache")
+++    }
+++
+++    @discardableResult
+++    func updateContentCardPropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) -> Bool {
+++        updatePropositionsByKey(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS,
+++                                existing: contentCardPropositions,
+++                                new: newPropositions,
+++                                removing: surfaces,
+++                                cacheCreatedMessage: "Content card messaging cache has been created.",
+++                                encodeErrorMessage: "Error creating content card messaging cache, unable to encode proposition.",
+++                                writeErrorPrefix: "Error creating content card messaging cache")
+++    }
+++
+++    // MARK: - Private helpers
+++
+++    private func propositionsByKey(_ key: String, logTag: String, emptyLogMessage: String) -> [Surface: [Proposition]]? {
+++        guard let cachedPropositions = get(key: key) else {
+++            Log.trace(label: MessagingConstants.LOG_TAG, logTag)
++             return nil
++         }
++ 
++         let decoder = JSONDecoder()
++         guard let propositionsDict: [String: [Proposition]] = try? decoder.decode([String: [Proposition]].self, from: cachedPropositions.data) else {
++-            Log.debug(label: MessagingConstants.LOG_TAG, "No message definitions found in cache.")
+++            Log.debug(label: MessagingConstants.LOG_TAG, emptyLogMessage)
++             return nil
++         }
++ 
++         var retrievedPropositions: [Surface: [Proposition]] = [:]
++-        for (key, value) in propositionsDict {
++-            retrievedPropositions[Surface(uri: key)] = value
+++        for (cacheKey, value) in propositionsDict {
+++            retrievedPropositions[Surface(uri: cacheKey)] = value
++         }
++         return retrievedPropositions
++     }
++ 
++-    // MARK: setters
++-
++-    // update entries for surfaces already existing
++-    // remove surfaces listed by `surfaces`
++-    // write or remove cache file based on result
++-    func updatePropositions(_ newPropositions: [Surface: [Proposition]]?, removing surfaces: [Surface]? = nil) {
++-        let existingPropositions = propositions ?? [:]
+++    @discardableResult
+++    private func updatePropositionsByKey(
+++        _ key: String,
+++        existing: [Surface: [Proposition]]?,
+++        new newPropositions: [Surface: [Proposition]]?,
+++        removing surfaces: [Surface]?,
+++        cacheCreatedMessage: String,
+++        encodeErrorMessage: String,
+++        writeErrorPrefix: String
+++    ) -> Bool {
+++        let existingPropositions = existing ?? [:]
++         var updatedPropositions = existingPropositions.merging(newPropositions ?? [:]) { _, new in new }
++         if let surfaces = surfaces {
++             updatedPropositions = updatedPropositions.filter {
++@@ -50,26 +92,32 @@ extension Cache {
++         }
++ 
++         guard !updatedPropositions.isEmpty else {
++-            try? remove(key: MessagingConstants.Caches.PROPOSITIONS)
++-            return
+++            // Only remove if there was data in cache that needs to be cleared.
+++            // Avoids spurious remove calls when no existing entry exists and nothing was added.
+++            if !existingPropositions.isEmpty {
+++                try? remove(key: key)
+++            }
+++            return true
++         }
++ 
++         var propositionsToCache: [String: [Proposition]] = [:]
++-        for (key, value) in updatedPropositions {
++-            propositionsToCache[key.uri] = value
+++        for (surface, value) in updatedPropositions {
+++            propositionsToCache[surface.uri] = value
++         }
++ 
++         let encoder = JSONEncoder()
++         guard let cacheData = try? encoder.encode(propositionsToCache) else {
++-            Log.warning(label: MessagingConstants.LOG_TAG, "Error creating in-app messaging cache, unable to encode proposition.")
++-            return
+++            Log.warning(label: MessagingConstants.LOG_TAG, encodeErrorMessage)
+++            return false
++         }
++         let cacheEntry = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
++         do {
++-            try set(key: MessagingConstants.Caches.PROPOSITIONS, entry: cacheEntry)
++-            Log.trace(label: MessagingConstants.LOG_TAG, "In-app messaging cache has been created.")
+++            try set(key: key, entry: cacheEntry)
+++            Log.trace(label: MessagingConstants.LOG_TAG, cacheCreatedMessage)
+++            return true
++         } catch {
++-            Log.warning(label: MessagingConstants.LOG_TAG, "Error creating in-app messaging cache: \(error).")
+++            Log.warning(label: MessagingConstants.LOG_TAG, "\(writeErrorPrefix): \(error).")
+++            return false
++         }
++     }
++ }
++diff --git a/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift b/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift
++index 019a55d..852cec8 100644
++--- a/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift
+++++ b/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift
++@@ -43,6 +43,18 @@ extension Event {
++         isEdgeType && isPersonalizationSource
++     }
++ 
+++    /// True when this is an Edge `errorResponseContent` event — dispatched by the Edge extension
+++    /// for both server-side per-event errors and network/HTTP-level failures, before or instead of
+++    /// a `personalization:decisions` event.
+++    var isEdgeErrorResponseEvent: Bool {
+++        isEdgeType && source == MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE
+++    }
+++
+++    /// HTTP-equivalent status code carried on an Edge error response event, if present.
+++    var edgeErrorStatus: Int? {
+++        data?[MessagingConstants.Event.Data.Key.EdgeError.STATUS] as? Int
+++    }
+++
++     var requestEventId: String? {
++         parentID?.uuidString as? String ?? data?[MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID] as? String
++     }
++@@ -154,6 +166,16 @@ extension Event {
++         data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false
++     }
++ 
+++    // MARK: - Clear cached propositions public API event
+++
+++    var isClearCachedPropositionsEvent: Bool {
+++        isMessagingType && isRequestContentSource && clearCachedPropositions
+++    }
+++
+++    private var clearCachedPropositions: Bool {
+++        data?[MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS] as? Bool ?? false
+++    }
+++
++     var propositions: [Proposition]? {
++         guard
++             let propositionsData = data?[MessagingConstants.Event.Data.Key.PROPOSITIONS] as? [[String: Any]],
++diff --git a/AEPMessaging/Sources/Messaging+PublicAPI.swift b/AEPMessaging/Sources/Messaging+PublicAPI.swift
++index 296f133..1073f5a 100644
++--- a/AEPMessaging/Sources/Messaging+PublicAPI.swift
+++++ b/AEPMessaging/Sources/Messaging+PublicAPI.swift
++@@ -136,14 +136,26 @@ import UserNotifications
++         MobileCore.dispatch(event: event)
++     }
++ 
++-    /// Retrieves the previously fetched (and cached) feeds content from the SDK for the provided surfaces.
++-    /// If the feeds content for one or more surfaces isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
+++    /// Dispatches an event to fetch propositions for the provided surfaces from remote.
+++    /// The completion handler is called once the Edge response has been fully processed.
++     /// - Parameters:
++     ///   - surfaces: An array of `Surface` objects.
++-    ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Proposition objects.
++-    static func getPropositionsForSurfaces(_ surfaces: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
++-        let validSurfaces = surfaces
++-            .filter { $0.isValid }
+++    ///   - completionHandler: Called with `true` if the network response was returned and successfully processed; `false` on failure or invalid surfaces.
+++    @objc(updatePropositionsForSurfacesWithCompletionHandler:completionHandler:)
+++    static func updatePropositionsForSurfacesWithCompletionHandler(_ surfaces: [Surface],
+++                                                                   completionHandler: @escaping (Bool) -> Void) {
+++        updatePropositionsForSurfaces(surfaces, completionHandler)
+++    }
+++
+++    /// Retrieves propositions for the provided surfaces from the SDK's in-memory cache.
+++    /// Both boot-hydrated disk cards and live network cards are included. Use `proposition.cardOrigin`
+++    /// to distinguish them for tracking purposes.
+++    /// - Parameters:
+++    ///   - surfaces: An array of `Surface` objects.
+++    ///   - completion: The completion handler invoked with propositions keyed by surface.
+++    static func getPropositionsForSurfaces(_ surfaces: [Surface],
+++                                         _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
+++        let validSurfaces = surfaces.filter { $0.isValid }
++ 
++         guard !validSurfaces.isEmpty else {
++             Log.warning(label: MessagingConstants.LOG_TAG,
++@@ -178,10 +190,23 @@ import UserNotifications
++                 return
++             }
++ 
++-            completion(propositions.toDictionary { Surface(uri: $0.scope) }, .none)
+++            completion(propositions.toDictionary { Surface(uri: $0.scope) }, nil)
++         }
++     }
++ 
+++    /// Clears cached content card propositions — both the in-memory state (qualified cards,
+++    /// content card rules, and origin tracking) and the persisted disk cache.
+++    ///
+++    /// Code-based experience (CBE) propositions are not affected by this call.
+++    @objc(clearCachedPropositions)
+++    static func clearCachedPropositions() {
+++        let event = Event(name: MessagingConstants.Event.Name.CLEAR_PERSISTED_PROPOSITIONS,
+++                          type: EventType.messaging,
+++                          source: EventSource.requestContent,
+++                          data: [MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS: true])
+++        MobileCore.dispatch(event: event)
+++    }
+++
++     // MARK: - Private Helper Methods
++ 
++     /// Determines whether the user's response to a notification has caused the application to open
++diff --git a/AEPMessaging/Sources/Messaging+State.swift b/AEPMessaging/Sources/Messaging+State.swift
++index 2539246..e463a10 100644
++--- a/AEPMessaging/Sources/Messaging+State.swift
+++++ b/AEPMessaging/Sources/Messaging+State.swift
++@@ -64,11 +64,30 @@ extension Messaging {
++         }
++     }
++ 
+++
+++    /// Reads raw content card propositions from disk for the requested surfaces.
+++    /// Used exclusively by `hydrateContentCardRulesEngineFromDisk` to seed the rules engine at boot.
+++    /// Do NOT use for `retrieveMessages` — raw disk propositions are ruleset-item wrappers and
+++    /// cannot be converted to `ContentCardUI` directly; use `getPropositionsFromContentCardRulesEngine`.
+++    func readContentCardPropositionsFromDisk(for surfaces: [Surface]) -> [Surface: [Proposition]] {
+++        guard let cached = cache.contentCardPropositions, !cached.isEmpty else { return [:] }
+++        return cached.filter { surfaces.contains($0.key) }
+++    }
+++
++     // MARK: - private methods
++ 
++     private func hydratePropositionsRulesEngine() {
++-        let parsedPropositions = ParsedPropositions(with: inMemoryPropositions, requestedSurfaces: inMemoryPropositions.map { $0.key }, runtime: runtime)
+++        let parsedPropositions = ParsedPropositions(with: inMemoryPropositions, requestedSurfaces: inMemoryPropositions.map { $0.key }, runtime: runtime,
+++                                                    contentCardOfflineAvailable: false)
++         if let inAppRules = parsedPropositions.surfaceRulesBySchemaType[.inapp] {
+++            // Record the loaded IAM rules in `inAppRulesBySurface` so the dictionary stays an accurate
+++            // source of truth for what's in the shared `rulesEngine`. Without this, a later rebuild of the
+++            // shared engine (e.g. content-card disk hydration adding event-history rules) would collect an
+++            // empty in-app set and silently erase these IAM rules on `replaceRules`. Mirrors the network
+++            // path (`updateRulesEngines` → `processRulesForSchemaType(.inapp, ...)`).
+++            for (surface, rules) in inAppRules {
+++                inAppRulesBySurface[surface] = rules
+++            }
++             rulesEngine.launchRulesEngine.replaceRules(with: inAppRules.flatMap { $0.value })
++         }
++         updatePropositionInfo(parsedPropositions.propositionInfoToCache)
++diff --git a/AEPMessaging/Sources/Messaging.swift b/AEPMessaging/Sources/Messaging.swift
++index 5548921..2550668 100644
++--- a/AEPMessaging/Sources/Messaging.swift
+++++ b/AEPMessaging/Sources/Messaging.swift
++@@ -14,6 +14,16 @@ import AEPCore
++ import AEPServices
++ import Foundation
++ 
+++/// Describes where a content card proposition originated.
+++/// Stored directly on each `Proposition.cardOrigin` — transient, never persisted to disk.
+++enum CardOrigin: String {
+++    /// Proposition came from a live network (Edge personalization) response.
+++    case network
+++
+++    /// Proposition was hydrated from the persisted on-disk content card cache at boot.
+++    case disk
+++}
+++
++ @objc(AEPMobileMessaging)
++ public class Messaging: NSObject, Extension {
++     // MARK: - Class members
++@@ -72,6 +82,20 @@ public class Messaging: NSObject, Extension {
++         set { queue.async { self._requestedSurfacesForEventId = newValue } }
++     }
++ 
+++    /// Request event IDs (the Edge chained event's `id.uuidString`, matching `requestedSurfacesForEventId`
+++    /// keys) for which Edge dispatched a non-recoverable `errorResponseContent` event. Recoverable statuses
+++    /// (already being retried by Edge's own PersistentHitQueue — see `RECOVERABLE_EDGE_ERROR_STATUS_CODES`)
+++    /// are intentionally NOT recorded here, since Edge may still resolve them successfully.
+++    ///
+++    /// Checked in `applyPropositionChangeFor` to distinguish "server genuinely has nothing for this
+++    /// surface" (an empty `personalization:decisions` response — should evict) from "the request itself
+++    /// failed" (should NOT evict memory, disk, or the content card origin flag).
+++    private var _nonRecoverableErrorEventIds: Set<String> = []
+++    private var nonRecoverableErrorEventIds: Set<String> {
+++        get { queue.sync { self._nonRecoverableErrorEventIds } }
+++        set { queue.async { self._nonRecoverableErrorEventIds = newValue } }
+++    }
+++
++     /// used while processing streaming payloads for a single request
++     private var _inProgressPropositions: [Surface: [Proposition]] = [:]
++     private var inProgressPropositions: [Surface: [Proposition]] {
++@@ -80,8 +104,13 @@ public class Messaging: NSObject, Extension {
++     }
++ 
++     /// Stores rules for processing by the Messaging rules engine, where `.process` is called on each rule.
+++    /// This dictionary is the source of truth for the IAM rules currently loaded in the shared `rulesEngine`;
+++    /// any code that rebuilds that engine (e.g. `updateRulesEngines`, or content-card disk hydration adding
+++    /// event-history rules) collects from here to avoid clobbering IAM. It must be kept in sync wherever
+++    /// IAM rules are loaded — including init-time hydration in `Messaging+State.hydratePropositionsRulesEngine`,
+++    /// which is why this is internal rather than private.
++     private var _inAppRulesBySurface: [Surface: [LaunchRule]] = [:]
++-    private var inAppRulesBySurface: [Surface: [LaunchRule]] {
+++    var inAppRulesBySurface: [Surface: [LaunchRule]] {
++         get { queue.sync { self._inAppRulesBySurface } }
++         set { queue.async { self._inAppRulesBySurface = newValue } }
++     }
++@@ -107,6 +136,66 @@ public class Messaging: NSObject, Extension {
++         set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
++     }
++ 
+++    /// Enriches a proposition interaction XDM with a `servedFromPersistentCache` flag per proposition,
+++    /// reading the origin directly from each `Proposition.cardOrigin` in `qualifiedContentCardsBySurface`.
+++    ///
+++    /// Scoped to **content card display events only**. Non-display interactions and non-content-card
+++    /// interactions (IAM, CBE, inbox) are left untouched.
+++    func enrichWithContentCardOrigin(_ xdm: [String: Any]) -> [String: Any] {
+++        guard
+++            var experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any],
+++            var decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any],
+++            var propositions = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]]
+++        else {
+++            return xdm
+++        }
+++
+++        // Only annotate display events.
+++        guard
+++            let propositionEventType = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE] as? [String: Any],
+++            propositionEventType[MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY] != nil
+++        else {
+++            return xdm
+++        }
+++
+++        let qualifiedById = Dictionary(
+++            qualifiedContentCardsBySurface.values.flatMap { $0 }.map { ($0.uniqueId, $0.cardOrigin) },
+++            uniquingKeysWith: { first, _ in first }
+++        )
+++        var didEnrich = false
+++        propositions = propositions.map { proposition in
+++            guard
+++                let propositionId = proposition[MessagingConstants.XDM.Inbound.Key.ID] as? String,
+++                let origin = qualifiedById[propositionId],
+++                let items = proposition[MessagingConstants.XDM.Inbound.Key.ITEMS] as? [[String: Any]]
+++            else {
+++                return proposition
+++            }
+++            let servedFromCache = (origin == .disk)
+++            let enrichedItems: [[String: Any]] = items.map { item in
+++                var updatedItem = item
+++                var data = updatedItem["data"] as? [String: Any] ?? [:]
+++                var characteristics = data[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] as? [String: Any] ?? [:]
+++                characteristics[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE] = servedFromCache
+++                data[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] = characteristics
+++                updatedItem["data"] = data
+++                return updatedItem
+++            }
+++            var updated = proposition
+++            updated[MessagingConstants.XDM.Inbound.Key.ITEMS] = enrichedItems
+++            didEnrich = true
+++            return updated
+++        }
+++
+++        guard didEnrich else { return xdm }
+++
+++        decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] = propositions
+++        experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] = decisioning
+++        var enriched = xdm
+++        enriched[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experience
+++        return enriched
+++    }
+++
++     /// holds inbox propositions (container-item) for each surface
++     private var _inboxPropositionsBySurface: [Surface: [Proposition]] = [:]
++     var inboxPropositionsBySurface: [Surface: [Proposition]] {
++@@ -196,6 +285,12 @@ public class Messaging: NSObject, Extension {
++                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
++                          listener: handleEdgePersonalizationNotification)
++ 
+++        // register listener for edge error responses so a failed request can be distinguished
+++        // from a legitimate empty personalization response (see applyPropositionChangeFor)
+++        registerListener(type: EventType.edge,
+++                         source: MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE,
+++                         listener: handleEdgeErrorResponse)
+++
++         // register listener for handling personalization request complete events
++         registerListener(type: EventType.messaging,
++                          source: EventSource.contentComplete,
++@@ -248,6 +343,11 @@ public class Messaging: NSObject, Extension {
++         // once we have valid configuration, fetch message definitions from offers if we haven't already
++         if !initialLoadComplete {
++             initialLoadComplete = true
+++            // Always hydrate from disk at boot — config is not yet fully settled here (race with
+++            // configureWith(filePath:)), so we must not gate on the flag. Hydration is a no-op when
+++            // the disk is empty, so this is always safe.
+++            Log.debug(label: MessagingConstants.LOG_TAG, "Boot — unconditionally hydrating content cards from disk.")
+++            hydrateAllPersistedContentCards()
++             fetchPropositions(event)
++         }
++ 
++@@ -284,9 +384,15 @@ public class Messaging: NSObject, Extension {
++         // handle an event to get cached propositions from the SDK
++         if event.isGetPropositionsEvent {
++             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
++-            // Queue the get propositions event in internal events queue to ensure any prior update requests are completed
++-            // before it is processed.
++-            eventsQueue.add(event)
+++            // Process immediately so callers are not blocked behind in-flight Edge requests or Event Hub timeouts.
+++            retrieveMessages(for: event.surfaces ?? [], event: event)
+++            return
+++        }
+++
+++        // handle an event to clear persisted content card propositions
+++        if event.isClearCachedPropositionsEvent {
+++            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to clear persisted content card propositions.")
+++            clearCachedContentCardPropositions()
++             return
++         }
++ 
++@@ -299,7 +405,7 @@ public class Messaging: NSObject, Extension {
++                 return
++             }
++ 
++-            sendPropositionInteraction(withXdm: propositionInteractionXdm)
+++            sendPropositionInteraction(withXdm: enrichWithContentCardOrigin(propositionInteractionXdm))
++             return
++         }
++ 
++@@ -541,6 +647,8 @@ public class Messaging: NSObject, Extension {
++         stateManager.updateTokenStore.clear()
++         stateManager.channelActivityStore.clear()
++ 
+++        clearCachedContentCardPropositions()
+++
++         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
++ 
++         dispatchPersistedTokenResync(includePushToken: false,
++@@ -548,6 +656,22 @@ public class Messaging: NSObject, Extension {
++                                      event: event)
++     }
++ 
+++    /// Clears in-memory content card state and persisted disk cache.
+++    private func clearContentCards() {
+++        qualifiedContentCardsBySurface = [:]
+++        contentCardRulesBySurface = [:]
+++        contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
+++        try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
+++        Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared.")
+++    }
+++
+++    /// Clears persisted content card propositions (disk) along with their in-memory state.
+++    /// Handles `clearCachedPropositions()` public API requests. Does not affect CBE or inbox propositions.
+++    private func clearCachedContentCardPropositions() {
+++        clearContentCards()
+++        Log.debug(label: MessagingConstants.LOG_TAG, "Persisted content card propositions cleared.")
+++    }
+++
++     /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
++     private func handleEdgeConsentResponse(_ event: Event) {
++         guard let collectVal = extractCollectConsent(from: event.data) else {
++@@ -817,21 +941,33 @@ public class Messaging: NSObject, Extension {
++         }
++     }
++ 
++-    /// Removes the `Proposition` from `qualifiedContentCardsBySurface` based on provided `activityId`.
++-    ///
++-    /// - Parameter activityId: the activityId of the `Proposition` to be removed from cache.
+++    /// Removes the `Proposition` matching `activityId` from both the live and disk qualified caches.
+++    /// Called by `handleRulesResponse` when an eventHistoryOperation consequence fires with
+++    /// a disqualify/unqualify event type (triggered on card dismiss).
++     private func removePropositionFromQualifiedCards(for activityId: String) {
++-        // find the matching proposition in `qualifiedContentCardsBySurface`
++         for (surface, propositions) in qualifiedContentCardsBySurface {
++-            if let matchedProposition = propositions.filter({ $0.activityId == activityId }).first,
+++            if let matchedProposition = propositions.first(where: { $0.activityId == activityId }),
++                let index = propositions.firstIndex(of: matchedProposition) {
++-                // we found the matching proposition - remove it from our cache
++                 qualifiedContentCardsBySurface[surface]?.remove(at: index)
++-                return
+++                break
++             }
++         }
++     }
++ 
+++    private func isNetworkAvailable() -> Bool {
+++        ServiceProvider.shared.networkService.isNetworkAvailable()
+++    }
+++
+++    /// Reads `messaging.contentCardOfflineAvailable` from the Configuration shared state.
+++    /// Defaults to `true` when the key is absent (backwards-compatible: offline availability is on
+++    /// unless the operator explicitly disables it). Pass `event: nil` to read the latest state.
+++    private func isContentCardOfflineAvailable(for event: Event? = nil) -> Bool {
+++        let config = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
+++        let value = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? true
+++        Log.debug(label: MessagingConstants.LOG_TAG, "isContentCardOfflineAvailable: \(value) (key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] == nil ? "absent from config — defaulting to true" : "found in config"))")
+++        return value
+++    }
+++
++     /// Generates and dispatches an event prompting the Edge extension to fetch propositions (in-app, content cards, or code-based experiences).
++     ///
++     /// The surface URIs used in the request are generated using the `bundleIdentifier` for the app.
++@@ -916,6 +1052,7 @@ public class Messaging: NSObject, Extension {
++             else {
++                 // response event failed or timed out, need to remove this event from the queue
++                 self.requestedSurfacesForEventId.removeValue(forKey: newEvent.id.uuidString)
+++                self.nonRecoverableErrorEventIds.remove(newEvent.id.uuidString)
++                 self.eventsQueue.start()
++ 
++                 // Call completion handler with failure so callers know the request failed
++@@ -957,7 +1094,7 @@ public class Messaging: NSObject, Extension {
++         dispatchNotificationEventFor(event, requestedSurfaces: requestedSurfaces)
++     }
++ 
++-    private func getPropositionsFromContentCardRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
+++    func getPropositionsFromContentCardRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
++         var surfacePropositions: [Surface: [Proposition]] = [:]
++ 
++         if let propositionItemsBySurface = contentCardRulesEngine.evaluate(event: event) {
++@@ -1022,18 +1159,13 @@ public class Messaging: NSObject, Extension {
++     }
++ 
++     private func endRequestFor(eventId: String) {
++-        // update in memory propositions
+++        let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
++         applyPropositionChangeFor(eventId: eventId)
++-
++-        // remove event from surfaces dictionary
++         requestedSurfacesForEventId.removeValue(forKey: eventId)
++-
++-        // clear pending propositions
+++        nonRecoverableErrorEventIds.remove(eventId)
++         inProgressPropositions.removeAll()
++-
++-        // call the handler if we have one
++         if let handler = completionHandlerFor(edgeRequestEventId: UUID(uuidString: eventId)) {
++-            handler.handle?(true)
+++            handler.handle?(!requestFailed)
++         }
++     }
++ 
++@@ -1043,24 +1175,59 @@ public class Messaging: NSObject, Extension {
++             return
++         }
++ 
++-        let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces, runtime: runtime)
+++        let ccOfflineAvailable = isContentCardOfflineAvailable()
+++        let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces, runtime: runtime,
+++                                                    contentCardOfflineAvailable: ccOfflineAvailable)
+++
+++        // A non-recoverable Edge error means this request FAILED — an empty response here does not
+++        // mean "the campaign is gone," it means "we don't know." Surfaces that returned no data in
+++        // this scenario must NOT be evicted from disk, memory, rules engines, or the content card
+++        // origin tag; their last-known-good state is preserved until a future request succeeds.
+++        let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
+++        if requestFailed {
+++            Log.warning(label: MessagingConstants.LOG_TAG,
+++                        "Request '\(eventId)' had a non-recoverable Edge error — preserving existing persisted/in-memory content for requested surfaces instead of evicting.")
+++        }
++ 
++-        // we need to preserve cache for any surfaces that were not a part of this request
++-        // any requested surface that is absent from the response needs to be removed from cache and persistence
+++        // surfaces requested but not returned must be cleared from both in-memory and disk —
+++        // unless the request itself failed (see above), in which case nothing is evicted.
++         let returnedSurfaces = Array(inProgressPropositions.keys) as [Surface]
++-        let surfacesToRemove = requestedSurfaces.minus(returnedSurfaces)
+++        let surfacesToRemove = requestFailed ? [] : requestedSurfaces.minus(returnedSurfaces)
+++
+++        // DISK FIRST (MVVM): persistent storage is the source of truth. Write all proposition types
+++        // to disk before updating in-memory so in-memory always reflects what is on disk or newer.
+++        // Failures are non-fatal: the current session still works via in-memory; offline availability
+++        // for future cold starts may be degraded. Log warnings so the app can observe the issue.
+++        let iamWriteOK = cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
+++        let ccWriteOK: Bool
+++        if ccOfflineAvailable {
+++            ccWriteOK = cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
+++        } else {
+++            // Feature disabled — clear stale data only when the request actually succeeded.
+++            if !requestFailed {
+++                clearCachedContentCardPropositions()
+++            }
+++            ccWriteOK = true
+++        }
+++
+++        if !iamWriteOK || !ccWriteOK {
+++            Log.warning(label: MessagingConstants.LOG_TAG,
+++                        "One or more proposition types failed to persist to disk — offline availability may be degraded for the next session.")
+++        }
++ 
++-        // update persistence, reporting data cache, and finally rules engine for in-app messages
++-        // order matters here because the rules engine must be a full replace, and when we update
++-        // persistence we will be removing empty surfaces and making sure unrequested surfaces
++-        // continue to have their rules active
+++        // IN-MEMORY: update all in-memory caches after disk writes.
+++        // New Proposition instances created by the rules engine default to .network cardOrigin,
+++        // so no explicit origin tagging is needed for the network path.
++         updatePropositions(parsedPropositions.propositionsToCache, removing: surfacesToRemove)
++         updateInboxPropositions(parsedPropositions.inboxPropositionsToCache, removing: surfacesToRemove)
++         updatePropositionInfo(parsedPropositions.propositionInfoToCache, removing: surfacesToRemove)
++-        cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
++ 
++-        // apply rules
++-        updateRulesEngines(with: parsedPropositions.surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces)
+++        // apply rules. On a failed request, pass only the surfaces that DID return data (usually none)
+++        // so `updateRulesEngines` cannot clear rules/qualified-cards/origin for surfaces that simply
+++        // weren't part of a successful response.
+++        updateRulesEngines(with: parsedPropositions.surfaceRulesBySchemaType,
+++                          requestedSurfaces: requestFailed ? returnedSurfaces : requestedSurfaces)
+++
++     }
++ 
++     private func updateRulesEngines(with surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
++@@ -1090,9 +1257,7 @@ public class Messaging: NSObject, Extension {
++             rulesEngine.cacheRemoteAssetsFor(collectedInAppRules)
++         }
++ 
++-        var combined = collectedInAppRules
++-        combined.append(contentsOf: collectRules(from: eventHistoryRulesBySurface))
++-        rulesEngine.launchRulesEngine.replaceRules(with: combined)
+++        rebuildMainRulesEngine()
++     }
++ 
++     private func processRulesForSchemaType(
++@@ -1124,7 +1289,84 @@ public class Messaging: NSObject, Extension {
++         rulesBySurface.flatMap { $0.value }
++     }
++ 
++-    /// Dispatch an event containing all propositions for the given surface
+++    /// Rebuilds the shared `rulesEngine` from the current `inAppRulesBySurface` and
+++    /// `eventHistoryRulesBySurface` dictionaries in one atomic `replaceRules` call.
+++    /// Called from both the network path (`updateRulesEngines`) and the offline disk-hydration
+++    /// path (`hydrateContentCardRulesEngineFromDisk`) so both use identical logic.
+++    private func rebuildMainRulesEngine() {
+++        var combined = collectRules(from: inAppRulesBySurface)
+++        combined.append(contentsOf: collectRules(from: eventHistoryRulesBySurface))
+++        rulesEngine.launchRulesEngine.replaceRules(with: combined)
+++    }
+++
+++    /// Loads CC and event-history rules from the provided propositions into their respective rules engines,
+++    /// evaluates them against a seed event, and writes qualifying propositions into
+++    /// `qualifiedContentCardsBySurface` tagged `.disk`. Writing directly (not via `addOrReplaceContentCards`)
+++    /// avoids spurious `.trigger` analytics events for boot-seeded disk cards.
+++    func hydrateContentCardPropositionsRulesEngine(for surfaces: [Surface], from propositions: [Surface: [Proposition]]) {
+++        let filtered = propositions.filter { surfaces.contains($0.key) }
+++        guard !filtered.isEmpty else { return }
+++
+++        let parsedPropositions = ParsedPropositions(with: filtered, requestedSurfaces: surfaces, runtime: runtime,
+++                                                    contentCardOfflineAvailable: true)
+++        updatePropositionInfo(parsedPropositions.propositionInfoToCache)
+++
+++        if let ccRules = parsedPropositions.surfaceRulesBySchemaType[.contentCard] {
+++            for (surface, rules) in ccRules {
+++                contentCardRulesBySurface[surface] = rules
+++            }
+++            contentCardRulesEngine.launchRulesEngine.replaceRules(with: collectRules(from: contentCardRulesBySurface))
+++        }
+++
+++        if let ehRules = parsedPropositions.surfaceRulesBySchemaType[.eventHistoryOperation] {
+++            for (surface, rules) in ehRules {
+++                eventHistoryRulesBySurface[surface] = rules
+++            }
+++            rebuildMainRulesEngine()
+++        }
+++
+++        let diskSeedEvent = Event(name: "Disk qualification at boot",
+++                                  type: EventType.messaging,
+++                                  source: EventSource.requestContent,
+++                                  data: nil)
+++        let diskQualified = getPropositionsFromContentCardRulesEngine(diskSeedEvent)
+++        for (surface, propositions) in diskQualified where surfaces.contains(surface) {
+++            for proposition in propositions {
+++                proposition.cardOrigin = .disk
+++            }
+++            qualifiedContentCardsBySurface[surface] = propositions
+++        }
+++
+++        let diskCardCount = diskQualified.values.flatMap { $0 }.count
+++        Log.debug(label: MessagingConstants.LOG_TAG,
+++                  "hydrateContentCardPropositionsRulesEngine — rules loaded, \(diskCardCount) disk-qualified card(s).")
+++    }
+++
+++    /// Reads persisted content card propositions from disk and hydrates the rules engines directly.
+++    /// Disk data is never written to `inMemoryContentCardPropositions` — it is passed straight through
+++    /// to `hydrateContentCardPropositionsRulesEngine` so disk and in-memory paths stay independent.
+++    func hydrateContentCardRulesEngineFromDisk(for surfaces: [Surface]) {
+++        Log.debug(label: MessagingConstants.LOG_TAG, "hydrateContentCardRulesEngineFromDisk — hydrating \(surfaces.count) surface(s): \(surfaces.map(\.uri))")
+++        let diskPropositions = readContentCardPropositionsFromDisk(for: surfaces)
+++        hydrateContentCardPropositionsRulesEngine(for: surfaces, from: diskPropositions)
+++    }
+++
+++    /// Hydrates the content card rules engine from EVERY persisted surface. Called once at boot from
+++    /// `readyForEvent`, mirroring the `bootupIfReady`/`bootupIfNeeded` pattern used by Edge and Edge Identity.
+++    /// Qualified cards are tagged `.disk` so `servedFromPersistentCache` reports correctly at tracking time.
+++    /// No-op if nothing has been persisted.
+++    func hydrateAllPersistedContentCards() {
+++        guard let persisted = cache.contentCardPropositions, !persisted.isEmpty else {
+++            Log.debug(label: MessagingConstants.LOG_TAG, "hydrateAllPersistedContentCards — no persisted content cards found, skipping.")
+++            return
+++        }
+++        Log.debug(label: MessagingConstants.LOG_TAG, "hydrateAllPersistedContentCards — found \(persisted.keys.count) surface(s): \(persisted.keys.map(\.uri))")
+++        hydrateContentCardRulesEngineFromDisk(for: Array(persisted.keys))
+++    }
+++
+++    /// Dispatches a response event containing all propositions for the requested surfaces.
+++    /// All qualified content cards (both boot-hydrated disk cards and live network cards) are served —
+++    /// the caller uses `proposition.cardOrigin` to differentiate them for tracking purposes.
++     private func retrieveMessages(for surfaces: [Surface], event: Event) {
++         let requestedSurfaces = surfaces.filter { $0.isValid }
++ 
++@@ -1134,16 +1376,17 @@ public class Messaging: NSObject, Extension {
++             return
++         }
++ 
++-        // get requested content cards from cache
++-        let requestedContentCards = qualifiedContentCardsBySurface.filter { surfaces.contains($0.key) }
+++        // If offline caching is disabled and stale disk data exists, evict it now in one shot
+++        // rather than iterating per-card. Skipped when disk is already clean (nil check avoids
+++        // redundant eviction when applyPropositionChangeFor already ran this session).
+++        if !isContentCardOfflineAvailable(), cache.contentCardPropositions != nil {
+++            clearCachedContentCardPropositions()
+++        }
++ 
++-        // get requested propositions (cbe) from cache
+++        let requestedContentCards = qualifiedContentCardsBySurface.filter { requestedSurfaces.contains($0.key) }
++         let requestedPropositions = retrieveCachedPropositions(for: requestedSurfaces)
++-
++-        // get requested inbox propositions from cache
++         let requestedInboxPropositions = inboxPropositionsBySurface.filter { surfaces.contains($0.key) }
++ 
++-        // merge the three maps
++         var mergedPropositions = requestedContentCards
++         for (surface, propositions) in requestedPropositions {
++             mergedPropositions.addArray(propositions, forKey: surface)
++@@ -1152,15 +1395,13 @@ public class Messaging: NSObject, Extension {
++             mergedPropositions.addArray(propositions, forKey: surface)
++         }
++ 
++-        let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: mergedPropositions.flatMap { $0.value }].asDictionary()
++-
++-        let responseEvent = event.createResponseEvent(
+++        let propositionPayload = mergedPropositions.flatMap { $0.value }.compactMap { $0.asDictionary() }
+++        dispatch(event: event.createResponseEvent(
++             name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_RESPONSE,
++             type: EventType.messaging,
++             source: EventSource.responseContent,
++-            data: eventData
++-        )
++-        dispatch(event: responseEvent)
+++            data: [MessagingConstants.Event.Data.Key.PROPOSITIONS: propositionPayload]
+++        ))
++     }
++ 
++     /// Validates that the received event contains in-app message definitions and loads them in the `MessagingRulesEngine`.
++@@ -1179,6 +1420,33 @@ public class Messaging: NSObject, Extension {
++         updateInProgressPropositionsWith(event)
++     }
++ 
+++    /// Records non-recoverable Edge errors for in-progress personalization requests.
+++    ///
+++    /// Edge dispatches `errorResponseContent` for both server-side per-event errors and network/HTTP-level
+++    /// failures. Recoverable statuses (see `RECOVERABLE_EDGE_ERROR_STATUS_CODES`) are already being retried
+++    /// by Edge's own `PersistentHitQueue` and are intentionally ignored here — Edge may still resolve them.
+++    /// Non-recoverable statuses (and errors with no status at all, e.g. a dropped connection-level error)
+++    /// are recorded so `applyPropositionChangeFor` can avoid evicting a surface's disk, memory, and content
+++    /// card origin tag when the request failed rather than the server legitimately returning nothing.
+++    private func handleEdgeErrorResponse(_ event: Event) {
+++        guard event.isEdgeErrorResponseEvent,
+++              let requestEventId = event.requestEventId,
+++              requestedSurfacesForEventId.contains(where: { $0.key == requestEventId })
+++        else {
+++            return
+++        }
+++
+++        if let status = event.edgeErrorStatus, MessagingConstants.RECOVERABLE_EDGE_ERROR_STATUS_CODES.contains(status) {
+++            Log.debug(label: MessagingConstants.LOG_TAG,
+++                      "Received recoverable Edge error (status \(status)) for request '\(requestEventId)' — Edge will retry, not marking as failed.")
+++            return
+++        }
+++
+++        Log.warning(label: MessagingConstants.LOG_TAG,
+++                    "Received non-recoverable Edge error for request '\(requestEventId)' (status \(event.edgeErrorStatus.map(String.init) ?? "unknown")) — persisted and in-memory content for the requested surfaces will not be evicted.")
+++        nonRecoverableErrorEventIds.insert(requestEventId)
+++    }
+++
++     private func updateInProgressPropositionsWith(_ event: Event) {
++         guard event.requestEventId != nil else {
++             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no requesting Event ID.")
++@@ -1294,5 +1562,9 @@ public class Messaging: NSObject, Extension {
++         func callRemoveOrReplaceContentCards(_ qualifiedContentCards: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
++             removeOrReplaceContentCards(qualifiedContentCards, requestedSurfaces: requestedSurfaces)
++         }
+++
+++        func callEnrichWithContentCardOrigin(_ xdm: [String: Any]) -> [String: Any] {
+++            enrichWithContentCardOrigin(xdm)
+++        }
++     #endif
++ }
++diff --git a/AEPMessaging/Sources/MessagingConstants.swift b/AEPMessaging/Sources/MessagingConstants.swift
++index 77bf2cc..b6c1dea 100644
++--- a/AEPMessaging/Sources/MessagingConstants.swift
+++++ b/AEPMessaging/Sources/MessagingConstants.swift
++@@ -27,6 +27,11 @@ enum MessagingConstants {
++     static let OPTIMIZE_PUSH_SYNC_ENABLED = "Push token sync optimization is enabled"
++     static let OPTIMIZE_PUSH_SYNC_DISABLED_SYNC_WITHIN_TIMEOUT = "Push registration sync optimization is disabled but the sync is within the 1 second timeout"
++ 
+++    /// HTTP status codes that Edge's own PersistentHitQueue already retries. When an
+++    /// errorResponseContent event carries one of these, Edge will resolve it on its own
+++    /// (success or eventual drop) — Messaging should not treat it as a definitive failure.
+++    static let RECOVERABLE_EDGE_ERROR_STATUS_CODES: Set<Int> = [408, 429, 502, 503, 504, 507]
+++
++     enum ContentTypes {
++         static let APPLICATION_JSON = "application/json"
++         static let TEXT_HTML = "text/html"
++@@ -38,6 +43,7 @@ enum MessagingConstants {
++         static let CACHE_NAME = "com.adobe.messaging.cache"
++         static let CONTENT_CARD_UI_CACHE_NAME = "com.adobe.messaging.contentcard.ui.cache"
++         static let PROPOSITIONS = "propositions"
+++        static let CONTENT_CARD_PROPOSITIONS = "contentCardPropositions"
++         static let PATH = "PATH"
++     }
++ 
++@@ -71,6 +77,7 @@ enum MessagingConstants {
++             static let UPDATE_PROPOSITIONS = "Update propositions"
++             static let GET_PROPOSITIONS = "Get propositions"
++             static let TRACK_PROPOSITIONS = "Track propositions"
+++            static let CLEAR_PERSISTED_PROPOSITIONS = "Clear cached propositions"
++             static let MESSAGE_PROPOSITIONS_RESPONSE = "Message propositions response"
++             static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
++             static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
++@@ -93,6 +100,7 @@ enum MessagingConstants {
++         enum Source {
++             static let EVENT_HISTORY_WRITE = "com.adobe.eventSource.eventHistoryWrite"
++             static let PERSONALIZATION_DECISIONS = "personalization:decisions"
+++            static let EDGE_ERROR_RESPONSE = "com.adobe.eventSource.errorResponseContent"
++         }
++ 
++         enum Data {
++@@ -109,6 +117,7 @@ enum MessagingConstants {
++                 static let UPDATE_PROPOSITIONS = "updatepropositions"
++                 static let GET_PROPOSITIONS = "getpropositions"
++                 static let TRACK_PROPOSITIONS = "trackpropositions"
+++                static let CLEAR_PERSISTED_PROPOSITIONS = "clearpersistedpropositions"
++                 static let PROPOSITION_INTERACTION = "propositioninteraction"
++                 static let SURFACES = "surfaces"
++                 static let PROPOSITIONS = "propositions"
++@@ -121,6 +130,12 @@ enum MessagingConstants {
++                 static let SCHEMA = "schema"
++                 static let DATA = "data"
++ 
+++                // MARK: Edge error response event keys (com.adobe.eventSource.errorResponseContent)
+++
+++                enum EdgeError {
+++                    static let STATUS = "status"
+++                }
+++
++                 // MARK: Push Notification event keys
++ 
++                 static let PUSH_INTERACTION = "isPushInteractionEvent"
++@@ -305,6 +320,9 @@ enum MessagingConstants {
++                 static let CHARACTERISTICS = "characteristics"
++                 static let TOKENS = "tokens"
++                 static let EXPERIENCE_DECISIONING_REQUEST_ID = "exdRequestID"
+++                /// Flag added to a content card interaction XDM indicating the card was served
+++                /// from the persisted on-disk cache rather than a live network response.
+++                static let SERVED_FROM_PERSISTENT_CACHE = "servedFromPersistentCache"
++             }
++ 
++             enum Value {
++@@ -378,6 +396,9 @@ enum MessagingConstants {
++ 
++             // config for disabling the push token sync optimization
++             static let OPTIMIZE_PUSH_SYNC = "messaging.optimizePushSync"
+++
+++            // config for enabling offline content card availability (disk persistence)
+++            static let CONTENT_CARD_OFFLINE_AVAILABLE = "messaging.contentCardOfflineAvailable"
++         }
++ 
++         enum EdgeIdentity {
++@@ -417,4 +438,5 @@ enum MessagingConstants {
++             static let ENDED = "ended"
++         }
++     }
+++
++ }
++diff --git a/AEPMessaging/Sources/ParsedPropositions.swift b/AEPMessaging/Sources/ParsedPropositions.swift
++index 589ab5b..8511c61 100644
++--- a/AEPMessaging/Sources/ParsedPropositions.swift
+++++ b/AEPMessaging/Sources/ParsedPropositions.swift
++@@ -32,10 +32,13 @@ struct ParsedPropositions {
++     // also need to store tracking info for in-app propositions as `PropositionInfo`
++     var propositionsToPersist: [Surface: [Proposition]] = [:]
++ 
+++    // content card ruleset propositions persisted to disk (separate from IAM)
+++    var contentCardPropositionsToPersist: [Surface: [Proposition]] = [:]
+++
++     // in-app and feed rules that need to be applied to their respective rules engines
++     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
++ 
++-    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime) {
+++    init(with propositions: [Surface: [Proposition]], requestedSurfaces: [Surface], runtime: ExtensionRuntime, contentCardOfflineAvailable: Bool = true) {
++         self.runtime = runtime
++ 
++         // sort these propositions by ordinal rank before processing them
++@@ -86,6 +89,9 @@ struct ParsedPropositions {
++                             mergeRules(parsedRule, for: surface, with: .inapp)
++                         case .feed, .contentCard:
++                             propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
+++                            if contentCardOfflineAvailable {
+++                                contentCardPropositionsToPersist.add(proposition, forKey: surface)
+++                            }
++                             mergeRules(parsedRule, for: surface, with: .contentCard)
++                         case .eventHistoryOperation:
++                             // Event history operations don't have proposition info that needs to be cached unlike the cards they are tied to
++diff --git a/AEPMessaging/Sources/Proposition.swift b/AEPMessaging/Sources/Proposition.swift
++index 1786158..b4e29f4 100644
++--- a/AEPMessaging/Sources/Proposition.swift
+++++ b/AEPMessaging/Sources/Proposition.swift
++@@ -49,6 +49,11 @@ public class Proposition: NSObject, Codable {
++         return propositionItems
++     }()
++ 
+++    /// Tracks where this proposition was loaded from. `.network` for live fetch responses;
+++    /// `.disk` for propositions hydrated from the persisted on-disk cache at boot.
+++    /// Transient — not encoded or decoded, so it never leaks into the persisted cache.
+++    var cardOrigin: CardOrigin = .network
+++
++     enum CodingKeys: String, CodingKey {
++         case id
++         case scope
++diff --git a/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift b/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift
++index 9e66601..45e44ec 100644
++--- a/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift
+++++ b/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift
++@@ -16,6 +16,8 @@ import Foundation
++ @available(iOS 15.0, *)
++ public extension Messaging {
++     /// Retrieves the content cards UI for a given surface.
+++    /// Both boot-hydrated disk cards and live network cards are included. Use `ContentCardUI.proposition.cardOrigin`
+++    /// to distinguish them for tracking purposes.
++     /// - Parameters:
++     ///   - surface: The surface for which to retrieve the content cards.
++     ///   - customizer: An optional ContentCardCustomizable object to customize the appearance of the content card template.
++@@ -27,7 +29,6 @@ public extension Messaging {
++                                   customizer: ContentCardCustomizing? = nil,
++                                   listener: ContentCardUIEventListening? = nil,
++                                   _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
++-        // Request propositions for the specified surface from Messaging extension.
++         Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
++             if let error = error {
++                 Log.error(label: UIConstants.LOG_TAG,
++@@ -38,11 +39,7 @@ public extension Messaging {
++ 
++             var cards: [ContentCardUI] = []
++ 
++-            // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
++-            guard let propositions = propositionDict?[surface] else {
++-                completion(.failure(ContentCardUIError.dataUnavailable))
++-                return
++-            }
+++            let propositions = propositionDict?[surface] ?? []
++ 
++             for proposition in propositions {
++                 // attempt to create a ContentCardUI instance with the schema data.
++@@ -70,9 +67,9 @@ public extension Messaging {
++     }
++     
++     /// Retrieves a content card container UI for a given surface.
++-    /// 
+++    ///
++     /// Returns a ContainerUI immediately that starts in a loading state.
++-    /// The container will automatically fetch content cards and container settings, 
+++    /// The container will automatically fetch content cards and container settings,
++     /// then transition to loaded, empty, or error state.
++     ///
++     /// - Parameters:
++@@ -83,7 +80,7 @@ public extension Messaging {
++     static func getInboxUI(for surface: Surface,
++                                          customizer: ContentCardCustomizing? = nil,
++                                          listener: InboxEventListening? = nil) -> InboxUI {
++-        
+++
++         // Create and return the container UI immediately with default settings
++         // It will start in loading state and fetch both container settings and cards automatically
++         let inboxUI = InboxUI(
++@@ -91,7 +88,7 @@ public extension Messaging {
++             customizer: customizer,
++             listener: listener
++         )
++-        
+++
++         return inboxUI
++     }
++ }
++diff --git a/AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift b/AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift
++index cdaecc7..3bc7f33 100644
++--- a/AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift
+++++ b/AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift
++@@ -12,6 +12,7 @@
++ 
++ import Testing
++ import SwiftUI
+++@testable import AEPCore
++ @testable import AEPMessaging
++ 
++ @Suite("GetContentCardUI", .serialized)
++@@ -48,10 +49,66 @@ class GetContentCardUITest : IntegrationTestBase {
++     func invalidSurface() async throws {
++         // setup
++         setContentCardResponse(fromFile: "SmallImageCard")
++-        
+++
++         // test and verify
++         await #expect(throws: ContentCardUIError.dataUnavailable) {
++             try await getContentCardUI(invalidSurface)
++         }
++     }
++ }
+++
+++/// Covers the app-boot hydration path: `hydrateAllPersistedContentCards()`, which is invoked once from
+++/// `readyForEvent` (after Configuration + Edge Identity are ready) mirroring the Edge/Edge Identity
+++/// `bootupIfReady` pattern. After a successful network update has persisted content cards to disk, a
+++/// fresh boot must repopulate the in-memory qualified-card cache FROM DISK — without any
+++/// `getContentCardsUI`/`getPropositionsForSurfaces` call — and tag those cards `.disk` so their display
+++/// analytics correctly report `servedFromPersistentCache`.
+++@Suite("BootHydratePersistedContentCards", .serialized)
+++class BootHydratePersistedContentCardsTest: IntegrationTestBase {
+++
+++    override init() {
+++        super.init()
+++    }
+++
+++    /// The live Messaging extension instance registered with the Event Hub.
+++    private var messagingExtension: Messaging? {
+++        EventHub.shared.getExtensionContainer(Messaging.self)?.exten as? Messaging
+++    }
+++
+++    @Test("boot hydration repopulates qualified cards from disk and tags them .disk, with no get call")
+++    func bootHydrationServesQualifiedCardsFromDisk() async throws {
+++        // 1. Persist real content card rules to disk via a successful network update. Wait on the real
+++        //    completion handler — by the time it fires, applyPropositionChangeFor has written disk.
+++        setContentCardResponse(fromFile: "MultipleCards")
+++        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+++            Messaging.updatePropositionsForSurfacesWithCompletionHandler([homeSurface]) { _ in
+++                continuation.resume()
+++            }
+++        }
+++
+++        let messaging = try #require(messagingExtension, "Messaging extension should be registered")
+++
+++        // sanity: the network update qualified cards into memory
+++        #expect(messaging.qualifiedContentCardsBySurface[homeSurface]?.isEmpty == false,
+++                "Network update should have qualified content cards into memory")
+++
+++        // 2. Simulate a fresh cold boot: clear the in-memory qualified cache (disk cache is left
+++        //    intact). If hydration did NOT read disk, the array would stay empty below.
+++        messaging.qualifiedContentCardsBySurface = [:]
+++        #expect(messaging.qualifiedContentCardsBySurface[homeSurface] == nil)
+++
+++        // 3. Run the boot hydration (exactly what readyForEvent does at boot). No get API is called.
+++        messaging.hydrateAllPersistedContentCards()
+++
+++        // 4. The qualified array must be repopulated FROM DISK (proves disk was read + rules re-ran).
+++        let hydratedCards = messaging.qualifiedContentCardsBySurface[homeSurface] ?? []
+++        #expect(!hydratedCards.isEmpty,
+++                "Boot hydration must repopulate qualified content cards from the persisted disk cache")
+++
+++        // 5. Every hydrated card must be tagged `.disk`, so servedFromPersistentCache reports offline.
+++        for card in hydratedCards {
+++            #expect(card.cardOrigin == .disk,
+++                    "Boot-hydrated card \(card.uniqueId) must be tagged .disk for accurate analytics")
+++        }
+++    }
+++}
++diff --git a/AEPMessaging/Tests/TestHelpers/MockCache.swift b/AEPMessaging/Tests/TestHelpers/MockCache.swift
++index 2afa613..38387d4 100644
++--- a/AEPMessaging/Tests/TestHelpers/MockCache.swift
+++++ b/AEPMessaging/Tests/TestHelpers/MockCache.swift
++@@ -16,21 +16,29 @@ import Foundation
++ import XCTest
++ 
++ class MockCache: Cache {
+++    /// Simulates real cache storage so that get() reflects what was previously set().
+++    /// This allows multi-step tests (write then read) to work correctly.
+++    private var internalStorage: [String: CacheEntry] = [:]
+++
++     var getCalled = false
++     var getParamKey: String?
+++    /// Fallback return value used when no matching entry is in `internalStorage`.
++     var getReturnValue: CacheEntry?
++     override func get(key: String) -> CacheEntry? {
++         getCalled = true
++         getParamKey = key
++-        return getReturnValue
+++        return internalStorage[key] ?? getReturnValue
++     }
++ 
++     var removeCalled = false
++     var removeParamKey: String?
+++    var removeCalls: [String] = []
++     var removeShouldThrow = false
++     override func remove(key: String) throws {
++         removeCalled = true
++         removeParamKey = key
+++        removeCalls.append(key)
+++        internalStorage.removeValue(forKey: key)
++         if removeShouldThrow {
++             throw MockCacheError.mockThrow
++         }
++@@ -40,14 +48,17 @@ class MockCache: Cache {
++     var setCalledExpectation: XCTestExpectation?
++     var setParamKey: String?
++     var setParamEntry: CacheEntry?
+++    var setCalls: [(key: String, entry: CacheEntry)] = []
++     var setShouldThrow = false
++     override func set(key: String, entry: CacheEntry) throws {
++         setCalled = true
++         setParamKey = key
++         setParamEntry = entry
+++        setCalls.append((key: key, entry: entry))
++         if setShouldThrow {
++             throw MockCacheError.mockThrow
++         }
+++        internalStorage[key] = entry
++         if let expectation = setCalledExpectation {
++             expectation.fulfill()
++         }
++diff --git a/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift b/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift
++new file mode 100644
++index 0000000..8e9486a
++--- /dev/null
+++++ b/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift
++@@ -0,0 +1,27 @@
+++/*
+++ Copyright 2026 Adobe. All rights reserved.
+++ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+++ you may not use this file except in compliance with the License. You may obtain a copy
+++ of the License at http://www.apache.org/licenses/LICENSE-2.0
+++
+++ Unless required by applicable law or agreed to in writing, software distributed under
+++ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+++ OF ANY KIND, either express or implied. See the License for the specific language
+++ governing permissions and limitations under the License.
+++ */
+++
+++import AEPServices
+++
+++class MockNetworkAvailabilityService: Networking {
+++    var isAvailable: Bool
+++
+++    init(isAvailable: Bool = true) {
+++        self.isAvailable = isAvailable
+++    }
+++
+++    func connectAsync(networkRequest: NetworkRequest, completionHandler: ((HttpConnection) -> Void)?) {}
+++
+++    func isNetworkAvailable() -> Bool {
+++        return isAvailable
+++    }
+++}
++diff --git a/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift b/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift
++index 42258c6..e81ca3c 100644
++--- a/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift
+++++ b/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift
++@@ -282,4 +282,48 @@ class CacheMessagingTests: XCTestCase {
++         XCTAssertEqual("inapp4", paramProp?.scope)
++         XCTAssertEqual(1, paramProp?.items.count)
++     }
+++
+++    // MARK: - contentCardPropositions
+++
+++    func testContentCardPropositionsHappy() throws {
+++        let ccSurface = Surface(uri: "mobileapp://feeds/homeCards")
+++        let ccProposition = Proposition(uniqueId: "ccProp1", scope: ccSurface.uri, scopeDetails: ["key": "value"], items: [])
+++        mockCache.getReturnValue = getPropositionCacheEntry([ccSurface.uri: [ccProposition]])
+++
+++        let result = mockCache.contentCardPropositions
+++
+++        XCTAssertNotNil(result)
+++        XCTAssertEqual(1, result?.count)
+++        XCTAssertEqual("ccProp1", result?[ccSurface]?.first?.uniqueId)
+++    }
+++
+++    func testContentCardPropositionsNoneInCache() throws {
+++        mockCache.getReturnValue = nil
+++        XCTAssertNil(mockCache.contentCardPropositions)
+++    }
+++
+++    func testUpdateContentCardPropositionsHappy() throws {
+++        let surface = Surface(uri: "ccSurface")
+++        let item = PropositionItem(itemId: "ccItem", schema: .ruleset, itemData: [:])
+++        let prop = Proposition(uniqueId: "ccProp", scope: surface.uri, scopeDetails: ["key": "value"], items: [item])
+++
+++        mockCache.updateContentCardPropositions([surface: [prop]])
+++
+++        XCTAssertTrue(mockCache.setCalled)
+++        XCTAssertEqual(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS, mockCache.setParamKey)
+++        let decoder = JSONDecoder()
+++        let decoded = try? decoder.decode([String: [Proposition]].self, from: mockCache.setParamEntry!.data)
+++        XCTAssertEqual("ccProp", decoded?[surface.uri]?.first?.uniqueId)
+++    }
+++
+++    func testUpdateContentCardPropositionsDoesNotAffectIAMCacheKey() throws {
+++        let surface = Surface(uri: "ccSurface")
+++        let item = PropositionItem(itemId: "ccItem", schema: .ruleset, itemData: [:])
+++        let prop = Proposition(uniqueId: "ccProp", scope: surface.uri, scopeDetails: ["key": "value"], items: [item])
+++
+++        mockCache.updateContentCardPropositions([surface: [prop]])
+++
+++        XCTAssertNotEqual(MessagingConstants.Caches.PROPOSITIONS, mockCache.setParamKey)
+++    }
+++
++ }
++diff --git a/AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift b/AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift
++index 49f1e7e..ab710d5 100644
++--- a/AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift
+++++ b/AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift
++@@ -663,4 +663,85 @@ class MessagingEdgeEventsTests: XCTestCase {
++ //        // verify
++ //        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
++ //    }
+++
+++    // MARK: - enrichWithContentCardOrigin
+++
+++    func testEnrichWithContentCardOriginInjectsAtItemsCharacteristicsLevel() {
+++        // build a proposition item dict matching the XDM wire format
+++        let itemDict: [String: Any] = [
+++            "id": "item1",
+++            "schema": "https://ns.adobe.com/personalization/ruleset-item",
+++            "data": ["someKey": "someVal"]
+++        ]
+++        let propositionDict: [String: Any] = [
+++            MessagingConstants.XDM.Inbound.Key.ID: "prop1",
+++            MessagingConstants.XDM.Inbound.Key.ITEMS: [itemDict]
+++        ]
+++        let xdm: [String: Any] = [
+++            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: [
+++                MessagingConstants.XDM.Inbound.Key.DECISIONING: [
+++                    MessagingConstants.XDM.Inbound.Key.PROPOSITIONS: [propositionDict],
+++                    MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE: [
+++                        MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY: 1
+++                    ]
+++                ]
+++            ]
+++        ]
+++
+++        // seed a .disk-tagged proposition in memory so the enrichment can find it
+++        let propItem = PropositionItem(itemId: "item1", schema: .ruleset, itemData: [:])
+++        let prop = Proposition(uniqueId: "prop1", scope: "surface1", scopeDetails: [:], items: [propItem])
+++        prop.cardOrigin = .disk
+++        messaging.qualifiedContentCardsBySurface = [Surface(uri: "surface1"): [prop]]
+++
+++        let enriched = messaging.enrichWithContentCardOrigin(xdm)
+++
+++        // navigate to items[0].data.characteristics
+++        let experience = enriched[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
+++        let decisioning = experience?[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any]
+++        let propositions = decisioning?[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]]
+++        let enrichedItem = (propositions?.first?[MessagingConstants.XDM.Inbound.Key.ITEMS] as? [[String: Any]])?.first
+++        let characteristics = (enrichedItem?["data"] as? [String: Any])?[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] as? [String: Any]
+++
+++        XCTAssertEqual(true, characteristics?[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE] as? Bool,
+++                       "servedFromPersistentCache must be true at items[].data.characteristics for a .disk card")
+++
+++        // verify it is NOT at the proposition level
+++        XCTAssertNil(propositions?.first?[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE],
+++                     "servedFromPersistentCache must not appear at the proposition level")
+++    }
+++
+++    func testEnrichWithContentCardOriginNetworkCardSetsFalse() {
+++        let itemDict: [String: Any] = ["id": "item2", "schema": "schema", "data": [:] as [String: Any]]
+++        let propositionDict: [String: Any] = [
+++            MessagingConstants.XDM.Inbound.Key.ID: "prop2",
+++            MessagingConstants.XDM.Inbound.Key.ITEMS: [itemDict]
+++        ]
+++        let xdm: [String: Any] = [
+++            MessagingConstants.XDM.AdobeKeys.EXPERIENCE: [
+++                MessagingConstants.XDM.Inbound.Key.DECISIONING: [
+++                    MessagingConstants.XDM.Inbound.Key.PROPOSITIONS: [propositionDict],
+++                    MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE: [
+++                        MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY: 1
+++                    ]
+++                ]
+++            ]
+++        ]
+++
+++        let propItem = PropositionItem(itemId: "item2", schema: .ruleset, itemData: [:])
+++        let prop = Proposition(uniqueId: "prop2", scope: "surface1", scopeDetails: [:], items: [propItem])
+++        // default cardOrigin is .network
+++        messaging.qualifiedContentCardsBySurface = [Surface(uri: "surface1"): [prop]]
+++
+++        let enriched = messaging.enrichWithContentCardOrigin(xdm)
+++
+++        let experience = enriched[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any]
+++        let decisioning = experience?[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any]
+++        let propositions = decisioning?[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]]
+++        let enrichedItem = (propositions?.first?[MessagingConstants.XDM.Inbound.Key.ITEMS] as? [[String: Any]])?.first
+++        let characteristics = (enrichedItem?["data"] as? [String: Any])?[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] as? [String: Any]
+++
+++        XCTAssertEqual(false, characteristics?[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE] as? Bool,
+++                       "servedFromPersistentCache must be false at items[].data.characteristics for a .network card")
+++    }
++ }
++diff --git a/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift b/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift
++index b11c6a1..6d1fc9c 100644
++--- a/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift
+++++ b/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift
++@@ -622,7 +622,25 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
++         // verify
++         wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
++     }
++-    
+++
+++    func testGetPropositionsForSurfacesDoesNotSetPersistedFlag() throws {
+++        let eventExpectation = XCTestExpectation(description: "event should be dispatched")
+++        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: EventType.messaging, source: EventSource.requestContent) { event in
+++            // the persisted-flag approach has been removed; offline hydration is automatic
+++            XCTAssertTrue(event.data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false)
+++            eventExpectation.fulfill()
+++            let responseEvent = event.createResponseEvent(name: "name", type: "type", source: "source", data: ["propositions": []])
+++            MobileCore.dispatch(event: responseEvent)
+++        }
+++
+++        let expectation = XCTestExpectation(description: "completion")
+++        Messaging.getPropositionsForSurfaces([Surface(uri: MOCK_FEEDS_SURFACE)]) { _, _ in
+++            expectation.fulfill()
+++        }
+++
+++        wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
+++    }
+++
++     /// Private Helper methods
++     private func createNotificationResponse(actionId : String = UNNotificationDefaultActionIdentifier,
++                                             trackingData : [String : Any]? = MOCK_TRACKING_DETAILS,
++diff --git a/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift b/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift
++index cbadb79..4ec8dc0 100644
++--- a/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift
+++++ b/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift
++@@ -149,4 +149,63 @@ class MessagingPlusStateTests: XCTestCase {
++         XCTAssertEqual(1, messaging.inMemoryPropositions.count)
++         XCTAssertNil(messaging.inMemoryPropositions[mockIamSurface])
++     }
+++
+++    func testHydrateContentCardRulesEngineFromDiskEmptyCacheDoesNothing() throws {
+++        mockCache.getReturnValue = nil
+++
+++        messaging.hydrateContentCardRulesEngineFromDisk(for: [mockIamSurface])
+++
+++        XCTAssertFalse(mockLaunchRulesEngineForFeeds.replaceRulesCalled)
+++    }
+++
+++    func testHydrateContentCardRulesEngineFromDiskLoadsRules() throws {
+++        let feedSurface = Surface(uri: "feed")
+++        let feedContent = JSONFileLoader.getRulesJsonFromFile("feedPropositionContent")
+++        let feedItem = PropositionItem(itemId: "feedItem", schema: .ruleset, itemData: feedContent)
+++        let feedProp = Proposition(uniqueId: "feedProp", scope: feedSurface.uri, scopeDetails: ["key": "value"], items: [feedItem])
+++        let encoder = JSONEncoder()
+++        let cacheData = try encoder.encode([feedSurface.uri: [feedProp]])
+++        mockCache.getReturnValue = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
+++
+++        messaging.hydrateContentCardRulesEngineFromDisk(for: [feedSurface])
+++
+++        XCTAssertTrue(mockLaunchRulesEngineForFeeds.replaceRulesCalled)
+++    }
+++
+++    func testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty() throws {
+++        messaging.onRegistered()
+++        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+++
+++        let feedSurface = Surface(uri: "feed")
+++        let feedContent = JSONFileLoader.getRulesJsonFromFile("feedPropositionContent")
+++        let feedItem = PropositionItem(itemId: "feedItem", schema: .ruleset, itemData: feedContent)
+++        let feedProp = Proposition(uniqueId: "feedProp", scope: feedSurface.uri, scopeDetails: ["key": "value"], items: [feedItem])
+++        let encoder = JSONEncoder()
+++        let cacheData = try encoder.encode([feedSurface.uri: [feedProp]])
+++        mockCache.getReturnValue = CacheEntry(data: cacheData, expiry: .never, metadata: nil)
+++
+++        // disk hydration is automatic at boot; all qualified cards are returned
+++        let eventData: [String: Any] = [
+++            MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
+++            MessagingConstants.Event.Data.Key.SURFACES: [feedSurface].compactMap { $0.asDictionary() }
+++        ]
+++        let getEvent = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
+++                             type: EventType.messaging,
+++                             source: EventSource.requestContent,
+++                             data: eventData)
+++
+++        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+++                                        data: (["messaging.eventDataset": "mockDataset"], .set))
+++        mockRuntime.simulateComingEvents(getEvent)
+++        Thread.sleep(forTimeInterval: 0.2)
+++
+++        let responseEvent = mockRuntime.dispatchedEvents.first {
+++            $0.type == EventType.messaging && $0.source == EventSource.responseContent
+++        }
+++        XCTAssertNotNil(responseEvent, "A propositions response event should be dispatched")
+++        XCTAssertNotNil(responseEvent?.propositions,
+++                        "Response must include propositions array after automatic disk hydration")
+++        XCTAssertTrue(mockLaunchRulesEngineForFeeds.replaceRulesCalled,
+++                      "Content card rules engine should hydrate from disk when in-memory is empty")
+++    }
++ }
++diff --git a/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift b/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift
++index 285297f..9bad898 100644
++--- a/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift
+++++ b/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift
++@@ -130,20 +130,21 @@ class MessagingProcessCompletedEventTests: XCTestCase {
++         let cardRuleCount = mockContentCardLaunchRulesEngine.paramReplaceRulesRules?.count ?? 0
++         XCTAssertEqual(4, cardRuleCount)
++ 
++-        // Verify propositions were cached once
+++        // Verify IAM propositions were cached (separate from content card cache)
++         XCTAssertTrue(mockCache.setCalled, "Cache should have been updated with new propositions")
++-        if let entry = mockCache.setParamEntry {
++-            // Decode cached data into dictionary
++-            if let decoded = try? JSONDecoder().decode([String: [Proposition]].self, from: entry.data) {
++-                // Only IAM surface should be present (mockSurface removed)
++-                XCTAssertEqual(1, decoded.count)
++-                if let iamCached = decoded[iamSurface.uri] {
++-                    XCTAssertEqual(3, iamCached.count, "Three IAM propositions should be cached")
++-                } else {
++-                    XCTFail("IAM surface not found in cached propositions")
++-                }
+++        let iamCacheEntry = mockCache.setCalls.first { $0.key == MessagingConstants.Caches.PROPOSITIONS }?.entry
+++        XCTAssertNotNil(iamCacheEntry, "IAM propositions cache entry should exist")
+++        if let entry = iamCacheEntry,
+++           let decoded = try? JSONDecoder().decode([String: [Proposition]].self, from: entry.data) {
+++            XCTAssertEqual(1, decoded.count)
+++            if let iamCached = decoded[iamSurface.uri] {
+++                XCTAssertEqual(3, iamCached.count, "Three IAM propositions should be cached")
+++            } else {
+++                XCTFail("IAM surface not found in cached propositions")
++             }
++         }
+++        XCTAssertNotNil(mockCache.setCalls.first { $0.key == MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS },
+++                        "Content card propositions should be cached separately")
++         // Cache.remove should NOT be invoked because the propositions file remains with other surfaces
++         XCTAssertFalse(mockCache.removeCalled)
++         // Notification event should NOT be dispatched
++@@ -193,6 +194,8 @@ class MessagingProcessCompletedEventTests: XCTestCase {
++         mockContentCardLaunchRulesEngine.replaceRulesCalled = false
++         mockCache.setCalled = false
++         mockCache.removeCalled = false
+++        mockCache.setCalls.removeAll()
+++        mockCache.removeCalls.removeAll()
++ 
++         let secondPayload = cardPropositions.compactMap { $0.asDictionary() }
++         let secondRequestId = "TESTING_ID_2"
++@@ -229,9 +232,13 @@ class MessagingProcessCompletedEventTests: XCTestCase {
++         }
++         XCTAssertEqual(0, secondIamRules.count, "Second response should not contain any IAM rules")
++ 
++-        // Cache behavior: set should NOT be called, but propositions file should be removed (removeCalled)
++-        XCTAssertFalse(mockCache.setCalled)
++-        XCTAssertTrue(mockCache.removeCalled, "Cache file should be deleted when no IAM propositions remain")
+++        // Cache behavior: IAM propositions file removed; content cards still persisted
+++        XCTAssertFalse(mockCache.setCalls.contains { $0.key == MessagingConstants.Caches.PROPOSITIONS },
+++                       "IAM cache should not be written when no IAM propositions remain")
+++        XCTAssertTrue(mockCache.removeCalls.contains(MessagingConstants.Caches.PROPOSITIONS),
+++                      "IAM cache file should be deleted when no IAM propositions remain")
+++        XCTAssertTrue(mockCache.setCalls.contains { $0.key == MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS },
+++                      "Content card cache should still be updated")
++ 
++         // No proposition-received event dispatched
++         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
++@@ -600,4 +607,52 @@ class MessagingProcessCompletedEventTests: XCTestCase {
++                            ],
++                            items: [item])
++     }
+++
+++    func test_handleProcessCompletedEvent_noDecisions_preservesContentCardDiskCache() throws {
+++        let cardProposition = makeCardProposition(surface: cardSurface, index: 0)
+++        mockCache.updateContentCardPropositions([cardSurface: [cardProposition]])
+++
+++        let requestId = "NO_DECISIONS_ID"
+++        messaging.setRequestedSurfacesforEventId(requestId, expectedSurfaces: [cardSurface])
+++
+++        let processEvent = Event(name: "process complete",
+++                                 type: EventType.messaging,
+++                                 source: EventSource.contentComplete,
+++                                 data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
+++
+++        messaging.handleProcessCompletedEvent(processEvent)
+++
+++        XCTAssertFalse(mockCache.removeCalls.contains(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS),
+++                       "Failed fetch must not clear persisted content card propositions")
+++        XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled,
+++                       "Content-card rules engine must not be updated when no decisions were received")
+++    }
+++
+++    /// Offline hydration must load the event-history (qualify/disqualify) rules that ride inside the
+++    /// persisted content-card proposition into the MAIN rules engine — not just the content-card rules —
+++    /// so dismiss/disqualify (and later re-qualify) behave identically offline, matching the in-memory
+++    /// (network) path. `contentCardPropositionContent.json` carries both a content-card consequence and
+++    /// eventHistoryOperation (disqualify) consequences. Before the fix, hydration touched only the
+++    /// content-card engine and dropped the disqualify rules, so the main engine was never updated.
+++    func test_hydrateContentCardRulesEngineFromDisk_loadsDisqualifyRulesIntoMainRulesEngine() {
+++        // Persist a content-card proposition (which also carries eventHistoryOperation/disqualify rules).
+++        let cardProposition = makeCardProposition(surface: cardSurface, index: 0)
+++        mockCache.updateContentCardPropositions([cardSurface: [cardProposition]])
+++
+++        // Sanity: the main rules engine has not been touched yet.
+++        XCTAssertFalse(mockLaunchRulesEngine.replaceRulesCalled,
+++                       "Precondition: main rules engine untouched before hydration")
+++
+++        // Hydrate offline from disk.
+++        messaging.hydrateContentCardRulesEngineFromDisk(for: [cardSurface])
+++
+++        // The content-card rules must load into the content-card engine (as before)...
+++        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled,
+++                      "Content-card rules should load into the content-card engine on hydration")
+++        // ...AND the disqualify (eventHistoryOperation) rules must now load into the MAIN engine.
+++        XCTAssertTrue(mockLaunchRulesEngine.replaceRulesCalled,
+++                      "Offline hydration must load the disqualify rules into the main rules engine")
+++        XCTAssertFalse(mockLaunchRulesEngine.paramReplaceRulesRules?.isEmpty ?? true,
+++                       "The disqualify rules loaded into the main engine must be non-empty")
+++    }
++ }
++diff --git a/AEPMessaging/Tests/UnitTests/MessagingTests.swift b/AEPMessaging/Tests/UnitTests/MessagingTests.swift
++index 636a301..72e6005 100644
++--- a/AEPMessaging/Tests/UnitTests/MessagingTests.swift
+++++ b/AEPMessaging/Tests/UnitTests/MessagingTests.swift
++@@ -31,7 +31,6 @@ class MessagingTests: XCTestCase {
++     var mockProposition: MockProposition!
++     var stateManager: MessagingStateManager!
++ 
++-
++     // Mock constants
++     let MOCK_ECID = "mock_ecid"
++     let MOCK_EVENT_DATASET = "mock_event_dataset"
++@@ -61,7 +60,6 @@ class MessagingTests: XCTestCase {
++         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
++         mockNetworkService = MockNetworkService()
++         ServiceProvider.shared.networkService = mockNetworkService!
++-        
++         MobileCore.messagingDelegate = nil
++     }
++     
++@@ -79,8 +77,8 @@ class MessagingTests: XCTestCase {
++     }
++     
++     /// validate that 9 listeners are registered onRegister
++-    func testOnRegistered_nineListenersAreRegistered() {
++-        XCTAssertEqual(mockRuntime.listeners.count, 9)
+++    func testOnRegistered_tenListenersAreRegistered() {
+++        XCTAssertEqual(mockRuntime.listeners.count, 10)
++     }
++     
++     func testOnUnregisteredCallable() throws {
++@@ -1677,7 +1675,30 @@ class MessagingTests: XCTestCase {
++     }
++     
++     // MARK: - Completion Handler Failure Tests
++-    
+++
+++    func testHandleProcessEvent_getPropositions_returnsWithoutQueueingBehindUpdate() {
+++        let getEvent = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
+++                             type: EventType.messaging,
+++                             source: EventSource.requestContent,
+++                             data: [
+++                                 MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
+++                                 MessagingConstants.Event.Data.Key.SURFACES: [["uri": mockSurface.uri]]
+++                             ])
+++        
+++        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+++                                        data: (value: [:], status: SharedStateStatus.set))
+++        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+++                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+++        
+++        messaging.handleProcessEvent(getEvent)
+++        
+++        let responseEvent = mockRuntime.dispatchedEvents.first(where: {
+++            $0.source == EventSource.responseContent && $0.responseID == getEvent.id
+++        })
+++        XCTAssertNotNil(responseEvent)
+++        XCTAssertEqual(MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_RESPONSE, responseEvent?.name)
+++    }
+++
++     /// Test that completion handler is called with false when Edge request response is nil (timeout)
++     func testFetchPropositions_completionCalledWithFalse_whenResponseEventIsNil() {
++         // Setup
++diff --git a/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift b/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift
++index 6c2f24f..0d1356b 100644
++--- a/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift
+++++ b/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift
++@@ -82,6 +82,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -100,6 +101,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -159,6 +161,8 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual("feed", feedPropositionInfo?.id)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(1, result.contentCardPropositionsToPersist.count, "feed ruleset should persist to CC bucket")
+++        XCTAssertEqual(mockFeedSurface, result.contentCardPropositionsToPersist.keys.first)
++         XCTAssertEqual(1, result.surfaceRulesBySchemaType.count, "should have one rule to insert in the feeds rules engine")
++         let feedRules = result.surfaceRulesBySchemaType[.contentCard]
++         XCTAssertNotNil(feedRules)
++@@ -183,7 +187,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++-    
+++
++     func testInitWithDefaultContentConsequence() throws {
++         // setup
++         let defaultContentRule = JSONFileLoader.getRulesJsonFromFile("ruleWithDefaultContentConsequence")
++@@ -220,6 +224,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -240,6 +245,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -260,6 +266,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -279,6 +286,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -297,6 +305,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -442,6 +451,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++ 
++@@ -461,6 +471,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++         XCTAssertEqual(1, result.inboxPropositionsToCache.count)
++         XCTAssertEqual(1, result.inboxPropositionsToCache[mockInboxSurface]?.count)
++@@ -519,6 +530,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertNotNil(result)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(1, result.inboxPropositionsToCache.count)
++     }
++     
++diff --git a/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift b/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift
++new file mode 100644
++index 0000000..98ed889
++--- /dev/null
+++++ b/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift
++@@ -0,0 +1,63 @@
+++/*
+++ Copyright 2026 Adobe. All rights reserved.
+++ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+++ you may not use this file except in compliance with the License. You may obtain a copy
+++ of the License at http://www.apache.org/licenses/LICENSE-2.0
+++
+++ Unless required by applicable law or agreed to in writing, software distributed under
+++ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+++ OF ANY KIND, either express or implied. See the License for the specific language
+++ governing permissions and limitations under the License.
+++ */
+++
+++@testable import AEPCore
+++@testable import AEPMessaging
+++import AEPTestUtils
+++import XCTest
+++
+++@available(iOS 15.0, *)
+++class MessagingUIPublicApiTest: XCTestCase {
+++
+++    let ASYNC_TIMEOUT = 2.0
+++    let surface = Surface(uri: "mobileapp://com.adobe.ajo.e2eTestApp/promos/feed1")
+++
+++    override func setUp() {
+++        EventHub.shared.start()
+++        registerMockExtension(MockExtension.self)
+++    }
+++
+++    override func tearDown() {
+++        MobileCore.resetSDK()
+++    }
+++
+++    private func registerMockExtension<T: Extension>(_ type: T.Type) {
+++        let semaphore = DispatchSemaphore(value: 0)
+++        EventHub.shared.registerExtension(type) { _ in
+++            semaphore.signal()
+++        }
+++        semaphore.wait()
+++    }
+++
+++    func testGetContentCardsUIDispatchesGetPropositionsEvent() {
+++        let eventExpectation = expectation(description: "get propositions event")
+++        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+++            type: EventType.messaging,
+++            source: EventSource.requestContent
+++        ) { event in
+++            // offline hydration is now automatic — no persisted-flag in the event
+++            XCTAssertTrue(event.data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false)
+++            eventExpectation.fulfill()
+++            let responseEvent = event.createResponseEvent(
+++                name: "name", type: "type", source: "source", data: ["propositions": []]
+++            )
+++            MobileCore.dispatch(event: responseEvent)
+++        }
+++
+++        let completionExpectation = expectation(description: "completion")
+++        Messaging.getContentCardsUI(for: surface) { _ in
+++            completionExpectation.fulfill()
+++        }
+++
+++        wait(for: [completionExpectation, eventExpectation], timeout: ASYNC_TIMEOUT)
+++    }
+++}
++diff --git a/Podfile b/Podfile
++index 2b042cf..1bfd99b 100644
++--- a/Podfile
+++++ b/Podfile
++@@ -20,9 +20,12 @@ $dev_branch = 'dev-v5.5.0'
++ # ==================
++ # SHARED POD GROUPS
++ # ==================
+++$network_repo = 'https://github.com/adobe/aepsdk-core-ios.git'
+++$network_branch = 'MOB-25282/network-availabilty'
+++
++ def lib_main
++-    pod 'AEPCore'
++-    pod 'AEPServices'
+++    pod 'AEPCore', :git => $network_repo, :branch => $network_branch
+++    pod 'AEPServices', :git => $network_repo, :branch => $network_branch
++     pod 'AEPRulesEngine'
++ end
++ 
++diff --git a/Podfile.lock b/Podfile.lock
++index d6dcf3d..a69063c 100644
++--- a/Podfile.lock
+++++ b/Podfile.lock
++@@ -2,24 +2,24 @@ PODS:
++   - AEPAssurance (5.0.3):
++     - AEPCore (< 6.0.0, >= 5.0.0)
++     - AEPServices (< 6.0.0, >= 5.0.0)
++-  - AEPCore (5.8.0):
+++  - AEPCore (5.10.0):
++     - AEPRulesEngine (< 6.0.0, >= 5.0.0)
++-    - AEPServices (< 6.0.0, >= 5.8.0)
+++    - AEPServices (< 6.0.0, >= 5.10.0)
++   - AEPEdge (5.0.3):
++     - AEPCore (< 6.0.0, >= 5.3.1)
++     - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
++-  - AEPEdgeConsent (5.0.1):
+++  - AEPEdgeConsent (5.0.2):
++     - AEPCore (< 6.0.0, >= 5.0.0)
++     - AEPEdge (< 6.0.0, >= 5.0.0)
++   - AEPEdgeIdentity (5.0.0):
++     - AEPCore (< 6.0.0, >= 5.0.0)
++-  - AEPLifecycle (5.8.0):
++-    - AEPCore (< 6.0.0, >= 5.8.0)
++-  - AEPMessagingNotification (5.13.0)
+++  - AEPLifecycle (5.9.0):
+++    - AEPCore (< 6.0.0, >= 5.9.0)
+++  - AEPMessagingNotification (5.14.0)
++   - AEPRulesEngine (5.0.0)
++-  - AEPServices (5.8.0)
++-  - AEPSignal (5.8.0):
++-    - AEPCore (< 6.0.0, >= 5.8.0)
+++  - AEPServices (5.10.0)
+++  - AEPSignal (5.9.0):
+++    - AEPCore (< 6.0.0, >= 5.9.0)
++   - AEPTestUtils (5.6.0):
++     - AEPCore (< 6.0.0, >= 5.6.0)
++     - AEPServices (< 6.0.0, >= 5.6.0)
++@@ -27,14 +27,14 @@ PODS:
++ 
++ DEPENDENCIES:
++   - AEPAssurance
++-  - AEPCore
+++  - AEPCore (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `MOB-25282/network-availabilty`)
++   - AEPEdge
++   - AEPEdgeConsent
++   - AEPEdgeIdentity
++   - AEPLifecycle
++   - AEPMessagingNotification (from `./`)
++   - AEPRulesEngine
++-  - AEPServices
+++  - AEPServices (from `https://github.com/adobe/aepsdk-core-ios.git`, branch `MOB-25282/network-availabilty`)
++   - AEPSignal
++   - AEPTestUtils (from `https://github.com/adobe/aepsdk-core-ios.git`, tag `testutils-5.6.0`)
++   - SwiftLint (= 0.52.0)
++@@ -42,42 +42,52 @@ DEPENDENCIES:
++ SPEC REPOS:
++   trunk:
++     - AEPAssurance
++-    - AEPCore
++     - AEPEdge
++     - AEPEdgeConsent
++     - AEPEdgeIdentity
++     - AEPLifecycle
++     - AEPRulesEngine
++-    - AEPServices
++     - AEPSignal
++     - SwiftLint
++ 
++ EXTERNAL SOURCES:
+++  AEPCore:
+++    :branch: MOB-25282/network-availabilty
+++    :git: https://github.com/adobe/aepsdk-core-ios.git
++   AEPMessagingNotification:
++     :path: "./"
+++  AEPServices:
+++    :branch: MOB-25282/network-availabilty
+++    :git: https://github.com/adobe/aepsdk-core-ios.git
++   AEPTestUtils:
++     :git: https://github.com/adobe/aepsdk-core-ios.git
++     :tag: testutils-5.6.0
++ 
++ CHECKOUT OPTIONS:
+++  AEPCore:
+++    :commit: 9dd26000818ed6811c2c2ce056505cbbd795a759
+++    :git: https://github.com/adobe/aepsdk-core-ios.git
+++  AEPServices:
+++    :commit: 9dd26000818ed6811c2c2ce056505cbbd795a759
+++    :git: https://github.com/adobe/aepsdk-core-ios.git
++   AEPTestUtils:
++     :git: https://github.com/adobe/aepsdk-core-ios.git
++     :tag: testutils-5.6.0
++ 
++ SPEC CHECKSUMS:
++   AEPAssurance: 3ab00d47a40bc6c6cb2000689e0dcfa595cda250
++-  AEPCore: 65d2f2c9ef750ce89557dba59a71e729306f0629
+++  AEPCore: f3340981c5f734f52cf1f6570ec1ba27765c4a37
++   AEPEdge: 105afc7958acd7c016d57f7ac1d6f632bf05e6ee
++-  AEPEdgeConsent: 5f28a8ed6cd86812a73b1f5a4dbde9c81e486bf1
+++  AEPEdgeConsent: b5a54985b79ee0222b1f1fc4b0859f8b8afed07a
++   AEPEdgeIdentity: 3161ff33434586962946912d6b8e9e8fca1c4d23
++-  AEPLifecycle: 1ff56cdd009b043c2ad412ddf8952beefd1f3e3d
++-  AEPMessagingNotification: e6604109a7f6d5e7de8021363c0ec845f98f884d
+++  AEPLifecycle: fa857186177957ef32bfc23a8a3151dca91b6e35
+++  AEPMessagingNotification: 6f906b8694f2e541e5f3b2e2811fa94ce0b58ec3
++   AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
++-  AEPServices: a5608a9d3749701030e12fe379f53e40fa6f8e6f
++-  AEPSignal: 63a1c25c5f99c775a78bc398d728ed50a3bc6184
+++  AEPServices: eaa574567b585ba5588a633dfd0f3e2c2d50f525
+++  AEPSignal: bd71d5f82f961b9f91d4a65c6eba1b269c5c9c44
++   AEPTestUtils: 2bbed995c8974f6f6d92058db88d6cd2e4a7f869
++   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
++ 
++-PODFILE CHECKSUM: f75d3a5db6ed9c8ea3420047ecb7d0611f8601a7
+++PODFILE CHECKSUM: e2cd7d885b47a2ad30be0b1c6fd3f8b7005c9a76
++ 
++ COCOAPODS: 1.16.2
++diff --git a/TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift b/TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift
++index cfbed38..a381a8d 100644
++--- a/TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift
+++++ b/TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift
++@@ -22,8 +22,24 @@ import AEPMessaging
++ final class AppDelegate: NSObject, UIApplicationDelegate {
++ 
++     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+++        #if DEBUG
+++        print("[AppDelegate] Build configuration: DEBUG")
+++        #else
+++        print("[AppDelegate] Build configuration: RELEASE")
+++        #endif
+++
++         MobileCore.setLogLevel(.trace)
++ 
+++        // Listen for the configuration response event so we can confirm the config was applied.
+++        MobileCore.registerEventListener(type: "com.adobe.eventType.configuration",
+++                                         source: "com.adobe.eventSource.responseContent") { event in
+++            #if DEBUG
+++            if let keys = event.data?.keys {
+++                print("[AppDelegate] Configuration applied — keys present: \(Array(keys).sorted())")
+++            }
+++            #endif
+++        }
+++
++         let extensions = [
++             Identity.self,
++             Lifecycle.self,
++@@ -34,10 +50,20 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
++             Assurance.self,
++             TokenCollector.self
++         ]
++-        
+++
++         MobileCore.registerExtensions(extensions) {
+++            #if DEBUG
+++            if let configPath = Bundle.main.path(forResource: "ADBMobileConfig", ofType: "json") {
+++                print("[AppDelegate] ADBMobileConfig.json found in bundle — loading local config")
+++                MobileCore.configureWith(filePath: configPath)
+++            } else {
+++                print("[AppDelegate] ADBMobileConfig.json NOT found in bundle — falling back to remote appId")
+++                MobileCore.configureWith(appId: Constants.APPID)
+++            }
+++            #else
++             MobileCore.configureWith(appId: Constants.APPID)
++-            
+++            #endif
+++
++             if Constants.isStage {
++                 MobileCore.updateConfigurationWith(configDict: ["edge.environment": "int"])
++             }
++@@ -54,7 +80,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
++             let cardSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
++             let cbeSurface1 = Surface(path: Constants.SurfaceName.CBE_HTML)
++             let cbeSurface2 = Surface(path: Constants.SurfaceName.CBE_JSON)
++-            Messaging.updatePropositionsForSurfaces([cardSurface,cbeSurface1, cbeSurface2])
+++            Messaging.updatePropositionsForSurfaces([cbeSurface1, cbeSurface2])
++         }
++         
++         if #available(iOS 16.1, *) {
++diff --git a/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift b/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift
++index 99d12e3..1f2381c 100644
++--- a/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift
+++++ b/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift
++@@ -11,23 +11,119 @@ governing permissions and limitations under the License.
++ */
++ 
++ import AEPMessaging
+++import AEPServices
++ import SwiftUI
++ 
+++// MARK: - Edge Network Simulator
+++
+++/// Wraps the real `Networking` service installed in `ServiceProvider.shared.networkService` and
+++/// intercepts requests to `*.adobedc.net` (Edge Network only). All other traffic passes through
+++/// unchanged. This mirrors the exact mechanism used by aepsdk-edge-ios functional tests.
+++///
+++/// Recoverable HTTP codes (from Edge SDK): 408, 429, 502, 503, 504, 507 — SDK retries.
+++/// Recoverable URLError codes: timedOut, cannotConnectToHost, networkConnectionLost,
+++///   notConnectedToInternet, dataNotAllowed — SDK retries.
+++/// Everything else is non-recoverable — SDK drops the hit and dispatches an error event.
+++private final class EdgeNetworkSimulator: Networking {
+++
+++    enum Simulation {
+++        case httpStatus(Int, body: String?)
+++        case urlError(URLError)
+++
+++        var label: String {
+++            switch self {
+++            case .httpStatus(let code, _): return "HTTP \(code)"
+++            case .urlError(let e): return "URLError.\(e.code)"
+++            }
+++        }
+++
+++        /// Derived from Edge SDK's recoverable code set + AEPServices URLError.isRecoverable.
+++        var isRecoverable: Bool {
+++            switch self {
+++            case .httpStatus(let code, _):
+++                return [408, 429, 502, 503, 504, 507].contains(code)
+++            case .urlError(let e):
+++                return [URLError.Code.timedOut, .cannotConnectToHost, .networkConnectionLost,
+++                        .notConnectedToInternet, .dataNotAllowed].contains(e.code)
+++            }
+++        }
+++
+++        var behaviorNote: String {
+++            isRecoverable
+++                ? "Recoverable — SDK will retry automatically."
+++                : "Non-recoverable — SDK drops hit, dispatches error event."
+++        }
+++    }
+++
+++    // Singleton: install once, configure/clear as needed.
+++    private static var _instance: EdgeNetworkSimulator?
+++    private let realService: Networking
+++
+++    private(set) var current: Simulation?
+++    var onIntercepted: ((Simulation) -> Void)?
+++
+++    static func install() -> EdgeNetworkSimulator {
+++        if let existing = _instance { return existing }
+++        let real = ServiceProvider.shared.networkService
+++        let sim = EdgeNetworkSimulator(real: real)
+++        ServiceProvider.shared.networkService = sim
+++        _instance = sim
+++        return sim
+++    }
+++
+++    func configure(_ sim: Simulation) { current = sim }
+++    func clear() { current = nil }
+++
+++    private init(real: Networking) { self.realService = real }
+++
+++    func connectAsync(networkRequest: NetworkRequest, completionHandler: ((HttpConnection) -> Void)?) {
+++        guard let sim = current, networkRequest.url.host?.contains("adobedc.net") == true else {
+++            realService.connectAsync(networkRequest: networkRequest, completionHandler: completionHandler)
+++            return
+++        }
+++        DispatchQueue.global(qos: .background).async { [weak self] in
+++            self?.onIntercepted?(sim)
+++            switch sim {
+++            case .httpStatus(let code, let body):
+++                guard let httpResponse = HTTPURLResponse(url: networkRequest.url, statusCode: code,
+++                                                         httpVersion: nil, headerFields: nil) else { return }
+++                completionHandler?(HttpConnection(data: body?.data(using: .utf8),
+++                                                  response: httpResponse, error: nil))
+++            case .urlError(let error):
+++                completionHandler?(HttpConnection(data: nil, response: nil, error: error))
+++            }
+++        }
+++    }
+++}
+++
+++// MARK: - CardsView
+++
++ struct CardsView: View, ContentCardUIEventListening {
++ 
++     let cardsSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
++     @State var savedCards: [ContentCardUI] = []
++     @State private var viewLoaded: Bool = false
++     @State private var showLoadingIndicator: Bool = false
+++    @State private var statusMessage: String = ""
+++    @State private var showErrorPanel: Bool = false
+++    @State private var activeSimLabel: String? = nil
++ 
++     var body: some View {
++-        VStack {
++-            TabHeader(title: "Content Cards", refreshAction: {
++-                refreshCards()
++-            }, redownloadAction: {
++-                downloadCards()
++-                refreshCards()
++-            })
+++        VStack(spacing: 0) {
+++            TabHeader(title: "Content Cards")
+++
+++            actionPanel
+++                .padding(.horizontal, 16)
+++                .padding(.top, 8)
+++
+++            if !statusMessage.isEmpty {
+++                Text(statusMessage)
+++                    .font(.caption)
+++                    .foregroundColor(.secondary)
+++                    .frame(maxWidth: .infinity, alignment: .leading)
+++                    .padding(.horizontal, 16)
+++                    .padding(.top, 8)
+++            }
++ 
++             ZStack {
++                 ScrollView(.vertical, showsIndicators: false) {
++@@ -37,6 +133,7 @@ struct CardsView: View, ContentCardUIEventListening {
++                                 .padding(.horizontal, 16)
++                         }
++                     }
+++                    .padding(.top, 12)
++                 }
++ 
++                 if showLoadingIndicator {
++@@ -49,36 +146,294 @@ struct CardsView: View, ContentCardUIEventListening {
++                 }
++             }
++         }
++-        .onAppear() {
+++        .onAppear {
++             if !viewLoaded {
++                 viewLoaded = true
++-                refreshCards()
++             }
++         }
++     }
++ 
++-    func refreshCards() {
+++    // MARK: - Action Panel
+++
+++    private var actionPanel: some View {
+++        VStack(spacing: 10) {
+++            HStack(spacing: 10) {
+++                actionButton(title: "Download", systemImage: "arrow.down.circle") {
+++                    downloadCards()
+++                }
+++                actionButton(title: "Fetch Content Cards", systemImage: "arrow.clockwise.circle") {
+++                    fetchContentCards()
+++                }
+++            }
+++            // Error simulation toggle row
+++            Button(action: { showErrorPanel.toggle() }) {
+++                HStack(spacing: 6) {
+++                    Image(systemName: showErrorPanel ? "bolt.circle.fill" : "bolt.circle")
+++                    Text("Error Simulation")
+++                        .font(.system(size: 13, weight: .medium))
+++                    Spacer()
+++                    if activeSimLabel != nil {
+++                        Text("ACTIVE")
+++                            .font(.system(size: 10, weight: .bold))
+++                            .foregroundColor(.red)
+++                            .padding(.horizontal, 6)
+++                            .padding(.vertical, 2)
+++                            .background(Color.red.opacity(0.1))
+++                            .cornerRadius(4)
+++                    }
+++                    Image(systemName: showErrorPanel ? "chevron.up" : "chevron.down")
+++                        .font(.system(size: 11))
+++                        .foregroundColor(.secondary)
+++                }
+++                .frame(maxWidth: .infinity)
+++                .padding(.vertical, 10)
+++                .padding(.horizontal, 12)
+++                .background(Color(.secondarySystemBackground))
+++                .cornerRadius(10)
+++            }
+++            .buttonStyle(.plain)
+++            .foregroundColor(activeSimLabel != nil ? .red : .primary)
+++
+++            if showErrorPanel {
+++                errorSimulationPanel
+++            }
+++        }
+++    }
+++
+++    // MARK: - Error Simulation Panel
+++
+++    private var errorSimulationPanel: some View {
+++        VStack(alignment: .leading, spacing: 10) {
+++            // Active simulation banner
+++            if let label = activeSimLabel {
+++                HStack(spacing: 8) {
+++                    Image(systemName: "exclamationmark.triangle.fill")
+++                        .foregroundColor(.orange)
+++                    VStack(alignment: .leading, spacing: 2) {
+++                        Text("Active: \(label)")
+++                            .font(.system(size: 12, weight: .medium))
+++                        Text("All Edge Network requests are intercepted.")
+++                            .font(.caption2)
+++                            .foregroundColor(.secondary)
+++                    }
+++                    Spacer()
+++                    Button("Restore") {
+++                        restoreRealNetwork()
+++                    }
+++                    .font(.system(size: 12, weight: .semibold))
+++                    .foregroundColor(.blue)
+++                }
+++                .padding(10)
+++                .background(Color.orange.opacity(0.12))
+++                .cornerRadius(8)
+++            }
+++
+++            // Info banner
+++            Text("Intercepts *.adobedc.net requests only (same mechanism as Edge SDK tests). Other SDK traffic is unaffected. Tap a button then watch logs/Assurance.")
+++                .font(.caption2)
+++                .foregroundColor(.secondary)
+++                .padding(.horizontal, 2)
+++
+++            // HTTP error buttons
+++            Text("HTTP Errors")
+++                .font(.system(size: 11, weight: .semibold))
+++                .foregroundColor(.secondary)
+++                .padding(.top, 2)
+++
+++            HStack(spacing: 8) {
+++                simButton(
+++                    title: "400 Bad Request",
+++                    subtitle: "Non-recoverable · hit dropped",
+++                    color: .red
+++                ) {
+++                    // Proper 400 body matching the EdgeResponse schema so NetworkResponseHandler
+++                    // can decode and dispatch an errorResponseContent event with full detail.
+++                    let body = """
+++                    {"requestId":"sim-400","errors":[{"status":400,"title":"Bad Request (Demo)",\
+++                    "detail":"Simulated by demo app.","type":"https://ns.adobe.com/aep/errors/EXEG-0103-400"}]}
+++                    """
+++                    activateSim(.httpStatus(400, body: body), label: "HTTP 400 (non-recoverable)")
+++                }
+++                simButton(
+++                    title: "502 Bad Gateway",
+++                    subtitle: "Recoverable · SDK retries",
+++                    color: .orange
+++                ) {
+++                    activateSim(.httpStatus(502, body: nil), label: "HTTP 502 (recoverable, SDK retries)")
+++                }
+++            }
+++
+++            // URLError buttons
+++            Text("URLError (transport-level)")
+++                .font(.system(size: 11, weight: .semibold))
+++                .foregroundColor(.secondary)
+++                .padding(.top, 2)
+++
+++            HStack(spacing: 8) {
+++                simButton(
+++                    title: "Network Down",
+++                    subtitle: "notConnectedToInternet · recoverable",
+++                    color: .orange
+++                ) {
+++                    activateSim(
+++                        .urlError(URLError(.notConnectedToInternet)),
+++                        label: "URLError.notConnectedToInternet (recoverable)"
+++                    )
+++                }
+++                simButton(
+++                    title: "DNS Failure",
+++                    subtitle: "cannotFindHost · non-recoverable",
+++                    color: .red
+++                ) {
+++                    activateSim(
+++                        .urlError(URLError(.cannotFindHost)),
+++                        label: "URLError.cannotFindHost (non-recoverable)"
+++                    )
+++                }
+++            }
+++
+++            // Restore button (always visible in expanded panel as a fallback)
+++            Button(action: restoreRealNetwork) {
+++                HStack(spacing: 6) {
+++                    Image(systemName: "checkmark.circle")
+++                    Text("Restore Real Network")
+++                        .font(.system(size: 13, weight: .medium))
+++                }
+++                .frame(maxWidth: .infinity)
+++                .padding(.vertical, 9)
+++                .background(activeSimLabel != nil ? Color.green.opacity(0.15) : Color(.secondarySystemBackground))
+++                .cornerRadius(10)
+++                .foregroundColor(activeSimLabel != nil ? .green : .secondary)
+++            }
+++            .buttonStyle(.plain)
+++            .disabled(activeSimLabel == nil)
+++        }
+++        .padding(12)
+++        .background(Color(.secondarySystemBackground).opacity(0.5))
+++        .cornerRadius(12)
+++    }
+++
+++    // MARK: - Helpers
+++
+++    private func actionButton(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+++        Button(action: action) {
+++            HStack(spacing: 6) {
+++                Image(systemName: systemImage)
+++                Text(title)
+++                    .font(.system(size: 13, weight: .medium))
+++                    .multilineTextAlignment(.leading)
+++            }
+++            .frame(maxWidth: .infinity)
+++            .padding(.vertical, 10)
+++            .padding(.horizontal, 8)
+++            .background(Color(.secondarySystemBackground))
+++            .cornerRadius(10)
+++        }
+++        .buttonStyle(.plain)
+++    }
+++
+++    private func simButton(title: String, subtitle: String, color: Color,
+++                           action: @escaping () -> Void) -> some View {
+++        Button(action: action) {
+++            VStack(spacing: 3) {
+++                Text(title)
+++                    .font(.system(size: 12, weight: .semibold))
+++                    .foregroundColor(color)
+++                Text(subtitle)
+++                    .font(.system(size: 10))
+++                    .foregroundColor(.secondary)
+++                    .multilineTextAlignment(.center)
+++            }
+++            .frame(maxWidth: .infinity)
+++            .padding(.vertical, 10)
+++            .padding(.horizontal, 6)
+++            .background(color.opacity(0.08))
+++            .cornerRadius(8)
+++            .overlay(
+++                RoundedRectangle(cornerRadius: 8)
+++                    .stroke(color.opacity(0.3), lineWidth: 1)
+++            )
+++        }
+++        .buttonStyle(.plain)
+++    }
+++
+++    // MARK: - Simulation Actions
+++
+++    private func activateSim(_ sim: EdgeNetworkSimulator.Simulation, label: String) {
+++        let simulator = EdgeNetworkSimulator.install()
+++        simulator.configure(sim)
+++        activeSimLabel = label
+++        statusMessage = "Armed: \(label). Now tap Download — that request will be intercepted."
+++        simulator.onIntercepted = { intercepted in
+++            DispatchQueue.main.async {
+++                statusMessage = "⚡ Intercepted! Returned \(intercepted.label). \(intercepted.behaviorNote)"
+++            }
+++        }
+++    }
+++
+++    private func restoreRealNetwork() {
+++        EdgeNetworkSimulator.install().clear()
+++        activeSimLabel = nil
+++        statusMessage = "Real network restored. Next download goes to the live Edge Network."
+++    }
+++
+++    // MARK: - SDK Actions
+++
+++    func downloadCards() {
+++        Messaging.updatePropositionsForSurfaces([cardsSurface])
+++        if activeSimLabel == nil {
+++            statusMessage = "Download requested for surface: \(cardsSurface.uri)"
+++        }
+++    }
+++
+++    func fetchContentCards() {
++         showLoadingIndicator = true
++-        let cardsPageSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
++-        Messaging.getContentCardsUI(for: cardsPageSurface,
+++        Messaging.getContentCardsUI(for: cardsSurface,
++                                     customizer: CardCustomizer(),
++                                     listener: self) { result in
++-            showLoadingIndicator = false
++-            switch result {
++-            case .success(let cards):
++-                // sort the cards by priority order and save them to our state property
++-                savedCards = cards.sorted { $0.priority > $1.priority }
++-            case .failure(let error):
++-                print(error)
+++            DispatchQueue.main.async {
+++                showLoadingIndicator = false
+++                handleResult(result, source: "Memory")
++             }
++         }
++     }
++ 
++-    func downloadCards() {
+++    func fetchOfflineContentCards() {
++         showLoadingIndicator = true
++-        Messaging.updatePropositionsForSurfaces([cardsSurface])
+++        Messaging.getContentCardsUI(for: cardsSurface,
+++                                    customizer: CardCustomizer(),
+++                                    listener: self) { result in
+++            DispatchQueue.main.async {
+++                showLoadingIndicator = false
+++                handleResult(result, source: "Persisted disk cache")
+++            }
+++        }
+++    }
+++
+++    func clearPersistedPropositions() {
+++        Messaging.clearCachedPropositions()
+++        savedCards = []
+++        statusMessage = "Persisted content card cache cleared."
++     }
++ 
+++    private func handleResult(_ result: Result<[ContentCardUI], Error>, source: String) {
+++        switch result {
+++        case .failure(let error):
+++            statusMessage = "Fetch failed (\(source)): \(error.localizedDescription)"
+++            savedCards = []
+++        case .success(let cards):
+++            if cards.isEmpty {
+++                statusMessage = "No cards found (\(source))"
+++                savedCards = []
+++            } else {
+++                statusMessage = "Loaded \(cards.count) card(s) from \(source)"
+++                savedCards = cards.sorted { $0.priority > $1.priority }
+++            }
+++        }
+++    }
+++
+++    // MARK: - ContentCardUIEventListening
+++
++     func onDisplay(_ card: ContentCardUI) {
++         print("TestAppLog : ContentCard Displayed")
++     }
++@@ -94,6 +449,8 @@ struct CardsView: View, ContentCardUIEventListening {
++     }
++ }
++ 
+++// MARK: - Card Customizer
+++
++ class CardCustomizer: ContentCardCustomizing {
++     func customize(template: AEPMessaging.LargeImageTemplate) {
++         template.title.textColor = .primary
++@@ -105,18 +462,14 @@ class CardCustomizer: ContentCardCustomizing {
++         template.buttons?.first?.text.textColor = .primary
++         template.buttons?.first?.modifier = AEPViewModifier(ButtonModifier())
++ 
++-        // Image: full width, fixed height, flush to top/left/right edges
++         template.image?.contentMode = .fill
++         template.image?.modifier = AEPViewModifier(LargeImageModifier())
++ 
++-        // No spacing so image sits flush against card top
++         template.rootVStack.spacing = 0
++         template.textVStack.alignment = .leading
++         template.textVStack.spacing = 4
++-        // Padding only on the text area
++         template.textVStack.modifier = AEPViewModifier(TextAreaModifier())
++         template.buttonHStack.modifier = AEPViewModifier(LargeButtonHStackModifier())
++-        // Card container — no inner padding so image reaches edges
++         template.rootVStack.modifier = AEPViewModifier(CardContainerModifier())
++ 
++         template.dismissButton?.image.iconColor = .white
++@@ -133,16 +486,13 @@ class CardCustomizer: ContentCardCustomizing {
++         template.buttons?.first?.text.textColor = .primary
++         template.buttons?.first?.modifier = AEPViewModifier(ButtonModifier())
++ 
++-        // Image: fixed size, flush to left/top/bottom edges
++         template.image?.modifier = AEPViewModifier(SmallImageModifier())
++ 
++         template.rootHStack.spacing = 0
++         template.textVStack.alignment = .leading
++         template.textVStack.spacing = 4
++-        // Padding only on the text area
++         template.textVStack.modifier = AEPViewModifier(TextAreaModifier())
++         template.buttonHStack.modifier = AEPViewModifier(SmallButtonHStackModifier())
++-        // Card container — no inner padding so image reaches edges
++         template.rootHStack.modifier = AEPViewModifier(CardContainerModifier())
++ 
++         template.dismissButton?.image.iconColor = .primary
++@@ -177,7 +527,6 @@ class CardCustomizer: ContentCardCustomizing {
++ 
++     // MARK: - Shared Modifiers
++ 
++-    /// Padding applied to the text+body area only
++     struct TextAreaModifier: ViewModifier {
++         func body(content: Content) -> some View {
++             content
++@@ -187,7 +536,6 @@ class CardCustomizer: ContentCardCustomizing {
++         }
++     }
++ 
++-    /// Card container: rounded corners + subtle shadow
++     struct CardContainerModifier: ViewModifier {
++         func body(content: Content) -> some View {
++             content
++diff --git a/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift b/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift
++index bf6abbc..71517b2 100644
++--- a/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift
+++++ b/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift
++@@ -16,7 +16,7 @@ struct TabHeader: View {
++     var title: String
++     var refreshAction: (() -> Void)?
++     var redownloadAction: (() -> Void)?
++-    
+++
++     var body: some View {
++         ZStack {
++             Text("\(title)")
++diff --git a/TestApps/MessagingDemoAppSwiftUI/Constants.swift b/TestApps/MessagingDemoAppSwiftUI/Constants.swift
++index 618ee12..1154058 100644
++--- a/TestApps/MessagingDemoAppSwiftUI/Constants.swift
+++++ b/TestApps/MessagingDemoAppSwiftUI/Constants.swift
++@@ -15,19 +15,28 @@ import Foundation
++ enum Constants {
++     // If you change any of the below properties, please uninstall and reinstall the application
++     
++-    static let APPID = "3149c49c3910/e2e20a36b6cf/launch-78df58a45342-development"
+++   // static let APPID = "3149c49c3910/e2e20a36b6cf/launch-78df58a45342-development"
+++    static let APPID = "3149c49c3910/629a865c475d/launch-82c478370074"
+++
+++    // static let APPID = "bf7248f92b53/2679f51865d9/launch-98ed66c8bfec"
++     // Other AppID's
++     // "3149c49c3910/b6541e5e6301/launch-f7ac0a320fb3-development"
++     // "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development" << com.steveb.iamStagingTester
++     // "staging/1b50a869c4a2/9590f35e2dc9/launch-752d0a90822f-development" << com.steveb.priorityTester
++     
++     static let isStage = false
++-    static let assuranceURL = ""
+++    static let assuranceURL = "edgetutorialapp://?adb_validation_sessionid=8b8b5d45-a11f-4894-9052-d00f9a3ad57a"
++     
++     // Surface Names
++     enum SurfaceName {
++-        static let INBOX = "inboxcard"
++-        static let CONTENT_CARD = "largeImageCards"
+++       //         static let INBOX = "inboxcard"
+++
+++        static let INBOX = "shwetansh_inbox_mda"
+++       // static let CONTENT_CARD = "largeImageCards"
+++        // static let INBOX = "inboxcard"
+++        static let CONTENT_CARD = "shwetansh_cc_mda"
+++        static let wrong_cc = "wrong_cc"
+++
++         static let CBE_HTML = "cbehtml"
++         static let CBE_JSON = "cbejson"
++     }

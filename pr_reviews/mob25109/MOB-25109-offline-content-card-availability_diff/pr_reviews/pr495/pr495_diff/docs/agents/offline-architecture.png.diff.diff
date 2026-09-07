@@ -1,0 +1,11 @@
+diff --git a/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff b/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff
+new file mode 100644
+index 0000000..a9856ac
+--- /dev/null
++++ b/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff
+@@ -0,0 +1,4 @@
++diff --git a/docs/agents/offline-architecture.png b/docs/agents/offline-architecture.png
++new file mode 100644
++index 0000000..984786f
++Binary files /dev/null and b/docs/agents/offline-architecture.png differ
+\ No newline at end of file

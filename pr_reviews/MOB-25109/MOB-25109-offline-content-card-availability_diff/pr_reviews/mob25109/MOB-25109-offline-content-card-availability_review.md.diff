@@ -1,0 +1,331 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_review.md b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_review.md
+new file mode 100644
+index 0000000..1c0bb6b
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_review.md
+@@ -0,0 +1,325 @@
++# PR Review — MOB-25109-offline-content-card-availability
++
++## Summary
++This PR adds offline persistence for Content Cards: boot-time disk hydration, an `isNetworkAvailable()` gate to skip Edge when offline, a `usePersistedContentCards` flag on the get APIs, a `nonRecoverableErrorEventIds` shield to preserve disk on non-recoverable Edge errors, and a `CardOrigin` side-table for provenance tagging. The disk-read paths (boot hydration and `usePersistedContentCards`) are architecturally sound. However, the feature is broken for any app that has not explicitly configured the new remote config key — the default inverts the documented contract and silently clears the disk cache on every network response. Two CI tests will also fail as written. The network gate ships as a hardcoded stub and the in-memory CC propositions state is written but never read.
++
++**Verdict:** REQUEST CHANGES
++
++| Severity | Count |
++|----------|-------|
++| CRITICAL | 2 |
++| HIGH | 14 |
++| MEDIUM | 12 |
++| LOW | 5 |
++
++---
++
++## CRITICAL Findings
++> Must fix before merge.
++
++**[C-1]: `isContentCardOfflineAvailable` defaults to `false` — inverts documented contract, silently destroys disk cache on every network response** (from: Code, HLD, LLD, Completeness, Complexity)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1015`
++- **What:** The function evaluates `?? false` when `messaging.contentCardOfflineAvailable` is absent from the Configuration shared state. Its own doc comment two lines above states "Defaults to `true` when the key is absent (backwards-compatible: offline availability is on unless the operator explicitly disables it)." The code is the exact opposite of the documented intent.
++- **Why:** Two silent consequences: (1) In `applyPropositionChangeFor` (line 1281–1290), when `ccOfflineAvailable = false`, the code calls `clearPersistedContentCardPropositions()`, wiping `qualifiedContentCardsBySurface`, `contentCardRulesBySurface`, `contentCardOriginByProposition`, `inMemoryContentCardPropositions`, the CC rules engine, and the disk cache. Every successful network personalization response for any app that does not explicitly set the config key destroys the disk cache. Boot-time hydration will seed data, but the first network refresh after launch immediately clears it. (2) `usePersistedContentCards: true` calls in `retrieveMessages` (line 1479–1488) hit the `isContentCardOfflineAvailable` guard and return a silent empty response — indistinguishable from "no cards exist."
++- **Fix:** Change `?? false` to `?? true` at line 1015. Update the log message at line 1016 from "defaulting to false" to "defaulting to true." The `applyPropositionChangeFor` `else` branch must also be reviewed: when the feature defaults on, `clearPersistedContentCardPropositions()` should only be called when the operator explicitly sets the key to `false`, not on key absence.
++- **Confidence:** 1.0
++- **Reviewer conflict:** HLD raises the valid counter-argument that `?? false` (opt-in) may be the actual intent, in which case the doc comment and AGENTS.md summary are both wrong. Either way, code and documentation must be consistent. The HLD reviewer's own confidence that this is a critical inversion is 0.97.
++
++---
++
++**[C-2]: `testHandleProcessEvent_updatePropositions_skipsEdgeWhenOffline` will fail in CI — tests an unimplemented stub** (from: Completeness)
++- **File:** `AEPMessaging/Tests/UnitTests/MessagingTests.swift:1686–1714`
++- **What:** The test sets `mockNetworkConnectivityService.isAvailable = false` and asserts (1) completion handler returns `false` and (2) no Edge events are dispatched. `isNetworkAvailable()` hardcodes `return true` and never queries the mock service. `fetchPropositions` is called, Edge events are dispatched, and both assertions fail.
++- **Why:** The test gives false confidence in the offline gate and is a hard CI failure on every run.
++- **Fix:** Wire `isNetworkAvailable()` to the real service (see H-1) before this test can pass as written. The test itself is correct; the implementation is the stub.
++- **Confidence:** 1.0
++
++---
++
++## HIGH Findings
++> Should fix before merge.
++
++**[H-1]: `isNetworkAvailable()` hardcoded `return true` — network gate ships as entirely non-functional dead code** (from: LLD, HLD, Completeness, Complexity)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1004–1008`; guard sites at lines 416 and 1038
++- **What:** `isNetworkAvailable()` returns `true` unconditionally with an explicit `// TODO:` comment. Both `guard isNetworkAvailable() else { ... }` branches — in `handleProcessEvent` and `fetchPropositions` — are permanently unreachable.
++- **Impact:** The offline gate for `updatePropositions` and `fetchPropositions` is disabled. When offline, the SDK dispatches an Edge request rather than short-circuiting. Callers of `updatePropositionsForSurfacesWithCompletionHandler` who rely on a `false` result to trigger a disk-read fallback never receive that signal. `completeUpdatePropositionsRequest` (the wrapper function at line 1020) was introduced solely to serve the unreachable guard branch.
++- **Fix:** Either wire the real reachability check (`ServiceProvider.shared.networkConnectivityService?.isNetworkAvailable() ?? true`) and remove the TODO, or remove both guard blocks and `completeUpdatePropositionsRequest` entirely, leaving a `// TODO(MOB-XXXXX): add isNetworkAvailable() gate` comment at the two call sites. Do not ship unreachable guards with a hardcoded stub in production code.
++- **Confidence:** 1.0
++- **Reviewer conflict:** LLD rates this CRITICAL (feature does not function as designed); HLD rates MAJOR because the disk-read paths (boot hydration, `usePersistedContentCards`) still work and `nonRecoverableErrorEventIds` provides partial fallback compensation. HLD's MAJOR classification is retained as the consolidated rating since the feature partially functions. The always-success completion handler (H-2) amplifies this issue.
++
++---
++
++**[H-2]: `endRequestFor` always reports `success: true` on non-recoverable Edge errors — callers cannot distinguish failure from success** (from: Code, LLD, Complexity, Completeness)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1222–1248`
++- **What:** `handler.handle?(true)` is called unconditionally even when `nonRecoverableErrorEventIds.contains(eventId)` was true. `nonRecoverableErrorEventIds` is cleared before the check would matter. The code carries a `// KNOWN ISSUE` comment that fully describes the bug and prescribes the fix.
++- **Impact:** Any caller using `updatePropositionsForSurfacesWithCompletionHandler` to decide "did this succeed, or should I fall back to `usePersistedContentCards: true`?" always receives `true` and never falls back. The completion-handler-driven fallback pattern introduced by this PR is non-functional for the non-recoverable error case.
++- **Fix:** Capture the flag before clearing the set:
++  ```swift
++  let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
++  nonRecoverableErrorEventIds.remove(eventId)
++  // ...
++  handler.handle?(!requestFailed)
++  ```
++- **Confidence:** 0.97
++- **Reviewer conflict:** Code rates CRITICAL; LLD, Complexity rate HIGH; Completeness rates MEDIUM. The KNOWN ISSUE comment indicates intentional deferral. Kept as HIGH since the majority of reviewers classify it there and the fix is completely prescribed in the code comment. A tracking ticket reference should be added if deferring.
++
++---
++
++**[H-3]: `inMemoryContentCardPropositions` written on every network response but never read — dead state with false documentation contract** (from: LLD, HLD, Complexity)
++- **File:** `AEPMessaging/Sources/Messaging+State.swift:67–88` (write); `AEPMessaging/Sources/Messaging.swift:158–162` (declaration), `707` (clear), `1286` (only other reference, commented out)
++- **What:** The property declaration doc comment states "Engine hydration reads from here rather than re-reading disk on every call." This is false. `hydrateContentCardRulesEngineFromDisk` reads from `cache.contentCardPropositions` directly. `retrieveMessages` reads from `qualifiedContentCardsBySurface`. The only reference outside writes and clears is a commented-out optimization guard at line 1286 that was disabled.
++- **Impact:** Every live network CC response executes writes into a dictionary with no consumer — unbounded growth during a session. The false doc comment creates an incorrect mental model for future maintainers. The `internal` access exists solely to allow writes that have no reader.
++- **Fix:** Either (a) complete the stated intent — use `inMemoryContentCardPropositions` as the source for re-hydration in `hydrateContentCardRulesEngineFromDisk` to avoid disk round-trips — or (b) remove the property and its write sites, correcting the doc comment. If retaining as a future scaffold, rename to `_pendingNetworkContentCardPropositions` and replace the doc comment with `// TODO(MOB-XXXXX): reserved for memory-first hydration optimization`.
++- **Confidence:** 1.0
++- **Reviewer conflict:** LLD rates CRITICAL; HLD rates MAJOR; Complexity rates HIGH. Consolidated to HIGH since neither the architect nor complexity reviewer found a functional regression from the dead state itself; the primary concern is the false documentation contract and wasted memory.
++
++---
++
++**[H-4]: `applyPropositionChangeFor` CC-disabled branch ignores `requestFailed` — clears disk cache even on failed requests** (from: Code, LLD)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1280–1290`
++- **What:** When `ccOfflineAvailable = false` AND `requestFailed = true`, the code still calls `clearPersistedContentCardPropositions()`. The IAM path correctly passes `surfacesToRemove = []` on failure so nothing is evicted; the CC path has no equivalent guard. The `requestFailed` computation at line 1282 is bypassed entirely in the disabled-feature branch.
++- **Impact:** A non-recoverable Edge error on any app without the config key (or with it explicitly `false`) silently wipes the CC disk cache and all in-memory CC state. Cards disappear with no observable error.
++- **Fix:**
++  ```swift
++  } else {
++      if !requestFailed {
++          clearPersistedContentCardPropositions()
++      }
++      ccWriteOK = true
++  }
++  ```
++- **Confidence:** 0.95
++
++---
++
++**[H-5]: P0 dismiss eviction (Option B) not implemented — dismissed cards re-qualify and reappear on cold start** (from: Completeness)
++- **File:** `AEPMessaging/Sources/Messaging.swift:994–1001`
++- **What:** `removePropositionFromQualifiedCards` removes the dismissed card from `qualifiedContentCardsBySurface` in memory only. The raw CC proposition that originally qualified the card remains on disk untouched.
++- **Impact:** On the next cold start, `hydrateAllPersistedContentCards` re-reads disk, re-evaluates rules, and the dismissed card re-qualifies. This is the "cold-start flash" AGENTS.md marks as P0 Open.
++- **Fix:** After removing from memory, rewrite the CC disk cache: `cache.updateContentCardPropositions(qualifiedContentCardsBySurface, removing: [])`. Per AGENTS.md Option B, the specific raw proposition should be evicted from disk when `track(.dismiss)` fires.
++- **Confidence:** 0.92
++
++---
++
++**[H-6]: `testOnRegistered_nineListenersAreRegistered` stale — 9→10 listeners after new `EDGE_ERROR_RESPONSE` listener, CI will fail** (from: Completeness)
++- **File:** `AEPMessaging/Tests/UnitTests/MessagingTests.swift:87–89`
++- **What:** `Messaging.onRegistered()` now registers 10 listeners (the new `EDGE_ERROR_RESPONSE` listener was added at lines 317–319 of `Messaging.swift`). The test still asserts `mockRuntime.listeners.count == 9`.
++- **Impact:** Hard CI failure on every run.
++- **Fix:** `XCTAssertEqual(mockRuntime.listeners.count, 10)`
++- **Confidence:** 1.0
++
++---
++
++**[H-7]: No unit tests for `handleEdgeErrorResponse` — 400-error shield entirely untested at unit level** (from: Completeness)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1579–1607` (implementation); no corresponding test file
++- **What:** The new `handleEdgeErrorResponse` listener is the key mechanism for preserving disk/memory on non-recoverable Edge errors via `nonRecoverableErrorEventIds`. No test covers: (a) a non-recoverable status (e.g. 400) populates the set, (b) a recoverable status (408, 429, 502 etc.) does NOT populate it, (c) `applyPropositionChangeFor` preserves disk/memory when the flag is set. The existing `test_handleProcessCompletedEvent_noDecisions_preservesContentCardDiskCache` tests zero-decisions (a different branch) and does not exercise this path.
++- **Impact:** A regression in the 400-error shield would go undetected.
++- **Fix:** Add tests simulating `handleEdgeErrorResponse` with non-recoverable and recoverable status codes; assert `nonRecoverableErrorEventIds` set/cleared correctly; assert disk is not evicted when the flag is set.
++- **Confidence:** 0.95
++
++---
++
++**[H-8]: No unit tests for `handleResetIdentitiesEvent` clearing CC disk cache** (from: Completeness)
++- **File:** `AEPMessaging/Sources/Messaging.swift:693` (`handleResetIdentitiesEvent`); no corresponding test
++- **What:** `handleResetIdentitiesEvent` now calls `clearPersistedContentCardPropositions()`, which removes `MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS` from the disk cache. No unit test verifies this.
++- **Impact:** A regression that accidentally skips the CC disk clear on identity reset is a GDPR/privacy-sensitive miss that would go undetected.
++- **Fix:** Add a test that fires a reset-identities event and asserts `mockCache.removeCalls.contains(MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)`.
++- **Confidence:** 0.93
++
++---
++
++**[H-9]: `getPropositions` silently dropped its ordering guarantee — existing callers face a race with no deprecation notice** (from: HLD)
++- **File:** `AEPMessaging/Sources/Messaging.swift:426–433` (`handleProcessEvent`); `eventsQueue.setHandler` lines 339–341
++- **What:** Before this PR, `isGetPropositionsEvent` was queued via `eventsQueue.add(event)`, guaranteeing a `getPropositions` call immediately following `updatePropositions` would return post-update data. This PR changes `handleProcessEvent` to call `retrieveMessages` immediately without queuing. The `eventsQueue.setHandler` retains a dead `if event.isGetPropositionsEvent` branch that can never fire.
++- **Impact:** Existing callers dispatching `updatePropositionsForSurfaces` followed by `getPropositionsForSurfaces` without a completion handler (the old pattern) now get a race: if the Edge response hasn't returned, `getPropositionsForSurfaces` returns pre-update in-memory data. The old `getPropositionsForSurfaces(_ surfaces: _ completion:)` overload doc comment still references "reading freshly updated in-memory data" after calling update first — but that guarantee is now broken.
++- **Fix:** Update the doc comment on the old `getPropositionsForSurfaces` overload to state it no longer serializes after in-flight updates. Remove the dead `isGetPropositionsEvent` branch from `eventsQueue.setHandler`. Consider whether callers passing `usePersistedContentCards: false` should preserve the old queue semantics.
++- **Confidence:** 0.85
++
++---
++
++**[H-10]: `usePersistedContentCards: true` returns silent empty when feature is disabled — indistinguishable from "no cards"** (from: HLD)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1479–1488` (`retrieveMessages`)
++- **What:** When `event.usePersistedContentCards == true` and `isContentCardOfflineAvailable` returns `false`, the function dispatches a success response event with an empty propositions array and no error code or flag indicating the feature is disabled.
++- **Impact:** A caller implementing offline-first fallback gets a success callback with `[:]`. This is indistinguishable from "feature enabled but no cards persisted" or "surface genuinely has no cards." Combined with C-1 (feature defaults to disabled), every unconfigured app receives silent empty responses on every offline read attempt. The caller cannot determine whether to show a "no content" empty state or fall back to another source.
++- **Fix:** Either dispatch an error response event via `event.createErrorResponseEvent(AEPError.invalidRequest)` or a suitable error code so callers can distinguish "feature off" from "no cards"; or add a `featureDisabled: Bool` flag in the response metadata. At minimum, update the `getPropositionsForSurfaces(usePersistedContentCards:)` doc comment to state the completion returns empty (not an error) when the feature is disabled by configuration.
++- **Confidence:** 0.85
++
++---
++
++**[H-11]: `removePropositionFromQualifiedCards` does not prune `contentCardOriginByProposition` — stale origin entries accumulate** (from: Code, HLD)
++- **File:** `AEPMessaging/Sources/Messaging.swift:994–1001`
++- **What:** When a card is dismissed, its entry is removed from `qualifiedContentCardsBySurface` but the corresponding entry in `contentCardOriginByProposition` remains. `pruneContentCardOrigins()` is only called from `updateRulesEngines` (the network-response path). In a session with no network refreshes, dismissed card origins accumulate.
++- **Impact:** `enrichWithContentCardOrigin` reads from this map on every `trackPropositions` call. Stale entries can cause incorrect `servedFromPersistentCache` tagging if a proposition ID is recycled. The map becomes inconsistent with `qualifiedContentCardsBySurface` after every dismiss.
++- **Fix:** Remove the specific entry inline after removing the card, or call `pruneContentCardOrigins()` at the end of `removePropositionFromQualifiedCards`.
++- **Confidence:** 0.82
++- **Reviewer conflict:** Code rates HIGH; HLD rates MINOR (0.80 confidence, noting uniqueId collisions are unlikely in practice). Code reviewer's analysis of the `enrichWithContentCardOrigin` path and incorrect provenance tagging is the stronger case; HIGH retained.
++
++---
++
++**[H-12]: `hydrateAllPersistedContentCards` reads the CC disk cache twice — double I/O on every cold start with persisted data** (from: Code)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1452–1458`; `AEPMessaging/Sources/Messaging+State.swift:94–97`
++- **What:** `cache.contentCardPropositions` is a computed property that reads and JSON-decodes the file on every access. The boot path calls it twice: once in `hydrateAllPersistedContentCards` to enumerate keys, and again inside `readContentCardPropositionsFromDisk` (called transitively from `hydrateContentCardRulesEngineFromDisk`) to filter by surface.
++- **Impact:** Avoidable disk I/O and JSON deserialization on every cold start that has persisted CC data.
++- **Fix:** Pass the already-decoded `persisted` dictionary through to `hydrateContentCardPropositionsRulesEngine` rather than re-reading disk in `readContentCardPropositionsFromDisk`.
++- **Confidence:** 0.90
++
++---
++
++**[H-13]: `clearContentCards` log message hardcodes "on identity reset" — misleading for non-reset callers** (from: Code)
++- **File:** `AEPMessaging/Sources/Messaging.swift:703–711`
++- **What:** `clearContentCards()` is called from both `handleResetIdentitiesEvent` and from `applyPropositionChangeFor` (CC-disabled path), but its log line unconditionally says "Content card state cleared on identity reset."
++- **Impact:** Log readers debugging an API-triggered clear or the CC-disabled eviction path see "identity reset" in the logs, leading to a false diagnosis.
++- **Fix:** Remove the log from `clearContentCards` and let each caller log its own context (e.g., "on identity reset" from `handleResetIdentitiesEvent`, "content cards cleared (feature disabled)" from `applyPropositionChangeFor`).
++- **Confidence:** 0.92
++
++---
++
++**[H-14]: `removePropositionFromQualifiedCards` docstring overstates its behavior — claims disk removal, only removes in-memory** (from: Completeness)
++- **File:** `AEPMessaging/Sources/Messaging.swift:991–993`
++- **What:** The docstring says "Removes the Proposition matching `activityId` from both the live and disk qualified caches." The implementation only removes from `qualifiedContentCardsBySurface` (in-memory). Disk is not touched.
++- **Impact:** Future callers relying on the stated disk-removal contract will get incorrect behavior with no error. This is directly related to H-5 (dismiss eviction not implemented).
++- **Fix:** Either update the docstring to "Removes the Proposition matching `activityId` from the in-memory qualified cache only" pending the disk eviction implementation, or implement the full disk eviction (H-5) and then the docstring is correct.
++- **Confidence:** 0.98
++
++---
++
++## MEDIUM Findings
++> Can merge, track for follow-up.
++
++**[M-1]: Duplicate `ccOfflineKeyPresent` in `readyForEvent` — dev-time debug noise in production code** (from: Code, LLD, HLD, Complexity)
++- **File:** `AEPMessaging/Sources/Messaging.swift:371–378`
++- **What:** `ccOfflineKeyPresent` is computed and logged twice: once before the `if !initialLoadComplete` guard and again inside it. Neither instance drives any logic. Both are used only for `Log.debug`. The inner block also contains stale comment text copied from the outer scope.
++- **Suggestion:** Remove both declarations and both `Log.debug` calls. `isContentCardOfflineAvailable` already logs the flag value on every substantive call site.
++- **Reviewer conflict:** Code rates HIGH; LLD, HLD, and Complexity rate MEDIUM. Multiple reviewers independently assessed this as MEDIUM with strong reasoning (no functional impact, purely dead debug code). Downgraded to MEDIUM.
++
++---
++
++**[M-2]: `cache.updateInboxPropositions` added but never called — inbox persistence is documented but unimplemented** (from: Code)
++- **File:** `AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift:62–70`; `AEPMessaging/Sources/Messaging+State.swift:53–65`; `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift`
++- **What:** `Cache+Messaging.swift` adds `updateInboxPropositions` and the `inboxPropositions` computed property. Neither is called from the network path. The `getInboxUI(for:usePersistedContentCards:...)` doc comment says inbox propositions "are read directly from the persisted disk cache" when the flag is `true`, but inbox propositions are never written to disk. The disk path falls back to empty in-memory state at cold start.
++- **Suggestion:** Either remove the dead inbox persistence code and correct the API doc comment, or add the `cache.updateInboxPropositions` call in `applyPropositionChangeFor` to complete the implementation.
++
++---
++
++**[M-3]: `retrieveMessages` in-memory path filters on unvalidated `surfaces` while disk path uses validated `requestedSurfaces`** (from: Code)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1530–1539`
++- **What:** The disk path uses `requestedSurfaces = surfaces.filter { $0.isValid }`. The in-memory path uses `surfaces` (the unfiltered parameter) in three filter calls. No functional bug today since invalid surfaces won't exist as map keys, but the inconsistency is a maintenance trap.
++- **Suggestion:** Replace `surfaces` with `requestedSurfaces` in the three in-memory path filter calls.
++
++---
++
++**[M-4]: `hydrateContentCardPropositionsRulesEngine` writes directly to `qualifiedContentCardsBySurface` — bypasses `addOrReplaceContentCards` managed write path** (from: LLD)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1413–1428`
++- **What:** The disk-hydration path directly assigns to `qualifiedContentCardsBySurface` to avoid sending `.trigger` XDM events for boot-seeded cards. This also skips deduplication logic in `addOrReplaceContentCards`. Two write paths now exist with different invariants; any future logic added to `addOrReplaceContentCards` silently will not apply to disk-seeded cards.
++- **Suggestion:** Add a `sendTriggerEvents: Bool = true` parameter to `addOrReplaceContentCards` so the disk-seed path uses the single managed write path while suppressing `.trigger` dispatch.
++
++---
++
++**[M-5]: `contentCardOfflineAvailable: true` hardcoded in disk-hydration `ParsedPropositions` call — populates `contentCardPropositionsToPersist` unnecessarily** (from: LLD)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1395–1396`
++- **What:** In `hydrateContentCardPropositionsRulesEngine` (called only during disk hydration), `ParsedPropositions` is constructed with `contentCardOfflineAvailable: true` hardcoded. This causes `contentCardPropositionsToPersist` to be computed and then immediately discarded since only `propositionInfoToCache` and `surfaceRulesBySchemaType` are consumed by the hydration path. The hardcoded `true` also bypasses the operator config flag.
++- **Suggestion:** Pass `contentCardOfflineAvailable: false` here since `contentCardPropositionsToPersist` is not consumed at this call site. `propositionInfoToCache` is populated regardless of this flag.
++
++---
++
++**[M-6]: `endRequestFor` KNOWN ISSUE comment has no tracking ticket reference** (from: Completeness)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1223–1233`
++- **What:** The KNOWN ISSUE comment documents the always-success handler bug (H-2) but carries no Jira ticket ID. An intentionally deferred bug with no tracking reference can remain unaddressed indefinitely.
++- **Suggestion:** File a tracking ticket and add its ID to the comment before merge.
++
++---
++
++**[M-7]: Dead `isGetPropositionsEvent` branch in `eventsQueue.setHandler` — can never fire** (from: HLD, Completeness, Complexity)
++- **File:** `AEPMessaging/Sources/Messaging.swift:338–345` (`onRegistered`)
++- **What:** `handleProcessEvent` now processes get-propositions events immediately (line 431) without adding them to `eventsQueue`. The `if event.isGetPropositionsEvent` branch in the queue handler is permanently unreachable.
++- **Suggestion:** Remove the dead branch. This is also documented in H-9 as the mechanism for the ordering-guarantee regression.
++
++---
++
++**[M-8]: No functional E2E offline device tests — P0 item from AGENTS.md has no tracking ticket** (from: Completeness)
++- **File:** AGENTS.md (open items); `AEPMessaging/Tests/IntegrationTests/`
++- **What:** AGENTS.md lists "Functional E2E offline tests on device" as P0. The branch adds integration tests using Swift Testing that run against a live Event Hub, but these are not device-level tests verifying cold-start → dismiss → reboot offline flows under real network interruption.
++- **Suggestion:** Document this as deferred with a tracked ticket ID.
++
++---
++
++**[M-9]: `isContentCardOfflineAvailable` called at two dispatch sites in `handleProcessEvent` purely for its log side-effect** (from: Complexity)
++- **File:** `AEPMessaging/Sources/Messaging.swift:415, 428`
++- **What:** Both call sites discard the return value. The function reads config shared state and calls `Log.debug` on every `updatePropositions` and `getPropositions` event, purely to produce a log line.
++- **Suggestion:** Remove both call sites. `isContentCardOfflineAvailable` already logs the flag value when called by `applyPropositionChangeFor` and `retrieveMessages` where the return value drives logic.
++
++---
++
++**[M-10]: Commented-out optimization block left in production code in `applyPropositionChangeFor`** (from: Complexity)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1284–1289`
++- **What:** The `clearPersistedContentCardPropositions()` call is surrounded by commented-out guard lines (`// if !inMemoryContentCardPropositions.isEmpty {` / `// }`). The guard was removed but the comment fragments were not cleaned up. This is doubly misleading because `inMemoryContentCardPropositions` is itself dead state (H-3).
++- **Suggestion:** Remove the two comment lines.
++
++---
++
++**[M-11]: `clearPersistedContentCardPropositions` is a one-liner wrapper around `clearContentCards` with no distinct semantics** (from: Complexity)
++- **File:** `AEPMessaging/Sources/Messaging.swift:702–718`
++- **What:** `clearPersistedContentCardPropositions` contains exactly one statement: `clearContentCards()`. `clearContentCards` has no caller other than `clearPersistedContentCardPropositions`. Two names for one operation increase cognitive load without semantic benefit.
++- **Suggestion:** Collapse into one function unless the separation is intentional scaffolding for future divergence (in which case add a comment explaining the planned divergence). Also related to H-13: the log message context issue means the two callers should log separately anyway, which is a reason to keep the separation — but then the inner function should be silent.
++
++---
++
++**[M-12]: `clearPersistedPropositions()` public API name over-promises — only clears content cards, not all proposition types** (from: HLD)
++- **File:** `AEPMessaging/Sources/Messaging+PublicAPI.swift:77`
++- **What:** `clearPersistedPropositions()` calls through to `clearContentCards()`. IAM propositions, CBE propositions, and inbox propositions are unaffected. The doc comment mentions CBE exclusion but omits IAM and inbox. "Propositions" in the SDK naming convention refers to all proposition types.
++- **Suggestion:** Rename to `clearPersistedContentCardPropositions()` to match scope, or expand the implementation if full clearing is intended. Update the doc comment to be explicit about all excluded types.
++
++---
++
++## LOW Findings
++> Nice-to-have improvements; do not block merge unless explicitly justified by a reviewer.
++
++**[L-1]: `clearContentCards` does not clear `eventHistoryRulesBySurface` — stale CC event-history rules remain active after a content card clear** (from: Code)
++- **File:** `AEPMessaging/Sources/Messaging.swift:703–711`
++- **What:** `clearContentCards` resets `contentCardRulesBySurface` and the CC rules engine but does not clear `eventHistoryRulesBySurface` or call `rebuildMainRulesEngine`. After a public `clearPersistedPropositions()` call, event-history rules for dismissed/disqualified cards remain loaded in the main `rulesEngine` until the next network response.
++- **Suggestion:** Add `eventHistoryRulesBySurface = [:]` and `rebuildMainRulesEngine()` to `clearContentCards`, or explicitly remove CC-associated entries only.
++
++---
++
++**[L-2]: Assurance event in `retrieveMessages` disk path uses raw string-literal keys** (from: Complexity)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1500–1507`
++- **What:** The Assurance-visible event dispatched at lines 1503–1506 uses string literals `"source"`, `"surfaces"`, `"cardCount"` as event data keys. All other event data keys in this file use `MessagingConstants` references.
++- **Suggestion:** Add constants to `MessagingConstants.Event.Data.Key` for these keys.
++
++---
++
++**[L-3]: `completeUpdatePropositionsRequest` is a two-line wrapper introduced solely for the dead `isNetworkAvailable()` guard branch** (from: Complexity)
++- **File:** `AEPMessaging/Sources/Messaging.swift:1020–1024`
++- **What:** The function has exactly one call site (line 418) inside the permanently unreachable `guard isNetworkAvailable()` branch. Once the guard is removed (H-1), this function has no caller.
++- **Suggestion:** Remove together with the `isNetworkAvailable()` guards.
++
++---
++
++**[L-4]: `CardOrigin` enum defined at file scope in `Messaging.swift` — wrong home for a module-level type** (from: HLD)
++- **File:** `AEPMessaging/Sources/Messaging.swift:23–29`
++- **What:** `CardOrigin` is used across `Messaging.swift` and `Messaging+State.swift` but is defined as a file-level prefix to the 1700-line implementation file rather than in a logical types grouping.
++- **Suggestion:** Move to `MessagingConstants.swift` or a dedicated `MessagingTypes.swift`.
++
++---
++
++**[L-5]: `EdgeNetworkSimulator` in demo app is over-engineered for a demo use case** (from: Complexity)
++- **File:** `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift` (diff lines 12–92)
++- **What:** The 100-line singleton with `Simulation` enum, `onIntercepted` callback, and async dispatch logic solves a problem addressable in ~15 lines for demo purposes.
++- **Suggestion:** If the demo is intended for SDK developers validating edge cases, the current complexity is justifiable as a teaching tool (the `behaviorNote` labels are genuinely useful). If for end-user demos, simplify. The comment noting it mirrors aepsdk-edge-ios functional test mechanisms suggests the former intent — in that case, keep but document that intent more prominently.
++- **Confidence:** 0.75 (the complexity may be intentional)
++
++---
++
++## Reviewer Coverage
++
++| Reviewer | Ran | Findings | Verdict |
++|----------|-----|----------|---------|
++| General | N | — | — |
++| HLD (Architect) | Y | 1 CRITICAL, 4 MAJOR, 5 MINOR | REQUEST CHANGES |
++| LLD | Y | 2 CRITICAL, 3 HIGH, 3 MEDIUM | BLOCK |
++| API | N | — | — |
++| Code | Y | 2 CRITICAL, 5 HIGH, 2 MEDIUM, 1 LOW | BLOCK |
++| Security | N | — | — |
++| Completeness | Y | 1 CRITICAL, 5 HIGH, 3 MEDIUM | BLOCK |
++| Complexity (Simplify) | Y | 4 HIGH, 4 MEDIUM, 3 LOW | REQUEST CHANGES |
++| Comments | N | — | — |

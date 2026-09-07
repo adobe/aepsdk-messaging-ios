@@ -1,0 +1,483 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging.swift.diff.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging.swift.diff.diff
+new file mode 100644
+index 0000000..d8265f7
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging.swift.diff.diff
+@@ -0,0 +1,476 @@
++diff --git a/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging.swift.diff b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging.swift.diff
++new file mode 100644
++index 0000000..e3118f6
++--- /dev/null
+++++ b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging.swift.diff
++@@ -0,0 +1,469 @@
+++diff --git a/AEPMessaging/Sources/Messaging.swift b/AEPMessaging/Sources/Messaging.swift
+++index 5548921..7fd52f7 100644
+++--- a/AEPMessaging/Sources/Messaging.swift
++++++ b/AEPMessaging/Sources/Messaging.swift
+++@@ -14,6 +14,20 @@ import AEPCore
+++ import AEPServices
+++ import Foundation
+++ 
++++/// Describes where a content card surface's currently-loaded rules originated.
++++///
++++/// This is a **provenance** signal — it answers "were these cards read from the persisted
++++/// disk cache?" — and intentionally not a connectivity/freshness signal. It is tracked in
++++/// memory only (see `Messaging.contentCardOriginBySurface`) and is never encoded into the
++++/// persisted proposition cache, so it cannot leak into or corrupt on-disk data.
++++enum CardOrigin: String {
++++    /// Rules were loaded from a successful live personalization (network) response.
++++    case network
++++
++++    /// Rules were hydrated from the persisted on-disk content card cache.
++++    case disk
++++}
++++
+++ @objc(AEPMobileMessaging)
+++ public class Messaging: NSObject, Extension {
+++     // MARK: - Class members
+++@@ -72,6 +86,20 @@ public class Messaging: NSObject, Extension {
+++         set { queue.async { self._requestedSurfacesForEventId = newValue } }
+++     }
+++ 
++++    /// Request event IDs (the Edge chained event's `id.uuidString`, matching `requestedSurfacesForEventId`
++++    /// keys) for which Edge dispatched a non-recoverable `errorResponseContent` event. Recoverable statuses
++++    /// (already being retried by Edge's own PersistentHitQueue — see `RECOVERABLE_EDGE_ERROR_STATUS_CODES`)
++++    /// are intentionally NOT recorded here, since Edge may still resolve them successfully.
++++    ///
++++    /// Checked in `applyPropositionChangeFor` to distinguish "server genuinely has nothing for this
++++    /// surface" (an empty `personalization:decisions` response — should evict) from "the request itself
++++    /// failed" (should NOT evict memory, disk, or the content card origin flag).
++++    private var _nonRecoverableErrorEventIds: Set<String> = []
++++    private var nonRecoverableErrorEventIds: Set<String> {
++++        get { queue.sync { self._nonRecoverableErrorEventIds } }
++++        set { queue.async { self._nonRecoverableErrorEventIds = newValue } }
++++    }
++++
+++     /// used while processing streaming payloads for a single request
+++     private var _inProgressPropositions: [Surface: [Proposition]] = [:]
+++     private var inProgressPropositions: [Surface: [Proposition]] {
+++@@ -107,6 +135,59 @@ public class Messaging: NSObject, Extension {
+++         set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
+++     }
+++ 
++++    /// Tracks whether the content card rules currently loaded for each surface came from the
++++    /// network (`.network`) or the persisted disk cache (`.disk`). Written in lockstep with
++++    /// `contentCardRulesBySurface` so it can never drift from the data it describes.
++++    /// In-memory only — never persisted, so it cannot leak into the on-disk cache.
++++    private var _contentCardOriginBySurface: [Surface: CardOrigin] = [:]
++++    var contentCardOriginBySurface: [Surface: CardOrigin] {
++++        get { queue.sync { self._contentCardOriginBySurface } }
++++        set { queue.async { self._contentCardOriginBySurface = newValue } }
++++    }
++++
++++    /// Enriches a proposition interaction XDM with a `servedFromPersistentCache` flag per proposition,
++++    /// derived from `contentCardOriginBySurface`.
++++    ///
++++    /// Only propositions whose surface has a tracked content card origin are annotated — IAM, CBE, and
++++    /// inbox container-item interactions are left untouched, so the flag self-scopes to content cards.
++++    /// `true` means the card was served from the persisted disk cache (offline); `false` means it came
++++    /// from a live network response held in memory (online).
++++    ///
++++    /// - Parameter xdm: the proposition interaction XDM built by `PropositionInteraction`.
++++    /// - Returns: the XDM, with the flag injected into each applicable proposition entry.
++++    func enrichWithContentCardOrigin(_ xdm: [String: Any]) -> [String: Any] {
++++        guard
++++            var experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any],
++++            var decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any],
++++            var propositions = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]]
++++        else {
++++            return xdm
++++        }
++++
++++        let origins = contentCardOriginBySurface
++++        var didEnrich = false
++++        propositions = propositions.map { proposition in
++++            guard
++++                let scope = proposition[MessagingConstants.XDM.Inbound.Key.SCOPE] as? String,
++++                let origin = origins[Surface(uri: scope)]
++++            else {
++++                return proposition
++++            }
++++            var updated = proposition
++++            updated[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE] = (origin == .disk)
++++            didEnrich = true
++++            return updated
++++        }
++++
++++        guard didEnrich else { return xdm }
++++
++++        decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] = propositions
++++        experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] = decisioning
++++        var enriched = xdm
++++        enriched[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experience
++++        return enriched
++++    }
++++
+++     /// holds inbox propositions (container-item) for each surface
+++     private var _inboxPropositionsBySurface: [Surface: [Proposition]] = [:]
+++     var inboxPropositionsBySurface: [Surface: [Proposition]] {
+++@@ -196,6 +277,12 @@ public class Messaging: NSObject, Extension {
+++                          source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+++                          listener: handleEdgePersonalizationNotification)
+++ 
++++        // register listener for edge error responses so a failed request can be distinguished
++++        // from a legitimate empty personalization response (see applyPropositionChangeFor)
++++        registerListener(type: EventType.edge,
++++                         source: MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE,
++++                         listener: handleEdgeErrorResponse)
++++
+++         // register listener for handling personalization request complete events
+++         registerListener(type: EventType.messaging,
+++                          source: EventSource.contentComplete,
+++@@ -277,6 +364,11 @@ public class Messaging: NSObject, Extension {
+++         // handle an event to request propositions from the remote
+++         if event.isUpdatePropositionsEvent {
+++             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update propositions from the remote.")
++++            guard isNetworkAvailable() else {
++++                Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition update - device network is unavailable.")
++++                completeUpdatePropositionsRequest(for: event, success: false)
++++                return
++++            }
+++             fetchPropositions(event, for: event.surfaces ?? [])
+++             return
+++         }
+++@@ -284,9 +376,16 @@ public class Messaging: NSObject, Extension {
+++         // handle an event to get cached propositions from the SDK
+++         if event.isGetPropositionsEvent {
+++             Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
+++-            // Queue the get propositions event in internal events queue to ensure any prior update requests are completed
+++-            // before it is processed.
+++-            eventsQueue.add(event)
++++            // Process immediately so callers are not blocked behind in-flight Edge requests or Event Hub timeouts.
++++            // In-memory only unless usePersistedContentCards is set — see retrieveMessages.
++++            retrieveMessages(for: event.surfaces ?? [], event: event)
++++            return
++++        }
++++
++++        // handle an event to clear persisted content card and inbox propositions
++++        if event.isClearPersistedPropositionsEvent {
++++            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to clear persisted content card and inbox propositions.")
++++            clearPersistedContentCardAndInboxPropositions()
+++             return
+++         }
+++ 
+++@@ -299,7 +398,7 @@ public class Messaging: NSObject, Extension {
+++                 return
+++             }
+++ 
+++-            sendPropositionInteraction(withXdm: propositionInteractionXdm)
++++            sendPropositionInteraction(withXdm: enrichWithContentCardOrigin(propositionInteractionXdm))
+++             return
+++         }
+++ 
+++@@ -541,6 +640,8 @@ public class Messaging: NSObject, Extension {
+++         stateManager.updateTokenStore.clear()
+++         stateManager.channelActivityStore.clear()
+++ 
++++        clearContentCards()
++++
+++         runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+++ 
+++         dispatchPersistedTokenResync(includePushToken: false,
+++@@ -548,6 +649,25 @@ public class Messaging: NSObject, Extension {
+++                                      event: event)
+++     }
+++ 
++++    /// Clears in-memory content card state and persisted disk cache (identity reset).
++++    private func clearContentCards() {
++++        qualifiedContentCardsBySurface = [:]
++++        contentCardRulesBySurface = [:]
++++        contentCardOriginBySurface = [:]
++++        contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
++++        try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
++++        Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared on identity reset.")
++++    }
++++
++++    /// Clears persisted content card and inbox propositions (disk) along with their in-memory state.
++++    /// Handles `clearPersistedPropositions()` public API requests. Does not affect CBE persisted propositions.
++++    private func clearPersistedContentCardAndInboxPropositions() {
++++        clearContentCards()
++++        inboxPropositionsBySurface = [:]
++++        try? cache.remove(key: MessagingConstants.Caches.INBOX_PROPOSITIONS)
++++        Log.debug(label: MessagingConstants.LOG_TAG, "Persisted content card and inbox propositions cleared.")
++++    }
++++
+++     /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
+++     private func handleEdgeConsentResponse(_ event: Event) {
+++         guard let collectVal = extractCollectConsent(from: event.data) else {
+++@@ -782,6 +902,8 @@ public class Messaging: NSObject, Extension {
+++         for surface in requestedSurfaces {
+++             if qualifiedContentCards[surface] == nil {
+++                 qualifiedContentCardsBySurface.removeValue(forKey: surface)
++++                // origin tracking must be cleared alongside the evicted memory so it cannot go stale
++++                contentCardOriginBySurface.removeValue(forKey: surface)
+++             }
+++         }
+++ 
+++@@ -832,6 +954,16 @@ public class Messaging: NSObject, Extension {
+++         }
+++     }
+++ 
++++    private func isNetworkAvailable() -> Bool {
++++        return MobileCore.isNetworkAvailable()
++++    }
++++
++++    private func completeUpdatePropositionsRequest(for event: Event, success: Bool) {
++++        if let handler = completionHandlerFor(originatingEventId: event.id) {
++++            handler.handle?(success)
++++        }
++++    }
++++
+++     /// Generates and dispatches an event prompting the Edge extension to fetch propositions (in-app, content cards, or code-based experiences).
+++     ///
+++     /// The surface URIs used in the request are generated using the `bundleIdentifier` for the app.
+++@@ -844,6 +976,12 @@ public class Messaging: NSObject, Extension {
+++         // check for completion handler for requesting event
+++         let handler = completionHandlerFor(originatingEventId: event.id)
+++ 
++++        guard isNetworkAvailable() else {
++++            Log.debug(label: MessagingConstants.LOG_TAG, "Skipping proposition fetch - device network is unavailable.")
++++            handler?.handle?(false)
++++            return
++++        }
++++
+++         var requestedSurfaces: [Surface] = []
+++ 
+++         // if surfaces are provided, use them - otherwise assume the request is for base surface (mobileapp://{bundle identifier})
+++@@ -916,6 +1054,7 @@ public class Messaging: NSObject, Extension {
+++             else {
+++                 // response event failed or timed out, need to remove this event from the queue
+++                 self.requestedSurfacesForEventId.removeValue(forKey: newEvent.id.uuidString)
++++                self.nonRecoverableErrorEventIds.remove(newEvent.id.uuidString)
+++                 self.eventsQueue.start()
+++ 
+++                 // Call completion handler with failure so callers know the request failed
+++@@ -957,7 +1096,7 @@ public class Messaging: NSObject, Extension {
+++         dispatchNotificationEventFor(event, requestedSurfaces: requestedSurfaces)
+++     }
+++ 
+++-    private func getPropositionsFromContentCardRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
++++    func getPropositionsFromContentCardRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
+++         var surfacePropositions: [Surface: [Proposition]] = [:]
+++ 
+++         if let propositionItemsBySurface = contentCardRulesEngine.evaluate(event: event) {
+++@@ -1028,6 +1167,9 @@ public class Messaging: NSObject, Extension {
+++         // remove event from surfaces dictionary
+++         requestedSurfacesForEventId.removeValue(forKey: eventId)
+++ 
++++        // clear any recorded non-recoverable error for this request now that it's been applied
++++        nonRecoverableErrorEventIds.remove(eventId)
++++
+++         // clear pending propositions
+++         inProgressPropositions.removeAll()
+++ 
+++@@ -1045,22 +1187,44 @@ public class Messaging: NSObject, Extension {
+++ 
+++         let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces, runtime: runtime)
+++ 
+++-        // we need to preserve cache for any surfaces that were not a part of this request
+++-        // any requested surface that is absent from the response needs to be removed from cache and persistence
++++        // A non-recoverable Edge error means this request FAILED — an empty response here does not
++++        // mean "the campaign is gone," it means "we don't know." Surfaces that returned no data in
++++        // this scenario must NOT be evicted from disk, memory, rules engines, or the content card
++++        // origin tag; their last-known-good state is preserved until a future request succeeds.
++++        let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
++++        if requestFailed {
++++            Log.warning(label: MessagingConstants.LOG_TAG,
++++                        "Request '\(eventId)' had a non-recoverable Edge error — preserving existing persisted/in-memory content for requested surfaces instead of evicting.")
++++        }
++++
++++        // surfaces requested but not returned must be cleared from both in-memory and disk —
++++        // unless the request itself failed (see above), in which case nothing is evicted.
+++         let returnedSurfaces = Array(inProgressPropositions.keys) as [Surface]
+++-        let surfacesToRemove = requestedSurfaces.minus(returnedSurfaces)
++++        let surfacesToRemove = requestFailed ? [] : requestedSurfaces.minus(returnedSurfaces)
++++
++++        // DISK FIRST (MVVM): persistent storage is the source of truth. Write all proposition types
++++        // to disk before updating in-memory so in-memory always reflects what is on disk or newer.
++++        // Failures are non-fatal: the current session still works via in-memory; offline availability
++++        // for future cold starts may be degraded. Log warnings so the app can observe the issue.
++++        let iamWriteOK = cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
++++        let ccWriteOK = cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
++++        let inboxWriteOK = cache.updateInboxPropositions(parsedPropositions.inboxPropositionsToPersist, removing: surfacesToRemove)
++++
++++        if !iamWriteOK || !ccWriteOK || !inboxWriteOK {
++++            Log.warning(label: MessagingConstants.LOG_TAG,
++++                        "One or more proposition types failed to persist to disk — offline availability may be degraded for the next session.")
++++        }
+++ 
+++-        // update persistence, reporting data cache, and finally rules engine for in-app messages
+++-        // order matters here because the rules engine must be a full replace, and when we update
+++-        // persistence we will be removing empty surfaces and making sure unrequested surfaces
+++-        // continue to have their rules active
++++        // IN-MEMORY: update all in-memory caches after disk writes so the view layer sees a consistent state
+++         updatePropositions(parsedPropositions.propositionsToCache, removing: surfacesToRemove)
+++         updateInboxPropositions(parsedPropositions.inboxPropositionsToCache, removing: surfacesToRemove)
+++         updatePropositionInfo(parsedPropositions.propositionInfoToCache, removing: surfacesToRemove)
+++-        cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
+++ 
+++-        // apply rules
+++-        updateRulesEngines(with: parsedPropositions.surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces)
++++        // apply rules. On a failed request, pass only the surfaces that DID return data (usually none)
++++        // so `updateRulesEngines` cannot clear rules/qualified-cards/origin for surfaces that simply
++++        // weren't part of a successful response.
++++        updateRulesEngines(with: parsedPropositions.surfaceRulesBySchemaType,
++++                          requestedSurfaces: requestFailed ? returnedSurfaces : requestedSurfaces)
+++     }
+++ 
+++     private func updateRulesEngines(with surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
+++@@ -1076,6 +1240,17 @@ public class Messaging: NSObject, Extension {
+++         let collectedContentCardRules = collectRules(from: contentCardRulesBySurface)
+++         contentCardRulesEngine.launchRulesEngine.replaceRules(with: collectedContentCardRules)
+++ 
++++        // Tag origin as `.network` for the content card surfaces actually present in THIS response.
++++        // We must not tag every qualified surface here: re-seeding also re-qualifies surfaces whose
++++        // rules were previously hydrated from disk, and those must retain their `.disk` origin.
++++        if let networkContentCardRules = surfaceRulesBySchemaType[.contentCard] {
++++            var origins = contentCardOriginBySurface
++++            for surface in networkContentCardRules.keys {
++++                origins[surface] = .network
++++            }
++++            contentCardOriginBySurface = origins
++++        }
++++
+++         let seedEvent = Event(name: "Seed content cards", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+++         let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
+++         removeOrReplaceContentCards(qualified, requestedSurfaces: requestedSurfaces)
+++@@ -1124,7 +1299,69 @@ public class Messaging: NSObject, Extension {
+++         rulesBySurface.flatMap { $0.value }
+++     }
+++ 
++++    /// Loads persisted content card propositions for the requested surfaces, hydrates the CC rules engine,
++++    /// and populates `qualifiedContentCardsBySurface` without sending trigger events.
++++    func hydrateContentCardRulesEngineFromDisk(for surfaces: [Surface]) {
++++        guard let cachedPropositions = cache.contentCardPropositions, !cachedPropositions.isEmpty else {
++++            return
++++        }
++++
++++        let filteredPropositions = cachedPropositions.filter { surfaces.contains($0.key) }
++++        guard !filteredPropositions.isEmpty else {
++++            return
++++        }
++++
++++        let parsedPropositions = ParsedPropositions(with: filteredPropositions, requestedSurfaces: surfaces, runtime: runtime)
++++        updatePropositionInfo(parsedPropositions.propositionInfoToCache)
++++
++++        guard let contentCardRules = parsedPropositions.surfaceRulesBySchemaType[.contentCard],
++++              !contentCardRules.isEmpty else {
++++            return
++++        }
++++
++++        for (surface, rules) in contentCardRules {
++++            contentCardRulesBySurface[surface] = rules
++++        }
++++
++++        contentCardRulesEngine.launchRulesEngine.replaceRules(with: contentCardRulesBySurface.flatMap { $0.value })
++++
++++        let seedEvent = Event(name: "Seed content cards from persistence",
++++                              type: EventType.messaging,
++++                              source: EventSource.requestContent,
++++                              data: nil)
++++        let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
++++        var origins = contentCardOriginBySurface
++++        for (surface, propositions) in qualified where surfaces.contains(surface) {
++++            qualifiedContentCardsBySurface[surface] = propositions
++++            // tag origin as `.disk` in lockstep with the memory write, so a later display event
++++            // can report that these cards were served from the persisted cache (offline)
++++            origins[surface] = .disk
++++        }
++++        contentCardOriginBySurface = origins
++++
++++        Log.debug(label: MessagingConstants.LOG_TAG,
++++                  "Hydrated content card rules from disk for \(qualified.count) surface(s).")
++++    }
++++
++++    /// Reads inbox propositions from disk into `inboxPropositionsBySurface` for the given surfaces.
++++    func hydrateInboxPropositionsFromDisk(for surfaces: [Surface]) {
++++        guard let cached = cache.inboxPropositions, !cached.isEmpty else { return }
++++        let filtered = cached.filter { surfaces.contains($0.key) }
++++        guard !filtered.isEmpty else { return }
++++        for (surface, propositions) in filtered {
++++            inboxPropositionsBySurface[surface] = propositions
++++        }
++++        Log.debug(label: MessagingConstants.LOG_TAG,
++++                  "Hydrated inbox propositions from disk for \(filtered.count) surface(s).")
++++    }
++++
+++     /// Dispatch an event containing all propositions for the given surface
++++    ///
++++    /// In-memory only by default. Disk is only read when the requesting event explicitly sets
++++    /// `usePersistedContentCards` (see `getPropositionsForSurfaces(_:usePersistedContentCards:_:)`) —
++++    /// there is no automatic/implicit memory-first-disk-fallback. When the flag is set, content card
++++    /// and inbox propositions are hydrated from disk for ALL requested surfaces (not only those
++++    /// currently missing from memory), since the caller is explicitly asking for the persisted copy.
+++     private func retrieveMessages(for surfaces: [Surface], event: Event) {
+++         let requestedSurfaces = surfaces.filter { $0.isValid }
+++ 
+++@@ -1134,6 +1371,11 @@ public class Messaging: NSObject, Extension {
+++             return
+++         }
+++ 
++++        if event.usePersistedContentCards {
++++            hydrateContentCardRulesEngineFromDisk(for: requestedSurfaces)
++++            hydrateInboxPropositionsFromDisk(for: requestedSurfaces)
++++        }
++++
+++         // get requested content cards from cache
+++         let requestedContentCards = qualifiedContentCardsBySurface.filter { surfaces.contains($0.key) }
+++ 
+++@@ -1152,13 +1394,16 @@ public class Messaging: NSObject, Extension {
+++             mergedPropositions.addArray(propositions, forKey: surface)
+++         }
+++ 
+++-        let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: mergedPropositions.flatMap { $0.value }].asDictionary()
++++        let propositionPayload = mergedPropositions.flatMap { $0.value }.compactMap { $0.asDictionary() }
++++        let responseData: [String: Any] = [
++++            MessagingConstants.Event.Data.Key.PROPOSITIONS: propositionPayload
++++        ]
+++ 
+++         let responseEvent = event.createResponseEvent(
+++             name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_RESPONSE,
+++             type: EventType.messaging,
+++             source: EventSource.responseContent,
+++-            data: eventData
++++            data: responseData
+++         )
+++         dispatch(event: responseEvent)
+++     }
+++@@ -1179,6 +1424,33 @@ public class Messaging: NSObject, Extension {
+++         updateInProgressPropositionsWith(event)
+++     }
+++ 
++++    /// Records non-recoverable Edge errors for in-progress personalization requests.
++++    ///
++++    /// Edge dispatches `errorResponseContent` for both server-side per-event errors and network/HTTP-level
++++    /// failures. Recoverable statuses (see `RECOVERABLE_EDGE_ERROR_STATUS_CODES`) are already being retried
++++    /// by Edge's own `PersistentHitQueue` and are intentionally ignored here — Edge may still resolve them.
++++    /// Non-recoverable statuses (and errors with no status at all, e.g. a dropped connection-level error)
++++    /// are recorded so `applyPropositionChangeFor` can avoid evicting a surface's disk, memory, and content
++++    /// card origin tag when the request failed rather than the server legitimately returning nothing.
++++    private func handleEdgeErrorResponse(_ event: Event) {
++++        guard event.isEdgeErrorResponseEvent,
++++              let requestEventId = event.requestEventId,
++++              requestedSurfacesForEventId.contains(where: { $0.key == requestEventId })
++++        else {
++++            return
++++        }
++++
++++        if let status = event.edgeErrorStatus, MessagingConstants.RECOVERABLE_EDGE_ERROR_STATUS_CODES.contains(status) {
++++            Log.debug(label: MessagingConstants.LOG_TAG,
++++                      "Received recoverable Edge error (status \(status)) for request '\(requestEventId)' — Edge will retry, not marking as failed.")
++++            return
++++        }
++++
++++        Log.warning(label: MessagingConstants.LOG_TAG,
++++                    "Received non-recoverable Edge error for request '\(requestEventId)' (status \(event.edgeErrorStatus.map(String.init) ?? "unknown")) — persisted and in-memory content for the requested surfaces will not be evicted.")
++++        nonRecoverableErrorEventIds.insert(requestEventId)
++++    }
++++
+++     private func updateInProgressPropositionsWith(_ event: Event) {
+++         guard event.requestEventId != nil else {
+++             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no requesting Event ID.")
++\ No newline at end of file
+\ No newline at end of file

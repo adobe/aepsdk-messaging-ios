@@ -1,0 +1,17 @@
+{
+    "global.privacy": "optedin",
+    "edge.configId": "7d096b80-e7d4-4d18-bd93-d2a41a8582b1",
+    "edge.domain": "obumobile5.data.adobedc.net",
+    "messaging.optimizePushSync": true,
+    "__stage__edge.configId": "7d096b80-e7d4-4d18-bd93-d2a41a8582b1",
+    "__dev__messaging.eventDataset": "6629913053d05d2c9e79a77b",
+    "build.environment": "prod",
+    "rules.url": "https://assets.adobedtm.com/94f571f308d5/cbc7100b72cc/launch-375ea05a4ff9-rules.zip",
+    "experienceCloud.org": "972C898555E9F7BC7F000101@AdobeOrg",
+    "lifecycle.sessionTimeout": 11,
+    "__dev__edge.configId": "7d096b80-e7d4-4d18-bd93-d2a41a8582b1",
+    "__stage__messaging.eventDataset": "6629913053d05d2c9e79a77b",
+    "messaging.contentCardOfflineAvailable": true,
+    "messaging.eventDataset": "6629913053d05d2c9e79a77b",
+    "property.id": "PR6edda226d45d4699921f2bdd66e98e4d"
+  }

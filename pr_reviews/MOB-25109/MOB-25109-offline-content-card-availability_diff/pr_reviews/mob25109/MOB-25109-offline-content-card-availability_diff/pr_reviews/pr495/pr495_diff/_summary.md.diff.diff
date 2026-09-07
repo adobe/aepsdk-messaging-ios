@@ -1,0 +1,183 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/_summary.md.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/_summary.md.diff
+new file mode 100644
+index 0000000..1d808d2
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/_summary.md.diff
+@@ -0,0 +1,176 @@
++diff --git a/pr_reviews/pr495/pr495_diff/_summary.md b/pr_reviews/pr495/pr495_diff/_summary.md
++new file mode 100644
++index 0000000..5050a7b
++--- /dev/null
+++++ b/pr_reviews/pr495/pr495_diff/_summary.md
++@@ -0,0 +1,170 @@
+++# pr495 Diff Summary
+++
+++**Title:** Mob 25109/offline content card availability
+++
+++---
+++
+++## Overview
+++
+++| Metric | Count |
+++|--------|-------|
+++| Total Files Changed | 43 |
+++| New Files | 19 |
+++| Modified Files | 23 |
+++| Deleted Files | 1 |
+++| Binary Files | 1 |
+++| **Lines Added** | **+3548** |
+++| **Lines Removed** | **-301** |
+++
+++---
+++
+++## Code vs Test Breakdown
+++
+++| Category | Files | +Lines | -Lines | Net Change |
+++|----------|-------|--------|--------|------------|
+++| **Code** | 43 | +3548 | -301 | 3849 |
+++| **Tests** | 0 | +0 | -0 | 0 |
+++| **Total** | 43 | +3548 | -301 | 3849 |
+++
+++> Non-test files: **43** (3849 lines changed)
+++
+++---
+++
+++## Impact by Module
+++
+++| Module | Files | +Lines | -Lines | Total Change |
+++|--------|-------|--------|--------|--------------|
+++| `docs/` | 16 | +2286 | -0 | 2286 |
+++| `AEPMessaging/` | 18 | +975 | -85 | 1060 |
+++| `TestApps/` | 4 | +185 | -47 | 232 |
+++| `AEPMessaging.xcodeproj/` | 2 | +8 | -155 | 163 |
+++| `AGENTS.md/` | 1 | +73 | -0 | 73 |
+++| `Podfile.lock/` | 1 | +14 | -12 | 26 |
+++| `Podfile/` | 1 | +7 | -2 | 9 |
+++
+++---
+++
+++## High-Impact Files (>30 lines changed)
+++
+++| File | +Lines | -Lines | Type |
+++|------|--------|--------|------|
+++| `docs/agents/network-availability-layer.md` | +357 | -0 | New |
+++| `docs/agents/content-card-offline-implementation.md` | +342 | -0 | New |
+++| `docs/agents/wiki-prd-update.html` | +339 | -0 | New |
+++| `AEPMessaging/Sources/Messaging.swift` | +289 | -17 | Modified |
+++| `docs/agents/inbox-cbe-offline-handoff.md` | +263 | -0 | New |
+++| `docs/agents/persistence-write-path-and-errors.md` | +183 | -0 | New |
+++| `docs/agents/content-card-offline-known-gaps.md` | +159 | -0 | New |
+++| `docs/agents/write-read-clear-flow.md` | +154 | -0 | New |
+++| `docs/agents/wiki-section-6.6-assurance-analytics-timeout.html` | +130 | -0 | New |
+++| `AEPMessaging.xcodeproj/project.pbxproj` | +8 | -121 | Modified |
+++| `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift` | +105 | -20 | Modified |
+++| `AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift` | +86 | -21 | Modified |
+++| `TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift` | +68 | -22 | Modified |
+++| `docs/agents/wiki-section-5.5-pros-cons.html` | +81 | -0 | New |
+++| `docs/agents/card-origin-flag-scenarios.md` | +80 | -0 | New |
+++| `AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift` | +77 | -0 | Modified |
+++| `AGENTS.md` | +73 | -0 | New |
+++| `docs/agents/wiki-section-6.1-timeout-clarity.html` | +69 | -0 | New |
+++| `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift` | +63 | -0 | New |
+++| `AEPMessaging/Sources/Messaging+PublicAPI.swift` | +52 | -7 | Modified |
+++| `AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift` | +59 | -0 | Modified |
+++| `AEPMessaging/Tests/UnitTests/MessagingTests.swift` | +58 | -0 | Modified |
+++| `AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift` | +41 | -14 | Modified |
+++| `AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift` | +44 | -0 | New |
+++| `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift` | +32 | -11 | Modified |
+++| `docs/agents/wiki-comment-pm-timeout-full.html` | +40 | -0 | New |
+++| `docs/agents/wiki-comment-timeout-scenarios.html` | +36 | -0 | New |
+++| `AEPMessaging/Sources/UI/Inbox/InboxUI.swift` | +31 | -4 | Modified |
+++| `docs/agents/offline-architecture.mmd` | +35 | -0 | New |
+++| `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` | +0 | -34 | Deleted |
+++
+++---
+++
+++## All Files Changed
+++
+++| # | File | +Lines | -Lines | Type | Diff File |
+++|---|------|--------|--------|------|-----------|
+++| 1 | `docs/agents/network-availability-layer.md` | +357 | -0 | New | `pr495_diff/docs/agents/network-availability-layer.md.diff` |
+++| 2 | `docs/agents/content-card-offline-implementation.md` | +342 | -0 | New | `pr495_diff/docs/agents/content-card-offline-implementation.md.diff` |
+++| 3 | `docs/agents/wiki-prd-update.html` | +339 | -0 | New | `pr495_diff/docs/agents/wiki-prd-update.html.diff` |
+++| 4 | `AEPMessaging/Sources/Messaging.swift` | +289 | -17 | Modified | `pr495_diff/AEPMessaging/Sources/Messaging.swift.diff` |
+++| 5 | `docs/agents/inbox-cbe-offline-handoff.md` | +263 | -0 | New | `pr495_diff/docs/agents/inbox-cbe-offline-handoff.md.diff` |
+++| 6 | `docs/agents/persistence-write-path-and-errors.md` | +183 | -0 | New | `pr495_diff/docs/agents/persistence-write-path-and-errors.md.diff` |
+++| 7 | `docs/agents/content-card-offline-known-gaps.md` | +159 | -0 | New | `pr495_diff/docs/agents/content-card-offline-known-gaps.md.diff` |
+++| 8 | `docs/agents/write-read-clear-flow.md` | +154 | -0 | New | `pr495_diff/docs/agents/write-read-clear-flow.md.diff` |
+++| 9 | `docs/agents/wiki-section-6.6-assurance-analytics-timeout.html` | +130 | -0 | New | `pr495_diff/docs/agents/wiki-section-6.6-assurance-analytics-timeout.html.diff` |
+++| 10 | `AEPMessaging.xcodeproj/project.pbxproj` | +8 | -121 | Modified | `pr495_diff/AEPMessaging.xcodeproj/project.pbxproj.diff` |
+++| 11 | `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift` | +105 | -20 | Modified | `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff` |
+++| 12 | `AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift` | +86 | -21 | Modified | `pr495_diff/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift.diff` |
+++| 13 | `TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift` | +68 | -22 | Modified | `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift.diff` |
+++| 14 | `docs/agents/wiki-section-5.5-pros-cons.html` | +81 | -0 | New | `pr495_diff/docs/agents/wiki-section-5.5-pros-cons.html.diff` |
+++| 15 | `docs/agents/card-origin-flag-scenarios.md` | +80 | -0 | New | `pr495_diff/docs/agents/card-origin-flag-scenarios.md.diff` |
+++| 16 | `AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift` | +77 | -0 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift.diff` |
+++| 17 | `AGENTS.md` | +73 | -0 | New | `pr495_diff/AGENTS.md.diff` |
+++| 18 | `docs/agents/wiki-section-6.1-timeout-clarity.html` | +69 | -0 | New | `pr495_diff/docs/agents/wiki-section-6.1-timeout-clarity.html.diff` |
+++| 19 | `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift` | +63 | -0 | New | `pr495_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff` |
+++| 20 | `AEPMessaging/Sources/Messaging+PublicAPI.swift` | +52 | -7 | Modified | `pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff` |
+++| 21 | `AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift` | +59 | -0 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift.diff` |
+++| 22 | `AEPMessaging/Tests/UnitTests/MessagingTests.swift` | +58 | -0 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/MessagingTests.swift.diff` |
+++| 23 | `AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift` | +41 | -14 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift.diff` |
+++| 24 | `AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift` | +44 | -0 | New | `pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff` |
+++| 25 | `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift` | +32 | -11 | Modified | `pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff` |
+++| 26 | `docs/agents/wiki-comment-pm-timeout-full.html` | +40 | -0 | New | `pr495_diff/docs/agents/wiki-comment-pm-timeout-full.html.diff` |
+++| 27 | `docs/agents/wiki-comment-timeout-scenarios.html` | +36 | -0 | New | `pr495_diff/docs/agents/wiki-comment-timeout-scenarios.html.diff` |
+++| 28 | `AEPMessaging/Sources/UI/Inbox/InboxUI.swift` | +31 | -4 | Modified | `pr495_diff/AEPMessaging/Sources/UI/Inbox/InboxUI.swift.diff` |
+++| 29 | `docs/agents/offline-architecture.mmd` | +35 | -0 | New | `pr495_diff/docs/agents/offline-architecture.mmd.diff` |
+++| 30 | `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` | +0 | -34 | Deleted | `pr495_diff/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved.diff` |
+++| 31 | `AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift` | +29 | -0 | Modified | `pr495_diff/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift.diff` |
+++| 32 | `AEPMessaging/Sources/MessagingConstants.swift` | +26 | -0 | Modified | `pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff` |
+++| 33 | `AEPMessaging/Sources/ParsedPropositions.swift` | +21 | -5 | Modified | `pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff` |
+++| 34 | `Podfile.lock` | +14 | -12 | Modified | `pr495_diff/Podfile.lock.diff` |
+++| 35 | `AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift` | +19 | -4 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff` |
+++| 36 | `AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift` | +19 | -1 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff` |
+++| 37 | `docs/agents/wiki-comment-pm-qa.html` | +18 | -0 | New | `pr495_diff/docs/agents/wiki-comment-pm-qa.html.diff` |
+++| 38 | `AEPMessaging/Sources/Proposition.swift` | +17 | -0 | Modified | `pr495_diff/AEPMessaging/Sources/Proposition.swift.diff` |
+++| 39 | `TestApps/MessagingDemoAppSwiftUI/Constants.swift` | +11 | -4 | Modified | `pr495_diff/TestApps/MessagingDemoAppSwiftUI/Constants.swift.diff` |
+++| 40 | `AEPMessaging/Tests/TestHelpers/MockCache.swift` | +12 | -1 | Modified | `pr495_diff/AEPMessaging/Tests/TestHelpers/MockCache.swift.diff` |
+++| 41 | `Podfile` | +7 | -2 | Modified | `pr495_diff/Podfile.diff` |
+++| 42 | `TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift` | +1 | -1 | Modified | `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff` |
+++| 43 | `docs/agents/offline-architecture.png` | +0 | -0 | New | `pr495_diff/docs/agents/offline-architecture.png.diff` |
+++
+++---
+++
+++## New Files
+++
+++- `AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift`
+++- `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift`
+++- `AGENTS.md`
+++- `docs/agents/card-origin-flag-scenarios.md`
+++- `docs/agents/content-card-offline-implementation.md`
+++- `docs/agents/content-card-offline-known-gaps.md`
+++- `docs/agents/inbox-cbe-offline-handoff.md`
+++- `docs/agents/network-availability-layer.md`
+++- `docs/agents/offline-architecture.mmd`
+++- `docs/agents/offline-architecture.png`
+++- `docs/agents/persistence-write-path-and-errors.md`
+++- `docs/agents/wiki-comment-pm-qa.html`
+++- `docs/agents/wiki-comment-pm-timeout-full.html`
+++- `docs/agents/wiki-comment-timeout-scenarios.html`
+++- `docs/agents/wiki-prd-update.html`
+++- `docs/agents/wiki-section-5.5-pros-cons.html`
+++- `docs/agents/wiki-section-6.1-timeout-clarity.html`
+++- `docs/agents/wiki-section-6.6-assurance-analytics-timeout.html`
+++- `docs/agents/write-read-clear-flow.md`
+++
+++---
+++
+++## Deleted Files
+++
+++- `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
+++
+++---
+++
+++## How to Review
+++
+++1. **Start with high-impact files** - Review files with most changes first
+++2. **Read per-file diffs** - Each file has its own `.diff` file in `pr495_diff/`
+++3. **Follow module structure** - Files are organized by their original path
+++
+++**Diff folder:** `pr495_diff/`
+\ No newline at end of file

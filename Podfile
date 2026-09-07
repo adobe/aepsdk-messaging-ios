@@ -36,10 +36,12 @@ def app_main
     lib_main
     pod 'AEPLifecycle'
     pod 'AEPSignal'
+    pod 'AEPIdentity'        # legacy Identity — required by AEPAnalytics (com.adobe.module.identity)
     pod 'AEPEdge'
-    pod 'AEPEdgeIdentity'
+    pod 'AEPEdgeIdentity'    # Edge Identity — required by AEPEdge / AEPMessaging (com.adobe.edge.identity)
     pod 'AEPEdgeConsent'
     pod 'AEPAssurance'
+    pod 'AEPAnalytics'
 end
 
 def app_dev

@@ -1,0 +1,18 @@
+<p><strong>PM Q&amp;A — Assurance, Analytics &amp; Timeout (OQ-1, OQ-5)</strong></p>
+
+<p><strong>1. Assurance — when serving from disk?</strong><br/>
+Emit a debug event on <code>getPropositions</code> / <code>getContentCardsUI</code> completion with <code>propositionSource: memory | disk | none</code> + network status. Also emit when <code>updatePropositions</code> is skipped due to offline (path monitor). Disk hydrate itself is &lt;200ms — Assurance should capture the <em>decision</em>, not every card render.<br/>
+<strong>v1 recommendation:</strong> combined read-path event + update-skipped-offline event (visible in Assurance Events tab).</p>
+
+<p><strong>2. Analytics — on display/dismiss/interact?</strong><br/>
+<strong>No for v1.</strong> Display/dismiss/interact are campaign engagement metrics — mixing in &quot;served from disk&quot; pollutes AJO reporting. Use a <strong>separate operational event</strong> (e.g. <code>proposition.cache.served</code>) on disk hydrate / read success if analytics pipeline approves. Assurance can ship first without Edge analytics.</p>
+
+<p><strong>3. 200ms timeout vs 5s — offline vs low network?</strong><br/>
+These measure different things:</p>
+<ul>
+<li><strong>Offline</strong> (no network): path monitor detects immediately → serve disk in &lt;200ms if app reads cache first and reads are not blocked behind update.</li>
+<li><strong>Low network</strong> (connected but slow): Edge may take 3–10s. A 200ms network timeout would <em>always</em> force stale cache on degraded Wi‑Fi — not recommended as universal timeout.</li>
+<li><strong>5s today</strong> = Event Hub API callback limit while <code>get</code> waits behind queued <code>update</code> or slow Edge — not disk I/O.</li>
+</ul>
+<p><strong>Proposal:</strong> offline → skip Edge + cache-first get (sub-second). Low network → optional fail-fast <strong>update</strong> timeout (3–5s) at Launch/app config, not per-card authoring. Reserve 200ms as disk hydrate target only.<br/>
+<strong>Hybrid (recommended):</strong> show disk immediately → background update → refresh UI if network succeeds.</p>

@@ -1,0 +1,71 @@
+diff --git a/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff
+new file mode 100644
+index 0000000..ed39211
+--- /dev/null
++++ b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff
+@@ -0,0 +1,64 @@
++diff --git a/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift b/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift
++index 9e66601..45e44ec 100644
++--- a/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift
+++++ b/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift
++@@ -16,6 +16,8 @@ import Foundation
++ @available(iOS 15.0, *)
++ public extension Messaging {
++     /// Retrieves the content cards UI for a given surface.
+++    /// Both boot-hydrated disk cards and live network cards are included. Use `ContentCardUI.proposition.cardOrigin`
+++    /// to distinguish them for tracking purposes.
++     /// - Parameters:
++     ///   - surface: The surface for which to retrieve the content cards.
++     ///   - customizer: An optional ContentCardCustomizable object to customize the appearance of the content card template.
++@@ -27,7 +29,6 @@ public extension Messaging {
++                                   customizer: ContentCardCustomizing? = nil,
++                                   listener: ContentCardUIEventListening? = nil,
++                                   _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
++-        // Request propositions for the specified surface from Messaging extension.
++         Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
++             if let error = error {
++                 Log.error(label: UIConstants.LOG_TAG,
++@@ -38,11 +39,7 @@ public extension Messaging {
++ 
++             var cards: [ContentCardUI] = []
++ 
++-            // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
++-            guard let propositions = propositionDict?[surface] else {
++-                completion(.failure(ContentCardUIError.dataUnavailable))
++-                return
++-            }
+++            let propositions = propositionDict?[surface] ?? []
++ 
++             for proposition in propositions {
++                 // attempt to create a ContentCardUI instance with the schema data.
++@@ -70,9 +67,9 @@ public extension Messaging {
++     }
++     
++     /// Retrieves a content card container UI for a given surface.
++-    /// 
+++    ///
++     /// Returns a ContainerUI immediately that starts in a loading state.
++-    /// The container will automatically fetch content cards and container settings, 
+++    /// The container will automatically fetch content cards and container settings,
++     /// then transition to loaded, empty, or error state.
++     ///
++     /// - Parameters:
++@@ -83,7 +80,7 @@ public extension Messaging {
++     static func getInboxUI(for surface: Surface,
++                                          customizer: ContentCardCustomizing? = nil,
++                                          listener: InboxEventListening? = nil) -> InboxUI {
++-        
+++
++         // Create and return the container UI immediately with default settings
++         // It will start in loading state and fetch both container settings and cards automatically
++         let inboxUI = InboxUI(
++@@ -91,7 +88,7 @@ public extension Messaging {
++             customizer: customizer,
++             listener: listener
++         )
++-        
+++
++         return inboxUI
++     }
++ }
+\ No newline at end of file

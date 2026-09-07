@@ -1,0 +1,92 @@
+diff --git a/pr_reviews/pr495/persistence_core/reviews/04_security.findings.json b/pr_reviews/pr495/persistence_core/reviews/04_security.findings.json
+new file mode 100644
+index 0000000..a083465
+--- /dev/null
++++ b/pr_reviews/pr495/persistence_core/reviews/04_security.findings.json
+@@ -0,0 +1,86 @@
++{
++  "module": "persistence_core",
++  "pr": "pr495",
++  "reviewer": "devx-pr-review-security",
++  "findings": [
++    {
++      "id": "SEC-1",
++      "severity": "CRITICAL",
++      "claim": "handleResetIdentitiesEvent (Messaging.swift:634) calls clearContentCards() only, which never clears inboxPropositionsBySurface or the INBOX_PROPOSITIONS disk key (Cache+Messaging.swift / MessagingConstants.swift:CONTENT_CARD_PROPOSITIONS+INBOX_PROPOSITIONS). Only clearPersistedContentCardAndInboxPropositions() (Messaging.swift:664), reachable exclusively via the new public API clearPersistedPropositions(), clears the Inbox disk cache. On a shared/kiosk device, resetIdentities() therefore leaves the previous identity's persisted Inbox content readable by the next identity via getPropositionsForSurfaces(..., usePersistedContentCards: true) / getInboxUI before that new identity's own network fetch completes.",
++      "confidence": 0.85,
++      "evidence_refs": [
++        "AEPMessaging/Sources/Messaging.swift:634-669",
++        "AGENTS.md (Content Card offline agent summary table: 'resetIdentities | Clears CC cache (clearContentCards) — unlike IAM', silent on Inbox)",
++        "grep -n \"resetIdentities\" AEPMessaging/Tests/UnitTests/MessagingTests.swift returns only push-token/live-activity assertions, none for inbox cache state"
++      ],
++      "evidence_kinds": ["diff", "repo_search", "artifact"],
++      "lens_tags": ["ai_failure_mode"],
++      "obligation_refs": [],
++      "caveats": "Did not execute an on-device repro (would require simulating two sequential identities with disk persistence between resetIdentities() and a subsequent usePersistedContentCards:true get); conclusion is based on direct source trace, not dynamic verification. This finding is also raised by the HLD reviewer (02_hld.md, CRITICAL-1) from a design-flaw angle; recorded here independently with security/data-exposure framing since severity/tagging should reflect the security lens regardless of which reviewer surfaced it.",
++      "challenge": "If the host app is contractually required to call clearPersistedPropositions() itself immediately after resetIdentities() (and this is documented/enforced at the integration layer outside this repo), the leak window could be considered a caller-integration responsibility rather than an SDK defect. No such documented requirement was found in this diff or AGENTS.md, which weakens that counterargument."
++    },
++    {
++      "id": "SEC-2",
++      "severity": "MEDIUM",
++      "claim": "Proposition.offlineAvailable (Proposition.swift:112-124), which reads a per-proposition mobileParameters.offline opt-out flag, is never referenced outside its own declaration. ParsedPropositions.swift:94-98 and 121-125 gate ALL content-card and inbox disk persistence on the hardcoded MessagingConstants.OFFLINE_AVAILABILITY_ENABLED = true (MessagingConstants.swift:34) instead, so server/campaign-declared 'do not persist offline' intent is silently ignored and every proposition is written to the unencrypted on-disk cache.",
++      "confidence": 0.9,
++      "evidence_refs": [
++        "AEPMessaging/Sources/Proposition.swift:112-124",
++        "AEPMessaging/Sources/ParsedPropositions.swift:94-98,121-125",
++        "AEPMessaging/Sources/MessagingConstants.swift:34",
++        "grep -rn \"offlineAvailable\" AEPMessaging/Sources AEPMessaging/Tests -> single hit (declaration only)"
++      ],
++      "evidence_kinds": ["diff", "static_analysis", "repo_search"],
++      "lens_tags": ["ai_failure_mode"],
++      "obligation_refs": [],
++      "caveats": "Cannot confirm whether this is an intentional interim state (global flag as a stopgap before per-item gating ships) vs. an unintentional regression from an earlier design draft; either way the shipped behavior does not honor the per-item signal. Also flagged by LLD reviewer (CRITICAL, confidence 0.9) and HLD reviewer (MAJOR-7) from a design-integrity angle; recorded here for the data-minimization/on-disk-exposure security consequence specifically.",
++      "challenge": "If MessagingConstants.OFFLINE_AVAILABILITY_ENABLED is genuinely a short-lived placeholder (per its own TODO comment) pending shared-state config, and no campaign today actually sets mobileParameters.offline = false in production, the practical exposure window may be zero today — severity would then be more accurately LOW/informational until the flag is actually used by any campaign."
++    },
++    {
++      "id": "SEC-3",
++      "severity": "LOW",
++      "claim": "handleEdgeErrorResponse (Messaging.swift:1435-1452) and isEdgeErrorResponseEvent (Event+Messaging.swift:46-49) authenticate an incoming Edge error event using only EventType.edge + source string match + a requestEventId lookup — no sender/origin verification. Any in-process code with MobileCore.dispatch access can forge this event for a live requestEventId to force nonRecoverableErrorEventIds.insert(requestEventId), which makes applyPropositionChangeFor skip eviction entirely for that request (surfacesToRemove = [] path), preserving stale persisted content indefinitely.",
++      "confidence": 0.55,
++      "evidence_refs": [
++        "AEPMessaging/Sources/Messaging.swift:1435-1452",
++        "AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift:46-58",
++        "AEPMessaging/Sources/Messaging.swift:1194 (requestFailed = nonRecoverableErrorEventIds.contains(eventId))"
++      ],
++      "evidence_kinds": ["diff", "static_analysis"],
++      "lens_tags": [],
++      "obligation_refs": [],
++      "caveats": "Requires pre-existing code execution within the host app process (e.g. a malicious/compromised bundled extension) — this is the same trust model as the rest of the AEP Event Hub architecture, not a new process/privilege boundary. Flagging because this PR adds a new *behavioral* dependency (preserve-on-failure) on an unauthenticated in-process signal that did not exist before.",
++      "challenge": "Given the Event Hub has no sender-authentication primitive anywhere in the SDK today, this is arguably out of scope as an actionable finding for this PR specifically — it may be more appropriately tracked as an SDK-wide architectural note rather than a PR-495-specific regression."
++    },
++    {
++      "id": "SEC-4",
++      "severity": "LOW",
++      "claim": "retrieveMessages (Messaging.swift:1374-1377) only calls hydrateContentCardRulesEngineFromDisk/hydrateInboxPropositionsFromDisk when event.usePersistedContentCards == true, matching the documented explicit opt-in design (docs/agents/write-read-clear-flow.md:150, AGENTS.md). However, Messaging+StateTests.swift's testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty builds a GET_PROPOSITIONS event WITHOUT setting USE_PERSISTED_CONTENT_CARDS and asserts disk hydration occurred, with a comment claiming hydration is automatic; Messaging+PublicApiTest.swift's testGetPropositionsForSurfacesDoesNotSetPersistedFlag carries a similar stale comment. This contradicts the shipped explicit-opt-in gate that is the actual mechanism preventing implicit disk reads.",
++      "confidence": 0.5,
++      "evidence_refs": [
++        "AEPMessaging/Sources/Messaging.swift:1374-1377",
++        "AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift (testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty)",
++        "AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift (testGetPropositionsForSurfacesDoesNotSetPersistedFlag)",
++        "docs/agents/write-read-clear-flow.md:150",
++        "AGENTS.md (Cold start: No auto-hydrate; opt-in usePersistedContentCards: true on get)"
++      ],
++      "evidence_kinds": ["diff", "static_analysis", "artifact"],
++      "lens_tags": ["ai_failure_mode"],
++      "obligation_refs": [],
++      "caveats": "Attempted to run this specific test via xcodebuild -only-testing; the environment's simulator destination ('platform=iOS Simulator,name=iPhone 16') resolved ambiguously (duplicate/multiple installed runtimes) and the run did not execute the test, so I could not obtain a live pass/fail result. Confidence is capped at 0.5 pending that verification. Also flagged by the LLD reviewer with the same caveat.",
++      "challenge": "If this test in fact fails in CI today (most likely outcome given the single, clearly-gated call site), this is purely a stale/broken-test authoring issue with no live security impact — CI would already be red on this branch, which itself would block merge through the normal test-gate, making this finding moot as a standalone security risk (though still worth fixing for signal integrity)."
++    }
++  ],
++  "counts": {
++    "critical": 1,
++    "high": 0,
++    "medium": 1,
++    "low": 2
++  },
++  "overall_confidence": 0.75,
++  "not_assessed": [
++    "Live CI pass/fail status of testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty — blocked by simulator destination ambiguity in this environment.",
++    "Whether Edge's errorResponseContent event contract could carry sender attribution to close the SEC-3 trust gap — requires the aepsdk-edge-ios repo, not available here.",
++    "Whether product/security explicitly accepted residual on-disk exposure for non-cacheable content (SEC-2) as an interim/known state."
++  ]
++}

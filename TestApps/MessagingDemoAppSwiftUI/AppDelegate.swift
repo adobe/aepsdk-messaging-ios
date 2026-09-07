@@ -10,11 +10,13 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+import AEPAnalytics
 import AEPAssurance
 import AEPCore
 import AEPEdge
 import AEPEdgeConsent
 import AEPEdgeIdentity
+import AEPIdentity      // legacy Identity — required by AEPAnalytics
 import AEPLifecycle
 import AEPSignal
 import AEPMessaging
@@ -25,13 +27,15 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         MobileCore.setLogLevel(.trace)
 
         let extensions = [
-            Identity.self,
+            AEPIdentity.Identity.self, // com.adobe.module.identity — needed by AEPAnalytics
+            AEPEdgeIdentity.Identity.self, // com.adobe.edge.identity — needed by AEPEdge / AEPMessaging
             Lifecycle.self,
             Signal.self,
             Edge.self,
             Consent.self,
             Messaging.self,
             Assurance.self,
+            Analytics.self,
             TokenCollector.self
         ]
         

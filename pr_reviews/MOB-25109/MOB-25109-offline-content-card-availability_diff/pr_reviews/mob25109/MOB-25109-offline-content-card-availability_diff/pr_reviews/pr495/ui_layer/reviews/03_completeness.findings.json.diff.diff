@@ -1,0 +1,164 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/ui_layer/reviews/03_completeness.findings.json.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/ui_layer/reviews/03_completeness.findings.json.diff
+new file mode 100644
+index 0000000..ac74fbd
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/ui_layer/reviews/03_completeness.findings.json.diff
+@@ -0,0 +1,157 @@
++diff --git a/pr_reviews/pr495/ui_layer/reviews/03_completeness.findings.json b/pr_reviews/pr495/ui_layer/reviews/03_completeness.findings.json
++new file mode 100644
++index 0000000..21d90fd
++--- /dev/null
+++++ b/pr_reviews/pr495/ui_layer/reviews/03_completeness.findings.json
++@@ -0,0 +1,151 @@
+++{
+++  "schema_version": "1.0.0",
+++  "reviewer_id": "devx-pr-review-completeness",
+++  "findings": [
+++    {
+++      "finding_id": "pr495-ui_layer-completeness-F1",
+++      "title": "getContentCardsUI silently changed its failure contract for missing-surface propositions, contradicting an existing untouched integration test",
+++      "severity": "CRITICAL",
+++      "confidence": 0.75,
+++      "concern_tags": ["completeness", "test_quality", "entrypoint_completeness"],
+++      "claim": "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift:61 replaced `guard let propositions = propositionDict?[surface] else { completion(.failure(ContentCardUIError.dataUnavailable)); return }` with `let propositions = propositionDict?[surface] ?? []`, so a surface absent from the propositions dictionary now resolves to `.success([])` instead of `.failure(.dataUnavailable)`. AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift:24-33 (noCards) and :47-56 (invalidSurface) are existing, untouched tests that assert `#expect(throws: ContentCardUIError.dataUnavailable)` via IntegrationTestBase.getContentCardUI (IntegrationTestBase.swift:47-61), which calls this exact overload and resumes the continuation on `.failure`, not on `.success`.",
+++      "why_it_matters": "This is an unacknowledged public API behavior change. Existing consumer code (and this repo's own integration test) that distinguishes 'no data for this surface' via `.failure(dataUnavailable)` will now silently get `.success([])` and render an empty state instead of an error state. The method's own doc comment (Messaging+UIPublicAPI.swift:43-45) was not updated to reflect that this failure case no longer occurs.",
+++      "suggested_action": "Decide whether this is intentional. If intentional, update GetContentCardUITest and the doc comment to reflect the new contract explicitly. If unintentional, restore the failure guard for the 'surface entirely absent from response' case while keeping usePersistedContentCards support, and add a regression test pinning the chosen behavior.",
+++      "primary_anchor": {
+++        "path": "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift",
+++        "line": 61,
+++        "side": "RIGHT"
+++      },
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift:61",
+++        "AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift:24-33",
+++        "AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift:47-56",
+++        "AEPMessaging/Tests/IntegrationTests/HelperClasses/IntegrationTestBase.swift:47-61",
+++        "pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff"
+++      ],
+++      "caveats": [
+++        "Could not execute `xcodebuild test -scheme IntegrationTests` in this environment to directly confirm the test now fails; conclusion is from static trace of guard removal, dictionary-lookup semantics, and the test's #expect(throws:) assertion.",
+++        "Could not confirm whether the IntegrationTests scheme runs in this repo's CI gate for this PR (Makefile has a separate `integration-test` target from `unit-test`/`functional-test`), so it's unclear whether this would be caught before merge."
+++      ],
+++      "challenge": "If IntegrationTests doesn't run in CI and this change was a deliberate, silent product decision to treat 'no data' as empty-success uniformly (matching the new disk-hydration UX philosophy), this may be an accepted intentional trade-off rather than a bug — but even then, the stale test and stale doc comment are real completeness gaps that should be resolved either way.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "pr495-ui_layer-completeness-F2",
+++      "title": "InboxUI's new usePersistedContentCards disk-only refresh branch has zero test coverage anywhere in the repo",
+++      "severity": "CRITICAL",
+++      "confidence": 0.9,
+++      "concern_tags": ["completeness", "test_quality", "entrypoint_completeness"],
+++      "claim": "AEPMessaging/Sources/UI/Inbox/InboxUI.swift:99-177 adds a stored usePersistedContentCards property and an entire alternate branch in performRefresh (disk-only read, no network call, distinct completion/weak-self handling). A repo-wide grep for 'usePersistedContentCards' under AEPMessaging/Tests/ finds it only in the two other in-scope source files, never in any test file (not in the new Messaging+UIPublicApiTest.swift, nor in the pre-existing InboxUITests.swift/InboxStateTests.swift/InboxEventListeningTests.swift, none of which were touched by this PR).",
+++      "why_it_matters": "The disk-only branch is a brand-new, previously nonexistent code path with its own control flow (early return, different completion closure, different upstream call with usePersistedContentCards: true). Without any test, a regression here (broken weak-self handling, wrong flag forwarding, completion() never called on some path, wrong state transition) ships undetected.",
+++      "suggested_action": "Add InboxUI unit tests for usePersistedContentCards: true covering: (1) disk hit -> .loaded with expected cards and onLoading->onSuccess listener sequence; (2) disk miss/never-hydrated surface -> .error(InboxError.dataUnavailable) and onLoading->onError sequence; (3) verify Messaging.updatePropositionsForSurfaces is never called when the flag is true.",
+++      "primary_anchor": {
+++        "path": "AEPMessaging/Sources/UI/Inbox/InboxUI.swift",
+++        "line": 162,
+++        "side": "RIGHT"
+++      },
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/UI/Inbox/InboxUI.swift:99-177",
+++        "AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift (only test file in module; no InboxUI coverage)",
+++        "AEPMessaging/Tests/UnitTests/UITests/InboxUITests.swift (pre-existing, no usePersistedContentCards references)",
+++        "pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Inbox/InboxUI.swift.diff"
+++      ],
+++      "caveats": [
+++        "Confirmed via source grep, not via running the actual test suite/coverage tool."
+++      ],
+++      "challenge": "If a separate FunctionalTests or E2E suite (not requested in this module's scope) exercises this path, coverage could exist outside the files reviewed here; grep was limited to AEPMessaging/Tests/ and did not exhaustively check FunctionalTests/E2EFunctionalTests directories file-by-file for indirect exercising of this flag.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "pr495-ui_layer-completeness-F3",
+++      "title": "New test covers only the default path and contains a factually incorrect, unverified comment about the event data",
+++      "severity": "HIGH",
+++      "confidence": 0.85,
+++      "concern_tags": ["test_quality", "comment_accuracy"],
+++      "claim": "Messaging+UIPublicApiTest.swift:39-60 (testGetContentCardsUIDispatchesGetPropositionsEvent) never calls getContentCardsUI(for:usePersistedContentCards:...), so the flag's propagation into the dispatched event is untested. The inline comment at line 47 states 'offline hydration is now automatic — no persisted-flag in the event,' but Messaging+PublicAPI.swift:188 shows the event data does include MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS: usePersistedContentCards. The test's assertion never checks this key's value in either direction.",
+++      "why_it_matters": "The comment misrepresents actual behavior to future readers, and the sole new test provides no proof that the default call passes usePersistedContentCards: false, nor that the explicit-true overload passes true — the exact contract this PR introduces.",
+++      "suggested_action": "Remove/correct the inline comment, and add assertions on event.data?[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] for both the default call and an explicit usePersistedContentCards: true call.",
+++      "primary_anchor": {
+++        "path": "AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift",
+++        "line": 47,
+++        "side": "RIGHT"
+++      },
+++      "evidence_refs": [
+++        "AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift:39-60",
+++        "AEPMessaging/Sources/Messaging+PublicAPI.swift:185-189",
+++        "pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff"
+++      ],
+++      "caveats": [],
+++      "challenge": "The comment might have been intended to describe a different/earlier design iteration and simply wasn't cleaned up before merge; regardless, as written it is currently false relative to the shipped code.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    },
+++    {
+++      "finding_id": "pr495-ui_layer-completeness-F4",
+++      "title": "InboxUI.refresh()/refreshAsync() public doc comments were not updated for the new conditional disk-only behavior",
+++      "severity": "HIGH",
+++      "confidence": 0.85,
+++      "concern_tags": ["comment_accuracy", "completeness"],
+++      "claim": "InboxUI.swift:128-131 (refresh()) and :137-140 (refreshAsync()) unconditionally state 'First updates propositions from the server, then fetches the updated propositions.' This is false when the instance was constructed with usePersistedContentCards: true, since performRefresh's early-return branch (InboxUI.swift:162-177) never calls Messaging.updatePropositionsForSurfaces. The private performRefresh doc comment a few lines below was correctly updated to describe both branches; the two public method doc comments were not.",
+++      "why_it_matters": "Integrators read the public refresh()/refreshAsync() doc comments (via Xcode quick help), not the private performRefresh comment. For any InboxUI created with usePersistedContentCards: true — the exact scenario this PR adds — the documented behavior is inaccurate.",
+++      "suggested_action": "Update both public doc comments to state that behavior depends on the instance's usePersistedContentCards setting, mirroring the accuracy already present in the private performRefresh doc comment.",
+++      "primary_anchor": {
+++        "path": "AEPMessaging/Sources/UI/Inbox/InboxUI.swift",
+++        "line": 128,
+++        "side": "RIGHT"
+++      },
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/UI/Inbox/InboxUI.swift:128-131",
+++        "AEPMessaging/Sources/UI/Inbox/InboxUI.swift:137-140",
+++        "AEPMessaging/Sources/UI/Inbox/InboxUI.swift:153-177"
+++      ],
+++      "caveats": [],
+++      "challenge": "None — this is a direct textual comparison between doc comment claim and code behavior in the same file, in the same PR diff's surrounding context.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    },
+++    {
+++      "finding_id": "pr495-ui_layer-completeness-F5",
+++      "title": "Shared usePersistedContentCards parameter name has asymmetric network-skipping semantics across getContentCardsUI vs getInboxUI, undocumented",
+++      "severity": "MEDIUM",
+++      "confidence": 0.6,
+++      "concern_tags": ["comment_accuracy", "hygiene_communication"],
+++      "claim": "On getContentCardsUI (Messaging+UIPublicAPI.swift:39-40), usePersistedContentCards is a pure read-source toggle; the method itself never triggers a network call regardless of the flag's value. On getInboxUI/InboxUI (Messaging+UIPublicAPI.swift:96-98, InboxUI.swift:99-101), the identically-named flag additionally suppresses an otherwise-automatic network call (Messaging.updatePropositionsForSurfaces) on every refresh. Neither doc comment cross-references the other or calls out this asymmetry.",
+++      "why_it_matters": "An integrator who forms a mental model of the flag from one API and applies it to the other could be surprised: assuming from getContentCardsUI that the flag is 'just a read switch' understates the stronger commitment made by usePersistedContentCards: true on getInboxUI (a container that will never refresh from network unless toggled back).",
+++      "suggested_action": "Add a one-line cross-reference in both doc comments noting the asymmetry, e.g. 'Note: unlike getContentCardsUI, this flag also skips the network update call entirely.'",
+++      "primary_anchor": {
+++        "path": "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift",
+++        "line": 96,
+++        "side": "RIGHT"
+++      },
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift:39-40",
+++        "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift:96-98",
+++        "AEPMessaging/Sources/UI/Inbox/InboxUI.swift:99-101",
+++        "AEPMessaging/Sources/UI/Inbox/InboxUI.swift:162-166"
+++      ],
+++      "caveats": [
+++        "This is a documentation-clarity judgment call rather than a hard defect; each individual doc comment is locally accurate on its own."
+++      ],
+++      "challenge": "A reasonable engineer could argue the getInboxUI doc comment already states the network-skipping behavior clearly enough on its own, and cross-referencing another API in a doc comment is unnecessary; this finding is about defense-in-depth clarity given the shared parameter name, not a functional bug.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    }
+++  ],
+++  "summary": {
+++    "overall_confidence": 0.8,
+++    "counts_by_severity": {
+++      "CRITICAL": 2,
+++      "HIGH": 2,
+++      "MEDIUM": 1,
+++      "LOW": 0
+++    }
+++  }
+++}
+\ No newline at end of file

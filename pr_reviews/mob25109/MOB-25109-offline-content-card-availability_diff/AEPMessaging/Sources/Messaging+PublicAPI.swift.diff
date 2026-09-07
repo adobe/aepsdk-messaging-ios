@@ -1,0 +1,87 @@
+diff --git a/AEPMessaging/Sources/Messaging+PublicAPI.swift b/AEPMessaging/Sources/Messaging+PublicAPI.swift
+index 296f133..23842b7 100644
+--- a/AEPMessaging/Sources/Messaging+PublicAPI.swift
++++ b/AEPMessaging/Sources/Messaging+PublicAPI.swift
+@@ -136,12 +136,42 @@ import UserNotifications
+         MobileCore.dispatch(event: event)
+     }
+ 
+-    /// Retrieves the previously fetched (and cached) feeds content from the SDK for the provided surfaces.
+-    /// If the feeds content for one or more surfaces isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
++    /// Dispatches an event to fetch propositions for the provided surfaces from remote.
++    /// The completion handler is called once the Edge response has been fully processed.
++    /// - Parameters:
++    ///   - surfaces: An array of `Surface` objects.
++    ///   - completionHandler: Called with `true` if the network response was returned and successfully processed; `false` on failure or invalid surfaces.
++    @objc(updatePropositionsForSurfacesWithCompletionHandler:completionHandler:)
++    static func updatePropositionsForSurfacesWithCompletionHandler(_ surfaces: [Surface],
++                                                                   completionHandler: @escaping (Bool) -> Void) {
++        updatePropositionsForSurfaces(surfaces, completionHandler)
++    }
++
++    /// Retrieves propositions for the provided surfaces from the SDK's in-memory cache.
++    /// Returns only in-memory propositions for the current session — does not read from persisted
++    /// disk storage. Recommended usage: call `updatePropositionsForSurfacesWithCompletionHandler`
++    /// first; on success, call this method to read the freshly updated in-memory data. On failure,
++    /// call `getPropositionsForSurfaces(_:usePersistedContentCards:_:)` with the flag set to `true`
++    /// to explicitly read from the persisted disk cache instead.
++    /// - Parameters:
++    ///   - surfaces: An array of `Surface` objects.
++    ///   - completion: The completion handler invoked with propositions keyed by surface.
++    static func getPropositionsForSurfaces(_ surfaces: [Surface],
++                                         _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
++        getPropositionsForSurfaces(surfaces, usePersistedContentCards: false, completion)
++    }
++
++    /// Retrieves propositions for the provided surfaces from the SDK cache.
+     /// - Parameters:
+     ///   - surfaces: An array of `Surface` objects.
+-    ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Proposition objects.
+-    static func getPropositionsForSurfaces(_ surfaces: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
++    ///   - usePersistedContentCards: When `true`, explicitly loads content card and inbox propositions
++    ///     from the persisted disk cache (in addition to the in-memory cache) for the requested surfaces.
++    ///     When `false` (default), only in-memory propositions are returned.
++    ///   - completion: The completion handler invoked with propositions keyed by surface.
++    @objc(getPropositionsForSurfaces:usePersistedContentCards:completion:)
++    static func getPropositionsForSurfaces(_ surfaces: [Surface],
++                                         usePersistedContentCards: Bool,
++                                         _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
+         let validSurfaces = surfaces
+             .filter { $0.isValid }
+ 
+@@ -154,7 +184,8 @@ import UserNotifications
+ 
+         let eventData: [String: Any] = [
+             MessagingConstants.Event.Data.Key.GET_PROPOSITIONS: true,
+-            MessagingConstants.Event.Data.Key.SURFACES: validSurfaces.compactMap { $0.asDictionary() }
++            MessagingConstants.Event.Data.Key.SURFACES: validSurfaces.compactMap { $0.asDictionary() },
++            MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS: usePersistedContentCards
+         ]
+ 
+         let event = Event(name: MessagingConstants.Event.Name.GET_PROPOSITIONS,
+@@ -178,10 +209,24 @@ import UserNotifications
+                 return
+             }
+ 
+-            completion(propositions.toDictionary { Surface(uri: $0.scope) }, .none)
++            completion(propositions.toDictionary { Surface(uri: $0.scope) }, nil)
+         }
+     }
+ 
++    /// Clears the persisted disk cache for content card propositions, along with their
++    /// in-memory state (qualified content cards, content card rules, and the content card
++    /// origin tracking used for `servedFromPersistentCache` reporting).
++    ///
++    /// Code-based experience (CBE) persisted propositions are not affected by this call.
++    @objc(clearPersistedPropositions)
++    static func clearPersistedPropositions() {
++        let event = Event(name: MessagingConstants.Event.Name.CLEAR_PERSISTED_PROPOSITIONS,
++                          type: EventType.messaging,
++                          source: EventSource.requestContent,
++                          data: [MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS: true])
++        MobileCore.dispatch(event: event)
++    }
++
+     // MARK: - Private Helper Methods
+ 
+     /// Determines whether the user's response to a notification has caused the application to open

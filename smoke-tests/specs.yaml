@@ -1,0 +1,291 @@
+# AEPMessaging iOS Smoke Tests — parsed from wiki (Verification column: Android; adapted for iOS)
+# Platform: iOS | Simulator: iPhone Air iOS 26.5
+# AUTO_MODE: true | ASSURANCE: skipped
+
+- id: 1
+  name: "Push Notification — Display"
+  category: push
+  categoryLabel: "Push"
+  description: "Verify push notification is delivered to device and Push Notification Displayed event dispatched"
+  preConditions: "Physical device, Assurance connected, push capability"
+  steps: ["Connect app to Assurance", "Use push debug view to send push notification", "Verify notification delivered"]
+  action_type: assurance_check
+  ui_elements: []
+  expected_patterns: ["Push Notification Displayed"]
+  needs_assurance: true
+  needs_aep_query: false
+  needs_prior_state: false
+  skip_reason: "Push notifications not available on iOS simulator; requires physical device"
+
+- id: 2
+  name: "Push Notification — Tracking"
+  category: push
+  categoryLabel: "Push"
+  description: "Verify local notification delivered and push tracking events dispatched"
+  preConditions: "Push capability, notification permissions granted"
+  steps: ["Click 'Get Local Notification' button", "Click on notification"]
+  action_type: button_tap
+  ui_elements: ["Get Local Notification"]
+  expected_patterns: ["pushTracking.applicationOpened"]
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+  skip_reason: "No 'Get Local Notification' button in iOS PushView; push tracking not verifiable on simulator"
+
+- id: 3
+  name: "IAM — Custom HTML + Tracking (scrollol)"
+  category: iam
+  categoryLabel: "In-App Message"
+  description: "Verify fullscreen scrollable IAM displays and trigger/display/interact edge events are dispatched"
+  preConditions: "Fresh app launch, rules downloaded"
+  steps:
+    - "Navigate to InApp tab"
+    - "Enter 'scrollol' in custom action text field"
+    - "Tap 'track' button"
+    - "Verify fullscreen scrollable IAM is displayed"
+    - "Tap confirm/button inside the IAM"
+  action_type: combined
+  ui_elements: ["Enter custom action...", "track"]
+  expected_patterns:
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 4
+  name: "IAM — Fullscreen Display"
+  category: iam
+  categoryLabel: "In-App Message"
+  description: "Verify fullscreen IAM is displayed when triggered"
+  preConditions: "Fresh app launch, rules downloaded"
+  steps:
+    - "Navigate to InApp tab"
+    - "Tap 'fullscreen' button"
+    - "Verify fullscreen IAM is displayed"
+  action_type: button_tap
+  ui_elements: ["fullscreen"]
+  expected_patterns:
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 5
+  name: "IAM — Fullscreen (no UI takeover)"
+  category: iam
+  categoryLabel: "In-App Message"
+  description: "Verify fullscreen IAM with no UI takeover displays; app interaction possible underneath"
+  preConditions: "Fresh app launch, rules downloaded"
+  steps:
+    - "Navigate to InApp tab"
+    - "Enter 'fullscreen_nouitakeover' in custom action text field"
+    - "Tap 'track' button"
+    - "Verify fullscreen IAM is displayed"
+  action_type: combined
+  ui_elements: ["Enter custom action...", "track"]
+  expected_patterns:
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 6
+  name: "IAM — Modal Display"
+  category: iam
+  categoryLabel: "In-App Message"
+  description: "Verify modal IAM is displayed with correct height, clicking outside does not dismiss"
+  preConditions: "Fresh app launch, rules downloaded"
+  steps:
+    - "Navigate to InApp tab"
+    - "Tap 'modal' button"
+    - "Verify modal IAM displayed"
+    - "Verify clicking below modal does not dismiss it"
+  action_type: button_tap
+  ui_elements: ["modal"]
+  expected_patterns:
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 7
+  name: "IAM — Modal (no UI takeover)"
+  category: iam
+  categoryLabel: "In-App Message"
+  description: "Verify modal IAM with no UI takeover; clicking below modal DOES dismiss it"
+  preConditions: "Fresh app launch, rules downloaded"
+  steps:
+    - "Navigate to InApp tab"
+    - "Enter 'modal_nouitakeover' in custom action text field"
+    - "Tap 'track' button"
+    - "Verify modal IAM displayed"
+    - "Tap below the modal — verify IAM dismisses"
+  action_type: combined
+  ui_elements: ["Enter custom action...", "track"]
+  expected_patterns:
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 8
+  name: "IAM — Banner (no UI takeover)"
+  category: iam
+  categoryLabel: "In-App Message"
+  description: "Verify banner IAM displayed; app under it is interact-able"
+  preConditions: "Fresh app launch, rules downloaded"
+  steps:
+    - "Navigate to InApp tab"
+    - "Tap 'top banner' button"
+    - "Verify banner IAM displayed with correct height"
+    - "Verify app under banner is interactable"
+  action_type: button_tap
+  ui_elements: ["top banner"]
+  expected_patterns:
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 9
+  name: "IAM — Banner (UI takeover enabled)"
+  category: iam
+  categoryLabel: "In-App Message"
+  description: "Verify banner IAM with UI takeover displayed; app under it is NOT interact-able"
+  preConditions: "Fresh app launch, rules downloaded"
+  steps:
+    - "Navigate to InApp tab"
+    - "Tap 'bottom banner' button"
+    - "Verify banner IAM displayed"
+    - "Verify app under banner is not interactable"
+  action_type: button_tap
+  ui_elements: ["bottom banner"]
+  expected_patterns:
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 10
+  name: "IAM — Show X Times (max 3)"
+  category: iam
+  categoryLabel: "In-App Message"
+  description: "Verify IAM shows first 3 times and is suppressed after 3 triggers"
+  preConditions: "Fresh app launch, rules downloaded, no prior triggers for this IAM"
+  steps:
+    - "Navigate to InApp tab"
+    - "Tap 'top banner' button"
+    - "Dismiss IAM (repeat tapping + dismissing 5 times total)"
+    - "Verify 4th and 5th taps produce no IAM"
+  action_type: combined
+  ui_elements: ["top banner"]
+  expected_patterns:
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 11
+  name: "IAM — Dark Mode"
+  category: iam
+  categoryLabel: "In-App Message"
+  description: "Verify IAM renders in light and dark theme"
+  preConditions: "Fresh app launch, rules downloaded"
+  steps:
+    - "Navigate to InApp tab"
+    - "Enter 'jetpack_dark' in custom action field and tap track"
+    - "Verify IAM shown in light mode"
+    - "Switch device to dark mode"
+    - "Verify IAM shown in dark mode"
+  action_type: combined
+  ui_elements: ["Enter custom action...", "track"]
+  expected_patterns:
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+  skip_reason: "'jetpack_dark' trigger word is Android/Jetpack-specific; rule may not exist in iOS Launch property"
+
+- id: 12
+  name: "IAM — Gestures (swipe)"
+  category: iam
+  categoryLabel: "In-App Message"
+  description: "Verify IAM swipe gestures: left swipe opens URL, right swipe dismisses"
+  preConditions: "Fresh app launch, rules downloaded"
+  steps:
+    - "Navigate to InApp tab"
+    - "Enter 'swipe' in custom action field and tap track"
+    - "Verify IAM displayed"
+    - "Swipe left on IAM — verify URL direction"
+    - "Swipe right on IAM — verify IAM dismissed"
+  action_type: combined
+  ui_elements: ["Enter custom action...", "track"]
+  expected_patterns:
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 13
+  name: "Code Based Experiences — Display and Interact"
+  category: cbe
+  categoryLabel: "Code Based"
+  description: "Verify CBE propositions fetched and display/interact events tracked on card click"
+  preConditions: "Fresh app launch"
+  steps:
+    - "Navigate to 'Code Experiences' tab"
+    - "Tap refresh/redownload to fetch CBE propositions"
+    - "Verify card displayed (SAVING_5 / CHECKING_NOFEE offers)"
+    - "Tap on the displayed card"
+    - "Verify interact tracking event dispatched"
+  action_type: combined
+  ui_elements: ["Code Experiences", "↺", "↓"]
+  expected_patterns:
+    - "Processing request to update propositions from the remote."
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 14
+  name: "Content Cards — Display and Interact (no triggers)"
+  category: contentcard
+  categoryLabel: "Content Cards"
+  description: "Verify content cards displayed and display/interact events tracked when card tapped"
+  preConditions: "Fresh app launch"
+  steps:
+    - "Navigate to 'Cards' tab"
+    - "Tap 'Update propositions' button"
+    - "Tap 'Get Content card UI' button"
+    - "Verify content cards displayed"
+    - "Tap on a displayed content card"
+    - "Verify interact tracking event dispatched"
+  action_type: combined
+  ui_elements: ["Cards", "Update propositions", "Get Content card UI"]
+  expected_patterns:
+    - "Processing request to update propositions from the remote."
+    - "Processing request to track propositions."
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false
+
+- id: 15
+  name: "Content Cards — With Triggers (smoke_test)"
+  category: contentcard
+  categoryLabel: "Content Cards"
+  description: "Verify triggered content card appears after qualifying event and correct tracking events dispatched"
+  preConditions: "Fresh app launch"
+  steps:
+    - "Navigate to InApp tab"
+    - "Enter 'smoke_test' in custom action field and tap track to qualify"
+    - "Navigate to 'Cards' tab"
+    - "Tap 'Get Content card UI' button"
+    - "Verify new content card displayed with trigger-based content"
+  action_type: combined
+  ui_elements: ["Enter custom action...", "track", "Cards", "Get Content card UI"]
+  expected_patterns:
+    - "Processing request to track propositions."
+    - "User has qualified for"
+  needs_assurance: false
+  needs_aep_query: false
+  needs_prior_state: false

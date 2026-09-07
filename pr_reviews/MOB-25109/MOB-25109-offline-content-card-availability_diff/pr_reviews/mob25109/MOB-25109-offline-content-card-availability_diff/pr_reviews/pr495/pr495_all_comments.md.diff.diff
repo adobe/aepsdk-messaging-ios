@@ -1,0 +1,18 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_all_comments.md.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_all_comments.md.diff
+new file mode 100644
+index 0000000..b9fe421
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_all_comments.md.diff
+@@ -0,0 +1,11 @@
++diff --git a/pr_reviews/pr495/pr495_all_comments.md b/pr_reviews/pr495/pr495_all_comments.md
++new file mode 100644
++index 0000000..95c311a
++--- /dev/null
+++++ b/pr_reviews/pr495/pr495_all_comments.md
++@@ -0,0 +1,5 @@
+++# PR #495 Comments
+++Generated: 2026-07-28 09:54:18
+++---
+++
+++## No comments found
+\ No newline at end of file

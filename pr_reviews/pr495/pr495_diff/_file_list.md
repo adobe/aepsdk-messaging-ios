@@ -1,0 +1,100 @@
+# pr495 - File List
+
+Quick reference of all changed files.
+
+---
+
+### Modified Files
+- `.gitignore` -> `pr495_diff/.gitignore.diff`
+- `AEPMessaging.xcodeproj/project.pbxproj` -> `pr495_diff/AEPMessaging.xcodeproj/project.pbxproj.diff`
+- `AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift` -> `pr495_diff/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift.diff`
+- `AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift` -> `pr495_diff/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift.diff`
+- `AEPMessaging/Sources/Messaging+PublicAPI.swift` -> `pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff`
+- `AEPMessaging/Sources/Messaging+State.swift` -> `pr495_diff/AEPMessaging/Sources/Messaging+State.swift.diff`
+- `AEPMessaging/Sources/Messaging.swift` -> `pr495_diff/AEPMessaging/Sources/Messaging.swift.diff`
+- `AEPMessaging/Sources/MessagingConstants.swift` -> `pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff`
+- `AEPMessaging/Sources/ParsedPropositions.swift` -> `pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff`
+- `AEPMessaging/Sources/Proposition.swift` -> `pr495_diff/AEPMessaging/Sources/Proposition.swift.diff`
+- `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift` -> `pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff`
+- `AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift` -> `pr495_diff/AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift.diff`
+- `AEPMessaging/Tests/TestHelpers/MockCache.swift` -> `pr495_diff/AEPMessaging/Tests/TestHelpers/MockCache.swift.diff`
+- `AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift.diff`
+- `AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift.diff`
+- `AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff`
+- `AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift.diff`
+- `AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift.diff`
+- `AEPMessaging/Tests/UnitTests/MessagingTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/MessagingTests.swift.diff`
+- `AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff`
+- `Podfile` -> `pr495_diff/Podfile.diff`
+- `Podfile.lock` -> `pr495_diff/Podfile.lock.diff`
+- `TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift` -> `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift.diff`
+- `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift` -> `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff`
+- `TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift` -> `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff`
+- `TestApps/MessagingDemoAppSwiftUI/Constants.swift` -> `pr495_diff/TestApps/MessagingDemoAppSwiftUI/Constants.swift.diff`
+
+### New Files
+- `AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift` -> `pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff`
+- `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff`
+
+### Deleted Files
+- `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` -> `pr495_diff/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved.diff`
+
+---
+
+## Files by Directory
+
+### `./`
+- `.gitignore` -> `pr495_diff/.gitignore.diff`
+- `Podfile` -> `pr495_diff/Podfile.diff`
+- `Podfile.lock` -> `pr495_diff/Podfile.lock.diff`
+
+### `AEPMessaging.xcodeproj/`
+- `project.pbxproj` -> `pr495_diff/AEPMessaging.xcodeproj/project.pbxproj.diff`
+
+### `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/`
+- `Package.resolved` -> `pr495_diff/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved.diff`
+
+### `AEPMessaging/Sources/`
+- `Messaging+PublicAPI.swift` -> `pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff`
+- `Messaging+State.swift` -> `pr495_diff/AEPMessaging/Sources/Messaging+State.swift.diff`
+- `Messaging.swift` -> `pr495_diff/AEPMessaging/Sources/Messaging.swift.diff`
+- `MessagingConstants.swift` -> `pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff`
+- `ParsedPropositions.swift` -> `pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff`
+- `Proposition.swift` -> `pr495_diff/AEPMessaging/Sources/Proposition.swift.diff`
+
+### `AEPMessaging/Sources/ClassExtensions/`
+- `Cache+Messaging.swift` -> `pr495_diff/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift.diff`
+- `Event+Messaging.swift` -> `pr495_diff/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift.diff`
+
+### `AEPMessaging/Sources/UI/`
+- `Messaging+UIPublicAPI.swift` -> `pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff`
+
+### `AEPMessaging/Tests/IntegrationTests/`
+- `GetContentCardUITest.swift` -> `pr495_diff/AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift.diff`
+
+### `AEPMessaging/Tests/TestHelpers/`
+- `MockCache.swift` -> `pr495_diff/AEPMessaging/Tests/TestHelpers/MockCache.swift.diff`
+- `MockNetworkConnectivityService.swift` -> `pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff`
+
+### `AEPMessaging/Tests/UnitTests/`
+- `Cache+MessagingTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift.diff`
+- `Messaging+EdgeEventsTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift.diff`
+- `Messaging+PublicApiTest.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff`
+- `Messaging+StateTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift.diff`
+- `MessagingProcessCompletedEventTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift.diff`
+- `MessagingTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/MessagingTests.swift.diff`
+- `ParsedPropositionsTests.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff`
+
+### `AEPMessaging/Tests/UnitTests/UITests/`
+- `Messaging+UIPublicApiTest.swift` -> `pr495_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff`
+
+### `TestApps/MessagingDemoAppSwiftUI/`
+- `AppDelegate.swift` -> `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift.diff`
+- `Constants.swift` -> `pr495_diff/TestApps/MessagingDemoAppSwiftUI/Constants.swift.diff`
+
+### `TestApps/MessagingDemoAppSwiftUI/AppPages/`
+- `CardsView.swift` -> `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff`
+
+### `TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/`
+- `TabHeader.swift` -> `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff`
+

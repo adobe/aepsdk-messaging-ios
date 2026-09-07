@@ -32,6 +32,41 @@ public class ContentCardUI: Identifiable {
         proposition.priority
     }
 
+    /// Activity dictionary for this content card, including the stable authored `"id"`.
+    ///
+    /// Mirrors the `activity` property on `OptimizeProposition` in the AEPOptimize SDK.
+    /// Returns an empty dictionary if activity data is not present in scope details.
+//    public var activity: [String: Any] {
+//        proposition.activity
+//    }
+
+    /// The stable authored activity identifier for this content card.
+    ///
+    /// Maps to `scopeDetails.activity.id` and remains constant across successive
+    /// `updatePropositionsForSurfaces` calls, making it suitable as a local dedup key.
+    /// Returns an empty string if activity data is not present.
+    // TODO: MOB-24075 — uncomment to expose once API review is complete
+//    public var activityId: String {
+//        proposition.activityId
+//    }
+
+    /// The authored campaign identifier for this content card (`messageExecution.campaignID`).
+    ///
+    /// Decoded from the `eventToken` in scope details. Equivalent to the portion before `#` in
+    /// ``activityId`` (`campaignID#campaignActionID`). Returns an empty string if not present.
+//    public var campaignId: String {
+//        proposition.campaignId
+//    }
+
+    /// The decoded `messageExecution` metadata for this content card.
+    ///
+    /// Contains identifiers such as `campaignID`, `campaignVersionID`, `campaignActionID`, and
+    /// `messageID` — decoded from `scopeDetails.characteristics.eventToken`.
+    /// Returns an empty dictionary if not present or not decodable.
+//    public var messageExecution: [String: Any] {
+//        proposition.messageExecution
+//    }
+
     /// The template that defines the content card
     public let template: any ContentCardTemplate
 

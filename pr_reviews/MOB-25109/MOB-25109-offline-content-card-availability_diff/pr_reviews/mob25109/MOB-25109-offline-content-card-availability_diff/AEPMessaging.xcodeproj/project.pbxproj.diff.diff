@@ -1,0 +1,328 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/AEPMessaging.xcodeproj/project.pbxproj.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/AEPMessaging.xcodeproj/project.pbxproj.diff
+new file mode 100644
+index 0000000..395e00f
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/AEPMessaging.xcodeproj/project.pbxproj.diff
+@@ -0,0 +1,321 @@
++diff --git a/AEPMessaging.xcodeproj/project.pbxproj b/AEPMessaging.xcodeproj/project.pbxproj
++index a7463db..f30fe0b 100644
++--- a/AEPMessaging.xcodeproj/project.pbxproj
+++++ b/AEPMessaging.xcodeproj/project.pbxproj
++@@ -248,6 +248,7 @@
++ 		610D7694C87747DA9FBA2602 /* InboxErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5CB0ADD5CD4B09B46D6A6D /* InboxErrorTests.swift */; };
++ 		66A544B390364C269E47365C /* DefaultHeadingViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE401ECA108F4EF3ADB6F667 /* DefaultHeadingViewTests.swift */; };
++ 		6C2343E8785E6B47C8D961F7 /* Pods_FunctionalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D55E83254139642A1CAA76E /* Pods_FunctionalTests.framework */; };
+++		741BE62630219E3F004545B2 /* ADBMobileConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 741BE62530219E3F004545B2 /* ADBMobileConfig.json */; };
++ 		7454DD310E3A41F883456325 /* DefaultLoadingViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3783B7834D4427ABDFAEE02 /* DefaultLoadingViewTests.swift */; };
++ 		754F49E92DFCA9EF002601E9 /* LargeImageTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754F49E82DFCA9EA002601E9 /* LargeImageTemplate.swift */; };
++ 		754F49EB2E007FD4002601E9 /* LargeImageTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = 754F49EA2E007FC1002601E9 /* LargeImageTemplate.json */; };
++@@ -441,9 +442,11 @@
++ 		B6F7CCC52CCA1D7100C35C64 /* small image no image.json in Resources */ = {isa = PBXBuildFile; fileRef = B6F7CC132CC2EFE400C35C64 /* small image no image.json */; };
++ 		B6F7CCC62CCA1D7C00C35C64 /* NoCard.json in Resources */ = {isa = PBXBuildFile; fileRef = B6F7CC182CC2EFE400C35C64 /* NoCard.json */; };
++ 		B6F7CCC72CCA1D7C00C35C64 /* MultipleCards.json in Resources */ = {isa = PBXBuildFile; fileRef = B6F7CC172CC2EFE400C35C64 /* MultipleCards.json */; };
+++		B8A1C01024BE5FF30019F01 /* MockNetworkConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A1C00024BE5FF30019F01 /* MockNetworkConnectivityService.swift */; };
++ 		C6B8865ECCA5AFACDB7A2794 /* NotificationServiceSwiftUI.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 245ADEB8419B6E777CF08F6D /* NotificationServiceSwiftUI.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
++ 		CB4DB3613E8FD4B78B164916 /* Pods_FunctionalTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1331B50C344AD02FE0C9E2BF /* Pods_FunctionalTestApp.framework */; };
++ 		CBE050CB53BF402086329301 /* HeadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC56DFB8D444A25BC205CAD /* HeadingTests.swift */; };
+++		CCUIPUBLIC001TEST00000001 /* Messaging+UIPublicApiTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCUIPUBLIC001TEST00000002 /* Messaging+UIPublicApiTest.swift */; };
++ 		D14F4F38212749F7AAEF4EAF /* DefaultEmptyStateViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF126D339E6043AF9BA26807 /* DefaultEmptyStateViewTests.swift */; };
++ 		D4E3F2A15C6B708901234502 /* ContentCardCacheFunctionalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E3F2A15C6B708901234501 /* ContentCardCacheFunctionalTests.swift */; };
++ 		D63FC3AC2E00DACB00037B50 /* String+DataConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63FC3AB2E00DAB800037B50 /* String+DataConversion.swift */; };
++@@ -915,6 +918,7 @@
++ 		6A301B4C9BC74A618FBA92EC /* LayoutSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutSettingsTests.swift; sourceTree = "<group>"; };
++ 		6D215989BF9365E7165510B0 /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
++ 		71895CC75A7A5B934C60718F /* Pods-E2EFunctionalTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E2EFunctionalTestApp.debug.xcconfig"; path = "Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp.debug.xcconfig"; sourceTree = "<group>"; };
+++		741BE62530219E3F004545B2 /* ADBMobileConfig.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ADBMobileConfig.json; sourceTree = "<group>"; };
++ 		754F49E82DFCA9EA002601E9 /* LargeImageTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeImageTemplate.swift; sourceTree = "<group>"; };
++ 		754F49EA2E007FC1002601E9 /* LargeImageTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LargeImageTemplate.json; sourceTree = "<group>"; };
++ 		755DB8AA2E02003100F3B21B /* LargeImageCustomizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeImageCustomizer.swift; sourceTree = "<group>"; };
++@@ -1128,11 +1132,13 @@
++ 		B6F7CCC82CCAB18700C35C64 /* IntegrationTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = IntegrationTestPlan.xctestplan; sourceTree = "<group>"; };
++ 		B7B411B1F9538EB09000C67E /* Pods_AEPMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AEPMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
++ 		B86A865B6338E5FAFD760F08 /* Pods_UnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+++		B8A1C00024BE5FF30019F01 /* MockNetworkConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkConnectivityService.swift; sourceTree = "<group>"; };
++ 		BC044480E85745A0A6FE4C4F /* InboxUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxUITests.swift; sourceTree = "<group>"; };
++ 		BE401ECA108F4EF3ADB6F667 /* DefaultHeadingViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultHeadingViewTests.swift; sourceTree = "<group>"; };
++ 		BF126D339E6043AF9BA26807 /* DefaultEmptyStateViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultEmptyStateViewTests.swift; sourceTree = "<group>"; };
++ 		BF90DF53585960AE051234A9 /* Pods-IntegrationTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegrationTests.debug.xcconfig"; path = "Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests.debug.xcconfig"; sourceTree = "<group>"; };
++ 		C7465CB5D942426740F36F97 /* Pods-MessagingDemoAppSwiftUI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MessagingDemoAppSwiftUI.debug.xcconfig"; path = "Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI.debug.xcconfig"; sourceTree = "<group>"; };
+++		CCUIPUBLIC001TEST00000002 /* Messaging+UIPublicApiTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging+UIPublicApiTest.swift"; sourceTree = "<group>"; };
++ 		D4E3F2A15C6B708901234501 /* ContentCardCacheFunctionalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardCacheFunctionalTests.swift; sourceTree = "<group>"; };
++ 		D5773DB866CADAB59B3043AE /* Pods-FunctionalTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FunctionalTestApp.release.xcconfig"; path = "Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp.release.xcconfig"; sourceTree = "<group>"; };
++ 		D63FC3AB2E00DAB800037B50 /* String+DataConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+DataConversion.swift"; sourceTree = "<group>"; };
++@@ -1297,6 +1303,7 @@
++ 				B61BDAA82DA4ECEA007FE12E /* MessagingDemoAppSwiftUI.entitlements */,
++ 				B6F7CC932CC80E2800C35C64 /* AppPages */,
++ 				B6F7CC962CC873A400C35C64 /* AppDelegate.swift */,
+++				741BE62530219E3F004545B2 /* ADBMobileConfig.json */,
++ 				091881E62A16BAE300615481 /* MessagingDemoAppSwiftUIApp.swift */,
++ 				B6F7CC942CC80F4800C35C64 /* Constants.swift */,
++ 				09305F0B2AC2EAFF00406607 /* MessagingDemoAppSwiftUI-Info.plist */,
++@@ -1702,6 +1709,7 @@
++ 				243EA6D92739D47400195945 /* MockMessaging.swift */,
++ 				243EA6E1273B436400195945 /* MockMessagingRulesEngine.swift */,
++ 				D66DF10D2DD5332A0021AC51 /* MockNamedKeyValueService.swift */,
+++				B8A1C00024BE5FF30019F01 /* MockNetworkConnectivityService.swift */,
++ 				92FC594426372E34005BAE02 /* MockNotificationResponseCoder.swift */,
++ 				240436CD2C76685C008CCD6D /* MockProposition.swift */,
++ 				240436CB2C765C41008CCD6D /* MockPropositionItem.swift */,
++@@ -2119,6 +2127,7 @@
++ 				385094F2A3B648BC820CEFA9 /* InboxStateTests.swift */,
++ 				0EB4C861868845FFA51C3132 /* InboxEventListeningTests.swift */,
++ 				BC044480E85745A0A6FE4C4F /* InboxUITests.swift */,
+++				CCUIPUBLIC001TEST00000002 /* Messaging+UIPublicApiTest.swift */,
++ 				BE401ECA108F4EF3ADB6F667 /* DefaultHeadingViewTests.swift */,
++ 				BF126D339E6043AF9BA26807 /* DefaultEmptyStateViewTests.swift */,
++ 				F3783B7834D4427ABDFAEE02 /* DefaultLoadingViewTests.swift */,
++@@ -2743,6 +2752,7 @@
++ 			buildActionMask = 2147483647;
++ 			files = (
++ 				0969D6D12A7AFB3800A00BF7 /* Preview Content in Resources */,
+++				741BE62630219E3F004545B2 /* ADBMobileConfig.json in Resources */,
++ 				091881EB2A16BAE400615481 /* Assets.xcassets in Resources */,
++ 			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++@@ -2939,14 +2949,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoApp/Pods-MessagingDemoApp-frameworks.sh\"\n";
++@@ -3048,14 +3054,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppObjC/Pods-MessagingDemoAppObjC-frameworks.sh\"\n";
++@@ -3091,14 +3093,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTests/Pods-E2EFunctionalTests-frameworks.sh\"\n";
++@@ -3178,14 +3176,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IntegrationTests/Pods-IntegrationTests-frameworks.sh\"\n";
++@@ -3199,14 +3193,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-UnitTests/Pods-UnitTests-frameworks.sh\"\n";
++@@ -3220,14 +3210,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FunctionalTestApp/Pods-FunctionalTestApp-frameworks.sh\"\n";
++@@ -3241,14 +3227,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-E2EFunctionalTestApp/Pods-E2EFunctionalTestApp-frameworks.sh\"\n";
++@@ -3284,14 +3266,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MessagingDemoAppSwiftUI/Pods-MessagingDemoAppSwiftUI-frameworks.sh\"\n";
++@@ -3327,14 +3305,10 @@
++ 			inputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
++ 			);
++-			inputPaths = (
++-			);
++ 			name = "[CP] Embed Pods Frameworks";
++ 			outputFileListPaths = (
++ 				"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
++ 			);
++-			outputPaths = (
++-			);
++ 			runOnlyForDeploymentPostprocessing = 0;
++ 			shellPath = /bin/sh;
++ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FunctionalTests/Pods-FunctionalTests-frameworks.sh\"\n";
++@@ -3642,6 +3616,7 @@
++ 				245059702673DBFE00CC7CA0 /* Messaging+PublicApiTest.swift in Sources */,
++ 				243EA6D0273325DC00195945 /* MessageTests.swift in Sources */,
++ 				D66DF10F2DD533320021AC51 /* MockNamedKeyValueService.swift in Sources */,
+++				B8A1C01024BE5FF30019F01 /* MockNetworkConnectivityService.swift in Sources */,
++ 				244FEA4629B6A5D30058FA1C /* FeedItemTests.swift in Sources */,
++ 				4CB003F52E30AED6002152B0 /* EventHistoryOperationSchemaDataTests.swift in Sources */,
++ 				24CA4BC12B6178EE00D16369 /* InAppSchemaDataTests.swift in Sources */,
++@@ -3674,6 +3649,7 @@
++ 				E09CA04F82054CB4A8AC5D2E /* InboxStateTests.swift in Sources */,
++ 				21E9FEC362EF41B9A7D57D3F /* InboxEventListeningTests.swift in Sources */,
++ 				AB98D09FDC6D47C1B79DC26B /* InboxUITests.swift in Sources */,
+++				CCUIPUBLIC001TEST00000001 /* Messaging+UIPublicApiTest.swift in Sources */,
++ 				66A544B390364C269E47365C /* DefaultHeadingViewTests.swift in Sources */,
++ 				D14F4F38212749F7AAEF4EAF /* DefaultEmptyStateViewTests.swift in Sources */,
++ 				7454DD310E3A41F883456325 /* DefaultLoadingViewTests.swift in Sources */,
++@@ -5097,91 +5073,6 @@
++ 			};
++ 			name = Release;
++ 		};
++-		AA00000FAAAA0001000AA001 /* Debug */ = {
++-			isa = XCBuildConfiguration;
++-			buildSettings = {
++-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
++-				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
++-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
++-				CODE_SIGN_STYLE = Automatic;
++-				CURRENT_PROJECT_VERSION = 1;
++-				DEFINES_MODULE = YES;
++-				DYLIB_COMPATIBILITY_VERSION = 1;
++-				DYLIB_CURRENT_VERSION = 1;
++-				DYLIB_INSTALL_NAME_BASE = "@rpath";
++-				ENABLE_MODULE_VERIFIER = YES;
++-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
++-				GCC_C_LANGUAGE_STANDARD = gnu17;
++-				GENERATE_INFOPLIST_FILE = YES;
++-				INFOPLIST_FILE = AEPMessagingNotification/Sources/Info.plist;
++-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
++-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
++-				LD_RUNPATH_SEARCH_PATHS = (
++-					"$(inherited)",
++-					"@executable_path/Frameworks",
++-					"@loader_path/Frameworks",
++-				);
++-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
++-				MARKETING_VERSION = 5.14.0;
++-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
++-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
++-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messagingnotification;
++-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
++-				SKIP_INSTALL = YES;
++-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
++-				SUPPORTS_MACCATALYST = NO;
++-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
++-				SWIFT_EMIT_LOC_STRINGS = YES;
++-				SWIFT_INSTALL_OBJC_HEADER = NO;
++-				SWIFT_VERSION = 5.0;
++-				TARGETED_DEVICE_FAMILY = "1,2";
++-				VERSIONING_SYSTEM = "apple-generic";
++-				VERSION_INFO_PREFIX = "";
++-			};
++-			name = Debug;
++-		};
++-		AA000010AAAA0001000AA001 /* Release */ = {
++-			isa = XCBuildConfiguration;
++-			buildSettings = {
++-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
++-				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
++-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
++-				CODE_SIGN_STYLE = Automatic;
++-				CURRENT_PROJECT_VERSION = 1;
++-				DEFINES_MODULE = YES;
++-				DYLIB_COMPATIBILITY_VERSION = 1;
++-				DYLIB_CURRENT_VERSION = 1;
++-				DYLIB_INSTALL_NAME_BASE = "@rpath";
++-				ENABLE_MODULE_VERIFIER = YES;
++-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
++-				GCC_C_LANGUAGE_STANDARD = gnu17;
++-				GENERATE_INFOPLIST_FILE = YES;
++-				INFOPLIST_FILE = AEPMessagingNotification/Sources/Info.plist;
++-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
++-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
++-				LD_RUNPATH_SEARCH_PATHS = (
++-					"$(inherited)",
++-					"@executable_path/Frameworks",
++-					"@loader_path/Frameworks",
++-				);
++-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
++-				MARKETING_VERSION = 5.14.0;
++-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
++-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
++-				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.aep.messagingnotification;
++-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
++-				SKIP_INSTALL = YES;
++-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
++-				SUPPORTS_MACCATALYST = NO;
++-				SWIFT_EMIT_LOC_STRINGS = YES;
++-				SWIFT_INSTALL_OBJC_HEADER = NO;
++-				SWIFT_VERSION = 5.0;
++-				TARGETED_DEVICE_FAMILY = "1,2";
++-				VERSIONING_SYSTEM = "apple-generic";
++-				VERSION_INFO_PREFIX = "";
++-			};
++-			name = Release;
++-		};
++ 		B6F7CCAC2CCA165B00C35C64 /* Debug */ = {
++ 			isa = XCBuildConfiguration;
++ 			baseConfigurationReference = BF90DF53585960AE051234A9 /* Pods-IntegrationTests.debug.xcconfig */;
+\ No newline at end of file

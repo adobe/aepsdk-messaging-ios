@@ -1,0 +1,333 @@
+# PR Review — pr495 (MOB-25109 / offline-content-card-availability)
+
+## Summary
+This PR adds SDK-wide offline/persistence support for Content Cards and Inbox propositions: an explicit `usePersistedContentCards` opt-in read flag (`getPropositionsForSurfaces`, `getContentCardsUI`, `getInboxUI`/`InboxUI`), a new `clearPersistedPropositions()` public API, a non-recoverable-Edge-error preservation guard (`nonRecoverableErrorEventIds`) to stop stale-fetch failures from evicting good disk/memory data, and a revert of an in-flight Code-Based-Experience (CBE) persistence feature back to memory-only. The core mechanism is reasonably scoped and not over-engineered, but three independent review passes (code, design, completeness/security) across all three modules converged on the same conclusion: the PR's headline safety guarantees are largely **unverified or actively contradicted** by their own tests, one shipped completion-handler bug silently misreports success on genuine Edge failures, `resetIdentities` leaves a cross-identity data-leak path open for Inbox content, a documented per-proposition privacy/data-minimization gate is dead code superseded by a hardcoded global flag, the UI layer changed a public error contract without updating (or even flagging) two existing integration tests it breaks, and the demo app ships another engineer's personal test configuration.
+
+**Verdict:** REQUEST CHANGES
+
+| Severity | Count |
+|----------|-------|
+| CRITICAL | 8 |
+| HIGH | 13 |
+| MEDIUM | 9 |
+| LOW | 8 |
+
+---
+
+## CRITICAL Findings
+> Must fix before merge.
+
+**[C-1]: `resetIdentities` clears the Content Card disk cache but never clears the persisted Inbox cache — cross-identity data leak on shared/kiosk devices** (from: HLD [persistence_core], Security [persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift:634-669`
+- **What:** `handleResetIdentitiesEvent` calls only `clearContentCards()`, which clears `qualifiedContentCardsBySurface`/`contentCardRulesBySurface`/`contentCardOriginBySurface` and the `CONTENT_CARD_PROPOSITIONS` disk key. It never touches `inboxPropositionsBySurface` or the `INBOX_PROPOSITIONS` disk key. The only path that clears the Inbox disk cache is `clearPersistedContentCardAndInboxPropositions()`, reachable exclusively through the separate, opt-in public API `clearPersistedPropositions()`.
+- **Why:** `resetIdentities()` is the SDK's documented guarantee that no per-user state survives an identity switch on shared/kiosk devices. With this gap, User A's individually-targeted Inbox content persists to disk, survives `resetIdentities()`, and can be served to User B via `getInboxUI`/`getPropositionsForSurfaces(usePersistedContentCards: true)` before User B's own network fetch completes — exactly the offline/cold-start scenario this PR exists to support. `AGENTS.md`'s own "Content Card offline" table documents CC clearing on reset but is silent on Inbox, and no test asserts Inbox-cache state on reset.
+- **Fix:** Have `handleResetIdentitiesEvent` call `clearPersistedContentCardAndInboxPropositions()` instead of the narrower `clearContentCards()`. Add a regression test asserting both `CONTENT_CARD_PROPOSITIONS` and `INBOX_PROPOSITIONS` disk keys are removed on reset.
+- **Confidence:** 0.85 (both reviewers independently verified via direct source read; no test exercises this path either way).
+
+---
+
+**[C-2]: `updatePropositionsForSurfacesWithCompletionHandler` reports `success == true` even when Edge returned a non-recoverable error** (from: Code [persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift:1163-1180` (`endRequestFor`)
+- **What:** `endRequestFor` calls `applyPropositionChangeFor` (which internally computes `requestFailed = nonRecoverableErrorEventIds.contains(eventId)` to decide whether to evict) but then unconditionally calls `handler.handle?(true)`. The `requestFailed` boolean this PR introduces is never surfaced to the public completion-handler contract.
+- **Why:** The method's own doc comment promises `true` means "the network response was returned and successfully processed." A caller using the PR's own recommended pattern ("call `updatePropositionsForSurfacesWithCompletionHandler` first; on success, read fresh in-memory data") will trust stale/unrefreshed data as if it were fresh after a genuine Edge 5xx/4xx failure. This bug predates the PR at the line level, but the PR introduces the exact signal needed to fix it (`nonRecoverableErrorEventIds`) without wiring it through, making the bug materially worse and directly relevant to this PR's correctness story.
+- **Fix:** Capture `requestFailed` before `applyPropositionChangeFor`/`nonRecoverableErrorEventIds.remove` run, then call `handler.handle?(!requestFailed)`.
+- **Confidence:** 0.85 (direct code read, not merely inferred).
+
+---
+
+**[C-3]: `Proposition.offlineAvailable` — the documented per-proposition data-minimization/opt-out gate — is dead code; a hardcoded global flag persists everything regardless** (from: LLD [CRITICAL, confidence 0.9], HLD [MAJOR-7], Complexity [HIGH], Security [MEDIUM, data-minimization framing], Completeness [MEDIUM], Code [LOW, dead-code framing] — 6 independent reviewers, all in persistence_core)
+- **Files:** `AEPMessaging/Sources/Proposition.swift:108-124`, `AEPMessaging/Sources/ParsedPropositions.swift:92-98,119-125`, `AEPMessaging/Sources/MessagingConstants.swift:29-34`
+- **What:** This PR adds `Proposition.offlineAvailable`, a computed property reading a server-declared per-campaign opt-out (`mobileParameters.offline`). The actual persistence gate in `ParsedPropositions.swift` never calls it — it checks only `MessagingConstants.OFFLINE_AVAILABILITY_ENABLED`, a hardcoded `true` applied uniformly to every proposition. `grep -rn "offlineAvailable"` returns exactly one hit: the declaration itself. This PR's own design docs bundled in the same diff (`docs/agents/inbox-cbe-offline-handoff.md:71-83`, `persistence-write-path-and-errors.md`, `write-read-clear-flow.md`) describe the gate as if `proposition.offlineAvailable` were already wired in — it is not.
+- **Why:** If an AJO author explicitly marks a campaign `mobileParameters.offline = false` (e.g., for compliance, PII, or time-sensitivity reasons), expecting it never to be written to disk, the shipped code persists it anyway with no working opt-out. This is a documented, type-level privacy guarantee that is completely unenforced — reviewers rated this from LOW (dead code) up to CRITICAL (unenforced data-minimization invariant with docs describing it as live); the LLD reviewer's CRITICAL framing (confidence 0.9, direct evidence of doc/code contradiction) is the strongest-evidenced view and is preserved here rather than softened.
+- **Fix:** Either wire `proposition.offlineAvailable` into both `ParsedPropositions.swift` gates (`if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED && proposition.offlineAvailable`), or delete the property and correct the docs until the mechanism is actually implemented. Add a test asserting a proposition with `mobileParameters.offline = false` is excluded from `*ToPersist`.
+- **Confidence:** 0.9 (repo-wide grep confirms zero call sites; verified against 3 separate design docs describing different intended behavior).
+
+---
+
+**[C-4]: The non-recoverable-error preservation guard — this PR's headline safety mechanism — has no working regression test, and the one test written for it exercises the wrong code path and asserts outcomes the shipped code cannot produce** (from: Code [CRITICAL, persistence_core], Completeness [CRITICAL + HIGH, persistence_core])
+- **File:** `AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift:611-627` (`test_handleProcessCompletedEvent_noDecisions_preservesContentCardDiskCache`, added by this PR)
+- **What:** This test never calls `handleEdgeErrorResponse` and never populates `nonRecoverableErrorEventIds` — there is no test hook to do so (unlike `setRequestedSurfacesforEventId`). A repo-wide grep for `handleEdgeErrorResponse`/`EDGE_ERROR_RESPONSE`/`edgeErrorStatus` in `AEPMessaging/Tests/` returns zero hits anywhere. Tracing `applyPropositionChangeFor` for exactly this test's setup: `requestFailed` evaluates `false` (nothing was ever inserted), so `surfacesToRemove` is non-empty, `cache.updateContentCardPropositions` calls `remove(key:)` on the seeded data, and `updateRulesEngines` unconditionally calls `replaceRules`. **Both `XCTAssertFalse` assertions in the test contradict the code's actual, documented behavior** — the test looks structurally unable to pass against the shipped implementation.
+- **Why:** Completeness independently confirmed via full grep that `nonRecoverableErrorEventIds`, `handleEdgeErrorResponse`, and `isEdgeErrorResponseEvent` are never referenced anywhere in the test suite — i.e., there is zero real coverage (positive or negative) of the one mechanism this PR is built around to prevent data loss on failed Edge requests. If this test is currently green in CI, that itself would indicate a second, independent over-preservation bug (evicting nothing on every empty response, not just failed ones).
+- **Fix:** Add a real error-simulation path (a `#if DEBUG` setter mirroring `setRequestedSurfacesforEventId`, or drive it through `handleEdgeErrorResponse` with a fabricated error event) and fix the assertions to match actual preservation semantics (`removeCalls` empty, but `replaceRulesCalled` legitimately still `true` since the rules engine always resyncs). Add dedicated tests for: non-recoverable status recorded, recoverable status ignored, error-for-already-completed-request is a no-op.
+- **Confidence:** 0.8 (full static trace performed by two independent reviewers; neither could execute the suite due to an unrelated pre-existing Pods/toolchain build failure, so this is trace-based, not empirically confirmed).
+
+---
+
+**[C-5]: `usePersistedContentCards: true` — the PR's headline opt-in read path — is never exercised through the real flow, and two existing tests describe a discarded "automatic hydration" design that directly contradicts the shipped explicit-opt-in gate** (from: Completeness [CRITICAL, persistence_core], Code [HIGH, persistence_core], LLD [MEDIUM/needs-verification, persistence_core], Security [LOW, doc-accuracy framing, persistence_core])
+- **Files:** `AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift:175-210` (`testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty`), `AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift:626-642` (`testGetPropositionsForSurfacesDoesNotSetPersistedFlag`) — both added by this PR
+- **What:** The shipped gate (`Messaging.swift:1358-1377`) only hydrates disk when `event.usePersistedContentCards == true`, matching the PR's own doc comment ("no automatic/implicit memory-first-disk-fallback") and `AGENTS.md` ("Cold start: No auto-hydrate; opt-in ... on get"). `testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty` deliberately omits the flag (comment: "No USE_PERSISTED_CONTENT_CARDS flag needed — disk hydration is automatic") yet asserts `replaceRulesCalled == true` — a static trace of every code path that could set that value found none reachable without the flag. `testGetPropositionsForSurfacesDoesNotSetPersistedFlag` carries the comment "the persisted-flag approach has been removed" even though `Messaging+PublicAPI.swift:185-189` explicitly forwards the flag into event data — and the test's only assertion never inspects the flag at all, so it would pass regardless of the flag's value.
+- **Why:** No test in the repo sets `usePersistedContentCards: true` and drives it through `getPropositionsForSurfaces` → `retrieveMessages` → `hydrateContentCardRulesEngineFromDisk`/`hydrateInboxPropositionsFromDisk`. The single most important new behavior in this PR — explicit opt-in offline read — has no proof it works when actually invoked as designed, and the existing tests actively mislead future maintainers about the shipped design.
+- **Fix:** Rewrite `testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty` to set the flag `true` and rename it; add a companion test proving hydration does *not* occur when the flag is omitted. Rewrite `testGetPropositionsForSurfacesDoesNotSetPersistedFlag` to actually assert the flag's value and fix its stale comment. Add a true positive-path test seeding disk-only data and asserting it's returned.
+- **Confidence:** 0.75 (consistent static trace across four independent reviewers; none could execute the suite in this environment).
+
+---
+
+**[C-6]: `getContentCardsUI`'s new empty-array fallback silently changes the public error contract for every caller — not just new adopters of the flag — and breaks two existing, untouched integration tests** (from: Code [CRITICAL, ui_layer], HLD [MAJOR-3, ui_layer], Completeness [CRITICAL F1, ui_layer])
+- **File:** `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift:52-61`
+- **What:** Previously, when the response dictionary had no entry for the requested surface, the method failed with `.failure(ContentCardUIError.dataUnavailable)`. This PR replaces the `guard let ... else { completion(.failure(...)) }` with `propositionDict?[surface] ?? []`, so the same "no data for this surface" case now returns `.success([])` unconditionally — for **both** the new flagged overload and the pre-existing default-`false` path that has nothing to do with the new offline feature.
+- **Why:** `AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift:24-33` (`noCards()`) and `:47-56` (`invalidSurface()`) are existing, untouched tests that assert exactly the old `.failure(.dataUnavailable)` behavior and will fail against this diff. `ContentCardUIError.dataUnavailable` is now unreachable from this API (confirmed by grep — zero remaining production call sites) yet remains a public enum case that consumer apps may still branch on. Any existing app distinguishing "no data yet" from "confirmed empty" silently loses that failure branch on upgrade, even without touching the new flag. This is a behavior change bundled into a PR framed as purely additive.
+- **Fix:** Scope the empty-array fallback to only the cases that need it, preserving `.failure(.dataUnavailable)` for the pre-existing default path — or, if the broader contract change is intentional, update `GetContentCardUITest.swift`, deprecate/repurpose the now-unreachable error case, and call out the contract change explicitly in the PR description.
+- **Confidence:** 0.75-0.9 across the three reviewers (static trace of dictionary/guard semantics is strong; none could execute `xcodebuild test` in this environment to empirically confirm the test failures).
+
+---
+
+**[C-7]: `InboxUI`'s new `usePersistedContentCards` disk-only refresh branch has zero test coverage anywhere in the repo** (from: Completeness [CRITICAL F2, confidence 0.9, ui_layer], Code [HIGH, ui_layer])
+- **File:** `AEPMessaging/Sources/UI/Inbox/InboxUI.swift:162-177`
+- **What:** This is the core new behavior of the module: a stateful object that must permanently skip `updatePropositionsForSurfaces` for its whole lifecycle when constructed with `usePersistedContentCards: true`. Neither the module's new test file (`Messaging+UIPublicApiTest.swift`, which only covers `getContentCardsUI`) nor `InboxUI`'s own pre-existing test file (`InboxUITests.swift`, unchanged by this PR) references `usePersistedContentCards` at all — confirmed by repo-wide grep.
+- **Why:** No test constructs an `InboxUI` with the flag `true` and asserts `updatePropositionsForSurfaces` was never called, that `completion()`/`refreshAsync()` resolves on the disk-only path, or that the flag actually reaches `getPropositionsForSurfaces`. The branch/return structure is manually verified as correct (one `return`, `completion()` called exactly once on every path including nil-`self`), but that correctness rests entirely on code reading, not an executable test — for a completely new, previously-untested code branch.
+- **Fix:** Add unit tests (in `InboxUITests.swift` or a new file) covering: disk-hit success path with correct listener callback sequence, disk-miss → `.error(InboxError.dataUnavailable)`, and a mock/spy proving `updatePropositionsForSurfaces` is never invoked when the flag is `true`.
+- **Confidence:** 0.9 (Completeness), corroborated independently by Code at HIGH.
+
+---
+
+**[C-8]: `Constants.swift` ships personal/dev-specific test configuration and dead commented-out code, making the demo app non-reproducible for anyone else** (from: Completeness [CRITICAL, demo_app], Code [HIGH, demo_app])
+- **File:** `TestApps/MessagingDemoAppSwiftUI/Constants.swift:16-40`
+- **What:** `SurfaceName.INBOX`/`CONTENT_CARD` were changed from generic values (`"inboxcard"`, `"largeImageCards"`) to what read as one engineer's personal test-tenant config (`"shwetansh_inbox_mda"`, `"shwetansh_cc_mda"`); `assuranceURL` now embeds a specific, likely-expired `adb_validation_sessionid`; three generations of commented-out dead `APPID`/surface-name lines are left interleaved with live code, with inconsistent indentation.
+- **Why:** The file's own comment warns "If you change any of the below properties, please uninstall and reinstall the application" — this isn't a harmless tweak. Anyone else checking out this branch (reviewer, another engineer, CI screenshot tooling) gets surfaces that don't exist in their own Launch/AJO configuration and an Assurance link tied to someone else's session, undermining the demo app's purpose as a shared offline-behavior validation surface. `TestApps/` is excluded from `.swiftlint.yml`'s `included:` path, so nothing here is caught by CI.
+- **Fix:** Revert `INBOX`/`CONTENT_CARD`/`assuranceURL` to generic shared values (or move personal config to an uncommitted local override) and delete all commented-out dead lines.
+- **Confidence:** 0.78-0.9 across both reviewers (direct, unambiguous evidence in the diff).
+
+---
+
+## HIGH Findings
+> Should fix before merge.
+
+**[H-1]: Cross-schema-type eviction uses one shared `surfacesToRemove` set for three independent disk stores — a self-acknowledged, unfixed stale-disk bug** (from: HLD [MAJOR-1, persistence_core], Complexity [MEDIUM #5, persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift` (`applyPropositionChangeFor`)
+- **What:** `surfacesToRemove` is computed once from `requestedSurfaces.minus(returnedSurfaces)`, where `returnedSurfaces` combines IAM + CC + Inbox surfaces. That single set is applied uniformly to `cache.updatePropositions`, `updateContentCardPropositions`, and `updateInboxPropositions`. If a surface returns IAM data but zero CC propositions (CC campaign ended, IAM still live on the same surface URI), the surface is not in `surfacesToRemove` at all, so the stale CC disk entry is never evicted.
+- **Impact:** A future offline read (`usePersistedContentCards: true`) for that surface returns content cards that should no longer exist. This is not hypothetical — it is documented and reproduced end-to-end in this PR's own `docs/agents/content-card-offline-known-gaps.md` (Scenario 1), including a suggested fix that was **not implemented**.
+- **Fix:** Compute a per-schema-type removal set (CC from `contentCardPropositionsToPersist.keys`, Inbox from `inboxPropositionsToPersist.keys`, IAM from `propositionsToPersist.keys`) instead of one blended set for all three disk writes.
+- **Confidence:** 0.8-0.85 (bug is independently documented by the PR's own authors in a bundled doc, not merely inferred by reviewers).
+
+---
+
+**[H-2] (Cross-Module): `usePersistedContentCards: Bool` has materially different, undocumented semantics depending on which of three public entry points is used** (from: HLD [MAJOR-3, persistence_core] + LLD [HIGH, persistence_core] + HLD [MAJOR-1, ui_layer] + Completeness [MEDIUM F5, ui_layer] — raised independently by HLD reviewers in BOTH modules)
+- **Files:** `AEPMessaging/Sources/Messaging+PublicAPI.swift` (`getPropositionsForSurfaces`), `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift:20-62` (`getContentCardsUI`), `AEPMessaging/Sources/UI/Inbox/InboxUI.swift:99-193` (`performRefresh`)
+- **What:** On `getPropositionsForSurfaces`/`getContentCardsUI`, the flag is a per-call, stateless **read-source selector** with no network side effect either way (these methods never call the network themselves). On `InboxUI`/`getInboxUI`, the same-named parameter is captured as an **immutable `private let`** at `init` time and permanently locks `performRefresh()` into one of two mutually exclusive modes for the object's entire lifetime: `true` → disk-only, **never contacts the network again**; `false` → **always** hits the network with **no disk fallback ever**, even on failure. There is no way to construct an `InboxUI` that tries network first and falls back to disk — the exact pattern this same PR implements for content cards in the demo app.
+- **Impact:** A developer who learns the flag's meaning from one API (a pure read-source switch with no network implication) will misjudge the other, where passing `true` at construction permanently removes the network path for that object's lifetime, discoverable only by recreating the instance. Both persistence_core's HLD reviewer and ui_layer's HLD reviewer independently flagged this exact cross-API inconsistency without visibility into each other's module — a strong signal this is a genuine, PR-wide design-consistency gap rather than an isolated nit.
+- **Fix:** Model the actual read/network strategies as a shared enum (e.g., `memoryOnly` / `networkThenMemory` / `persistedOnly`) used consistently by all three call sites, or rename the `InboxUI` parameter to something naming its stronger behavior (`offlineOnly`/`skipNetworkRefresh`) and/or expose it as a mutable `refresh(usePersistedContentCards:)` parameter instead of an immutable constructor argument.
+- **Confidence:** 0.6-0.85 across the four contributing reviews.
+
+---
+
+**[H-3]: `InboxUI`'s persistence mode is a static, construction-time switch that bypasses the SDK's own dynamic network-availability gate instead of composing with it** (from: HLD [MAJOR-2, ui_layer])
+- **File:** `AEPMessaging/Sources/UI/Inbox/InboxUI.swift:99-124, 158-177`
+- **What:** `updatePropositionsForSurfaces` already self-gates on `MobileCore.isNetworkAvailable()` and completes immediately (no Edge dispatch, no timeout) when offline — the purpose-built mechanism in `docs/agents/network-availability-layer.md`. Instead of relying on it, this PR adds an immutable `usePersistedContentCards` switch that permanently skips the network call for the object's lifetime if set `true` at construction — it does not self-heal when connectivity returns.
+- **Impact:** Two independent, non-composing "offline" mechanisms now exist in the SDK. An `InboxUI` built with `usePersistedContentCards: true` and wired to pull-to-refresh will find that gesture — which users expect to fetch fresh data — instead only re-reads the same persisted disk cache indefinitely, even once the device reconnects. The only escape is discarding and reconstructing the object, losing `@Published` state and listener wiring.
+- **Fix:** Reconsider whether `InboxUI` needs this flag at all, given the existing dynamic gate may already deliver the desired offline UX; if an explicit persisted-only mode is still wanted, expose it as a mutable property or a `refresh(usePersistedContentCards:)` parameter rather than an immutable constructor argument.
+- **Confidence:** 0.8 (reviewer notes this stands as a documentation/API-clarity gap at minimum, and a design gap if cold-start-then-live-refresh is the intended use case, which `AGENTS.md`'s "Cold start" row suggests it is).
+
+---
+
+**[H-4]: Non-recoverable-error preservation guard operates at request granularity, not surface granularity** (from: HLD [MAJOR-2, persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift` (`handleEdgeErrorResponse`, `applyPropositionChangeFor`)
+- **What:** `nonRecoverableErrorEventIds` is keyed only by `requestEventId`. For a batched multi-surface request where one surface hits a non-recoverable error and a sibling surface legitimately has zero active campaigns, the guard preserves **both** surfaces' stale content, since Edge's error event carries no per-surface/scope disambiguation.
+- **Impact:** This silently undermines the eviction design's core correctness guarantee (a requested surface absent from the response means the campaign is genuinely gone) specifically for the multi-surface batching use case the public API explicitly supports.
+- **Fix:** If Edge's error payload can be extended to carry scope/surface information, key failure tracking per-surface; if not, document this as an explicit known limitation.
+- **Confidence:** 0.6-0.75 (reviewer could not confirm from this repo alone whether Edge's contract could support per-surface disambiguation).
+
+---
+
+**[H-5]: Shared `updatePropositionsByKey` cache helper couples the new CC/Inbox write paths to IAM's existing production disk-write behavior** (from: HLD [MAJOR-6, persistence_core])
+- **File:** `AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift`
+- **What:** `updatePropositions` (IAM) was refactored into a thin wrapper over a new generic `updatePropositionsByKey` helper also used by `updateContentCardPropositions`/`updateInboxPropositions`. A bug fix documented in `docs/agents/inbox-cbe-offline-handoff.md` §7 (guarding `remove(key:)` behind `!existingPropositions.isEmpty`), motivated by new CC/Inbox test failures, silently altered IAM's already-shipped production `remove()` call frequency as a side effect.
+- **Impact:** Any future fix made in service of the CC/Inbox offline feature now carries blast radius into IAM's mature, released persistence path, and vice versa, with no dedicated IAM regression test guarding against this.
+- **Fix:** Not necessarily wrong to share the helper, but this coupling should be explicitly called out in review/test-plan and covered by IAM-specific regression tests whenever the shared helper changes.
+- **Confidence:** Not explicitly stated; evidenced directly via diff + bundled design doc.
+
+---
+
+**[H-6]: Adding a new persisted-proposition type requires touching 4-5 files with hand-rolled, parallel boilerplate — proven by this PR's own CBE revert** (from: LLD [HIGH, persistence_core])
+- **Files:** `MessagingConstants.swift`, `Cache+Messaging.swift`, `ParsedPropositions.swift`, `Messaging.swift`
+- **What:** The private generic cache helper (`propositionsByKey`/`updatePropositionsByKey`) is a good DRY step, but the *public* surface is still three hand-written parallel getter/setter pairs, and `Messaging.swift` has parallel, growing `if`-chains (`iamWriteOK`/`ccWriteOK`/`inboxWriteOK`) and near-duplicate `hydrateXFromDisk` functions rather than a shared abstraction.
+- **Why:** This PR itself is direct evidence of the cost — it had to revert an in-flight CBE-persistence addition (`codeBasedPropositionsToPersist`/`CODE_BASED_PROPOSITIONS`/`updateCodeBasedPropositions`, described in `docs/agents/inbox-cbe-offline-handoff.md` but absent from shipped code) — i.e., the team already added and removed one instance of this exact boilerplate mid-PR.
+- **Fix:** Introduce a `PropositionCacheBucket` enum keyed by `SchemaType` and make the cache API generic, so `applyPropositionChangeFor` can iterate `allCases` instead of hand-listing per-type booleans, and a single generic `hydrateFromDisk(bucket:for:)` replaces the growing family of near-duplicate functions.
+- **Confidence:** 0.85.
+
+---
+
+**[H-7] (Cross-Module): `clearPersistedPropositions()` and `updatePropositionsForSurfaces` model a fire-and-forget pattern with no completion signal — an API design gap in persistence_core that the demo app then models inconsistently as if it were more certain than it is** (from: HLD [MINOR-2, persistence_core] + Completeness [HIGH, persistence_core] + Completeness [HIGH, demo_app] + Code [LOW, demo_app])
+- **Files:** `AEPMessaging/Sources/Messaging.swift` (`clearContentCards`/`clearPersistedContentCardAndInboxPropositions`), `AEPMessaging/Sources/Messaging+PublicAPI.swift` (`clearPersistedPropositions`), `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift:113-116,145-149`
+- **What:** Unlike `updatePropositionsForSurfacesWithCompletionHandler` and `getPropositionsForSurfaces`, `clearPersistedPropositions()` dispatches an event with no completion handler, and both disk removals internally use `try? cache.remove(...)`, silently swallowing failures and logging "cleared" regardless of outcome. The demo app's `downloadCards()` correctly labels its fire-and-forget call as "requested" (in-flight), but `clearPersistedPropositions()`'s demo wrapper claims past-tense "...cleared" for a call that cannot have completed synchronously, and the SDK's own doc comment on `updatePropositionsForSurfacesWithCompletionHandler` recommends a call-then-read sequence the demo's `downloadCards()` doesn't follow (it uses the no-completion overload).
+- **Impact:** A caller of a privacy/cleanup-oriented API (e.g., a compliance "forget this user" flow) cannot detect a failed clear. The demo app, meant as an integration reference, models and reinforces this gap rather than demonstrating the SDK's own recommended pattern, risking that developers copy the race.
+- **Fix:** Add an optional completion handler to `clearPersistedPropositions()` mirroring the pattern used by `updatePropositionsForSurfaces`, and capture/log the actual remove result instead of `try?` silently discarding it. In the demo app, use `updatePropositionsForSurfacesWithCompletionHandler` in `downloadCards()` and reword `clearPersistedPropositions()`'s status message to "Clear requested..." to match its actual fire-and-forget nature.
+- **Confidence:** Not explicitly quantified by HLD/Completeness; demo app findings at 0.78.
+
+---
+
+**[H-8]: `CBE`'s persisted cache is orphaned with no lifecycle path, and `clearPersistedPropositions()`'s name overstates its actual scope** (from: HLD [MAJOR-4, persistence_core], Complexity [MEDIUM, Q4, persistence_core — same CBE-revert asymmetry from a comment-hygiene angle])
+- **Files:** `Messaging+PublicAPI.swift` (`clearPersistedPropositions`), `Messaging.swift:664`, `ParsedPropositions.swift:112-115`
+- **What:** `clearPersistedPropositions()`'s doc comment discloses that CBE propositions are unaffected, but the method name doesn't. Combined with the CBE revert (write-only persistence: written on every successful update, read by nothing, cleared by nothing), CBE's on-disk cache grows unbounded with no clear/reset semantics. Separately, the `.jsonContent/.htmlContent/.defaultContent` (CBE) case in `ParsedPropositions.swift` has no comment explaining the omission, unlike its `.feed`/`.contentCard` and `.inbox` siblings which both carry explicit TODOs — a future reader diffing this file against the PR's own bundled docs (which describe CBE persistence as implemented) will reasonably conclude something is broken rather than intentionally reverted.
+- **Impact:** Whoever re-enables the CBE read path later inherits a cache with no established clear/reset semantics and a public API name that already implies broader coverage than it delivers.
+- **Fix:** Either scope the API name accurately (`clearPersistedContentCardAndInboxPropositions()`) or clear CBE's disk key too even though currently unreadable; add a one-line comment at the CBE case in `ParsedPropositions.swift` explaining the intentional revert.
+- **Confidence:** 0.85 (Complexity); not explicitly quantified by HLD.
+
+---
+
+**[H-9]: Documentation shipped in this same PR (`AGENTS.md`, `docs/agents/content-card-offline-known-gaps.md`) references a guard mechanism (`personalizationDecisionReceivedForEventId`/`decisionsReceivedForEventId`) that does not exist anywhere in the shipped code** (from: Complexity [HIGH, persistence_core])
+- **Files:** `AGENTS.md:64`, `docs/agents/content-card-offline-known-gaps.md:125-140`, `AEPMessaging/Sources/Messaging.swift:1163-1180`
+- **What:** `AGENTS.md` states "Failed stream close — must not run `applyPropositionChangeFor` (see `personalizationDecisionReceivedForEventId`)" and the known-gaps doc describes a `decisionsReceivedForEventId: Set<String>` guard marked "RESOLVED"/"Fixed" with a code snippet. Neither symbol exists anywhere in the repo (confirmed by grep); the real `endRequestFor` has no such guard.
+- **Impact:** `AGENTS.md` is explicitly this repo's canonical, agent-facing ground truth. A future engineer or AI agent following this pointer will search for a nonexistent symbol, lose time, and may incorrectly conclude the underlying safety requirement is unprotected (or duplicate a guard that may already be covered by the newer network-availability-gate + `nonRecoverableErrorEventIds` mechanism).
+- **Fix:** Update `AGENTS.md:64` and the known-gaps doc to describe the guard mechanism actually shipped, or explicitly mark the old mechanism as superseded.
+- **Confidence:** 0.85. Related to, but distinct from, [L-2]'s doc-drift finding (different specific claims — timeout numbers vs. a missing guard symbol).
+
+---
+
+**[H-10]: Dead/unreachable `eventsQueue` handler branch left over from the get-propositions refactor** (from: Completeness [HIGH, persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift` (`onRegistered()`)
+- **What:** `eventsQueue.setHandler` still contains `if event.isGetPropositionsEvent { self.retrieveMessages(...) }`, but this PR changed `handleProcessEvent` to call `retrieveMessages` directly and immediately, bypassing the queue entirely. Grepping for `eventsQueue.add` shows the only remaining call site is for Edge update-propositions events — no path ever queues a get-propositions event anymore.
+- **Impact:** Misleading leftover code from a mid-PR design pivot; a future maintainer could wrongly conclude get-propositions events still queue behind updates.
+- **Fix:** Remove the dead branch and its now-inaccurate comment.
+- **Confidence:** Not explicitly quantified; direct grep evidence.
+
+---
+
+**[H-11]: The only new UI-layer test doesn't exercise the new flag at all, and its inline comment about event data is factually wrong** (from: Code [HIGH, ui_layer], Completeness [HIGH F3, ui_layer])
+- **File:** `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift:41-62`
+- **What:** `testGetContentCardsUIDispatchesGetPropositionsEvent` carries the comment "offline hydration is now automatic — no persisted-flag in the event," but `Messaging+PublicAPI.swift:188` shows the event data does include `USE_PERSISTED_CONTENT_CARDS`, forwarded verbatim from `getContentCardsUI`. The test asserts only `GET_PROPOSITIONS == true` and never checks the new flag's value in either direction, and there is no companion test calling the `usePersistedContentCards: true` overload.
+- **Impact:** The one piece of new public API surface this module adds has zero direct assertions anywhere, and the misleading comment will mislead the next engineer who touches this file.
+- **Fix:** Remove/correct the comment; add an assertion on `USE_PERSISTED_CONTENT_CARDS` for the default path (expect `false`); add a new test for the `true` overload.
+- **Confidence:** 0.85 (Completeness); corroborated by Code.
+
+---
+
+**[H-12]: `InboxUI.refresh()`/`refreshAsync()` public doc comments were not updated for the new conditional (disk-only) behavior they now have** (from: Completeness [HIGH F4, ui_layer])
+- **File:** `AEPMessaging/Sources/UI/Inbox/InboxUI.swift:128-131, 137-140`
+- **What:** Both public doc comments still unconditionally state "First updates propositions from the server, then fetches the updated propositions" — false whenever the instance was constructed with `usePersistedContentCards: true`, since in that case neither method ever contacts the server. The private `performRefresh` doc comment nearby was correctly updated to describe both branches; the public-facing ones were not.
+- **Impact:** An integrator relying on Xcode quick-help for the methods they actually call will read a description that is false for exactly the scenario this PR adds.
+- **Fix:** Update both public doc comments to state that behavior depends on the instance's `usePersistedContentCards` setting.
+- **Confidence:** 0.85.
+
+---
+
+**[H-13]: `InboxView.swift` has no way to confirm which fetch path (online vs. offline) actually served a result** (from: Completeness [HIGH, demo_app])
+- **File:** `TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift:76-96, 240-250`
+- **What:** `CardsView.swift`'s `handleResult(_:source:)` explicitly labels outcomes ("...from Memory" vs. "...from Persisted disk cache"), giving a visible confirmation of which path ran. `InboxView.swift`'s `onLoading`/`onSuccess`/`onError` only `print(...)` to the console, with no on-screen indicator tied to which button was tapped.
+- **Impact:** Given this module's stated purpose is a manual QA surface for offline behavior, a tester tapping "Offline Inbox" has no on-screen confirmation the result actually came from disk rather than network, unlike the parallel Cards screen.
+- **Fix:** Add a status line to `InboxView.swift` mirroring `CardsView`'s `statusMessage` pattern.
+- **Confidence:** Not explicitly quantified; direct comparison against `CardsView`'s existing pattern.
+
+---
+
+## MEDIUM Findings
+> Can merge, track for follow-up.
+
+**[M-1]: Two parallel per-eventId collections (`requestedSurfacesForEventId`, `nonRecoverableErrorEventIds`) are kept in sync only by convention, not by the type system** (from: LLD [MEDIUM, persistence_core], Complexity [MEDIUM, Q2, persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift:83-101`
+- **What:** Both reviewers traced all add/remove call sites (`beginRequestFor`/`endRequestFor`, the `fetchPropositions` timeout closure) and confirmed the two collections are currently symmetric — no live leak today — but nothing in the type system prevents a future change from removing an entry from one without the other, and both in-code comments explicitly acknowledge the drift risk ("can never drift," "cannot go stale") while addressing it only with documentation.
+- **Suggestion:** Fold both into a single `[String: RequestState]` where `RequestState` carries `surfaces: [Surface]` and `failed: Bool`, making the invariant structural rather than conventional.
+
+**[M-2]: Hardcoded `RECOVERABLE_EDGE_ERROR_STATUS_CODES` duplicates Edge's own internal retry policy with no shared source of truth** (from: HLD [MAJOR-5, persistence_core], LLD [MEDIUM, persistence_core])
+- **File:** `AEPMessaging/Sources/MessagingConstants.swift`
+- **What:** `[408, 429, 502, 503, 504, 507]` is a Messaging-local copy of what Edge's `PersistentHitQueue` is assumed to retry. If Edge's actual policy changes, this list silently goes stale with no compiler check or integration test — and this classification directly feeds the eviction-guard's correctness.
+- **Suggestion:** Request a shared/published constant from Edge, or at minimum pin this list to a specific Edge SDK version with a comment forcing manual review on version bumps.
+
+**[M-3]: `OFFLINE_AVAILABILITY_ENABLED` is a hardcoded, non-injectable placeholder with an untested `false` branch and no tracking-ticket reference** (from: LLD [MEDIUM, persistence_core], Completeness [MEDIUM, persistence_core])
+- **File:** `AEPMessaging/Sources/MessagingConstants.swift:29-34`, `ParsedPropositions.swift:92-98,119-125`
+- **What:** `static let OFFLINE_AVAILABILITY_ENABLED = true` cannot be overridden by test or DI; grep confirms it's never flipped to `false` anywhere in the test suite, so that branch is entirely unverified. Four TODOs referencing this flag have no ticket reference, and `.swiftlint.yml` disables the `todo` rule so lint won't catch it either.
+- **Suggestion:** Make the value injectable (resolved through shared-state config with this constant as fallback), add a test flipping it off, and attach ticket references to the TODOs.
+
+**[M-4]: `retrieveMessages`'s new per-proposition serialization silently drops individual propositions on encode failure, inconsistent with the untouched sibling pattern in the same file** (from: Code [MEDIUM, persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift:1397-1400` vs. `:1146`
+- **What:** The new pattern (`mergedPropositions.flatMap { $0.value }.compactMap { $0.asDictionary() }`) silently drops a proposition that fails to encode with no log, whereas the untouched sibling path encodes the whole dictionary at once and fails the entire response loudly. Two different serialization strategies for the same transformation, in the same file, with materially different failure semantics.
+- **Suggestion:** Pick one approach consistently; if per-element `compactMap` is kept, log when the pre/post counts differ.
+
+**[M-5]: Cold-start-while-offline permanently skips the initial personalization fetch for the entire app session, with no automatic retry on reconnect** (from: Code [MEDIUM, persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift:319-342` (`readyForEvent`) + `:975-983` (`fetchPropositions`'s network guard)
+- **What:** `initialLoadComplete` is a one-shot latch that flips to `true` the first time `readyForEvent` fires, regardless of whether `fetchPropositions` actually dispatched anything. If the device is offline at that exact moment, `fetchPropositions` returns immediately and nothing else in the class will ever re-trigger the initial sync for the rest of the session.
+- **Suggestion:** Don't set `initialLoadComplete = true` when the fetch is actually skipped due to no network, or subscribe to connectivity-change notifications to retry.
+
+**[M-6]: `clearPersistedPropositions()` racing an in-flight update can silently resurrect just-cleared data** (from: Completeness [MEDIUM, persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift`
+- **What:** `clearPersistedContentCardAndInboxPropositions()` doesn't touch `requestedSurfacesForEventId`/`inProgressPropositions`/`nonRecoverableErrorEventIds`. If an update request is still streaming when a clear runs, its later `applyPropositionChangeFor` will still write freshly-fetched data back to disk for its surfaces.
+- **Suggestion:** Document as accepted behavior, or add coordination/logging and a reproducing test.
+
+**[M-7]: Asymmetric decode-failure test coverage across the three parallel cache getters** (from: Completeness [MEDIUM, persistence_core])
+- **File:** `AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift`
+- **What:** IAM's `propositions` getter has a corrupted-JSON test; the new `contentCardPropositions`/`inboxPropositions` getters (sharing the same private helper) do not.
+- **Suggestion:** Add `testContentCardPropositionsCachedItemsAreNotDecodable`/`testInboxPropositionsCachedItemsAreNotDecodable` mirroring the existing IAM test.
+
+**[M-8]: New `CardOrigin`/`servedFromPersistentCache` observability feature has zero test coverage** (from: Completeness [MEDIUM, persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift` (`enrichWithContentCardOrigin`, `contentCardOriginBySurface`)
+- **What:** No test references `enrichWithContentCardOrigin`, `contentCardOriginBySurface`, `CardOrigin`, or `servedFromPersistentCache`/`SERVED_FROM_PERSISTENT_CACHE` — meaning no proof this analytics-facing origin tagging is scoped or cleared correctly.
+- **Suggestion:** Add unit tests for origin-tag transitions across `updateRulesEngines`, `hydrateContentCardRulesEngineFromDisk`, `removeOrReplaceContentCards`, and `clearContentCards`.
+
+**[M-9]: `actionButton` helper duplicated verbatim between `CardsView.swift` and `InboxView.swift`** (from: Code [MEDIUM, demo_app])
+- **Files:** `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift:93-108`, `InboxView.swift:54-69`
+- **What:** Both files define an identical 15-line private `actionButton` helper. The repo already has a precedent for shared demo-app view components (`ElementViews/TabHeader.swift`).
+- **Suggestion:** Extract to `AppPages/ElementViews/ActionButton.swift` and call it from both views.
+
+---
+
+## LOW Findings
+> Nice-to-have improvements; do not block merge unless explicitly justified by a reviewer.
+
+**[L-1]: `handleEdgeErrorResponse` trusts any locally-dispatched Edge error event with a matching `requestEventId` — no provenance/authenticity check** (from: Security [LOW, persistence_core])
+- **File:** `AEPMessaging/Sources/Messaging.swift:1435-1452`
+- **What:** `isEdgeErrorResponseEvent` matches only on event type/source strings; any same-process code (another extension, a compromised dependency) can dispatch a forged error event with a guessed/observed in-flight `requestEventId` to force the "preserve, don't evict" branch indefinitely.
+- **Suggestion:** No practical remediation exists within `AEPMessaging` today (the Event Hub has no sender-authentication mechanism); treat as accepted risk consistent with the SDK's existing extension-trust model, revisit if Edge's contract ever adds sender attribution.
+
+**[L-2]: `AGENTS.md`/`docs/agents/*.md` reference stale behavior (dual 5s/10s timeout, automatic memory-first/disk-fallback) that contradicts the shipped explicit-flag redesign** (from: HLD [MINOR-1, persistence_core])
+- **Files:** `docs/agents/content-card-offline-implementation.md` §2.2, `docs/agents/card-origin-flag-scenarios.md`
+- **What:** These docs describe behavior (automatic disk fallback, a flag-dependent timeout) that the shipped code and `docs/agents/write-read-clear-flow.md` explicitly say was removed. Related to, but distinct from, [H-9]'s finding about a nonexistent guard symbol.
+- **Suggestion:** Reconcile or mark superseded.
+
+**[L-3]: Inconsistent method-shape convention (overloads vs. default parameter) for the same flag across call sites** (from: HLD [MINOR-3, persistence_core], Complexity [LOW, persistence_core])
+- **File:** `Messaging+PublicAPI.swift:159-214`
+- **What:** `getPropositionsForSurfaces`/`getContentCardsUI` implement the flagged/unflagged split as two overloads; `getInboxUI` uses a single method with a Swift default parameter. An in-file precedent (`handleNotificationResponse`) already shows default parameters work fine on `@objc`-exposed methods.
+- **Suggestion:** Pick one convention; if ObjC bridging requires the split for some but not others, document why.
+
+**[L-4]: No introspection of `InboxUI`'s current persistence mode** (from: HLD [MINOR-1, ui_layer])
+- **File:** `InboxUI.swift:99-102`
+- **What:** `usePersistedContentCards` is `private` with no public getter, so a consumer's view model can't detect which mode a given instance is in without separately tracking the value it passed at construction.
+- **Suggestion:** Expose a read-only public property.
+
+**[L-5]: Persisted-mode `InboxUI` refresh re-hydrates from disk on every pull-to-refresh with no debounce** (from: HLD [MINOR-2, ui_layer])
+- **File:** `InboxUI.swift`
+- **What:** Since disk data cannot change without a network contact, every pull-to-refresh in persisted-only mode triggers a full disk read that cannot produce new data.
+- **Suggestion:** Guard against redundant re-hydration, or document that pull-to-refresh is a no-op in this mode.
+
+**[L-6]: Pre-existing strong-`self` capture in `InboxUI`'s non-persisted branch extends object lifetime during in-flight refresh** (from: Code [LOW, ui_layer])
+- **File:** `InboxUI.swift:180-193`
+- **What:** The nested `getPropositionsForSurfaces` closure captures the outer closure's already-unwrapped `self` strongly. This predates the PR (diff is whitespace-only here) but is inconsistent with the new persisted branch, which captures weakly end-to-end.
+- **Suggestion:** Add `[weak self]` to the inner closure too, for consistency.
+
+**[L-7]: Test boilerplate — 6 new cache tests are a 3x structurally duplicated copy of the existing IAM proposition tests** (from: Complexity [LOW, persistence_core])
+- **File:** `AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift`
+- **What:** Same shape (`testXPropositionsHappy`/`NoneInCache`/`UpdateXPropositionsHappy`), differing only in cache key and fixture values, while the underlying production code already factors this into one shared helper.
+- **Suggestion:** Optional parameterized/table-driven test helper; not required, current tests are clear and correct.
+
+**[L-8]: Overlapping fetch taps in the demo app can show stale/out-of-order results** (from: Code [LOW, demo_app])
+- **File:** `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift:119-143`
+- **What:** `fetchContentCards()` and `fetchOfflineContentCards()` write to the same state with no request-generation token; whichever completion fires last wins regardless of tap order.
+- **Suggestion:** Track a monotonically increasing request token and ignore stale completions.
+
+---
+
+## Cross-Module Concerns
+
+**1. `usePersistedContentCards` semantic inconsistency across the SDK's own public API surface (see [H-2])**
+Independently flagged by the HLD reviewer in **persistence_core** (comparing `getPropositionsForSurfaces` against `InboxUI`) and the HLD reviewer in **ui_layer** (comparing `getContentCardsUI` against `InboxUI`), with neither reviewer having visibility into the other's findings. Both converge on the same root cause: the same parameter name means "pure read-source switch, no network implication" on two APIs and "permanently suppress network for this object's lifetime" on the third. This is a PR-wide API-design consistency gap, not a module-local nit, and should be resolved as one decision (see [H-2] for the recommended fix) rather than patched independently in each module.
+
+**2. Fire-and-forget completion contract for `clearPersistedPropositions()` (see [H-7])**
+The **persistence_core** HLD and Completeness reviewers flagged the API itself as lacking a completion signal and silently swallowing disk-removal failures; independently, the **demo_app** Completeness and Code reviewers flagged that the demo app's own usage of this exact API (and the analogous `updatePropositionsForSurfaces` fire-and-forget call) models the gap inconsistently — claiming past-tense completion for an operation that cannot have completed synchronously, and skipping the SDK's own recommended completion-handler pattern. This is one design gap manifesting in both the API's design (persistence_core) and its worst-case demonstration to integrators (demo_app); fixing the API to add a completion handler (per [H-7]'s fix) would also resolve the demo app's tense/accuracy problem.
+
+---
+
+## Reviewer Coverage
+
+| Reviewer | Ran | Findings | Verdict |
+|----------|-----|----------|---------|
+| persistence_core / Code | Y | 6 (2 CRIT, 1 HIGH, 2 MED, 1 LOW) | REQUEST CHANGES |
+| persistence_core / HLD | Y | 11 (1 CRIT, 7 MAJOR, 3 MINOR) | REQUEST CHANGES |
+| persistence_core / LLD | Y | 8 (1 CRIT, 2 HIGH, 5 MED) | REQUEST CHANGES |
+| persistence_core / Security | Y | 4 (1 CRIT, 1 MED, 2 LOW) | REQUEST CHANGES |
+| persistence_core / Completeness | Y | 13 (3 CRIT, 3 HIGH, 5 MED, 2 LOW) | BLOCK |
+| persistence_core / Complexity | Y | 7 (2 HIGH complexity, 5 simplification) | REQUEST CHANGES |
+| ui_layer / Code | Y | 4 (1 CRIT, 2 HIGH, 1 LOW) | REQUEST CHANGES |
+| ui_layer / HLD | Y | 6 (3 MAJOR, 3 MINOR) | APPROVE WITH FIXES |
+| ui_layer / Completeness | Y | 5 (2 CRIT, 2 HIGH, 1 MED) | REQUEST CHANGES |
+| demo_app / Code | Y | 4 (1 HIGH, 1 MED, 2 LOW) | REQUEST CHANGES |
+| demo_app / Completeness | Y | 4 (1 CRIT, 2 HIGH, 1 MED) | REQUEST CHANGES |
+
+**Overall verdict rationale:** Every reviewer that produced findings recommended REQUEST CHANGES or BLOCK except ui_layer's HLD reviewer (APPROVE WITH FIXES, but still flagging 3 MAJOR issues). Across the whole PR, the consolidated CRITICAL list includes a shipped correctness bug in a public completion-handler contract ([C-2]), a cross-identity data leak on shared devices ([C-1]), a data-minimization gate that is entirely dead code ([C-3]), the PR's headline safety mechanism being effectively unverified by its own test suite ([C-4], [C-5]), a public UI error-contract regression that breaks existing integration tests ([C-6]), a completely untested new code branch in `InboxUI` ([C-7]), and a non-reproducible demo app ([C-8]). None of these require a large redesign to fix, but the volume and severity of unresolved correctness and verification gaps — concentrated exactly in the guarantees this PR is meant to establish — means this PR should not merge as-is.

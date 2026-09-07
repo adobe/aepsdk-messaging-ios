@@ -1,0 +1,237 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/IMPLEMENTATION_CONTEXT.md.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/IMPLEMENTATION_CONTEXT.md.diff
+new file mode 100644
+index 0000000..159f5b4
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/IMPLEMENTATION_CONTEXT.md.diff
+@@ -0,0 +1,230 @@
++diff --git a/IMPLEMENTATION_CONTEXT.md b/IMPLEMENTATION_CONTEXT.md
++new file mode 100644
++index 0000000..f869211
++--- /dev/null
+++++ b/IMPLEMENTATION_CONTEXT.md
++@@ -0,0 +1,224 @@
+++# Option A Implementation: Offline Dismiss Parity via Dictionary Synchronization
+++
+++**Date:** 2026-08-03  
+++**Status:** Implementation complete (pending build verification)  
+++**Approach:** Option A — Keep IAM/disqualify rule combine idiom, but fix dictionary population at init time
+++
+++---
+++
+++## Problem Statement
+++
+++Content cards dismissed offline would reappear because the offline hydration path (`hydrateContentCardRulesEngineFromDisk`) loaded only content-card rules and **dropped the disqualify (eventHistoryOperation) rules** that rode alongside them on disk.
+++
+++```
+++Disk persists:  { content-card rule, disqualify rule }
+++Offline hydrate: Load content-card → contentCardRulesEngine
+++                 Drop disqualify ✗
+++                 
+++Result: Dismissed card can re-qualify offline and reappear
+++```
+++
+++---
+++
+++## Architectural Decision: Option A
+++
+++Two viable options were considered:
+++
+++| Option | Approach | Pros | Cons |
+++|--------|----------|------|------|
+++| **A** | Populate `inAppRulesBySurface` at init time, keep the "combine" idiom | Consistent with network path; minimal changes; uses existing architecture | Still combines IAM + disqualify rules (shares same engine) |
+++| **C** | New dedicated offline-only event-history engine | Structurally isolated; no combine needed | New engine (inconsistent count); online/offline disqualify asymmetry |
+++
+++**Chosen:** Option A — aligns with AEP's existing design principle: **"one engine per evaluation semantic, rules collected into dictionaries before one full replace"** (not one engine per data source).
+++
+++---
+++
+++## Implementation Details
+++
+++### 1. Access Level Change: `inAppRulesBySurface` (Messaging.swift)
+++
+++**File:** `AEPMessaging/Sources/Messaging.swift` (lines 111–120)
+++
+++**Change:** `private` → `internal` (computed property)
+++
+++**Why:** `Messaging+State.swift` (a different file) needs to populate this dictionary during IAM's init-time hydration. In Swift, `private` is file-scoped, so the visibility change is necessary to share state across extension files.
+++
+++**Precedent:** Other rule-collection properties already use internal visibility (`qualifiedContentCardsBySurface`, `contentCardOriginByProposition`).
+++
+++---
+++
+++### 2. Dictionary Population: `hydratePropositionsRulesEngine()` (Messaging+State.swift)
+++
+++**File:** `AEPMessaging/Sources/Messaging+State.swift` (lines 72–79)
+++
+++**Change Added:**
+++```swift
+++private func hydratePropositionsRulesEngine() {
+++    let parsedPropositions = ParsedPropositions(with: inMemoryPropositions, ...)
+++    if let inAppRules = parsedPropositions.surfaceRulesBySchemaType[.inapp] {
+++        // NEW: Record loaded IAM rules in the dictionary
+++        for (surface, rules) in inAppRules {
+++            inAppRulesBySurface[surface] = rules
+++        }
+++        rulesEngine.launchRulesEngine.replaceRules(with: inAppRules.flatMap { $0.value })
+++    }
+++    updatePropositionInfo(parsedPropositions.propositionInfoToCache)
+++}
+++```
+++
+++**Why:** 
+++- At `init()` time, IAM rules are loaded directly into `rulesEngine` but the dictionary stays empty
+++- Later, content-card offline hydration rebuilds the shared engine by collecting from `inAppRulesBySurface`
+++- Without this update, the dictionary read yields an empty set → `replaceRules(combined)` clobbers IAM rules
+++- This mirrors what the network path already does in `updateRulesEngines` → `processRulesForSchemaType(.inapp, ...)`
+++
+++---
+++
+++### 3. Disqualify Rule Loading: `hydrateContentCardRulesEngineFromDisk()` (Messaging.swift)
+++
+++**File:** `AEPMessaging/Sources/Messaging.swift` (lines 1387–1395)
+++
+++**Already staged; now works correctly because `inAppRulesBySurface` is populated:**
+++
+++```swift
+++if let eventHistoryRules = parsedPropositions.surfaceRulesBySchemaType[.eventHistoryOperation],
+++   !eventHistoryRules.isEmpty {
+++    for (surface, rules) in eventHistoryRules {
+++        eventHistoryRulesBySurface[surface] = rules
+++    }
+++    var combined = collectRules(from: inAppRulesBySurface)       // ← now accurate
+++    combined.append(contentsOf: collectRules(from: eventHistoryRulesBySurface))
+++    rulesEngine.launchRulesEngine.replaceRules(with: combined)  // ← preserves both
+++}
+++```
+++
+++**Flow:**
+++1. Parse disqualify rules from persisted content-card propositions
+++2. Load them into the `eventHistoryRulesBySurface` dictionary
+++3. Collect IAM rules from `inAppRulesBySurface` (now guaranteed populated)
+++4. Combine both and rebuild the shared engine in one atomic `replaceRules` call
+++
+++---
+++
+++### 4. Test Coverage: `test_hydrateContentCardRulesEngineFromDisk_loadsDisqualifyRulesIntoMainRulesEngine()`
+++
+++**File:** `AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift` (lines 637–657)
+++
+++**Already staged; verifies:**
+++- Content-card rules load into `contentCardRulesEngine` ✓
+++- Disqualify rules load into main `rulesEngine` ✓
+++- Disqualify rules are non-empty ✓
+++
+++---
+++
+++## How It Fixes the Bug
+++
+++### Before (Broken)
+++```
+++Offline flow:
+++  1. hydratePropositionsRulesEngine()
+++     → rulesEngine has IAM rules ✓
+++     → inAppRulesBySurface empty ✗
+++  
+++  2. hydrateContentCardRulesEngineFromDisk()
+++     → combined = collectRules(from: inAppRulesBySurface)  // reads empty dict
+++     → combined += disqualify rules
+++     → rulesEngine.replaceRules(combined)                // CLOBBERS IAM!
+++  
+++  Result: Dismissed card can re-qualify → reappears offline
+++```
+++
+++### After (Fixed)
+++```
+++Offline flow:
+++  1. hydratePropositionsRulesEngine()
+++     → rulesEngine has IAM rules ✓
+++     → inAppRulesBySurface[surface] = rules  ✓ FIXED
+++  
+++  2. hydrateContentCardRulesEngineFromDisk()
+++     → combined = collectRules(from: inAppRulesBySurface)  // reads accurate dict
+++     → combined += disqualify rules
+++     → rulesEngine.replaceRules(combined)                // preserves both
+++  
+++  Result: Dismissed card stays disqualified offline → correct behavior
+++```
+++
+++---
+++
+++## Consistency with AEP Design Principles
+++
+++### 1. Engine Count
+++- **Before:** 2 engines (`rulesEngine` for IAM+disqualify, `contentCardRulesEngine` for content-card qualify)
+++- **After:** Still 2 engines
+++- **Aligned:** ✓ No new engine introduced; axis is "evaluation semantic" not "data source"
+++
+++### 2. Rule Collection Pattern
+++All rule rebuilds in this codebase follow: **collect → combine → one `replaceRules`** (never `addRules`)
+++
+++```
+++Network path (updateRulesEngines):
+++  processRulesForSchemaType(.inapp, ...)                    // populate inAppRulesBySurface
+++  processRulesForSchemaType(.eventHistoryOperation, ...)    // populate eventHistoryRulesBySurface
+++  combined = collectRules(from: inAppRulesBySurface)
+++  combined += collectRules(from: eventHistoryRulesBySurface)
+++  rulesEngine.replaceRules(with: combined)
+++
+++Offline path (hydrateContentCardRulesEngineFromDisk):
+++  inAppRulesBySurface[surface] = rules                     // (now populated at init)
+++  eventHistoryRulesBySurface[surface] = rules              // (new, from disk)
+++  combined = collectRules(from: inAppRulesBySurface)
+++  combined += collectRules(from: eventHistoryRulesBySurface)
+++  rulesEngine.replaceRules(with: combined)
+++  
+++→ Identical idiom ✓
+++```
+++
+++### 3. Determinism
+++Full `replaceRules` (not incremental `addRules`) means: **the engine's state is always exactly what was computed, no stale leftovers from prior sessions.** Option A preserves this property.
+++
+++---
+++
+++## Files Modified
+++
+++| File | Change | Lines |
+++|------|--------|-------|
+++| `Messaging.swift` | Access level + doc; disqualify load | staged: +16; unstaged: +7 total |
+++| `Messaging+State.swift` | Dictionary population in hydration | unstaged: +8 |
+++| `MessagingProcessCompletedEventTests.swift` | New test for disqualify hydration | staged: +28 |
+++
+++---
+++
+++## Behavior After Fix
+++
+++### Offline Qualify/Dismiss Flow
+++1. **Boot:** `hydratePropositionsRulesEngine()` loads IAM rules + records in dictionary
+++2. **Offline get:** `hydrateContentCardRulesEngineFromDisk()` loads content-card rules + disqualify rules
+++3. **Display:** Content card qualifies via `contentCardRulesEngine`; user dismisses
+++4. **Dismiss event:** Disqualify consequence fires via main `rulesEngine` (now has the rule loaded)
+++5. **Result:** Card removed from qualified set; stays removed offline (no reappear)
+++
+++### Analytics Provenance
+++- Cards served from disk are tagged `.disk` in `contentCardOriginByProposition` (line 1408)
+++- Display events report `servedFromPersistentCache: true` for offline-served cards ✓
+++
+++---
+++
+++## Build Status
+++
+++**Current blocker:** The sibling `aepsdk-core-ios` repo has **deleted** `NetworkAvailability*.swift` files but the pbxproj still references them. This blocks the workspace build at the `AEPServices` pod level before `AEPMessaging` is even compiled.
+++
+++**Workaround:** 
+++1. Remove the deleted files from `aepsdk-core-ios/AEPCore.xcodeproj/project.pbxproj`
+++2. Or restore the deleted files
+++3. Then the workspace build will proceed and verify our changes compile
+++
+++**Code changes themselves** are syntactically correct (no imports needed, property visibility is standard Swift).
+++
+++---
+++
+++## Summary
+++
+++Option A fixes the offline dismiss bug by ensuring the `inAppRulesBySurface` dictionary is populated at init time, mirroring the network path's behavior. This allows `hydrateContentCardRulesEngineFromDisk` to safely combine IAM + disqualify rules without clobbering either, while maintaining consistency with AEP's existing design idioms (one engine per semantic, full replace not incremental add).
+++
+++**Cost:** 1 visibility change + 8 lines of dictionary population + 28 lines of test.  
+++**Benefit:** Dismissed content cards no longer reappear offline; architecture stays consistent.
+\ No newline at end of file

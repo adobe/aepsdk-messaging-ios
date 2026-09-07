@@ -1,0 +1,101 @@
+diff --git a/AEPMessaging/Tests/UnitTests/MessagingTests.swift b/AEPMessaging/Tests/UnitTests/MessagingTests.swift
+index 16a4908..4491da4 100644
+--- a/AEPMessaging/Tests/UnitTests/MessagingTests.swift
++++ b/AEPMessaging/Tests/UnitTests/MessagingTests.swift
+@@ -31,7 +31,6 @@ class MessagingTests: XCTestCase {
+     var mockProposition: MockProposition!
+     var stateManager: MessagingStateManager!
+ 
+-
+     // Mock constants
+     let MOCK_ECID = "mock_ecid"
+     let MOCK_EVENT_DATASET = "mock_event_dataset"
+@@ -61,7 +60,6 @@ class MessagingTests: XCTestCase {
+         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+         mockNetworkService = MockNetworkService()
+         ServiceProvider.shared.networkService = mockNetworkService!
+-        
+         MobileCore.messagingDelegate = nil
+     }
+     
+@@ -79,8 +77,8 @@ class MessagingTests: XCTestCase {
+     }
+     
+     /// validate that 9 listeners are registered onRegister
+-    func testOnRegistered_nineListenersAreRegistered() {
+-        XCTAssertEqual(mockRuntime.listeners.count, 9)
++    func testOnRegistered_tenListenersAreRegistered() {
++        XCTAssertEqual(mockRuntime.listeners.count, 10)
+     }
+     
+     func testOnUnregisteredCallable() throws {
+@@ -1794,7 +1792,7 @@ class MessagingTests: XCTestCase {
+     }
+     
+     // MARK: - Completion Handler Failure Tests
+-    
++
+     /// Test that completion handler is called with false when Edge request response is nil (timeout)
+     func testFetchPropositions_completionCalledWithFalse_whenResponseEventIsNil() {
+         // Setup
+@@ -1934,6 +1932,60 @@ class MessagingTests: XCTestCase {
+ 
+         XCTAssertEqual(0, messaging.qualifiedContentCardsBySurface.count)
+     }
++
++    func testRemoveOrReplaceContentCards_doesNotOverwriteDiskCards_whenSurfaceNotInRequest() {
++        // Regression test: the CC rules engine re-evaluates ALL surfaces on every call to
++        // `updateRulesEngines`. During a boot-time IAM fetch (requestedSurfaces = [mobileapp://]),
++        // `qualifiedContentCards` may contain disk-hydrated CC surfaces. Those surfaces must NOT
++        // be touched, so they stay out of `networkRefreshedSurfaces` and keep reporting as disk-served.
++        let iamSurface = Surface(uri: "mobileapp://test-bundle")
++        let ccSurface = Surface(path: "feed1")
++
++        // disk-hydrated surface: qualified but not marked network-refreshed
++        let diskProp = Proposition(uniqueId: "diskProp", scope: ccSurface.uri,
++                                   scopeDetails: ["activity": ["id": "diskActivity"]], items: [])
++        messaging.qualifiedContentCardsBySurface[ccSurface] = [diskProp]
++
++        // CC rules engine returned cards for ccSurface, but the request was only for iamSurface
++        let networkProp = Proposition(uniqueId: "diskProp", scope: ccSurface.uri,
++                                      scopeDetails: ["activity": ["id": "diskActivity"]], items: [])
++        let qualifiedCards: [Surface: [Proposition]] = [ccSurface: [networkProp]]
++
++        messaging.callRemoveOrReplaceContentCards(qualifiedCards, requestedSurfaces: [iamSurface])
++
++        // ccSurface was NOT in requestedSurfaces — must remain untouched and stay disk-served
++        let resultCC = messaging.qualifiedContentCardsBySurface[ccSurface]
++        XCTAssertNotNil(resultCC)
++        XCTAssertEqual(1, resultCC?.count)
++        XCTAssertFalse(messaging.getNetworkRefreshedSurfaces().contains(ccSurface),
++                       "a surface not in the request must not be marked network-refreshed")
++        // iamSurface had no CC cards but was requested — evict it (was never present, so count stays 1)
++        XCTAssertNil(messaging.qualifiedContentCardsBySurface[iamSurface])
++        XCTAssertEqual(1, messaging.qualifiedContentCardsBySurface.count)
++    }
++    #endif
++
++    #if DEBUG
++    func testAddOrReplaceContentCards_keepsSurfaceDiskServed_whenRulesEngineRequalifiesWithNewInstance() {
++        // Regression test: handleWildcardEvent creates new Proposition instances for propositions that
++        // were boot-hydrated from disk. addOrReplaceContentCards must not mark the surface
++        // network-refreshed, so servedFromPersistentCache stays true for that display.
++        let ccSurface = Surface(path: "feed1")
++        let diskProp = Proposition(uniqueId: "prop1", scope: ccSurface.uri,
++                                   scopeDetails: ["activity": ["id": "activity1"]], items: [])
++        messaging.qualifiedContentCardsBySurface[ccSurface] = [diskProp]
++
++        // Simulate the rules engine producing a new instance for the same proposition
++        let requalifiedProp = Proposition(uniqueId: "prop1", scope: ccSurface.uri,
++                                          scopeDetails: ["activity": ["id": "activity1"]], items: [])
++
++        messaging.callAddOrReplaceContentCards([requalifiedProp], forSurface: ccSurface)
++
++        let result = messaging.qualifiedContentCardsBySurface[ccSurface]
++        XCTAssertEqual(1, result?.count)
++        XCTAssertFalse(messaging.getNetworkRefreshedSurfaces().contains(ccSurface),
++                       "in-session re-qualification must not flip a disk-served surface to network")
++    }
+     #endif
+ 
+     func testAddOrReplaceContentCards_doesNotEvictSurfaces_whenNoCardsQualify() {

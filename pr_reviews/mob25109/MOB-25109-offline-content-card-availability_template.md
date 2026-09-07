@@ -1,0 +1,69 @@
+# Branch Review: MOB-25109/offline-content-card-availability
+
+**Branch:** MOB-25109/offline-content-card-availability
+**Base:** origin/main
+**Author:** namArora3112
+**Review Type:** Self-review (no PR)
+
+## Commits
+
+```
+Added network simulation
+added disk and in memory paths
+added logs for global config too
+Added global configuration
+qualification , disqualification rules handling on hydrate
+added rules evaluation on bootup
+Make InboxUI's persistence mode changeable per-call, not just at init
+Remove dev-time agent docs from tracking, keep local via .gitignore
+Address code review findings: identity-reset leak, dead code, test coverage
+Add explicit offline-read APIs for content cards and inbox
+offline tracking added in events for distinguishing between online and offline
+sample app podfile changes
+content card availaibility for offline support
+added offline capability along with tests
+
+```
+
+## Files Changed
+
+```
+ .gitignore                                         |   4 +-
+ AEPMessaging.xcodeproj/project.pbxproj             | 133 +-----
+ .../xcshareddata/swiftpm/Package.resolved          |  34 --
+ .../Sources/ClassExtensions/Cache+Messaging.swift  | 107 ++++-
+ .../Sources/ClassExtensions/Event+Messaging.swift  |  29 ++
+ AEPMessaging/Sources/Messaging+PublicAPI.swift     |  57 ++-
+ AEPMessaging/Sources/Messaging+State.swift         |  43 +-
+ AEPMessaging/Sources/Messaging.swift               | 487 +++++++++++++++++++--
+ AEPMessaging/Sources/MessagingConstants.swift      |  24 +
+ AEPMessaging/Sources/ParsedPropositions.swift      |  18 +-
+ AEPMessaging/Sources/UI/Inbox/InboxUI.swift        |  75 +++-
+ .../Sources/UI/Messaging+UIPublicAPI.swift         |  43 +-
+ .../IntegrationTests/GetContentCardUITest.swift    | 308 ++++++++++++-
+ AEPMessaging/Tests/TestHelpers/MockCache.swift     |  13 +-
+ .../MockNetworkConnectivityService.swift           |  44 ++
+ .../Tests/UnitTests/Cache+MessagingTests.swift     |  77 ++++
+ .../Tests/UnitTests/Messaging+PublicApiTest.swift  |  20 +-
+ .../Tests/UnitTests/Messaging+StateTests.swift     |  59 +++
+ .../MessagingProcessCompletedEventTests.swift      |  83 +++-
+ AEPMessaging/Tests/UnitTests/MessagingTests.swift  |  58 +++
+ .../Tests/UnitTests/ParsedPropositionsTests.swift  |  23 +-
+ .../UITests/Messaging+UIPublicApiTest.swift        |  63 +++
+ Podfile                                            |   9 +-
+ Podfile.lock                                       |  42 +-
+ .../MessagingDemoAppSwiftUI/ADBMobileConfig.json   |  35 ++
+ TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift |  32 +-
+ .../AppPages/CardsView.swift                       | 417 ++++++++++++++++--
+ .../AppPages/ElementViews/TabHeader.swift          |   2 +-
+ .../AppPages/InboxView.swift                       |  90 +++-
+ TestApps/MessagingDemoAppSwiftUI/Constants.swift   |  17 +-
+ 30 files changed, 2096 insertions(+), 350 deletions(-)
+
+```
+
+## Diff Files
+
+- **Summary:** `MOB-25109-offline-content-card-availability_diff/_summary.md`
+- **File List:** `MOB-25109-offline-content-card-availability_diff/_file_list.md`
+- **Per-file Diffs:** `MOB-25109-offline-content-card-availability_diff/`

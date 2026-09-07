@@ -1,0 +1,64 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff.diff
+new file mode 100644
+index 0000000..9edf769
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff.diff
+@@ -0,0 +1,57 @@
++diff --git a/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff b/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff
++new file mode 100644
++index 0000000..ab94171
++--- /dev/null
+++++ b/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff
++@@ -0,0 +1,50 @@
+++diff --git a/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift b/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift
+++new file mode 100644
+++index 0000000..102b00c
+++--- /dev/null
++++++ b/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift
+++@@ -0,0 +1,44 @@
++++/*
++++ Copyright 2026 Adobe. All rights reserved.
++++ This file is licensed to you under the Apache License, Version 2.0 (the "License");
++++ you may not use this file except in compliance with the License. You may obtain a copy
++++ of the License at http://www.apache.org/licenses/LICENSE-2.0
++++
++++ Unless required by applicable law or agreed to in writing, software distributed under
++++ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
++++ OF ANY KIND, either express or implied. See the License for the specific language
++++ governing permissions and limitations under the License.
++++ */
++++
++++import AEPServices
++++
++++class MockNetworkAvailabilityService: NetworkAvailabilityProviding, NetworkConnectivityService {
++++    var configuration = NetworkAvailabilityConfiguration()
++++    var isAvailable = true
++++
++++    init(isAvailable: Bool = true) {
++++        self.isAvailable = isAvailable
++++    }
++++
++++    func isNetworkAvailable() -> Bool {
++++        return isAvailable
++++    }
++++
++++    func isDeviceNetworkConnected() -> Bool {
++++        return isNetworkAvailable()
++++    }
++++
++++    func checkNetworkAvailability(completion: @escaping (NetworkAvailabilityResult) -> Void) {
++++        let status: NetworkAvailabilityStatus = isAvailable ? .available : .deviceOffline
++++        completion(NetworkAvailabilityResult(status: status))
++++    }
++++
++++    func setPathProvider(_ provider: NetworkPathAvailabilityProviding) {}
++++
++++    func setHealthCheckProvider(_ provider: NetworkHealthCheckProviding?) {}
++++
++++    func resetToDefaults() {
++++        isAvailable = true
++++        configuration = NetworkAvailabilityConfiguration()
++++    }
++++}
++\ No newline at end of file
+\ No newline at end of file

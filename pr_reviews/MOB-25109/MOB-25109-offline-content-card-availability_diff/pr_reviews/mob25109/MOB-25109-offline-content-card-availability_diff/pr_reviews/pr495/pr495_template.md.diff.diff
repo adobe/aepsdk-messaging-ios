@@ -1,0 +1,136 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_template.md.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_template.md.diff
+new file mode 100644
+index 0000000..567a06c
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_template.md.diff
+@@ -0,0 +1,129 @@
++diff --git a/pr_reviews/pr495/pr495_template.md b/pr_reviews/pr495/pr495_template.md
++new file mode 100644
++index 0000000..724745d
++--- /dev/null
+++++ b/pr_reviews/pr495/pr495_template.md
++@@ -0,0 +1,123 @@
+++# Mob 25109/offline content card availability
+++
+++**PR Number:** #495
+++**Author:** namArora3112
+++**State:** open
+++**Base Branch:** main
+++**Head Branch:** MOB-25109/offline-content-card-availability
+++
+++## Description
+++
+++<!--- Provide a general summary of your changes in the Title above -->
+++
+++## Description
+++
+++<!--- Describe your changes in detail -->
+++
+++## Related Issue
+++
+++<!--- This project only accepts pull requests related to open issues -->
+++<!--- If suggesting a new feature or change, please discuss it in an issue first -->
+++<!--- If fixing a bug, there should be an issue describing it with steps to reproduce -->
+++<!--- Please link to the issue here: -->
+++
+++## Motivation and Context
+++
+++<!--- Why is this change required? What problem does it solve? -->
+++
+++## How Has This Been Tested?
+++
+++<!--- Please describe in detail how you tested your changes. -->
+++<!--- Include details of your testing environment, and the tests you ran to -->
+++<!--- see how your change affects other areas of the code, etc. -->
+++
+++## Screenshots (if appropriate):
+++
+++## Types of changes
+++
+++<!--- What types of changes does your code introduce? Put an `x` in all the boxes that apply: -->
+++
+++- [ ] Bug fix (non-breaking change which fixes an issue)
+++- [ ] New feature (non-breaking change which adds functionality)
+++- [ ] Breaking change (fix or feature that would cause existing functionality to change)
+++
+++## Checklist:
+++
+++<!--- Go over all the following points, and put an `x` in all the boxes that apply. -->
+++<!--- If you're unsure about any of these, don't hesitate to ask. We're here to help! -->
+++
+++- [ ] I have signed the [Adobe Open Source CLA](http://opensource.adobe.com/cla.html).
+++- [ ] My code follows the code style of this project.
+++- [ ] My change requires a change to the documentation.
+++- [ ] I have updated the documentation accordingly.
+++- [ ] I have read the **CONTRIBUTING** document.
+++- [ ] I have added tests to cover my changes.
+++- [ ] All new and existing tests passed.
+++
+++
+++## Commits
+++
+++```
+++Add explicit offline-read APIs for content cards and inbox
+++offline tracking added in events for distinguishing between online and offline
+++sample app podfile changes
+++content card availaibility for offline support
+++added offline capability along with tests
+++
+++```
+++
+++## Files Changed
+++
+++```
+++ AEPMessaging.xcodeproj/project.pbxproj             | 129 +-------
+++ .../xcshareddata/swiftpm/Package.resolved          |  34 --
+++ .../Sources/ClassExtensions/Cache+Messaging.swift  | 107 ++++--
+++ .../Sources/ClassExtensions/Event+Messaging.swift  |  29 ++
+++ AEPMessaging/Sources/Messaging+PublicAPI.swift     |  59 +++-
+++ AEPMessaging/Sources/Messaging.swift               | 306 +++++++++++++++++-
+++ AEPMessaging/Sources/MessagingConstants.swift      |  26 ++
+++ AEPMessaging/Sources/ParsedPropositions.swift      |  26 +-
+++ AEPMessaging/Sources/Proposition.swift             |  17 +
+++ AEPMessaging/Sources/UI/Inbox/InboxUI.swift        |  35 +-
+++ .../Sources/UI/Messaging+UIPublicAPI.swift         |  43 ++-
+++ AEPMessaging/Tests/TestHelpers/MockCache.swift     |  13 +-
+++ .../MockNetworkConnectivityService.swift           |  44 +++
+++ .../Tests/UnitTests/Cache+MessagingTests.swift     |  77 +++++
+++ .../Tests/UnitTests/Messaging+PublicApiTest.swift  |  20 +-
+++ .../Tests/UnitTests/Messaging+StateTests.swift     |  59 ++++
+++ .../MessagingProcessCompletedEventTests.swift      |  55 +++-
+++ AEPMessaging/Tests/UnitTests/MessagingTests.swift  |  58 ++++
+++ .../Tests/UnitTests/ParsedPropositionsTests.swift  |  23 +-
+++ .../UITests/Messaging+UIPublicApiTest.swift        |  63 ++++
+++ AGENTS.md                                          |  73 +++++
+++ Podfile                                            |   9 +-
+++ Podfile.lock                                       |  26 +-
+++ .../AppPages/CardsView.swift                       | 125 ++++++--
+++ .../AppPages/ElementViews/TabHeader.swift          |   2 +-
+++ .../AppPages/InboxView.swift                       |  90 ++++--
+++ TestApps/MessagingDemoAppSwiftUI/Constants.swift   |  15 +-
+++ docs/agents/card-origin-flag-scenarios.md          |  80 +++++
+++ docs/agents/content-card-offline-implementation.md | 342 ++++++++++++++++++++
+++ docs/agents/content-card-offline-known-gaps.md     | 159 +++++++++
+++ docs/agents/inbox-cbe-offline-handoff.md           | 263 +++++++++++++++
+++ docs/agents/network-availability-layer.md          | 357 +++++++++++++++++++++
+++ docs/agents/offline-architecture.mmd               |  35 ++
+++ docs/agents/offline-architecture.png               | Bin 0 -> 10316 bytes
+++ docs/agents/persistence-write-path-and-errors.md   | 183 +++++++++++
+++ docs/agents/wiki-comment-pm-qa.html                |  18 ++
+++ docs/agents/wiki-comment-pm-timeout-full.html      |  40 +++
+++ docs/agents/wiki-comment-timeout-scenarios.html    |  36 +++
+++ docs/agents/wiki-prd-update.html                   | 339 +++++++++++++++++++
+++ docs/agents/wiki-section-5.5-pros-cons.html        |  81 +++++
+++ docs/agents/wiki-section-6.1-timeout-clarity.html  |  69 ++++
+++ ...ki-section-6.6-assurance-analytics-timeout.html | 130 ++++++++
+++ docs/agents/write-read-clear-flow.md               | 154 +++++++++
+++ 43 files changed, 3548 insertions(+), 301 deletions(-)
+++
+++```
+++
+++## Diff Files
+++
+++- **Summary:** `pr495_diff/_summary.md`
+++- **File List:** `pr495_diff/_file_list.md`
+++- **Per-file Diffs:** `pr495_diff/`
+\ No newline at end of file

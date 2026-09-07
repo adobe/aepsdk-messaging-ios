@@ -21,19 +21,37 @@ struct CodeBasedView: View {
     @StateObject var propositions = Propositions()
     @State private var showLoadingIndicator = false
     @State private var viewLoaded = false
-    private let surfaces: [Surface] = [
-        Surface(path: Constants.SurfaceName.CBE_JSON),
-        Surface(path: Constants.SurfaceName.CBE_HTML)
-    ]
-    
+
+    private let htmlSurface = Surface(path: Constants.SurfaceName.CBE_HTML)
+    private let jsonSurface = Surface(path: Constants.SurfaceName.CBE_JSON)
+
+    private var surfaces: [Surface] { [jsonSurface, htmlSurface] }
+
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             TabHeader(title: "Code Based", refreshAction: {
-                fetchExperience()
+                fetchExperience(surfaces)
             }, redownloadAction: {
-                downloadExperience()
-                fetchExperience()
+                downloadAndFetch(surfaces)
             })
+
+            // Dedicated per-surface CBE buttons: each does updatePropositions -> getPropositions -> track on render
+            HStack(spacing: 12) {
+                Button(action: { downloadAndFetch([htmlSurface]) }) {
+                    Label("CBE HTML", systemImage: "chevron.left.forwardslash.chevron.right")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button(action: { downloadAndFetch([jsonSurface]) }) {
+                    Label("CBE JSON", systemImage: "curlybraces")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+
             ZStack {
                 List {
                     if let propositionsDict = propositions.propositionsDict, !propositionsDict.isEmpty {
@@ -41,17 +59,19 @@ struct CodeBasedView: View {
                         ForEach(surfacesArray, id: \.self) { surface in
                             if let codePropositions: [Proposition] = propositions.propositionsDict?[surface], !codePropositions.isEmpty,
                                let propItems = codePropositions.first?.items as? [PropositionItem] {
-                                ForEach(propItems, id:\.itemId) { item in
-                                    if item.schema == .htmlContent {
-                                        CustomHtmlView(htmlString: item.htmlContent ?? "",
-                                                       trackAction: item.track(_:withEdgeEventType:forTokens:))
-                                    } else if item.schema == .jsonContent {
-                                        if let jsonArray = item.jsonContentArray {
-                                            CustomTextView(text: jsonArray.description,
+                                Section(header: Text(surface.uri)) {
+                                    ForEach(propItems, id: \.itemId) { item in
+                                        if item.schema == .htmlContent {
+                                            CustomHtmlView(htmlString: item.htmlContent ?? "",
                                                            trackAction: item.track(_:withEdgeEventType:forTokens:))
-                                        } else {
-                                            CustomTextView(text: item.jsonContentDictionary?.description ?? "",
-                                                           trackAction: item.track(_:withEdgeEventType:forTokens:))
+                                        } else if item.schema == .jsonContent {
+                                            if let jsonArray = item.jsonContentArray {
+                                                CustomTextView(text: jsonArray.description,
+                                                               trackAction: item.track(_:withEdgeEventType:forTokens:))
+                                            } else {
+                                                CustomTextView(text: item.jsonContentDictionary?.description ?? "",
+                                                               trackAction: item.track(_:withEdgeEventType:forTokens:))
+                                            }
                                         }
                                     }
                                 }
@@ -68,29 +88,42 @@ struct CodeBasedView: View {
                         .shadow(radius: 10)
                 }
             }
-            
         }
         .onAppear {
             if !viewLoaded {
                 viewLoaded = true
-                fetchExperience()
+                fetchExperience(surfaces)
             }
         }
     }
-    
-    private func downloadExperience() {
+
+    /// Fetches the given surfaces from the remote, and once that completes, retrieves and renders them.
+    /// Uses the `updatePropositionsForSurfaces` completion handler so `getPropositionsForSurfaces`
+    /// only runs after the network fetch has finished (avoids retrieving stale/empty cached content).
+    private func downloadAndFetch(_ surfaces: [Surface]) {
         showLoadingIndicator = true
-        Messaging.updatePropositionsForSurfaces(surfaces)
-    }
-            
-    private func fetchExperience() {
-        Messaging.getPropositionsForSurfaces(surfaces) { propositionsDict, error in
-            showLoadingIndicator = false
-            if error != nil {
-                return
+        Messaging.updatePropositionsForSurfaces(surfaces) { success in
+            if !success {
+                DispatchQueue.main.async { showLoadingIndicator = false }
             }
+            fetchExperience(surfaces)
+        }
+    }
+
+    /// Retrieves the already-downloaded propositions for the given surfaces and merges them into the view state.
+    private func fetchExperience(_ surfaces: [Surface]) {
+        Messaging.getPropositionsForSurfaces(surfaces) { propositionsDict, error in
             DispatchQueue.main.async {
-                self.propositions.propositionsDict = propositionsDict
+                showLoadingIndicator = false
+                guard error == nil, let propositionsDict = propositionsDict else {
+                    return
+                }
+                // Merge so fetching a single surface doesn't wipe out the other's results.
+                var merged = self.propositions.propositionsDict ?? [:]
+                for (surface, props) in propositionsDict {
+                    merged[surface] = props
+                }
+                self.propositions.propositionsDict = merged
             }
         }
     }

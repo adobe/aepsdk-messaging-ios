@@ -1,0 +1,129 @@
+diff --git a/pr_reviews/pr495/pr495_diff/_summary.md b/pr_reviews/pr495/pr495_diff/_summary.md
+new file mode 100644
+index 0000000..ada2187
+--- /dev/null
++++ b/pr_reviews/pr495/pr495_diff/_summary.md
+@@ -0,0 +1,123 @@
++# pr495 Diff Summary
++
++**Title:** PR #495
++
++---
++
++## Overview
++
++| Metric | Count |
++|--------|-------|
++| Total Files Changed | 29 |
++| New Files | 2 |
++| Modified Files | 26 |
++| Deleted Files | 1 |
++| Binary Files | 0 |
++| **Lines Added** | **+1442** |
++| **Lines Removed** | **-331** |
++
++---
++
++## Code vs Test Breakdown
++
++| Category | Files | +Lines | -Lines | Net Change |
++|----------|-------|--------|--------|------------|
++| **Code** | 29 | +1442 | -331 | 1773 |
++| **Tests** | 0 | +0 | -0 | 0 |
++| **Total** | 29 | +1442 | -331 | 1773 |
++
++> Non-test files: **29** (1773 lines changed)
++
++---
++
++## Impact by Module
++
++| Module | Files | +Lines | -Lines | Total Change |
++|--------|-------|--------|--------|--------------|
++| `AEPMessaging/` | 20 | +975 | -111 | 1086 |
++| `TestApps/` | 4 | +421 | -38 | 459 |
++| `AEPMessaging.xcodeproj/` | 2 | +8 | -159 | 167 |
++| `Podfile.lock/` | 1 | +30 | -20 | 50 |
++| `Podfile/` | 1 | +5 | -2 | 7 |
++| `.gitignore/` | 1 | +3 | -1 | 4 |
++
++---
++
++## High-Impact Files (>30 lines changed)
++
++| File | +Lines | -Lines | Type |
++|------|--------|--------|------|
++| `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift` | +378 | -30 | Modified |
++| `AEPMessaging/Sources/Messaging.swift` | +320 | -48 | Modified |
++| `AEPMessaging.xcodeproj/project.pbxproj` | +8 | -125 | Modified |
++| `AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift` | +69 | -21 | Modified |
++| `AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift` | +69 | -14 | Modified |
++| `AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift` | +81 | -0 | Modified |
++| `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift` | +63 | -0 | New |
++| `AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift` | +58 | -1 | Modified |
++| `AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift` | +59 | -0 | Modified |
++| `Podfile.lock` | +30 | -20 | Modified |
++| `AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift` | +44 | -0 | Modified |
++| `AEPMessaging/Sources/Messaging+PublicAPI.swift` | +32 | -7 | Modified |
++| `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` | +0 | -34 | Deleted |
++| `TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift` | +29 | -3 | Modified |
++| `AEPMessaging/Tests/UnitTests/MessagingTests.swift` | +26 | -5 | Modified |
++
++---
++
++## All Files Changed
++
++| # | File | +Lines | -Lines | Type | Diff File |
++|---|------|--------|--------|------|-----------|
++| 1 | `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift` | +378 | -30 | Modified | `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff` |
++| 2 | `AEPMessaging/Sources/Messaging.swift` | +320 | -48 | Modified | `pr495_diff/AEPMessaging/Sources/Messaging.swift.diff` |
++| 3 | `AEPMessaging.xcodeproj/project.pbxproj` | +8 | -125 | Modified | `pr495_diff/AEPMessaging.xcodeproj/project.pbxproj.diff` |
++| 4 | `AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift` | +69 | -21 | Modified | `pr495_diff/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift.diff` |
++| 5 | `AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift` | +69 | -14 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift.diff` |
++| 6 | `AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift` | +81 | -0 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift.diff` |
++| 7 | `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift` | +63 | -0 | New | `pr495_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff` |
++| 8 | `AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift` | +58 | -1 | Modified | `pr495_diff/AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift.diff` |
++| 9 | `AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift` | +59 | -0 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift.diff` |
++| 10 | `Podfile.lock` | +30 | -20 | Modified | `pr495_diff/Podfile.lock.diff` |
++| 11 | `AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift` | +44 | -0 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift.diff` |
++| 12 | `AEPMessaging/Sources/Messaging+PublicAPI.swift` | +32 | -7 | Modified | `pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff` |
++| 13 | `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` | +0 | -34 | Deleted | `pr495_diff/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved.diff` |
++| 14 | `TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift` | +29 | -3 | Modified | `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift.diff` |
++| 15 | `AEPMessaging/Tests/UnitTests/MessagingTests.swift` | +26 | -5 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/MessagingTests.swift.diff` |
++| 16 | `AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift` | +27 | -0 | New | `pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff` |
++| 17 | `AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift` | +22 | -0 | Modified | `pr495_diff/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift.diff` |
++| 18 | `AEPMessaging/Sources/MessagingConstants.swift` | +22 | -0 | Modified | `pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff` |
++| 19 | `AEPMessaging/Sources/Messaging+State.swift` | +20 | -1 | Modified | `pr495_diff/AEPMessaging/Sources/Messaging+State.swift.diff` |
++| 20 | `AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift` | +19 | -1 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff` |
++| 21 | `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift` | +7 | -10 | Modified | `pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff` |
++| 22 | `TestApps/MessagingDemoAppSwiftUI/Constants.swift` | +13 | -4 | Modified | `pr495_diff/TestApps/MessagingDemoAppSwiftUI/Constants.swift.diff` |
++| 23 | `AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift` | +13 | -1 | Modified | `pr495_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff` |
++| 24 | `AEPMessaging/Tests/TestHelpers/MockCache.swift` | +12 | -1 | Modified | `pr495_diff/AEPMessaging/Tests/TestHelpers/MockCache.swift.diff` |
++| 25 | `AEPMessaging/Sources/ParsedPropositions.swift` | +7 | -1 | Modified | `pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff` |
++| 26 | `Podfile` | +5 | -2 | Modified | `pr495_diff/Podfile.diff` |
++| 27 | `AEPMessaging/Sources/Proposition.swift` | +5 | -0 | Modified | `pr495_diff/AEPMessaging/Sources/Proposition.swift.diff` |
++| 28 | `.gitignore` | +3 | -1 | Modified | `pr495_diff/.gitignore.diff` |
++| 29 | `TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift` | +1 | -1 | Modified | `pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff` |
++
++---
++
++## New Files
++
++- `AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift`
++- `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift`
++
++---
++
++## Deleted Files
++
++- `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
++
++---
++
++## How to Review
++
++1. **Start with high-impact files** - Review files with most changes first
++2. **Read per-file diffs** - Each file has its own `.diff` file in `pr495_diff/`
++3. **Follow module structure** - Files are organized by their original path
++
++**Diff folder:** `pr495_diff/`

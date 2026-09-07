@@ -1,0 +1,23 @@
+diff --git a/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff
+new file mode 100644
+index 0000000..5d92820
+--- /dev/null
++++ b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff
+@@ -0,0 +1,16 @@
++diff --git a/AEPMessaging/Sources/Proposition.swift b/AEPMessaging/Sources/Proposition.swift
++index 1786158..b4e29f4 100644
++--- a/AEPMessaging/Sources/Proposition.swift
+++++ b/AEPMessaging/Sources/Proposition.swift
++@@ -49,6 +49,11 @@ public class Proposition: NSObject, Codable {
++         return propositionItems
++     }()
++ 
+++    /// Tracks where this proposition was loaded from. `.network` for live fetch responses;
+++    /// `.disk` for propositions hydrated from the persisted on-disk cache at boot.
+++    /// Transient — not encoded or decoded, so it never leaks into the persisted cache.
+++    var cardOrigin: CardOrigin = .network
+++
++     enum CodingKeys: String, CodingKey {
++         case id
++         case scope
+\ No newline at end of file

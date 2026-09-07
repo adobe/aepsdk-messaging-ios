@@ -1,0 +1,275 @@
+# LLD Review: persistence_core (PR #495)
+
+## Summary
+The explicit-flag API redesign is directionally sound, but the write-path gating for offline persistence ships with a dead per-proposition invariant (`Proposition.offlineAvailable`) silently superseded by an always-true global constant, the new `usePersistedContentCards: Bool` parameter carries inconsistent semantics across the two API surfaces that use it, and adding any future persisted-proposition type requires touching 4+ files with no shared abstraction — three problems that map directly onto this PR's own stated design intent.
+
+---
+
+## Design Issues
+
+### CRITICAL: Per-proposition offline-opt-out invariant (`Proposition.offlineAvailable`) is dead code — a global flag silently overrides it
+
+**Files:**
+- `AEPMessaging/Sources/Proposition.swift:109-124` (new `offlineAvailable` computed property)
+- `AEPMessaging/Sources/ParsedPropositions.swift:92-98, 119-125` (actual gating logic)
+- `AEPMessaging/Sources/MessagingConstants.swift:29-34` (`OFFLINE_AVAILABILITY_ENABLED`)
+- `docs/agents/inbox-cbe-offline-handoff.md:71-83` (this PR's own design doc, describing the intended gate)
+- `docs/agents/persistence-write-path-and-errors.md:71,158`, `docs/agents/write-read-clear-flow.md:42` (same intended gate, also stale)
+
+**Problem:**
+This PR adds a computed property that reads a per-campaign, server/author-controlled opt-out signal:
+
+```swift
+// Proposition.swift
+var offlineAvailable: Bool {
+    ...
+    if let mobileParams = characteristics?["mobileParameters"] as? [String: Any],
+       let flag = mobileParams["offline"] as? Bool {
+        return flag
+    }
+    return true
+}
+```
+
+But the actual persistence gate in `ParsedPropositions.swift` never calls it:
+
+```swift
+case .feed, .contentCard:
+    ...
+    if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED {   // hardcoded `true`, ignores the proposition
+        contentCardPropositionsToPersist.add(proposition, forKey: surface)
+    }
+    ...
+case .inbox:
+    ...
+    if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED {   // same
+        inboxPropositionsToPersist.add(proposition, forKey: surface)
+    }
+```
+
+`grep -rn "offlineAvailable" AEPMessaging/Sources AEPMessaging/Tests` returns only the declaration site — it is called nowhere in Sources or Tests. Meanwhile this PR's own handoff docs (also part of this diff, per the file list) describe the *intended* shipped behavior as:
+
+> "Content cards were unconditionally persisted before — now gated on `proposition.offlineAvailable`" (`inbox-cbe-offline-handoff.md:73`)
+> "DISK WRITE (gated by `offlineAvailable`)" (`persistence-write-path-and-errors.md:71,158`; `write-read-clear-flow.md:42`)
+
+The shipped code does not match this description. `ParsedPropositionsTests.swift` reinforces that this was never exercised — every assertion on `contentCardPropositionsToPersist`/`inboxPropositionsToPersist` count checks the always-true global path; none set `mobileParameters.offline = false` and assert the campaign is excluded.
+
+**Why it matters:** If an AJO author explicitly sets a campaign to non-offline (`mobileParameters.offline = false`) expecting it to never be written to disk (e.g., for compliance/PII reasons, or because the campaign is time-sensitive and stale disk content would be misleading), the shipped code persists it anyway — the only gate that runs is a hardcoded `true` that has no relationship to the proposition at all. This is exactly the "illegal state that's actually reachable" failure mode: a documented, type-level opt-out exists and is completely unenforced.
+
+**Fix:** Either wire `proposition.offlineAvailable` into the gate (as the PR's own docs already assume was done), or delete the dead property and its TODO until the actual mechanism is decided:
+
+```swift
+if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED && proposition.offlineAvailable {
+    contentCardPropositionsToPersist.add(proposition, forKey: surface)
+}
+```
+Add a test that sets `mobileParameters.offline = false` and asserts the proposition is excluded from `*ToPersist`, so this invariant has enforcement, not just a docstring.
+
+---
+
+### HIGH: `usePersistedContentCards: Bool` has inconsistent semantics across the two API surfaces that use it
+
+**Files:**
+- `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift:20-62` (`getContentCardsUI`)
+- `AEPMessaging/Sources/UI/Inbox/InboxUI.swift:99-177` (`InboxUI.performRefresh`)
+- `AEPMessaging/Sources/Messaging+PublicAPI.swift:22-48` (`getPropositionsForSurfaces`)
+- `AEPMessaging/Sources/Messaging.swift:1370-1377` (`retrieveMessages`)
+
+**Problem:** The exact same parameter name and type is reused for two different contracts:
+
+- `getContentCardsUI(for:usePersistedContentCards:...)`: `false` (default) → pure in-memory read, **no network call is triggered by this method at all** (caller is expected to call `updatePropositionsForSurfacesWithCompletionHandler` separately first). `true` → also hydrates from disk.
+- `InboxUI` / `getInboxUI(for:usePersistedContentCards:)`: `false` (default) → `performRefresh` **calls `Messaging.updatePropositionsForSurfaces` (a real network round-trip) and only then reads memory** (`InboxUI.swift:179-193`). `true` → disk-only, network never contacted (`InboxUI.swift:162-177`).
+
+So the same flag name, on the same value (`false`), means "do nothing extra, just read memory" for content cards, but "go fetch over the network" for inbox. A caller who has learned the semantics of one API by reading its doc comment will misjudge the other. This is boolean-blindness compounded by cross-API inconsistency: a `bool` parameter is being asked to encode two unrelated decisions (does this call touch the network at all? / does it read persisted disk?) with different defaults resolving those two decisions differently per call site.
+
+Additionally, one boolean silently governs hydration of **two distinct data domains** — content cards and inbox — inside `retrieveMessages`:
+```swift
+if event.usePersistedContentCards {
+    hydrateContentCardRulesEngineFromDisk(for: requestedSurfaces)
+    hydrateInboxPropositionsFromDisk(for: requestedSurfaces)
+}
+```
+A parameter whose name says "content cards" also controls inbox disk hydration. There is no way today to request "persisted content cards but not persisted inbox" or vice versa.
+
+**Why it matters:** This is precisely the boolean-blindness failure mode the task flagged — a caller reading `getInboxUI(usePersistedContentCards: false)` in isolation cannot tell it triggers a network request, and `getContentCardsUI(usePersistedContentCards: false)` in isolation cannot tell it doesn't. Future integrators will copy-paste between the two APIs and get silently different behavior (unexpected network calls in one direction, unexpected staleness in the other).
+
+**Fix:** Model the actual three (or four) read strategies as an enum shared by both call sites, e.g.:
+```swift
+enum PropositionReadStrategy {
+    case memoryOnly                 // no network, no disk
+    case networkThenMemory          // update from Edge, then read memory (today's inbox `false`)
+    case persistedOnly              // disk only, no network (today's `true` for both)
+}
+```
+and give `getContentCardsUI`/`getInboxUI`/`getPropositionsForSurfaces` a single parameter of this type instead of a bool whose meaning depends on which function you're calling.
+
+---
+
+### HIGH: Adding another persisted-proposition type touches 4+ files with hand-rolled, parallel boilerplate
+
+**Change Impact Analysis** — to add a new persisted proposition type (e.g. a future schema type that also needs offline availability, mirroring what this PR just did for content cards + inbox and previously reverted for CBE):
+
+```
+To add another persisted-proposition type (similar to content card / inbox in this PR):
+  - AEPMessaging/Sources/MessagingConstants.swift        → add new Caches.X_PROPOSITIONS string constant
+  - AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift → add new `var xPropositions` getter +
+                                                                   new `func updateXPropositions(...)` setter
+                                                                   (each hand-written, delegating to the
+                                                                   private generic helper — but the *public*
+                                                                   surface itself is not generic)
+  - AEPMessaging/Sources/ParsedPropositions.swift        → add new `xPropositionsToPersist` field, new
+                                                             switch-case branch, repeat the
+                                                             `if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED`
+                                                             boilerplate
+  - AEPMessaging/Sources/Messaging.swift                 → add `cache.updateXPropositions(...)` write call
+                                                             + fold into the `!iamWriteOK || !ccWriteOK || ...`
+                                                             warning check (applyPropositionChangeFor);
+                                                             add new near-duplicate
+                                                             `hydrateXPropositionsFromDisk(for:)` function;
+                                                             add a call to it inside `retrieveMessages`
+  - AEPMessaging/Sources/UI/... (optional)               → new UI-level flag plumbing if independent
+                                                             control from content card/inbox is needed
+
+VERDICT: 4-5 files need changes = POOR EXTENSIBILITY
+```
+
+**Problem:** `Cache+Messaging.swift` already extracted a private generic helper (`propositionsByKey`/`updatePropositionsByKey`) — a good DRY step — but the *public* surface is still three hand-written parallel pairs (`propositions`/`updatePropositions`, `contentCardPropositions`/`updateContentCardPropositions`, `inboxPropositions`/`updateInboxPropositions`). Every new proposition type still requires writing a new named getter and a new named setter, each a near-identical 5-line wrapper. The codebase already has a natural discriminator for this — `SchemaType` (`.inapp`, `.contentCard`, `.inbox`, `.feed`, ...) — that isn't used as a cache key.
+
+Similarly, `Messaging.swift` has parallel, growing `if`-chains that this PR extended rather than abstracted:
+```swift
+let iamWriteOK = cache.updatePropositions(...)
+let ccWriteOK = cache.updateContentCardPropositions(...)
+let inboxWriteOK = cache.updateInboxPropositions(...)
+if !iamWriteOK || !ccWriteOK || !inboxWriteOK { ... }
+```
+and two near-identical `hydrateXFromDisk` functions (`hydrateContentCardRulesEngineFromDisk`, `hydrateInboxPropositionsFromDisk`) that will become three, four, five copies as more types need offline availability — this is the "code bleed" pattern: every new proposition type requires a new branch/call in `applyPropositionChangeFor`, a new hydrate function, and a new call site in `retrieveMessages`.
+
+**Why it matters:** This PR itself is evidence of the cost: it had to revert an in-flight CBE-persistence addition (per the PR description and confirmed by `docs/agents/inbox-cbe-offline-handoff.md:13-37`, which describes `codeBasedPropositionsToPersist`/`CODE_BASED_PROPOSITIONS`/`updateCodeBasedPropositions` that no longer exist in the shipped code) — i.e., the team already added and removed one instance of this exact boilerplate mid-PR, which is a strong signal the current design doesn't scale to "just add one more type."
+
+**Fix:** Introduce a `PropositionCacheBucket` enum keyed by `SchemaType` (or a purpose-built enum) and make the cache API generic:
+```swift
+func propositions(for bucket: PropositionCacheBucket) -> [Surface: [Proposition]]?
+@discardableResult
+func updatePropositions(_ new: [Surface: [Proposition]]?, in bucket: PropositionCacheBucket, removing: [Surface]? = nil) -> Bool
+```
+Then `applyPropositionChangeFor` can iterate `PropositionCacheBucket.allCases` instead of hand-listing `iamWriteOK`/`ccWriteOK`/`inboxWriteOK`, and a single generic `hydrateFromDisk(bucket:for:)` replaces the growing family of near-duplicate hydrate functions.
+
+---
+
+### MEDIUM: Cross-collection invariants enforced only by convention, not by type structure
+
+**Files:**
+- `AEPMessaging/Sources/Messaging.swift:89-100` (`nonRecoverableErrorEventIds` vs `requestedSurfacesForEventId`)
+- `AEPMessaging/Sources/Messaging.swift:139-145, 900-908` (`contentCardOriginBySurface` vs `qualifiedContentCardsBySurface`/`contentCardRulesBySurface`)
+
+**Problem:** This PR introduces two new parallel-collection invariants that are correct today only because every call site was hand-updated in lockstep, with comments as the only guardrail:
+
+- `nonRecoverableErrorEventIds: Set<String>` is meant to be a subset of `requestedSurfacesForEventId`'s keys, and is inserted in `handleEdgeErrorResponse` and removed in exactly two places that also remove from `requestedSurfacesForEventId` (`Messaging.swift:1056-1057` on dispatch timeout, `Messaging.swift:1168,1171` in `endRequestFor`). Nothing in the type system prevents a future change from removing an entry from one collection without the other — the reviewer/tests have to notice.
+- `contentCardOriginBySurface: [Surface: CardOrigin]` is documented as "Written in lockstep with `contentCardRulesBySurface` so it can never drift" (`Messaging.swift:140`) and "origin tracking must be cleared alongside the evicted memory so it cannot go stale" (`Messaging.swift:905-906`) — again, correctly paired today, but purely by convention across `clearContentCards()`, `removeOrReplaceContentCards`, `updateRulesEngines`, and `hydrateContentCardRulesEngineFromDisk`.
+
+**Why it matters:** Both comments explicitly acknowledge the drift risk ("can never drift", "cannot go stale") which is a signal the author already recognized this is fragile — but addressed it with documentation instead of a structural guarantee. Four+ call sites across `Messaging.swift` must all be updated together for either invariant to hold; a future refactor (e.g. adding a third eviction path, or a bug-fix PR that only touches one of the two collections) can silently reintroduce staleness with no compiler or test signal beyond whatever integration test happens to cover that exact path.
+
+**Fix:** Fold each pair into a single value type so the invariant is structural rather than conventional, e.g.:
+```swift
+struct RequestState {
+    let surfaces: [Surface]
+    var failed: Bool = false
+}
+private var requestStateForEventId: [String: RequestState] = [:]
+```
+```swift
+struct ContentCardEntry {
+    let rules: [LaunchRule]
+    let origin: CardOrigin
+}
+private var contentCardEntriesBySurface: [Surface: ContentCardEntry] = [:]
+```
+removing one entry from either map now can't leave the other one stale by construction.
+
+---
+
+### MEDIUM: `OFFLINE_AVAILABILITY_ENABLED` is a hardcoded, non-injectable placeholder with no test coverage of its `false` branch
+
+**Files:**
+- `AEPMessaging/Sources/MessagingConstants.swift:29-34`
+- `AEPMessaging/Sources/ParsedPropositions.swift:92-98, 119-125`
+
+**Problem:**
+```swift
+/// TODO: replace with a value read from shared state configuration
+/// once that config flag is available, instead of this hardcoded default.
+static let OFFLINE_AVAILABILITY_ENABLED = true
+```
+This is a `static let` on an `enum` namespace — it cannot be overridden by a test or by DI, only by editing source. `grep -rn "OFFLINE_AVAILABILITY_ENABLED"` shows it referenced only at its two call sites in `ParsedPropositions.swift`; no test ever exercises the constant being `false`, so the "gate off" code path (`contentCardPropositionsToPersist`/`inboxPropositionsToPersist` never populated) is entirely unverified.
+
+**Why it matters:** The TODO signals intent to replace this with shared-state config, but there's no defined contract yet (what key, what extension reads it, what happens if config value is missing) — and because the constant isn't even wired to the one integration point (`Proposition.offlineAvailable`) that already exists for a related but distinct decision, there's a real risk this constant either (a) never gets revisited once the feature ships and "works," or (b) gets replaced by config that only affects a code path that, per the CRITICAL finding above, isn't actually the effective gate.
+
+**Fix:** At minimum, make this an injectable value (e.g., resolved through `MessagingStateManager`/shared state with this constant as the *default* fallback, not the permanent value), and add a unit test that flips it off and asserts no disk writes occur, so a future removal of the hardcoded value has a regression test to lean on.
+
+---
+
+### MEDIUM: Hardcoded Edge retry-status list duplicates a different extension's internal policy with no shared contract
+
+**Files:**
+- `AEPMessaging/Sources/MessagingConstants.swift:36-39`
+- `AEPMessaging/Sources/Messaging.swift:1443-1447`
+
+**Problem:**
+```swift
+static let RECOVERABLE_EDGE_ERROR_STATUS_CODES: Set<Int> = [408, 429, 502, 503, 504, 507]
+```
+This list encodes an assumption about which HTTP statuses AEPEdge's `PersistentHitQueue` will retry internally. Messaging has no compile-time or runtime dependency on Edge's actual retry table — it's a second, independently-maintained copy of policy that lives in a different repo/module.
+
+**Why it matters:** If Edge's retry policy changes (a status is added/removed from its internal retry set, or retry behavior becomes configurable), this list silently goes stale with no build failure and no test to catch the drift — Messaging would either mark a genuinely-being-retried request as failed (unnecessarily preserving stale disk/memory data on a transient blip) or mark a genuinely-failed request as "still pending" (incorrectly evicting good data). This directly feeds the non-recoverable-eviction-guard logic that is the core correctness mechanism of this PR's error handling, so drift here has real product impact, not just cosmetic duplication.
+
+**Fix:** If Edge doesn't already expose this as a public constant/protocol, consider requesting one, or at minimum add a comment/test that pins this list to a specific Edge SDK version so a version bump forces a manual review of whether the list is still accurate.
+
+---
+
+### MEDIUM (needs verification): New unit test asserts a behavior the shipped guard clause appears to contradict
+
+**Files:**
+- `AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift:181-215` (`testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty`)
+- `AEPMessaging/Sources/Messaging.swift:1370-1377` (`retrieveMessages`)
+
+**Problem:** This PR's stated intent (per the task description and per `Event+Messaging.swift`'s doc comment) is that disk hydration is now **explicit-opt-in only** — "there is no automatic/implicit memory-first-disk-fallback" (`Messaging.swift:1367-1369` comment above `retrieveMessages`). The source enforces this with a hard guard:
+```swift
+if event.usePersistedContentCards {
+    hydrateContentCardRulesEngineFromDisk(for: requestedSurfaces)
+    hydrateInboxPropositionsFromDisk(for: requestedSurfaces)
+}
+```
+But the new test `testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty` builds a `GET_PROPOSITIONS` event **without** setting `USE_PERSISTED_CONTENT_CARDS` in its event data, with the comment "No USE_PERSISTED_CONTENT_CARDS flag needed — disk hydration is automatic," and then asserts `mockLaunchRulesEngineForFeeds.replaceRulesCalled == true`. Tracing the code: `event.usePersistedContentCards` defaults to `false` when the key is absent (`Event+Messaging.swift`), so the `if` guard should not execute, and `hydrateContentCardRulesEngineFromDisk` (the only call site that invokes `replaceRules` on the feeds rules engine outside of a live network response) should never run.
+
+**Why it matters:** Either (a) this test is stale from a pre-revision of the design where hydration genuinely was automatic and it should have been deleted/updated, or (b) there is a second, undocumented automatic-hydration path this reviewer did not locate. Either way, this directly bears on whether the "explicit-only" contract this PR is supposed to establish for `usePersistedContentCards` is actually the enforced behavior — the exact question this review was asked to check. I was not able to execute the test suite (would require simulator boot / `make unit-test`) to confirm pass/fail; this is flagged with reduced confidence for the completeness/testing reviewers to verify directly.
+
+**Fix:** Run this specific test against the shipped code; if it currently fails or is skipped, that's a CI gap. If it currently passes, trace how `replaceRulesCalled` becomes `true` without going through `hydrateContentCardRulesEngineFromDisk`, since that would reveal an undocumented second hydration path this review missed.
+
+---
+
+## Summary
+- Critical issues: 1
+- High priority: 2
+- Medium priority: 5
+
+**Recommendation:** REQUEST CHANGES — the CRITICAL finding (dead per-proposition offline opt-out invariant, contradicted by this PR's own design docs) should block merge until either the gate is wired up or the dead code/stale docs are reconciled. The two HIGH findings (inconsistent boolean semantics across API surfaces, poor extensibility for future persisted types) are pre-existing-pattern-forming decisions that are cheap to fix now and expensive later, given this PR already had to revert one instance of the exact boilerplate this design produces.
+
+---
+
+## Output Contract
+
+**Findings:**
+1. `CRITICAL` — Dead `Proposition.offlineAvailable` invariant / global gate override — confidence 0.9 — evidence: `Proposition.swift:109-124`, `ParsedPropositions.swift:92-98,119-125`, zero call sites via grep, contradicted by `docs/agents/inbox-cbe-offline-handoff.md:71-83`. Caveat: cannot confirm whether this is an intentional last-minute revert (docs simply not updated) vs. an accidental regression — either way the shipped invariant is unenforced. Challenge: if a follow-up PR is already scheduled to wire this in, severity could be downgraded to HIGH, but nothing in the diff or docs signals that.
+2. `HIGH` — `usePersistedContentCards: Bool` inconsistent semantics across `getContentCardsUI` vs `getInboxUI`/`InboxUI` — confidence 0.85 — evidence: `Messaging+UIPublicAPI.swift:20-62`, `InboxUI.swift:99-193`. Challenge: one could argue the two APIs have always had different default network behavior (content card get was always memory-only; inbox refresh was always network-first) and this PR only added the disk-read branch symmetrically — the flag's *new* meaning (disk vs not) is consistent; only the *pre-existing, unrelated* default-path behavior differs. This softens but doesn't eliminate the naming/API-consistency concern.
+3. `HIGH` — Poor extensibility for new persisted-proposition types (4-5 file blast radius) — confidence 0.85 — evidence: `Cache+Messaging.swift` full file, `ParsedPropositions.swift`, `Messaging.swift:1205-1227,1299-1360`, corroborated by the CBE revert itself.
+4. `MEDIUM` — Parallel-collection invariants enforced by convention (`nonRecoverableErrorEventIds`, `contentCardOriginBySurface`) — confidence 0.75 — evidence: `Messaging.swift:89-100,139-145,900-908,1056-1057,1168-1171`. Caveat: verified all current call sites are correctly paired today; this is a forward-looking maintainability risk, not a present bug.
+5. `MEDIUM` — `OFFLINE_AVAILABILITY_ENABLED` non-injectable, untested false-branch — confidence 0.8 — evidence: `MessagingConstants.swift:29-34`, grep showing 2 call sites only, no test setting it false.
+6. `MEDIUM` — Hardcoded `RECOVERABLE_EDGE_ERROR_STATUS_CODES` duplicates Edge's internal policy — confidence 0.6 — caveat: could not inspect the AEPEdge repo to confirm the actual retry list or whether a shared constant already exists there; flagged as a coupling risk based on this repo's evidence alone.
+7. `MEDIUM` (needs verification) — Test/implementation mismatch on "automatic" disk hydration — confidence 0.55 — evidence: `Messaging+StateTests.swift:181-215` vs `Messaging.swift:1370-1377`. Caveat: not executed; could not confirm CI pass/fail state.
+
+**Overall confidence in this review:** 0.75 — high confidence on the CRITICAL/HIGH findings (direct code + doc evidence, grep-verified), lower confidence on items requiring test execution or knowledge of the AEPEdge repo internals.
+
+**Could not adequately assess:**
+- Whether `RECOVERABLE_EDGE_ERROR_STATUS_CODES` actually matches AEPEdge's current retry table — would require reading the `aepsdk-edge-ios` repo, out of scope for this checkout.
+- Whether `testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty` currently passes in CI — would require running `make unit-test` (simulator boot), not performed in this review.
+- Runtime/concurrency behavior of `handleEdgeErrorResponse` racing against the stream-close completion handler across the EventHub vs. `MobileCore.dispatch` completion queues — plausible ordering guarantee exists (Edge likely sends the error before closing the stream) but this review did not trace AEPEdge's dispatch ordering to confirm; flagged for the flow/concurrency reviewer.

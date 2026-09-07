@@ -35,6 +35,32 @@ public class Message: NSObject {
     /// Custom metadata for the message, if any.
     @objc public var metadata: [String: Any] = [:]
 
+    // TODO: MOB-24075 — uncomment once Edge consent / cross-team review is complete
+    // /// The stable authored activity identifier for this in-app message.
+    // ///
+    // /// Reads from `propositionInfo.activityId`, which maps to `scopeDetails.activity.id` and remains
+    // /// constant across successive `Messaging.refreshInAppMessages()` calls. Use this as a stable key
+    // /// for frequency capping, deduplication, or Adobe Analytics attribution — the same pattern used
+    // /// by ``ContentCardUI/activityId`` for Content Cards, and `OptimizeProposition.activityId` in
+    // /// the AEPOptimize SDK.
+    // ///
+    // /// Returns an empty string if proposition info is not yet available (i.e. the message was created
+    // /// but its proposition has not been resolved).
+    // @objc public var activityId: String {
+    //     propositionInfo?.activityId ?? ""
+    // }
+
+    // /// The authored campaign identifier for this in-app message.
+    // ///
+    // /// Equivalent to the bare campaign id — the portion before `#` in ``activityId``
+    // /// (format: `campaignID#campaignActionID`). Suitable for logging to Adobe Analytics alongside
+    // /// display and interact events.
+    // ///
+    // /// Returns an empty string if proposition info is not available.
+    // @objc public var campaignId: String {
+    //     activityId.components(separatedBy: "#").first ?? ""
+    // }
+
     // MARK: internal properties
 
     /// Holds a reference to the class that created this `Message`.  Used for access to tracking code owned by `Messaging`.

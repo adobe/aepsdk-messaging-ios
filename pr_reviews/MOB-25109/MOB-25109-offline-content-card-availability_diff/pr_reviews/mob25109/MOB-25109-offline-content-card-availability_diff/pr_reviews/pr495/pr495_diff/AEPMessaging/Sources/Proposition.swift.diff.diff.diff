@@ -1,0 +1,42 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff.diff
+new file mode 100644
+index 0000000..419cef3
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff.diff
+@@ -0,0 +1,35 @@
++diff --git a/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff
++new file mode 100644
++index 0000000..4ea74f4
++--- /dev/null
+++++ b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff
++@@ -0,0 +1,28 @@
+++diff --git a/AEPMessaging/Sources/Proposition.swift b/AEPMessaging/Sources/Proposition.swift
+++index 1786158..d5fbcde 100644
+++--- a/AEPMessaging/Sources/Proposition.swift
++++++ b/AEPMessaging/Sources/Proposition.swift
+++@@ -106,6 +106,23 @@ extension Proposition {
+++         }
+++     }
+++ 
++++    /// Whether this proposition should be persisted to disk for offline availability.
++++    /// Reads from the proposition's mobileParameters.offline flag when present.
++++    /// TODO: once server-side flag is active, remove the default-true fallback.
++++    var offlineAvailable: Bool {
++++        let characteristics: [String: Any]?
++++        if let codable = scopeDetails as? [String: AnyCodable] {
++++            characteristics = codable["characteristics"]?.dictionaryValue as? [String: Any]
++++        } else {
++++            characteristics = scopeDetails["characteristics"] as? [String: Any]
++++        }
++++        if let mobileParams = characteristics?["mobileParameters"] as? [String: Any],
++++           let flag = mobileParams["offline"] as? Bool {
++++            return flag
++++        }
++++        return true
++++    }
++++
+++     /// rank is an ordinal value computed by IDS, used for prioritization
+++     /// it is expected that IDS will always return a value for rank
+++     /// a default value of -1 is used in the absense of rank in the IDS response and should be considered an error state
++\ No newline at end of file
+\ No newline at end of file

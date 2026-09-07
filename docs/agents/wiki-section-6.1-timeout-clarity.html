@@ -1,0 +1,69 @@
+<ac:structured-macro ac:name="warning" ac:schema-version="1" ac:macro-id="callout-5s-001"><ac:rich-text-body>
+<p><strong>Key idea:</strong> Disk is fast (&lt;200ms). The ~5 second delay is usually <strong>GET waiting behind UPDATE</strong> on a single-lane queue — not slow disk I/O.</p>
+</ac:rich-text-body></ac:structured-macro>
+
+<h4>Three situations — don&apos;t mix them up</h4>
+<table class="wrapped"><tbody>
+<tr><th>Situation</th><th>What the device sees</th><th>Typical wait</th><th>What user expects</th></tr>
+<tr><td><strong>Offline</strong></td><td>No network path (airplane mode, no route)</td><td>Disk serve: &lt;200ms–1s</td><td>Last saved cards immediately</td></tr>
+<tr><td><strong>Low network</strong></td><td>Online but Edge slow (congested Wi‑Fi)</td><td>Fresh content: 3–10s+</td><td>Fresh cards after wait, or stale first</td></tr>
+<tr><td><strong>5s timeout today</strong></td><td>GET blocked behind UPDATE or slow Edge</td><td>API callback limit: 5s</td><td>Often blank UI or error — even when disk has cards</td></tr>
+</tbody></table>
+
+<h4>How Messaging processes work today (single-lane queue)</h4>
+<p>Messaging uses an <code>eventsQueue</code> — one job at a time, in order. Two common jobs:</p>
+<table class="wrapped"><tbody>
+<tr><th>Job</th><th>API</th><th>What it does</th></tr>
+<tr><td><strong>UPDATE</strong></td><td><code>updatePropositionsForSurfaces</code></td><td>Network call to Edge; wait for Adobe; save to disk on success</td></tr>
+<tr><td><strong>GET</strong></td><td><code>getPropositionsForSurfaces</code> / <code>getContentCardsUI</code></td><td>Return cards from memory or disk</td></tr>
+</tbody></table>
+<p><strong>Rule today:</strong> If UPDATE is in flight, GET <strong>waits in line</strong> until UPDATE finishes. Disk read itself is fast — GET often never gets a turn before the 5s API timeout.</p>
+
+<h4>Scenario 1 — True offline (cards saved yesterday, no signal today)</h4>
+<p><strong>Bad pattern (common today):</strong></p>
+<ac:structured-macro ac:name="code" ac:schema-version="1"><ac:parameter ac:name="language">text</ac:parameter><ac:plain-text-body><![CDATA[App launch:
+  1. updatePropositions()     // tries Edge — fails slowly offline
+  2. getContentCardsUI()      // WAITING in queue behind step 1]]></ac:plain-text-body></ac:structured-macro>
+<table class="wrapped"><tbody>
+<tr><th>Time</th><th>What happens</th><th>User sees</th></tr>
+<tr><td>0s</td><td>UPDATE starts — Edge unreachable</td><td>Loading / blank</td></tr>
+<tr><td>0–5s</td><td>GET blocked in <code>eventsQueue</code> behind UPDATE</td><td>Still waiting</td></tr>
+<tr><td>5s</td><td>Public API <code>callbackTimeout</code> (error 1)</td><td>Error or empty — disk had cards all along</td></tr>
+</tbody></table>
+<p><strong>Good pattern:</strong> path monitor detects offline → skip Edge → cache-first GET → cards in &lt;1s.</p>
+
+<h4>Scenario 2 — Low network (connected but slow Wi‑Fi)</h4>
+<p>Path monitor says <strong>online</strong>, but Edge takes 2–5s+ to respond. A <strong>200ms network timeout</strong> would abandon the network call almost every time on degraded Wi‑Fi and force <strong>stale cache</strong> — even when fresh content would arrive seconds later. That is a product tradeoff (speed vs freshness), not a safe universal default.</p>
+<p><strong>Recommended hybrid:</strong> show disk immediately → background UPDATE (configurable 3–5s) → refresh UI if network succeeds.</p>
+
+<h4>Scenario 3 — Why &quot;5 seconds&quot; is NOT &quot;disk is slow&quot;</h4>
+<ac:structured-macro ac:name="info" ac:schema-version="1" ac:macro-id="scenario3-clarity-001"><ac:rich-text-body>
+<p><strong>Two different numbers:</strong></p>
+<ul>
+<li><strong>&lt;200ms</strong> = time to load and re-qualify cards <em>from disk</em> (when GET actually runs)</li>
+<li><strong>5s</strong> = max wait for the GET API callback while Messaging is busy — often because GET is queued behind UPDATE or Edge is slow</li>
+</ul>
+<p><strong>One-line summary:</strong> <em>Disk is fast; the queue and network wait are slow.</em></p>
+</ac:rich-text-body></ac:structured-macro>
+<p><strong>Three fixes:</strong></p>
+<ul>
+<li><strong>Cache-first GET</strong> — call <code>get</code> before <code>update</code> so cards render before network work</li>
+<li><strong>Bypass read queue</strong> — disk/memory reads should not wait behind a slow UPDATE</li>
+<li><strong>Skip UPDATE when offline</strong> — path monitor detects no network; don&apos;t start a doomed Edge call</li>
+</ul>
+
+<h4>Configurable timeout (Optimize-style — app/Launch policy, not per-card authoring)</h4>
+<table class="wrapped"><tbody>
+<tr><th>Knob</th><th>Where configured</th><th>What it controls</th></tr>
+<tr><td>Update fail-fast timeout</td><td>Launch / app config</td><td>Max wait for background refresh (e.g. 3–5s) before keeping cache</td></tr>
+<tr><td>GET callback timeout</td><td>SDK default (5s today)</td><td>Max wait for <code>getPropositions</code> to respond</td></tr>
+<tr><td>Disk hydrate</td><td>N/A</td><td>Always fast — no timeout needed</td></tr>
+</tbody></table>
+
+<h4>Decision guide</h4>
+<ul>
+<li><strong>No network</strong> → skip Edge; serve disk immediately (target &lt;1s)</li>
+<li><strong>Bad Wi‑Fi opening feed</strong> → cache-first + configurable UPDATE timeout (3–5s), <strong>not</strong> 200ms universal network timeout</li>
+<li><strong>Good network</strong> → normal UPDATE then show fresh; 5s callback is acceptable</li>
+</ul>
+<p><strong>Is 5 seconds acceptable?</strong> <em>Open for product (OQ-1).</em> Target with mitigations above: sub-second offline render when cache exists.</p>

@@ -1,0 +1,69 @@
+diff --git a/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff
+new file mode 100644
+index 0000000..323bc97
+--- /dev/null
++++ b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff
+@@ -0,0 +1,62 @@
++diff --git a/AEPMessaging/Sources/Messaging+PublicAPI.swift b/AEPMessaging/Sources/Messaging+PublicAPI.swift
++index 296f133..1073f5a 100644
++--- a/AEPMessaging/Sources/Messaging+PublicAPI.swift
+++++ b/AEPMessaging/Sources/Messaging+PublicAPI.swift
++@@ -136,14 +136,26 @@ import UserNotifications
++         MobileCore.dispatch(event: event)
++     }
++ 
++-    /// Retrieves the previously fetched (and cached) feeds content from the SDK for the provided surfaces.
++-    /// If the feeds content for one or more surfaces isn't previously cached in the SDK, it will not be retrieved from Adobe Journey Optimizer via the Experience Edge network.
+++    /// Dispatches an event to fetch propositions for the provided surfaces from remote.
+++    /// The completion handler is called once the Edge response has been fully processed.
++     /// - Parameters:
++     ///   - surfaces: An array of `Surface` objects.
++-    ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Proposition objects.
++-    static func getPropositionsForSurfaces(_ surfaces: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
++-        let validSurfaces = surfaces
++-            .filter { $0.isValid }
+++    ///   - completionHandler: Called with `true` if the network response was returned and successfully processed; `false` on failure or invalid surfaces.
+++    @objc(updatePropositionsForSurfacesWithCompletionHandler:completionHandler:)
+++    static func updatePropositionsForSurfacesWithCompletionHandler(_ surfaces: [Surface],
+++                                                                   completionHandler: @escaping (Bool) -> Void) {
+++        updatePropositionsForSurfaces(surfaces, completionHandler)
+++    }
+++
+++    /// Retrieves propositions for the provided surfaces from the SDK's in-memory cache.
+++    /// Both boot-hydrated disk cards and live network cards are included. Use `proposition.cardOrigin`
+++    /// to distinguish them for tracking purposes.
+++    /// - Parameters:
+++    ///   - surfaces: An array of `Surface` objects.
+++    ///   - completion: The completion handler invoked with propositions keyed by surface.
+++    static func getPropositionsForSurfaces(_ surfaces: [Surface],
+++                                         _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
+++        let validSurfaces = surfaces.filter { $0.isValid }
++ 
++         guard !validSurfaces.isEmpty else {
++             Log.warning(label: MessagingConstants.LOG_TAG,
++@@ -178,10 +190,23 @@ import UserNotifications
++                 return
++             }
++ 
++-            completion(propositions.toDictionary { Surface(uri: $0.scope) }, .none)
+++            completion(propositions.toDictionary { Surface(uri: $0.scope) }, nil)
++         }
++     }
++ 
+++    /// Clears cached content card propositions — both the in-memory state (qualified cards,
+++    /// content card rules, and origin tracking) and the persisted disk cache.
+++    ///
+++    /// Code-based experience (CBE) propositions are not affected by this call.
+++    @objc(clearCachedPropositions)
+++    static func clearCachedPropositions() {
+++        let event = Event(name: MessagingConstants.Event.Name.CLEAR_PERSISTED_PROPOSITIONS,
+++                          type: EventType.messaging,
+++                          source: EventSource.requestContent,
+++                          data: [MessagingConstants.Event.Data.Key.CLEAR_PERSISTED_PROPOSITIONS: true])
+++        MobileCore.dispatch(event: event)
+++    }
+++
++     // MARK: - Private Helper Methods
++ 
++     /// Determines whether the user's response to a notification has caused the application to open
+\ No newline at end of file

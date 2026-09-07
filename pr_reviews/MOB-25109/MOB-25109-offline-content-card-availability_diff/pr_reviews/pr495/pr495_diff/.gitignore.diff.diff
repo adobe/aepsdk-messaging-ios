@@ -1,0 +1,21 @@
+diff --git a/pr_reviews/pr495/pr495_diff/.gitignore.diff b/pr_reviews/pr495/pr495_diff/.gitignore.diff
+new file mode 100644
+index 0000000..ce2da15
+--- /dev/null
++++ b/pr_reviews/pr495/pr495_diff/.gitignore.diff
+@@ -0,0 +1,14 @@
++diff --git a/.gitignore b/.gitignore
++index ea939a5..049ba34 100644
++--- a/.gitignore
+++++ b/.gitignore
++@@ -98,4 +98,6 @@ Pods/
++ .vscode/
++ 
++ # Claude Code
++-CLAUDE.md
++\ No newline at end of file
+++CLAUDE.md
+++AGENTS.md
+++docs/agents/
++\ No newline at end of file
+\ No newline at end of file

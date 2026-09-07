@@ -1,0 +1,18 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff.diff
+new file mode 100644
+index 0000000..4dc8aef
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff.diff
+@@ -0,0 +1,11 @@
++diff --git a/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff b/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff
++new file mode 100644
++index 0000000..a9856ac
++--- /dev/null
+++++ b/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff
++@@ -0,0 +1,4 @@
+++diff --git a/docs/agents/offline-architecture.png b/docs/agents/offline-architecture.png
+++new file mode 100644
+++index 0000000..984786f
+++Binary files /dev/null and b/docs/agents/offline-architecture.png differ
++\ No newline at end of file
+\ No newline at end of file

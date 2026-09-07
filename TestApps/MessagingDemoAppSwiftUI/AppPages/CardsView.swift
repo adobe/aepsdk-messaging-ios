@@ -54,6 +54,32 @@ private final class EdgeNetworkSimulator: Networking {
                 ? "Recoverable — SDK will retry automatically."
                 : "Non-recoverable — SDK drops hit, dispatches error event."
         }
+
+        /// Encodes the simulation into a plain dictionary for UserDefaults persistence.
+        var persistedDictionary: [String: Any] {
+            switch self {
+            case .httpStatus(let code, let body):
+                var d: [String: Any] = ["type": "httpStatus", "code": code]
+                if let body { d["body"] = body }
+                return d
+            case .urlError(let e):
+                return ["type": "urlError", "code": e.code.rawValue]
+            }
+        }
+
+        /// Reconstructs a `Simulation` from a dictionary previously written by `persistedDictionary`.
+        static func from(dictionary d: [String: Any]) -> Simulation? {
+            switch d["type"] as? String {
+            case "httpStatus":
+                guard let code = d["code"] as? Int else { return nil }
+                return .httpStatus(code, body: d["body"] as? String)
+            case "urlError":
+                guard let raw = d["code"] as? Int else { return nil }
+                return .urlError(URLError(URLError.Code(rawValue: raw)))
+            default:
+                return nil
+            }
+        }
     }
 
     // Singleton: install once, configure/clear as needed.
@@ -101,7 +127,11 @@ private final class EdgeNetworkSimulator: Networking {
 
 struct CardsView: View, ContentCardUIEventListening {
 
+    /// UserDefaults key under which the armed error simulation is persisted across app kills.
+    private static let persistedSimKey = "cardsview.errorSimulation"
+
     let cardsSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
+    let cctest = Surface(path: Constants.SurfaceName.cc_test)
     @State var savedCards: [ContentCardUI] = []
     @State private var viewLoaded: Bool = false
     @State private var showLoadingIndicator: Bool = false
@@ -187,6 +217,8 @@ struct CardsView: View, ContentCardUIEventListening {
                 viewLoaded = true
             }
             refreshOfflineFlag()
+            // Re-arm any error simulation that was active when the app was last killed.
+            restorePersistedSimIfNeeded()
         }
     }
 
@@ -217,6 +249,21 @@ struct CardsView: View, ContentCardUIEventListening {
                 }
                 actionButton(title: "Get prop (cardsSurface)", systemImage: "arrow.clockwise.circle.fill") {
                     getPropCardsSurface()
+                }
+            }
+            // Per-surface controls — cctest
+            HStack(spacing: 10) {
+                actionButton(title: "Update prop (cctest)", systemImage: "arrow.down.square.fill") {
+                    updatePropCCTest()
+                }
+                actionButton(title: "Get prop (cctest)", systemImage: "arrow.clockwise.square.fill") {
+                    getPropCCTest()
+                }
+            }
+            // Combined fetch — both surfaces at once
+            HStack(spacing: 10) {
+                actionButton(title: "Get prop (both surfaces)", systemImage: "square.stack.3d.up.fill") {
+                    getPropBothSurfaces()
                 }
             }
             // Offline available config toggle row
@@ -472,12 +519,28 @@ struct CardsView: View, ContentCardUIEventListening {
                 statusMessage = "⚡ Intercepted! Returned \(intercepted.label). \(intercepted.behaviorNote)"
             }
         }
+        // Persist so the simulation survives an app kill and is re-armed on next launch.
+        UserDefaults.standard.set(["label": label, "sim": sim.persistedDictionary],
+                                  forKey: Self.persistedSimKey)
     }
 
     private func restoreRealNetwork() {
         EdgeNetworkSimulator.install().clear()
         activeSimLabel = nil
         statusMessage = "Real network restored. Next download goes to the live Edge Network."
+        UserDefaults.standard.removeObject(forKey: Self.persistedSimKey)
+    }
+
+    /// Re-arms any error simulation that was active when the app was last killed.
+    /// Called from `.onAppear` so the UI badge and EdgeNetworkSimulator stay consistent.
+    private func restorePersistedSimIfNeeded() {
+        guard
+            let stored = UserDefaults.standard.dictionary(forKey: Self.persistedSimKey),
+            let label = stored["label"] as? String,
+            let simDict = stored["sim"] as? [String: Any],
+            let sim = EdgeNetworkSimulator.Simulation.from(dictionary: simDict)
+        else { return }
+        activateSim(sim, label: label)
     }
 
     // MARK: - SDK Actions
@@ -570,6 +633,75 @@ struct CardsView: View, ContentCardUIEventListening {
         }
     }
 
+    /// Calls `updatePropositionsForSurfaces` for `cctest` only (no fetch).
+    func updatePropCCTest() {
+        statusMessage = "Updating propositions for cctest…"
+        Messaging.updatePropositionsForSurfaces([cctest]) { success in
+            DispatchQueue.main.async {
+                statusMessage = success
+                    ? "updatePropositionsForSurfaces succeeded for cctest"
+                    : "updatePropositionsForSurfaces failed for cctest"
+            }
+        }
+    }
+
+    /// Calls `getContentCardsUI` for `cctest` only and loads the results into `savedCards`.
+    func getPropCCTest() {
+        showLoadingIndicator = true
+        statusMessage = "Fetching content cards for cctest…"
+        Messaging.getContentCardsUI(for: cctest,
+                                    customizer: CardCustomizer(),
+                                    listener: self) { result in
+            DispatchQueue.main.async {
+                showLoadingIndicator = false
+                handleResult(result, source: "cctest")
+            }
+        }
+    }
+
+    /// Calls `getContentCardsUI` for BOTH `cardsSurface` and `cctest`, merging the results into
+    /// `savedCards`. `getContentCardsUI` is single-surface, so each is fetched independently and the
+    /// callbacks are joined with a `DispatchGroup`; all mutation happens on the main queue to avoid races.
+    func getPropBothSurfaces() {
+        showLoadingIndicator = true
+        statusMessage = "Fetching content cards for cardsSurface + cctest…"
+
+        let group = DispatchGroup()
+        var combined: [ContentCardUI] = []
+        var errors: [String] = []
+
+        for (surface, name) in [(cardsSurface, "cardsSurface"), (cctest, "cctest")] {
+            group.enter()
+            Messaging.getContentCardsUI(for: surface,
+                                        customizer: CardCustomizer(),
+                                        listener: self) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let cards):
+                        combined.append(contentsOf: cards)
+                    case .failure(let error):
+                        errors.append("\(name): \(error.localizedDescription)")
+                    }
+                    group.leave()
+                }
+            }
+        }
+
+        group.notify(queue: .main) {
+            showLoadingIndicator = false
+            if combined.isEmpty {
+                savedCards = []
+                statusMessage = errors.isEmpty
+                    ? "No cards found (both surfaces)"
+                    : "Fetch failed (both): \(errors.joined(separator: "; "))"
+            } else {
+                savedCards = combined.sorted { $0.priority > $1.priority }
+                let errorNote = errors.isEmpty ? "" : " (errors: \(errors.joined(separator: "; ")))"
+                statusMessage = "Loaded \(combined.count) card(s) from both surfaces\(errorNote)"
+            }
+        }
+    }
+
     func logPropositions() {
         statusMessage = "Calling getPropositionsForSurfaces..."
         Messaging.getPropositionsForSurfaces([ cardsSurface]) { propositionDict, error in
@@ -639,17 +771,39 @@ struct CardsView: View, ContentCardUIEventListening {
     // MARK: - ContentCardUIEventListening
 
     func onDisplay(_ card: ContentCardUI) {
+        print("TestAppLog : ──────────────────────────────────")
         print("TestAppLog : ContentCard Displayed")
+        logCard(card)
     }
 
     func onDismiss(_ card: ContentCardUI) {
+        print("TestAppLog : ──────────────────────────────────")
         print("TestAppLog : ContentCard Dismissed")
+        logCard(card)
         savedCards.removeAll(where: { $0.id == card.id })
     }
 
     func onInteract(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool {
-        print("TestAppLog : ContentCard Interacted : Interaction - \(interactionId)")
+        print("TestAppLog : ──────────────────────────────────")
+        print("TestAppLog : ContentCard Interacted")
+        print("TestAppLog :   interactionId = \(interactionId)")
+        print("TestAppLog :   actionURL     = \(actionURL?.absoluteString ?? "nil")")
+        logCard(card)
         return false
+    }
+
+    /// Dumps every publicly accessible field on a `ContentCardUI` as a single dictionary log.
+    private func logCard(_ card: ContentCardUI) {
+        var info: [String: Any] = [
+            "priority":    card.priority,
+            "isRead":      card.isRead,
+            "contentType": "\(card.schemaData.contentType)",
+            "content":     card.schemaData.content
+        ]
+        if let meta = card.meta, !meta.isEmpty         { info["meta"]          = meta }
+        if let pub = card.schemaData.publishedDate     { info["publishedDate"] = pub }
+        if let exp = card.schemaData.expiryDate        { info["expiryDate"]    = exp }
+        print("TestAppLog : card = \(info)")
     }
 }
 

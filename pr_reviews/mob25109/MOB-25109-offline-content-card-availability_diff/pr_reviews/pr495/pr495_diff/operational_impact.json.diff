@@ -1,0 +1,91 @@
+diff --git a/pr_reviews/pr495/pr495_diff/operational_impact.json b/pr_reviews/pr495/pr495_diff/operational_impact.json
+new file mode 100644
+index 0000000..ed68068
+--- /dev/null
++++ b/pr_reviews/pr495/pr495_diff/operational_impact.json
+@@ -0,0 +1,84 @@
++{
++  "generated_at": "2026-07-28T04:24:16.110097Z",
++  "pr_number": "495",
++  "pr_title": "Mob 25109/offline content card availability",
++  "policy": {
++    "observability_map_path": "/Users/namarora/.agentic-automations/policy/observability_map.yaml",
++    "live_checks_enabled": true
++  },
++  "summary": {
++    "risk_level": "low",
++    "files_changed": 43,
++    "code_files_changed": 0,
++    "obs_config_files_changed": 0,
++    "metrics_added_count": 0,
++    "metrics_removed_count": 0,
++    "matched_services_count": 0,
++    "linked_assets_count": 0,
++    "verified_missing_assets": 0,
++    "verification_errors": 0
++  },
++  "changed_paths": [
++    "AEPMessaging.xcodeproj/project.pbxproj",
++    "AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
++    "AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift",
++    "AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift",
++    "AEPMessaging/Sources/Messaging+PublicAPI.swift",
++    "AEPMessaging/Sources/Messaging.swift",
++    "AEPMessaging/Sources/MessagingConstants.swift",
++    "AEPMessaging/Sources/ParsedPropositions.swift",
++    "AEPMessaging/Sources/Proposition.swift",
++    "AEPMessaging/Sources/UI/Inbox/InboxUI.swift",
++    "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift",
++    "AEPMessaging/Tests/TestHelpers/MockCache.swift",
++    "AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift",
++    "AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift",
++    "AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift",
++    "AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift",
++    "AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift",
++    "AEPMessaging/Tests/UnitTests/MessagingTests.swift",
++    "AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift",
++    "AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift",
++    "AGENTS.md",
++    "Podfile",
++    "Podfile.lock",
++    "TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift",
++    "TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift",
++    "TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift",
++    "TestApps/MessagingDemoAppSwiftUI/Constants.swift",
++    "docs/agents/card-origin-flag-scenarios.md",
++    "docs/agents/content-card-offline-implementation.md",
++    "docs/agents/content-card-offline-known-gaps.md",
++    "docs/agents/inbox-cbe-offline-handoff.md",
++    "docs/agents/network-availability-layer.md",
++    "docs/agents/offline-architecture.mmd",
++    "docs/agents/offline-architecture.png",
++    "docs/agents/persistence-write-path-and-errors.md",
++    "docs/agents/wiki-comment-pm-qa.html",
++    "docs/agents/wiki-comment-pm-timeout-full.html",
++    "docs/agents/wiki-comment-timeout-scenarios.html",
++    "docs/agents/wiki-prd-update.html",
++    "docs/agents/wiki-section-5.5-pros-cons.html",
++    "docs/agents/wiki-section-6.1-timeout-clarity.html",
++    "docs/agents/wiki-section-6.6-assurance-analytics-timeout.html",
++    "docs/agents/write-read-clear-flow.md"
++  ],
++  "matched_services": [],
++  "signals": {
++    "logger_calls": 26,
++    "exception_paths": 3,
++    "api_routes": 0,
++    "metrics_added": [],
++    "metrics_removed": []
++  },
++  "assets": [],
++  "drift_findings": [],
++  "checklist": {
++    "dashboards_linked": false,
++    "alerts_linked": false,
++    "prometheus_linked": false,
++    "slos_linked": false,
++    "runbooks_linked": false,
++    "drift_clear": true
++  }
++}
+\ No newline at end of file

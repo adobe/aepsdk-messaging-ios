@@ -1,0 +1,73 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff.diff
+new file mode 100644
+index 0000000..0859d04
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff.diff
+@@ -0,0 +1,66 @@
++diff --git a/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff
++new file mode 100644
++index 0000000..45172e8
++--- /dev/null
+++++ b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff
++@@ -0,0 +1,59 @@
+++diff --git a/AEPMessaging/Sources/ParsedPropositions.swift b/AEPMessaging/Sources/ParsedPropositions.swift
+++index 589ab5b..8813346 100644
+++--- a/AEPMessaging/Sources/ParsedPropositions.swift
++++++ b/AEPMessaging/Sources/ParsedPropositions.swift
+++@@ -22,16 +22,21 @@ struct ParsedPropositions {
+++     // store tracking information for propositions loaded into rules engines
+++     var propositionInfoToCache: [String: PropositionInfo] = [:]
+++ 
+++-    // non-in-app propositions should be cached and not persisted
++++    // non-in-app propositions cached in memory for current session
+++     var propositionsToCache: [Surface: [Proposition]] = [:]
+++ 
+++-    // inbox propositions (container-item) should be cached in memory only
++++    // inbox propositions (container-item) cached in memory for current session
+++     var inboxPropositionsToCache: [Surface: [Proposition]] = [:]
+++ 
+++-    // in-app propositions don't need to stay in cache, but must be persisted
+++-    // also need to store tracking info for in-app propositions as `PropositionInfo`
++++    // in-app propositions persisted to disk (separate from in-memory CBE cache)
+++     var propositionsToPersist: [Surface: [Proposition]] = [:]
+++ 
++++    // content card ruleset propositions persisted to disk (separate from IAM)
++++    var contentCardPropositionsToPersist: [Surface: [Proposition]] = [:]
++++
++++    // inbox propositions persisted to disk for offline availability
++++    var inboxPropositionsToPersist: [Surface: [Proposition]] = [:]
++++
+++     // in-app and feed rules that need to be applied to their respective rules engines
+++     var surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]] = [:]
+++ 
+++@@ -86,6 +91,11 @@ struct ParsedPropositions {
+++                             mergeRules(parsedRule, for: surface, with: .inapp)
+++                         case .feed, .contentCard:
+++                             propositionInfoToCache[consequence.id] = PropositionInfo.fromProposition(proposition)
++++                            // TODO: gate on shared-state-driven config once available; hardcoded true for now
++++                            // so all content cards are persisted to disk for offline availability.
++++                            if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED {
++++                                contentCardPropositionsToPersist.add(proposition, forKey: surface)
++++                            }
+++                             mergeRules(parsedRule, for: surface, with: .contentCard)
+++                         case .eventHistoryOperation:
+++                             // Event history operations don't have proposition info that needs to be cached unlike the cards they are tied to
+++@@ -104,9 +114,15 @@ struct ParsedPropositions {
+++                 case .jsonContent, .htmlContent, .defaultContent:
+++                     propositionsToCache.add(proposition, forKey: surface)
+++                 // - handle container-item schemas for inbox
+++-                //   a. container-item schemas are cached in memory only
++++                //   a. inbox schemas are always cached in-memory for the current session
++++                //   b. when the proposition declares offline availability, also persisted to disk
+++                 case .inbox:
+++                     inboxPropositionsToCache.add(proposition, forKey: surface)
++++                    // TODO: gate on shared-state-driven config once available; hardcoded true for now
++++                    // so all inbox container-items are persisted to disk for offline availability.
++++                    if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED {
++++                        inboxPropositionsToPersist.add(proposition, forKey: surface)
++++                    }
+++                 case .unknown:
+++                     continue
+++                 default:
++\ No newline at end of file
+\ No newline at end of file

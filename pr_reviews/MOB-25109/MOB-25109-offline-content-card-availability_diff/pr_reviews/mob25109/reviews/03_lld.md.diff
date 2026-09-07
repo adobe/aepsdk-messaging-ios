@@ -1,0 +1,378 @@
+diff --git a/pr_reviews/mob25109/reviews/03_lld.md b/pr_reviews/mob25109/reviews/03_lld.md
+new file mode 100644
+index 0000000..26ed178
+--- /dev/null
++++ b/pr_reviews/mob25109/reviews/03_lld.md
+@@ -0,0 +1,372 @@
++# LLD Review: MOB-25109/offline-content-card-availability
++
++## Summary
++
++Two non-functional stubs (network gate always returns true; `inMemoryContentCardPropositions` written but never read), one documentation/implementation contract inversion on the feature flag default, one known but unresolved completion handler correctness bug, and several medium-severity design inconsistencies in the new offline CC state management layer.
++
++---
++
++## Design Issues
++
++### CRITICAL: `isNetworkAvailable()` is a hardcoded stub — network gating is entirely non-functional
++
++**Files:**
++- `AEPMessaging/Sources/Messaging.swift:297-301`
++- `AEPMessaging/Sources/Messaging.swift:412-416` (guard in `handleProcessEvent`)
++- `AEPMessaging/Sources/Messaging.swift:1035-1041` (guard in `fetchPropositions`)
++
++**Problem:**
++```swift
++private func isNetworkAvailable() -> Bool {
++    // TODO: wire up to a real reachability signal ...
++    // Hardcoded `true` for now so the network gate never blocks update/fetch requests.
++    return true
++}
++```
++The PR introduces two `guard isNetworkAvailable() else { ... }` call sites — one in `handleProcessEvent` for `updatePropositions` events, one in `fetchPropositions`. Both are dead guards. They never fire. The network-availability gating that the feature is named after does not exist.
++
++**Why it matters:** The offline CC strategy depends on distinguishing "network available" from "network unavailable" to decide whether to short-circuit an Edge request and serve from disk. Shipping a stub that always returns `true` means no short-circuit ever happens. The disk-read paths (`usePersistedContentCards`, boot hydration) still work, but the automatic fallback to disk when offline — implied by the feature name — is not wired up. Callers who call `updatePropositionsForSurfaces` on a device with no network will wait for an Edge timeout rather than failing fast.
++
++**Extensibility blast radius:** Adding real network reachability tomorrow touches:
++- `Messaging.swift` — replace stub body (1 file)
++- Potentially an injection point if the function needs to be mockable in tests (1 more file)
++
++VERDICT: 2 files need changes = GOOD EXTENSIBILITY once the stub is replaced, but the current design ships a feature that does not function.
++
++**Fix:**
++```swift
++private func isNetworkAvailable() -> Bool {
++    return SystemInfoService().isNetworkAvailable  // or MobileCore.isNetworkAvailable() once exposed
++}
++```
++If the real signal is not yet available in AEPCore, this guard block should not be merged: the guards are misleading dead code, not a safe no-op forward stub.
++
++**Confidence:** 1.0 — the implementation is literally `return true`.
++
++**Caveats:** None. The code is explicit.
++
++**Challenge:** One could argue the disk-serve paths work fine without it and the stub is a forward scaffold. Counter: scaffolds that silently disable feature-critical logic are worse than not having the scaffold — they pass tests, give no observable signal, and mislead reviewers.
++
++---
++
++### CRITICAL: `inMemoryContentCardPropositions` is dead state — written on every network response, never read
++
++**Files:**
++- `AEPMessaging/Sources/Messaging.swift:158-161` (declaration + misleading doc comment)
++- `AEPMessaging/Sources/Messaging+State.swift:67-88` (`updateContentCardPropositions` — only write site)
++- `AEPMessaging/Sources/Messaging.swift:707` (`clearContentCards` — only clear site)
++- `AEPMessaging/Sources/Messaging.swift:1386` (doc comment: "this function never reads from `inMemoryContentCardPropositions`")
++
++**Problem:**
++The variable declaration states:
++> "Engine hydration reads from here rather than re-reading disk on every call."
++
++This is false. Every hydration path explicitly bypasses this variable:
++- `hydrateContentCardRulesEngineFromDisk` reads `cache.contentCardPropositions` directly.
++- `hydrateContentCardPropositionsRulesEngine` doc comment explicitly says "this function never reads from `inMemoryContentCardPropositions`."
++- `retrieveMessages` reads from `qualifiedContentCardsBySurface` (already evaluated), not from raw propositions.
++- The commented-out optimization at line 1286 (`// if !inMemoryContentCardPropositions.isEmpty {`) is the only place it was intended to be read, but is disabled.
++
++Every live network CC response executes two dictionary writes and one origin-map update into this variable for zero observable effect.
++
++**Why it matters:**
++1. Memory: every CC ruleset proposition from every live fetch is accumulated in this dictionary for the lifetime of the session with no consumption. On a device with many surfaces, this is unbounded growth.
++2. Correctness risk: the false doc comment will cause future maintainers to believe this dict is the source of truth for network CC propositions. Code that reads it expecting live network data would silently return stale or empty data.
++3. Abstraction clarity: the distinction between `inMemoryContentCardPropositions` (raw, never evaluated) and `qualifiedContentCardsBySurface` (evaluated, the actual read path) is not represented in the type system — it is only in comments, and those comments are currently wrong.
++
++**Fix:**
++Either complete the intended optimization (use `inMemoryContentCardPropositions` as the source for re-hydration so boot-path disk reads are skipped on subsequent `getContentCardsUI` calls), or remove the variable entirely. Do not ship dead state with a false documentation contract.
++
++If keeping for future use, mark it explicitly: rename to `_pendingNetworkContentCardPropositions` and add a `// TODO(PLATIR-XXXXX): not yet consumed` comment rather than a doc comment claiming it IS consumed.
++
++**Confidence:** 1.0 — confirmed by exhaustive grep across all source files.
++
++**Caveats:** Test files may read it; did not audit test helpers.
++
++**Challenge:** Could argue this is forward scaffolding for a future optimization. Counter: the doc comment actively misrepresents the current behavior, which is worse than no comment.
++
++---
++
++### HIGH: `isContentCardOfflineAvailable` defaults to `false` but comment documents it as "defaults to `true`"
++
++**Files:**
++- `AEPMessaging/Sources/Messaging.swift:303-311`
++
++**Problem:**
++```swift
++/// Defaults to `true` when the key is absent (backwards-compatible: offline availability is on
++/// unless the operator explicitly disables it). Pass `event: nil` to read the latest state.
++private func isContentCardOfflineAvailable(for event: Event? = nil) -> Bool {
++    let config = getSharedState(extensionName: ..., event: event)
++    let value = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? false
++    ...
++    return value
++}
++```
++
++The documented behavior is `?? true`; the implementation is `?? false`. When the `messaging.contentCardOfflineAvailable` key is absent from the remote configuration (which is the default state for any operator that has not explicitly opted in), the feature is disabled — CC propositions are NOT persisted to disk, and `usePersistedContentCards: true` calls return empty.
++
++**Why it matters:** The AGENTS.md and PR description both describe this feature as automatically available. The contract inversion means:
++- Boot-time disk hydration still runs (it's unconditional) — but there is nothing on disk to hydrate because no writes ever happened.
++- `updateContentCardPropositions` disk write is skipped for every session until the operator configures the key.
++- `usePersistedContentCards: true` in `retrieveMessages` will return empty arrays and log "contentCardOfflineAvailable is false — returning empty."
++
++Operators testing the feature without the config key will observe silent non-function with no error.
++
++**Fix:**
++```swift
++let value = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE] as? Bool ?? true
++```
++Or, if the intent is `?? false`, update the doc comment to match and document the operator opt-in requirement clearly.
++
++**Confidence:** 1.0 — the mismatch is literal.
++
++**Caveats:** The intent may actually be `false` (opt-in model), in which case the doc comment is the bug. Either way one of them is wrong.
++
++**Challenge:** Could argue `false` default is intentional (explicit operator opt-in). Counter: the doc comment says the opposite, and the AGENTS.md summary table does not describe an opt-in gate.
++
++---
++
++### HIGH: Completion handler unconditionally reports `true` even after non-recoverable Edge errors
++
++**Files:**
++- `AEPMessaging/Sources/Messaging.swift:1222-1247` (`endRequestFor`)
++
++**Problem:**
++```swift
++private func endRequestFor(eventId: String) {
++    // KNOWN ISSUE: ... `handler.handle?(true)` ... still unconditionally reports success.
++    // A caller ... cannot currently distinguish this case from a genuine success.
++    applyPropositionChangeFor(eventId: eventId)
++    requestedSurfacesForEventId.removeValue(forKey: eventId)
++    nonRecoverableErrorEventIds.remove(eventId)   // clears the failure record
++    ...
++    if let handler = completionHandlerFor(edgeRequestEventId: UUID(uuidString: eventId)) {
++        handler.handle?(true)                      // always true
++    }
++}
++```
++
++The code's own comment identifies this as a known bug and even prescribes the fix (`capture nonRecoverableErrorEventIds.contains(eventId) before it's cleared`). The information needed to pass `false` is available inside `applyPropositionChangeFor` via `requestFailed`, but it is not surfaced back to `endRequestFor`.
++
++**Why it matters:** Any caller using `updatePropositionsForSurfacesWithCompletionHandler` to decide whether to fall back to `usePersistedContentCards: true` (a primary use case for this feature) cannot distinguish a real success from a failed network request. The completion handler is the only signal available to callers.
++
++**Fix:** The comment already has the fix. Capture the flag before clearing:
++```swift
++let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
++applyPropositionChangeFor(eventId: eventId)
++requestedSurfacesForEventId.removeValue(forKey: eventId)
++nonRecoverableErrorEventIds.remove(eventId)
++inProgressPropositions.removeAll()
++if let handler = completionHandlerFor(edgeRequestEventId: UUID(uuidString: eventId)) {
++    handler.handle?(!requestFailed)
++}
++```
++
++**Confidence:** 1.0 — the bug is self-documented in the code.
++
++**Caveats:** Changing `handler.handle?(true)` to `handler.handle?(!requestFailed)` is a behavior change that could break callers relying on the current always-success contract. Requires a targeted call site audit.
++
++**Challenge:** The code comment says this is known and deferred. Counter: deferring a known-wrong completion handler in the same PR that introduces the completion-handler-driven fallback pattern defeats the purpose of the pattern.
++
++---
++
++### HIGH: `clearPersistedContentCardPropositions()` in disabled-feature branch ignores `requestFailed` — can wipe valid state on network failure
++
++**Files:**
++- `AEPMessaging/Sources/Messaging.swift:1281-1290` (inside `applyPropositionChangeFor`)
++
++**Problem:**
++```swift
++let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
++// ...
++let surfacesToRemove = requestFailed ? [] : requestedSurfaces.minus(returnedSurfaces)
++
++if ccOfflineAvailable {
++    ccWriteOK = cache.updateContentCardPropositions(...)
++} else {
++    clearPersistedContentCardPropositions()   // ← runs regardless of requestFailed
++    ccWriteOK = true
++}
++```
++
++When `ccOfflineAvailable = false` AND `requestFailed = true`:
++- `surfacesToRemove` is correctly set to `[]` (don't evict on failure).
++- `clearPersistedContentCardPropositions()` runs unconditionally, wiping `qualifiedContentCardsBySurface`, `contentCardRulesBySurface`, `contentCardOriginByProposition`, `inMemoryContentCardPropositions`, and the CC rules engine.
++
++The carefully computed `requestFailed` guard is entirely bypassed in the disabled-feature branch. A non-recoverable Edge error on a device where the config key is absent (or explicitly false) will silently destroy any previously qualified CC state.
++
++**Why it matters:** Even with the feature disabled, CC cards are still qualified in memory via live network responses. Destroying them on a network error, when the intent is clearly "preserve on failure," is a logic inconsistency that will be hard to diagnose in production (no observable error, cards just disappear).
++
++**Fix:**
++```swift
++} else {
++    if !requestFailed {
++        clearPersistedContentCardPropositions()
++    }
++    ccWriteOK = true
++}
++```
++
++**Confidence:** 0.95 — the `requestFailed` bypass is clear. A small residual uncertainty: whether the intent was truly to always-clear when the feature is disabled (treating disabled as "never cache" regardless of request outcome).
++
++**Caveats:** If the design intent is "feature disabled = always-clear on every response regardless of failure", that intent should be documented explicitly and the `requestFailed` variable should be named differently to signal it doesn't apply here.
++
++**Challenge:** Could argue "feature disabled means never maintain CC state at all." Counter: `requestFailed` is specifically designed to preserve state when network fails, and that intent should apply whether or not the feature flag is on.
++
++---
++
++### MEDIUM: Duplicate dead debug variables in `readyForEvent` — `ccOfflineKeyPresent` declared twice
++
++**Files:**
++- `AEPMessaging/Sources/Messaging.swift:371-377`
++
++**Problem:**
++```swift
++// Line 371-372 (outside the if block):
++let ccOfflineKeyPresent = configurationSharedState.value?[...] != nil
++Log.debug(... "readyForEvent — key '...' PRESENT/ABSENT in config shared state")
++
++if !initialLoadComplete {
++    // Line 376-377 (inside the if block, duplicate):
++    let ccOfflineKeyPresent = configurationSharedState.value?[...] != nil
++    Log.debug(... "initial code — key '...' PRESENT/ABSENT in config shared state")
++    ...
++    hydrateAllPersistedContentCards()   // unconditional regardless of flag
++    fetchPropositions(event)
++}
++```
++
++`ccOfflineKeyPresent` is computed twice and neither instance gates any logic. The boot hydration runs unconditionally. This is leftover debug instrumentation that was not removed before review.
++
++**Why it matters:** Every `readyForEvent` call (including ones that return early after the first `!initialLoadComplete` block) unnecessarily reads the configuration shared state dictionary. The duplicate declaration will produce a Swift compiler warning ("immutable value 'ccOfflineKeyPresent' was never used" — in some compiler configurations).
++
++**Fix:** Remove both declarations and their associated `Log.debug` calls. The comment on line 381 ("Always hydrate from disk at boot...") is sufficient documentation.
++
++**Confidence:** 1.0 — the variables are clearly unused.
++
++**Challenge:** None — dead code.
++
++---
++
++### MEDIUM: `hydrateContentCardPropositionsRulesEngine` directly assigns `qualifiedContentCardsBySurface`, bypassing the `addOrReplaceContentCards` managed write path
++
++**Files:**
++- `AEPMessaging/Sources/Messaging.swift:1413-1428`
++
++**Problem:**
++```swift
++// Line 1414-1415 comment:
++// Writing directly (not via addOrReplaceContentCards) avoids sending spurious .trigger analytics events
++// for boot-seeded disk cards.
++for (surface, propositions) in diskQualified where surfaces.contains(surface) {
++    qualifiedContentCardsBySurface[surface] = propositions   // direct assignment
++    ...
++}
++```
++
++`addOrReplaceContentCards` at line 894 does three things: (1) deduplicates propositions, (2) sends `.trigger` XDM events for new qualifications, (3) logs count changes. The disk-hydration path correctly skips step (2) (the rationale is sound — no trigger events on cold start). But by bypassing the function entirely, it also skips step (1) deduplication.
++
++**Why it matters:**
++1. If `qualifiedContentCardsBySurface` already has entries for a surface (e.g. a prior live response came in during the same session before hydration completed), the direct assignment overwrites them rather than merging. This scenario is unlikely at boot but the code does not guard against it.
++2. Any future logic added to `addOrReplaceContentCards` (e.g. freshness checks, dedup, metrics emission other than `.trigger`) will silently not apply to disk-seeded cards. There are now two write paths to `qualifiedContentCardsBySurface` with different invariants.
++
++**Fix:**
++Introduce a parameter to `addOrReplaceContentCards` that suppresses `.trigger` dispatch:
++```swift
++private func addOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface,
++                                      sendTriggerEvents: Bool = true) { ... }
++```
++This keeps a single write path while enabling the disk-seed behavior. Alternatively, extract the deduplication logic into a shared helper so both paths use it.
++
++**Extensibility blast radius — adding a new write path to `qualifiedContentCardsBySurface`:**
++- `Messaging.swift:addOrReplaceContentCards` — add parameter
++- `Messaging.swift:hydrateContentCardPropositionsRulesEngine` — update call site
++- `Messaging.swift:removeOrReplaceContentCards` — check if similar parameter needed
++
++VERDICT: 3 files = MANAGEABLE, but only if done proactively. Without consolidation, each new feature that needs custom write semantics adds another bypass.
++
++**Confidence:** 0.8 — the dedup bypass is real but the practical impact at boot (overwrite race) is low probability. The future-maintainability argument is the stronger concern.
++
++**Challenge:** Could argue the boot-hydration write path is a one-off case that doesn't warrant the abstraction. Counter: the same bypass reasoning ("avoid X side effect") will recur whenever new side effects are added to `addOrReplaceContentCards`, compounding over time.
++
++---
++
++### MEDIUM: `contentCardOfflineAvailable: true` hardcoded in disk-hydration path needlessly populates `contentCardPropositionsToPersist`
++
++**Files:**
++- `AEPMessaging/Sources/Messaging.swift:1395-1396`
++
++**Problem:**
++```swift
++// Inside hydrateContentCardPropositionsRulesEngine, which is called ONLY during disk hydration:
++let parsedPropositions = ParsedPropositions(with: filtered, requestedSurfaces: surfaces, runtime: runtime,
++                                            contentCardOfflineAvailable: true)   // hardcoded true
++```
++
++When `contentCardOfflineAvailable: true`, `ParsedPropositions.init` populates `contentCardPropositionsToPersist`. In this call site (disk hydration), only `propositionInfoToCache` and `surfaceRulesBySchemaType` are consumed from `parsedPropositions`. `contentCardPropositionsToPersist` is computed but thrown away.
++
++The `contentCardOfflineAvailable` flag has a single side effect in `ParsedPropositions`: it controls whether `contentCardPropositionsToPersist` is populated. Passing `true` here causes unnecessary allocation of a dictionary that is immediately discarded.
++
++Additionally, the hardcoded `true` here bypasses the operator-controlled config flag. If the operator has disabled CC offline availability, disk hydration still processes as if it were enabled. The disk hydration itself is fine (it's unconditional by design), but the `ParsedPropositions` call's behavior would be unexpected to a reader who sees `contentCardOfflineAvailable: true` and knows the config flag is `false`.
++
++**Fix:**
++```swift
++// In hydrateContentCardPropositionsRulesEngine, only rules and propositionInfo are needed.
++// Pass false so contentCardPropositionsToPersist is not populated (it is not used here).
++let parsedPropositions = ParsedPropositions(with: filtered, requestedSurfaces: surfaces, runtime: runtime,
++                                            contentCardOfflineAvailable: false)
++```
++
++**Confidence:** 0.85 — the unused output is confirmed. The hardcoded `true` vs config-controlled value is a design choice, not an unambiguous bug.
++
++**Challenge:** The hardcoded `true` could be intentional to ensure `PropositionInfo` is always cached during hydration regardless of the feature flag. Counter: `propositionInfoToCache` is populated regardless of `contentCardOfflineAvailable` — the flag only controls `contentCardPropositionsToPersist`.
++
++---
++
++## Extensibility Analysis: Adding a New Proposition Type That Needs Offline Persistence
++
++To extend this design to support a new proposition type (e.g., "banners") with offline persistence:
++
++```
++Files that must change:
++  - ParsedPropositions.swift → add a new `bannerPropositionsToPersist` property,
++    add a new `case .banner` branch gated by a new flag
++  - MessagingConstants.swift → add a new Caches key and config key
++  - Cache+Messaging.swift → add `bannerPropositions` getter and `updateBannerPropositions` setter
++    (the `updatePropositionsByKey` helper DRYs out most of the implementation)
++  - Messaging.swift → add `_inMemoryBannerPropositions`, `bannerOriginByProposition` (or extend
++    CardOrigin to cover the new type), update `applyPropositionChangeFor`, `clearContentCards`,
++    and potentially `retrieveMessages`
++  - Messaging+State.swift → add `updateBannerPropositions`
++```
++
++VERDICT: 5+ files need changes = POOR EXTENSIBILITY for new offline proposition types. The `contentCardOfflineAvailable` flag pattern, `inMemoryContentCardPropositions` mirror variable, and `contentCardOriginByProposition` map would each need to be duplicated or generalized. The `Cache+Messaging` layer is well-factored (the private helper DRYs implementation), but the per-type state variables in `Messaging.swift` do not scale.
++
++**Suggested improvement:** A `OfflinePropositionStore` value type that encapsulates (rawPropositions, originMap, persistenceKey, configFlagKey) could replace the 3-4 separate variables per type. New types would be registered rather than requiring parallel code additions across 5 files.
++
++---
++
++## Summary
++- Critical issues: 2
++- High priority: 3
++- Medium priority: 3
++
++**Recommendation:** BLOCK
++
++The two CRITICAL issues mean the feature does not function as designed (network gate is a stub) and carries a misleading data contract (dead state with false documentation). The HIGH-severity completion handler bug is self-documented in the code but unresolved, and the config default inversion means operators who rely on the documented "on by default" behavior will get silent non-function.
++
++## Structured Summary
++
++| Severity | Count | Confidence Range |
++|----------|-------|-----------------|
++| CRITICAL | 2 | 1.0, 1.0 |
++| HIGH | 3 | 0.95–1.0 |
++| MEDIUM | 3 | 0.80–1.0 |
++
++Overall review confidence: **0.93**
++
++Areas not fully assessed:
++- Test coverage for the new `handleEdgeErrorResponse` → `nonRecoverableErrorEventIds` path: did not audit whether the existing test additions cover the `requestFailed = true` branch through to disk/memory preservation.
++- `InboxUI.swift` and `Messaging+UIPublicAPI.swift` changes: the review focused on the four requested diff files; UI-layer design issues in those files were not assessed.
++- Queue reentrance safety of `queue.sync` inside event listeners: this is a pre-existing pattern in `Messaging.swift`; whether it can deadlock under the AEPCore dispatch model was not verified against the AEPCore source.

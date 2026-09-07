@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0.0",
+  "reviewer_id": "devx-pr-review-code",
+  "findings": [
+    {
+      "finding_id": "ui_layer-code-001",
+      "title": "getContentCardsUI's empty-array fallback silently changes the error contract for all callers and breaks two existing integration tests",
+      "severity": "CRITICAL",
+      "confidence": 0.85,
+      "concern_tags": ["invariants_type_boundaries", "runtime_hygiene"],
+      "claim": "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift:61 replaced `guard let propositions = propositionDict?[surface] else { completion(.failure(ContentCardUIError.dataUnavailable)) }` with `let propositions = propositionDict?[surface] ?? []`, so any surface with no matching propositions now returns `.success([])` instead of `.failure(.dataUnavailable)` for BOTH the new and pre-existing overloads. ContentCardUIError.dataUnavailable is now unreachable from Sources/ (grep confirmed) but is still asserted on by AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift:24-33 (noCards) and :47-56 (invalidSurface), both of which will fail after this change.",
+      "why_it_matters": "This is a silent, undocumented public API contract change bundled into a PR framed as purely additive (new optional parameter). Any existing app distinguishing 'no data yet' from 'confirmed empty' via .failure vs .success loses that branch on upgrade even without touching the new flag, and it demonstrably breaks two pre-existing tests.",
+      "suggested_action": "Scope the empty-array fallback to only the cases that need it (e.g. usePersistedContentCards == true with a legitimately empty disk cache), preserve prior .failure(.dataUnavailable) behavior for the default path, or explicitly update GetContentCardUITest.swift and call out the contract change in the PR description. Consider removing/repurposing the now-unreachable dataUnavailable case.",
+      "primary_anchor": {
+        "path": "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift",
+        "line": 61,
+        "side": "RIGHT"
+      },
+      "evidence_refs": [
+        "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift:52-61",
+        "AEPMessaging/Sources/Messaging+PublicAPI.swift:196-213",
+        "AEPMessaging/Sources/UI/ContentCards/ContentCardUIError.swift:19",
+        "AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift:24-33",
+        "AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift:47-56",
+        "AEPMessaging/Tests/IntegrationTests/HelperClasses/IntegrationTestBase.swift:34-35,47-65"
+      ],
+      "caveats": [
+        "GetContentCardUITest.swift and IntegrationTestBase.swift are outside the ui_layer module's file scope (files.md) and were not part of the diff; this was confirmed by direct code reading, not by executing the test suite.",
+        "It is possible the team intends this behavior change and will update the integration tests separately; that intent is not evidenced anywhere in the diff or PR description."
+      ],
+      "challenge": "If persistence_core's getPropositionsForSurfaces never actually returns a dict missing the requested surface's key (e.g. it always includes every requested surface with an empty array when no propositions match), this finding would be moot. Direct reading of Messaging+PublicAPI.swift:212 (`propositions.toDictionary { Surface(uri: $0.scope) }`) shows the dictionary is built only from surfaces present in the *response*, not from all *requested* surfaces, so a surface with zero returned propositions is genuinely absent from the dict — supporting the finding as stated.",
+      "classification": "UNCLASSIFIED",
+      "posting_eligible": true,
+      "requires_verification": true
+    },
+    {
+      "finding_id": "ui_layer-code-002",
+      "title": "The only test in Messaging+UIPublicApiTest.swift does not exercise the new usePersistedContentCards flag, and its own comment is factually wrong",
+      "severity": "HIGH",
+      "confidence": 0.9,
+      "concern_tags": ["runtime_hygiene"],
+      "claim": "AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift:41-62 contains a single test that only asserts GET_PROPOSITIONS is true and never asserts on USE_PERSISTED_CONTENT_CARDS. Its inline comment ('offline hydration is now automatic — no persisted-flag in the event') is incorrect: Messaging+PublicAPI.swift:188 shows the event data does include MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS: usePersistedContentCards. No test in this file calls the usePersistedContentCards: true overload of getContentCardsUI at all.",
+      "why_it_matters": "The one piece of new public API surface this module adds has zero direct assertions in its dedicated test file, and the existing test carries a misleading comment that will confuse future maintainers about whether the flag is even wired through to the event layer.",
+      "suggested_action": "Remove/correct the misleading comment; add an assertion that USE_PERSISTED_CONTENT_CARDS is false for the default-overload test; add a new test invoking getContentCardsUI(for:usePersistedContentCards: true, ...) asserting the event carries USE_PERSISTED_CONTENT_CARDS == true.",
+      "primary_anchor": {
+        "path": "AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift",
+        "line": 47,
+        "side": "RIGHT"
+      },
+      "evidence_refs": [
+        "AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift:41-62",
+        "AEPMessaging/Sources/Messaging+PublicAPI.swift:185-189",
+        "AEPMessaging/Sources/MessagingConstants.swift:126"
+      ],
+      "caveats": [
+        "Did not run the test suite; conclusion is based on static reading of the single test method's body."
+      ],
+      "challenge": "If USE_PERSISTED_CONTENT_CARDS were asserted indirectly elsewhere (e.g. a persistence_core test), the gap would be less severe for this module specifically — but that would not fix the incorrect comment or the missing true-flag overload test, which are both local to this file.",
+      "classification": "UNCLASSIFIED",
+      "posting_eligible": true,
+      "requires_verification": false
+    },
+    {
+      "finding_id": "ui_layer-code-003",
+      "title": "InboxUI's new disk-only refresh branch has no test coverage anywhere in the repository",
+      "severity": "HIGH",
+      "confidence": 0.85,
+      "concern_tags": ["runtime_hygiene"],
+      "claim": "AEPMessaging/Sources/UI/Inbox/InboxUI.swift:162-177 adds a disk-only performRefresh branch gated on the new usePersistedContentCards flag. AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift does not test InboxUI at all (only getContentCardsUI). AEPMessaging/Tests/UnitTests/UITests/InboxUITests.swift (unchanged by this PR, not in the 43-file changeset) has zero references to usePersistedContentCards (confirmed via grep across all func test* methods in that file).",
+      "why_it_matters": "The core new behavior of this module — permanently skipping updatePropositionsForSurfaces for an InboxUI instance's lifetime — is unverified by any executable test; correctness (branch/return structure, completion-called-exactly-once, no network call) is currently established only by manual code reading.",
+      "suggested_action": "Add unit tests asserting: (1) usePersistedContentCards: true never triggers updatePropositionsForSurfaces, (2) the disk-only path still transitions state to .loaded/.empty/.error correctly, (3) refreshAsync() resumes its continuation on the disk-only path.",
+      "primary_anchor": {
+        "path": "AEPMessaging/Sources/UI/Inbox/InboxUI.swift",
+        "line": 162,
+        "side": "RIGHT"
+      },
+      "evidence_refs": [
+        "AEPMessaging/Sources/UI/Inbox/InboxUI.swift:158-194",
+        "AEPMessaging/Tests/UnitTests/UITests/InboxUITests.swift (grep for usePersistedContentCards: no matches)",
+        "AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift (no InboxUI references)"
+      ],
+      "caveats": [
+        "InboxUITests.swift is outside the ui_layer module's file scope per files.md; flagged because it directly answers the task's explicit question about whether InboxUI's new flag behavior is tested anywhere in the repo.",
+        "Did not exhaustively search for a differently-named test file that might cover this; grep across the known InboxUI test file found nothing."
+      ],
+      "challenge": "If a test file outside AEPMessaging/Tests/UnitTests/UITests/ (e.g. an integration test) covers this path, the finding would be weaker. A targeted grep for 'usePersistedContentCards' across AEPMessaging/Tests found no matches outside the ui_layer scoped test file and Messaging+StateTests.swift (persistence_core scope), supporting the claim.",
+      "classification": "UNCLASSIFIED",
+      "posting_eligible": true,
+      "requires_verification": true
+    },
+    {
+      "finding_id": "ui_layer-code-004",
+      "title": "Pre-existing strong-self capture in the non-persisted refresh branch extends InboxUI lifetime during in-flight refresh",
+      "severity": "LOW",
+      "confidence": 0.6,
+      "concern_tags": ["runtime_hygiene"],
+      "claim": "In InboxUI.swift:180-193, the outer [weak self] closure unwraps self into a local `let self`, which the nested Messaging.getPropositionsForSurfaces closure then captures strongly, keeping InboxUI alive for the second network round-trip even if all external references are dropped mid-refresh. This exact structure predates the PR (diff for this branch is whitespace-only) — the new persisted branch (lines 166-175) does not have this issue since it captures [weak self] end-to-end in a single async call.",
+      "why_it_matters": "Minor lifecycle inconsistency: the two branches now behave differently with respect to object retention during in-flight async work, even though this specific branch's issue is not new to this PR.",
+      "suggested_action": "Add [weak self] to the inner getPropositionsForSurfaces closure for consistency with the new persisted branch.",
+      "primary_anchor": {
+        "path": "AEPMessaging/Sources/UI/Inbox/InboxUI.swift",
+        "line": 187,
+        "side": "RIGHT"
+      },
+      "evidence_refs": [
+        "AEPMessaging/Sources/UI/Inbox/InboxUI.swift:180-193",
+        "pr495_diff/AEPMessaging/Sources/UI/Inbox/InboxUI.swift.diff (confirms this region is whitespace-only change, pre-existing structure)"
+      ],
+      "caveats": [
+        "This is pre-existing behavior, not introduced by this PR's diff; flagged only because it stands out in contrast to the new branch's cleaner weak-capture pattern.",
+        "In practice InboxUI is normally held by a caller's view/view-model for the refresh duration, so real-world impact is likely negligible."
+      ],
+      "challenge": "Since this pattern is unchanged by the PR, a reviewer could reasonably argue it's out of scope for this review entirely; included at LOW severity for completeness given the PR touches this exact method.",
+      "classification": "UNCLASSIFIED",
+      "posting_eligible": true,
+      "requires_verification": false
+    }
+  ],
+  "summary": {
+    "overall_confidence": 0.8,
+    "counts_by_severity": {
+      "CRITICAL": 1,
+      "HIGH": 2,
+      "MEDIUM": 0,
+      "LOW": 1
+    }
+  }
+}

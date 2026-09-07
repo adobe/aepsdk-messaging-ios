@@ -1,0 +1,16 @@
+diff --git a/pr_reviews/pr495/ui_layer/files.md b/pr_reviews/pr495/ui_layer/files.md
+new file mode 100644
+index 0000000..6f13335
+--- /dev/null
++++ b/pr_reviews/pr495/ui_layer/files.md
+@@ -0,0 +1,10 @@
++# Module: ui_layer
++
++Developer-facing UI convenience layer (ContentCardsUI + InboxUI) built on top of persistence_core.
++
++## Source
++- AEPMessaging/Sources/UI/Inbox/InboxUI.swift
++- AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift
++
++## Tests
++- AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift

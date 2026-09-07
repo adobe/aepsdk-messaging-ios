@@ -1,0 +1,347 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/_summary.md b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/_summary.md
+new file mode 100644
+index 0000000..bbcb1d2
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/_summary.md
+@@ -0,0 +1,341 @@
++# MOB-25109-offline-content-card-availability Diff Summary
++
++**Title:** Branch Review: MOB-25109/offline-content-card-availability
++
++---
++
++## Overview
++
++| Metric | Count |
++|--------|-------|
++| Total Files Changed | 103 |
++| New Files | 76 |
++| Modified Files | 26 |
++| Deleted Files | 1 |
++| Binary Files | 0 |
++| **Lines Added** | **+16231** |
++| **Lines Removed** | **-350** |
++
++---
++
++## Code vs Test Breakdown
++
++| Category | Files | +Lines | -Lines | Net Change |
++|----------|-------|--------|--------|------------|
++| **Code** | 103 | +16231 | -350 | 16581 |
++| **Tests** | 0 | +0 | -0 | 0 |
++| **Total** | 103 | +16231 | -350 | 16581 |
++
++> Non-test files: **103** (16581 lines changed)
++
++---
++
++## Impact by Module
++
++| Module | Files | +Lines | -Lines | Total Change |
++|--------|-------|--------|--------|--------------|
++| `pr_reviews/` | 72 | +13911 | -0 | 13911 |
++| `AEPMessaging/` | 19 | +1519 | -112 | 1631 |
++| `TestApps/` | 6 | +533 | -60 | 593 |
++| `IMPLEMENTATION_CONTEXT.md/` | 1 | +224 | -0 | 224 |
++| `AEPMessaging.xcodeproj/` | 2 | +12 | -155 | 167 |
++| `Podfile.lock/` | 1 | +22 | -20 | 42 |
++| `Podfile/` | 1 | +7 | -2 | 9 |
++| `.gitignore/` | 1 | +3 | -1 | 4 |
++
++---
++
++## High-Impact Files (>30 lines changed)
++
++| File | +Lines | -Lines | Type |
++|------|--------|--------|------|
++| `pr_reviews/pr495/pr495.diff` | +4983 | -0 | New |
++| `AEPMessaging/Sources/Messaging.swift` | +456 | -31 | Modified |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging.swift.diff` | +469 | -0 | New |
++| `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift` | +387 | -30 | Modified |
++| `pr_reviews/pr495/pr495_diff/docs/agents/network-availability-layer.md.diff` | +363 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/content-card-offline-implementation.md.diff` | +348 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/wiki-prd-update.html.diff` | +345 | -0 | New |
++| `pr_reviews/pr495/pr495_review.md` | +333 | -0 | New |
++| `pr_reviews/pr495/persistence_core/reviews/06_complexity.md` | +317 | -0 | New |
++| `AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift` | +307 | -1 | Modified |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging.xcodeproj/project.pbxproj.diff` | +294 | -0 | New |
++| `pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json` | +281 | -0 | New |
++| `pr_reviews/pr495/persistence_core/reviews/03_lld.md` | +275 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/inbox-cbe-offline-handoff.md.diff` | +269 | -0 | New |
++| `pr_reviews/pr495/persistence_core/reviews/01_code.md` | +267 | -0 | New |
++| `IMPLEMENTATION_CONTEXT.md` | +224 | -0 | New |
++| `pr_reviews/pr495/demo_app/reviews/01_code.md` | +219 | -0 | New |
++| `pr_reviews/pr495/ui_layer/reviews/01_code.md` | +196 | -0 | New |
++| `pr_reviews/pr495/persistence_core/reviews/04_security.md` | +193 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/persistence-write-path-and-errors.md.diff` | +189 | -0 | New |
++| `pr_reviews/pr495/persistence_core/reviews/01_code.findings.json` | +183 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/_summary.md` | +170 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/content-card-offline-known-gaps.md.diff` | +165 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff` | +164 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/write-read-clear-flow.md.diff` | +160 | -0 | New |
++| `pr_reviews/pr495/persistence_core/reviews/05_completeness.md` | +151 | -0 | New |
++| `pr_reviews/pr495/ui_layer/reviews/03_completeness.findings.json` | +151 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift.diff` | +149 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-6.6-assurance-analytics-timeout.html.diff` | +136 | -0 | New |
++| `AEPMessaging.xcodeproj/project.pbxproj` | +12 | -121 | Modified |
++| `pr_reviews/pr495/ui_layer/reviews/03_completeness.md` | +131 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/_file_list.md` | +130 | -0 | New |
++| `pr_reviews/pr495/ui_layer/reviews/01_code.findings.json` | +128 | -0 | New |
++| `pr_reviews/pr495/demo_app/reviews/02_completeness.findings.json` | +126 | -0 | New |
++| `pr_reviews/pr495/pr495_template.md` | +123 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff` | +117 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift.diff` | +109 | -0 | New |
++| `AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift` | +86 | -21 | Modified |
++| `pr_reviews/pr495/persistence_core/reviews/02_hld.md` | +105 | -0 | New |
++| `pr_reviews/pr495/demo_app/reviews/02_completeness.md` | +104 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff` | +98 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff` | +96 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/Podfile.lock.diff` | +92 | -0 | New |
++| `TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift` | +68 | -22 | Modified |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift.diff` | +88 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/MessagingTests.swift.diff` | +88 | -0 | New |
++| `pr_reviews/pr495/ui_layer/reviews/02_hld.md` | +88 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-5.5-pros-cons.html.diff` | +87 | -0 | New |
++| `pr_reviews/pr495/persistence_core/reviews/04_security.findings.json` | +86 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift.diff` | +86 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/card-origin-flag-scenarios.md.diff` | +86 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/operational_impact.json` | +84 | -0 | New |
++| `AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift` | +69 | -14 | Modified |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff` | +80 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AGENTS.md.diff` | +79 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Inbox/InboxUI.swift.diff` | +78 | -0 | New |
++| `AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift` | +77 | -0 | Modified |
++| `AEPMessaging/Sources/UI/Inbox/InboxUI.swift` | +60 | -15 | Modified |
++| `pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-6.1-timeout-clarity.html.diff` | +75 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff` | +69 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift.diff` | +68 | -0 | New |
++| `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift` | +63 | -0 | New |
++| `AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift` | +59 | -0 | Modified |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff` | +59 | -0 | New |
++| `AEPMessaging/Tests/UnitTests/MessagingTests.swift` | +58 | -0 | Modified |
++| `AEPMessaging/Sources/Messaging+PublicAPI.swift` | +51 | -6 | Modified |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockCache.swift.diff` | +53 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff` | +50 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift.diff` | +47 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-pm-timeout-full.html.diff` | +46 | -0 | New |
++| `AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift` | +44 | -0 | New |
++| `AEPMessaging/Sources/Messaging+State.swift` | +42 | -1 | Modified |
++| `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift` | +32 | -11 | Modified |
++| `Podfile.lock` | +22 | -20 | Modified |
++| `pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-timeout-scenarios.html.diff` | +42 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.mmd.diff` | +41 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved.diff` | +40 | -0 | New |
++| `TestApps/MessagingDemoAppSwiftUI/ADBMobileConfig.json` | +35 | -0 | New |
++| `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/Constants.swift.diff` | +35 | -0 | New |
++| `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` | +0 | -34 | Deleted |
++| `pr_reviews/pr495/pr495_diff/operational_impact.md` | +34 | -0 | New |
++| `TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift` | +29 | -3 | Modified |
++| `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff` | +31 | -0 | New |
++
++---
++
++## All Files Changed
++
++| # | File | +Lines | -Lines | Type | Diff File |
++|---|------|--------|--------|------|-----------|
++| 1 | `pr_reviews/pr495/pr495.diff` | +4983 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495.diff.diff` |
++| 2 | `AEPMessaging/Sources/Messaging.swift` | +456 | -31 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Sources/Messaging.swift.diff` |
++| 3 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging.swift.diff` | +469 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging.swift.diff.diff` |
++| 4 | `TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift` | +387 | -30 | Modified | `MOB-25109-offline-content-card-availability_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff` |
++| 5 | `pr_reviews/pr495/pr495_diff/docs/agents/network-availability-layer.md.diff` | +363 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/network-availability-layer.md.diff.diff` |
++| 6 | `pr_reviews/pr495/pr495_diff/docs/agents/content-card-offline-implementation.md.diff` | +348 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/content-card-offline-implementation.md.diff.diff` |
++| 7 | `pr_reviews/pr495/pr495_diff/docs/agents/wiki-prd-update.html.diff` | +345 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/wiki-prd-update.html.diff.diff` |
++| 8 | `pr_reviews/pr495/pr495_review.md` | +333 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_review.md.diff` |
++| 9 | `pr_reviews/pr495/persistence_core/reviews/06_complexity.md` | +317 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/06_complexity.md.diff` |
++| 10 | `AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift` | +307 | -1 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift.diff` |
++| 11 | `pr_reviews/pr495/pr495_diff/AEPMessaging.xcodeproj/project.pbxproj.diff` | +294 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging.xcodeproj/project.pbxproj.diff.diff` |
++| 12 | `pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json` | +281 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json.diff` |
++| 13 | `pr_reviews/pr495/persistence_core/reviews/03_lld.md` | +275 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/03_lld.md.diff` |
++| 14 | `pr_reviews/pr495/pr495_diff/docs/agents/inbox-cbe-offline-handoff.md.diff` | +269 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/inbox-cbe-offline-handoff.md.diff.diff` |
++| 15 | `pr_reviews/pr495/persistence_core/reviews/01_code.md` | +267 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/01_code.md.diff` |
++| 16 | `IMPLEMENTATION_CONTEXT.md` | +224 | -0 | New | `MOB-25109-offline-content-card-availability_diff/IMPLEMENTATION_CONTEXT.md.diff` |
++| 17 | `pr_reviews/pr495/demo_app/reviews/01_code.md` | +219 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/demo_app/reviews/01_code.md.diff` |
++| 18 | `pr_reviews/pr495/ui_layer/reviews/01_code.md` | +196 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/ui_layer/reviews/01_code.md.diff` |
++| 19 | `pr_reviews/pr495/persistence_core/reviews/04_security.md` | +193 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/04_security.md.diff` |
++| 20 | `pr_reviews/pr495/pr495_diff/docs/agents/persistence-write-path-and-errors.md.diff` | +189 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/persistence-write-path-and-errors.md.diff.diff` |
++| 21 | `pr_reviews/pr495/persistence_core/reviews/01_code.findings.json` | +183 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/01_code.findings.json.diff` |
++| 22 | `pr_reviews/pr495/pr495_diff/_summary.md` | +170 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/_summary.md.diff` |
++| 23 | `pr_reviews/pr495/pr495_diff/docs/agents/content-card-offline-known-gaps.md.diff` | +165 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/content-card-offline-known-gaps.md.diff.diff` |
++| 24 | `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff` | +164 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff.diff` |
++| 25 | `pr_reviews/pr495/pr495_diff/docs/agents/write-read-clear-flow.md.diff` | +160 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/write-read-clear-flow.md.diff.diff` |
++| 26 | `pr_reviews/pr495/persistence_core/reviews/05_completeness.md` | +151 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/05_completeness.md.diff` |
++| 27 | `pr_reviews/pr495/ui_layer/reviews/03_completeness.findings.json` | +151 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/ui_layer/reviews/03_completeness.findings.json.diff` |
++| 28 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift.diff` | +149 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift.diff.diff` |
++| 29 | `pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-6.6-assurance-analytics-timeout.html.diff` | +136 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-6.6-assurance-analytics-timeout.html.diff.diff` |
++| 30 | `AEPMessaging.xcodeproj/project.pbxproj` | +12 | -121 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging.xcodeproj/project.pbxproj.diff` |
++| 31 | `pr_reviews/pr495/ui_layer/reviews/03_completeness.md` | +131 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/ui_layer/reviews/03_completeness.md.diff` |
++| 32 | `pr_reviews/pr495/pr495_diff/_file_list.md` | +130 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/_file_list.md.diff` |
++| 33 | `pr_reviews/pr495/ui_layer/reviews/01_code.findings.json` | +128 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/ui_layer/reviews/01_code.findings.json.diff` |
++| 34 | `pr_reviews/pr495/demo_app/reviews/02_completeness.findings.json` | +126 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/demo_app/reviews/02_completeness.findings.json.diff` |
++| 35 | `pr_reviews/pr495/pr495_template.md` | +123 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_template.md.diff` |
++| 36 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff` | +117 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff.diff` |
++| 37 | `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift.diff` | +109 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift.diff.diff` |
++| 38 | `AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift` | +86 | -21 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift.diff` |
++| 39 | `pr_reviews/pr495/persistence_core/reviews/02_hld.md` | +105 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/02_hld.md.diff` |
++| 40 | `pr_reviews/pr495/demo_app/reviews/02_completeness.md` | +104 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/demo_app/reviews/02_completeness.md.diff` |
++| 41 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff` | +98 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff.diff` |
++| 42 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff` | +96 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff.diff` |
++| 43 | `pr_reviews/pr495/pr495_diff/Podfile.lock.diff` | +92 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/Podfile.lock.diff.diff` |
++| 44 | `TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift` | +68 | -22 | Modified | `MOB-25109-offline-content-card-availability_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift.diff` |
++| 45 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift.diff` | +88 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift.diff.diff` |
++| 46 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/MessagingTests.swift.diff` | +88 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/MessagingTests.swift.diff.diff` |
++| 47 | `pr_reviews/pr495/ui_layer/reviews/02_hld.md` | +88 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/ui_layer/reviews/02_hld.md.diff` |
++| 48 | `pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-5.5-pros-cons.html.diff` | +87 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-5.5-pros-cons.html.diff.diff` |
++| 49 | `pr_reviews/pr495/persistence_core/reviews/04_security.findings.json` | +86 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/04_security.findings.json.diff` |
++| 50 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift.diff` | +86 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift.diff.diff` |
++| 51 | `pr_reviews/pr495/pr495_diff/docs/agents/card-origin-flag-scenarios.md.diff` | +86 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/card-origin-flag-scenarios.md.diff.diff` |
++| 52 | `pr_reviews/pr495/pr495_diff/operational_impact.json` | +84 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/operational_impact.json.diff` |
++| 53 | `AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift` | +69 | -14 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift.diff` |
++| 54 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff` | +80 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff.diff` |
++| 55 | `pr_reviews/pr495/pr495_diff/AGENTS.md.diff` | +79 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AGENTS.md.diff.diff` |
++| 56 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Inbox/InboxUI.swift.diff` | +78 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Inbox/InboxUI.swift.diff.diff` |
++| 57 | `AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift` | +77 | -0 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift.diff` |
++| 58 | `AEPMessaging/Sources/UI/Inbox/InboxUI.swift` | +60 | -15 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Sources/UI/Inbox/InboxUI.swift.diff` |
++| 59 | `pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-6.1-timeout-clarity.html.diff` | +75 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-6.1-timeout-clarity.html.diff.diff` |
++| 60 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff` | +69 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff.diff` |
++| 61 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift.diff` | +68 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift.diff.diff` |
++| 62 | `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift` | +63 | -0 | New | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff` |
++| 63 | `AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift` | +59 | -0 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift.diff` |
++| 64 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff` | +59 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff.diff` |
++| 65 | `AEPMessaging/Tests/UnitTests/MessagingTests.swift` | +58 | -0 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/MessagingTests.swift.diff` |
++| 66 | `AEPMessaging/Sources/Messaging+PublicAPI.swift` | +51 | -6 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff` |
++| 67 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockCache.swift.diff` | +53 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockCache.swift.diff.diff` |
++| 68 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff` | +50 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff.diff` |
++| 69 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift.diff` | +47 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift.diff.diff` |
++| 70 | `pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-pm-timeout-full.html.diff` | +46 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-pm-timeout-full.html.diff.diff` |
++| 71 | `AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift` | +44 | -0 | New | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff` |
++| 72 | `AEPMessaging/Sources/Messaging+State.swift` | +42 | -1 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Sources/Messaging+State.swift.diff` |
++| 73 | `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift` | +32 | -11 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff` |
++| 74 | `Podfile.lock` | +22 | -20 | Modified | `MOB-25109-offline-content-card-availability_diff/Podfile.lock.diff` |
++| 75 | `pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-timeout-scenarios.html.diff` | +42 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-timeout-scenarios.html.diff.diff` |
++| 76 | `pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.mmd.diff` | +41 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.mmd.diff.diff` |
++| 77 | `pr_reviews/pr495/pr495_diff/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved.diff` | +40 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved.diff.diff` |
++| 78 | `TestApps/MessagingDemoAppSwiftUI/ADBMobileConfig.json` | +35 | -0 | New | `MOB-25109-offline-content-card-availability_diff/TestApps/MessagingDemoAppSwiftUI/ADBMobileConfig.json.diff` |
++| 79 | `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/Constants.swift.diff` | +35 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/Constants.swift.diff.diff` |
++| 80 | `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` | +0 | -34 | Deleted | `MOB-25109-offline-content-card-availability_diff/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved.diff` |
++| 81 | `pr_reviews/pr495/pr495_diff/operational_impact.md` | +34 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/operational_impact.md.diff` |
++| 82 | `TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift` | +29 | -3 | Modified | `MOB-25109-offline-content-card-availability_diff/TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift.diff` |
++| 83 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff` | +31 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff.diff` |
++| 84 | `AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift` | +29 | -0 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift.diff` |
++| 85 | `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff` | +28 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff.diff` |
++| 86 | `AEPMessaging/Sources/MessagingConstants.swift` | +24 | -0 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Sources/MessagingConstants.swift.diff` |
++| 87 | `pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-pm-qa.html.diff` | +24 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-pm-qa.html.diff.diff` |
++| 88 | `AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift` | +19 | -4 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff` |
++| 89 | `pr_reviews/pr495/persistence_core/files.md` | +23 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/files.md.diff` |
++| 90 | `pr_reviews/pr495/pr495_diff/Podfile.diff` | +23 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/Podfile.diff.diff` |
++| 91 | `pr_reviews/pr495/pr495_unresolved_comments.md` | +23 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_unresolved_comments.md.diff` |
++| 92 | `AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift` | +19 | -1 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff` |
++| 93 | `AEPMessaging/Sources/ParsedPropositions.swift` | +12 | -6 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff` |
++| 94 | `TestApps/MessagingDemoAppSwiftUI/Constants.swift` | +13 | -4 | Modified | `MOB-25109-offline-content-card-availability_diff/TestApps/MessagingDemoAppSwiftUI/Constants.swift.diff` |
++| 95 | `AEPMessaging/Tests/TestHelpers/MockCache.swift` | +12 | -1 | Modified | `MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/TestHelpers/MockCache.swift.diff` |
++| 96 | `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff` | +13 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff.diff` |
++| 97 | `pr_reviews/pr495/ui_layer/files.md` | +10 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/ui_layer/files.md.diff` |
++| 98 | `Podfile` | +7 | -2 | Modified | `MOB-25109-offline-content-card-availability_diff/Podfile.diff` |
++| 99 | `pr_reviews/pr495/demo_app/files.md` | +9 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/demo_app/files.md.diff` |
++| 100 | `pr_reviews/pr495/pr495_all_comments.md` | +5 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_all_comments.md.diff` |
++| 101 | `.gitignore` | +3 | -1 | Modified | `MOB-25109-offline-content-card-availability_diff/.gitignore.diff` |
++| 102 | `pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff` | +4 | -0 | New | `MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff.diff` |
++| 103 | `TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift` | +1 | -1 | Modified | `MOB-25109-offline-content-card-availability_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff` |
++
++---
++
++## New Files
++
++- `AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift`
++- `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift`
++- `TestApps/MessagingDemoAppSwiftUI/ADBMobileConfig.json`
++- `IMPLEMENTATION_CONTEXT.md`
++- `pr_reviews/pr495/demo_app/files.md`
++- `pr_reviews/pr495/demo_app/reviews/01_code.md`
++- `pr_reviews/pr495/demo_app/reviews/02_completeness.findings.json`
++- `pr_reviews/pr495/demo_app/reviews/02_completeness.md`
++- `pr_reviews/pr495/persistence_core/files.md`
++- `pr_reviews/pr495/persistence_core/reviews/01_code.findings.json`
++- `pr_reviews/pr495/persistence_core/reviews/01_code.md`
++- `pr_reviews/pr495/persistence_core/reviews/02_hld.md`
++- `pr_reviews/pr495/persistence_core/reviews/03_lld.md`
++- `pr_reviews/pr495/persistence_core/reviews/04_security.findings.json`
++- `pr_reviews/pr495/persistence_core/reviews/04_security.md`
++- `pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json`
++- `pr_reviews/pr495/persistence_core/reviews/05_completeness.md`
++- `pr_reviews/pr495/persistence_core/reviews/06_complexity.md`
++- `pr_reviews/pr495/pr495.diff`
++- `pr_reviews/pr495/pr495_all_comments.md`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging.xcodeproj/project.pbxproj.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging+PublicAPI.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Messaging.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/ParsedPropositions.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/Proposition.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Inbox/InboxUI.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockCache.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/MessagingTests.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff`
++- `pr_reviews/pr495/pr495_diff/AGENTS.md.diff`
++- `pr_reviews/pr495/pr495_diff/Podfile.diff`
++- `pr_reviews/pr495/pr495_diff/Podfile.lock.diff`
++- `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff`
++- `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff`
++- `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift.diff`
++- `pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/Constants.swift.diff`
++- `pr_reviews/pr495/pr495_diff/_file_list.md`
++- `pr_reviews/pr495/pr495_diff/_summary.md`
++- `pr_reviews/pr495/pr495_diff/docs/agents/card-origin-flag-scenarios.md.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/content-card-offline-implementation.md.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/content-card-offline-known-gaps.md.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/inbox-cbe-offline-handoff.md.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/network-availability-layer.md.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.mmd.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/offline-architecture.png.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/persistence-write-path-and-errors.md.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-pm-qa.html.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-pm-timeout-full.html.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/wiki-comment-timeout-scenarios.html.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/wiki-prd-update.html.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-5.5-pros-cons.html.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-6.1-timeout-clarity.html.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/wiki-section-6.6-assurance-analytics-timeout.html.diff`
++- `pr_reviews/pr495/pr495_diff/docs/agents/write-read-clear-flow.md.diff`
++- `pr_reviews/pr495/pr495_diff/operational_impact.json`
++- `pr_reviews/pr495/pr495_diff/operational_impact.md`
++- `pr_reviews/pr495/pr495_review.md`
++- `pr_reviews/pr495/pr495_template.md`
++- `pr_reviews/pr495/pr495_unresolved_comments.md`
++- `pr_reviews/pr495/ui_layer/files.md`
++- `pr_reviews/pr495/ui_layer/reviews/01_code.findings.json`
++- `pr_reviews/pr495/ui_layer/reviews/01_code.md`
++- `pr_reviews/pr495/ui_layer/reviews/02_hld.md`
++- `pr_reviews/pr495/ui_layer/reviews/03_completeness.findings.json`
++- `pr_reviews/pr495/ui_layer/reviews/03_completeness.md`
++
++---
++
++## Deleted Files
++
++- `AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
++
++---
++
++## How to Review
++
++1. **Start with high-impact files** - Review files with most changes first
++2. **Read per-file diffs** - Each file has its own `.diff` file in `MOB-25109-offline-content-card-availability_diff/`
++3. **Follow module structure** - Files are organized by their original path
++
++**Diff folder:** `MOB-25109-offline-content-card-availability_diff/`

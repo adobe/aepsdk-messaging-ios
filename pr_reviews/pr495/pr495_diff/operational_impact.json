@@ -1,0 +1,70 @@
+{
+  "generated_at": "2026-08-11T05:21:41.420443Z",
+  "pr_number": "495",
+  "pr_title": "PR #495",
+  "policy": {
+    "observability_map_path": "/Users/namarora/.agentic-automations/policy/observability_map.yaml",
+    "live_checks_enabled": true
+  },
+  "summary": {
+    "risk_level": "low",
+    "files_changed": 29,
+    "code_files_changed": 0,
+    "obs_config_files_changed": 0,
+    "metrics_added_count": 0,
+    "metrics_removed_count": 0,
+    "matched_services_count": 0,
+    "linked_assets_count": 0,
+    "verified_missing_assets": 0,
+    "verification_errors": 0
+  },
+  "changed_paths": [
+    ".gitignore",
+    "AEPMessaging.xcodeproj/project.pbxproj",
+    "AEPMessaging.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
+    "AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift",
+    "AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift",
+    "AEPMessaging/Sources/Messaging+PublicAPI.swift",
+    "AEPMessaging/Sources/Messaging+State.swift",
+    "AEPMessaging/Sources/Messaging.swift",
+    "AEPMessaging/Sources/MessagingConstants.swift",
+    "AEPMessaging/Sources/ParsedPropositions.swift",
+    "AEPMessaging/Sources/Proposition.swift",
+    "AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift",
+    "AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift",
+    "AEPMessaging/Tests/TestHelpers/MockCache.swift",
+    "AEPMessaging/Tests/TestHelpers/MockNetworkConnectivityService.swift",
+    "AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift",
+    "AEPMessaging/Tests/UnitTests/Messaging+EdgeEventsTests.swift",
+    "AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift",
+    "AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift",
+    "AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift",
+    "AEPMessaging/Tests/UnitTests/MessagingTests.swift",
+    "AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift",
+    "AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift",
+    "Podfile",
+    "Podfile.lock",
+    "TestApps/MessagingDemoAppSwiftUI/AppDelegate.swift",
+    "TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift",
+    "TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift",
+    "TestApps/MessagingDemoAppSwiftUI/Constants.swift"
+  ],
+  "matched_services": [],
+  "signals": {
+    "logger_calls": 23,
+    "exception_paths": 2,
+    "api_routes": 0,
+    "metrics_added": [],
+    "metrics_removed": []
+  },
+  "assets": [],
+  "drift_findings": [],
+  "checklist": {
+    "dashboards_linked": false,
+    "alerts_linked": false,
+    "prometheus_linked": false,
+    "slos_linked": false,
+    "runbooks_linked": false,
+    "drift_clear": true
+  }
+}

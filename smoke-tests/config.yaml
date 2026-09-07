@@ -1,0 +1,15 @@
+wiki_url: https://wiki.corp.adobe.com/pages/viewpage.action?spaceKey=adms&title=Mobile+SDK+smoke+tests+-+Messaging
+platform: ios
+platform_label: iOS
+package_or_bundle: com.adobe.MessagingDemoAppSwiftUI
+activity_or_scheme: MessagingDemoAppSwiftUI
+module_or_workspace: AEPMessaging.xcworkspace
+extension: AEPMessaging
+version: "5.15.0"
+log_subsystem: com.adobe.mobile.marketing.aep
+log_tags: ["Messaging", "MessagingUI"]
+assurance_available: true
+launch_env_id: "3149c49c3910/629a865c475d/launch-82c478370074"
+simulator_udid: 50F887D5-D759-47AD-A123-87A40B6B1FBF
+simulator_name: iPhone Air
+simulator_ios_version: "26.5"

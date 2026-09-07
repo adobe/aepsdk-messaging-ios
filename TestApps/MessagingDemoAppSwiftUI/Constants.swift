@@ -15,19 +15,29 @@ import Foundation
 enum Constants {
     // If you change any of the below properties, please uninstall and reinstall the application
     
-    static let APPID = "3149c49c3910/e2e20a36b6cf/launch-78df58a45342-development"
+   // static let APPID = "3149c49c3910/e2e20a36b6cf/launch-78df58a45342-development"
+   // static let APPID = "3149c49c3910/e2e20a36b6cf/launch-d15e7f1684b0"  // pre-Analytics
+    static let APPID = "3149c49c3910/27ca44e39de6/launch-5d7ca32adf4f"   // includes AEPAnalytics
+
+    // static let APPID = "bf7248f92b53/2679f51865d9/launch-98ed66c8bfec"
     // Other AppID's
     // "3149c49c3910/b6541e5e6301/launch-f7ac0a320fb3-development"
     // "staging/1b50a869c4a2/bcd1a623883f/launch-e44d085fc760-development" << com.steveb.iamStagingTester
     // "staging/1b50a869c4a2/9590f35e2dc9/launch-752d0a90822f-development" << com.steveb.priorityTester
     
     static let isStage = false
-    static let assuranceURL = ""
+    static let assuranceURL = "edgetutorialapp://?adb_validation_sessionid=5a186a65-f952-4b97-94ca-b3cbf3cb4ce0"
     
     // Surface Names
     enum SurfaceName {
-        static let INBOX = "inboxcard"
-        static let CONTENT_CARD = "largeImageCards"
+       //         static let INBOX = "inboxcard"
+
+        static let INBOX = "shwetansh_inbox_mda"
+       // static let CONTENT_CARD = "largeImageCards"
+       // static let INBOX = "shwetansh_inbox_mda"
+        static let CONTENT_CARD = "shwetansh_cc_mda"
+        static let wrong_cc = "wrong_cc"
+        static let cc_test = "card/ms"
         static let CBE_HTML = "cbehtml"
         static let CBE_JSON = "cbejson"
     }

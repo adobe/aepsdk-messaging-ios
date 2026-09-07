@@ -1,0 +1,38 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff
+new file mode 100644
+index 0000000..ff097f2
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift.diff
+@@ -0,0 +1,31 @@
++diff --git a/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift b/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift
++index b11c6a1..6d1fc9c 100644
++--- a/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift
+++++ b/AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift
++@@ -622,7 +622,25 @@ class MessagingPublicApiTest: XCTestCase, AnyCodableAsserts {
++         // verify
++         wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
++     }
++-    
+++
+++    func testGetPropositionsForSurfacesDoesNotSetPersistedFlag() throws {
+++        let eventExpectation = XCTestExpectation(description: "event should be dispatched")
+++        EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(type: EventType.messaging, source: EventSource.requestContent) { event in
+++            // the persisted-flag approach has been removed; offline hydration is automatic
+++            XCTAssertTrue(event.data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false)
+++            eventExpectation.fulfill()
+++            let responseEvent = event.createResponseEvent(name: "name", type: "type", source: "source", data: ["propositions": []])
+++            MobileCore.dispatch(event: responseEvent)
+++        }
+++
+++        let expectation = XCTestExpectation(description: "completion")
+++        Messaging.getPropositionsForSurfaces([Surface(uri: MOCK_FEEDS_SURFACE)]) { _, _ in
+++            expectation.fulfill()
+++        }
+++
+++        wait(for: [expectation, eventExpectation], timeout: ASYNC_TIMEOUT)
+++    }
+++
++     /// Private Helper methods
++     private func createNotificationResponse(actionId : String = UNNotificationDefaultActionIdentifier,
++                                             trackingData : [String : Any]? = MOCK_TRACKING_DETAILS,
+\ No newline at end of file

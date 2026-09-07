@@ -1,0 +1,1752 @@
+/*
+ Copyright 2021 Adobe. All rights reserved.
+ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License. You may obtain a copy
+ of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software distributed under
+ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ OF ANY KIND, either express or implied. See the License for the specific language
+ governing permissions and limitations under the License.
+ */
+
+import AEPCore
+import AEPServices
+import Foundation
+
+@objc(AEPMobileMessaging)
+public class Messaging: NSObject, Extension {
+    // MARK: - Class members
+
+    public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
+    public var name = MessagingConstants.EXTENSION_NAME
+    public var friendlyName = MessagingConstants.FRIENDLY_NAME
+    public var metadata: [String: String]?
+    public var runtime: ExtensionRuntime
+
+    // Operation orderer used to maintain the order of update and get propositions events.
+    // It ensures any update propositions requests issued before a get propositions call are completed
+    // and the get propositions request is fulfilled from the latest cached content.
+    private let eventsQueue = OperationOrderer<Event>("MessagingEvents")
+
+    // Queue for completion handlers providing thread-safe read/writing of the `completionHandlers` array
+    private static let handlersQueue: DispatchQueue = .init(label: "com.adobe.messaging.completionHandlers.queue")
+    private static var _completionHandlers: [CompletionHandler] = []
+    static var completionHandlers: [CompletionHandler] {
+        get { handlersQueue.sync { self._completionHandlers } }
+        set { handlersQueue.async { self._completionHandlers = newValue } }
+    }
+
+    // MARK: - Messaging State
+
+    var cache: Cache = .init(name: MessagingConstants.Caches.CACHE_NAME)
+    var appSurface: String {
+        Bundle.main.mobileappSurface
+    }
+
+    private var initialLoadComplete = false
+    let rulesEngine: MessagingRulesEngine
+    let contentCardRulesEngine: ContentCardRulesEngine
+
+    /// Dispatch queue used to protect against simultaneous access of our containers from multiple threads
+    private let queue: DispatchQueue = .init(label: "com.adobe.messaging.containers.queue")
+
+    /// holds in-memory propositions for CBE (json-content, html-content, default-content) and IAM
+    private var _inMemoryPropositions: [Surface: [Proposition]] = [:]
+    var inMemoryPropositions: [Surface: [Proposition]] {
+        get { queue.sync { self._inMemoryPropositions } }
+        set { queue.async { self._inMemoryPropositions = newValue } }
+    }
+
+    /// propositionInfo stored by RuleConsequence.id
+    private var _propositionInfo: [String: PropositionInfo] = [:]
+    var propositionInfo: [String: PropositionInfo] {
+        get { queue.sync { self._propositionInfo } }
+        set { queue.async { self._propositionInfo = newValue } }
+    }
+
+    /// keeps a list of all surfaces requested per personalization request event by event id
+    private var _requestedSurfacesForEventId: [String: [Surface]] = [:]
+    private var requestedSurfacesForEventId: [String: [Surface]] {
+        get { queue.sync { self._requestedSurfacesForEventId } }
+        set { queue.async { self._requestedSurfacesForEventId = newValue } }
+    }
+
+    /// Request event IDs (the Edge chained event's `id.uuidString`, matching `requestedSurfacesForEventId`
+    /// keys) for which Edge dispatched a non-recoverable `errorResponseContent` event. Recoverable statuses
+    /// (already being retried by Edge's own PersistentHitQueue — see `RECOVERABLE_EDGE_ERROR_STATUS_CODES`)
+    /// are intentionally NOT recorded here, since Edge may still resolve them successfully.
+    ///
+    /// Checked in `applyPropositionChangeFor` to distinguish "server genuinely has nothing for this
+    /// surface" (an empty `personalization:decisions` response — should evict) from "the request itself
+    /// failed" (should NOT evict memory, disk, or change the content card network-refreshed set).
+    private var _nonRecoverableErrorEventIds: Set<String> = []
+    private var nonRecoverableErrorEventIds: Set<String> {
+        get { queue.sync { self._nonRecoverableErrorEventIds } }
+        set { queue.async { self._nonRecoverableErrorEventIds = newValue } }
+    }
+
+    /// Surfaces whose currently-qualified content cards were refreshed from a live Edge network
+    /// response during **this** app session. This is the single source of truth for content card
+    /// provenance and replaces the per-`Proposition` origin flag: a content card display is reported
+    /// as `servedFromPersistentCache` when its surface is NOT in this set.
+    ///
+    /// It is intentionally in-memory only (never persisted) and starts empty on every launch, so a
+    /// card served after a cold start — before any successful network refresh — is correctly reported
+    /// as served from the persisted cache. It is maintained in exactly one place on the network path
+    /// (`removeOrReplaceContentCards`: insert on refresh, remove on eviction) and cleared with the
+    /// content card state (`clearContentCards`). Disk hydration deliberately does NOT add to it.
+    private var _networkRefreshedSurfaces: Set<Surface> = []
+    private var networkRefreshedSurfaces: Set<Surface> {
+        get { queue.sync { self._networkRefreshedSurfaces } }
+        set { queue.async { self._networkRefreshedSurfaces = newValue } }
+    }
+
+    /// used while processing streaming payloads for a single request
+    private var _inProgressPropositions: [Surface: [Proposition]] = [:]
+    private var inProgressPropositions: [Surface: [Proposition]] {
+        get { queue.sync { self._inProgressPropositions } }
+        set { queue.async { self._inProgressPropositions = newValue } }
+    }
+
+    /// Stores rules for processing by the Messaging rules engine, where `.process` is called on each rule.
+    /// This dictionary is the source of truth for the IAM rules currently loaded in the shared `rulesEngine`;
+    /// any code that rebuilds that engine (e.g. `updateRulesEngines`, or content-card disk hydration adding
+    /// event-history rules) collects from here to avoid clobbering IAM. It must be kept in sync wherever
+    /// IAM rules are loaded — including init-time hydration in `Messaging+State.hydratePropositionsRulesEngine`,
+    /// which is why this is internal rather than private.
+    private var _inAppRulesBySurface: [Surface: [LaunchRule]] = [:]
+    var inAppRulesBySurface: [Surface: [LaunchRule]] {
+        get { queue.sync { self._inAppRulesBySurface } }
+        set { queue.async { self._inAppRulesBySurface = newValue } }
+    }
+
+    /// used to manage content card rules between multiple surfaces and multiple requests
+    private var _contentCardRulesBySurface: [Surface: [LaunchRule]] = [:]
+    private var contentCardRulesBySurface: [Surface: [LaunchRule]] {
+        get { queue.sync { self._contentCardRulesBySurface } }
+        set { queue.async { self._contentCardRulesBySurface = newValue } }
+    }
+
+    /// used to manage event history operation rules between multiple surfaces and multiple requests
+    private var _eventHistoryRulesBySurface: [Surface: [LaunchRule]] = [:]
+    private var eventHistoryRulesBySurface: [Surface: [LaunchRule]] {
+        get { queue.sync { self._eventHistoryRulesBySurface } }
+        set { queue.async { self._eventHistoryRulesBySurface = newValue } }
+    }
+
+    /// holds content cards that the user has qualified for
+    private var _qualifiedContentCardsBySurface: [Surface: [Proposition]] = [:]
+    var qualifiedContentCardsBySurface: [Surface: [Proposition]] {
+        get { queue.sync { self._qualifiedContentCardsBySurface } }
+        set { queue.async { self._qualifiedContentCardsBySurface = newValue } }
+    }
+
+    /// Enriches a proposition interaction XDM with a `servedFromPersistentCache` flag per proposition,
+    /// derived from `networkRefreshedSurfaces`: a content card is reported as served from the persisted
+    /// cache when its surface has NOT been refreshed from a live network response this session.
+    ///
+    /// Scoped to **content card display events only**. Only propositions that are currently qualified
+    /// content cards (present in `qualifiedContentCardsBySurface`) are annotated; non-display
+    /// interactions and non-content-card interactions (IAM, CBE, inbox) are left untouched.
+    func enrichWithContentCardOrigin(_ xdm: [String: Any]) -> [String: Any] {
+        guard
+            var experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any],
+            var decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any],
+            var propositions = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] as? [[String: Any]]
+        else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "enrichWithContentCardOrigin: XDM is missing the expected experience/decisioning/propositions structure — returning it unchanged without a servedFromPersistentCache annotation.")
+            return xdm
+        }
+
+        // Only annotate display events; interactions (interact/dismiss) and any other event type
+        // must not carry the servedFromPersistentCache flag.
+        guard
+            let propositionEventType = decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE] as? [String: Any],
+            propositionEventType[MessagingConstants.XDM.Inbound.PropositionEventType.DISPLAY] != nil
+        else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "enrichWithContentCardOrigin: event is not a content card display (propositionEventType keys: \(decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE].map { "\(($0 as? [String: Any])?.keys.map { $0 } ?? [])" } ?? "none")) — returning XDM unchanged.")
+            return xdm
+        }
+
+        // Map each qualified content card proposition id to its surface so provenance can be looked up
+        // from `networkRefreshedSurfaces`. Presence in this map is also what scopes enrichment to
+        // content cards only.
+        var surfaceByPropositionId: [String: Surface] = [:]
+        for (surface, cards) in qualifiedContentCardsBySurface {
+            for proposition in cards where surfaceByPropositionId[proposition.uniqueId] == nil {
+                surfaceByPropositionId[proposition.uniqueId] = surface
+            }
+        }
+        let refreshedSurfaces = networkRefreshedSurfaces
+
+        var didEnrich = false
+        propositions = propositions.map { proposition in
+            let propositionId = proposition[MessagingConstants.XDM.Inbound.Key.ID] as? String
+            guard
+                let propositionId = propositionId,
+                let surface = surfaceByPropositionId[propositionId],
+                let items = proposition[MessagingConstants.XDM.Inbound.Key.ITEMS] as? [[String: Any]]
+            else {
+                Log.debug(label: MessagingConstants.LOG_TAG,
+                          "enrichWithContentCardOrigin: skipping proposition '\(propositionId ?? "unknown")' — it is not a currently-qualified content card (or has no items), leaving it unannotated.")
+                return proposition
+            }
+            let servedFromCache = !refreshedSurfaces.contains(surface)
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "enrichWithContentCardOrigin: annotating content card proposition '\(propositionId)' for surface '\(surface.uri)' with servedFromPersistentCache = \(servedFromCache).")
+            let enrichedItems: [[String: Any]] = items.map { item in
+                var updatedItem = item
+                var data = updatedItem[MessagingConstants.XDM.Inbound.Key.DATA] as? [String: Any] ?? [:]
+                var characteristics = data[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] as? [String: Any] ?? [:]
+                characteristics[MessagingConstants.XDM.Inbound.Key.SERVED_FROM_PERSISTENT_CACHE] = servedFromCache
+                data[MessagingConstants.XDM.Inbound.Key.CHARACTERISTICS] = characteristics
+                updatedItem[MessagingConstants.XDM.Inbound.Key.DATA] = data
+                return updatedItem
+            }
+            var updated = proposition
+            updated[MessagingConstants.XDM.Inbound.Key.ITEMS] = enrichedItems
+            didEnrich = true
+            return updated
+        }
+
+        guard didEnrich else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "enrichWithContentCardOrigin: none of the \(propositions.count) proposition(s) in this display event matched a currently-qualified content card — returning XDM unchanged.")
+            return xdm
+        }
+
+        decisioning[MessagingConstants.XDM.Inbound.Key.PROPOSITIONS] = propositions
+        experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] = decisioning
+        var enriched = xdm
+        enriched[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] = experience
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  "enrichWithContentCardOrigin: annotated content card display XDM with servedFromPersistentCache for \(propositions.count) proposition(s).")
+        return enriched
+    }
+
+    /// holds inbox propositions (container-item) for each surface
+    private var _inboxPropositionsBySurface: [Surface: [Proposition]] = [:]
+    var inboxPropositionsBySurface: [Surface: [Proposition]] {
+        get { queue.sync { self._inboxPropositionsBySurface } }
+        set { queue.async { self._inboxPropositionsBySurface = newValue } }
+    }
+
+    /// Messaging state manager (push identifier + live activity state)
+    private var stateManager = MessagingStateManager()
+
+    /// the timestamp of the last push token sync
+    private var lastPushTokenSyncTimestamp: Date?
+
+    /// last observed collect-consent value, used to detect transitions into "y"
+    private var lastObservedCollectConsent: String?
+
+    /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
+    static let supportedSchemas = [
+        MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
+        MessagingConstants.PersonalizationSchemas.JSON_CONTENT,
+        MessagingConstants.PersonalizationSchemas.RULESET_ITEM,
+        MessagingConstants.PersonalizationSchemas.INBOX
+    ]
+
+    // MARK: - Extension protocol methods
+
+    /// Interceptor for handling rule re-evaluation when reevaluable rules are triggered.
+    /// Uses the shared RefreshInAppHandler for deduplication of refresh requests.
+    private let reevaluationInterceptor = MessagingRuleEngineInterceptor()
+    
+    public required init?(runtime: ExtensionRuntime) {
+        self.runtime = runtime
+        MessagingMigrator.migrate(cache: cache)
+        rulesEngine = MessagingRulesEngine(name: MessagingConstants.RULES_ENGINE_NAME, extensionRuntime: runtime, cache: cache)
+        contentCardRulesEngine = ContentCardRulesEngine(name: MessagingConstants.CONTENT_CARD_RULES_ENGINE_NAME, extensionRuntime: runtime)
+        super.init()
+        
+        // Register the reevaluation interceptor to handle dynamic rule updates
+        rulesEngine.launchRulesEngine.setReevaluationInterceptor(reevaluationInterceptor)
+        
+        loadCachedPropositions()
+    }
+
+    /// INTERNAL ONLY
+    /// used for testing - preferred initializer allowing injection of `MessagingStateManager`
+    init(runtime: ExtensionRuntime, rulesEngine: MessagingRulesEngine, contentCardRulesEngine: ContentCardRulesEngine, expectedSurfaceUri _: String, cache: Cache, stateManager: MessagingStateManager) {
+        self.runtime = runtime
+        self.rulesEngine = rulesEngine
+        self.contentCardRulesEngine = contentCardRulesEngine
+        self.cache = cache
+        self.stateManager = stateManager
+        super.init()
+        
+        // Register the reevaluation interceptor to handle dynamic rule updates
+        rulesEngine.launchRulesEngine.setReevaluationInterceptor(reevaluationInterceptor)
+        
+        loadCachedPropositions()
+    }
+
+    public func onRegistered() {
+        // register listener for set push identifier event
+        registerListener(type: EventType.genericIdentity,
+                         source: EventSource.requestContent,
+                         listener: handleProcessEvent)
+
+        // register listener for reset identities event
+        registerListener(type: EventType.genericIdentity,
+                         source: EventSource.requestReset,
+                         listener: handleResetIdentitiesEvent)
+
+        // register listener for Messaging request content event
+        registerListener(type: EventType.messaging,
+                         source: EventSource.requestContent,
+                         listener: handleProcessEvent)
+
+        // register wildcard listener for messaging rules engine
+        registerListener(type: EventType.wildcard,
+                         source: EventSource.wildcard,
+                         listener: handleWildcardEvent)
+
+        registerListener(type: EventType.rulesEngine,
+                         source: EventSource.responseContent,
+                         listener: handleRulesResponse)
+
+        // register listener for edge personalization notifications
+        registerListener(type: EventType.edge,
+                         source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                         listener: handleEdgePersonalizationNotification)
+
+        // register listener for edge error responses so a failed request can be distinguished
+        // from a legitimate empty personalization response (see applyPropositionChangeFor)
+        registerListener(type: EventType.edge,
+                         source: MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE,
+                         listener: handleEdgeErrorResponse)
+
+        // register listener for handling personalization request complete events
+        registerListener(type: EventType.messaging,
+                         source: EventSource.contentComplete,
+                         listener: handleProcessCompletedEvent(_:))
+
+        // register listener for handling debug events
+        registerListener(type: EventType.system,
+                         source: EventSource.debug,
+                         listener: handleDebugEvent)
+
+        // Re-sync persisted tokens when collect consent transitions to "y".
+        registerListener(type: EventType.edgeConsent,
+                         source: EventSource.responseContent,
+                         listener: handleEdgeConsentResponse)
+
+        // Handler function called for each queued event. If the queued event is a get propositions event, process it
+        // otherwise if it is an Edge event to update propositions, process it only if it is completed.
+        eventsQueue.setHandler { event -> Bool in
+            if event.isGetPropositionsEvent {
+                self.retrieveMessages(for: event.surfaces ?? [], event: event)
+            } else if event.type == EventType.edge {
+                return !self.requestedSurfacesForEventId.keys.contains(event.id.uuidString)
+            }
+            return true
+        }
+
+        // Warm up NWPathMonitor so it has time to report the real path status before
+        // the user's first updatePropositionsForSurfaces call. Without this, the lazy
+        // NetworkPathMonitorProvider singleton would be created at the moment of the
+        // first user-triggered fetch, returning .unsatisfied before the monitor stabilizes.
+        _ = isInternetAvailable()
+
+        eventsQueue.start()
+        runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: nil)
+    }
+
+    public func onUnregistered() {
+        Log.debug(label: MessagingConstants.LOG_TAG, "Extension unregistered from MobileCore: \(MessagingConstants.FRIENDLY_NAME)")
+    }
+
+    public func readyForEvent(_ event: Event) -> Bool {
+        guard let configurationSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event),
+              configurationSharedState.status == .set
+        else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Event processing is paused - waiting for valid configuration.")
+            return false
+        }
+
+        // hard dependency on edge identity module for ecid
+        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event),
+              edgeIdentitySharedState.status == .set
+        else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Event processing is paused - waiting for valid XDM shared state from Edge Identity extension.")
+            return false
+        }
+
+        // once we have valid configuration, fetch message definitions from offers if we haven't already
+        if !initialLoadComplete {
+            initialLoadComplete = true
+            // Always hydrate from disk at boot — config is not yet fully settled here (race with
+            // configureWith(filePath:)), so we must not gate on the flag. Hydration is a no-op when
+            // the disk is empty, so this is always safe.
+            Log.debug(label: MessagingConstants.LOG_TAG, "Boot — unconditionally hydrating content cards from disk.")
+            hydrateAllPersistedContentCards()
+            fetchPropositions(event)
+        }
+
+        return true
+    }
+
+    // MARK: - Event Handers
+
+    /// Processes the events in the event queue in the order they were received.
+    ///
+    /// A valid `Configuration` and `EdgeIdentity` shared state is required for processing events.
+    ///
+    /// - Parameters:
+    ///   - event: An `Event` to be processed
+    func handleProcessEvent(_ event: Event) {
+        guard event.data != nil else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Process event handling ignored as event does not have any data - `\(event.id)`.")
+            return
+        }
+
+        // hard dependency on configuration shared state
+        guard getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)?.value != nil else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Event processing is paused, waiting for valid configuration - '\(event.id.uuidString)'.")
+            return
+        }
+
+        // handle an event to request propositions from the remote
+        if event.isUpdatePropositionsEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to update propositions from the remote.")
+            fetchPropositions(event, for: event.surfaces ?? [], xdm: event.updatePropositionsXdm, data: event.updatePropositionsData)
+            return
+        }
+
+        // handle an event to get cached propositions from the SDK
+        if event.isGetPropositionsEvent {
+            let requestedSurfaces = event.surfaces ?? []
+            // Surfaces currently being fetched by any in-flight update propositions request.
+            let surfacesInProgress = requestedSurfacesForEventId.values.flatMap { $0 }
+            if requestedSurfaces.contains(where: { surfacesInProgress.contains($0) }) {
+                // A requested surface is being updated right now - queue behind the eventsQueue so the
+                // in-flight update completes first and the get is fulfilled from the latest content.
+                Log.debug(label: MessagingConstants.LOG_TAG,
+                          "Queuing get propositions request; one or more requested surfaces are currently being updated.")
+                eventsQueue.add(event)
+            } else {
+                // No requested surface overlaps an in-flight update - serve immediately from cache,
+                // independent of unrelated update propositions requests for different surfaces.
+                Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to get message propositions cached in the SDK.")
+                retrieveMessages(for: requestedSurfaces, event: event)
+            }
+            return
+        }
+
+        // handle an event to clear persisted content card propositions
+        if event.isClearCachedPropositionsEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to clear persisted content card propositions.")
+            clearCachedContentCardPropositions()
+            return
+        }
+
+        // handle an event to track propositions
+        if event.isTrackPropositionsEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing request to track propositions.")
+
+            guard let propositionInteractionXdm = event.propositionInteractionXdm else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Cannot track proposition item, proposition interaction XDM is not available.")
+                return
+            }
+
+            sendPropositionInteraction(withXdm: enrichWithContentCardOrigin(propositionInteractionXdm))
+            return
+        }
+
+        // handle an event for refreshing in-app messages from the remote
+        if event.isRefreshMessageEvent {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Processing manual request to refresh In-App Message definitions from the remote.")
+            // Register completion handler that notifies RefreshInAppHandler when done
+            Messaging.completionHandlers.append(CompletionHandler(originatingEvent: event) { success in
+                RefreshInAppHandler.shared.handleRefreshComplete(success: success)
+            })
+            fetchPropositions(event)
+            return
+        }
+
+        if event.isLiveActivityUpdateTokenEvent {
+            guard let token = event.liveActivityUpdateToken, !token.isEmpty else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid token could not be found in the event.")
+                return
+            }
+            guard let liveActivityID = event.liveActivityID, !liveActivityID.isEmpty else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid Live Activity ID could not be found in the event.")
+                return
+            }
+
+            // If the Live Activity ID, attribute type, and update token are valid, update the shared state.
+            if let attributeType = event.liveActivityAttributeType {
+                let updateToken = LiveActivity.UpdateToken(attributeType: attributeType, firstIssued: event.timestamp, token: token)
+                stateManager.updateTokenStore.set(updateToken, id: liveActivityID)
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+            } else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to create a shared state for Live Activity update event (\(event.id.uuidString)) because a valid Live Activity attribute type could not be found in the event.")
+            }
+
+            sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
+            return
+        }
+
+        if event.isLiveActivityStartEvent {
+            guard let origin = event.liveActivityOrigin else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity start event (\(event.id.uuidString)) because a valid 'origin' could not be found in the event.")
+                return
+            }
+
+            if let channelID = event.liveActivityChannelID,
+               !channelID.isEmpty,
+               let attributeType = event.liveActivityAttributeType {
+                stateManager.channelActivityStore.set(.init(attributeType: attributeType, startedAt: event.timestamp), id: channelID)
+                runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+            }
+
+            sendLiveActivityStart(channelID: event.liveActivityChannelID, liveActivityID: event.liveActivityID, origin: origin, event: event)
+            return
+        }
+
+        // Handles removal of Live Activity update tokens when the activity reaches an ended or dismissed state
+        if event.isLiveActivityStateEvent {
+            guard let activityState = event.liveActivityState else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity state event (\(event.id.uuidString)) because a valid 'state' could not be found in the event.")
+                return
+            }
+            guard let attributeType = event.liveActivityAttributeType else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity state event (\(event.id.uuidString)) because a valid attribute type could not be found in the event.")
+                return
+            }
+            guard activityState == MessagingConstants.LiveActivity.States.ENDED
+                || activityState == MessagingConstants.LiveActivity.States.DISMISSED else {
+                Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity state event (\(event.id.uuidString)) is not 'ended' or 'dismissed'. Skipping.")
+                return
+            }
+
+            // At this point the Live Activity has reached a terminal state (.ended or .dismissed)
+            // Clean up entry in respective store, depending on which ID type is present
+            if let liveActivityID = event.liveActivityID {
+                stateManager.updateTokenStore.remove(id: liveActivityID)
+            } else if let channelID = event.liveActivityChannelID {
+                stateManager.channelActivityStore.remove(id: channelID)
+            } else {
+                // If neither are present, exit without publishing a new shared state
+                return
+            }
+
+            runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+        }
+
+        handleEdgeIdentityDependentEvents(event)
+    }
+
+    func handleEdgeIdentityDependentEvents(_ event: Event) {
+        // MARK: Hard dependency on Edge Identity module for all logic below
+
+        guard let edgeIdentitySharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeIdentity.NAME, event: event)?.value else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Event (\(event.id.uuidString)) processing is paused. Waiting for valid XDM shared state from Edge Identity.")
+            return
+        }
+
+        // Handle batched live activity push-to-start token event
+        if event.isLiveActivityPushToStartTokenEvent {
+            handleBatchedPushToStartTokenEvent(event, edgeIdentitySharedState: edgeIdentitySharedState)
+        }
+
+        // handle push interaction event
+        if event.isPushInteractionEvent {
+            if let clickThroughUrl = event.pushClickThroughUrl {
+                DispatchQueue.main.async {
+                    ServiceProvider.shared.urlService.openUrl(clickThroughUrl)
+                }
+            }
+            sendPushInteraction(event: event)
+            return
+        }
+
+        // handle push token event
+        if event.isPushTokenEvent {
+            guard let token = event.token, !token.isEmpty else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
+                return
+            }
+
+            if !shouldSyncPushToken(event) {
+                return
+            }
+
+            // If the push token is valid update the shared state.
+            createMessagingSharedState(token: token, event: event)
+
+            // get identityMap from the edge identity xdm shared state
+            guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event that identity map is not available" +
+                    "from edge identity xdm shared state - '\(event.id.uuidString)'.")
+                return
+            }
+
+            // get the ECID array from the identityMap
+            guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
+                  !ecidArray.isEmpty, let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
+                  !ecid.isEmpty
+            else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Cannot process event as ecid is not available in the identity map - '\(event.id.uuidString)'.")
+                return
+            }
+
+            sendPushToken(ecid: ecid, token: token, event: event)
+        }
+    }
+
+    // MARK: - Private helper methods
+
+    /// Retrieves the ECID from the Edge Identity shared state.
+    /// - Parameters:
+    ///   - edgeIdentitySharedState: The shared state dictionary from the Edge Identity module.
+    /// - Returns: The ECID string if available; otherwise, nil.
+    private func retrieveECID(from edgeIdentitySharedState: [AnyHashable: Any]) -> String? {
+        // Retrieve the identity map from the shared state.
+        guard let identityMap = edgeIdentitySharedState[MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP] as? [AnyHashable: Any] else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve ECID. Identity map not found in Edge Identity shared state.")
+            return nil
+        }
+
+        // Retrieve the ECID array from the identity map.
+        guard let ecidArray = identityMap[MessagingConstants.SharedState.EdgeIdentity.ECID] as? [[AnyHashable: Any]],
+              !ecidArray.isEmpty,
+              let ecid = ecidArray[0][MessagingConstants.SharedState.EdgeIdentity.ID] as? String,
+              !ecid.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to retrieve ECID: ECID not found or invalid in identity map.")
+            return nil
+        }
+
+        return ecid
+    }
+
+    /// Processes a batched push-to-start token event from the Live Activity API layer.
+    ///
+    /// This method validates and stores each token in the batch, updates shared state if there are changes,
+    /// and sends all current tokens to Edge.
+    ///
+    /// - Parameters:
+    ///   - event: The event containing the batched push-to-start tokens.
+    ///   - edgeIdentitySharedState: The shared state from Edge Identity containing the ECID.
+    private func handleBatchedPushToStartTokenEvent(_ event: Event, edgeIdentitySharedState: [AnyHashable: Any]) {
+        guard let batchedTokens = event.liveActivityBatchedPushToStartTokens, !batchedTokens.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity push-to-start event (\(event.id.uuidString)): no tokens found.")
+            return
+        }
+
+        Log.debug(label: MessagingConstants.LOG_TAG, "Processing push-to-start tokens (\(batchedTokens.count) types)")
+
+        // Process each token in the batch and track if any were new/changed
+        let hasChanges = batchedTokens.reduce(into: false) { hasChanges, tokenData in
+            guard let token = tokenData[MessagingConstants.XDM.Push.TOKEN], !token.isEmpty,
+                  let attributeType = tokenData[MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE], !attributeType.isEmpty
+            else {
+                return
+            }
+            let pushToStartToken = LiveActivity.PushToStartToken(firstIssued: event.timestamp, token: token)
+            let didChange = stateManager.pushToStartTokenStore.set(pushToStartToken, id: attributeType)
+            hasChanges = hasChanges || didChange
+        }
+
+        guard shouldSyncPushToStartTokens(event: event, hasChanges: hasChanges) else {
+            return
+        }
+
+        runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+
+        // Get all current tokens and send them to Edge
+        let tokenMap = stateManager.pushToStartTokenStore.all()
+        guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
+            return
+        }
+        sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
+    }
+
+    /// Creates a shared state for the messaging extension with the provided push token.
+    /// - Parameters:
+    ///   - token: the push identifier to be set in the shared state
+    ///   - event: the `Event` that triggered the creation of the shared state
+    private func createMessagingSharedState(token: String?, event: Event) {
+        var state = stateManager.buildMessagingSharedState()
+
+        // Overlay push identifier change driven by this call
+        if let token = token, !token.isEmpty {
+            state[MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] = token
+        } else {
+            state.removeValue(forKey: MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER)
+        }
+
+        runtime.createSharedState(data: state, event: event)
+    }
+
+    /// Handles the reset identities event: clears persisted state and re-dispatches push-to-start
+    /// tokens so they re-flow to Edge with the new ECID.
+    private func handleResetIdentitiesEvent(_ event: Event) {
+        Log.debug(label: MessagingConstants.LOG_TAG, "Processing reset identities event, clearing push identifier and live activity tokens.")
+        stateManager.pushIdentifier = nil
+
+        let preservedPushToStartTokens = stateManager.pushToStartTokenStore.all()
+        stateManager.pushToStartTokenStore.clear()
+        stateManager.updateTokenStore.clear()
+        stateManager.channelActivityStore.clear()
+
+        clearCachedContentCardPropositions()
+
+        runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+
+        dispatchPersistedTokenResync(includePushToken: false,
+                                     pushToStartTokens: preservedPushToStartTokens,
+                                     event: event)
+    }
+
+    /// Clears in-memory content card state and persisted disk cache.
+    private func clearContentCards() {
+        qualifiedContentCardsBySurface = [:]
+        contentCardRulesBySurface = [:]
+        networkRefreshedSurfaces = []
+        contentCardRulesEngine.launchRulesEngine.replaceRules(with: [])
+        try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
+        Log.debug(label: MessagingConstants.LOG_TAG, "Content card state cleared.")
+    }
+
+    /// Full clear: in-memory qualified cards, rules engines, networkRefreshedSurfaces, and disk cache.
+    /// Used by `resetIdentities` and the public `clearCachedPropositions()` API where a complete
+    /// wipe is required. Does not affect CBE or inbox propositions.
+    private func clearCachedContentCardPropositions() {
+        clearContentCards()
+    }
+
+    /// Evicts only the persisted disk cache for content cards.
+    /// In-memory state (`qualifiedContentCardsBySurface`, `contentCardRulesBySurface`,
+    /// `networkRefreshedSurfaces`, and the rules engine) is left intact so that the current
+    /// session's network-fetched cards continue to be served.
+    ///
+    /// Used in two places:
+    ///  - `applyPropositionChangeFor` when the offline flag is `false` — disk is cleared after a
+    ///    successful network response; `updateRulesEngines` immediately follows and rebuilds memory.
+    ///  - `retrieveMessages` when the offline flag is `false` — stale leftover disk data from a
+    ///    prior session (when the flag was `true`) is evicted; the network-origin in-memory cards
+    ///    are served normally.
+    private func clearContentCardDiskCache() {
+        try? cache.remove(key: MessagingConstants.Caches.CONTENT_CARD_PROPOSITIONS)
+        Log.debug(label: MessagingConstants.LOG_TAG, "Content card disk cache cleared (in-memory state preserved).")
+    }
+
+    /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
+    private func handleEdgeConsentResponse(_ event: Event) {
+        guard let collectVal = extractCollectConsent(from: event.data) else {
+            return
+        }
+        defer { lastObservedCollectConsent = collectVal }
+
+        guard collectVal == MessagingConstants.Event.Data.Key.Consent.YES,
+              lastObservedCollectConsent != MessagingConstants.Event.Data.Key.Consent.YES
+        else {
+            return
+        }
+
+        dispatchPersistedTokenResync(includePushToken: true,
+                                     pushToStartTokens: stateManager.pushToStartTokenStore.all(),
+                                     event: event)
+    }
+
+    /// Re-dispatches persisted tokens as Messaging events so they re-flow through `handleProcessEvent`
+    /// using the current ECID. Shared by reset-identities and consent-granted flows.
+    private func dispatchPersistedTokenResync(includePushToken: Bool,
+                                              pushToStartTokens: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
+                                              event: Event) {
+        if !pushToStartTokens.isEmpty {
+            // Cleared so the same-token equivalence guard does not drop the re-flow.
+            stateManager.pushToStartTokenStore.clear()
+            let tokensArray = pushToStartTokens.map { attributeType, tokenData in
+                [
+                    MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+                    MessagingConstants.XDM.Push.TOKEN: tokenData.token
+                ]
+            }
+            let resyncEvent = Event(
+                name: "\(MessagingConstants.Event.Name.LiveActivity.PUSH_TO_START) (Batched) Re-sync",
+                type: EventType.messaging,
+                source: EventSource.requestContent,
+                data: [
+                    MessagingConstants.Event.Data.Key.LiveActivity.PUSH_TO_START_TOKEN: true,
+                    MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
+                ])
+            dispatch(event: resyncEvent)
+        }
+
+        // Cleared so `shouldSyncPushToken`'s same-token guard does not block the re-flow.
+        if includePushToken, let token = stateManager.pushIdentifier, !token.isEmpty {
+            stateManager.pushIdentifier = nil
+            let pushTokenResyncEvent = Event(
+                name: "Push Identifier Re-sync",
+                type: EventType.genericIdentity,
+                source: EventSource.requestContent,
+                data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: token])
+            dispatch(event: pushTokenResyncEvent)
+        }
+    }
+
+    private func extractCollectConsent(from data: [String: Any]?) -> String? {
+        return (data?[MessagingConstants.Event.Data.Key.Consent.CONSENTS] as? [String: Any])
+            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.COLLECT] as? [String: Any] }
+            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.VAL] as? String }
+    }
+
+    /// Checks if the push identifier can be synced
+    /// - Parameter event: the generic request identity`event` containing the push identifier
+    /// - Returns: `true` if the push identifier can be synced, `false` otherwise
+    private func shouldSyncPushToken(_ event: Event) -> Bool {
+        // check if the push token sync optimization will be used.
+        // if true, the push token will be synced only if it has changed.
+        // if the value is not present, it will default to true.
+        let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
+        let optimizePushSync = configSharedState?.value?[MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC] as? Bool ?? true
+        let existingPushToken = stateManager.pushIdentifier
+        let pushTokensMatch = existingPushToken == event.token
+        var shouldSync: Bool
+
+        if !pushTokensMatch {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push token is new or changed. The push token will be synced.")
+            shouldSync = true
+        } else if !optimizePushSync && isPushTokenSyncTimeoutExpired(event.timestamp) {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push registration sync optimization is disabled. The push token will be synced.")
+            shouldSync = true
+        } else {
+            let blockedSyncReason = optimizePushSync ? MessagingConstants.OPTIMIZE_PUSH_SYNC_ENABLED : MessagingConstants.OPTIMIZE_PUSH_SYNC_DISABLED_SYNC_WITHIN_TIMEOUT
+            Log.debug(label: MessagingConstants.LOG_TAG, "\(blockedSyncReason). The push token will not be synced.")
+            shouldSync = false
+        }
+
+        if shouldSync {
+            // persist the push token in the messaging named collection
+            stateManager.pushIdentifier = event.token
+
+            // store the event timestamp of the last push token sync in-memory
+            lastPushTokenSyncTimestamp = event.timestamp
+        }
+
+        return shouldSync
+    }
+
+    /// Checks if the push token sync timeout has expired
+    /// - Parameter eventTimestamp: the timestamp of the event
+    /// - Returns: `true` if the timeout has expired, `false` otherwise
+    private func isPushTokenSyncTimeoutExpired(_ eventTimestamp: Date) -> Bool {
+        guard let lastPushTokenSyncTimestamp = lastPushTokenSyncTimestamp else {
+            return true
+        }
+        return eventTimestamp.timeIntervalSince(lastPushTokenSyncTimestamp) > MessagingConstants.IGNORE_PUSH_SYNC_TIMEOUT_SECONDS
+    }
+
+    private func shouldSyncPushToStartTokens(event: Event, hasChanges: Bool) -> Bool {
+        if hasChanges {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push-to-start token is new or changed. The push-to-start tokens will be synced.")
+            return true
+        }
+
+        let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
+        let optimizePushSync = configSharedState?.value?[MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC] as? Bool ?? true
+        if !optimizePushSync {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Push-to-start sync optimization is disabled. The push-to-start tokens will be synced.")
+            return true
+        }
+
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  "Push-to-start sync optimization is enabled. The push-to-start tokens will not be synced.")
+        return false
+    }
+
+    // MARK: - In-app Messaging methods
+
+    /// Processes debug events triggered by the system.
+    /// A debug event allows the messaging extension to processes non-production workflows.
+    /// - Parameter event: the debug `Event` to be handled.
+    private func handleDebugEvent(_ event: Event) {
+        // handle rules consequence debug events
+        if event.debugEventType == EventType.rulesEngine, event.debugEventSource == EventSource.responseContent {
+            // we can only handle schema consequences
+            guard event.isSchemaConsequence, event.data != nil else {
+                Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. Either consequence is not of type 'schema' or 'eventData' is nil.")
+                return
+            }
+
+            // create a temporary proposition item
+            guard let temporaryPropositionItem = PropositionItem.fromRuleConsequenceEvent(event) else {
+                return
+            }
+
+            switch temporaryPropositionItem.schema {
+            case .inapp:
+                if
+                    let message = Message.fromPropositionItem(temporaryPropositionItem, with: self, triggeringEvent: event) {
+                    message.trigger()
+                    message.show(withMessagingDelegateControl: true)
+                }
+            default:
+                return
+            }
+        }
+    }
+
+    /// Called on every event, used to allow processing of the Messaging rules engine
+    private func handleWildcardEvent(_ event: Event) {
+        rulesEngine.process(event: event)
+
+        let qualifiedContentCardsBySurface = getPropositionsFromContentCardRulesEngine(event)
+        for (surface, propositions) in qualifiedContentCardsBySurface {
+            addOrReplaceContentCards(propositions, forSurface: surface)
+        }
+    }
+
+    /// Prevents multiple propositions from being in `qualifiedContentCardsBySurface` at the same time
+    /// If an existing entry for a proposition is found, it is replaced with the value in `propositions`.
+    /// If no prior entry exists for a proposition, a `trigger` event will be sent (and written to event history).
+    private func addOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface) {
+        let startingCount = qualifiedContentCardsBySurface[surface]?.count ?? 0
+        if var existingPropositionsArray = qualifiedContentCardsBySurface[surface] {
+            var newPropositionsToTrack: [PropositionItem] = []
+
+            for proposition in propositions {
+                if let index = existingPropositionsArray.firstIndex(of: proposition) {
+                    // Re-qualification of an already-present card: replace the instance in place.
+                    // Provenance is tracked per-surface in `networkRefreshedSurfaces`, not on the
+                    // proposition, so no per-instance origin needs to be carried over here.
+                    existingPropositionsArray.remove(at: index)
+                } else {
+                    // Add to batch tracking array if it's a new proposition
+                    if let item = proposition.items.first {
+                        newPropositionsToTrack.append(item)
+                    }
+                }
+                existingPropositionsArray.append(proposition)
+            }
+
+            // Batch track new propositions
+            if !newPropositionsToTrack.isEmpty {
+                newPropositionsToTrack.track(withEdgeEventType: .trigger)
+            }
+
+            qualifiedContentCardsBySurface[surface] = existingPropositionsArray
+        } else {
+            // If no existing propositions, batch track all new propositions
+            let propositionItems = propositions.compactMap { $0.items.first }
+            if !propositionItems.isEmpty {
+                propositionItems.track(withEdgeEventType: .trigger)
+            }
+            qualifiedContentCardsBySurface[surface] = propositions
+        }
+
+        let cardCount = qualifiedContentCardsBySurface[surface]?.count ?? 0
+        if startingCount != cardCount {
+            if cardCount > 0 {
+                Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for \(cardCount) content card(s) for surface \(surface.uri).")
+            } else {
+                Log.trace(label: MessagingConstants.LOG_TAG, "User has not qualified for any content cards for surface \(surface.uri).")
+            }
+        }
+    }
+
+    /// Authoritatively refreshes the content card cache using the response from a personalization network request.
+    ///
+    /// Called after a personalization response stream completes. Treats the response as the source of truth
+    /// for the requested surfaces:
+    /// - Any requested surface that returned no qualified propositions is removed from cache, preventing stale
+    ///   cards from persisting after a server-side change.
+    /// - For surfaces that did return propositions, the cached list is fully replaced (not merged) with the new results.
+    /// - Propositions that are new (not previously in the cache) generate a `trigger` event sent to Edge Network.
+    ///
+    /// - Parameters:
+    ///   - qualifiedContentCards: The propositions keyed by surface, as returned by the content card rules engine.
+    ///   - requestedSurfaces: The surfaces that were included in the originating personalization request;
+    ///     used to identify surfaces that should be cleared if absent from the response.
+    private func removeOrReplaceContentCards(_ qualifiedContentCards: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
+        // Only touch surfaces that were explicitly part of this network request.
+        // The CC rules engine re-evaluates ALL loaded rules on every call, so `qualifiedContentCards`
+        // may include surfaces that were hydrated from disk for a different (or previous) request.
+        // Leaving non-requested surfaces untouched keeps them out of `networkRefreshedSurfaces`, so
+        // disk-hydrated cards continue to report `servedFromPersistentCache = true`.
+        //
+        // This is also the single place that maintains `networkRefreshedSurfaces`. A surface is
+        // marked network-refreshed when this network response delivered content card rules for it
+        // — not when a card qualifies. Trigger-gated content cards qualify later (via
+        // `addOrReplaceContentCards` on a matching event), so keying off rule delivery keeps those
+        // surfaces marked network-refreshed until the campaign is removed server-side.
+        var refreshedSurfaces = networkRefreshedSurfaces
+        for surface in requestedSurfaces {
+            let hasNetworkRules = !(contentCardRulesBySurface[surface]?.isEmpty ?? true)
+            let propositions = qualifiedContentCards[surface]
+
+            // Mark network-refreshed when this response delivered content card rules for the
+            // surface OR a card qualified immediately. Content cards are always rule-based, so
+            // `hasNetworkRules` covers every case; the qualified-card check is a defensive fallback
+            // that guarantees this never regresses the previous qualification-based behavior.
+            if hasNetworkRules || propositions != nil {
+                refreshedSurfaces.insert(surface)
+            } else {
+                refreshedSurfaces.remove(surface)
+            }
+
+            guard let propositions = propositions else {
+                // Requested surface has no currently-qualified content cards (campaign ended
+                // server-side, or a trigger-gated card has not qualified yet). Evict any stale
+                // cached cards; the surface's network-refreshed state is governed above.
+                qualifiedContentCardsBySurface.removeValue(forKey: surface)
+                continue
+            }
+
+            let existingPropositions = qualifiedContentCardsBySurface[surface] ?? []
+            let startingCount = existingPropositions.count
+
+            var newPropositionsToTrack: [PropositionItem] = []
+            for proposition in propositions {
+                if !existingPropositions.contains(proposition) {
+                    if let item = proposition.items.first {
+                        newPropositionsToTrack.append(item)
+                    }
+                }
+            }
+
+            qualifiedContentCardsBySurface[surface] = propositions
+
+            if !newPropositionsToTrack.isEmpty {
+                newPropositionsToTrack.track(withEdgeEventType: .trigger)
+            }
+
+            let newCount = propositions.count
+            if startingCount != newCount {
+                if newCount > 0 {
+                    Log.trace(label: MessagingConstants.LOG_TAG, "User has qualified for \(newCount) content card(s) for surface \(surface.uri).")
+                } else {
+                    Log.trace(label: MessagingConstants.LOG_TAG, "User has not qualified for any content cards for surface \(surface.uri).")
+                }
+            }
+        }
+        networkRefreshedSurfaces = refreshedSurfaces
+    }
+
+    /// Removes the `Proposition` matching `activityId` from the in-memory qualified cards map.
+    /// Called by `handleRulesResponse` when an eventHistoryOperation consequence fires with
+    /// a disqualify/unqualify event type (triggered on card dismiss).
+    /// NOTE: Disk eviction on dismiss (Option B, P0) is not yet implemented — on the next cold start
+    /// the dismissed card may reappear if the disk cache still contains it.
+    private func removePropositionFromQualifiedCards(for activityId: String) {
+        for (surface, propositions) in qualifiedContentCardsBySurface {
+            if let matchedProposition = propositions.first(where: { $0.activityId == activityId }),
+               let index = propositions.firstIndex(of: matchedProposition) {
+                qualifiedContentCardsBySurface[surface]?.remove(at: index)
+                break
+            }
+        }
+    }
+
+    private func isInternetAvailable() -> Bool {
+        ServiceProvider.shared.networkService.isInternetAvailable()
+    }
+
+    /// Reads `messaging.contentCardOfflineAvailable` from the Configuration shared state.
+    /// Defaults to `false` when the key is absent — disk persistence is opt-in. Apps must
+    /// explicitly set `messaging.contentCardOfflineAvailable = true` in their config to enable
+    /// content card persistence across sessions. Pass `event: nil` to read the latest state.
+    private func isContentCardOfflineAvailable(for event: Event? = nil) -> Bool {
+        let config = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
+        let rawValue = config?.value?[MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE]
+        let value = rawValue as? Bool ?? false
+        Log.debug(label: MessagingConstants.LOG_TAG, "isContentCardOfflineAvailable: \(value) (key '\(MessagingConstants.SharedState.Configuration.CONTENT_CARD_OFFLINE_AVAILABLE)' \(rawValue == nil ? "absent from config — defaulting to false" : "found in config"))")
+        return value
+    }
+
+    /// Generates and dispatches an event prompting the Edge extension to fetch propositions (in-app, content cards, or code-based experiences).
+    ///
+    /// The surface URIs used in the request are generated using the `bundleIdentifier` for the app.
+    /// If the `bundleIdentifier` is unavailable, calling this method will do nothing.
+    ///
+    /// - Parameters:
+    ///   - event - parent event requesting that the messages be fetched. Used for event chaining to help with debugging.
+    ///   - surfaces: an array of surface path strings for fetching propositions, if available.
+    private func fetchPropositions(_ event: Event, for surfaces: [Surface]? = nil, xdm customXdm: [String: Any]? = nil, data customData: [String: Any]? = nil) {
+        // check for completion handler for requesting event
+        let handler = completionHandlerFor(originatingEventId: event.id)
+
+        // Only gate explicit user-triggered update requests on network availability.
+        // Boot-time fetches are intentionally allowed through — Edge handles offline gracefully on its own.
+        if event.isUpdatePropositionsEvent {
+            guard isInternetAvailable() else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Network is unavailable.")
+                handler?.handle?(false)
+                return
+            }
+        }
+
+        var requestedSurfaces: [Surface] = []
+
+        // if surfaces are provided, use them - otherwise assume the request is for base surface (mobileapp://{bundle identifier})
+        if let surfaces = surfaces {
+            requestedSurfaces = surfaces.filter { $0.isValid }
+
+            guard !requestedSurfaces.isEmpty else {
+                Log.debug(label: MessagingConstants.LOG_TAG, "Unable to update messages, no valid surfaces found.")
+                handler?.handle?(false)
+                return
+            }
+        } else {
+            guard appSurface != "unknown" else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to update messages, cannot read the bundle identifier.")
+                handler?.handle?(false)
+                return
+            }
+            requestedSurfaces = [Surface(uri: appSurface)]
+        }
+
+        // build the personalization request event data, merging any caller-provided custom XDM/data
+        let eventData = createPersonalizationRequestEventData(for: requestedSurfaces, xdm: customXdm, data: customData)
+
+        let newEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.RETRIEVE_MESSAGE_DEFINITIONS,
+                                                type: EventType.edge,
+                                                source: EventSource.requestContent,
+                                                data: eventData)
+
+        // create entries in our local containers for managing streamed responses from edge
+        beginRequestFor(newEvent, with: requestedSurfaces)
+
+        if var handler = handler {
+            handler.edgeRequestEventId = newEvent.id
+            Messaging.completionHandlers.append(handler)
+        }
+
+        // dispatch the event and implement handler for the completion event
+        MobileCore.dispatch(event: newEvent, timeout: 10.0) { responseEvent in
+            // responseEvent is the event dispatched by Edge extension when a request's stream has been closed
+            guard let responseEvent = responseEvent,
+                  let endingEventId = responseEvent.requestEventId
+            else {
+                // response event failed or timed out, need to remove this event from the queue
+                self.requestedSurfacesForEventId.removeValue(forKey: newEvent.id.uuidString)
+                self.nonRecoverableErrorEventIds.remove(newEvent.id.uuidString)
+                self.eventsQueue.start()
+
+                // Call completion handler with failure so callers know the request failed
+                if let handler = self.completionHandlerFor(edgeRequestEventId: newEvent.id) {
+                    handler.handle?(false)
+                }
+
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to run completion logic for a personalization request event - unable to obtain parent event ID")
+                return
+            }
+
+            // dispatch an event signaling messaging extension needs to finalize this event
+            // it must be dispatched to the event queue to avoid a race with the events containing propositions
+            let processCompletedEvent = responseEvent.createChainedEvent(name: MessagingConstants.Event.Name.FINALIZE_PROPOSITIONS_RESPONSE,
+                                                                         type: EventType.messaging,
+                                                                         source: EventSource.contentComplete,
+                                                                         data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: endingEventId])
+            self.dispatch(event: processCompletedEvent)
+        }
+    }
+
+    /// Builds the event data for a `decisioning.propositionFetch` edge event for the provided surfaces.
+    ///
+    /// Any caller-provided `xdm` is merged into the request's XDM object and any caller-provided `data` is merged into the
+    /// request's free-form data object. Internal keys required by the SDK — the personalization request `eventType` in XDM and
+    /// the `__adobe` in-app response format in data — always take precedence and cannot be overwritten by the caller.
+    /// - Parameters:
+    ///   - surfaces: the valid surfaces to request propositions for.
+    ///   - customXdm: optional custom XDM fields to merge into the request XDM.
+    ///   - customData: optional custom free-form data to merge into the request data.
+    /// - Returns: the event data dictionary for the chained edge request event.
+    func createPersonalizationRequestEventData(for surfaces: [Surface], xdm customXdm: [String: Any]?, data customData: [String: Any]?) -> [String: Any] {
+        var eventData: [String: Any] = [:]
+
+        // add `query` parameters containing supported schemas and requested surfaces
+        eventData[MessagingConstants.XDM.Inbound.Key.QUERY] = [
+            MessagingConstants.XDM.Inbound.Key.PERSONALIZATION: [
+                MessagingConstants.XDM.Inbound.Key.SCHEMAS: Messaging.supportedSchemas,
+                MessagingConstants.XDM.Inbound.Key.SURFACES: surfaces.compactMap { $0.uri }
+            ]
+        ]
+
+        // add `xdm` with an event type of `decisioning.propositionFetch`, merging any caller-provided XDM.
+        // the internal `eventType` is required and always wins over a caller-provided value on collision.
+        var requestXdm: [String: Any] = [
+            MessagingConstants.XDM.Key.EVENT_TYPE: MessagingConstants.XDM.Inbound.EventType.PROPOSITION_FETCH
+        ]
+        if let customXdm = customXdm {
+            requestXdm.merge(customXdm) { internalValue, _ in internalValue }
+        }
+        eventData[MessagingConstants.XDM.Key.XDM] = requestXdm
+
+        // add a `data` object to the request specifying the format desired in the response from XAS, merging any
+        // caller-provided data. the internal `__adobe` namespace is required and always wins on collision.
+        var requestData: [String: Any] = [
+            MessagingConstants.Event.Data.AdobeKeys.NAMESPACE: [
+                MessagingConstants.Event.Data.AdobeKeys.AJO: [
+                    MessagingConstants.Event.Data.AdobeKeys.INAPP_RESPONSE_FORMAT: MessagingConstants.XDM.Inbound.Value.IAM_RESPONSE_FORMAT
+                ]
+            ]
+        ]
+        if let customData = customData {
+            requestData.merge(customData) { internalValue, _ in internalValue }
+        }
+        eventData[MessagingConstants.Event.Data.Key.DATA] = requestData
+
+        // add a `request` object so we get a response event from edge when the propositions stream is closed for this event
+        eventData[MessagingConstants.XDM.Key.REQUEST] = [
+            MessagingConstants.XDM.Key.SEND_COMPLETION: true
+        ]
+
+        return eventData
+    }
+
+    func handleProcessCompletedEvent(_ event: Event) {
+        defer {
+            // kick off processing the internal events queue after processing is completed for an update propositions request
+            eventsQueue.start()
+        }
+
+        guard let endingEventId = event.data?[MessagingConstants.Event.Data.Key.ENDING_EVENT_ID] as? String,
+              let requestedSurfaces = requestedSurfacesForEventId[endingEventId]
+        else {
+            // shouldn't ever get here, but if we do, we don't have anything to process so we should bail
+            return
+        }
+
+        Log.trace(label: MessagingConstants.LOG_TAG, "End of streaming response events for requesting event '\(endingEventId)'")
+        endRequestFor(eventId: endingEventId)
+
+        // dispatch notification event for request
+        dispatchNotificationEventFor(event, requestedSurfaces: requestedSurfaces)
+    }
+
+    func getPropositionsFromContentCardRulesEngine(_ event: Event) -> [Surface: [Proposition]] {
+        var surfacePropositions: [Surface: [Proposition]] = [:]
+
+        if let propositionItemsBySurface = contentCardRulesEngine.evaluate(event: event) {
+            for (surface, propositionItemsArray) in propositionItemsBySurface {
+                var tempPropositions: [Proposition] = []
+                for propositionItem in propositionItemsArray {
+                    guard let propositionInfo = propositionInfo[propositionItem.itemId] else {
+                        continue
+                    }
+
+                    // get proposition that this item belongs to
+                    let proposition = Proposition(
+                        uniqueId: propositionInfo.id,
+                        scope: propositionInfo.scope,
+                        scopeDetails: propositionInfo.scopeDetails,
+                        items: [propositionItem]
+                    )
+
+                    // check to see if that proposition is already in the array (based on ID)
+                    // if yes, append the propositionItem.  if not, create a new entry for the
+                    // proposition with the new item.
+
+                    if let existingProposition = tempPropositions.first(where: { $0.uniqueId == proposition.uniqueId }) {
+                        propositionItem.proposition = existingProposition
+                        existingProposition.items.append(propositionItem)
+                    } else {
+                        propositionItem.proposition = proposition
+                        tempPropositions.append(proposition)
+                    }
+                }
+
+                surfacePropositions.addArray(tempPropositions, forKey: surface)
+            }
+        }
+
+        return surfacePropositions
+    }
+
+    private func dispatchNotificationEventFor(_ event: Event, requestedSurfaces: [Surface]) {
+        let requestedPropositions = retrieveCachedPropositions(for: requestedSurfaces)
+        guard !requestedPropositions.isEmpty else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Not dispatching a notification event, personalization:decisions response does not contain propositions.")
+            return
+        }
+
+        // dispatch an event with the propositions received from the remote
+        let eventData = [MessagingConstants.Event.Data.Key.PROPOSITIONS: requestedPropositions.flatMap { $0.value }].asDictionary()
+
+        let notificationEvent = event.createChainedEvent(name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_NOTIFICATION,
+                                                         type: EventType.messaging,
+                                                         source: EventSource.notification,
+                                                         data: eventData)
+
+        dispatch(event: notificationEvent)
+    }
+
+    private func beginRequestFor(_ event: Event, with surfaces: [Surface]) {
+        requestedSurfacesForEventId[event.id.uuidString] = surfaces
+
+        // add the Edge request event to update propositions in the events queue.
+        eventsQueue.add(event)
+    }
+
+    private func endRequestFor(eventId: String) {
+        let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
+        applyPropositionChangeFor(eventId: eventId)
+        requestedSurfacesForEventId.removeValue(forKey: eventId)
+        nonRecoverableErrorEventIds.remove(eventId)
+        inProgressPropositions.removeAll()
+        if let handler = completionHandlerFor(edgeRequestEventId: UUID(uuidString: eventId)) {
+            handler.handle?(!requestFailed)
+        }
+    }
+
+    private func applyPropositionChangeFor(eventId: String) {
+        // get the list of requested surfaces for this event
+        guard let requestedSurfaces = requestedSurfacesForEventId[eventId] else {
+            return
+        }
+
+        let ccOfflineAvailable = isContentCardOfflineAvailable()
+        let parsedPropositions = ParsedPropositions(with: inProgressPropositions, requestedSurfaces: requestedSurfaces, runtime: runtime,
+                                                    contentCardOfflineAvailable: ccOfflineAvailable)
+
+        // A non-recoverable Edge error means this request FAILED — an empty response here does not
+        // mean "the campaign is gone," it means "we don't know." Surfaces that returned no data in
+        // this scenario must NOT be evicted from disk, memory, rules engines, nor have their
+        // network-refreshed state changed; their last-known-good state is preserved until a future request succeeds.
+        let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
+        if requestFailed {
+            Log.warning(label: MessagingConstants.LOG_TAG,
+                        "Request '\(eventId)' had a non-recoverable Edge error — preserving existing persisted/in-memory content for requested surfaces instead of evicting.")
+        }
+
+        // surfaces requested but not returned must be cleared from both in-memory and disk —
+        // unless the request itself failed (see above), in which case nothing is evicted.
+        let returnedSurfaces = Array(inProgressPropositions.keys) as [Surface]
+        let surfacesToRemove = requestFailed ? [] : requestedSurfaces.minus(returnedSurfaces)
+
+        // DISK FIRST: write all proposition types to disk before updating in-memory.
+        // Failures are non-fatal and already logged inside cache.update*; the current session
+        // still works via in-memory state.
+        cache.updatePropositions(parsedPropositions.propositionsToPersist, removing: surfacesToRemove)
+        if ccOfflineAvailable {
+            cache.updateContentCardPropositions(parsedPropositions.contentCardPropositionsToPersist, removing: surfacesToRemove)
+        } else {
+            // Feature disabled — evict stale disk data only when the request actually succeeded.
+            // In-memory state is intentionally left intact; updateRulesEngines follows immediately
+            // and rebuilds qualifiedContentCardsBySurface from the network response.
+            if !requestFailed {
+                clearContentCardDiskCache()
+            }
+        }
+
+        // IN-MEMORY: update all in-memory caches after disk writes.
+        // Content card provenance is tracked per-surface in `networkRefreshedSurfaces`, maintained by
+        // `removeOrReplaceContentCards` (called via `updateRulesEngines` below); no per-proposition
+        // tagging is needed on the network path.
+        updatePropositions(parsedPropositions.propositionsToCache, removing: surfacesToRemove)
+        updateInboxPropositions(parsedPropositions.inboxPropositionsToCache, removing: surfacesToRemove)
+        updatePropositionInfo(parsedPropositions.propositionInfoToCache, removing: surfacesToRemove)
+
+        // apply rules. On a failed request, pass only the surfaces that DID return data (usually none)
+        // so `updateRulesEngines` cannot clear rules/qualified-cards/origin for surfaces that simply
+        // weren't part of a successful response.
+        updateRulesEngines(with: parsedPropositions.surfaceRulesBySchemaType,
+                          requestedSurfaces: requestFailed ? returnedSurfaces : requestedSurfaces)
+
+    }
+
+    private func updateRulesEngines(with surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
+        // Process rules for each schema type
+        processRulesForSchemaType(.inapp, surfaceRulesBySchemaType: surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, rulesBySurface: &inAppRulesBySurface)
+        processRulesForSchemaType(.contentCard, surfaceRulesBySchemaType: surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, rulesBySurface: &contentCardRulesBySurface)
+        processRulesForSchemaType(.eventHistoryOperation, surfaceRulesBySchemaType: surfaceRulesBySchemaType, requestedSurfaces: requestedSurfaces, rulesBySurface: &eventHistoryRulesBySurface)
+
+        // Content card rules engine: always sync from `contentCardRulesBySurface` and refresh the qualified cache.
+        // `processRulesForSchemaType` clears rules for requested surfaces when `.contentCard` is absent from the
+        // response (e.g. campaign removed server-side); we must still replace rules and call `removeOrReplaceContentCards`
+        // in that case — not only when the key is present with an empty map.
+        let collectedContentCardRules = collectRules(from: contentCardRulesBySurface)
+        contentCardRulesEngine.launchRulesEngine.replaceRules(with: collectedContentCardRules)
+
+        let seedEvent = Event(name: "Seed content cards", type: EventType.messaging, source: EventSource.requestContent, data: nil)
+        let qualified = getPropositionsFromContentCardRulesEngine(seedEvent)
+        removeOrReplaceContentCards(qualified, requestedSurfaces: requestedSurfaces)
+
+        // Always sync the in-app + event history rules engine, for the same reason as content
+        // cards above: processRulesForSchemaType already cleared stale entries from
+        // inAppRulesBySurface / eventHistoryRulesBySurface, and the engine must reflect that.
+        let collectedInAppRules = collectRules(from: inAppRulesBySurface)
+
+        // Prefetch assets only when the response actually contained new in-app rules
+        if surfaceRulesBySchemaType[.inapp] != nil {
+            rulesEngine.cacheRemoteAssetsFor(collectedInAppRules)
+        }
+
+        rebuildMainRulesEngine()
+    }
+
+    private func processRulesForSchemaType(
+        _ schemaType: SchemaType,
+        surfaceRulesBySchemaType: [SchemaType: [Surface: [LaunchRule]]],
+        requestedSurfaces: [Surface],
+        rulesBySurface: inout [Surface: [LaunchRule]]) {
+        if let newRules = surfaceRulesBySchemaType[schemaType] {
+            let newSurfaces = Array(newRules.keys)
+            Log.trace(label: MessagingConstants.LOG_TAG, "Processing schema type \(schemaType): for requested surfaces [\(requestedSurfaces.map { $0.uri })], returned surfaces [\(newSurfaces.map { $0.uri })].")
+
+            // merge / replace rules for surfaces present in response
+            rulesBySurface.merge(newRules) { _, new in new }
+
+            // Remove any requested surfaces missing in the response
+            let surfacesToRemove = requestedSurfaces.minus(newSurfaces)
+            for surface in surfacesToRemove {
+                rulesBySurface.removeValue(forKey: surface)
+            }
+        } else {
+            // No rules of this schema type in response – clear any existing rules for requested surfaces
+            for surface in requestedSurfaces {
+                rulesBySurface.removeValue(forKey: surface)
+            }
+        }
+    }
+
+    private func collectRules(from rulesBySurface: [Surface: [LaunchRule]]) -> [LaunchRule] {
+        rulesBySurface.flatMap { $0.value }
+    }
+
+    /// Rebuilds the shared `rulesEngine` from the current `inAppRulesBySurface` and
+    /// `eventHistoryRulesBySurface` dictionaries in one atomic `replaceRules` call.
+    /// Called from both the network path (`updateRulesEngines`) and the offline disk-hydration
+    /// path (`hydrateContentCardRulesEngineFromDisk`) so both use identical logic.
+    private func rebuildMainRulesEngine() {
+        var combined = collectRules(from: inAppRulesBySurface)
+        combined.append(contentsOf: collectRules(from: eventHistoryRulesBySurface))
+        rulesEngine.launchRulesEngine.replaceRules(with: combined)
+    }
+
+    /// Loads CC and event-history rules from the provided propositions into their respective rules engines.
+    ///
+    /// Disk-hydrated cards are intentionally NOT written to `qualifiedContentCardsBySurface` here.
+    /// `qualifiedContentCardsBySurface` is a network-only store: only `removeOrReplaceContentCards`
+    /// (on the network path) writes to it. Disk cards are served lazily via a rules engine re-seed
+    /// inside `retrieveMessages` when `messaging.contentCardOfflineAvailable` is `true`, keeping
+    /// `networkRefreshedSurfaces` as the single, unambiguous source of card origin.
+    ///
+    /// Writing directly to `qualifiedContentCardsBySurface` is also avoided to prevent spurious
+    /// `.trigger` analytics events for boot-seeded disk cards.
+    func hydrateContentCardPropositionsRulesEngine(for surfaces: [Surface], from propositions: [Surface: [Proposition]]) {
+        let filtered = propositions.filter { surfaces.contains($0.key) }
+        guard !filtered.isEmpty else { return }
+
+        let parsedPropositions = ParsedPropositions(with: filtered, requestedSurfaces: surfaces, runtime: runtime,
+                                                    contentCardOfflineAvailable: true)
+        updatePropositionInfo(parsedPropositions.propositionInfoToCache)
+
+        if let ccRules = parsedPropositions.surfaceRulesBySchemaType[.contentCard] {
+            for (surface, rules) in ccRules {
+                contentCardRulesBySurface[surface] = rules
+            }
+            contentCardRulesEngine.launchRulesEngine.replaceRules(with: collectRules(from: contentCardRulesBySurface))
+        }
+
+        if let ehRules = parsedPropositions.surfaceRulesBySchemaType[.eventHistoryOperation] {
+            for (surface, rules) in ehRules {
+                eventHistoryRulesBySurface[surface] = rules
+            }
+            rebuildMainRulesEngine()
+        }
+
+        let ruleCount = parsedPropositions.surfaceRulesBySchemaType[.contentCard]?.values.flatMap { $0 }.count ?? 0
+        Log.debug(label: MessagingConstants.LOG_TAG,
+                  "hydrateContentCardPropositionsRulesEngine — \(ruleCount) CC rule(s) loaded for \(surfaces.count) surface(s); disk cards served lazily in retrieveMessages when offline flag is enabled.")
+    }
+
+    /// Reads persisted content card propositions from disk and hydrates the rules engines directly.
+    /// Disk data is never written to `inMemoryContentCardPropositions` — it is passed straight through
+    /// to `hydrateContentCardPropositionsRulesEngine` so disk and in-memory paths stay independent.
+    func hydrateContentCardRulesEngineFromDisk(for surfaces: [Surface]) {
+        Log.debug(label: MessagingConstants.LOG_TAG, "hydrateContentCardRulesEngineFromDisk — hydrating \(surfaces.count) surface(s): \(surfaces.map(\.uri))")
+        let diskPropositions = readContentCardPropositionsFromDisk(for: surfaces)
+        hydrateContentCardPropositionsRulesEngine(for: surfaces, from: diskPropositions)
+    }
+
+    /// Hydrates the content card rules engine from EVERY persisted surface. Called once at boot from
+    /// `readyForEvent`, mirroring the `bootupIfReady`/`bootupIfNeeded` pattern used by Edge and Edge Identity.
+    /// Disk-hydrated surfaces are intentionally not added to `networkRefreshedSurfaces` (which starts
+    /// empty each session), so any card served for a boot-hydrated surface reports
+    /// `servedFromPersistentCache = true` until a live network response refreshes it this session.
+    /// No-op if nothing has been persisted.
+    func hydrateAllPersistedContentCards() {
+        guard let persisted = cache.contentCardPropositions, !persisted.isEmpty else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "hydrateAllPersistedContentCards — no persisted content cards found, skipping.")
+            return
+        }
+        Log.debug(label: MessagingConstants.LOG_TAG, "hydrateAllPersistedContentCards — found \(persisted.keys.count) surface(s): \(persisted.keys.map(\.uri))")
+        hydrateContentCardRulesEngineFromDisk(for: Array(persisted.keys))
+    }
+
+    /// Dispatches a response event containing all propositions for the requested surfaces.
+    ///
+    /// Content card origin gating (applied at read time to the response only):
+    ///  - `messaging.contentCardOfflineAvailable = false` (default): only content cards whose
+    ///    surface was refreshed from the network **this session** (`networkRefreshedSurfaces`) are
+    ///    returned. Disk-origin cards (surfaces absent from `networkRefreshedSurfaces`) are filtered
+    ///    out of the response, while remaining untouched in memory and on disk.
+    ///  - `messaging.contentCardOfflineAvailable = true`: all qualified content cards for the
+    ///    requested surfaces are returned, regardless of origin.
+    private func retrieveMessages(for surfaces: [Surface], event: Event) {
+        let requestedSurfaces = surfaces.filter { $0.isValid }
+
+        guard !requestedSurfaces.isEmpty else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Unable to retrieve propositions, no valid surface paths found.")
+            dispatch(event: event.createErrorResponseEvent(AEPError.invalidRequest))
+            return
+        }
+
+        let offlineAvailable = isContentCardOfflineAvailable()
+
+        // Offline caching disabled — reclaim disk space by evicting any stale persisted content
+        // cards left over from a prior session (when the flag was enabled). This is a pure
+        // storage cleanup: it does NOT influence what is served, since the response is gated
+        // below purely by `networkRefreshedSurfaces` (in-memory). Skipped when the disk cache is
+        // already clean (nil check avoids redundant work).
+        if !offlineAvailable, cache.contentCardPropositions != nil {
+            clearContentCardDiskCache()
+        }
+
+        var requestedContentCards = qualifiedContentCardsBySurface.filter { requestedSurfaces.contains($0.key) }
+
+        // When offline availability is disabled, show only content cards refreshed from the network
+        // this session. Surfaces absent from `networkRefreshedSurfaces` are disk-origin (offline)
+        // cards and are filtered out of the response. When enabled, everything is served.
+        if !offlineAvailable {
+            requestedContentCards = requestedContentCards.filter { networkRefreshedSurfaces.contains($0.key) }
+        }
+
+        let requestedPropositions = retrieveCachedPropositions(for: requestedSurfaces)
+        let requestedInboxPropositions = inboxPropositionsBySurface.filter { surfaces.contains($0.key) }
+
+        var mergedPropositions = requestedContentCards
+        for (surface, propositions) in requestedPropositions {
+            mergedPropositions.addArray(propositions, forKey: surface)
+        }
+        for (surface, propositions) in requestedInboxPropositions {
+            mergedPropositions.addArray(propositions, forKey: surface)
+        }
+
+        let propositionPayload = mergedPropositions.flatMap { $0.value }.compactMap { $0.asDictionary() }
+        dispatch(event: event.createResponseEvent(
+            name: MessagingConstants.Event.Name.MESSAGE_PROPOSITIONS_RESPONSE,
+            type: EventType.messaging,
+            source: EventSource.responseContent,
+            data: [MessagingConstants.Event.Data.Key.PROPOSITIONS: propositionPayload]
+        ))
+    }
+
+    /// Validates that the received event contains in-app message definitions and loads them in the `MessagingRulesEngine`.
+    /// - Parameter event: an `Event` containing an in-app message definition in its data
+    private func handleEdgePersonalizationNotification(_ event: Event) {
+        // validate this is one of our events
+        guard event.isPersonalizationDecisionResponse,
+              let requestEventId = event.requestEventId,
+              requestedSurfacesForEventId.contains(where: { $0.key == requestEventId })
+        else {
+            // either this isn't the type of response we are waiting for, or it's not a response to one of our requests
+            return
+        }
+
+        Log.trace(label: MessagingConstants.LOG_TAG, "Processing propositions from personalization:decisions network response for event '\(requestEventId)'.")
+        updateInProgressPropositionsWith(event)
+    }
+
+    /// Records non-recoverable Edge errors for in-progress personalization requests.
+    ///
+    /// Edge dispatches `errorResponseContent` for both server-side per-event errors and network/HTTP-level
+    /// failures. Recoverable statuses (see `RECOVERABLE_EDGE_ERROR_STATUS_CODES`) are already being retried
+    /// by Edge's own `PersistentHitQueue` and are intentionally ignored here — Edge may still resolve them.
+    /// Non-recoverable statuses (and errors with no status at all, e.g. a dropped connection-level error)
+    /// are recorded so `applyPropositionChangeFor` can avoid evicting a surface's disk, memory, or
+    /// network-refreshed state when the request failed rather than the server legitimately returning nothing.
+    private func handleEdgeErrorResponse(_ event: Event) {
+        guard event.isEdgeErrorResponseEvent,
+              let requestEventId = event.requestEventId,
+              requestedSurfacesForEventId.contains(where: { $0.key == requestEventId })
+        else {
+            return
+        }
+
+        if let status = event.edgeErrorStatus, MessagingConstants.RECOVERABLE_EDGE_ERROR_STATUS_CODES.contains(status) {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Received recoverable Edge error (status \(status)) for request '\(requestEventId)' — Edge will retry, not marking as failed.")
+            return
+        }
+
+        Log.warning(label: MessagingConstants.LOG_TAG,
+                    "Received non-recoverable Edge error for request '\(requestEventId)' (status \(event.edgeErrorStatus.map(String.init) ?? "unknown")) — persisted and in-memory content for the requested surfaces will not be evicted.")
+        nonRecoverableErrorEventIds.insert(requestEventId)
+    }
+
+    private func updateInProgressPropositionsWith(_ event: Event) {
+        guard event.requestEventId != nil else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no requesting Event ID.")
+            return
+        }
+
+        guard let eventPropositions = event.payload else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring personalization:decisions response with no propositions.")
+            return
+        }
+
+        // loop through propositions for this event and add them to existing props by surface
+        for proposition in eventPropositions {
+            let surface = Surface(uri: proposition.scope)
+            inProgressPropositions.add(proposition, forKey: surface)
+        }
+    }
+
+    /// Returns propositions by surface from `cbePropositions` matching the provided `surfaces`
+    private func retrieveCachedPropositions(for surfaces: [Surface]) -> [Surface: [Proposition]] {
+        inMemoryPropositions.filter { surface, _ in
+            surfaces.contains(where: { $0.uri == surface.uri })
+        }
+    }
+
+    /// Handles rules engine response events (consequences)
+    private func handleRulesResponse(_ event: Event) {
+        guard event.isSchemaConsequence, event.data != nil else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring rule consequence event. Either consequence is not of type 'schema' or 'eventData' is nil.")
+            return
+        }
+
+        // Attempt to create a proposition item from the consequence event
+        guard let propositionItem = PropositionItem.fromRuleConsequenceEvent(event) else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "handleRulesResponse - Ignoring rule consequence event, propositionItem is nil")
+            return
+        }
+
+        switch propositionItem.schema {
+        case .inapp:
+            if let message = Message.fromPropositionItem(propositionItem,
+                                                         with: self,
+                                                         triggeringEvent: event),
+                let propInfo = propositionInfoFor(messageId: propositionItem.itemId) {
+                message.propositionInfo = propInfo
+                message.trigger()
+                message.show(withMessagingDelegateControl: true)
+            }
+
+        case .eventHistoryOperation:
+            guard let schemaData = propositionItem.eventHistoryOperationSchemaData,
+                  let activityId = schemaData.messageId,
+                  let eventType = schemaData.eventType,
+                  !activityId.isEmpty else {
+                Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring event-history operation consequence: required fields missing.")
+                return
+            }
+
+            // Disqualify or unqualify operations should remove the card from qualified status
+            if eventType == MessagingConstants.XDM.Inbound.PropositionEventType.DISQUALIFY ||
+                eventType == MessagingConstants.XDM.Inbound.PropositionEventType.UNQUALIFY {
+                removePropositionFromQualifiedCards(for: activityId)
+            }
+
+        default:
+            return
+        }
+    }
+
+    func propositionInfoFor(messageId: String) -> PropositionInfo? {
+        propositionInfo[messageId]
+    }
+
+    /// Removes and returns a `CompletionHandler` for the provided originatingEventId
+    private func completionHandlerFor(originatingEventId: UUID?) -> CompletionHandler? {
+        let handlerIndex = Messaging.completionHandlers.firstIndex { $0.originatingEventId == originatingEventId }
+        if let index = handlerIndex {
+            return Messaging.completionHandlers.remove(at: index)
+        }
+
+        return nil
+    }
+
+    /// Removes and returns a `CompletionHandler` for the provided edgeRequestEventId
+    private func completionHandlerFor(edgeRequestEventId: UUID?) -> CompletionHandler? {
+        let handlerIndex = Messaging.completionHandlers.firstIndex { $0.edgeRequestEventId == edgeRequestEventId }
+        if let index = handlerIndex {
+            return Messaging.completionHandlers.remove(at: index)
+        }
+
+        return nil
+    }
+
+    // MARK: - debug methods below are used for testing purposes only
+
+    #if DEBUG
+        func propositionInfoCount() -> Int {
+            propositionInfo.count
+        }
+
+        func inMemoryPropositionsCount() -> Int {
+            inMemoryPropositions.count
+        }
+
+        func setRequestedSurfacesforEventId(_ eventId: String, expectedSurfaces: [Surface]) {
+            requestedSurfacesForEventId[eventId] = expectedSurfaces
+        }
+
+        /// Simulates an in-flight update propositions request for unit testing by registering the given
+        /// surfaces and adding the (blocking) Edge request event to the internal events queue, mirroring
+        /// the real `fetchPropositions` -> `beginRequestFor` flow without dispatching a live Edge event.
+        func callBeginRequestFor(_ event: Event, with surfaces: [Surface]) {
+            beginRequestFor(event, with: surfaces)
+        }
+
+        func callUpdateRulesEngines(with rules: [SchemaType: [Surface: [LaunchRule]]], requestedSurfaces: [Surface]) {
+            updateRulesEngines(with: rules, requestedSurfaces: requestedSurfaces)
+        }
+
+        func callAddOrReplaceContentCards(_ propositions: [Proposition], forSurface surface: Surface) {
+            addOrReplaceContentCards(propositions, forSurface: surface)
+        }
+
+        func callRemoveOrReplaceContentCards(_ qualifiedContentCards: [Surface: [Proposition]], requestedSurfaces: [Surface]) {
+            removeOrReplaceContentCards(qualifiedContentCards, requestedSurfaces: requestedSurfaces)
+        }
+
+        func callEnrichWithContentCardOrigin(_ xdm: [String: Any]) -> [String: Any] {
+            enrichWithContentCardOrigin(xdm)
+        }
+
+        func setNetworkRefreshedSurfaces(_ surfaces: Set<Surface>) {
+            networkRefreshedSurfaces = surfaces
+        }
+
+        func getNetworkRefreshedSurfaces() -> Set<Surface> {
+            networkRefreshedSurfaces
+        }
+
+        func setContentCardRulesBySurface(_ rulesBySurface: [Surface: [LaunchRule]]) {
+            contentCardRulesBySurface = rulesBySurface
+        }
+
+        /// Returns a snapshot of the event IDs that received a non-recoverable Edge error this session.
+        func getNonRecoverableErrorEventIds() -> Set<String> {
+            nonRecoverableErrorEventIds
+        }
+
+        /// Directly invokes the private `handleEdgeErrorResponse` handler for unit testing without
+        /// going through the event listener routing.
+        func callHandleEdgeErrorResponse(_ event: Event) {
+            handleEdgeErrorResponse(event)
+        }
+
+        /// Directly invokes the private `clearContentCards` for unit testing.
+        func callClearContentCards() {
+            clearContentCards()
+        }
+    #endif
+}

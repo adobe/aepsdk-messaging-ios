@@ -1,0 +1,36 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_unresolved_comments.md.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_unresolved_comments.md.diff
+new file mode 100644
+index 0000000..e427e33
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/pr495_unresolved_comments.md.diff
+@@ -0,0 +1,29 @@
++diff --git a/pr_reviews/pr495/pr495_unresolved_comments.md b/pr_reviews/pr495/pr495_unresolved_comments.md
++new file mode 100644
++index 0000000..ee9e08c
++--- /dev/null
+++++ b/pr_reviews/pr495/pr495_unresolved_comments.md
++@@ -0,0 +1,23 @@
+++# Existing Unresolved Comments: PR #495
+++
+++**Generated:** 2026-07-28 09:54:18
+++**Total Unresolved:** 0
+++
+++---
+++
+++## Purpose
+++
+++These are existing unresolved review comments on this PR.
+++**Review agents should NOT duplicate these comments.**
+++**Consolidator should merge these with new findings.**
+++
+++---
+++
+++## No Unresolved Comments
+++
+++All existing review comments appear to be resolved.
+++## Quick Reference
+++
+++| File | Line | Reviewer | Issue Summary |
+++|------|------|----------|---------------|
+++
+\ No newline at end of file

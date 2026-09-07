@@ -1,0 +1,81 @@
+<p>The SDK reads <code>scopeDetails.characteristics.mobileParameters.offline</code> from the Edge proposition. <strong>Where authors set this in AJO UI is not yet decided.</strong> Three options under discussion:</p>
+<table class="wrapped"><tbody>
+<tr><th>Option</th><th>Placement</th><th>Granularity</th><th>Trade-offs</th></tr>
+<tr><td><strong>Option 1</strong></td><td>Channel configuration (Content Cards channel)</td><td>Per channel / surface path</td><td>Simple for marketers; all cards on a surface share same offline policy</td></tr>
+<tr><td><strong>Option 2</strong></td><td>Content editor (per card / message)</td><td>Per individual content card</td><td>Fine-grained control; authors decide card-by-card</td></tr>
+<tr><td><strong>Option 3</strong></td><td>Global launch configuration</td><td>App-wide checkboxes (CC offline, CBE offline, Inbox offline, …)</td><td>Centralized policy; less per-message flexibility</td></tr>
+</tbody></table>
+<p><strong>Option 1 — Channel configuration</strong>:</p>
+<p><ac:image ac:align="center" ac:alt="Offline availability at channel config"><ri:attachment ri:filename="offline-flag-channel-config.png"/></ac:image></p>
+<p><strong>Option 2 — Content editor</strong>:</p>
+<p><ac:image ac:align="center" ac:alt="Offline availability in content editor"><ri:attachment ri:filename="offline-flag-content-editor.png"/></ac:image></p>
+<p><strong>Option 3 — Global launch config</strong> (not mocked): checkbox list at extension configuration or wherever feasible — e.g. &quot;Offline availability of Content Cards&quot;, &quot;Offline availability of CBE&quot;, &quot;Offline availability of Inbox&quot;. Applies uniformly to all content in that launch.</p>
+<ac:structured-macro ac:name="note" ac:schema-version="1" ac:macro-id="authoring-open-001"><ac:rich-text-body><p><strong>Open question:</strong> Product must confirm which option (or combination) ships. SDK defaults <code>offlineAvailable = true</code> when flag absent so existing campaigns continue to persist until authoring UI ships.</p></ac:rich-text-body></ac:structured-macro>
+
+<h3>Detailed pros and cons</h3>
+<ac:structured-macro ac:name="info" ac:schema-version="1" ac:macro-id="inbox-offline-context-001"><ac:rich-text-body><p><strong>Inbox context:</strong> For <code>getInboxUI</code>, offline requires <strong>both</strong> the <code>.inbox</code> container-item (layout, capacity, heading) <strong>and</strong> all linked content card propositions on the same inbox surface (<code>i1</code>). Cards alone are insufficient — partial persistence shows error UI on cold start offline. Authors may forget whether a surface was configured for offline unless the flag is visible at channel/surface level.</p></ac:rich-text-body></ac:structured-macro>
+
+<h4>Option 1 — Channel configuration (per surface / channel path)</h4>
+<p><strong>What it is:</strong> One checkbox on the Content Cards (or Inbox) channel. All cards — and for Inbox, the container-item plus linked cards — delivered on that surface inherit the same offline policy.</p>
+<p><strong>Pros</strong></p>
+<ul>
+<li>Simple for marketers — set once per feed/surface, not per card.</li>
+<li>Predictable behavior — every card on <code>home/feed</code> behaves the same offline.</li>
+<li>Aligns with surface model — SDK keys persistence by surface; channel ≈ surface path.</li>
+<li>Natural fit for Inbox — one toggle on inbox surface <code>i1</code> covers container-item and all linked cards together.</li>
+<li>Easier QA — test offline per surface, not per campaign variant.</li>
+<li>Lower authoring friction — no per-message decision on every card.</li>
+<li>Visible surface-level state — authors can see &quot;this surface is offline-enabled&quot; in channel config, reducing &quot;did I cache this?&quot; confusion.</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>Channel reuse is opaque — same channel can back multiple journeys/surfaces; authors may not know every consumer, so one toggle affects unknown placements.</li>
+<li>Backward compatibility is risky — changing channel config retroactively changes offline behavior for all live and future campaigns on that channel without per-campaign visibility.</li>
+<li>Coarse control — can&apos;t exclude time-sensitive or personalized cards on the same feed.</li>
+<li>Cross-team governance — channel owned by platform team; journey authors may not see or control the flag.</li>
+<li>Migration ambiguity — existing channels: default <code>true</code> vs <code>false</code> when UI ships affects every downstream campaign at once (OQ-3).</li>
+<li>Inbox still channel-dependent — if authors configure CC channel offline but forget inbox channel <code>i1</code>, offline Inbox errors even when cards exist on disk.</li>
+</ul>
+
+<h4>Option 2 — Content / action editor (per card or message)</h4>
+<p><strong>What it is:</strong> Checkbox in the content editor when authoring each card or action.</p>
+<p><strong>Pros</strong></p>
+<ul>
+<li>Fine-grained control — authors opt in/out per message (promo yes, live score no).</li>
+<li>Explicit intent — offline is a deliberate choice at creation time.</li>
+<li>Safer for mixed feeds — same surface can mix offline-eligible and online-only cards.</li>
+<li>Clear audit trail — flag travels with the campaign/journey version in payload.</li>
+<li>Matches journey mental model — &quot;this specific message should survive offline.&quot;</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>Legacy content gap — older campaigns/journeys have no flag; behavior depends on SDK default (OQ-3: <code>true</code> = silent cache everything; <code>false</code> = nothing offline until re-authored).</li>
+<li>SDK version skew — customers on older SDK may ignore the flag; same campaign behaves differently by app version.</li>
+<li>Re-edit burden — enabling offline for existing content requires opening and republishing each message.</li>
+<li>Authoring fatigue — checkbox on every card; easy to miss or set inconsistently.</li>
+<li>Inbox complexity — container-item and cards must both be flagged; partial config → error UI offline (see §5.4).</li>
+<li>Easy to forget cache state — authors may flag individual cards but forget inbox container or linked surface; no single &quot;this surface is cached&quot; view.</li>
+<li>Weak fit for Inbox UI — Inbox needs container + cards as one unit; per-card flags don&apos;t map cleanly to surface-level offline behavior.</li>
+</ul>
+
+<h4>Option 3 — Launch / extension configuration (global app policy)</h4>
+<p><strong>What it is:</strong> Checkboxes in Launch (or extension config), e.g. &quot;Offline availability: Content Cards&quot;, &quot;CBE&quot;, &quot;Inbox&quot;. Applies app-wide for that property — all eligible content in that family caches when enabled.</p>
+<p><strong>Pros</strong></p>
+<ul>
+<li>Conscious opt-in — integrator/platform team decides at deploy time; clear ownership.</li>
+<li>Single switch for rollout — enable offline for entire app without touching AJO campaigns.</li>
+<li>Backward compatible for authoring — no change to existing campaigns; policy lives in Launch, not message payload.</li>
+<li>Consistent across SDK versions — once new SDK ships, Launch config drives behavior uniformly.</li>
+<li>Works before authoring UI — can ship SDK + Launch toggle before AJO UI is ready.</li>
+<li>No per-message memory burden — authors don&apos;t need to remember per-card or per-channel flags.</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>No per-message control — when enabled, all eligible CC/CBE/Inbox content caches; marketers can&apos;t exclude sensitive or ephemeral content.</li>
+<li>All-or-nothing per surface family — can&apos;t mix offline CC with online-only CC in the same app.</li>
+<li>Launch ↔ AJO disconnect — marketers don&apos;t see offline policy in journey UI; &quot;why isn&apos;t this updating offline?&quot; support risk.</li>
+<li>Authors lose cache visibility — no signal in AJO whether a surface or Inbox is cached; only Launch admins know app-wide policy.</li>
+<li>Multi-app / multi-surface — one Launch property may map to many surfaces; single checkbox may be too broad or too narrow.</li>
+<li>Inbox same problem at app level — enabling &quot;Inbox offline&quot; caches all inbox surfaces; disabling it breaks all offline Inbox with no per-surface override.</li>
+<li>Payload vs config split — if flag is Launch-only, server must inject <code>mobileParameters.offline</code> at runtime, or SDK reads Launch directly — extra pipeline work vs Options 1/2.</li>
+</ul>

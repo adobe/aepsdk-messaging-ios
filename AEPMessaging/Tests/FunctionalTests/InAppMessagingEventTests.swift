@@ -11,6 +11,7 @@
  */
 
 @testable import AEPCore
+import AEPAnalytics
 import AEPEdge
 import AEPEdgeConsent
 import AEPEdgeIdentity
@@ -61,13 +62,14 @@ class InAppMessagingEventTests: XCTestCase, AnyCodableAsserts {
         /// Data Collection Tag: AJO - IAM Functional Tests
         /// App Surface: AJO - IAM Functional Tests (com.adobe.ajo.e2eTestApp)
         /// DC Environment App ID: 3149c49c3910/04253786b724/launch-0cb6f35aacd0-development
-        MobileCore.configureWith(appId: "3149c49c3910/04253786b724/launch-0cb6f35aacd0-development")
+        MobileCore.configureWith(appId: "3149c49c3910/27ca44e39de6/launch-5d7ca32adf4f")
 
         let extensions = [
             Consent.self,
             Identity.self,
             Messaging.self,
-            Edge.self
+            Edge.self,
+            Analytics.self
         ]
 
         MobileCore.registerExtensions(extensions)

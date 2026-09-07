@@ -1,0 +1,20 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff
+new file mode 100644
+index 0000000..9738991
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift.diff
+@@ -0,0 +1,13 @@
++diff --git a/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift b/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift
++index bf6abbc..71517b2 100644
++--- a/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift
+++++ b/TestApps/MessagingDemoAppSwiftUI/AppPages/ElementViews/TabHeader.swift
++@@ -16,7 +16,7 @@ struct TabHeader: View {
++     var title: String
++     var refreshAction: (() -> Void)?
++     var redownloadAction: (() -> Void)?
++-    
+++
++     var body: some View {
++         ZStack {
++             Text("\(title)")
+\ No newline at end of file

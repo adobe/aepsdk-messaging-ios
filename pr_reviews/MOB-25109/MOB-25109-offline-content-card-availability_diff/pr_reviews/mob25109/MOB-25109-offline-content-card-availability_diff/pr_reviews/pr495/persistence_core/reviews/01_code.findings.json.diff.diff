@@ -1,0 +1,196 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/01_code.findings.json.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/01_code.findings.json.diff
+new file mode 100644
+index 0000000..bd698c5
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/01_code.findings.json.diff
+@@ -0,0 +1,189 @@
++diff --git a/pr_reviews/pr495/persistence_core/reviews/01_code.findings.json b/pr_reviews/pr495/persistence_core/reviews/01_code.findings.json
++new file mode 100644
++index 0000000..524b240
++--- /dev/null
+++++ b/pr_reviews/pr495/persistence_core/reviews/01_code.findings.json
++@@ -0,0 +1,183 @@
+++{
+++  "schema_version": "1.0.0",
+++  "reviewer_id": "devx-pr-review-code",
+++  "findings": [
+++    {
+++      "finding_id": "CODE-1",
+++      "title": "endRequestFor always calls completion handler with success=true, even when the request had a non-recoverable Edge error",
+++      "severity": "CRITICAL",
+++      "confidence": 0.85,
+++      "concern_tags": ["runtime_hygiene", "failure_masking", "public_api_contract"],
+++      "claim": "Messaging.swift:1163-1180 (endRequestFor) unconditionally calls `handler.handle?(true)` regardless of `nonRecoverableErrorEventIds.contains(eventId)`, which `applyPropositionChangeFor` (called one line earlier) already computes as `requestFailed`. `Messaging+PublicAPI.swift:144-148`'s `updatePropositionsForSurfacesWithCompletionHandler` documents 'Called with true if the network response was returned and successfully processed; false on failure', but a non-recoverable Edge error (the exact condition this PR adds detection for) is never propagated to this Bool.",
+++      "why_it_matters": "Callers using the documented pattern (call updatePropositionsForSurfacesWithCompletionHandler, then trust in-memory data on success) will act on stale/incomplete data believing the update succeeded, because the completion signal is blind to the new failure-tracking mechanism this PR introduces for exactly this purpose.",
+++      "suggested_action": "Capture `requestFailed = nonRecoverableErrorEventIds.contains(eventId)` before it is cleared, and call `handler.handle?(!requestFailed)` instead of hardcoded `true`.",
+++      "primary_anchor": { "path": "AEPMessaging/Sources/Messaging.swift", "line": 1178 },
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift:1163-1180 (endRequestFor)",
+++        "AEPMessaging/Sources/Messaging.swift:1182-1198 (applyPropositionChangeFor requestFailed computation)",
+++        "AEPMessaging/Sources/Messaging+PublicAPI.swift:139-148 (documented completion handler contract)"
+++      ],
+++      "evidence_kinds": ["diff", "repo_search", "static_analysis"],
+++      "lens_tags": ["runtime_hygiene"],
+++      "obligation_refs": [],
+++      "caveats": [
+++        "The `handler.handle?(true)` line itself is pre-existing (not added by this diff), but the PR introduces the exact signal (`nonRecoverableErrorEventIds`) needed to fix it and does not wire it through, making the bug newly material to this PR's stated goals.",
+++        "Could not execute the test suite to confirm no existing test already covers/masks this path; a repo-wide search for `handleEdgeErrorResponse`/`nonRecoverableErrorEventIds` in AEPMessaging/Tests returned zero hits, indicating no test exercises this at all."
+++      ],
+++      "challenge": "If host apps are expected to treat the completion handler purely as 'the round trip finished' rather than 'the update succeeded,' and always independently check for staleness via other means, this could be considered working-as-designed pre-existing behavior rather than a regression. The public docstring explicitly promising 'true if ... successfully processed; false on failure' argues against this reading.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "CODE-2",
+++      "title": "The only test for the 'preserve content on non-recoverable error' guard never simulates an error and asserts outcomes the implementation cannot produce",
+++      "severity": "CRITICAL",
+++      "confidence": 0.8,
+++      "concern_tags": ["test_correctness", "reliability_regression_untested"],
+++      "claim": "test_handleProcessCompletedEvent_noDecisions_preservesContentCardDiskCache (MessagingProcessCompletedEventTests.swift:611-627, added by this PR) never populates nonRecoverableErrorEventIds (no such test hook exists, confirmed via repo-wide search: 'handleEdgeErrorResponse|EDGE_ERROR_RESPONSE|isEdgeErrorResponseEvent|edgeErrorStatus' has zero hits in AEPMessaging/Tests). Tracing applyPropositionChangeFor and updateRulesEngines for the exact scenario this test sets up (requestFailed=false, empty inProgressPropositions) shows: (1) cache.updateContentCardPropositions is called with removing:[cardSurface], which -- given the mock's real internalStorage had content for that surface -- triggers cache.remove(key: CONTENT_CARD_PROPOSITIONS), contradicting the test's `XCTAssertFalse(mockCache.removeCalls.contains(...))`; and (2) contentCardRulesEngine.launchRulesEngine.replaceRules is called unconditionally on every applyPropositionChangeFor invocation by design (Messaging.swift:1240-1241), contradicting the test's `XCTAssertFalse(mockContentCardLaunchRulesEngine.replaceRulesCalled)`.",
+++      "why_it_matters": "This is the only test in the repository that appears to target the PR's headline reliability feature (don't evict content on a failed Edge request). Since it doesn't actually simulate a failure and its assertions contradict the traced implementation, the feature is effectively unverified by any passing automated test -- and if this test is currently green in CI, that would indicate a second, worse bug: over-preservation on every empty response, not just failed ones (the exact 'over-preserves' failure mode this review was asked to check for).",
+++      "suggested_action": "Add a debug-only setter (mirroring setRequestedSurfacesforEventId) to directly populate nonRecoverableErrorEventIds in tests, or drive the scenario through a real handleEdgeErrorResponse call with a fabricated non-recoverable-status errorResponseContent event. Fix the rules-engine assertion to check rule content/count instead of 'replaceRules was never called', since it is always called by design.",
+++      "primary_anchor": { "path": "AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift", "line": 611 },
+++      "evidence_refs": [
+++        "AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift:611-627",
+++        "AEPMessaging/Sources/Messaging.swift:1182-1228 (applyPropositionChangeFor)",
+++        "AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift:94-119 (updatePropositionsByKey remove-on-empty logic)",
+++        "AEPMessaging/Sources/Messaging.swift:1230-1252 (updateRulesEngines unconditional replaceRules)",
+++        "AEPMessaging/Tests/TestHelpers/MockLaunchRulesEngine.swift:41-44 (replaceRules always sets replaceRulesCalled=true)",
+++        "grep -rln 'handleEdgeErrorResponse|EDGE_ERROR_RESPONSE|isEdgeErrorResponseEvent|edgeErrorStatus' AEPMessaging/Tests/ -> no output"
+++      ],
+++      "evidence_kinds": ["diff", "repo_search", "static_analysis"],
+++      "lens_tags": ["runtime_hygiene", "invariants_type_boundaries"],
+++      "obligation_refs": [],
+++      "caveats": [
+++        "Could not execute `xcodebuild test` in this environment to get a definitive pass/fail -- build fails on an unrelated, pre-existing Pods/Xcode-toolchain incompatibility (Pods/AEPTestUtils/.../RealNetworkService.swift: 'super.init isn't called on all paths'), not something this PR introduced.",
+++        "Conclusion is derived from a full, line-by-line static trace of applyPropositionChangeFor, Cache+Messaging.updatePropositionsByKey, updateRulesEngines, and the exact MockCache/MockLaunchRulesEngine mock behaviors involved."
+++      ],
+++      "challenge": "If there is a test setup step outside the visible diff (e.g. an XCTestCase-level override or a shared fixture) that pre-populates nonRecoverableErrorEventIds before this specific test runs, the trace above would be wrong. I inspected the full class setUp() and found no such mechanism, and confirmed messaging is a fresh instance per test.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "CODE-3",
+++      "title": "Tests added for the explicit usePersistedContentCards opt-in flag assert/comment behavior that contradicts the shipped flag-gated implementation",
+++      "severity": "HIGH",
+++      "confidence": 0.75,
+++      "concern_tags": ["test_correctness", "misleading_regression_test"],
+++      "claim": "testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty (Messaging+StateTests.swift:175-210, added by this PR) omits USE_PERSISTED_CONTENT_CARDS from event data (comment: 'disk hydration is automatic') and asserts mockLaunchRulesEngineForFeeds.replaceRulesCalled==true, but retrieveMessages (Messaging.swift:1374-1377) only calls hydrateContentCardRulesEngineFromDisk when event.usePersistedContentCards is true (default false per Event+Messaging.swift:31-33), and no other traced code path in this test touches that mock's replaceRules. testGetPropositionsForSurfacesDoesNotSetPersistedFlag (Messaging+PublicApiTest.swift:626-642, added by this PR) has a comment claiming 'the persisted-flag approach has been removed' while Messaging+PublicAPI.swift:159-162/185-189 explicitly threads usePersistedContentCards:false into event data for this exact call path, and the test's only assertion never inspects that key at all.",
+++      "why_it_matters": "These are the tests meant to validate obligation #6c of this review (the explicit opt-in flag reaches disk-hydration logic correctly, without unintended side effects). As written they either don't test what they claim or assert the opposite of the shipped contract, giving zero real regression protection for the PR's headline design change and actively misleading future readers about whether the flag exists.",
+++      "suggested_action": "Rewrite testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty to explicitly set USE_PERSISTED_CONTENT_CARDS:true and rename it; add a sibling test proving hydration does NOT occur when the flag is omitted. Rewrite testGetPropositionsForSurfacesDoesNotSetPersistedFlag to assert event.data?[MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS] as? Bool == false and correct its stale comment.",
+++      "primary_anchor": { "path": "AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift", "line": 175 },
+++      "evidence_refs": [
+++        "AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift:175-210",
+++        "AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift:626-642",
+++        "AEPMessaging/Sources/Messaging.swift:1358-1377 (retrieveMessages flag gate)",
+++        "AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift:28-33 (usePersistedContentCards default false)",
+++        "AEPMessaging/Sources/Messaging+PublicAPI.swift:159-189",
+++        "AEPMessaging/Sources/Messaging+State.swift:19-25,69-75 (loadCachedPropositions/hydratePropositionsRulesEngine confirmed IAM-only, ruled out as alternate trigger)"
+++      ],
+++      "evidence_kinds": ["diff", "repo_search", "static_analysis"],
+++      "lens_tags": ["invariants_type_boundaries"],
+++      "obligation_refs": [],
+++      "caveats": [
+++        "Could not execute the tests directly due to an unrelated environment build failure (see CODE-2 caveats).",
+++        "MockCache.get(key:) returning the same getReturnValue for any key when internalStorage lacks a specific entry (MockCache.swift:27-31) is a contributing test-infra weakness that likely masked this mismatch from the author during local iteration.",
+++        "This same underlying fact is also touched on, at lower confidence (0.5) and from a security/documentation-drift framing, in 04_security.md (SEC-4); recorded here independently with the deeper trace and the test-correctness framing that is this reviewer's lens."
+++      ],
+++      "challenge": "If TestableExtensionRuntime's simulateComingEvents has some undocumented bypass that routes get-propositions events through a different, always-hydrate code path outside handleProcessEvent/retrieveMessages, my trace would be incomplete. I did not find evidence of such a path in Messaging.swift's onRegistered()/eventsQueue handler setup.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "CODE-4",
+++      "title": "retrieveMessages' per-proposition serialization silently drops entries on encode failure, inconsistent with the untouched sibling path in the same file",
+++      "severity": "MEDIUM",
+++      "confidence": 0.6,
+++      "concern_tags": ["diagnosability", "code_duplication"],
+++      "claim": "Messaging.swift:1397-1400 (retrieveMessages, changed by this PR) builds the propositions payload via `mergedPropositions.flatMap{$0.value}.compactMap{$0.asDictionary()}`, silently dropping any Proposition that fails to encode with no log statement. Messaging.swift:1146 (dispatchNotificationEventFor, untouched by this PR) still encodes the whole dictionary via a single `.asDictionary()` call, which fails loudly (entire eventData becomes nil) instead of partially. Two inconsistent serialization/failure strategies now coexist in the same file for the same transformation.",
+++      "why_it_matters": "A getPropositionsForSurfaces caller could silently receive a proposition list missing entries with no signal (no Error, no log) that anything went wrong, and future maintainers have two contradictory patterns to choose from with no guidance on which is correct.",
+++      "suggested_action": "Standardize on one serialization approach for both call sites; if per-element compactMap is kept, log when propositionPayload.count != allPropositions.count.",
+++      "primary_anchor": { "path": "AEPMessaging/Sources/Messaging.swift", "line": 1397 },
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift:1397-1400 (retrieveMessages)",
+++        "AEPMessaging/Sources/Messaging.swift:1146 (dispatchNotificationEventFor, unchanged)",
+++        "aepsdk-core-ios/AEPServices/Sources/utility/AnyCodable.swift:259-264 (asDictionary() nil-on-failure semantics)"
+++      ],
+++      "evidence_kinds": ["diff", "repo_search", "static_analysis"],
+++      "lens_tags": ["runtime_hygiene"],
+++      "obligation_refs": [],
+++      "caveats": [
+++        "Encoding failures for a well-formed Proposition are expected to be rare in practice; this is a defense-in-depth/diagnosability gap, not a demonstrated live bug.",
+++        "No test in the diff exercises an encode-failure scenario for either path, so the differing failure behavior is unverified either way."
+++      ],
+++      "challenge": "The new partial-degradation behavior (compactMap) could be argued as strictly better than the old all-or-nothing behavior, in which case the 'issue' is purely the missing log line and the cross-file inconsistency, not the behavior itself.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    },
+++    {
+++      "finding_id": "CODE-5",
+++      "title": "Cold start while offline permanently skips the initial personalization fetch for the app session, with no automatic retry",
+++      "severity": "MEDIUM",
+++      "confidence": 0.65,
+++      "concern_tags": ["runtime_hygiene", "reliability_regression"],
+++      "claim": "readyForEvent (Messaging.swift:319-342) sets the one-shot latch `initialLoadComplete = true` unconditionally before calling fetchPropositions, but fetchPropositions (Messaging.swift:975-983, network guard added by this PR) returns immediately without dispatching anything when isNetworkAvailable() is false. Since initialLoadComplete is already true, nothing else in Messaging.swift re-triggers the initial personalization sync for the remainder of that app session, even after connectivity returns.",
+++      "why_it_matters": "Before this PR, fetchPropositions always attempted the Edge request regardless of connectivity (relying on Edge's own queueing), so a momentarily-offline cold start still eventually synced. Now, an app that launches offline never automatically re-syncs its initial personalization state for that session unless it explicitly calls updatePropositionsForSurfaces/refreshInAppMessages itself -- a behavior change not called out in docs/agents/network-availability-layer.md's Messaging-integration table.",
+++      "suggested_action": "Don't set initialLoadComplete=true when fetchPropositions actually skipped due to no network (have fetchPropositions report back whether it dispatched), so a later readyForEvent call or connectivity-restored signal can retry the initial fetch.",
+++      "primary_anchor": { "path": "AEPMessaging/Sources/Messaging.swift", "line": 336 },
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift:319-342 (readyForEvent)",
+++        "AEPMessaging/Sources/Messaging.swift:975-983 (fetchPropositions network guard)",
+++        "docs/agents/network-availability-layer.md (Messaging integration table, silent on cold-start-offline permanence)"
+++      ],
+++      "evidence_kinds": ["diff", "repo_search", "static_analysis"],
+++      "lens_tags": ["runtime_hygiene"],
+++      "obligation_refs": [],
+++      "caveats": [
+++        "Not verified against a running app / integration test -- purely a static control-flow trace of readyForEvent and fetchPropositions.",
+++        "No other reviewer's output (02_hld.md, 03_lld.md, 04_security.md, 06_complexity.md) mentions initialLoadComplete or this cold-start interaction, confirmed via grep."
+++      ],
+++      "challenge": "If the host app is expected to always call updatePropositionsForSurfaces explicitly on its own connectivity-restored signal (an integration contract outside this repo), this may be an accepted, documented trade-off rather than an oversight -- no such documented expectation was found in this diff.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "CODE-6",
+++      "title": "Proposition.offlineAvailable is dead code -- disk-persistence gating is entirely global, not per-proposition as the docstring implies",
+++      "severity": "LOW",
+++      "confidence": 0.9,
+++      "concern_tags": ["dead_code", "misleading_documentation"],
+++      "claim": "Proposition.swift:108-124 adds `offlineAvailable`, documented as reading a per-proposition mobileParameters.offline flag, but a repo-wide search shows zero references to it outside its own declaration. ParsedPropositions.swift:94-98,121-125 gates all content-card/inbox disk persistence solely on the hardcoded MessagingConstants.OFFLINE_AVAILABILITY_ENABLED=true, never consulting proposition.offlineAvailable.",
+++      "why_it_matters": "Dead code whose docstring implies it is live is a maintenance trap: a future engineer may assume a campaign declaring mobileParameters.offline:false already opts out of on-disk persistence today, when it currently has no effect at all.",
+++      "suggested_action": "Either wire proposition.offlineAvailable into ParsedPropositions's persistence gating alongside the global flag, or remove the unused property and its docstring until the feature is implemented.",
+++      "primary_anchor": { "path": "AEPMessaging/Sources/Proposition.swift", "line": 112 },
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Proposition.swift:108-124",
+++        "AEPMessaging/Sources/ParsedPropositions.swift:94-98,121-125",
+++        "grep -rn 'offlineAvailable' AEPMessaging/Sources AEPMessaging/Tests -> single hit (declaration only)"
+++      ],
+++      "evidence_kinds": ["diff", "repo_search"],
+++      "lens_tags": ["invariants_type_boundaries"],
+++      "obligation_refs": [],
+++      "caveats": [
+++        "This same fact is raised independently by 04_security.md (SEC-2, data-exposure framing) which notes it is also flagged by the LLD and HLD reviewers; recorded here briefly, with the dead-code/documentation-accuracy framing specific to this reviewer's lens, not to duplicate primary billing."
+++      ],
+++      "challenge": "This could be intentional incremental delivery (global flag as a stopgap before per-item gating ships in a follow-up PR), in which case the docstring is simply premature rather than the code being wrong.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    }
+++  ],
+++  "summary": {
+++    "overall_confidence": 0.72,
+++    "counts_by_severity": {
+++      "CRITICAL": 2,
+++      "HIGH": 1,
+++      "MEDIUM": 2,
+++      "LOW": 1
+++    }
+++  }
+++}
+\ No newline at end of file

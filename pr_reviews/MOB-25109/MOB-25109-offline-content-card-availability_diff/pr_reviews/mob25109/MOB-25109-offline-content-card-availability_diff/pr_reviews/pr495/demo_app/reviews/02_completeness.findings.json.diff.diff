@@ -1,0 +1,139 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/demo_app/reviews/02_completeness.findings.json.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/demo_app/reviews/02_completeness.findings.json.diff
+new file mode 100644
+index 0000000..ce16ec0
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/demo_app/reviews/02_completeness.findings.json.diff
+@@ -0,0 +1,132 @@
++diff --git a/pr_reviews/pr495/demo_app/reviews/02_completeness.findings.json b/pr_reviews/pr495/demo_app/reviews/02_completeness.findings.json
++new file mode 100644
++index 0000000..de0a18b
++--- /dev/null
+++++ b/pr_reviews/pr495/demo_app/reviews/02_completeness.findings.json
++@@ -0,0 +1,126 @@
+++{
+++  "schema_version": "1.0.0",
+++  "reviewer_id": "devx-pr-review-completeness",
+++  "findings": [
+++    {
+++      "finding_id": "demo_app-completeness-001",
+++      "title": "Constants.swift ships personal/debug config (surfaces, Assurance URL, dead commented-out lines) instead of shared demo defaults",
+++      "severity": "CRITICAL",
+++      "confidence": 0.85,
+++      "concern_tags": ["hygiene_communication", "entrypoint_completeness"],
+++      "claim": "TestApps/MessagingDemoAppSwiftUI/Constants.swift:18-37 replaces shared demo config with what appears to be one engineer's personal test values: SurfaceName.INBOX = \"shwetansh_inbox_mda\" and SurfaceName.CONTENT_CARD = \"shwetansh_cc_mda\" (developer-named, not generic), a new APPID with no explanation of which of 3 stacked commented alternatives is canonical, and an assuranceURL hardcoded with a specific adb_validation_sessionid UUID. Three generations of commented-out INBOX/CONTENT_CARD/APPID lines are left interleaved with the live code.",
+++      "why_it_matters": "This module's stated purpose is a manual POC/reference testing surface for offline content card behavior. Personal surface names mean the demo will not reproduce for any other engineer, reviewer, or automated screenshot/QA tooling pulling this branch -- the surfaces simply won't exist in their Launch/AJO config. The stacked, undocumented commented-out alternatives read as accidentally committed debug/scratch state rather than an intentional configuration change.",
+++      "suggested_action": "Revert Constants.swift to a shared/generic APPID and surface names (or restore prior inboxcard/largeImageCards values), delete the dead commented-out alternatives, and if a placeholder assuranceURL is needed, document why/how it should be regenerated per-developer instead of hardcoding one session ID.",
+++      "primary_anchor": {
+++        "path": "TestApps/MessagingDemoAppSwiftUI/Constants.swift",
+++        "line": 34,
+++        "side": "RIGHT"
+++      },
+++      "evidence_refs": [
+++        "TestApps/MessagingDemoAppSwiftUI/Constants.swift:18-21 (APPID + 2 dead alternatives)",
+++        "TestApps/MessagingDemoAppSwiftUI/Constants.swift:28 (assuranceURL with hardcoded session id)",
+++        "TestApps/MessagingDemoAppSwiftUI/Constants.swift:32-37 (SurfaceName.INBOX/CONTENT_CARD + 3 dead alternatives)",
+++        "pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/Constants.swift.diff"
+++      ],
+++      "caveats": [
+++        "Could not verify whether the assuranceURL's session id is still active/sensitive vs. already expired; flagged as hygiene risk regardless.",
+++        "Could not confirm from git blame alone whether 'shwetansh' is the PR author or a teammate; treated as a personal identifier either way since it's not a generic/shared name."
+++      ],
+++      "challenge": "If this repo's convention is that TestApps/Constants.swift is expected to be edited ad hoc per developer and reverted before merge via a separate cleanup commit (not visible in this diff), this could be intentional WIP rather than an oversight -- but nothing in the PR description or commit list indicates that, and the file has no header comment establishing that convention.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "demo_app-completeness-002",
+++      "title": "InboxView.swift has no status indicator distinguishing Online vs Offline fetch results, unlike CardsView",
+++      "severity": "HIGH",
+++      "confidence": 0.75,
+++      "concern_tags": ["entrypoint_completeness"],
+++      "claim": "CardsView.swift's handleResult(_:source:) (lines 151-165) labels outcomes as 'Loaded N card(s) from Memory' vs '...from Persisted disk cache'. InboxView.swift's loadInbox(usePersistedContentCards:) (lines 76-96) and its onLoading/onSuccess/onError listeners (lines 240-250) only print to console -- there is no on-screen text tying a result back to which button (Online Inbox vs Offline Inbox) was tapped or whether data came from disk or network.",
+++      "why_it_matters": "This screen exists specifically so a developer can manually validate offline behavior. Without a visible source indicator, confirming that 'Offline Inbox' actually served cached data (vs. quietly falling back to network, or vice versa) requires watching Xcode console logs or timing airplane-mode behavior instead of reading the screen -- weaker proof than the parallel CardsView screen offers for the identical use case.",
+++      "suggested_action": "Add a statusMessage-style text view to InboxView.swift, updated from onSuccess/onError, that records which mode was last requested and whether it succeeded/failed, mirroring CardsView's pattern.",
+++      "primary_anchor": {
+++        "path": "TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift",
+++        "line": 240,
+++        "side": "RIGHT"
+++      },
+++      "evidence_refs": [
+++        "TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift:76-96 (loadInbox)",
+++        "TestApps/MessagingDemoAppSwiftUI/AppPages/InboxView.swift:240-250 (onLoading/onSuccess/onError, print-only)",
+++        "TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift:151-165 (handleResult, the parity pattern that's missing)"
+++      ],
+++      "caveats": [
+++        "InboxUI's own default loading/error/empty views (owned by the ui_layer module, not reviewed here) may already render some source-related affordance internally; I only verified what InboxView.swift itself surfaces, not the InboxUI component's default views."
+++      ],
+++      "challenge": "If InboxUI's default error/loading views already surface enough context (e.g. a visibly different error message for offline vs online failures), the missing wrapper-level indicator may be redundant. This would need confirmation from the ui_layer module review of InboxUI's default view implementations.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "demo_app-completeness-003",
+++      "title": "Download/Clear Cache use fire-and-forget calls that contradict the SDK's own recommended sequence, and their status text has inconsistent completion certainty",
+++      "severity": "HIGH",
+++      "confidence": 0.7,
+++      "concern_tags": ["entrypoint_completeness"],
+++      "claim": "downloadCards() (CardsView.swift:113-116) calls Messaging.updatePropositionsForSurfaces([cardsSurface]) -- the overload without a completion handler -- even though AEPMessaging/Sources/Messaging+PublicAPI.swift:18-21 and :150-158 document that the recommended sequence is to call updatePropositionsForSurfacesWithCompletionHandler first and only then read content cards. clearPersistedPropositions() (Messaging+PublicAPI.swift:222-228) is also fire-and-forget with no completion signal. The two resulting status messages use different certainty language for the same fire-and-forget shape: downloadCards() says 'Download requested for surface: ...' (in-flight) while clearPersistedPropositions() says 'Persisted content card and inbox caches cleared.' (already-complete, past tense) despite both being asynchronously dispatched events.",
+++      "why_it_matters": "A developer copying downloadCards() as an integration reference reproduces a race condition: nothing signals when the update actually finishes, so immediately tapping 'Fetch Content Cards' afterward can read stale/empty state with no error surfaced. Separately, the 'Clear Cache' message overstates certainty about an async operation's completion, which could mislead a tester validating offline behavior into believing the cache is already empty before the extension has processed the event.",
+++      "suggested_action": "Switch downloadCards() to use updatePropositionsForSurfacesWithCompletionHandler and update statusMessage from its completion callback (success/failure), matching the already-correct pattern in fetchContentCards()/fetchOfflineContentCards(). Reword the Clear Cache status text to reflect it is a request, not a confirmed completion (clearPersistedPropositions has no completion hook to confirm otherwise).",
+++      "primary_anchor": {
+++        "path": "TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift",
+++        "line": 113,
+++        "side": "RIGHT"
+++      },
+++      "evidence_refs": [
+++        "TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift:112-116 (downloadCards)",
+++        "TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift:145-149 (clearPersistedPropositions, status text)",
+++        "AEPMessaging/Sources/Messaging+PublicAPI.swift:18-21 (doc comment recommending completion-handler-first sequence)",
+++        "AEPMessaging/Sources/Messaging+PublicAPI.swift:145-158 (updatePropositionsForSurfacesWithCompletionHandler / getPropositionsForSurfaces doc)",
+++        "AEPMessaging/Sources/Messaging+PublicAPI.swift:222-228 (clearPersistedPropositions, no completion parameter)",
+++        "AEPMessaging/Sources/Messaging.swift:662-669 (clearPersistedContentCardAndInboxPropositions confirms scope of the clear matches the status text, but not its timing)"
+++      ],
+++      "caveats": [
+++        "clearPersistedPropositions() has no completion-handler overload in the SDK at all, so the demo cannot report true success/failure for that action even if it wanted to -- this specific gap is an API-layer limitation (persistence_core module), not something CardsView.swift alone can fully fix beyond softening its wording."
+++      ],
+++      "challenge": "The 'fire-and-forget, no callback' comment on downloadCards() is honest about the limitation, so a careful reader would not be misled -- the risk is specifically for someone who copies the code pattern without reading the comment, or who does not also copy the comment.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "demo_app-completeness-004",
+++      "title": "downloadCards() comment documents a fire-and-forget gap rather than the demo avoiding/fixing it",
+++      "severity": "MEDIUM",
+++      "confidence": 0.55,
+++      "concern_tags": ["hygiene_communication"],
+++      "claim": "CardsView.swift:112 comment 'Fires a network update for the content card surface (fire-and-forget, no callback).' is factually accurate about current behavior, but for a reference/POC app whose explicit job is to model correct integration patterns, documenting a known gap is weaker than fixing it, especially since the SDK's own doc comments elsewhere recommend the completion-handler variant.",
+++      "why_it_matters": "Comments that accurately describe a shortcut without prompting a fix can normalize copying that shortcut, since the comment reads as an acceptable trade-off rather than a flagged gap.",
+++      "suggested_action": "See finding demo_app-completeness-003 for the concrete code fix; this finding is the comment/documentation-accuracy angle on the same root issue.",
+++      "primary_anchor": {
+++        "path": "TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift",
+++        "line": 112,
+++        "side": "RIGHT"
+++      },
+++      "evidence_refs": [
+++        "TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift:112"
+++      ],
+++      "caveats": [
+++        "This overlaps with finding 003; kept separate only because it is specifically a comment-accuracy observation per the completeness rubric's comment/doc-accuracy check, not a new code gap."
+++      ],
+++      "challenge": "Could be considered a duplicate of finding 003 rather than a distinct issue; consolidator may choose to merge them.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": false,
+++      "requires_verification": false
+++    }
+++  ],
+++  "summary": {
+++    "overall_confidence": 0.78,
+++    "counts_by_severity": {
+++      "CRITICAL": 1,
+++      "HIGH": 2,
+++      "MEDIUM": 1,
+++      "LOW": 0
+++    }
+++  }
+++}
+\ No newline at end of file

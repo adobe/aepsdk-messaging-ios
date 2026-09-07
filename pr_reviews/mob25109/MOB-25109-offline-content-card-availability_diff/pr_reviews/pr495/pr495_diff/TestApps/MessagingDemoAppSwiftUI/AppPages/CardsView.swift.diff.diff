@@ -1,0 +1,171 @@
+diff --git a/pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff b/pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff
+new file mode 100644
+index 0000000..927e86b
+--- /dev/null
++++ b/pr_reviews/pr495/pr495_diff/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift.diff
+@@ -0,0 +1,164 @@
++diff --git a/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift b/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift
++index 99d12e3..9a2904e 100644
++--- a/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift
+++++ b/TestApps/MessagingDemoAppSwiftUI/AppPages/CardsView.swift
++@@ -19,15 +19,24 @@ struct CardsView: View, ContentCardUIEventListening {
++     @State var savedCards: [ContentCardUI] = []
++     @State private var viewLoaded: Bool = false
++     @State private var showLoadingIndicator: Bool = false
+++    @State private var statusMessage: String = ""
++ 
++     var body: some View {
++-        VStack {
++-            TabHeader(title: "Content Cards", refreshAction: {
++-                refreshCards()
++-            }, redownloadAction: {
++-                downloadCards()
++-                refreshCards()
++-            })
+++        VStack(spacing: 0) {
+++            TabHeader(title: "Content Cards")
+++
+++            actionPanel
+++                .padding(.horizontal, 16)
+++                .padding(.top, 8)
+++
+++            if !statusMessage.isEmpty {
+++                Text(statusMessage)
+++                    .font(.caption)
+++                    .foregroundColor(.secondary)
+++                    .frame(maxWidth: .infinity, alignment: .leading)
+++                    .padding(.horizontal, 16)
+++                    .padding(.top, 8)
+++            }
++ 
++             ZStack {
++                 ScrollView(.vertical, showsIndicators: false) {
++@@ -37,6 +46,7 @@ struct CardsView: View, ContentCardUIEventListening {
++                                 .padding(.horizontal, 16)
++                         }
++                     }
+++                    .padding(.top, 12)
++                 }
++ 
++                 if showLoadingIndicator {
++@@ -52,31 +62,106 @@ struct CardsView: View, ContentCardUIEventListening {
++         .onAppear() {
++             if !viewLoaded {
++                 viewLoaded = true
++-                refreshCards()
+++                fetchContentCards()
++             }
++         }
++     }
++ 
++-    func refreshCards() {
+++    // MARK: - Action Panel
+++
+++    private var actionPanel: some View {
+++        VStack(spacing: 10) {
+++            HStack(spacing: 10) {
+++                actionButton(title: "Download", systemImage: "arrow.down.circle") {
+++                    downloadCards()
+++                }
+++                actionButton(title: "Fetch Content Cards", systemImage: "arrow.clockwise.circle") {
+++                    fetchContentCards()
+++                }
+++            }
+++            HStack(spacing: 10) {
+++                actionButton(title: "Fetch Offline Content Cards", systemImage: "icloud.slash") {
+++                    fetchOfflineContentCards()
+++                }
+++                actionButton(title: "Clear Cache", systemImage: "trash") {
+++                    clearPersistedPropositions()
+++                }
+++            }
+++        }
+++    }
+++
+++    private func actionButton(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+++        Button(action: action) {
+++            HStack(spacing: 6) {
+++                Image(systemName: systemImage)
+++                Text(title)
+++                    .font(.system(size: 13, weight: .medium))
+++                    .multilineTextAlignment(.leading)
+++            }
+++            .frame(maxWidth: .infinity)
+++            .padding(.vertical, 10)
+++            .padding(.horizontal, 8)
+++            .background(Color(.secondarySystemBackground))
+++            .cornerRadius(10)
+++        }
+++        .buttonStyle(.plain)
+++    }
+++
+++    // MARK: - Actions
+++
+++    /// Fires a network update for the content card surface (fire-and-forget, no callback).
+++    func downloadCards() {
+++        Messaging.updatePropositionsForSurfaces([cardsSurface])
+++        statusMessage = "Download requested for surface: \(cardsSurface.uri)"
+++    }
+++
+++    /// Reads content cards from the SDK's in-memory cache only.
+++    func fetchContentCards() {
++         showLoadingIndicator = true
++-        let cardsPageSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
++-        Messaging.getContentCardsUI(for: cardsPageSurface,
+++        Messaging.getContentCardsUI(for: cardsSurface,
++                                     customizer: CardCustomizer(),
++                                     listener: self) { result in
++-            showLoadingIndicator = false
++-            switch result {
++-            case .success(let cards):
++-                // sort the cards by priority order and save them to our state property
++-                savedCards = cards.sorted { $0.priority > $1.priority }
++-            case .failure(let error):
++-                print(error)
+++            DispatchQueue.main.async {
+++                showLoadingIndicator = false
+++                handleResult(result, source: "Memory")
++             }
++         }
++     }
++ 
++-    func downloadCards() {
+++    /// Explicitly reads content cards from the persisted disk cache.
+++    func fetchOfflineContentCards() {
++         showLoadingIndicator = true
++-        Messaging.updatePropositionsForSurfaces([cardsSurface])
+++        Messaging.getContentCardsUI(for: cardsSurface,
+++                                    usePersistedContentCards: true,
+++                                    customizer: CardCustomizer(),
+++                                    listener: self) { result in
+++            DispatchQueue.main.async {
+++                showLoadingIndicator = false
+++                handleResult(result, source: "Persisted disk cache")
+++            }
+++        }
+++    }
+++
+++    /// Clears the persisted content card and inbox disk cache.
+++    func clearPersistedPropositions() {
+++        Messaging.clearPersistedPropositions()
+++        statusMessage = "Persisted content card and inbox caches cleared."
+++    }
+++
+++    private func handleResult(_ result: Result<[ContentCardUI], Error>, source: String) {
+++        switch result {
+++        case .failure(let error):
+++            statusMessage = "Fetch failed (\(source)): \(error.localizedDescription)"
+++            savedCards = []
+++        case .success(let cards):
+++            if cards.isEmpty {
+++                statusMessage = "No cards found (\(source))"
+++                savedCards = []
+++            } else {
+++                statusMessage = "Loaded \(cards.count) card(s) from \(source)"
+++                savedCards = cards.sorted { $0.priority > $1.priority }
+++            }
+++        }
++     }
++ 
++     func onDisplay(_ card: ContentCardUI) {
+\ No newline at end of file

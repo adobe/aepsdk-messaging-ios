@@ -1,0 +1,196 @@
+# Code Validation: MOB-25109/offline-content-card-availability (module: ui_layer)
+
+## Summary
+The `performRefresh` branch/return structure and `[weak self]`/completion handling for the new `usePersistedContentCards` path are correct and won't hang callers, but `getContentCardsUI`'s new empty-array fallback silently changes the public error contract for *all* callers (not just the flagged path) and demonstrably breaks two existing integration tests, while the new flag itself ships with no direct unit test coverage in either scoped file.
+
+---
+
+## Code Issues
+
+### CRITICAL: `getContentCardsUI`'s new empty-array fallback silently changes the error contract for every caller and breaks two existing tests
+
+**File:** `AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift:52-61`
+
+**Problem:**
+```swift
+static func getContentCardsUI(for surface: Surface,
+                              usePersistedContentCards: Bool,
+                              customizer: ContentCardCustomizing? = nil,
+                              listener: ContentCardUIEventListening? = nil,
+                              _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
+    Messaging.getPropositionsForSurfaces([surface], usePersistedContentCards: usePersistedContentCards) { propositionDict, error in
+        if let error = error {
+            ...
+            completion(.failure(error))
+            return
+        }
+        var cards: [ContentCardUI] = []
+        let propositions = propositionDict?[surface] ?? []   // was: guard let ... else { completion(.failure(.dataUnavailable)) }
+        for proposition in propositions { ... }
+        ...
+        completion(.success(cards))
+    }
+}
+```
+Before this PR, when `propositionDict` had no entry for the requested `surface` (i.e. zero propositions matched — see `Messaging+PublicAPI.swift:212`, `propositions.toDictionary { Surface(uri: $0.scope) }` only contains keys for surfaces that actually had matching propositions), the method failed with `.failure(ContentCardUIError.dataUnavailable)`. This PR replaces that with `propositionDict?[surface] ?? []`, so the exact same "no data for this surface" case now returns `.success([])` unconditionally — for **both** overloads, including the pre-existing default-`false` call path that has nothing to do with the new offline feature.
+
+`ContentCardUIError.dataUnavailable` (`AEPMessaging/Sources/UI/ContentCards/ContentCardUIError.swift:19`) is now unreachable from this API — grep confirms it has no remaining production call site in `Sources/`. But it is still asserted on by existing (out-of-scope, but directly impacted) integration tests that this diff will break:
+
+```swift
+// AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift:24-33
+@Test("when no cards available")
+func noCards() async throws {
+    setContentCardResponse(fromFile: "NoCard")
+    await #expect(throws: ContentCardUIError.dataUnavailable) {
+        try await getContentCardUI(homeSurface)
+    }
+}
+
+// GetContentCardUITest.swift:47-56
+@Test("for invalid surface")
+func invalidSurface() async throws {
+    setContentCardResponse(fromFile: "SmallImageCard")
+    await #expect(throws: ContentCardUIError.dataUnavailable) {
+        try await getContentCardUI(invalidSurface)   // a syntactically-valid Surface with no matching data
+    }
+}
+```
+Both tests download data for `homeSurface` and then request content cards for a surface with **no matching propositions** (`homeSurface` with an empty response, and `invalidSurface` which is just `Surface(path: "invalid")` — a different, valid-format surface, not a malformed one). In both cases `propositionDict?[surface]` will be `nil`, which used to throw `.dataUnavailable` and now returns `.success([])`. Both tests will fail after this change.
+
+This is a real behavior change bundled into a PR framed as additive (new optional parameter + overload): any existing app that branches on `.failure` vs. `.success` to distinguish "no data yet" from "confirmed empty" silently loses that failure branch on upgrade, even if it never touches `usePersistedContentCards`.
+
+**Fix:**
+Scope the empty-array fallback to the cases that actually need it (e.g., only when `usePersistedContentCards == true` and the disk cache is legitimately empty), and preserve the previous `.failure(.dataUnavailable)` behavior for the pre-existing default path — or, if the empty-array behavior is intentionally the new contract for both paths, update `GetContentCardUITest.swift` accordingly, remove/deprecate the now-unreachable `ContentCardUIError.dataUnavailable` case (or repurpose it), and call out the contract change explicitly in the PR description since it is not an additive change.
+
+---
+
+### HIGH: The only test in the scoped test file does not exercise the new flag at all, and its own comment is factually wrong
+
+**File:** `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift:41-62`
+
+**Problem:**
+```swift
+func testGetContentCardsUIDispatchesGetPropositionsEvent() {
+    let eventExpectation = expectation(description: "get propositions event")
+    EventHub.shared.getExtensionContainer(MockExtension.self)?.registerListener(
+        type: EventType.messaging,
+        source: EventSource.requestContent
+    ) { event in
+        // offline hydration is now automatic — no persisted-flag in the event
+        XCTAssertTrue(event.data?[MessagingConstants.Event.Data.Key.GET_PROPOSITIONS] as? Bool ?? false)
+        ...
+    }
+    ...
+    Messaging.getContentCardsUI(for: surface) { _ in ... }
+    ...
+}
+```
+This is the entire content of the module's dedicated test file for this PR's feature. Two problems:
+
+1. **The comment is incorrect.** `Messaging.getPropositionsForSurfaces(_:usePersistedContentCards:_:)` (`AEPMessaging/Sources/Messaging+PublicAPI.swift:185-189`) does put the flag in the event: `MessagingConstants.Event.Data.Key.USE_PERSISTED_CONTENT_CARDS: usePersistedContentCards`. The claim that offline hydration is "automatic" with "no persisted-flag in the event" is false — the flag exists and is forwarded verbatim from `getContentCardsUI`. This is exactly the kind of stale/misleading test comment that will mislead the next person who touches this file.
+2. **No assertion on the flag's value at all**, in either direction. The test only checks `GET_PROPOSITIONS` is `true` — it never asserts `USE_PERSISTED_CONTENT_CARDS` is `false` for the default overload, and there is no second test calling `getContentCardsUI(for:usePersistedContentCards: true, ...)` to verify the explicit-flag overload actually threads `true` through to the event. The one piece of new public API surface this module adds (`usePersistedContentCards`) has zero direct assertions anywhere in this file.
+
+**Fix:**
+- Remove or correct the misleading comment.
+- Add an assertion on `USE_PERSISTED_CONTENT_CARDS` for the existing test (expect `false`).
+- Add a new test that calls `Messaging.getContentCardsUI(for: surface, usePersistedContentCards: true) { ... }` and asserts the event carries `USE_PERSISTED_CONTENT_CARDS == true`, so the two overloads are proven not to diverge (per the PR's own stated goal) rather than just inspected by hand.
+
+---
+
+### HIGH: `InboxUI`'s new disk-only refresh branch has no test coverage anywhere in the repo
+
+**File:** `AEPMessaging/Sources/UI/Inbox/InboxUI.swift:162-177`
+
+**Problem:**
+```swift
+if usePersistedContentCards {
+    Messaging.getPropositionsForSurfaces([surface], usePersistedContentCards: true) { [weak self] propositionDict, error in
+        DispatchQueue.main.async {
+            guard let self = self else { completion(); return }
+            self.processInboxPropositions(propositionDict, error: error)
+            completion()
+        }
+    }
+    return
+}
+```
+This is the core new behavior of the module: a stateful, self-managing object that must permanently skip `updatePropositionsForSurfaces` for its whole lifecycle when constructed with `usePersistedContentCards: true`. `AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift` only covers `getContentCardsUI`; it does not touch `InboxUI` or `getInboxUI` at all (consistent with the module's file list). But `InboxUI`'s own dedicated test file, `AEPMessaging/Tests/UnitTests/UITests/InboxUITests.swift` (unchanged by this PR — not in the 43-file changeset), also has zero references to `usePersistedContentCards` — confirmed by grep across the file (only pre-existing tests for `id`, `surface`, `state`, listener wiring, background/view builders, and `ContentCardUIEventListening` callbacks). No unit test anywhere:
+- constructs an `InboxUI` with `usePersistedContentCards: true` and asserts `updatePropositionsForSurfaces` was never called,
+- asserts `completion()`/`refreshAsync()` resolves on the disk-only path,
+- or exercises `getInboxUI(for:usePersistedContentCards:...)` at all.
+
+The branch/return structure itself is correct (verified: `return` on line 176 prevents fallthrough into the network branch; `completion()` is called exactly once on every path in both branches, including when `self` is nil), but that correctness is presently established only by manual code reading, not by any executable test.
+
+**Fix:**
+Add unit tests (in `InboxUITests.swift`, out of this module's scope, or a new test file) that mock `Messaging.getPropositionsForSurfaces`/`updatePropositionsForSurfaces` and assert: (1) `usePersistedContentCards: true` never triggers `updatePropositionsForSurfaces`, (2) the disk-only path still transitions `state` to `.loaded`/`.empty`/`.error` correctly, and (3) `refreshAsync()` resumes its continuation on the disk-only path (guards against the exact "never call completion" hang class of bug this flag's structure is otherwise safe from today).
+
+---
+
+### LOW: Pre-existing strong-`self` capture in the non-persisted branch's second callback extends `InboxUI` lifetime during in-flight refresh (not introduced by this PR)
+
+**File:** `AEPMessaging/Sources/UI/Inbox/InboxUI.swift:180-193`
+
+**Problem:**
+```swift
+Messaging.updatePropositionsForSurfaces([surface]) { [weak self] _ in
+    guard let self = self else { completion(); return }
+    Messaging.getPropositionsForSurfaces([self.surface]) { propositionDict, error in   // captures unwrapped `self` strongly
+        DispatchQueue.main.async {
+            self.processInboxPropositions(propositionDict, error: error)
+            completion()
+        }
+    }
+}
+```
+Once the outer `[weak self]` closure unwraps `self` into a local `let self`, the nested `getPropositionsForSurfaces` closure captures that local constant strongly, keeping the `InboxUI` instance alive for the duration of the second network round-trip even if all other external references are dropped mid-refresh. This predates the PR (the diff for this branch is whitespace-only) and is unlikely to matter in practice since `InboxUI` is normally held by the caller's view/view-model, but it's worth a `[weak self]` on the inner closure too for consistency with the new persisted branch, which does capture weakly end-to-end.
+
+**Fix:**
+```swift
+Messaging.getPropositionsForSurfaces([self.surface]) { [weak self] propositionDict, error in
+    DispatchQueue.main.async {
+        guard let self = self else { completion(); return }
+        self.processInboxPropositions(propositionDict, error: error)
+        completion()
+    }
+}
+```
+
+---
+
+## Review Inputs Used
+- `review_plan.json` — not present in `pr_reviews/pr495/`; module scope and focus areas were instead supplied directly in the task prompt (files.md + explicit review questions).
+- `context_brief.md` — not present; context supplied directly (persistence_core is out of scope, source of truth for `getPropositionsForSurfaces`).
+- `review_obligations.json` — not present; obligations taken from the task's five numbered focus points.
+- `changed_file_inventory.md` — not present; used `pr495_diff/_file_list.md` and `pr495_template.md`'s "Files Changed" section instead.
+- `pr495_unresolved_comments.md` — read; 0 unresolved comments, nothing to avoid duplicating.
+- `pr495_diff/AEPMessaging/Sources/UI/Inbox/InboxUI.swift.diff`, `pr495_diff/AEPMessaging/Sources/UI/Messaging+UIPublicAPI.swift.diff`, `pr495_diff/AEPMessaging/Tests/UnitTests/UITests/Messaging+UIPublicApiTest.swift.diff` — read in full.
+- Full current contents of `InboxUI.swift`, `Messaging+UIPublicAPI.swift`, `Messaging+UIPublicApiTest.swift` — read beyond the diff hunks per instructions.
+- `AEPMessaging/Sources/Messaging+PublicAPI.swift` (persistence_core, read-only for context) — used only to confirm `getPropositionsForSurfaces`'s dict/error contract, not reviewed for its own issues.
+- `AEPMessaging/Tests/IntegrationTests/GetContentCardUITest.swift` and `HelperClasses/IntegrationTestBase.swift` (out of module scope) — read to verify the CRITICAL finding's concrete test breakage; not otherwise reviewed.
+- `AEPMessaging/Tests/UnitTests/UITests/InboxUITests.swift` (out of module scope) — grepped to confirm zero coverage of the new flag.
+- `.swiftlint.yml` — checked; `Tests/` excluded from lint, `function_body_length`/`vertical_parameter_alignment` not relevant regressions here (pre-existing indentation style unchanged by this diff).
+
+---
+
+## Exploration Coverage
+- Entry points checked: `Messaging.getContentCardsUI(for:usePersistedContentCards:...)` (both overloads), `Messaging.getInboxUI(for:usePersistedContentCards:...)`, `InboxUI.init`, `InboxUI.refresh()`/`refreshAsync()`/`performRefresh(completion:)`.
+- Callers/callees traced: `getContentCardsUI` → `Messaging.getPropositionsForSurfaces(_:usePersistedContentCards:_:)` (persistence_core, `Messaging+PublicAPI.swift:159-214`) → `MobileCore.dispatch(event:timeout:completion:)`. Confirmed the dict/error contract (`dict` is only `nil` when `error != nil`; a requested surface with zero matched propositions yields a non-nil dict without that surface's key).
+- Blast radius checked: `ContentCardUIError.dataUnavailable` usage across `Sources/` (now unreachable from this API) and `Tests/` (still asserted on by `GetContentCardUITest.swift`, which will break); `InboxUITests.swift` for existing `InboxUI` coverage patterns that the new flag should have extended.
+- Runtime/data flow followed: surface request → `getPropositionsForSurfaces` → dict/error → `getContentCardsUI`'s `Result` mapping → `ContentCardUI` construction; and, for `InboxUI`, request → `processInboxPropositions` → state transition → listener callbacks, for both the persisted and non-persisted branches.
+
+---
+
+## Invariants & Type Boundaries
+- **Key invariants reviewed:** (1) `performRefresh`'s two branches must be mutually exclusive and each must call `completion()` exactly once — verified true on all paths, including when `self` is deallocated mid-flight. (2) `getContentCardsUI`'s two overloads must not diverge beyond the flag — verified true (pure pass-through). (3) `getPropositionsForSurfaces`'s "dict present but surface key absent" state must mean the same thing to every caller of `getContentCardsUI` — this invariant is **violated** by the diff: that state used to mean "error" and now means "empty success" for all callers, not just flagged ones (see CRITICAL finding).
+- **Illegal / ambiguous states found:** `ContentCardUIError.dataUnavailable` is now a public enum case with no code path that produces it from `getContentCardsUI`, while tests and (potentially) integrator code still branch on it — an ambiguous "this error type exists in the public API surface but nothing in this file throws it anymore" state.
+- **Boundary validation / serialized contract risks:** None new to the wire/serialization format; the risk here is behavioral-contract drift in a `Result<[ContentCardUI], Error>` callback shape, not a schema/DTO shape change.
+
+---
+
+## Summary
+- Critical: 1
+- High: 2
+- Medium: 0
+- Low: 1
+
+**Recommendation:** REQUEST CHANGES

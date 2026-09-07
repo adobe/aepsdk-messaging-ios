@@ -1,4 +1,6 @@
 PODS:
+  - AEPAnalytics (5.0.2):
+    - AEPCore (< 6.0.0, >= 5.1.0)
   - AEPAssurance (5.0.3):
     - AEPCore (< 6.0.0, >= 5.0.0)
     - AEPServices (< 6.0.0, >= 5.0.0)
@@ -13,9 +15,11 @@ PODS:
     - AEPEdge (< 6.0.0, >= 5.0.0)
   - AEPEdgeIdentity (5.1.0):
     - AEPCore (< 6.0.0, >= 5.10.0)
+  - AEPIdentity (5.11.0):
+    - AEPCore (< 6.0.0, >= 5.11.0)
   - AEPLifecycle (5.10.0):
     - AEPCore (< 6.0.0, >= 5.10.0)
-  - AEPMessagingNotification (5.15.0)
+  - AEPMessagingNotification (5.16.0)
   - AEPRulesEngine (5.0.0)
   - AEPServices (5.11.0)
   - AEPSignal (5.10.0):
@@ -26,11 +30,13 @@ PODS:
   - SwiftLint (0.52.0)
 
 DEPENDENCIES:
+  - AEPAnalytics
   - AEPAssurance
   - AEPCore (>= 5.11.0)
   - AEPEdge
   - AEPEdgeConsent
   - AEPEdgeIdentity
+  - AEPIdentity
   - AEPLifecycle
   - AEPMessagingNotification (from `./`)
   - AEPRulesEngine
@@ -41,11 +47,13 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AEPAnalytics
     - AEPAssurance
     - AEPCore
     - AEPEdge
     - AEPEdgeConsent
     - AEPEdgeIdentity
+    - AEPIdentity
     - AEPLifecycle
     - AEPRulesEngine
     - AEPServices
@@ -65,19 +73,21 @@ CHECKOUT OPTIONS:
     :tag: testutils-5.6.0
 
 SPEC CHECKSUMS:
+  AEPAnalytics: 12ebcd98d08852d0ca824f91433336875e58335a
   AEPAssurance: 3ab00d47a40bc6c6cb2000689e0dcfa595cda250
   AEPCore: 64784deb0835a49fca9d9a15240fdab7c6367576
   AEPEdge: 105afc7958acd7c016d57f7ac1d6f632bf05e6ee
   AEPEdgeConsent: b5a54985b79ee0222b1f1fc4b0859f8b8afed07a
   AEPEdgeIdentity: 66f3314af3729c15d398fd71662a7702cb1e8cdf
+  AEPIdentity: 08e20f485ad818623b783b91a7744527942ad179
   AEPLifecycle: 32d6c8cd249b543382f601ecf10567b901130727
-  AEPMessagingNotification: 8a94d32a6aeba798c25529eb9aea4922dc3500be
+  AEPMessagingNotification: bef7d4046c84ecf3d9b3940a73cbc2b37030cf43
   AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
   AEPServices: 3f728cc19c701438e5c62b1a2d89a278b37b6fc0
   AEPSignal: 8211d3f28b6dae01d201ef0e2f1e5b4234ff3447
   AEPTestUtils: 2bbed995c8974f6f6d92058db88d6cd2e4a7f869
   SwiftLint: 13280e21cdda6786ad908dc6e416afe5acd1fcb7
 
-PODFILE CHECKSUM: 53ca8919da6de9c73d431df4c2d98797571eb1b4
+PODFILE CHECKSUM: 51c053451f69fe7ef26566f7303f8e5a5fa145a9
 
 COCOAPODS: 1.16.2

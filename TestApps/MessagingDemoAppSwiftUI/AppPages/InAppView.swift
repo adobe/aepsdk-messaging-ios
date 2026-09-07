@@ -14,15 +14,25 @@ import AEPCore
 import AEPEdge
 import AEPMessaging
 import AEPServices
+import Combine
 import SwiftUI
 import WebKit
 
 struct InAppView: View {
     @State private var viewDidLoad = false
-    @State private var messageHandler = MessageHandler()
+    @StateObject private var messageHandler = MessageHandler()
     @State private var shouldShowMessages = true
+    @State private var headlessPaywallMode = false
+    @State private var freeArticlesRead = 0
     @State private var customAction = ""
+
+    /// Number of free articles before the paywall. In production this rule lives in the AJO campaign.
+    private let freeArticleLimit = 3
+    /// The track action the AJO paywall campaign is configured to trigger on. Reusing the demo's
+    /// known IAM trigger ("fullscreen_ss") so the paywall qualifies without extra campaign setup.
+    private let paywallTriggerAction = "fullscreen_ss"
     var body: some View {
+        ScrollView(.vertical, showsIndicators: true) {
         VStack {
             VStack {
                 Text("In-app")
@@ -108,6 +118,51 @@ struct InAppView: View {
                 .gridCellUnsizedAxes([.horizontal])
             }
             VStack {
+                Text("Headless paywall demo")
+                    .font(Font.title2.weight(.bold))
+                    .frame(height: 70)
+                    .padding(.top, 10)
+                    .padding(.bottom, -15)
+                Divider().padding(.bottom, 5).padding(.top, 0)
+            }
+            VStack(alignment: .leading, spacing: 10) {
+                Toggle("Headless paywall mode", isOn: $headlessPaywallMode)
+                    .onChange(of: headlessPaywallMode) { newValue in
+                        messageHandler.headlessPaywallMode = newValue
+                    }
+                Text("Simulates a news app: each \"Read a free article\" tap sends a track action. After "
+                    + "\(freeArticleLimit) reads, the app fires the track action that the AJO paywall campaign "
+                    + "matches — the SDK qualifies the IAM, the delegate suppresses it, shows this native paywall, "
+                    + "and calls Message.recordDisplay() so the campaign frequency cap still applies (no custom IDs).")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Button("Read a free article  (\(freeArticlesRead)/\(freeArticleLimit))") {
+                    // Track every article read (analytics event on each tap).
+                    freeArticlesRead += 1
+                    MobileCore.track(action: "articleRead", data: ["articleNumber": "\(freeArticlesRead)"])
+
+                    // Once the free limit is hit, fire the track action the paywall campaign triggers on.
+                    // With "Headless paywall mode" ON, shouldShowMessage() intercepts it and shows PaywallView.
+                    if freeArticlesRead >= freeArticleLimit {
+                        MobileCore.track(action: paywallTriggerAction, data: ["reason": "freeArticleLimitReached"])
+                        freeArticlesRead = 0 // reset so the demo can be repeated
+                    }
+                }
+                // Direct one-tap trigger: fires the paywall campaign's track action immediately.
+                Button("Trigger paywall now (track action)") {
+                    MobileCore.track(action: paywallTriggerAction, data: ["reason": "manualTrigger"])
+                }
+                if messageHandler.paywallTriggerCount > 0 {
+                    Text("Paywall presented \(messageHandler.paywallTriggerCount) time(s) this session")
+                        .font(.caption).foregroundColor(.blue)
+                }
+                if !messageHandler.lastStatus.isEmpty {
+                    Text(messageHandler.lastStatus)
+                        .font(.caption2).foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 25)
+            VStack {
                 Text("Custom action testing")
                     .font(Font.title2.weight(.bold))
                     .frame(height: 70)
@@ -130,22 +185,37 @@ struct InAppView: View {
                     }.padding(.leading, 25)
                 }
             }
-            Spacer()
         }
+        .padding(.bottom, 20)
+        } // ScrollView
         .onAppear {
             if viewDidLoad == false {
                 viewDidLoad = true
                 MobileCore.messagingDelegate = messageHandler
             }
         }
+        .sheet(isPresented: $messageHandler.showPaywall) {
+            PaywallView(activityId: messageHandler.paywallActivityId) {
+                messageHandler.showPaywall = false
+            }
+        }
     }
 }
 
 /// Messaging delegate
-private class MessageHandler: MessagingDelegate {
+private final class MessageHandler: ObservableObject, MessagingDelegate {
     var showMessages = true
     var currentMessage: Message?
     let autoDismiss = false
+
+    // MARK: - Headless paywall demo state
+    /// When true, triggered IAMs are suppressed and the app presents its own paywall instead,
+    /// while still recording the display so AJO frequency capping applies.
+    var headlessPaywallMode = false
+    @Published var showPaywall = false
+    @Published var paywallActivityId = ""
+    @Published var paywallTriggerCount = 0
+    @Published var lastStatus = ""
 
     func onShow(message: Showable) {
         let fullscreenMessage = message as? FullscreenMessage
@@ -158,10 +228,30 @@ private class MessageHandler: MessagingDelegate {
     }
 
     func shouldShowMessage(message: Showable) -> Bool {
-        
+
         // access to the whole message from the parent
         let fullscreenMessage = message as? FullscreenMessage
         let message = fullscreenMessage?.parent
+
+        // MARK: - Headless paywall (customer scenario)
+        // Suppress the SDK's own UI, present our own paywall, and still record the display so the
+        // campaign's frequency-capping / show-once rules stop the paywall from re-triggering on every
+        // launch. `recordDisplay()` writes to the device Event History using the message's OWN
+        // `activityId` — no custom key-value identifiers required.
+        if headlessPaywallMode, let iam = message {
+            iam.recordDisplay()                          // on-device Event History → frequency capping works
+            iam.track(withEdgeEventType: .display)       // (optional) AJO reporting / server-side impression
+            DispatchQueue.main.async {
+                self.currentMessage = iam
+                self.paywallTriggerCount += 1
+                // TODO: MOB-24075 — swap iam.id for iam.activityId once Message.activityId is re-enabled.
+                // iam.id is propositionItem.itemId (changes per fetch); activityId is scopeDetails.activity.id (stable).
+                self.paywallActivityId = iam.id
+                self.lastStatus = "Suppressed SDK UI; recordDisplay() + track(.display) sent for id \(iam.id)"
+                self.showPaywall = true                  // present the app's own paywall
+            }
+            return false                                 // do NOT let the SDK show its fullscreen message
+        }
 
         // in-line handling of javascript calls
         // see Assets/nativeMethodCallingSample.html for an example of how to call this method
@@ -203,6 +293,136 @@ private class MessageHandler: MessagingDelegate {
 
     func urlLoaded(_ url: URL) {
         print("fullscreen message loaded url: \(url)")
+    }
+}
+
+/// A realistic, app-owned **news-app paywall** shown in place of the SDK's in-app message when
+/// headless mode is on. Mimics the daily-life case: the reader has used their free articles, AJO
+/// decides to show a paywall, and the app renders this native screen (with StoreKit-style plan
+/// cards) instead of the SDK's web overlay.
+struct PaywallView: View {
+    let activityId: String
+    var onClose: () -> Void
+
+    @State private var selectedPlan: Plan = .annual
+
+    enum Plan: String, CaseIterable, Identifiable {
+        case monthly, annual
+        var id: String { rawValue }
+        var title: String { self == .monthly ? "Monthly" : "Annual" }
+        var price: String { self == .monthly ? "$9.99" : "$79.99" }
+        var period: String { self == .monthly ? "per month" : "per year" }
+        var badge: String? { self == .annual ? "BEST VALUE · SAVE 33%" : nil }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Button(action: onClose) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding([.top, .trailing], 16)
+
+            ScrollView {
+                VStack(spacing: 16) {
+                    Image(systemName: "newspaper.fill")
+                        .font(.system(size: 52))
+                        .foregroundColor(.accentColor)
+                    Text("You've read all 3 free articles this month")
+                        .font(.title2.weight(.bold))
+                        .multilineTextAlignment(.center)
+                    Text("Subscribe to keep reading unlimited stories, exclusive analysis, and the daily briefing.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        benefit("Unlimited articles")
+                        benefit("Ad-free reading")
+                        benefit("Offline & audio articles")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+
+                    VStack(spacing: 12) {
+                        ForEach(Plan.allCases) { plan in
+                            planCard(plan)
+                        }
+                    }
+                    .padding(.horizontal)
+
+                    Button(action: onClose) {
+                        Text(selectedPlan == .annual ? "Start 7-day free trial" : "Subscribe")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(14)
+                    }
+                    .padding(.horizontal)
+
+                    Button("Restore purchase", action: onClose).font(.footnote)
+                    Button("Not now", action: onClose).font(.footnote).foregroundColor(.secondary)
+
+                    // Demo footprint — proves the paywall was driven by an AJO IAM, and that its
+                    // display was recorded so the campaign's frequency cap is honored.
+                    VStack(spacing: 4) {
+                        if !activityId.isEmpty {
+                            Text("Triggered by AJO campaign · activityId \(activityId)")
+                                .font(.caption2.monospaced())
+                        }
+                        Text("Display recorded via Message.recordDisplay() — respects the campaign frequency cap.")
+                            .font(.caption2)
+                            .multilineTextAlignment(.center)
+                    }
+                    .foregroundColor(.secondary)
+                    .padding(.top, 6)
+                    .padding(.horizontal)
+                }
+                .padding(.bottom, 24)
+            }
+        }
+    }
+
+    private func benefit(_ text: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
+            Text(text).font(.subheadline)
+        }
+    }
+
+    private func planCard(_ plan: Plan) -> some View {
+        let selected = plan == selectedPlan
+        return Button {
+            selectedPlan = plan
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    if let badge = plan.badge {
+                        Text(badge).font(.caption2.weight(.bold)).foregroundColor(.orange)
+                    }
+                    Text(plan.title).font(.headline)
+                    Text("\(plan.price) \(plan.period)").font(.subheadline).foregroundColor(.secondary)
+                }
+                Spacer()
+                Image(systemName: selected ? "largecircle.fill.circle" : "circle")
+                    .foregroundColor(selected ? .accentColor : .secondary)
+                    .font(.system(size: 22))
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(selected ? Color.accentColor : Color.gray.opacity(0.3),
+                            lineWidth: selected ? 2 : 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 

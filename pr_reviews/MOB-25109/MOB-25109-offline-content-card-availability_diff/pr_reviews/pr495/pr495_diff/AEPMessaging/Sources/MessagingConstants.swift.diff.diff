@@ -1,0 +1,94 @@
+diff --git a/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff
+new file mode 100644
+index 0000000..75b97cb
+--- /dev/null
++++ b/pr_reviews/pr495/pr495_diff/AEPMessaging/Sources/MessagingConstants.swift.diff
+@@ -0,0 +1,87 @@
++diff --git a/AEPMessaging/Sources/MessagingConstants.swift b/AEPMessaging/Sources/MessagingConstants.swift
++index 77bf2cc..b6c1dea 100644
++--- a/AEPMessaging/Sources/MessagingConstants.swift
+++++ b/AEPMessaging/Sources/MessagingConstants.swift
++@@ -27,6 +27,11 @@ enum MessagingConstants {
++     static let OPTIMIZE_PUSH_SYNC_ENABLED = "Push token sync optimization is enabled"
++     static let OPTIMIZE_PUSH_SYNC_DISABLED_SYNC_WITHIN_TIMEOUT = "Push registration sync optimization is disabled but the sync is within the 1 second timeout"
++ 
+++    /// HTTP status codes that Edge's own PersistentHitQueue already retries. When an
+++    /// errorResponseContent event carries one of these, Edge will resolve it on its own
+++    /// (success or eventual drop) — Messaging should not treat it as a definitive failure.
+++    static let RECOVERABLE_EDGE_ERROR_STATUS_CODES: Set<Int> = [408, 429, 502, 503, 504, 507]
+++
++     enum ContentTypes {
++         static let APPLICATION_JSON = "application/json"
++         static let TEXT_HTML = "text/html"
++@@ -38,6 +43,7 @@ enum MessagingConstants {
++         static let CACHE_NAME = "com.adobe.messaging.cache"
++         static let CONTENT_CARD_UI_CACHE_NAME = "com.adobe.messaging.contentcard.ui.cache"
++         static let PROPOSITIONS = "propositions"
+++        static let CONTENT_CARD_PROPOSITIONS = "contentCardPropositions"
++         static let PATH = "PATH"
++     }
++ 
++@@ -71,6 +77,7 @@ enum MessagingConstants {
++             static let UPDATE_PROPOSITIONS = "Update propositions"
++             static let GET_PROPOSITIONS = "Get propositions"
++             static let TRACK_PROPOSITIONS = "Track propositions"
+++            static let CLEAR_PERSISTED_PROPOSITIONS = "Clear cached propositions"
++             static let MESSAGE_PROPOSITIONS_RESPONSE = "Message propositions response"
++             static let MESSAGE_PROPOSITIONS_NOTIFICATION = "Message propositions notification"
++             static let FINALIZE_PROPOSITIONS_RESPONSE = "Finalize propositions response"
++@@ -93,6 +100,7 @@ enum MessagingConstants {
++         enum Source {
++             static let EVENT_HISTORY_WRITE = "com.adobe.eventSource.eventHistoryWrite"
++             static let PERSONALIZATION_DECISIONS = "personalization:decisions"
+++            static let EDGE_ERROR_RESPONSE = "com.adobe.eventSource.errorResponseContent"
++         }
++ 
++         enum Data {
++@@ -109,6 +117,7 @@ enum MessagingConstants {
++                 static let UPDATE_PROPOSITIONS = "updatepropositions"
++                 static let GET_PROPOSITIONS = "getpropositions"
++                 static let TRACK_PROPOSITIONS = "trackpropositions"
+++                static let CLEAR_PERSISTED_PROPOSITIONS = "clearpersistedpropositions"
++                 static let PROPOSITION_INTERACTION = "propositioninteraction"
++                 static let SURFACES = "surfaces"
++                 static let PROPOSITIONS = "propositions"
++@@ -121,6 +130,12 @@ enum MessagingConstants {
++                 static let SCHEMA = "schema"
++                 static let DATA = "data"
++ 
+++                // MARK: Edge error response event keys (com.adobe.eventSource.errorResponseContent)
+++
+++                enum EdgeError {
+++                    static let STATUS = "status"
+++                }
+++
++                 // MARK: Push Notification event keys
++ 
++                 static let PUSH_INTERACTION = "isPushInteractionEvent"
++@@ -305,6 +320,9 @@ enum MessagingConstants {
++                 static let CHARACTERISTICS = "characteristics"
++                 static let TOKENS = "tokens"
++                 static let EXPERIENCE_DECISIONING_REQUEST_ID = "exdRequestID"
+++                /// Flag added to a content card interaction XDM indicating the card was served
+++                /// from the persisted on-disk cache rather than a live network response.
+++                static let SERVED_FROM_PERSISTENT_CACHE = "servedFromPersistentCache"
++             }
++ 
++             enum Value {
++@@ -378,6 +396,9 @@ enum MessagingConstants {
++ 
++             // config for disabling the push token sync optimization
++             static let OPTIMIZE_PUSH_SYNC = "messaging.optimizePushSync"
+++
+++            // config for enabling offline content card availability (disk persistence)
+++            static let CONTENT_CARD_OFFLINE_AVAILABLE = "messaging.contentCardOfflineAvailable"
++         }
++ 
++         enum EdgeIdentity {
++@@ -417,4 +438,5 @@ enum MessagingConstants {
++             static let ENDED = "ended"
++         }
++     }
+++
++ }
+\ No newline at end of file

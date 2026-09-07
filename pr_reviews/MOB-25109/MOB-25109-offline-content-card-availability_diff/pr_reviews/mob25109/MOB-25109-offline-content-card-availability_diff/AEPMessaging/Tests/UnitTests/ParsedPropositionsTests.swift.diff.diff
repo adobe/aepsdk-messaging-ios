@@ -1,0 +1,124 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff
+new file mode 100644
+index 0000000..5268724
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift.diff
+@@ -0,0 +1,117 @@
++diff --git a/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift b/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift
++index 6c2f24f..de95555 100644
++--- a/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift
+++++ b/AEPMessaging/Tests/UnitTests/ParsedPropositionsTests.swift
++@@ -82,6 +82,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -100,6 +101,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -159,6 +161,8 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual("feed", feedPropositionInfo?.id)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(1, result.contentCardPropositionsToPersist.count, "feed ruleset should persist to CC bucket")
+++        XCTAssertEqual(mockFeedSurface, result.contentCardPropositionsToPersist.keys.first)
++         XCTAssertEqual(1, result.surfaceRulesBySchemaType.count, "should have one rule to insert in the feeds rules engine")
++         let feedRules = result.surfaceRulesBySchemaType[.contentCard]
++         XCTAssertNotNil(feedRules)
++@@ -183,7 +187,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++-    
+++
++     func testInitWithDefaultContentConsequence() throws {
++         // setup
++         let defaultContentRule = JSONFileLoader.getRulesJsonFromFile("ruleWithDefaultContentConsequence")
++@@ -220,6 +224,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -240,6 +245,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -260,6 +266,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -279,6 +286,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -297,6 +305,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++     
++@@ -442,6 +451,7 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++     }
++ 
++@@ -461,10 +471,13 @@ class ParsedPropositionTests: XCTestCase {
++         XCTAssertEqual(0, result.propositionInfoToCache.count)
++         XCTAssertEqual(0, result.propositionsToCache.count)
++         XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count)
++         XCTAssertEqual(0, result.surfaceRulesBySchemaType.count)
++         XCTAssertEqual(1, result.inboxPropositionsToCache.count)
++         XCTAssertEqual(1, result.inboxPropositionsToCache[mockInboxSurface]?.count)
++         XCTAssertEqual("inbox", result.inboxPropositionsToCache[mockInboxSurface]?.first?.uniqueId)
+++        XCTAssertEqual(1, result.inboxPropositionsToPersist.count, "inbox proposition should be persisted to disk")
+++        XCTAssertEqual(mockInboxSurface, result.inboxPropositionsToPersist.keys.first)
++     }
++ 
++     func testInitWithMixedPropositionsIncludingInbox() throws {
++@@ -515,11 +528,13 @@ class ParsedPropositionTests: XCTestCase {
++         // test
++         let result = ParsedPropositions(with: propositions, requestedSurfaces: [mockInboxSurface], runtime: mockRuntime)
++ 
++-        // verify - inbox should NOT be in propositionsToCache or propositionsToPersist
+++        // verify - inbox goes to its own buckets; must NOT bleed into IAM or CBE caches
++         XCTAssertNotNil(result)
++-        XCTAssertEqual(0, result.propositionsToCache.count)
++-        XCTAssertEqual(0, result.propositionsToPersist.count)
+++        XCTAssertEqual(0, result.propositionsToCache.count, "inbox must not go to CBE in-memory cache")
+++        XCTAssertEqual(0, result.propositionsToPersist.count, "inbox must not go to IAM disk cache")
+++        XCTAssertEqual(0, result.contentCardPropositionsToPersist.count, "inbox must not go to CC disk cache")
++         XCTAssertEqual(1, result.inboxPropositionsToCache.count)
+++        XCTAssertEqual(1, result.inboxPropositionsToPersist.count, "inbox must go to its own disk cache")
++     }
++     
++     private func getPropItemFile(_ fileName: String) -> PropositionItem {
+\ No newline at end of file

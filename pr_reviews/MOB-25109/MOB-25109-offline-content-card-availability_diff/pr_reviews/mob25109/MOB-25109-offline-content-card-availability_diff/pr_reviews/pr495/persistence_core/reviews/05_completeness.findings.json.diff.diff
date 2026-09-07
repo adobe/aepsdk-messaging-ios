@@ -1,0 +1,294 @@
+diff --git a/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json.diff b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json.diff
+new file mode 100644
+index 0000000..bfb7e57
+--- /dev/null
++++ b/pr_reviews/mob25109/MOB-25109-offline-content-card-availability_diff/pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json.diff
+@@ -0,0 +1,287 @@
++diff --git a/pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json b/pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json
++new file mode 100644
++index 0000000..8c2ccb9
++--- /dev/null
+++++ b/pr_reviews/pr495/persistence_core/reviews/05_completeness.findings.json
++@@ -0,0 +1,281 @@
+++{
+++  "schema_version": "1.0.0",
+++  "reviewer_id": "devx-pr-review-completeness",
+++  "findings": [
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-001",
+++      "title": "usePersistedContentCards:true path is never exercised through the real API/event flow, and existing tests describe a contradictory/discarded design",
+++      "severity": "CRITICAL",
+++      "confidence": 0.92,
+++      "concern_tags": ["test_quality", "entrypoint_completeness"],
+++      "claim": "The PR's headline behavior change — the explicit `usePersistedContentCards` flag on `getPropositionsForSurfaces(_:usePersistedContentCards:_:)` replacing implicit auto-hydrate — has zero tests that set the flag to `true` and drive it through `Messaging.handleProcessEvent` -> `retrieveMessages` -> `hydrateContentCardRulesEngineFromDisk`/`hydrateInboxPropositionsFromDisk` (grep across AEPMessaging/Tests/ for `usePersistedContentCards`/`USE_PERSISTED_CONTENT_CARDS` returns only one hit, and it is a comment, not an assertion). Worse, the two tests that do exist for this area actively assert/describe the OPPOSITE (older, discarded) design: `Messaging+StateTests.swift::testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty` (comment: \"No USE_PERSISTED_CONTENT_CARDS flag needed — disk hydration is automatic\") and `Messaging+PublicApiTest.swift::testGetPropositionsForSurfacesDoesNotSetPersistedFlag` (comment: \"the persisted-flag approach has been removed; offline hydration is automatic\"). But the shipped source (`Messaging.swift` retrieveMessages, lines ~1370-1377) gates hydration strictly behind `event.usePersistedContentCards`, and the doc comment directly above `retrieveMessages` (lines ~1357-1361) explicitly says \"there is no automatic/implicit memory-first-disk-fallback\" — directly contradicting the two tests.",
+++      "why_it_matters": "This is the single most important new behavior in the module (explicit opt-in offline read). Because no test exercises the true/positive path end-to-end via the public API and event dispatch, a regression that silently breaks offline reads for real callers (e.g. someone re-introduces auto-hydrate, or breaks the flag plumbing from Messaging+PublicAPI.swift -> Event+Messaging.swift -> Messaging.swift) would not be caught by CI. The stale tests also actively mislead future maintainers about what the shipped design actually does.",
+++      "suggested_action": "Add a test that calls `Messaging.getPropositionsForSurfaces(surfaces, usePersistedContentCards: true) { ... }` (or dispatches a GET_PROPOSITIONS event with USE_PERSISTED_CONTENT_CARDS=true) with disk-only data and asserts the response contains the persisted content cards / inbox items. Delete or rewrite `testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty` and `testGetPropositionsForSurfacesDoesNotSetPersistedFlag` — their names and comments describe behavior that does not exist in the shipped code.",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/Messaging.swift", "line": 1374},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift:1361-1377 (retrieveMessages: `if event.usePersistedContentCards { hydrateContentCardRulesEngineFromDisk... }`)",
+++        "AEPMessaging/Tests/UnitTests/Messaging+StateTests.swift diff lines 32-67 (testGetPropositionsAutoHydratesFromDiskWhenMemoryIsEmpty, no USE_PERSISTED_CONTENT_CARDS key set)",
+++        "AEPMessaging/Tests/UnitTests/Messaging+PublicApiTest.swift diff lines 11-27 (testGetPropositionsForSurfacesDoesNotSetPersistedFlag, comment: 'the persisted-flag approach has been removed')",
+++        "grep -rn usePersistedContentCards AEPMessaging/Tests/ -> only one hit, a comment, not an assertion of true"
+++      ],
+++      "caveats": ["Could not execute the test suite in this environment (see PR495-PC-COMPLETE-004 caveat) to confirm these two tests currently pass or fail; the finding is based on static tracing of the source against the test bodies/comments."],
+++      "challenge": "If there is another code path (not found in this module's file scope) that also triggers hydration without the flag, the 'no automatic fallback' claim could be wrong; a targeted grep of Sources/ for `hydrateContentCardRulesEngineFromDisk`/`hydrateInboxPropositionsFromDisk` call sites found only the one gated call, which weighs against this.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-002",
+++      "title": "New public API clearPersistedPropositions() has zero test coverage anywhere",
+++      "severity": "CRITICAL",
+++      "confidence": 0.97,
+++      "concern_tags": ["test_quality", "entrypoint_completeness"],
+++      "claim": "`Messaging.clearPersistedPropositions()` (Messaging+PublicAPI.swift), the `isClearPersistedPropositionsEvent`/`CLEAR_PERSISTED_PROPOSITIONS` event plumbing (Event+Messaging.swift, MessagingConstants.swift), and the handler `clearPersistedContentCardAndInboxPropositions()` (Messaging.swift) are a brand-new public API surface introduced in this PR. A repo-wide grep for `clearPersistedPropositions`, `CLEAR_PERSISTED_PROPOSITIONS`, `isClearPersistedPropositionsEvent`, and `clearPersistedContentCardAndInboxPropositions` across AEPMessaging/Tests/ returns zero matches.",
+++      "why_it_matters": "This is one of the four headline behaviors called out for this PR. No test proves: (a) the static API dispatches the correct event, (b) the event correctly routes in `handleProcessEvent`, (c) in-memory state (`qualifiedContentCardsBySurface`, `contentCardRulesBySurface`, `contentCardOriginBySurface`, `inboxPropositionsBySurface`) is actually cleared, (d) the disk cache keys are actually removed, or (e) CBE (`propositions` cache key) is left untouched as the doc comment promises. A regression here (e.g. wrong event source/type causing `handleProcessEvent` to never route to the clear handler) would ship undetected.",
+++      "suggested_action": "Add unit tests: (1) call the static `Messaging.clearPersistedPropositions()` API and assert a correctly-shaped event is dispatched; (2) drive `handleProcessEvent` with a CLEAR_PERSISTED_PROPOSITIONS event and assert `mockCache.removeCalls` contains CONTENT_CARD_PROPOSITIONS and INBOX_PROPOSITIONS but not PROPOSITIONS (CBE); (3) assert in-memory dictionaries are emptied and the content card rules engine is replaced with `[]`.",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/Messaging+PublicAPI.swift", "line": 219},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging+PublicAPI.swift diff lines 80-92 (new clearPersistedPropositions() API)",
+++        "AEPMessaging/Sources/Messaging.swift diff lines 184-191 (clearPersistedContentCardAndInboxPropositions())",
+++        "AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift diff lines 35-43 (isClearPersistedPropositionsEvent)",
+++        "grep -rln clearPersistedPropositions|CLEAR_PERSISTED_PROPOSITIONS|isClearPersistedPropositionsEvent AEPMessaging/Tests/ -> no results"
+++      ],
+++      "caveats": [],
+++      "challenge": "If the review's assigned test-file list is incomplete and coverage exists in a functional/E2E test file outside this module's scope, this finding would be partially mitigated for integration confidence but the unit-level gap would still stand.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-003",
+++      "title": "Non-recoverable Edge error preservation guard is completely untested (handleEdgeErrorResponse never invoked by any test)",
+++      "severity": "CRITICAL",
+++      "confidence": 0.93,
+++      "concern_tags": ["test_quality", "entrypoint_completeness"],
+++      "claim": "The new `nonRecoverableErrorEventIds` guard — the mechanism that is supposed to prevent a failed Edge request from evicting good persisted/in-memory content — is driven entirely by `handleEdgeErrorResponse(_:)`, which is registered as a listener for `EventType.edge`/`com.adobe.eventSource.errorResponseContent` events. A grep across AEPMessaging/Tests/ for `handleEdgeErrorResponse`, `nonRecoverableErrorEventIds`, `isEdgeErrorResponseEvent`, `RECOVERABLE_EDGE_ERROR_STATUS_CODES`, and `edgeErrorStatus` returns zero matches. No test ever dispatches an `errorResponseContent` event, so the recoverable-vs-non-recoverable branching, the insertion into `nonRecoverableErrorEventIds`, and the guard that ignores errors for already-cleaned-up event IDs (`requestedSurfacesForEventId.contains(where:)`) are all unverified.",
+++      "why_it_matters": "This is the core safety mechanism for one of the four headline PR behaviors (preventing data loss on failed Edge requests). Without a test that actually simulates a non-recoverable error and confirms preservation, a regression (e.g. wrong status-code set, wrong event source string, or a broken guard) that causes real Edge failures to silently wipe a user's offline content cards would not be caught.",
+++      "suggested_action": "Add tests that: (1) dispatch an errorResponseContent event with a non-recoverable status and confirm `nonRecoverableErrorEventIds` gets populated (via a debug/test accessor) and that a subsequent `handleProcessCompletedEvent` preserves disk/memory; (2) dispatch one with a recoverable status (e.g. 503) and confirm it is NOT recorded; (3) dispatch an error event for an eventId no longer in `requestedSurfacesForEventId` and confirm it is a no-op.",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/Messaging.swift", "line": 448},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift diff lines 440-465 (handleEdgeErrorResponse)",
+++        "AEPMessaging/Sources/MessagingConstants.swift diff lines 15-18 (RECOVERABLE_EDGE_ERROR_STATUS_CODES)",
+++        "AEPMessaging/Sources/ClassExtensions/Event+Messaging.swift diff lines 9-19 (isEdgeErrorResponseEvent, edgeErrorStatus)",
+++        "grep -rn handleEdgeErrorResponse|nonRecoverableErrorEventIds|isEdgeErrorResponseEvent|RECOVERABLE_EDGE_ERROR_STATUS_CODES|edgeErrorStatus AEPMessaging/Tests/ -> no results"
+++      ],
+++      "caveats": [],
+++      "challenge": "See PR495-PC-COMPLETE-004 for a related test that superficially looks like it covers 'failed fetch preserves cache' — it does not actually exercise this guard (see that finding for why it's a separate, distinct gap).",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-004",
+++      "title": "test_handleProcessCompletedEvent_noDecisions_preservesContentCardDiskCache does not test the non-recoverable-error path it claims to, and appears to assert the opposite of what the code does",
+++      "severity": "HIGH",
+++      "confidence": 0.7,
+++      "concern_tags": ["test_quality"],
+++      "claim": "This new test (MessagingProcessCompletedEventTests.swift diff lines 69-87) seeds the content-card disk cache, calls `messaging.setRequestedSurfacesforEventId(requestId, expectedSurfaces: [cardSurface])`, and drives `handleProcessCompletedEvent` with zero in-progress propositions, then asserts `mockCache.removeCalls` does NOT contain CONTENT_CARD_PROPOSITIONS. But `setRequestedSurfacesforEventId` only sets `requestedSurfacesForEventId[eventId]` (Messaging.swift ~line 1558) — it never populates `nonRecoverableErrorEventIds`. Tracing `applyPropositionChangeFor` (Messaging.swift ~lines 1182-1198) with no non-recoverable error recorded: `requestFailed` evaluates to `false`, so `surfacesToRemove = requestedSurfaces.minus(returnedSurfaces)` = `[cardSurface].minus([])` = `[cardSurface]` (since inProgressPropositions is empty). This is then passed to `cache.updateContentCardPropositions(_, removing: [cardSurface])`, whose shared helper `updatePropositionsByKey` (Cache+Messaging.swift) will find the existing (previously seeded) entry for `cardSurface`, filter it out entirely leaving an empty dict, and since `!existingPropositions.isEmpty` is true, will call `remove(key: CONTENT_CARD_PROPOSITIONS)` — which is exactly what the test asserts does NOT happen. This test appears to be exercising the pre-existing 'empty response evicts unreturned surfaces' behavior, not the new non-recoverable-error guard, and its title/assertion do not match what the traced code path would actually do.",
+++      "why_it_matters": "If this trace is correct, either the test is currently failing in CI (undetected regression risk / broken safety net), or it passes for a reason not evidenced in the diffs available to this review (e.g. hidden test-order state) — either way the intended proof for 'non-recoverable error preserves disk cache' does not exist, compounding PR495-PC-COMPLETE-003.",
+++      "suggested_action": "Rewrite this test to actually simulate a non-recoverable error before completion: dispatch/synthesize the error event (or use a debug/test setter for `nonRecoverableErrorEventIds`) for the same `requestId` before calling `handleProcessCompletedEvent`, then assert no eviction occurs. Separately, keep or rename the current test to accurately describe 'empty response evicts unreturned surfaces from content card disk cache' if that is the intended proof.",
+++      "primary_anchor": {"path": "AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift", "line": 69},
+++      "evidence_refs": [
+++        "AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift diff lines 69-87",
+++        "AEPMessaging/Sources/Messaging.swift lines 1182-1198 (applyPropositionChangeFor requestFailed derivation)",
+++        "AEPMessaging/Sources/Messaging.swift lines 1558-1560 (setRequestedSurfacesforEventId does not touch nonRecoverableErrorEventIds)",
+++        "AEPMessaging/Sources/ClassExtensions/Cache+Messaging.swift diff lines 94-120 (updatePropositionsByKey remove-when-empty-and-existing-nonempty logic)"
+++      ],
+++      "caveats": ["Could not execute the test suite to empirically confirm pass/fail: attempted `xcodebuild test` against the UnitTests scheme in this environment failed with an unrelated Pods/AEPTestUtils build error ('super.init isn't called on all paths before returning from initializer'), which is a pre-existing environment/toolchain issue, not something introduced by this PR. This finding is based on static code tracing rather than an observed test run."],
+++      "challenge": "If `ParsedPropositions(with: [:], ...)` or `cache.updateContentCardPropositions` behaves differently than traced (e.g. a nil vs empty-dict distinction I mis-traced, or `contentCardPropositionsToPersist` is actually nil rather than empty causing `updatedPropositions` merge to differ), the eviction might not occur and the test could genuinely pass — this would need an actual test run to settle definitively.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-005",
+++      "title": "clearPersistedPropositions() silently swallows disk-removal failures and always logs success",
+++      "severity": "HIGH",
+++      "confidence": 0.85,
+++      "concern_tags": ["hygiene_communication"],
+++      "claim": "`clearContentCards()` and `clearPersistedContentCardAndInboxPropositions()` (Messaging.swift diff lines 174-191) both call `try? cache.remove(key: ...)` and then unconditionally log a debug message declaring the state 'cleared', regardless of whether the throw actually happened. The public `clearPersistedPropositions()` API (Messaging+PublicAPI.swift) has no completion handler or return value, so a caller has no way — not even via a debug log — to learn that the disk removal actually failed.",
+++      "why_it_matters": "This is a new public API whose entire purpose is a user-triggered disk mutation (e.g. for privacy/cleanup flows). If `cache.remove` fails (disk full, permissions, I/O error), the caller is told nothing and the log claims success, so a stale persisted proposition could silently remain on disk after the app believes it was cleared — directly undermining the feature's purpose.",
+++      "suggested_action": "Capture the `Bool`/thrown result of `cache.remove` and log a warning (matching the pattern already used in `applyPropositionChangeFor` for `iamWriteOK`/`ccWriteOK`/`inboxWriteOK`) when removal fails, instead of unconditionally logging success.",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/Messaging.swift", "line": 180},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift diff lines 174-191 (try? cache.remove(...) followed by unconditional 'cleared' log)"
+++      ],
+++      "caveats": ["No test exists (per PR495-PC-COMPLETE-002) to confirm whether this is exercised/observed in practice; this is a static-analysis-based finding."],
+++      "challenge": "If `Cache.remove` in AEPServices essentially never throws in practice (e.g. it's a best-effort file delete that's documented as always safe), the risk is lower than stated — but the same PR already treats write-failure the same class of event as worth a warning log elsewhere (iamWriteOK/ccWriteOK/inboxWriteOK), so the inconsistency stands regardless.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-006",
+++      "title": "Dead/unreachable eventsQueue handler branch left over from the get-propositions refactor",
+++      "severity": "HIGH",
+++      "confidence": 0.85,
+++      "concern_tags": ["hygiene_communication"],
+++      "claim": "`onRegistered()`'s `eventsQueue.setHandler` (Messaging.swift lines 303-310) still contains `if event.isGetPropositionsEvent { self.retrieveMessages(...) }`, but this PR changed `handleProcessEvent` to call `retrieveMessages` directly and immediately for GET_PROPOSITIONS events (diff: replaced `eventsQueue.add(event)` with a direct call, with comment 'Process immediately so callers are not blocked behind in-flight Edge requests'). A grep of Messaging.swift for `eventsQueue.add` shows the only remaining call site is in `beginRequestFor` for Edge update-propositions events — no code path ever adds a get-propositions event to `eventsQueue` anymore, so this branch in the queue handler is now unreachable dead code.",
+++      "why_it_matters": "Leftover, misleading code from a mid-PR design pivot: a future maintainer reading `onRegistered()` would reasonably conclude get-propositions events can still be queued behind in-flight updates, which is no longer true and contradicts the new doc comment on the direct call site. This is exactly the kind of 'half-migrated' leftover called out as a merge-readiness risk.",
+++      "suggested_action": "Remove the `if event.isGetPropositionsEvent { ... }` branch from `eventsQueue.setHandler` and update the surrounding comment, since get-propositions events are no longer queued.",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/Messaging.swift", "line": 304},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift lines 301-312 (eventsQueue.setHandler with isGetPropositionsEvent branch)",
+++        "AEPMessaging/Sources/Messaging+PublicAPI... / Messaging.swift diff lines 376-382 (retrieveMessages called directly, not via eventsQueue.add, with comment 'Process immediately so callers are not blocked')",
+++        "grep -n eventsQueue.add AEPMessaging/Sources/Messaging.swift -> only line 1160 inside beginRequestFor (Edge update events)"
+++      ],
+++      "caveats": [],
+++      "challenge": "If some other still-existing code path pushes a get-propositions event into `eventsQueue` that this review's file-scoped search missed, the branch would not be dead — but no such call site was found in Messaging.swift, which is the only file that owns `eventsQueue`.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-007",
+++      "title": "Proposition.offlineAvailable is dead code with a misleading doc comment describing a guarantee the code doesn't provide",
+++      "severity": "MEDIUM",
+++      "confidence": 0.9,
+++      "concern_tags": ["hygiene_communication"],
+++      "claim": "`Proposition.swift` (diff lines 106-124) adds a computed property `offlineAvailable` documented as: 'Whether this proposition should be persisted to disk for offline availability. Reads from the proposition's mobileParameters.offline flag when present. TODO: once server-side flag is active, remove the default-true fallback.' A repo-wide grep for `offlineAvailable` shows it is referenced nowhere else in Sources/ or Tests/. The actual persist-gating decision in `ParsedPropositions.swift` uses the unrelated hardcoded constant `MessagingConstants.OFFLINE_AVAILABILITY_ENABLED = true` and never consults `proposition.offlineAvailable`.",
+++      "why_it_matters": "This is a half-implemented feature: a per-proposition server-driven offline flag was scaffolded but never wired into the decision it claims to inform. The doc comment overstates the current guarantee (it reads as if the flag already participates in persist decisions), which will mislead a future developer who assumes setting `mobileParameters.offline = false` on the server already suppresses disk persistence for that proposition — it currently does nothing.",
+++      "suggested_action": "Either wire `proposition.offlineAvailable` into the `if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED` checks in ParsedPropositions.swift (e.g. `if MessagingConstants.OFFLINE_AVAILABILITY_ENABLED && proposition.offlineAvailable`), or remove the property/TODO until it is actually used, and reference a tracking ticket for the follow-up.",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/Proposition.swift", "line": 112},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Proposition.swift diff lines 106-124 (offlineAvailable property)",
+++        "AEPMessaging/Sources/ParsedPropositions.swift diff lines 33-39, 52-56 (persist gate uses MessagingConstants.OFFLINE_AVAILABILITY_ENABLED only)",
+++        "grep -rn offlineAvailable AEPMessaging/ -> only Proposition.swift:112 (the definition itself)"
+++      ],
+++      "caveats": [],
+++      "challenge": "If this property is intentionally staged ahead of a follow-up PR that will wire it in, this is lower severity than stated — but there is no comment or ticket reference indicating that intent, and the PR is presented as production-ready.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-008",
+++      "title": "Four TODOs for the hardcoded OFFLINE_AVAILABILITY_ENABLED gate have no tracking-ticket reference",
+++      "severity": "MEDIUM",
+++      "confidence": 0.85,
+++      "concern_tags": ["hygiene_communication"],
+++      "claim": "`MessagingConstants.OFFLINE_AVAILABILITY_ENABLED = true` is documented as 'Hardcoded true for now... TODO: replace with a value read from shared state configuration once that config flag is available' (MessagingConstants.swift:32). Three more TODOs referencing the same hardcode/gate exist at ParsedPropositions.swift:94 and :121, and Proposition.swift:111. None of the four TODOs reference a Jira/GitHub tracking ticket. `.swiftlint.yml` has the `todo` rule disabled, so these will not be flagged by lint either.",
+++      "why_it_matters": "A globally-hardcoded feature gate with no config-driven kill switch and no tracked follow-up item is a common source of forgotten technical debt — especially since this flag controls whether ALL content card and inbox propositions are persisted to disk for every app using this SDK version, with no way to disable it short of a code change and a new SDK release.",
+++      "suggested_action": "Add a tracking ticket reference to each TODO (e.g. `// TODO(MOB-XXXXX): ...`) and confirm merge-readiness expectations with the PM/eng lead: is shipping a hardcoded `true` gate (rather than an actual feature flag) acceptable for this release?",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/MessagingConstants.swift", "line": 32},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/MessagingConstants.swift diff lines 9-13",
+++        "AEPMessaging/Sources/ParsedPropositions.swift diff lines 35-39, 52-56",
+++        "AEPMessaging/Sources/Proposition.swift diff lines 111"
+++      ],
+++      "caveats": [],
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-009",
+++      "title": "clearPersistedPropositions() racing an in-flight update-propositions request can silently resurrect just-cleared data",
+++      "severity": "MEDIUM",
+++      "confidence": 0.65,
+++      "concern_tags": ["entrypoint_completeness"],
+++      "claim": "`clearPersistedContentCardAndInboxPropositions()` clears in-memory state and removes the CC/inbox disk cache keys, but does not touch `requestedSurfacesForEventId`, `inProgressPropositions`, or `nonRecoverableErrorEventIds`. If a `personalization:decisions` streaming response is still being accumulated (an update-propositions request is in-flight) when a `clearPersistedPropositions()` event is processed, the in-flight request's later `handleProcessCompletedEvent` -> `applyPropositionChangeFor` will still run and call `cache.updateContentCardPropositions`/`updateInboxPropositions` with the newly-fetched data, re-writing to disk and re-populating in-memory state for whatever surfaces that request covers — even though the user just explicitly asked for persisted state to be cleared.",
+++      "why_it_matters": "This is exactly the 'clearPersistedPropositions() called while a request is in-flight' scenario called out for this review. The behavior is a silent, timing-dependent partial resurrection of cleared data with no logging, no guard, and no test — a caller who explicitly cleared persisted content (e.g. for a privacy/logout flow) could see it reappear moments later if a fetch happened to be in flight.",
+++      "suggested_action": "Either document this as accepted behavior (clear applies only to data existing at the time of the call, and freshly-fetched data legitimately repopulates the cache), or add a guard/log when a clear races an in-flight request, and add a test that reproduces the race and asserts the intended outcome explicitly.",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/Messaging.swift", "line": 186},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift diff lines 184-191 (clearPersistedContentCardAndInboxPropositions does not touch requestedSurfacesForEventId/inProgressPropositions)",
+++        "AEPMessaging/Sources/Messaging.swift lines 1182-1198 (applyPropositionChangeFor runs independently of any clear having happened)"
+++      ],
+++      "caveats": ["This is a timing/race scenario reasoned about statically; no test or runtime reproduction was performed."],
+++      "challenge": "If EventHub processes messaging events strictly serially and update-propositions completion always happens on a single-threaded dispatch queue such that a clear event can never interleave mid-stream in practice, the actual exploitable window may be narrower than described — but the underlying state (no coordination between clear and in-flight request bookkeeping) is confirmed in the source regardless of scheduling.",
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": true
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-010",
+++      "title": "Asymmetric cache decode-failure test coverage: new contentCardPropositions/inboxPropositions getters lack a corrupted-data test that the pre-existing propositions getter has",
+++      "severity": "MEDIUM",
+++      "confidence": 0.75,
+++      "concern_tags": ["test_quality"],
+++      "claim": "The pre-existing `propositions` getter has `testPropositionsCachedItemsAreNotDecodable` (Cache+MessagingTests.swift) verifying graceful `nil` return on undecodable cached data. The two new parallel getters added in this PR, `contentCardPropositions` and `inboxPropositions` (Cache+Messaging.swift, sharing the same private `propositionsByKey` helper), only got 'happy' and 'none in cache' tests (`testContentCardPropositionsHappy`, `testContentCardPropositionsNoneInCache`, `testInboxPropositionsHappy`, `testInboxPropositionsNoneInCache`) — no corrupted/malformed-JSON test was added for either.",
+++      "why_it_matters": "Although the underlying decode-failure logic is shared code (lower risk of an actual bug), the PR explicitly duplicated the getter surface (and its parallel key-specific log messages) without duplicating the corresponding parallel test for the graceful-degradation path — an inconsistent completeness pattern that could hide a future refactor mistake that diverges the CC/inbox decode path from the IAM one.",
+++      "suggested_action": "Add `testContentCardPropositionsCachedItemsAreNotDecodable` and `testInboxPropositionsCachedItemsAreNotDecodable` mirroring the existing IAM test.",
+++      "primary_anchor": {"path": "AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift", "line": 288},
+++      "evidence_refs": [
+++        "AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift:85 (testPropositionsCachedItemsAreNotDecodable, pre-existing)",
+++        "AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift diff lines 12-70 (new CC/inbox tests, no decode-failure case)"
+++      ],
+++      "caveats": [],
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-011",
+++      "title": "New CardOrigin / servedFromPersistentCache observability feature (enrichWithContentCardOrigin) has zero test coverage",
+++      "severity": "MEDIUM",
+++      "confidence": 0.85,
+++      "concern_tags": ["test_quality"],
+++      "claim": "Messaging.swift adds a full new mechanism: `CardOrigin` enum, `contentCardOriginBySurface` state (written in `updateRulesEngines` and `hydrateContentCardRulesEngineFromDisk`, cleared in `removeOrReplaceContentCards` and `clearContentCards`), and `enrichWithContentCardOrigin(_:)` which tags proposition-interaction XDM with a `servedFromPersistentCache` flag (MessagingConstants.swift: `SERVED_FROM_PERSISTENT_CACHE`). A repo-wide grep for `enrichWithContentCardOrigin`, `contentCardOriginBySurface`, `CardOrigin`, `servedFromPersistentCache`, and `SERVED_FROM_PERSISTENT_CACHE` across AEPMessaging/Tests/ returns zero matches.",
+++      "why_it_matters": "This feature exists specifically so AJO/analytics can distinguish offline-served cards from online ones — it is directly part of the offline-availability value proposition of this PR. Without a test, there is no proof that: origin is tagged `.network` only for surfaces actually present in a live response (not all qualified surfaces), origin is tagged `.disk` only after disk hydration, origin is cleared when a surface is evicted, or the XDM enrichment logic correctly maps `scope` -> `Surface` -> origin and injects the flag into the right proposition entries without corrupting unrelated (IAM/CBE/inbox) interaction payloads.",
+++      "suggested_action": "Add unit tests for `enrichWithContentCardOrigin` (verify enrichment only applies to tracked content-card surfaces, and that `true`/`false` map correctly to `.disk`/`.network`), and tests verifying `contentCardOriginBySurface` transitions correctly across `updateRulesEngines`, `hydrateContentCardRulesEngineFromDisk`, `removeOrReplaceContentCards`, and `clearContentCards`.",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/Messaging.swift", "line": 71},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift diff lines 9-102 (CardOrigin, contentCardOriginBySurface, enrichWithContentCardOrigin)",
+++        "AEPMessaging/Sources/MessagingConstants.swift diff lines 74-78 (SERVED_FROM_PERSISTENT_CACHE)",
+++        "grep -rln enrichWithContentCardOrigin|contentCardOriginBySurface|CardOrigin|servedFromPersistentCache|SERVED_FROM_PERSISTENT_CACHE AEPMessaging/Tests/ -> no results"
+++      ],
+++      "caveats": ["Not explicitly named in the review's numbered focus list (which centers on the flag/clear API/error guard/CBE revert), but it is a substantial new behavior in an in-scope file directly tied to the offline-availability theme, so it is reported as a completeness gap."],
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-012",
+++      "title": "hydrateInboxPropositionsFromDisk has no direct or indirect test coverage",
+++      "severity": "LOW",
+++      "confidence": 0.85,
+++      "concern_tags": ["test_quality"],
+++      "claim": "`hydrateInboxPropositionsFromDisk(for:)` (Messaging.swift) is never called directly by any test, and its only production call site (inside `retrieveMessages`, gated by `event.usePersistedContentCards`) is never actually reached by any test given PR495-PC-COMPLETE-001 (no test sets the flag to true through the real event flow).",
+++      "why_it_matters": "Inbox offline-read hydration — one half of the 'usePersistedContentCards' feature — has no proof it works at all, compounding the severity of PR495-PC-COMPLETE-001.",
+++      "suggested_action": "Add a direct unit test calling `messaging.hydrateInboxPropositionsFromDisk(for:)` with seeded disk data (mirroring `testHydrateContentCardRulesEngineFromDiskLoadsRules`), and cover it via the end-to-end flag-true test recommended in PR495-PC-COMPLETE-001.",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/Messaging.swift", "line": 1347},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift lines 1341-1358 (hydrateInboxPropositionsFromDisk definition and its single call site)",
+++        "grep -rn hydrateInboxPropositionsFromDisk AEPMessaging/Tests/ -> no results"
+++      ],
+++      "caveats": [],
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    },
+++    {
+++      "finding_id": "PR495-PC-COMPLETE-013",
+++      "title": "No test forces a disk-write failure during applyPropositionChangeFor to confirm the new degraded-mode warning log and continued in-memory operation",
+++      "severity": "LOW",
+++      "confidence": 0.7,
+++      "concern_tags": ["test_quality"],
+++      "claim": "`applyPropositionChangeFor` (Messaging.swift diff lines ~284-295) now captures three booleans (`iamWriteOK`, `ccWriteOK`, `inboxWriteOK`) from `cache.updatePropositions`/`updateContentCardPropositions`/`updateInboxPropositions` and logs a warning if any is false, with the comment 'Failures are non-fatal: the current session still works via in-memory.' No test in this PR sets `mockCache.setShouldThrow = true` (or an encode failure) during a call to `handleProcessCompletedEvent`/`applyPropositionChangeFor` to confirm the warning fires and that in-memory updates (`updatePropositions`, `updateInboxPropositions`, `updatePropositionInfo`) still proceed correctly afterward.",
+++      "why_it_matters": "This is new resilience logic (three independent write results combined into one warning) introduced specifically for this PR's disk-first persistence model; without a test, a future change could silently drop the warning or, worse, accidentally make a disk-write failure abort the in-memory update too.",
+++      "suggested_action": "Add a test using `mockCache.setShouldThrow = true` around a `handleProcessCompletedEvent` call and assert (a) a warning is logged (or at minimum that in-memory state is still updated) and (b) the extension does not crash or leave state inconsistent.",
+++      "primary_anchor": {"path": "AEPMessaging/Sources/Messaging.swift", "line": 292},
+++      "evidence_refs": [
+++        "AEPMessaging/Sources/Messaging.swift diff lines 283-295 (iamWriteOK/ccWriteOK/inboxWriteOK degraded-mode warning)",
+++        "grep -n setShouldThrow AEPMessaging/Tests/UnitTests/MessagingProcessCompletedEventTests.swift AEPMessaging/Tests/UnitTests/Cache+MessagingTests.swift -> only pre-existing Cache+MessagingTests.swift:255 (IAM-only, not exercised through applyPropositionChangeFor)"
+++      ],
+++      "caveats": [],
+++      "classification": "UNCLASSIFIED",
+++      "posting_eligible": true,
+++      "requires_verification": false
+++    }
+++  ],
+++  "summary": {
+++    "overall_confidence": 0.82,
+++    "counts_by_severity": {
+++      "CRITICAL": 3,
+++      "HIGH": 3,
+++      "MEDIUM": 5,
+++      "LOW": 2
+++    }
+++  }
+++}
+\ No newline at end of file
