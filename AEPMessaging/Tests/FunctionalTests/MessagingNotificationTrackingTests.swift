@@ -687,5 +687,112 @@ class MessagingNotificationTrackingTests: TestBase, AnyCodableAsserts {
             XCTFail("xdm, _experience, or decisioning not found in edge event")
         }
     }
+
+    // MARK: - messageProfile and propositionEventType across journey and campaign payloads
+
+    func test_pushTracking_journeyPayload_withExdRequestID_addsMessageProfileAndPropositionEventType() {
+        assertPushTracking(source: .journey, withExdRequestID: true)
+    }
+
+    func test_pushTracking_journeyPayload_withoutExdRequestID_addsMessageProfileOnly() {
+        assertPushTracking(source: .journey, withExdRequestID: false)
+    }
+
+    func test_pushTracking_campaignPayload_withExdRequestID_addsMessageProfileAndPropositionEventType() {
+        assertPushTracking(source: .campaign, withExdRequestID: true)
+    }
+
+    func test_pushTracking_campaignPayload_withoutExdRequestID_addsMessageProfileOnly() {
+        assertPushTracking(source: .campaign, withExdRequestID: false)
+    }
+
+    // MARK: - push tracking test helpers
+
+    private enum PushSource {
+        case journey
+        case campaign
+    }
+
+    /// Builds a push notification userInfo payload for a journey or campaign message, optionally including
+    /// an experienceDecisioningRequestId in the decisioning data.
+    private func makePushUserInfo(source: PushSource, withExdRequestID: Bool) -> [String: Any] {
+        var messageExecution: [String: Any] = [
+            "messageExecutionID": "mockExecutionID",
+            "messageID": "mockMessageId"
+        ]
+        switch source {
+        case .journey:
+            messageExecution["journeyVersionID"] = "mockJourneyVersionID"
+            messageExecution["journeyActionID"] = "mockJourneyActionID"
+            messageExecution["journeyVersionInstanceID"] = "mockJourneyVersionInstanceID"
+        case .campaign:
+            messageExecution["messageType"] = "marketing"
+            messageExecution["campaignID"] = "mockCampaignID"
+            messageExecution["campaignVersionID"] = "mockCampaignVersionID"
+            messageExecution["campaignActionID"] = "mockCampaignActionID"
+        }
+
+        var decisioning: [String: Any] = [
+            "propositions": [["scopeDetails": ["correlationID": "mockCorrelationID"]]]
+        ]
+        if withExdRequestID {
+            decisioning["exdRequestID"] = "mockExdRequestID"
+        }
+
+        let experience: [String: Any] = [
+            "customerJourneyManagement": ["messageExecution": messageExecution],
+            "decisioning": decisioning
+        ]
+        return ["_xdm": ["mixins": ["_experience": experience]]]
+    }
+
+    /// Dispatches a push tracking edge event for the given userInfo and returns its xdm map.
+    private func dispatchPushTracking(_ userInfo: [String: Any],
+                                      file: StaticString = #file, line: UInt = #line) -> [String: Any]? {
+        let expectation = XCTestExpectation(description: "Messaging Push Tracking Response")
+        setExpectationEvent(type: EventType.edge, source: EventSource.requestContent, expectedCount: 1)
+        guard let response = prepareNotificationResponse(withUserInfo: userInfo) else {
+            XCTFail("Unable to prepare notification response", file: file, line: line)
+            return nil
+        }
+        Messaging.handleNotificationResponse(response, closure: { _ in
+            expectation.fulfill()
+        })
+        wait(for: [expectation], timeout: ASYNC_TIMEOUT)
+        let events = getDispatchedEventsWith(type: EventType.edge, source: EventSource.requestContent)
+        XCTAssertEqual(1, events.count, file: file, line: line)
+        return events.first?.data?[MessagingConstants.XDM.Key.XDM] as? [String: Any]
+    }
+
+    /// Verifies messageProfile/pushChannelContext are always present, and that propositionEventType is added
+    /// only when the payload carries an experienceDecisioningRequestId.
+    private func assertPushTracking(source: PushSource, withExdRequestID: Bool,
+                                    file: StaticString = #file, line: UInt = #line) {
+        let userInfo = makePushUserInfo(source: source, withExdRequestID: withExdRequestID)
+        guard let xdm = dispatchPushTracking(userInfo, file: file, line: line),
+              let experience = xdm[MessagingConstants.XDM.AdobeKeys.EXPERIENCE] as? [String: Any],
+              let cjm = experience["customerJourneyManagement"] as? [String: Any] else {
+            XCTFail("xdm, _experience, or customerJourneyManagement not found in edge event", file: file, line: line)
+            return
+        }
+
+        // messageProfile is always added regardless of exdRequestID
+        let channel = (cjm["messageProfile"] as? [String: Any])?["channel"] as? [String: Any]
+        XCTAssertEqual("https://ns.adobe.com/xdm/channels/push", channel?["_id"] as? String,
+                       "messageProfile.channel._id should always be present", file: file, line: line)
+        XCTAssertEqual("apns", (cjm["pushChannelContext"] as? [String: Any])?["platform"] as? String,
+                       "pushChannelContext.platform should always be present", file: file, line: line)
+
+        // propositionEventType is added only when exdRequestID is present
+        let decisioning = experience[MessagingConstants.XDM.Inbound.Key.DECISIONING] as? [String: Any]
+        let propositionEventType = decisioning?[MessagingConstants.XDM.Inbound.Key.PROPOSITION_EVENT_TYPE] as? [String: Int]
+        if withExdRequestID {
+            XCTAssertEqual(1, propositionEventType?[MessagingConstants.XDM.Inbound.PropositionEventType.INTERACT],
+                           "propositionEventType.interact should be added when exdRequestID is present", file: file, line: line)
+        } else {
+            XCTAssertNil(propositionEventType,
+                         "propositionEventType should not be added when exdRequestID is missing", file: file, line: line)
+        }
+    }
 }
 
