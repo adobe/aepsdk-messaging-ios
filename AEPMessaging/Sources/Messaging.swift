@@ -1289,13 +1289,12 @@ public class Messaging: NSObject, Extension {
     }
 
     private func endRequestFor(eventId: String) {
-        let requestFailed = nonRecoverableErrorEventIds.contains(eventId)
         applyPropositionChangeFor(eventId: eventId)
         requestedSurfacesForEventId.removeValue(forKey: eventId)
         nonRecoverableErrorEventIds.remove(eventId)
         inProgressPropositions.removeAll()
         if let handler = completionHandlerFor(edgeRequestEventId: UUID(uuidString: eventId)) {
-            handler.handle?(!requestFailed)
+            handler.handle?(true)
         }
     }
 
