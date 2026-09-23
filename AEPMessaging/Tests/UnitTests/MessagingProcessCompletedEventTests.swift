@@ -162,6 +162,104 @@ class MessagingProcessCompletedEventTests: XCTestCase {
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
     }
 
+    /// Regression coverage for the "success AND error on the same request id" case.
+    ///
+    /// Edge can dispatch a non-recoverable `errorResponseContent` event alongside a perfectly good
+    /// `personalization:decisions` event for the SAME requesting event id (e.g. a partial/streamed
+    /// response where one handle errors but the decisions handle still arrives). When that happens we
+    /// must NOT treat the whole request as a failure that discards the good data: the rules engines
+    /// must still be replaced with the successfully-returned propositions, those propositions must be
+    /// cached, nothing may be evicted, and the completion handler must report success (`true`).
+    func test_handleProcessCompletedEvent_successAndErrorForSameRequestId_stillReplacesRulesWithSuccessfulData() {
+        // Setup: a request expecting both an IAM and a content-card surface.
+        let iamPropositions = (0..<3).map { makeInAppProposition(index: $0) }
+        let cardPropositions = (0..<4).map { makeCardProposition(surface: cardSurface, index: $0) }
+        let payloadDicts = (iamPropositions + cardPropositions).compactMap { $0.asDictionary() }
+
+        // Use a real UUID so the completion-handler lookup (UUID(uuidString:)) resolves.
+        let requestId = UUID().uuidString
+        messaging.setRequestedSurfacesforEventId(requestId, expectedSurfaces: [iamSurface, cardSurface])
+
+        // Register a completion handler keyed to this Edge request event id so we can assert the
+        // reported result once the request ends.
+        Messaging.completionHandlers.removeAll()
+        let originatingEvent = Event(name: MessagingConstants.Event.Name.UPDATE_PROPOSITIONS,
+                                     type: EventType.messaging,
+                                     source: EventSource.requestContent,
+                                     data: nil)
+        var completionResult: Bool?
+        var handler = CompletionHandler(originatingEvent: originatingEvent) { success in
+            completionResult = success
+        }
+        handler.edgeRequestEventId = UUID(uuidString: requestId)
+        Messaging.completionHandlers.append(handler)
+
+        // 1) A successful personalization:decisions response arrives for the request id.
+        let decisionsEvent = Event(name: "decisions",
+                                   type: EventType.edge,
+                                   source: MessagingConstants.Event.Source.PERSONALIZATION_DECISIONS,
+                                   data: [
+                                       MessagingConstants.Event.Data.Key.Personalization.PAYLOAD: payloadDicts,
+                                       MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestId
+                                   ])
+        mockRuntime.simulateComingEvents(decisionsEvent)
+
+        // 2) A NON-recoverable Edge error ALSO arrives for the SAME request id.
+        // 400 is not in RECOVERABLE_EDGE_ERROR_STATUS_CODES, so it is recorded as non-recoverable.
+        let errorEvent = Event(name: "Edge Error",
+                               type: EventType.edge,
+                               source: MessagingConstants.Event.Source.EDGE_ERROR_RESPONSE,
+                               data: [
+                                   MessagingConstants.Event.Data.Key.REQUEST_EVENT_ID: requestId,
+                                   MessagingConstants.Event.Data.Key.EdgeError.STATUS: 400
+                               ])
+        mockRuntime.simulateComingEvents(errorEvent)
+
+        // Precondition: the error is recorded against this request id before the request ends.
+        XCTAssertTrue(messaging.getNonRecoverableErrorEventIds().contains(requestId),
+                      "Non-recoverable error should be tracked for the request id prior to completion")
+
+        // 3) End of streaming response events for the request.
+        let processEvent = Event(name: "process complete",
+                                 type: EventType.messaging,
+                                 source: EventSource.contentComplete,
+                                 data: [MessagingConstants.Event.Data.Key.ENDING_EVENT_ID: requestId])
+        messaging.handleProcessCompletedEvent(processEvent)
+
+        // Validate: the good data is still applied even though an error rode along with it.
+        XCTAssertTrue(mockLaunchRulesEngine.replaceRulesCalled,
+                      "In-app rules engine must be replaced with the successfully-returned propositions")
+        XCTAssertTrue(mockContentCardLaunchRulesEngine.replaceRulesCalled,
+                      "Content-card rules engine must be replaced with the successfully-returned propositions")
+
+        // 3 IAM rules + (4 cards x 3 event-history operation rules = 12) = 15 total in the main engine.
+        let iamRuleCount = mockLaunchRulesEngine.paramReplaceRulesRules?.filter { rule in
+            rule.consequences.contains { consequence in
+                let ruleType = consequence.details[MessagingTestConstants.EventDataKeys.RulesEngine.MESSAGE_CONSEQUENCE_DETAIL_KEY_SCHEMA] as? String
+                return ruleType == SchemaType.inapp.toString()
+            }
+        }.count ?? 0
+        XCTAssertEqual(3, iamRuleCount, "All 3 successfully-returned IAM rules must be applied")
+        XCTAssertEqual(15, mockLaunchRulesEngine.paramReplaceRulesRules?.count ?? -1,
+                       "Main engine should load 3 IAM + 12 event-history rules from the successful response")
+        XCTAssertEqual(4, mockContentCardLaunchRulesEngine.paramReplaceRulesRules?.count ?? -1,
+                       "Content-card engine should load one rule per successfully-returned card")
+
+        // The successful propositions must be cached...
+        XCTAssertTrue(mockCache.setCalled, "Successful propositions must be persisted")
+        // ...and nothing may be evicted, because the request carried a non-recoverable error.
+        XCTAssertFalse(mockCache.removeCalled,
+                       "No surface may be evicted when a non-recoverable error accompanies the successful data")
+
+        // The completion handler must report success even though an error was received.
+        XCTAssertEqual(true, completionResult,
+                       "Completion handler must return true when successful data is received alongside an error")
+
+        // Per-request error tracking must be cleaned up once the request ends.
+        XCTAssertFalse(messaging.getNonRecoverableErrorEventIds().contains(requestId),
+                       "Non-recoverable error tracking must be cleared after the request completes")
+    }
+
     func test_handleProcessCompletedEvent_IAMPropositionsNotReturnedInSubsequentResponse() {
         // ---------- First response contains IAM + content cards ----------
         let iamPropositions = (0..<3).map { makeInAppProposition(index: $0) }
