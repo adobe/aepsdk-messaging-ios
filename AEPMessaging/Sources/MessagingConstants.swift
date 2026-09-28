@@ -67,6 +67,12 @@ enum MessagingConstants {
     }
 
     enum Event {
+        enum EventType {
+            /// Event type used to forward Live Activity tokens to the Launch Rules Engine via the
+            /// consent-independent operational-data path.
+            static let GENERIC_OPERATIONAL_DATA = "com.adobe.eventType.generic.operationalData"
+        }
+
         enum Name {
             static let MESSAGE_INTERACTION = "Messaging interaction event"
             static let PUSH_NOTIFICATION_INTERACTION = "Push notification interaction event"
@@ -94,6 +100,8 @@ enum MessagingConstants {
                 static let START_EDGE = "Live Activity start to Edge"
                 static let UPDATE_TOKEN = "Live Activity update token"
                 static let UPDATE_TOKEN_EDGE = "Live Activity update token to Edge"
+                /// Name of the consent-independent operational-data event that forwards Live Activity tokens.
+                static let SYNC_OPERATIONAL_DATA = "Sync Operational Data"
             }
         }
 
@@ -162,6 +170,14 @@ enum MessagingConstants {
                     static let TRACK_START = "isLiveActivityTrackStartEvent"
                     static let TRACK_STATE = "isLiveActivityTrackStateEvent"
                     static let UPDATE_TOKEN = "isLiveActivityUpdateTokenEvent"
+
+                    // MARK: Consent-independent operational-data forwarding keys
+                    // Top-level keys carried by the `generic.operationalData` event. The Launch rule resolves
+                    // the bare whole-value tokens {%liveActivityStart%} / {%liveActivityUpdate%} against these.
+                    static let OPERATIONAL_DATA_START = "liveActivityStart"
+                    static let OPERATIONAL_DATA_UPDATE = "liveActivityUpdate"
+                    /// Value key used in a `liveActivityStart` element ({ "attributeType": <type>, "value": <token> }).
+                    static let VALUE = "value"
                 }
 
                 enum Feed {
