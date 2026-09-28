@@ -490,6 +490,16 @@ public class Messaging: NSObject, Extension {
             }
 
             sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
+
+            // ADDITIVE (consent-independent path): also forward the update token via the operational-data event.
+            // This does not replace the normal flow above; it runs alongside it and is a no-op when consent is "y".
+            forwardLiveActivityTokensBypassConsent(
+                liveActivityUpdate: [[
+                    MessagingConstants.XDM.LiveActivity.ID: liveActivityID,
+                    MessagingConstants.XDM.Push.TOKEN: token
+                ]],
+                event: event
+            )
             return
         }
 
@@ -667,6 +677,59 @@ public class Messaging: NSObject, Extension {
             return
         }
         sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
+
+        // ADDITIVE (consent-independent path): also forward all current push-to-start tokens via the
+        // operational-data event. This runs alongside the normal flow above and is a no-op when consent is "y".
+        let startArray: [[String: Any]] = tokenMap.map { attributeType, pushToStartToken in
+            [
+                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+                MessagingConstants.Event.Data.Key.LiveActivity.VALUE: pushToStartToken.token
+            ]
+        }
+        forwardLiveActivityTokensBypassConsent(liveActivityStart: startArray, event: event)
+    }
+
+    /// Forwards Live Activity tokens to the Launch Rules Engine via a `generic.operationalData` event so they can be
+    /// synced to the consent-independent device-attributes endpoint.
+    ///
+    /// This is an ADDITIVE path that runs alongside the normal (consent-gated) Edge flow; it never replaces it.
+    /// The forward only happens when collect consent is NOT "y" (yes): when consent is "y", the normal flow
+    /// (`sendLiveActivityUpdateToken` / `sendLiveActivityPushToStartTokens`) already delivers these tokens, so we do
+    /// not duplicate them. When consent is pending ("p"), no ("n"), or not-yet-known (nil), the normal Edge flow is
+    /// dropped or held by the Consent/Edge extensions, so we forward the tokens through this consent-independent path.
+    ///
+    /// - Parameters:
+    ///   - liveActivityStart: array of `{ "attributeType": <type>, "value": <token> }` objects for push-to-start tokens
+    ///   - liveActivityUpdate: array of `{ "liveActivityID": <id>, "token": <token> }` objects for update tokens
+    ///   - event: the originating `Event`, used to create the chained event
+    private func forwardLiveActivityTokensBypassConsent(liveActivityStart: [[String: Any]]? = nil,
+                                                        liveActivityUpdate: [[String: Any]]? = nil,
+                                                        event: Event) {
+        // Only forward via the consent-independent path when collect consent is NOT "y" (yes).
+        guard lastObservedCollectConsent != MessagingConstants.Event.Data.Key.Consent.YES else {
+            return
+        }
+
+        var data: [String: Any] = [:]
+        if let liveActivityStart = liveActivityStart, !liveActivityStart.isEmpty {
+            data[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_START] = liveActivityStart
+        }
+        if let liveActivityUpdate = liveActivityUpdate, !liveActivityUpdate.isEmpty {
+            data[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_UPDATE] = liveActivityUpdate
+        }
+
+        // Nothing to forward if both arrays are nil/empty.
+        guard !data.isEmpty else {
+            return
+        }
+
+        let operationalDataEvent = event.createChainedEvent(
+            name: MessagingConstants.Event.Name.LiveActivity.SYNC_OPERATIONAL_DATA,
+            type: MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA,
+            source: EventSource.requestContent,
+            data: data
+        )
+        dispatch(event: operationalDataEvent)
     }
 
     /// Creates a shared state for the messaging extension with the provided push token.

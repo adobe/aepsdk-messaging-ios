@@ -67,8 +67,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         ])
         simulateEventWithSharedStates(event)
 
-        // Both tokens are sent in a single edge event
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        // Both tokens are sent in a single edge event, plus the additive consent-independent operational-data event
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
@@ -335,8 +335,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         )
         simulateEventWithSharedStates(event)
 
-        // Edge call still sent but no shared state dispatched
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        // Edge call still sent (plus the additive consent-independent operational-data event) but no shared state dispatched
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
     }
 
@@ -691,7 +691,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     }
 
     private func verifyPushToStartEdgeEvent(token: String, attributeType: String) {
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        // The normal (consent-gated) Edge event plus the additive consent-independent operational-data event.
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
@@ -716,10 +717,13 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         }
 
         XCTAssertNotNil(matchingEntry, "Expected push-to-start details to include attributeType=\(attributeType) with token=\(token). Actual: \(details)")
+
+        verifyOperationalDataStartEvent(token: token, attributeType: attributeType)
     }
 
     private func verifyUpdateTokenEdgeEvent(token: String, liveActivityID: String) {
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        // The normal (consent-gated) Edge event plus the additive consent-independent operational-data event.
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
@@ -736,6 +740,42 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         }
         """
         assertExactMatch(expected: expectedJSON, actual: edgeEvent)
+
+        verifyOperationalDataUpdateEvent(token: token, liveActivityID: liveActivityID)
+    }
+
+    /// Verifies the additive `generic.operationalData` event forwarded for a push-to-start token when consent is not "y".
+    private func verifyOperationalDataStartEvent(token: String, attributeType: String) {
+        let opEvent = mockRuntime.dispatchedEvents[1]
+        XCTAssertEqual(MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA, opEvent.type)
+        XCTAssertEqual(EventSource.requestContent, opEvent.source)
+
+        guard let starts = opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_START] as? [[String: Any]] else {
+            XCTFail("Missing liveActivityStart array in operational-data event")
+            return
+        }
+        let matchingEntry = starts.first { entry in
+            (entry["attributeType"] as? String) == attributeType &&
+            (entry["value"] as? String) == token
+        }
+        XCTAssertNotNil(matchingEntry, "Expected liveActivityStart to include attributeType=\(attributeType) with value=\(token). Actual: \(starts)")
+    }
+
+    /// Verifies the additive `generic.operationalData` event forwarded for an update token when consent is not "y".
+    private func verifyOperationalDataUpdateEvent(token: String, liveActivityID: String) {
+        let opEvent = mockRuntime.dispatchedEvents[1]
+        XCTAssertEqual(MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA, opEvent.type)
+        XCTAssertEqual(EventSource.requestContent, opEvent.source)
+
+        guard let updates = opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_UPDATE] as? [[String: Any]] else {
+            XCTFail("Missing liveActivityUpdate array in operational-data event")
+            return
+        }
+        let matchingEntry = updates.first { entry in
+            (entry["liveActivityID"] as? String) == liveActivityID &&
+            (entry["token"] as? String) == token
+        }
+        XCTAssertNotNil(matchingEntry, "Expected liveActivityUpdate to include liveActivityID=\(liveActivityID) with token=\(token). Actual: \(updates)")
     }
 
     private func verifyPushToStartSharedState(token: String, attributeType: String) {
