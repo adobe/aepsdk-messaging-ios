@@ -13,6 +13,7 @@ governing permissions and limitations under the License.
 import AEPCore
 import AEPEdgeConsent
 import AEPEdgeIdentity
+import AEPMessaging
 import SwiftUI
 import UIKit
 
@@ -21,6 +22,7 @@ struct SettingsView: View {
     @State private var isLoading = false
     @State private var lastAction: String = ""
     @State private var pushToken: String? = UserDefaults.standard.string(forKey: "devicePushToken")
+    @State private var liveActivityTokenCount: Int = TokenCollector.heldPushToStartTokens.count
 
     enum CollectConsentValue: String {
         case yes = "y"
@@ -53,6 +55,7 @@ struct SettingsView: View {
                 currentConsentSection
                 changeConsentSection
                 pushTokenSection
+                liveActivitySection
                 identityResetSection
                 if !lastAction.isEmpty {
                     lastActionSection
@@ -63,6 +66,7 @@ struct SettingsView: View {
             .onAppear {
                 readConsent()
                 pushToken = UserDefaults.standard.string(forKey: "devicePushToken")
+                liveActivityTokenCount = TokenCollector.heldPushToStartTokens.count
             }
         }
     }
@@ -145,10 +149,46 @@ struct SettingsView: View {
                 Label("Send Push Token", systemImage: "paperplane")
             }
             .disabled(pushToken == nil)
+
+            Button(role: .destructive) {
+                sendNilPushToken()
+            } label: {
+                Label("Send Nil Token (Clear)", systemImage: "bell.slash")
+            }
         } header: {
             Text("Push Token")
         } footer: {
-            Text("Manually calls MobileCore.setPushIdentifier() with the stored device token.")
+            Text("\"Send Push Token\" calls MobileCore.setPushIdentifier() with the stored device token. \"Send Nil Token\" calls MobileCore.setPushIdentifier(nil), which syncs an empty token (\"\") to the profile. The stored token is preserved so you can re-send it afterward.")
+        }
+    }
+
+    private var liveActivitySection: some View {
+        Section {
+            HStack {
+                Label("Held PtS Tokens", systemImage: "bolt.horizontal.circle")
+                Spacer()
+                Text("\(liveActivityTokenCount)")
+                    .font(.footnote)
+                    .foregroundColor(liveActivityTokenCount == 0 ? .secondary : .primary)
+            }
+            .padding(.vertical, 4)
+
+            Button {
+                sendLiveActivityTokens()
+            } label: {
+                Label("Send Live Activity Token(s)", systemImage: "paperplane")
+            }
+            .disabled(liveActivityTokenCount == 0)
+
+            Button(role: .destructive) {
+                clearLiveActivities()
+            } label: {
+                Label("Clear Live Activities", systemImage: "clear")
+            }
+        } header: {
+            Text("Live Activities")
+        } footer: {
+            Text("\"Send Live Activity Token(s)\" re-syncs the held push-to-start tokens. \"Clear Live Activities\" calls Messaging.clearLiveActivities(), which sends empty tokens for push-to-start and update tokens; push-to-start tokens are retained locally so a following resetIdentities() can re-associate them with the new profile.")
         }
     }
 
@@ -253,6 +293,30 @@ struct SettingsView: View {
         }
         MobileCore.setPushIdentifier(tokenData)
         lastAction = "Called setPushIdentifier with token: \(String(hexToken.prefix(12)))…"
+    }
+
+    private func sendNilPushToken() {
+        // Passing nil is collapsed to an empty token ("") by AEPCore and synced to the profile,
+        // clearing a previously registered token. The stored device token is intentionally left
+        // in UserDefaults so it can be re-sent with "Send Push Token".
+        MobileCore.setPushIdentifier(nil)
+        lastAction = "Called setPushIdentifier(nil) — cleared push token (synced as \"\")."
+    }
+
+    private func sendLiveActivityTokens() {
+        let count = TokenCollector.resendHeldPushToStartTokens()
+        lastAction = count > 0
+            ? "Re-sent \(count) Live Activity push-to-start token(s)."
+            : "No held Live Activity tokens to send."
+    }
+
+    private func clearLiveActivities() {
+        if #available(iOS 16.1, *) {
+            Messaging.clearLiveActivities()
+            lastAction = "Called Messaging.clearLiveActivities()."
+        } else {
+            lastAction = "Live Activities require iOS 16.1 or later."
+        }
     }
 
     private func readConsent() {
