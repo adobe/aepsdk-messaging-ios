@@ -87,6 +87,7 @@ enum MessagingConstants {
             static let LIVE_ACTIVITY = "Live Activity"
 
             enum LiveActivity {
+                static let CLEAR = "Clear Live Activities"
                 static let CONTENT_STATE = "Live Activity updated"
                 static let PUSH_TO_START = "Live Activity push-to-start token"
                 static let PUSH_TO_START_EDGE = "Live Activity push-to-start token to Edge"
@@ -156,6 +157,7 @@ enum MessagingConstants {
                     /// The key for Live Activity Attribute type name. For example, "FoodDeliveryLiveActivityAttributes"
                     static let ATTRIBUTE_TYPE = "attributeType"
                     static let BATCHED_PUSH_TO_START_TOKENS = "batchedPushToStartTokens"
+                    static let CLEAR = "isClearLiveActivitiesEvent"
                     static let CONTENT_STATE = "contentState"
                     static let PUSH_TO_START_TOKEN = "isLiveActivityPushToStartTokenEvent"
                     static let STATE = "state"

@@ -87,6 +87,7 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual("mockPushToken", mockRuntime.firstSharedState![MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as! String)
     }
 
+    /// An empty token with no previously stored token (the "no prior token" case) must not be synced.
     func testPushTokenSync_emptyToken() {
         let data = [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: ""] as [String: Any]
         let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: data)
@@ -102,6 +103,103 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
         // verify that push token is not shared in sharedState
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func testPushTokenSync_emptyTokenAfterRealToken_sendsEmptyToken() {
+        // creates an edge identity's xdm shared state (shared by both events)
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: "MOCK_ECID"]]]]
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
+
+        // first, sync a real push token
+        let realEvent = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: "mockPushToken"])
+        mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: realEvent), data: (value: mockConfigSharedState, status: .set))
+        mockRuntime.simulateComingEvents(realEvent)
+
+        // reset recorded events so only the empty-token flow is inspected
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // now sync an empty push token to clear the previously registered one.
+        // MobileCore.setPushIdentifier(nil) dispatches exactly this event: nil is collapsed to "" at
+        // the AEPCore boundary (deviceToken?.hexDescription ?? ""), so ["pushidentifier": ""] is what
+        // AEPMessaging receives for the nil case.
+        let emptyEvent = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: ""])
+        mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: emptyEvent), data: (value: mockConfigSharedState, status: .set))
+        mockRuntime.simulateComingEvents(emptyEvent)
+
+        // an edge event is dispatched carrying an empty token
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        guard let edgeEvent = mockRuntime.firstEvent else {
+            XCTFail("Unable to find Edge event")
+            return
+        }
+        XCTAssertEqual(edgeEvent.type, EventType.edge)
+
+        let expectedJSON = """
+        {
+          "data": {
+            "pushNotificationDetails": [
+              {
+                "identity": {
+                  "id": "MOCK_ECID",
+                  "namespace": {
+                    "code": "ECID"
+                  }
+                },
+                "token": "",
+                "appID": "com.adobe.ajo.e2eTestApp",
+                "denylisted": false,
+                "platform": "apns"
+              }
+            ]
+          }
+        }
+        """
+        assertExactMatch(expected: expectedJSON, actual: edgeEvent)
+
+        // push identifier is removed from shared state (empty == no token)
+        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
+        XCTAssertNil(mockRuntime.firstSharedState?[MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER])
+    }
+
+    func testPushTokenSync_repeatedEmptyToken_deduped() {
+        // creates an edge identity's xdm shared state (shared by all events)
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: "MOCK_ECID"]]]]
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
+
+        // sync a real token, then an empty token (which sends once)
+        let realEvent = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: "mockPushToken"])
+        mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: realEvent), data: (value: mockConfigSharedState, status: .set))
+        mockRuntime.simulateComingEvents(realEvent)
+
+        let firstEmptyEvent = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: ""])
+        mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: firstEmptyEvent), data: (value: mockConfigSharedState, status: .set))
+        mockRuntime.simulateComingEvents(firstEmptyEvent)
+
+        // reset so only the second empty token flow is inspected
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // a second empty token is a no-op (already cleared)
+        let secondEmptyEvent = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: ""])
+        mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: secondEmptyEvent), data: (value: mockConfigSharedState, status: .set))
+        mockRuntime.simulateComingEvents(secondEmptyEvent)
+
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    /// With optimizePushSync disabled, the timeout-based re-sync must still not fire for an empty
+    /// token when no token was ever stored (both stored and incoming tokens are empty).
+    func testPushTokenSync_emptyToken_optimizeDisabled_noPriorToken_doesNotSync() {
+        let config: [String: Any] = [MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false]
+        let event = Event(name: "", type: EventType.genericIdentity, source: EventSource.requestContent, data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: ""])
+        mockRuntime.simulateSharedState(for: (extensionName: "com.adobe.module.configuration", event: event), data: (value: config, status: .set))
+        let mockEdgeIdentity = [MessagingConstants.SharedState.EdgeIdentity.IDENTITY_MAP: [MessagingConstants.SharedState.EdgeIdentity.ECID: [[MessagingConstants.SharedState.EdgeIdentity.ID: "MOCK_ECID"]]]]
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME, data: (value: mockEdgeIdentity, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(event)
+
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
         XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
     }
 

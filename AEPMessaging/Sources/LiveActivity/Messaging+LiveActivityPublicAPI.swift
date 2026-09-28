@@ -115,6 +115,46 @@ public extension Messaging {
         }
     }
 
+    /// Clears all Live Activity push tokens tracked by the Adobe Experience Platform SDK.
+    ///
+    /// Call this method to revoke previously-registered Live Activity tokens. The SDK reads all
+    /// currently-stored Live Activity tokens and sends the same Edge events used during
+    /// registration, but with each token value replaced by an empty string (`""`), so the
+    /// Adobe Experience Platform profile can clear them. Specifically, this:
+    /// - Sends a push-to-start token Edge event with empty tokens for every registered type.
+    /// - Sends an update token Edge event with an empty token for every active Live Activity.
+    /// - Retains the locally stored push-to-start tokens (they are not tied to an ECID), so a
+    ///   subsequent ``resetIdentities()`` can re-associate the real tokens with the new profile.
+    ///   Update tokens and channel activities are cleared locally. Republishes the Messaging
+    ///   shared state.
+    ///
+    /// - Note: This is a one-shot clear. It does **not** stop token collection: the listeners set
+    ///   up by ``registerLiveActivities(_:)`` keep running, so a new push-to-start token later
+    ///   issued by iOS will be collected and synced again. Call this whenever you need to push an
+    ///   empty-token (revocation) sync to the profile.
+    ///
+    /// - Note: The empty-token revocation is **not** a permanent opt-out. Because the real
+    ///   push-to-start tokens are retained locally, they are re-sent to the *current* profile by a
+    ///   later re-sync: on the next app launch when `messaging.optimizePushSync` is `false` (iOS
+    ///   re-delivers the unchanged token, which is synced again with no de-duplication), or after a
+    ///   collect-consent grant. With `optimizePushSync` enabled (the default), an unchanged token is
+    ///   de-duplicated, so the clear persists across launches until a consent grant or
+    ///   ``resetIdentities()``. When used to revoke the *previous* identity, call this immediately
+    ///   before ``resetIdentities()`` so the re-sync lands on the new profile rather than undoing
+    ///   the clear on the old one.
+    ///
+    /// ## Example
+    /// ```swift
+    /// Messaging.clearLiveActivities()
+    /// ```
+    static func clearLiveActivities() {
+        let event = Event(name: MessagingConstants.Event.Name.LiveActivity.CLEAR,
+                          type: EventType.messaging,
+                          source: EventSource.requestContent,
+                          data: [MessagingConstants.Event.Data.Key.LiveActivity.CLEAR: true])
+        MobileCore.dispatch(event: event)
+    }
+
     /// Registers a single Live Activity type with the Adobe Experience Platform SDK.
     ///
     /// - Parameter type: The Live Activity type that conforms to the ``LiveActivityAttributes`` protocol.
