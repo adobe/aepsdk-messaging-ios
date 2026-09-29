@@ -115,44 +115,47 @@ public extension Messaging {
         }
     }
 
-    /// Clears all Live Activity push tokens tracked by the Adobe Experience Platform SDK.
+    /// Clears all Live Activity tokens tracked by the Adobe Experience Platform SDK and tears down
+    /// all Live Activity listeners.
     ///
-    /// Call this method to revoke previously-registered Live Activity tokens. The SDK reads all
-    /// currently-stored Live Activity tokens and sends the same Edge events used during
-    /// registration, but with each token value replaced by an empty string (`""`), so the
-    /// Adobe Experience Platform profile can clear them. Specifically, this:
-    /// - Sends a push-to-start token Edge event with empty tokens for every registered type.
-    /// - Sends an update token Edge event with an empty token for every active Live Activity.
-    /// - Retains the locally stored push-to-start tokens (they are not tied to an ECID), so a
-    ///   subsequent ``resetIdentities()`` can re-associate the real tokens with the new profile.
-    ///   Update tokens and channel activities are cleared locally. Republishes the Messaging
-    ///   shared state.
+    /// Call this method to revoke previously-registered Live Activity tokens and fully stop Live
+    /// Activity token collection. The SDK sends the stored push-to-start tokens in the same Edge
+    /// event used during registration, but with each token value replaced by an empty string (`""`),
+    /// so the Adobe Experience Platform profile can clear them. Specifically, this:
+    /// - Sends a push-to-start token Edge event with an empty token for every stored push-to-start
+    ///   token. No Edge events are sent for update tokens.
+    /// - Clears the locally stored push-to-start tokens, update tokens, and channel activities, and
+    ///   republishes the Messaging shared state.
+    /// - Cancels every ActivityKit listener task created by ``registerLiveActivities(_:)`` (the
+    ///   push-to-start and activity-update listeners) and discards any push-to-start token batch that
+    ///   has not yet been dispatched.
     ///
-    /// - Note: This is a one-shot clear. It does **not** stop token collection: the listeners set
-    ///   up by ``registerLiveActivities(_:)`` keep running, so a new push-to-start token later
-    ///   issued by iOS will be collected and synced again. Call this whenever you need to push an
-    ///   empty-token (revocation) sync to the profile.
-    ///
-    /// - Note: The empty-token revocation is **not** a permanent opt-out. Because the real
-    ///   push-to-start tokens are retained locally, they are re-sent to the *current* profile by a
-    ///   later re-sync: on the next app launch when `messaging.optimizePushSync` is `false` (iOS
-    ///   re-delivers the unchanged token, which is synced again with no de-duplication), or after a
-    ///   collect-consent grant. With `optimizePushSync` enabled (the default), an unchanged token is
-    ///   de-duplicated, so the clear persists across launches until a consent grant or
-    ///   ``resetIdentities()``. When used to revoke the *previous* identity, call this immediately
-    ///   before ``resetIdentities()`` so the re-sync lands on the new profile rather than undoing
-    ///   the clear on the old one.
+    /// - Note: This is a full teardown, not a one-shot revocation. After calling this, the SDK no
+    ///   longer collects Live Activity tokens. To resume collection, call
+    ///   ``registerLiveActivities(_:)`` again; the SDK will re-create the listeners and re-sync any
+    ///   newly issued tokens.
     ///
     /// ## Example
     /// ```swift
     /// Messaging.clearLiveActivities()
     /// ```
     static func clearLiveActivities() {
+        // Send the empty-token Edge events and clear the persisted token stores via the extension.
         let event = Event(name: MessagingConstants.Event.Name.LiveActivity.CLEAR,
                           type: EventType.messaging,
                           source: EventSource.requestContent,
                           data: [MessagingConstants.Event.Data.Key.LiveActivity.CLEAR: true])
         MobileCore.dispatch(event: event)
+
+        // Tear down the ActivityKit listener tasks held in this API layer so a subsequent
+        // registerLiveActivities() call rebuilds them from a clean state.
+        Task {
+            await activityUpdateTaskStore.cancelAll()
+            if #available(iOS 17.2, *) {
+                await pushToStartTaskStore.cancelAll()
+                await batchTokenCollector.cancel()
+            }
+        }
     }
 
     /// Registers a single Live Activity type with the Adobe Experience Platform SDK.

@@ -622,11 +622,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         // a single push-to-start edge event is sent with an empty token (revokes on the current profile)
         verifyPushToStartEdgeEvent(token: "", attributeType: ATTRIBUTE_TYPE)
 
-        // the real token is retained locally so it can be re-associated with a new ECID on reset
-        verifyPushToStartSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
+        // the push-to-start token store is cleared locally as part of the full teardown
+        verifyLiveActivitySharedStateCleared()
     }
 
-    func test_ClearLiveActivities_SendsEmptyUpdateToken() {
+    func test_ClearLiveActivities_UpdateToken_ClearedLocally_NoEdgeEvent() {
         // seed an update token
         simulateEventWithSharedStates(createUpdateTokenEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID))
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
@@ -634,8 +634,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         // clear live activities
         simulateEventWithSharedStates(createClearLiveActivitiesEvent())
 
-        // a single update-token edge event is sent with an empty token
-        verifyUpdateTokenEdgeEvent(token: "", liveActivityID: LIVE_ACTIVITY_ID)
+        // update tokens are not sent to Edge
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
         // local state is cleared and shared state republished as empty
         verifyLiveActivitySharedStateCleared()
@@ -666,16 +666,12 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         // clear live activities
         simulateEventWithSharedStates(createClearLiveActivitiesEvent())
 
-        // one push-to-start and one update-token edge event, both with empty tokens
+        // only a push-to-start edge event is sent (with an empty token); update tokens are not sent
         let pushToStartEvents = mockRuntime.dispatchedEvents.filter {
             (($0.data?["xdm"] as? [String: Any])?["eventType"] as? String) == "liveActivity.pushToStart"
         }
-        let updateTokenEvents = mockRuntime.dispatchedEvents.filter {
-            (($0.data?["xdm"] as? [String: Any])?["eventType"] as? String) == "liveActivity.updateToken"
-        }
-        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         XCTAssertEqual(1, pushToStartEvents.count)
-        XCTAssertEqual(1, updateTokenEvents.count)
 
         // push-to-start token is empty
         if let data = pushToStartEvents.first?.data?["data"] as? [String: Any],
@@ -687,25 +683,13 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
             XCTFail("Missing push-to-start details in edge event")
         }
 
-        // update token is empty
-        if let data = updateTokenEvents.first?.data?["data"] as? [String: Any] {
-            XCTAssertEqual("", data["token"] as? String)
-            XCTAssertEqual(LIVE_ACTIVITY_ID, data["liveActivityID"] as? String)
-        } else {
-            XCTFail("Missing update token details in edge event")
-        }
-
-        // push-to-start tokens are retained locally; update tokens and channel activities are cleared
+        // all local Live Activity state is cleared as part of the full teardown
         XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
-        guard let sharedState = mockRuntime.createdSharedStates.last ?? nil,
-              let liveActivity = sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any]
-        else {
+        guard let sharedState = mockRuntime.createdSharedStates.last ?? nil else {
             XCTFail("Live Activity shared state missing")
             return
         }
-        XCTAssertNotNil(liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.PUSH_TO_START_TOKENS], "Push-to-start tokens should be retained")
-        XCTAssertNil(liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.UPDATE_TOKENS], "Update tokens should be cleared")
-        XCTAssertNil(liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.CHANNEL_ACTIVITIES], "Channel activities should be cleared")
+        XCTAssertTrue(sharedState.isEmpty, "Expected the final shared state to be empty after clearing")
     }
 
     func test_ClearLiveActivities_NoStoredTokens_NoEdgeEvent() {
@@ -719,7 +703,21 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         verifyLiveActivitySharedStateCleared()
     }
 
-    func test_ClearLiveActivities_NoECID_KeepsPushToStartTokens() {
+    func test_ClearLiveActivities_ThenReRegisterSameToken_IsSentAgain() {
+        // seed then clear a push-to-start token
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        simulateEventWithSharedStates(createClearLiveActivitiesEvent())
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // after the teardown the customer re-registers and iOS re-issues the SAME token; because the
+        // store was cleared it is treated as new and synced to Edge again (no de-duplication)
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+
+        verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
+        verifyPushToStartSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
+    }
+
+    func test_ClearLiveActivities_NoECID_ClearsPushToStartTokens() {
         // seed a push-to-start token
         simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
@@ -744,31 +742,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         // no push-to-start edge event was sent because the ECID was unavailable
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
-        // the push-to-start token is retained (shared state still contains it) so the clear can be retried
-        XCTAssertEqual(1, mockRuntime.createdSharedStates.count)
-        guard let sharedState = mockRuntime.createdSharedStates.last ?? nil,
-              let liveActivity = sharedState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY] as? [String: Any],
-              let pushToStartTokens = liveActivity[MessagingConstants.SharedState.Messaging.LiveActivity.PUSH_TO_START_TOKENS] as? [String: Any]
-        else {
-            XCTFail("Push-to-start token should be retained in shared state when the ECID is unavailable")
-            return
-        }
-        XCTAssertNotNil(pushToStartTokens[ATTRIBUTE_TYPE])
-    }
-
-    func test_ClearLiveActivities_ThenNewTokenArrives_IsSentAgain() {
-        // seed then clear a push-to-start token
-        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
-        simulateEventWithSharedStates(createClearLiveActivitiesEvent())
-        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
-
-        // a new token arrives after the clear (e.g. iOS issues a new push-to-start token)
-        let newToken = "newTokenAfterClear"
-        simulateEventWithSharedStates(createPushToStartEvent(token: newToken, attributeType: ATTRIBUTE_TYPE))
-
-        // it is stored and sent to Edge again
-        verifyPushToStartEdgeEvent(token: newToken, attributeType: ATTRIBUTE_TYPE)
-        verifyPushToStartSharedState(token: newToken, attributeType: ATTRIBUTE_TYPE)
+        // the local push-to-start token store is still cleared (shared state is empty)
+        verifyLiveActivitySharedStateCleared()
     }
 
     // MARK: - Helper Methods
