@@ -678,6 +678,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
            let details = data["liveActivityPushNotificationDetails"] as? [[String: Any]] {
             XCTAssertEqual(1, details.count)
             XCTAssertEqual("", details.first?["token"] as? String)
+            XCTAssertEqual(true, details.first?["denylisted"] as? Bool)
             XCTAssertEqual(ATTRIBUTE_TYPE, details.first?["attributeType"] as? String)
         } else {
             XCTFail("Missing push-to-start details in edge event")
@@ -853,6 +854,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         }
 
         XCTAssertNotNil(matchingEntry, "Expected push-to-start details to include attributeType=\(attributeType) with token=\(token). Actual: \(details)")
+        // Empty (cleared) tokens are sent as denylisted; real tokens are not.
+        XCTAssertEqual(token.isEmpty, matchingEntry?["denylisted"] as? Bool)
     }
 
     private func verifyUpdateTokenEdgeEvent(token: String, liveActivityID: String) {

@@ -148,7 +148,7 @@ class MessagingFunctionalTests: XCTestCase, AnyCodableAsserts {
                 },
                 "token": "",
                 "appID": "com.adobe.ajo.e2eTestApp",
-                "denylisted": false,
+                "denylisted": true,
                 "platform": "apns"
               }
             ]
