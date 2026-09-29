@@ -196,7 +196,7 @@ struct SettingsView: View {
         } header: {
             Text("Live Activities")
         } footer: {
-            Text("\"Send Live Activity Token(s)\" re-syncs the held push-to-start tokens. \"Clear Live Activities\" calls Messaging.clearLiveActivities(), which sends empty tokens for push-to-start and update tokens; push-to-start tokens are retained locally so a following resetIdentities() can re-associate them with the new profile.")
+            Text("\"Send Live Activity Token(s)\" re-syncs the held push-to-start tokens. \"Clear Live Activities\" calls Messaging.clearLiveActivities(), which sends empty push-to-start tokens (update tokens are not sent) and then fully tears down local Live Activity state (all tokens and listener tasks are cleared). Call registerLiveActivities(_:) again to resume token collection.")
         }
     }
 
