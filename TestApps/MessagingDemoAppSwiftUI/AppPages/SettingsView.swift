@@ -193,10 +193,16 @@ struct SettingsView: View {
             } label: {
                 Label("Clear Live Activities", systemImage: "clear")
             }
+
+            Button {
+                registerLiveActivities()
+            } label: {
+                Label("Register Live Activities", systemImage: "arrow.triangle.2.circlepath")
+            }
         } header: {
             Text("Live Activities")
         } footer: {
-            Text("\"Send Live Activity Token(s)\" re-syncs the held push-to-start tokens. \"Clear Live Activities\" calls Messaging.clearLiveActivities(), which sends empty push-to-start tokens (update tokens are not sent) and then fully tears down local Live Activity state (all tokens and listener tasks are cleared). Call registerLiveActivities(_:) again to resume token collection.")
+            Text("\"Send Live Activity Token(s)\" re-syncs the held push-to-start tokens. \"Clear Live Activities\" calls Messaging.clearLiveActivities(), which sends empty push-to-start tokens (update tokens are not sent) and then fully tears down local Live Activity state (all tokens and listener tasks are cleared). \"Register Live Activities\" calls Messaging.registerLiveActivities(_:) with the same attribute types as AppDelegate, re-creating the listeners so tokens are collected and synced again.")
         }
     }
 
@@ -452,6 +458,20 @@ struct SettingsView: View {
         if #available(iOS 16.1, *) {
             Messaging.clearLiveActivities()
             lastAction = "Called Messaging.clearLiveActivities()."
+        } else {
+            lastAction = "Live Activities require iOS 16.1 or later."
+        }
+    }
+
+    private func registerLiveActivities() {
+        if #available(iOS 16.1, *) {
+            // Same attribute types as AppDelegate so the clear -> register flow can be tested end to end.
+            Messaging.registerLiveActivities([
+                AirplaneTrackingAttributes.self,
+                FoodDeliveryLiveActivityAttributes.self,
+                GameScoreLiveActivityAttributes.self
+            ])
+            lastAction = "Called Messaging.registerLiveActivities() for Airplane, FoodDelivery, and GameScore."
         } else {
             lastAction = "Live Activities require iOS 16.1 or later."
         }
