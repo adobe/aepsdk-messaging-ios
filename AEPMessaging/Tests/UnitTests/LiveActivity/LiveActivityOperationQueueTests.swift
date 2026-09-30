@@ -24,14 +24,14 @@ final class LiveActivityOperationQueueTests: XCTestCase {
         let queue = LiveActivityOperationQueue()
         let recorder = Recorder()
 
-        queue.enqueue {
+        queue.enqueue("op1") {
             try? await Task.sleep(nanoseconds: 100_000_000)
             await recorder.record("first")
         }
-        queue.enqueue {
+        queue.enqueue("op2") {
             await recorder.record("second")
         }
-        let last = queue.enqueue {
+        let last = queue.enqueue("op3") {
             await recorder.record("third")
         }
         await last.value
@@ -51,12 +51,12 @@ final class LiveActivityOperationQueueTests: XCTestCase {
         let newTask = Task<Void, Never> { try? await Task.sleep(nanoseconds: 10_000_000_000) }
         let newId = UUID()
 
-        queue.enqueue {
+        queue.enqueue("op4") {
             // Delay so an unordered implementation would let the registration win the race.
             try? await Task.sleep(nanoseconds: 100_000_000)
             await store.cancelAll()
         }
-        let registration = queue.enqueue {
+        let registration = queue.enqueue("op5") {
             await store.setEntry(for: "type", id: newId, task: newTask)
         }
         await registration.value
@@ -75,11 +75,11 @@ final class LiveActivityOperationQueueTests: XCTestCase {
         let store = ActivityTaskStore<String>()
         let newTask = Task<Void, Never> { try? await Task.sleep(nanoseconds: 10_000_000_000) }
 
-        queue.enqueue {
+        queue.enqueue("op6") {
             try? await Task.sleep(nanoseconds: 100_000_000)
             await store.setEntry(for: "type", id: UUID(), task: newTask)
         }
-        let teardown = queue.enqueue {
+        let teardown = queue.enqueue("op7") {
             await store.cancelAll()
         }
         await teardown.value

@@ -799,8 +799,129 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         verifyLiveActivitySharedStateCleared()
     }
 
+    // MARK: - Logout / Login Flow Tests
+
+    /// Mirrors the app logout -> login flow: setPushIdentifier(nil), clearLiveActivities(),
+    /// resetIdentities(), then setPushIdentifier(token) and registerLiveActivities() re-syncing tokens.
+    func test_LogoutLoginFlow_ClearsWithOldECID_ResyncsWithNewECID() {
+        let ecidA = "ECID_A"
+        let ecidB = "ECID_B"
+        simulateEvent(createResetIdentitiesEvent(), ecid: ecidA)
+
+        // login as ECID_A
+        simulateEvent(createPushIdentifierEvent(token: PUSH_TOKEN), ecid: ecidA)
+        simulateEvent(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE), ecid: ecidA)
+        simulateEvent(createUpdateTokenEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID), ecid: ecidA)
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // logout
+        simulateEvent(createPushIdentifierEvent(token: ""), ecid: ecidA)
+        simulateEvent(createClearLiveActivitiesEvent(), ecid: ecidA)
+        simulateEvent(createResetIdentitiesEvent(), ecid: ecidA)
+
+        // empty tokens are synced (denylisted) to ECID_A only; reset has nothing left to re-sync
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        verifyPushTokenDetails(mockRuntime.dispatchedEvents[0], token: "", ecid: ecidA)
+        verifyPushToStartDetails(mockRuntime.dispatchedEvents[1], token: "", ecid: ecidA)
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // login as ECID_B with the same device tokens
+        simulateEvent(createPushIdentifierEvent(token: PUSH_TOKEN), ecid: ecidB)
+        simulateEvent(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE), ecid: ecidB)
+
+        // real tokens are re-synced (not denylisted) to ECID_B
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        verifyPushTokenDetails(mockRuntime.dispatchedEvents[0], token: PUSH_TOKEN, ecid: ecidB)
+        verifyPushToStartDetails(mockRuntime.dispatchedEvents[1], token: PUSH_TO_START_TOKEN, ecid: ecidB)
+
+        // final shared state holds the re-synced push identifier and push-to-start token
+        guard let finalState = mockRuntime.createdSharedStates.last ?? nil else {
+            XCTFail("Missing Messaging shared state")
+            return
+        }
+        XCTAssertEqual(PUSH_TOKEN, finalState[MessagingConstants.SharedState.Messaging.PUSH_IDENTIFIER] as? String)
+        XCTAssertNotNil(finalState[MessagingConstants.SharedState.Messaging.LIVE_ACTIVITY])
+    }
+
+    /// Repeats the logout -> login flow back to back (as the demo app stress button does) and verifies
+    /// every iteration clears on the previous ECID and re-syncs on the new ECID, with no stale or missing events.
+    func test_LogoutLoginFlow_RepeatedFiveTimes_EachIterationSyncsCorrectly() {
+        simulateEvent(createResetIdentitiesEvent(), ecid: "ECID_0")
+        simulateEvent(createPushIdentifierEvent(token: PUSH_TOKEN), ecid: "ECID_0")
+        simulateEvent(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE), ecid: "ECID_0")
+
+        for iteration in 1 ... 5 {
+            let oldEcid = "ECID_\(iteration - 1)"
+            let newEcid = "ECID_\(iteration)"
+            mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+            // logout
+            simulateEvent(createPushIdentifierEvent(token: ""), ecid: oldEcid)
+            simulateEvent(createClearLiveActivitiesEvent(), ecid: oldEcid)
+            simulateEvent(createResetIdentitiesEvent(), ecid: oldEcid)
+            // login
+            simulateEvent(createPushIdentifierEvent(token: PUSH_TOKEN), ecid: newEcid)
+            simulateEvent(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE), ecid: newEcid)
+
+            XCTAssertEqual(4, mockRuntime.dispatchedEvents.count, "Unexpected event count in iteration \(iteration)")
+            guard mockRuntime.dispatchedEvents.count == 4 else { return }
+            verifyPushTokenDetails(mockRuntime.dispatchedEvents[0], token: "", ecid: oldEcid)
+            verifyPushToStartDetails(mockRuntime.dispatchedEvents[1], token: "", ecid: oldEcid)
+            verifyPushTokenDetails(mockRuntime.dispatchedEvents[2], token: PUSH_TOKEN, ecid: newEcid)
+            verifyPushToStartDetails(mockRuntime.dispatchedEvents[3], token: PUSH_TO_START_TOKEN, ecid: newEcid)
+        }
+    }
+
     // MARK: - Helper Methods
 
+    private let PUSH_TOKEN = "mockPushToken"
+
+    private func simulateEvent(_ event: Event, ecid: String) {
+        mockConfigurationAndEdgeIdentitySharedStates(at: event, ecid: ecid)
+        mockRuntime.simulateComingEvents(event)
+    }
+
+    private func createPushIdentifierEvent(token: String) -> Event {
+        Event(name: "Set Push Identifier",
+              type: EventType.genericIdentity,
+              source: EventSource.requestContent,
+              data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: token])
+    }
+
+    private func createResetIdentitiesEvent() -> Event {
+        Event(name: "Reset Identities Request",
+              type: EventType.genericIdentity,
+              source: EventSource.requestReset,
+              data: nil)
+    }
+
+    private func verifyPushTokenDetails(_ event: Event, token: String, ecid: String, file: StaticString = #file, line: UInt = #line) {
+        XCTAssertEqual(EventType.edge, event.type, file: file, line: line)
+        guard let data = event.data?["data"] as? [String: Any],
+              let details = (data["pushNotificationDetails"] as? [[String: Any]])?.first
+        else {
+            XCTFail("Missing push notification details in edge event", file: file, line: line)
+            return
+        }
+        XCTAssertEqual(token, details["token"] as? String, file: file, line: line)
+        XCTAssertEqual(token.isEmpty, details["denylisted"] as? Bool, file: file, line: line)
+        XCTAssertEqual(ecid, (details["identity"] as? [String: Any])?["id"] as? String, file: file, line: line)
+    }
+
+    private func verifyPushToStartDetails(_ event: Event, token: String, ecid: String, file: StaticString = #file, line: UInt = #line) {
+        XCTAssertEqual(EventType.edge, event.type, file: file, line: line)
+        XCTAssertEqual("liveActivity.pushToStart", (event.data?["xdm"] as? [String: Any])?["eventType"] as? String, file: file, line: line)
+        guard let data = event.data?["data"] as? [String: Any],
+              let details = data["liveActivityPushNotificationDetails"] as? [[String: Any]],
+              details.count == 1, let entry = details.first
+        else {
+            XCTFail("Expected exactly one push-to-start detail in edge event", file: file, line: line)
+            return
+        }
+        XCTAssertEqual(token, entry["token"] as? String, file: file, line: line)
+        XCTAssertEqual(token.isEmpty, entry["denylisted"] as? Bool, file: file, line: line)
+        XCTAssertEqual(ecid, (entry["identity"] as? [String: Any])?["id"] as? String, file: file, line: line)
+    }
     /// Creates a batched push-to-start event with a single token
     private func createPushToStartEvent(token: String, attributeType: String) -> Event {
         createBatchedPushToStartEvent(tokens: [(token: token, attributeType: attributeType)])

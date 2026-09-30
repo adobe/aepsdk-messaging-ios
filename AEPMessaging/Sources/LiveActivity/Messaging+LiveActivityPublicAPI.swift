@@ -122,22 +122,14 @@ public extension Messaging {
     /// Clears all Live Activity tokens tracked by the Adobe Experience Platform SDK and tears down
     /// all Live Activity listeners.
     ///
-    /// Call this method to revoke previously-registered Live Activity tokens and fully stop Live
-    /// Activity token collection. The SDK sends the stored push-to-start tokens in the same Edge
-    /// event used during registration, but with each token value replaced by an empty string (`""`),
-    /// so the Adobe Experience Platform profile can clear them. Specifically, this:
-    /// - Sends a push-to-start token Edge event with an empty token for every stored push-to-start
-    ///   token. No Edge events are sent for update tokens.
-    /// - Clears the locally stored push-to-start tokens, update tokens, and channel activities, and
-    ///   republishes the Messaging shared state.
-    /// - Cancels every ActivityKit listener task created by ``registerLiveActivities(_:)`` (the
-    ///   push-to-start and activity-update listeners) and discards any push-to-start token batch that
-    ///   has not yet been dispatched.
+    /// Sends an empty (`""`) push-to-start token to Edge for every stored token, clears the local
+    /// token stores, and cancels all Live Activity listener tasks. This is a full teardown, not a
+    /// one-shot revocation — call ``registerLiveActivities(_:)`` again to resume token collection.
     ///
-    /// - Note: This is a full teardown, not a one-shot revocation. After calling this, the SDK no
-    ///   longer collects Live Activity tokens. To resume collection, call
-    ///   ``registerLiveActivities(_:)`` again; the SDK will re-create the listeners and re-sync any
-    ///   newly issued tokens.
+    /// - Important: This dispatches its Edge event asynchronously. If also calling
+    ///   `MobileCore.resetIdentities()`, call this API first and allow time for the
+    ///   clear to reach Edge before resetting. See the [API usage guide](https://github.com/adobe/aepsdk-messaging-ios/blob/main/Documentation/sources/live-activities/developer-documentation/api-usage.md)
+    ///   for the recommended sequencing.
     ///
     /// ## Example
     /// ```swift
@@ -154,12 +146,14 @@ public extension Messaging {
         // Tear down the ActivityKit listener tasks held in this API layer so a subsequent
         // registerLiveActivities() call rebuilds them from a clean state. Enqueued so it only cancels
         // listeners registered before this call, never ones registered after it.
-        operationQueue.enqueue {
+        operationQueue.enqueue("clearLiveActivities teardown") {
             await activityUpdateTaskStore.cancelAll()
             if #available(iOS 17.2, *) {
                 await pushToStartTaskStore.cancelAll()
                 await batchTokenCollector.cancel()
             }
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Cancelled all Live Activity listener tasks and discarded any pending push-to-start token batch.")
         }
     }
 
@@ -169,7 +163,7 @@ public extension Messaging {
     private static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
         let attributeType = T.attributeType
 
-        operationQueue.enqueue {
+        operationQueue.enqueue("registerLiveActivity(\(attributeType))") {
             // Send the registration task through the coordinator
             await registrationCoordinator.withExclusiveRegistration(for: attributeType) {
                 await performRegistration(type: T.self, attributeType: attributeType)
@@ -256,7 +250,12 @@ public extension Messaging {
             // deliver the existing token. Seed the collector with the current token so it is synced
             // on every (re-)registration. Unchanged tokens are de-duplicated downstream.
             if let currentToken = Activity<T>.pushToStartToken {
+                Log.trace(label: MessagingConstants.LOG_TAG,
+                          "Collecting current push-to-start token for type \(attributeType).")
                 await batchTokenCollector.collectToken(attributeType: attributeType, token: currentToken.hexEncodedString)
+            } else {
+                Log.trace(label: MessagingConstants.LOG_TAG,
+                          "No current push-to-start token for type \(attributeType); waiting for token updates.")
             }
 
             for await tokenData in Activity<T>.pushToStartTokenUpdates {

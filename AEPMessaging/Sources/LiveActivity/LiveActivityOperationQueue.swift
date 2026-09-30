@@ -10,6 +10,7 @@
  governing permissions and limitations under the License.
  */
 
+import AEPServices
 import Foundation
 
 /// Runs async Live Activity operations (registration and teardown) strictly in the order they were enqueued.
@@ -23,19 +24,27 @@ import Foundation
 final class LiveActivityOperationQueue: @unchecked Sendable {
     private let lock = NSLock()
     private var tail: Task<Void, Never>?
+    private var nextSequenceNumber = 0
 
     /// Enqueues `operation` to run after every previously enqueued operation has completed.
     ///
-    /// - Parameter operation: The async work to run.
+    /// - Parameters:
+    ///   - name: A description of the operation, used for logging.
+    ///   - operation: The async work to run.
     /// - Returns: The `Task` running the operation.
     @discardableResult
-    func enqueue(_ operation: @escaping @Sendable () async -> Void) -> Task<Void, Never> {
+    func enqueue(_ name: String, _ operation: @escaping @Sendable () async -> Void) -> Task<Void, Never> {
         lock.lock()
         defer { lock.unlock() }
+        nextSequenceNumber += 1
+        let label = "#\(nextSequenceNumber) \(name)"
         let previous = tail
+        Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity operation queued: \(label)")
         let task = Task {
             await previous?.value
+            Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity operation started: \(label)")
             await operation()
+            Log.trace(label: MessagingConstants.LOG_TAG, "Live Activity operation completed: \(label)")
         }
         tail = task
         return task
