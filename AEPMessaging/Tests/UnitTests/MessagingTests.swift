@@ -1484,29 +1484,53 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
     }
 
-    func testConsentResponse_repeatedYes_onlyResyncsOnTransition() {
+    func testConsentResponse_collectYesWithoutResyncFlag_doesNotResync() {
+        // Relaunch with "y" already persisted by Edge Consent: the response carries no resync flag.
         stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        stateManager.pushToStartTokenStore.set(
+            LiveActivity.PushToStartToken(firstIssued: Date(), token: "pts-token-1"),
+            id: "AttrTypeA"
+        )
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+        XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
+        XCTAssertEqual(MOCK_PUSH_TOKEN, stateManager.pushIdentifier)
+        XCTAssertEqual(1, stateManager.pushToStartTokenStore.all().count)
+    }
+
+    func testConsentResponse_resyncFlagNotTrue_doesNotResync() {
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        let flagValues: [Any] = [false, "true", 1]
+        for flagValue in flagValues {
+            mockRuntime.simulateComingEvents(Event(name: "Consent Preferences Updated",
+                                                   type: EventType.edgeConsent,
+                                                   source: EventSource.responseContent,
+                                                   data: [MessagingConstants.Event.Data.Key.Consent.COLLECT_CONSENT_RESYNC_REQUIRED: flagValue]))
+        }
+
+        XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
+    }
+
+    func testConsentResponse_resyncsOnEachFlaggedTransition() {
+        // fresh install "y" (flagged) → relaunch "y" (not flagged) → "n" → "y" (flagged)
+        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
+
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", resyncRequired: true))
         // re-sync clears the persisted token; restore it so subsequent transitions are exercised
         stateManager.pushIdentifier = MOCK_PUSH_TOKEN
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
-
-        XCTAssertEqual(1, dispatchedPushTokenResyncEvents().count)
-    }
-
-    func testConsentResponse_resyncsAgainAfterToggle() {
-        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
-        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
-                                           data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
-
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
-        stateManager.pushIdentifier = MOCK_PUSH_TOKEN
         mockRuntime.simulateComingEvents(makeConsentEvent(collect: "n"))
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", resyncRequired: true))
 
         XCTAssertEqual(2, dispatchedPushTokenResyncEvents().count)
     }
@@ -1514,7 +1538,7 @@ class MessagingTests: XCTestCase {
     func testConsentResponse_collectYes_noEdgeIdentityState_dispatchesResyncForPipeline() {
         stateManager.pushIdentifier = MOCK_PUSH_TOKEN
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", resyncRequired: true))
 
         XCTAssertEqual(1, dispatchedPushTokenResyncEvents().count)
         XCTAssertEqual(0, dispatchedPushProfileEdgeEvents().count)
@@ -1553,7 +1577,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", resyncRequired: true))
 
         let resyncEvents = dispatchedPushTokenResyncEvents()
         XCTAssertEqual(1, resyncEvents.count)
@@ -1568,7 +1592,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", resyncRequired: true))
 
         XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
     }
@@ -1578,7 +1602,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", resyncRequired: true))
 
         XCTAssertEqual(0, dispatchedPushTokenResyncEvents().count)
     }
@@ -1605,7 +1629,7 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual(MOCK_PUSH_TOKEN, stateManager.pushIdentifier)
         XCTAssertEqual(1, dispatchedPushProfileEdgeEvents().count)
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", resyncRequired: true))
 
         XCTAssertEqual(1, dispatchedPushProfileEdgeEvents().count)
         let resyncEvents = dispatchedPushTokenResyncEvents()
@@ -1629,7 +1653,7 @@ class MessagingTests: XCTestCase {
         )
         XCTAssertEqual(1, stateManager.pushToStartTokenStore.all().count)
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", resyncRequired: true))
 
         let ptsEvents = dispatchedPushToStartResyncEvents()
         XCTAssertEqual(1, ptsEvents.count)
@@ -1656,7 +1680,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", resyncRequired: true))
 
         let ptsEvents = dispatchedPushToStartResyncEvents()
         XCTAssertEqual(1, ptsEvents.count)
@@ -1671,7 +1695,7 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
                                            data: (value: SampleEdgeIdentityState, status: SharedStateStatus.set))
 
-        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y"))
+        mockRuntime.simulateComingEvents(makeConsentEvent(collect: "y", resyncRequired: true))
 
         XCTAssertEqual(0, dispatchedPushToStartResyncEvents().count)
     }
@@ -2401,8 +2425,11 @@ class MessagingTests: XCTestCase {
 
     // MARK: - Consent test helpers
 
-    private func makeConsentEvent(collect: String?) -> Event {
+    private func makeConsentEvent(collect: String?, resyncRequired: Bool = false) -> Event {
         var data: [String: Any] = [:]
+        if resyncRequired {
+            data[MessagingConstants.Event.Data.Key.Consent.COLLECT_CONSENT_RESYNC_REQUIRED] = true
+        }
         var collectBlock: [String: Any] = [:]
         if let collect = collect {
             collectBlock[MessagingConstants.Event.Data.Key.Consent.VAL] = collect

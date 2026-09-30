@@ -317,6 +317,11 @@ extension Event {
         isMessagingType && isRequestContentSource && liveActivityTrackStateFlag
     }
 
+    var isClearLiveActivitiesEvent: Bool {
+        isMessagingType && isRequestContentSource &&
+            (data?[MessagingConstants.Event.Data.Key.LiveActivity.CLEAR] as? Bool ?? false)
+    }
+
     private var liveActivityUpdateTokenFlag: Bool {
         data?[MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN] as? Bool ?? false
     }

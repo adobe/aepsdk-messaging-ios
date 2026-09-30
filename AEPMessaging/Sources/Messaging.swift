@@ -240,9 +240,6 @@ public class Messaging: NSObject, Extension {
     /// the timestamp of the last push token sync
     private var lastPushTokenSyncTimestamp: Date?
 
-    /// last observed collect-consent value, used to detect transitions into "y"
-    private var lastObservedCollectConsent: String?
-
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -551,6 +548,12 @@ public class Messaging: NSObject, Extension {
             return
         }
 
+        // Handle clear live activities event
+        if event.isClearLiveActivitiesEvent {
+            handleClearLiveActivitiesEvent(event, edgeIdentitySharedState: edgeIdentitySharedState)
+            return
+        }
+
         // Handle batched live activity push-to-start token event
         if event.isLiveActivityPushToStartTokenEvent {
             handleBatchedPushToStartTokenEvent(event, edgeIdentitySharedState: edgeIdentitySharedState)
@@ -569,16 +572,16 @@ public class Messaging: NSObject, Extension {
 
         // handle push token event
         if event.isPushTokenEvent {
-            guard let token = event.token, !token.isEmpty else {
-                Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring event with missing or invalid push identifier - '\(event.id.uuidString)'.")
-                return
-            }
+            // An empty/nil token is intentionally allowed through so that it is synced to the
+            // profile as an empty string (""), clearing a previously registered token.
+            let token = event.token ?? ""
 
             if !shouldSyncPushToken(event) {
                 return
             }
 
-            // If the push token is valid update the shared state.
+            // Update the shared state with the push token. A non-empty token is stored; an empty
+            // token (from setPushIdentifier(nil)) removes the push identifier from shared state.
             createMessagingSharedState(token: token, event: event)
 
             // get identityMap from the edge identity xdm shared state
@@ -669,6 +672,67 @@ public class Messaging: NSObject, Extension {
         sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
     }
 
+    /// Handles the clear Live Activities event triggered by `Messaging.clearLiveActivities()`.
+    ///
+    /// Sends the stored push-to-start tokens to Edge in the same batched event used during
+    /// registration, but with each token value replaced by an empty string (`""`) so the profile
+    /// can clear them. No Edge events are sent for update tokens or channel activities. Afterwards,
+    /// all locally persisted push-to-start tokens, update tokens, and channel activities are
+    /// cleared and the Messaging shared state is republished.
+    ///
+    /// - Parameters:
+    ///   - event: The event that triggered the clear request.
+    ///   - edgeIdentitySharedState: The shared state from Edge Identity containing the ECID.
+    private func handleClearLiveActivitiesEvent(_ event: Event, edgeIdentitySharedState: [AnyHashable: Any]) {
+        Log.debug(label: MessagingConstants.LOG_TAG, "Processing clear Live Activities event.")
+
+        let pushToStartTokens = stateManager.pushToStartTokenStore.all()
+
+        // Nothing is stored (already cleared, or never registered), so there is nothing to sync or
+        // clear and the Live Activity shared state is already empty. Skip republishing it.
+        // All stores must be checked: update tokens and channel activities can exist without any
+        // push-to-start token (e.g. on iOS versions below 17.2).
+        guard !pushToStartTokens.isEmpty
+            || !stateManager.updateTokenStore.all().isEmpty
+            || !stateManager.channelActivityStore.all().isEmpty
+        else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "No stored Live Activity tokens or channel activities found (already cleared or never registered). Skipping the empty push-to-start token sync and shared state update.")
+            return
+        }
+
+        // Push-to-start tokens: send a single batched Edge event with each token replaced by "" to
+        // clear them on the current profile. If the ECID is unavailable the empty-token event is
+        // skipped, but the local store is still cleared below.
+        if pushToStartTokens.isEmpty {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "No stored push-to-start tokens found. The empty push-to-start tokens will not be synced.")
+        } else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Sending empty push-to-start tokens for \(pushToStartTokens.count) Live Activity type(s).")
+            if let ecid = retrieveECID(from: edgeIdentitySharedState) {
+                let clearedTokenMap = pushToStartTokens.mapValues {
+                    LiveActivity.PushToStartToken(firstIssued: $0.firstIssued, token: "")
+                }
+                sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: clearedTokenMap, event: event)
+            } else {
+                Log.warning(label: MessagingConstants.LOG_TAG,
+                            "Unable to send empty push-to-start tokens for event (\(event.id.uuidString)) because the ECID is unavailable. Local tokens will still be cleared.")
+            }
+        }
+
+        // Update tokens and channel activities are not sent to Edge; they are only cleared locally.
+
+        // Fully tear down local Live Activity state. The customer must call
+        // registerLiveActivities() again to resume token collection.
+        stateManager.pushToStartTokenStore.clear()
+        stateManager.updateTokenStore.clear()
+        stateManager.channelActivityStore.clear()
+
+        // Republish the (now empty) Live Activity shared state.
+        runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+    }
+
     /// Creates a shared state for the messaging extension with the provided push token.
     /// - Parameters:
     ///   - token: the push identifier to be set in the shared state
@@ -737,14 +801,7 @@ public class Messaging: NSObject, Extension {
 
     /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
     private func handleEdgeConsentResponse(_ event: Event) {
-        guard let collectVal = extractCollectConsent(from: event.data) else {
-            return
-        }
-        defer { lastObservedCollectConsent = collectVal }
-
-        guard collectVal == MessagingConstants.Event.Data.Key.Consent.YES,
-              lastObservedCollectConsent != MessagingConstants.Event.Data.Key.Consent.YES
-        else {
+        guard event.data?[MessagingConstants.Event.Data.Key.Consent.COLLECT_CONSENT_RESYNC_REQUIRED] as? Bool == true else {
             return
         }
 
@@ -790,12 +847,6 @@ public class Messaging: NSObject, Extension {
         }
     }
 
-    private func extractCollectConsent(from data: [String: Any]?) -> String? {
-        return (data?[MessagingConstants.Event.Data.Key.Consent.CONSENTS] as? [String: Any])
-            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.COLLECT] as? [String: Any] }
-            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.VAL] as? String }
-    }
-
     /// Checks if the push identifier can be synced
     /// - Parameter event: the generic request identity`event` containing the push identifier
     /// - Returns: `true` if the push identifier can be synced, `false` otherwise
@@ -805,15 +856,19 @@ public class Messaging: NSObject, Extension {
         // if the value is not present, it will default to true.
         let configSharedState = getSharedState(extensionName: MessagingConstants.SharedState.Configuration.NAME, event: event)
         let optimizePushSync = configSharedState?.value?[MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC] as? Bool ?? true
-        let existingPushToken = stateManager.pushIdentifier
-        let pushTokensMatch = existingPushToken == event.token
+        // Normalize nil and "" to the same "no token" value so that an empty token is only synced
+        // when it represents a real change (i.e. clearing a previously non-empty token), and
+        // repeated empty tokens (or an empty token when none was ever set) are not re-synced.
+        let existingPushToken = stateManager.pushIdentifier ?? ""
+        let incomingPushToken = event.token ?? ""
+        let pushTokensMatch = existingPushToken == incomingPushToken
         var shouldSync: Bool
 
         if !pushTokensMatch {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Push token is new or changed. The push token will be synced.")
             shouldSync = true
-        } else if !optimizePushSync && isPushTokenSyncTimeoutExpired(event.timestamp) {
+        } else if !optimizePushSync && !incomingPushToken.isEmpty && isPushTokenSyncTimeoutExpired(event.timestamp) {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Push registration sync optimization is disabled. The push token will be synced.")
             shouldSync = true
