@@ -33,6 +33,7 @@ private final class BatchRecorder: @unchecked Sendable {
 /// Covers the batching behavior that registration relies on when it seeds the collector with the
 /// current push-to-start token (`Activity<T>.pushToStartToken`) before listening to
 /// `pushToStartTokenUpdates`.
+@available(iOS 13.0, *)
 final class LiveActivityBatchTokenCollectorTests: XCTestCase {
     private let batchDelayMs = 50
     private let typeA = "TypeA"
