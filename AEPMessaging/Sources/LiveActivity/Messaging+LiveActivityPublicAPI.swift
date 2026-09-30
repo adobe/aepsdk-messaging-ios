@@ -33,6 +33,10 @@ public extension Messaging {
     /// Coordinates Live Activity type exclusive registration to prevent concurrent duplicate
     /// calls to `registerLiveActivity` for the same `attributeType`.
     private static let registrationCoordinator = LiveActivityRegistrationCoordinator()
+
+    /// Serializes registration and teardown work in API call order, so that listener tasks created by a
+    /// `registerLiveActivities(_:)` call made after `clearLiveActivities()` are not cancelled by that clear.
+    private static let operationQueue = LiveActivityOperationQueue()
     
     /// Collector for batching push-to-start tokens before dispatch.
     /// When multiple Live Activity types are registered, their tokens are collected and
@@ -148,8 +152,9 @@ public extension Messaging {
         MobileCore.dispatch(event: event)
 
         // Tear down the ActivityKit listener tasks held in this API layer so a subsequent
-        // registerLiveActivities() call rebuilds them from a clean state.
-        Task {
+        // registerLiveActivities() call rebuilds them from a clean state. Enqueued so it only cancels
+        // listeners registered before this call, never ones registered after it.
+        operationQueue.enqueue {
             await activityUpdateTaskStore.cancelAll()
             if #available(iOS 17.2, *) {
                 await pushToStartTaskStore.cancelAll()
@@ -164,7 +169,7 @@ public extension Messaging {
     private static func registerLiveActivity<T: LiveActivityAttributes>(_: T.Type) {
         let attributeType = T.attributeType
 
-        Task {
+        operationQueue.enqueue {
             // Send the registration task through the coordinator
             await registrationCoordinator.withExclusiveRegistration(for: attributeType) {
                 await performRegistration(type: T.self, attributeType: attributeType)
