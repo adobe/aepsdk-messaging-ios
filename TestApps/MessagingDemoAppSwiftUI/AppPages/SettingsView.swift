@@ -11,8 +11,10 @@ governing permissions and limitations under the License.
 */
 
 import AEPCore
+import AEPEdge
 import AEPEdgeConsent
 import AEPEdgeIdentity
+import AEPMessaging
 import SwiftUI
 import UIKit
 
@@ -21,6 +23,12 @@ struct SettingsView: View {
     @State private var isLoading = false
     @State private var lastAction: String = ""
     @State private var pushToken: String? = UserDefaults.standard.string(forKey: "devicePushToken")
+    @State private var liveActivityTokenCount: Int = TokenCollector.heldPushToStartTokens.count
+    @State private var ecid: String?
+    @State private var emailInput: String = ""
+    @State private var currentEmails: [String] = []
+
+    private static let emailNamespace = "Email"
 
     enum CollectConsentValue: String {
         case yes = "y"
@@ -53,7 +61,10 @@ struct SettingsView: View {
                 currentConsentSection
                 changeConsentSection
                 pushTokenSection
+                liveActivitySection
+                identitySection
                 identityResetSection
+                clearAllSection
                 if !lastAction.isEmpty {
                     lastActionSection
                 }
@@ -63,6 +74,8 @@ struct SettingsView: View {
             .onAppear {
                 readConsent()
                 pushToken = UserDefaults.standard.string(forKey: "devicePushToken")
+                liveActivityTokenCount = TokenCollector.heldPushToStartTokens.count
+                refreshIdentity()
             }
         }
     }
@@ -145,10 +158,118 @@ struct SettingsView: View {
                 Label("Send Push Token", systemImage: "paperplane")
             }
             .disabled(pushToken == nil)
+
+            Button(role: .destructive) {
+                sendNilPushToken()
+            } label: {
+                Label("Send Nil Token (Clear)", systemImage: "bell.slash")
+            }
         } header: {
             Text("Push Token")
         } footer: {
-            Text("Manually calls MobileCore.setPushIdentifier() with the stored device token.")
+            Text("\"Send Push Token\" calls MobileCore.setPushIdentifier() with the stored device token. \"Send Nil Token\" calls MobileCore.setPushIdentifier(nil), which syncs an empty token (\"\") to the profile. The stored token is preserved so you can re-send it afterward.")
+        }
+    }
+
+    private var liveActivitySection: some View {
+        Section {
+            HStack {
+                Label("Held PtS Tokens", systemImage: "bolt.horizontal.circle")
+                Spacer()
+                Text("\(liveActivityTokenCount)")
+                    .font(.footnote)
+                    .foregroundColor(liveActivityTokenCount == 0 ? .secondary : .primary)
+            }
+            .padding(.vertical, 4)
+
+            Button {
+                sendLiveActivityTokens()
+            } label: {
+                Label("Send Live Activity Token(s)", systemImage: "paperplane")
+            }
+            .disabled(liveActivityTokenCount == 0)
+
+            Button(role: .destructive) {
+                clearLiveActivities()
+            } label: {
+                Label("Clear Live Activities", systemImage: "clear")
+            }
+
+            Button {
+                registerLiveActivities()
+            } label: {
+                Label("Register Live Activities", systemImage: "arrow.triangle.2.circlepath")
+            }
+        } header: {
+            Text("Live Activities")
+        } footer: {
+            Text("\"Send Live Activity Token(s)\" re-syncs the held push-to-start tokens. \"Clear Live Activities\" calls Messaging.clearLiveActivities(), which sends empty push-to-start tokens (update tokens are not sent) and then fully tears down local Live Activity state (all tokens and listener tasks are cleared). \"Register Live Activities\" calls Messaging.registerLiveActivities(_:) with the same attribute types as AppDelegate, re-creating the listeners so tokens are collected and synced again.")
+        }
+    }
+
+    private var identitySection: some View {
+        Section {
+            HStack {
+                Label("ECID", systemImage: "person.text.rectangle")
+                Spacer()
+                Text(ecid ?? "Not Available")
+                    .font(.footnote.monospaced())
+                    .foregroundColor(ecid == nil ? .secondary : .primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .textSelection(.enabled)
+            }
+            .padding(.vertical, 4)
+
+            HStack {
+                Label("Email", systemImage: "envelope")
+                Spacer()
+                Text(currentEmails.isEmpty ? "None" : currentEmails.joined(separator: ", "))
+                    .font(.footnote)
+                    .foregroundColor(currentEmails.isEmpty ? .secondary : .primary)
+                    .lineLimit(1)
+            }
+            .padding(.vertical, 4)
+
+            TextField("Enter email address", text: $emailInput)
+                .keyboardType(.emailAddress)
+                .textContentType(.emailAddress)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .submitLabel(.done)
+                .onSubmit { updateIdentity() }
+
+            Button {
+                updateIdentity()
+            } label: {
+                Label("Update Identity", systemImage: "person.crop.circle.badge.checkmark")
+            }
+            .disabled(!isValidEmail(emailInput))
+
+            Button {
+                sendStitchingExperienceEvent()
+            } label: {
+                Label("Send Experience Event", systemImage: "paperplane.circle")
+            }
+            .disabled(ecid == nil)
+
+            Button {
+                UIPasteboard.general.string = ecid
+                lastAction = "Copied ECID to clipboard."
+            } label: {
+                Label("Copy ECID", systemImage: "doc.on.doc")
+            }
+            .disabled(ecid == nil)
+
+            Button {
+                refreshIdentity()
+            } label: {
+                Label("Refresh", systemImage: "arrow.clockwise")
+            }
+        } header: {
+            Text("Identity")
+        } footer: {
+            Text("\"Update Identity\" calls Identity.updateIdentities(with:) with the entered address in the \"Email\" namespace (authenticated), stitching it to the current ECID. Any previously set email is removed first so only one email is linked. \"Send Experience Event\" sends a test.identityStitch experience event via Edge.sendEvent; Edge attaches the current identityMap (ECID + Email), so the stitch reaches the profile. To test two profiles: set email A, Send Experience Event, Reset Identity (new ECID), then set email B and Send Experience Event.")
         }
     }
 
@@ -163,6 +284,20 @@ struct SettingsView: View {
             Text("Identity Reset")
         } footer: {
             Text("Calls MobileCore.resetIdentities() and re-registers for remote notifications.")
+        }
+    }
+
+    private var clearAllSection: some View {
+        Section {
+            Button(role: .destructive) {
+                clearTokensAndResetIdentities()
+            } label: {
+                Label("Clear Tokens & Reset Identities", systemImage: "rectangle.portrait.and.arrow.right")
+            }
+        } header: {
+            Text("Reset Identities")
+        } footer: {
+            Text("Runs the full flow in order: MobileCore.setPushIdentifier(nil) and Messaging.clearLiveActivities() (empty tokens are synced to the current ECID's profile), then waits 1 second so the clear is sent to Edge before MobileCore.resetIdentities(). Once the new ECID is available, it calls MobileCore.setPushIdentifier() with the stored device token and Messaging.registerLiveActivities(_:) so the tokens are synced to the new profile.")
         }
     }
 
@@ -228,7 +363,71 @@ struct SettingsView: View {
                         let from = oldEcid?.prefix(8) ?? "nil"
                         let to = newEcid?.prefix(8) ?? "nil"
                         lastAction = "Reset identities. ECID: \(from)... -> \(to)..."
+                        refreshIdentity()
                     }
+                }
+            }
+        }
+    }
+
+    private func isValidEmail(_ value: String) -> Bool {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let atIndex = trimmed.firstIndex(of: "@") else { return false }
+        return !trimmed.contains(" ")
+            && atIndex != trimmed.startIndex
+            && trimmed[trimmed.index(after: atIndex)...].contains(".")
+    }
+
+    private func refreshIdentity() {
+        Identity.getExperienceCloudId { value, _ in
+            DispatchQueue.main.async { ecid = value }
+        }
+        Identity.getIdentities { identityMap, _ in
+            let emails = identityMap?.getItems(withNamespace: Self.emailNamespace)?.map { $0.id } ?? []
+            DispatchQueue.main.async { currentEmails = emails }
+        }
+    }
+
+    private func sendStitchingExperienceEvent() {
+        // Edge automatically attaches the current identityMap (ECID + any updated identities such
+        // as Email) to every experience event, so this request carries the ECID/Email stitch.
+        let xdm: [String: Any] = ["eventType": "test.identityStitch"]
+        let experienceEvent = ExperienceEvent(xdm: xdm)
+        let ecidPrefix = ecid.map { String($0.prefix(8)) + "..." } ?? "nil"
+        let emails = currentEmails.isEmpty ? "none" : currentEmails.joined(separator: ", ")
+        lastAction = "Sending experience event (ECID: \(ecidPrefix), Email: \(emails))..."
+
+        Edge.sendEvent(experienceEvent: experienceEvent) { handles in
+            DispatchQueue.main.async {
+                lastAction = "Sent experience event (ECID: \(ecidPrefix), Email: \(emails)). Received \(handles.count) response handle(s)."
+            }
+        }
+    }
+
+    private func updateIdentity() {
+        let email = emailInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard isValidEmail(email) else {
+            lastAction = "Enter a valid email address."
+            return
+        }
+
+        Identity.getIdentities { identityMap, _ in
+            // Remove any previously linked email so the profile is stitched to only the new one.
+            let existingEmails = identityMap?.getItems(withNamespace: Self.emailNamespace) ?? []
+            for item in existingEmails where item.id != email {
+                Identity.removeIdentity(item: item, withNamespace: Self.emailNamespace)
+            }
+
+            let newMap = IdentityMap()
+            newMap.add(item: IdentityItem(id: email, authenticatedState: .authenticated, primary: false),
+                       withNamespace: Self.emailNamespace)
+            Identity.updateIdentities(with: newMap)
+
+            DispatchQueue.main.async {
+                let ecidPrefix = ecid.map { String($0.prefix(8)) + "..." } ?? "nil"
+                lastAction = "Called Identity.updateIdentities with Email: \(email) (ECID: \(ecidPrefix))"
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    refreshIdentity()
                 }
             }
         }
@@ -253,6 +452,93 @@ struct SettingsView: View {
         }
         MobileCore.setPushIdentifier(tokenData)
         lastAction = "Called setPushIdentifier with token: \(String(hexToken.prefix(12)))…"
+    }
+
+    private func sendNilPushToken() {
+        // Passing nil is collapsed to an empty token ("") by AEPCore and synced to the profile,
+        // clearing a previously registered token. The stored device token is intentionally left
+        // in UserDefaults so it can be re-sent with "Send Push Token".
+        MobileCore.setPushIdentifier(nil)
+        lastAction = "Called setPushIdentifier(nil) — cleared push token (synced as \"\")."
+    }
+
+    private func sendLiveActivityTokens() {
+        let count = TokenCollector.resendHeldPushToStartTokens()
+        lastAction = count > 0
+            ? "Re-sent \(count) Live Activity push-to-start token(s)."
+            : "No held Live Activity tokens to send."
+    }
+
+    private func clearLiveActivities() {
+        if #available(iOS 16.1, *) {
+            Messaging.clearLiveActivities()
+            lastAction = "Called Messaging.clearLiveActivities()."
+        } else {
+            lastAction = "Live Activities require iOS 16.1 or later."
+        }
+    }
+
+    private func registerLiveActivities() {
+        if #available(iOS 16.1, *) {
+            // Same attribute types as AppDelegate so the clear -> register flow can be tested end to end.
+            Messaging.registerLiveActivities([
+                AirplaneTrackingAttributes.self,
+                FoodDeliveryLiveActivityAttributes.self,
+                GameScoreLiveActivityAttributes.self
+            ])
+            lastAction = "Called Messaging.registerLiveActivities() for Airplane, FoodDelivery, and GameScore."
+        } else {
+            lastAction = "Live Activities require iOS 16.1 or later."
+        }
+    }
+
+    
+    /// Clears push and Live Activity tokens, then calls `MobileCore.resetIdentities()` and registers
+    /// new tokens, in the order an app should perform it so that tokens end up attached to the
+    /// correct profile:
+    ///
+    /// 1. Clear tokens: clear the push token and Live Activity tokens *before* resetting identities,
+    ///    so the empty ("") tokens are synced to the still-current (old) ECID's profile, clearing it.
+    /// 2. Wait for the clear to reach Edge. `Messaging.clearLiveActivities()` (and
+    ///    `MobileCore.setPushIdentifier(nil)`) dispatch their Edge events asynchronously. Calling
+    ///    `MobileCore.resetIdentities()` right away would race that dispatch: if the new ECID is
+    ///    assigned before the clear event's request is sent, Edge attaches the *new* ECID to it and
+    ///    the clear lands on the wrong (new) profile instead of the old one.
+    /// 3. Reset identities: only after that delay call `MobileCore.resetIdentities()`, then read the
+    ///    new ECID and re-send the current push token / re-register Live Activities so they sync to
+    ///    it.
+    ///
+    /// See the `Messaging.clearLiveActivities()` doc comment for the full guidance this mirrors.
+    private func clearTokensAndResetIdentities() {
+        Identity.getExperienceCloudId { oldEcid, _ in
+            // Clear tokens so empty tokens are synced to the current (old) ECID's profile.
+            MobileCore.setPushIdentifier(nil)
+            if #available(iOS 16.1, *) {
+                Messaging.clearLiveActivities()
+            }
+            DispatchQueue.main.async {
+                lastAction = "Cleared push + Live Activity tokens. Waiting before resetIdentities()..."
+            }
+
+            // Messaging sends the clear to Edge asynchronously. Resetting identities immediately would
+            // let Edge attach the new ECID to that request, so the clear would land on the new profile.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                MobileCore.resetIdentities()
+
+                // getExperienceCloudId is processed after the reset, so it returns the new ECID.
+                Identity.getExperienceCloudId { newEcid, _ in
+                    DispatchQueue.main.async {
+                        sendPushToken()
+                        registerLiveActivities()
+                        let from = oldEcid?.prefix(8) ?? "nil"
+                        let to = newEcid?.prefix(8) ?? "nil"
+                        let pushNote = pushToken == nil ? "no stored push token" : "push token re-sent"
+                        lastAction = "Clear tokens + resetIdentities() done. ECID: \(from)... -> \(to)... (\(pushNote), Live Activities re-registered)"
+                        refreshIdentity()
+                    }
+                }
+            }
+        }
     }
 
     private func readConsent() {

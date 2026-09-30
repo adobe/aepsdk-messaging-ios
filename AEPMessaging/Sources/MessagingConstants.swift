@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "5.16.2"
+    static let EXTENSION_VERSION = "5.17.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
@@ -87,6 +87,7 @@ enum MessagingConstants {
             static let LIVE_ACTIVITY = "Live Activity"
 
             enum LiveActivity {
+                static let CLEAR = "Clear Live Activities"
                 static let CONTENT_STATE = "Live Activity updated"
                 static let PUSH_TO_START = "Live Activity push-to-start token"
                 static let PUSH_TO_START_EDGE = "Live Activity push-to-start token to Edge"
@@ -156,6 +157,7 @@ enum MessagingConstants {
                     /// The key for Live Activity Attribute type name. For example, "FoodDeliveryLiveActivityAttributes"
                     static let ATTRIBUTE_TYPE = "attributeType"
                     static let BATCHED_PUSH_TO_START_TOKENS = "batchedPushToStartTokens"
+                    static let CLEAR = "isClearLiveActivitiesEvent"
                     static let CONTENT_STATE = "contentState"
                     static let PUSH_TO_START_TOKEN = "isLiveActivityPushToStartTokenEvent"
                     static let STATE = "state"
@@ -204,6 +206,7 @@ enum MessagingConstants {
                     static let COLLECT = "collect"
                     static let VAL = "val"
                     static let YES = "y"
+                    static let COLLECT_CONSENT_RESYNC_REQUIRED = "collectConsentResyncRequired"
                 }
             }
         }

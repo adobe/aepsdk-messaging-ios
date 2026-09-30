@@ -89,7 +89,8 @@ extension Messaging {
                 [MessagingConstants.XDM.Push.APP_ID: appId,
                  MessagingConstants.XDM.Push.TOKEN: token,
                  MessagingConstants.XDM.Push.PLATFORM: platform,
-                 MessagingConstants.XDM.Push.DENYLISTED: false,
+                 // An empty token means the push token is being cleared, so mark it denylisted.
+                 MessagingConstants.XDM.Push.DENYLISTED: token.isEmpty,
                  MessagingConstants.XDM.Push.IDENTITY: [
                      MessagingConstants.XDM.Push.NAMESPACE: [
                          MessagingConstants.XDM.Push.CODE: MessagingConstants.XDM.Push.Value.ECID
@@ -156,7 +157,8 @@ extension Messaging {
             [
                 // Standard push fields
                 MessagingConstants.XDM.Push.APP_ID: appId,
-                MessagingConstants.XDM.Push.DENYLISTED: false,
+                // An empty token means the push-to-start token is being cleared, so mark it denylisted.
+                MessagingConstants.XDM.Push.DENYLISTED: pushToStartToken.token.isEmpty,
                 MessagingConstants.XDM.Push.PLATFORM: platform,
                 MessagingConstants.XDM.Push.TOKEN: pushToStartToken.token,
 
