@@ -687,14 +687,19 @@ public class Messaging: NSObject, Extension {
     ///   - event: The event that triggered the clear request.
     ///   - edgeIdentitySharedState: The shared state from Edge Identity containing the ECID.
     private func handleClearLiveActivitiesEvent(_ event: Event, edgeIdentitySharedState: [AnyHashable: Any]) {
-        Log.debug(label: MessagingConstants.LOG_TAG, "Processing clear Live Activities event, sending empty Live Activity tokens.")
+        Log.debug(label: MessagingConstants.LOG_TAG, "Processing clear Live Activities event.")
 
         let pushToStartTokens = stateManager.pushToStartTokenStore.all()
 
         // Push-to-start tokens: send a single batched Edge event with each token replaced by "" to
         // clear them on the current profile. If the ECID is unavailable the empty-token event is
         // skipped, but the local store is still cleared below.
-        if !pushToStartTokens.isEmpty {
+        if pushToStartTokens.isEmpty {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "No stored push-to-start tokens found (already cleared or never registered). The empty push-to-start tokens will not be synced.")
+        } else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "Sending empty push-to-start tokens for \(pushToStartTokens.count) Live Activity type(s).")
             if let ecid = retrieveECID(from: edgeIdentitySharedState) {
                 let clearedTokenMap = pushToStartTokens.mapValues {
                     LiveActivity.PushToStartToken(firstIssued: $0.firstIssued, token: "")
