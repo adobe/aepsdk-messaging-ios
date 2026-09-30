@@ -693,15 +693,33 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         XCTAssertTrue(sharedState.isEmpty, "Expected the final shared state to be empty after clearing")
     }
 
-    func test_ClearLiveActivities_NoStoredTokens_NoEdgeEvent() {
+    func test_ClearLiveActivities_NoStoredTokens_NoEdgeEvent_NoSharedStateUpdate() {
         // clear live activities with nothing stored
         simulateEventWithSharedStates(createClearLiveActivitiesEvent())
 
         // no edge events dispatched
         XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
-        // shared state is still republished (empty)
-        verifyLiveActivitySharedStateCleared()
+        // shared state is already empty, so it is not republished
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_ClearLiveActivities_CalledTwice_SecondClearIsNoOp() {
+        // seed a push-to-start token, an update token, and a channel activity
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        simulateEventWithSharedStates(createUpdateTokenEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID))
+        simulateEventWithSharedStates(createStartEvent(liveActivityID: nil, channelID: CHANNEL_ID, origin: .remote))
+
+        // first clear syncs the empty push-to-start token and republishes the empty shared state
+        simulateEventWithSharedStates(createClearLiveActivitiesEvent())
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // second clear finds nothing stored
+        simulateEventWithSharedStates(createClearLiveActivitiesEvent())
+
+        // no edge event and no redundant shared state update
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
     }
 
     func test_ClearLiveActivities_ThenReRegisterSameToken_IsSentAgain() {

@@ -691,12 +691,25 @@ public class Messaging: NSObject, Extension {
 
         let pushToStartTokens = stateManager.pushToStartTokenStore.all()
 
+        // Nothing is stored (already cleared, or never registered), so there is nothing to sync or
+        // clear and the Live Activity shared state is already empty. Skip republishing it.
+        // All stores must be checked: update tokens and channel activities can exist without any
+        // push-to-start token (e.g. on iOS versions below 17.2).
+        guard !pushToStartTokens.isEmpty
+            || !stateManager.updateTokenStore.all().isEmpty
+            || !stateManager.channelActivityStore.all().isEmpty
+        else {
+            Log.debug(label: MessagingConstants.LOG_TAG,
+                      "No stored Live Activity tokens or channel activities found (already cleared or never registered). Skipping the empty push-to-start token sync and shared state update.")
+            return
+        }
+
         // Push-to-start tokens: send a single batched Edge event with each token replaced by "" to
         // clear them on the current profile. If the ECID is unavailable the empty-token event is
         // skipped, but the local store is still cleared below.
         if pushToStartTokens.isEmpty {
             Log.debug(label: MessagingConstants.LOG_TAG,
-                      "No stored push-to-start tokens found (already cleared or never registered). The empty push-to-start tokens will not be synced.")
+                      "No stored push-to-start tokens found. The empty push-to-start tokens will not be synced.")
         } else {
             Log.debug(label: MessagingConstants.LOG_TAG,
                       "Sending empty push-to-start tokens for \(pushToStartTokens.count) Live Activity type(s).")
