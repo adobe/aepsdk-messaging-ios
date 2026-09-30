@@ -206,6 +206,7 @@ enum MessagingConstants {
                     static let COLLECT = "collect"
                     static let VAL = "val"
                     static let YES = "y"
+                    static let COLLECT_CONSENT_RESYNC_REQUIRED = "collectConsentResyncRequired"
                 }
             }
         }

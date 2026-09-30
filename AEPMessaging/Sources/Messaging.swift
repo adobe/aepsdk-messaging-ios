@@ -240,9 +240,6 @@ public class Messaging: NSObject, Extension {
     /// the timestamp of the last push token sync
     private var lastPushTokenSyncTimestamp: Date?
 
-    /// last observed collect-consent value, used to detect transitions into "y"
-    private var lastObservedCollectConsent: String?
-
     /// Array containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
     static let supportedSchemas = [
         MessagingConstants.PersonalizationSchemas.HTML_CONTENT,
@@ -804,14 +801,7 @@ public class Messaging: NSObject, Extension {
 
     /// Triggers a token re-sync the first time `consents.collect.val` transitions to `"y"`.
     private func handleEdgeConsentResponse(_ event: Event) {
-        guard let collectVal = extractCollectConsent(from: event.data) else {
-            return
-        }
-        defer { lastObservedCollectConsent = collectVal }
-
-        guard collectVal == MessagingConstants.Event.Data.Key.Consent.YES,
-              lastObservedCollectConsent != MessagingConstants.Event.Data.Key.Consent.YES
-        else {
+        guard event.data?[MessagingConstants.Event.Data.Key.Consent.COLLECT_CONSENT_RESYNC_REQUIRED] as? Bool == true else {
             return
         }
 
@@ -855,12 +845,6 @@ public class Messaging: NSObject, Extension {
                 data: [MessagingConstants.Event.Data.Key.PUSH_IDENTIFIER: token])
             dispatch(event: pushTokenResyncEvent)
         }
-    }
-
-    private func extractCollectConsent(from data: [String: Any]?) -> String? {
-        return (data?[MessagingConstants.Event.Data.Key.Consent.CONSENTS] as? [String: Any])
-            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.COLLECT] as? [String: Any] }
-            .flatMap { $0[MessagingConstants.Event.Data.Key.Consent.VAL] as? String }
     }
 
     /// Checks if the push identifier can be synced
