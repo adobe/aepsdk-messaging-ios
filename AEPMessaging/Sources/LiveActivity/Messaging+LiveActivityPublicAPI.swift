@@ -246,6 +246,14 @@ public extension Messaging {
                 }
             }
 
+            // pushToStartTokenUpdates only yields when the token changes, so re-subscribing in the
+            // same app session (e.g. registerLiveActivities() after clearLiveActivities()) would not
+            // deliver the existing token. Seed the collector with the current token so it is synced
+            // on every (re-)registration. Unchanged tokens are de-duplicated downstream.
+            if let currentToken = Activity<T>.pushToStartToken {
+                await batchTokenCollector.collectToken(attributeType: attributeType, token: currentToken.hexEncodedString)
+            }
+
             for await tokenData in Activity<T>.pushToStartTokenUpdates {
                 let tokenHex = tokenData.hexEncodedString
                 await batchTokenCollector.collectToken(attributeType: attributeType, token: tokenHex)

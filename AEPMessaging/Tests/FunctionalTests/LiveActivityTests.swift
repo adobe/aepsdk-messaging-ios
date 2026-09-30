@@ -718,6 +718,40 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         verifyPushToStartSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
     }
 
+    func test_ClearLiveActivities_ThenReRegister_SeededTokenThenStreamToken_SentOnce() {
+        // seed then clear a push-to-start token
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        simulateEventWithSharedStates(createClearLiveActivitiesEvent())
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // re-registration seeds the current token (Activity.pushToStartToken) -> synced
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // the update stream later delivers the SAME token in a separate batch -> de-duplicated
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count, "Unchanged token should not be re-sent with optimizePushSync enabled")
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_LiveActivity_PushToStart_SameTokenAgain_OptimizeDisabled_IsResent() {
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // same token again (e.g. seeded token + stream token outside the batch window) with
+        // optimizePushSync disabled -> re-sent (documents the possible duplicate on launch)
+        let event = createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
+        mockConfigurationAndEdgeIdentitySharedStates(at: event)
+        mockRuntime.simulateSharedState(
+            for: (extensionName: "com.adobe.module.configuration", event: event),
+            data: (value: [MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: false], status: .set)
+        )
+        mockRuntime.simulateComingEvents(event)
+
+        verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
+    }
+
     func test_ClearLiveActivities_NoECID_ClearsPushToStartTokens() {
         // seed a push-to-start token
         simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
