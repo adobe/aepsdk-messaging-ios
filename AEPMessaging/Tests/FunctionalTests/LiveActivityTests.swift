@@ -619,8 +619,9 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         // clear live activities
         simulateEventWithSharedStates(createClearLiveActivitiesEvent())
 
-        // a single push-to-start edge event is sent with an empty token (revokes on the current profile)
-        verifyPushToStartEdgeEvent(token: "", attributeType: ATTRIBUTE_TYPE)
+        // a single push-to-start edge event is sent with an empty token (revokes on the current profile);
+        // clearing is Edge-only and does not forward through the operational-data path
+        verifyPushToStartEdgeEvent(token: "", attributeType: ATTRIBUTE_TYPE, expectedEventCount: 1)
 
         // the push-to-start token store is cleared locally as part of the full teardown
         verifyLiveActivitySharedStateCleared()
@@ -829,10 +830,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         simulateEvent(createPushIdentifierEvent(token: PUSH_TOKEN), ecid: ecidB)
         simulateEvent(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE), ecid: ecidB)
 
-        // real tokens are re-synced (not denylisted) to ECID_B
-        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        // real tokens are re-synced (not denylisted) to ECID_B, plus the additive operational-data forward
+        XCTAssertEqual(3, mockRuntime.dispatchedEvents.count)
         verifyPushTokenDetails(mockRuntime.dispatchedEvents[0], token: PUSH_TOKEN, ecid: ecidB)
         verifyPushToStartDetails(mockRuntime.dispatchedEvents[1], token: PUSH_TO_START_TOKEN, ecid: ecidB)
+        verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 2)
 
         // final shared state holds the re-synced push identifier and push-to-start token
         guard let finalState = mockRuntime.createdSharedStates.last ?? nil else {
@@ -863,12 +865,14 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
             simulateEvent(createPushIdentifierEvent(token: PUSH_TOKEN), ecid: newEcid)
             simulateEvent(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE), ecid: newEcid)
 
-            XCTAssertEqual(4, mockRuntime.dispatchedEvents.count, "Unexpected event count in iteration \(iteration)")
-            guard mockRuntime.dispatchedEvents.count == 4 else { return }
+            // logout (2 Edge clears) + login (push and push-to-start Edge events, plus the operational-data forward)
+            XCTAssertEqual(5, mockRuntime.dispatchedEvents.count, "Unexpected event count in iteration \(iteration)")
+            guard mockRuntime.dispatchedEvents.count == 5 else { return }
             verifyPushTokenDetails(mockRuntime.dispatchedEvents[0], token: "", ecid: oldEcid)
             verifyPushToStartDetails(mockRuntime.dispatchedEvents[1], token: "", ecid: oldEcid)
             verifyPushTokenDetails(mockRuntime.dispatchedEvents[2], token: PUSH_TOKEN, ecid: newEcid)
             verifyPushToStartDetails(mockRuntime.dispatchedEvents[3], token: PUSH_TO_START_TOKEN, ecid: newEcid)
+            verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 4)
         }
     }
 
@@ -1001,9 +1005,9 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         )
     }
 
-    private func verifyPushToStartEdgeEvent(token: String, attributeType: String) {
-        // The normal (consent-gated) Edge event plus the additive consent-independent operational-data event.
-        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+    private func verifyPushToStartEdgeEvent(token: String, attributeType: String, expectedEventCount: Int = 2) {
+        // By default, the normal (consent-gated) Edge event plus the additive consent-independent operational-data event.
+        XCTAssertEqual(expectedEventCount, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
@@ -1055,9 +1059,9 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         verifyOperationalDataUpdateEvent(token: token, liveActivityID: liveActivityID)
     }
 
-    /// Verifies the additive `generic.operationalData` event forwarded for a push-to-start token when consent is not "y".
-    private func verifyOperationalDataStartEvent(token: String, attributeType: String) {
-        let opEvent = mockRuntime.dispatchedEvents[1]
+    /// Verifies the additive `generic.operationalData` event forwarded for a push-to-start token.
+    private func verifyOperationalDataStartEvent(token: String, attributeType: String, at index: Int = 1) {
+        let opEvent = mockRuntime.dispatchedEvents[index]
         XCTAssertEqual(MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA, opEvent.type)
         XCTAssertEqual(EventSource.requestContent, opEvent.source)
 
@@ -1074,7 +1078,7 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         XCTAssertNotNil(matchingEntry, "Expected liveActivityStart to include attributeType=\(attributeType) with value=\(token). Actual: \(starts)")
     }
 
-    /// Verifies the additive `generic.operationalData` event forwarded for an update token when consent is not "y".
+    /// Verifies the additive `generic.operationalData` event forwarded for an update token.
     private func verifyOperationalDataUpdateEvent(token: String, liveActivityID: String) {
         let opEvent = mockRuntime.dispatchedEvents[1]
         XCTAssertEqual(MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA, opEvent.type)

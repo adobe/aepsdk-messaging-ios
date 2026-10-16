@@ -546,7 +546,7 @@ public class Messaging: NSObject, Extension {
             sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
 
             // ADDITIVE (consent-independent path): also forward the update token via the operational-data event.
-            // This does not replace the normal flow above; it runs alongside it and is a no-op when consent is "y".
+            // This does not replace the normal flow above; it runs alongside it.
             forwardLiveActivityTokensBypassConsent(
                 liveActivityUpdate: [[
                     MessagingConstants.XDM.LiveActivity.ID: liveActivityID,
@@ -739,7 +739,7 @@ public class Messaging: NSObject, Extension {
         sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
 
         // ADDITIVE (consent-independent path): also forward all current push-to-start tokens via the
-        // operational-data event. This runs alongside the normal flow above and is a no-op when consent is "y".
+        // operational-data event. This runs alongside the normal flow above.
         let startArray: [[String: Any]] = tokenMap.map { attributeType, pushToStartToken in
             [
                 MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
@@ -753,10 +753,7 @@ public class Messaging: NSObject, Extension {
     /// synced to the consent-independent device-attributes endpoint.
     ///
     /// This is an ADDITIVE path that runs alongside the normal (consent-gated) Edge flow; it never replaces it.
-    /// The forward only happens when collect consent is NOT "y" (yes): when consent is "y", the normal flow
-    /// (`sendLiveActivityUpdateToken` / `sendLiveActivityPushToStartTokens`) already delivers these tokens, so we do
-    /// not duplicate them. When consent is pending ("p"), no ("n"), or not-yet-known (nil), the normal Edge flow is
-    /// dropped or held by the Consent/Edge extensions, so we forward the tokens through this consent-independent path.
+    /// Tokens are forwarded regardless of collect consent; Edge Identity deduplicates values it has already synced.
     ///
     /// Event data shape:
     /// `{ "tokens": { "liveActivityStart": [{ "attributeType", "value" }], "liveActivityUpdate": [{ "liveActivityID", "token" }] } }`
@@ -768,11 +765,6 @@ public class Messaging: NSObject, Extension {
     private func forwardLiveActivityTokensBypassConsent(liveActivityStart: [[String: Any]]? = nil,
                                                         liveActivityUpdate: [[String: Any]]? = nil,
                                                         event: Event) {
-        // Only forward via the consent-independent path when collect consent is NOT "y" (yes).
-        guard lastObservedCollectConsent != MessagingConstants.Event.Data.Key.Consent.YES else {
-            return
-        }
-
         var tokens: [String: Any] = [:]
         if let liveActivityStart = liveActivityStart, !liveActivityStart.isEmpty {
             tokens[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_START] = liveActivityStart
