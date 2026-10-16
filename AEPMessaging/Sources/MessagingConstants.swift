@@ -74,6 +74,7 @@ enum MessagingConstants {
         }
 
         enum Name {
+            static let DEVICE_ATTRIBUTES_CONFIRMED = "Device attributes confirmed"
             static let MESSAGE_INTERACTION = "Messaging interaction event"
             static let PUSH_NOTIFICATION_INTERACTION = "Push notification interaction event"
             static let PUSH_PROFILE_EDGE = "Push notification token profile Edge event"
