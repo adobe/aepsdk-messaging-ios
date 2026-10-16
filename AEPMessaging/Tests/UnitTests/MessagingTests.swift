@@ -2389,6 +2389,10 @@ class MessagingTests: XCTestCase {
     }
 
     func testConfirmedDeviceTokensUpdateCachePersistenceAndSharedStateWithoutEdgeDispatch() throws {
+        // Other suites can leave a non-persisting mock as the shared datastore; use a real in-memory store so rehydration is verifiable.
+        let originalDataStore = ServiceProvider.shared.namedKeyValueService
+        ServiceProvider.shared.namedKeyValueService = MockDataStore()
+        defer { ServiceProvider.shared.namedKeyValueService = originalDataStore }
         let issued = Date().addingTimeInterval(-1)
         stateManager.pushIdentifier = "old-push"
         stateManager.pushToStartTokenStore.set(.init(firstIssued: issued, token: "old-start"), id: "BypassA")
