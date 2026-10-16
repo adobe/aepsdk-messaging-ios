@@ -835,9 +835,19 @@ public class Messaging: NSObject, Extension {
                 Log.warning(label: MessagingConstants.LOG_TAG,
                             "Unable to send empty push-to-start tokens for event (\(event.id.uuidString)) because the ECID is unavailable. Local tokens will still be cleared.")
             }
+
+            // ADDITIVE (consent-independent path): also forward the empty push-to-start tokens via the
+            // operational-data event so tokens synced through that path are cleared too. It does not need the ECID.
+            let clearedStartArray: [[String: Any]] = pushToStartTokens.keys.map { attributeType in
+                [
+                    MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+                    MessagingConstants.Event.Data.Key.LiveActivity.VALUE: ""
+                ]
+            }
+            forwardLiveActivityTokensBypassConsent(liveActivityStart: clearedStartArray, event: event)
         }
 
-        // Update tokens and channel activities are not sent to Edge; they are only cleared locally.
+        // Update tokens and channel activities are not sent to Edge or forwarded; they are only cleared locally.
 
         // Fully tear down local Live Activity state. The customer must call
         // registerLiveActivities() again to resume token collection.
