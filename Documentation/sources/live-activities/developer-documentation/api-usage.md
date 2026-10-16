@@ -199,6 +199,51 @@ extension FoodDeliveryLiveActivityAttributes: LiveActivityAssuranceDebuggable {
 }
 ```
 
+### Step 7: Clear push and Live Activity tokens before resetting identities
+
+Two APIs need to be cleared together whenever an app also calls `MobileCore.resetIdentities()` (for
+example, on user sign-out): `MobileCore.setPushIdentifier(_:)` for the standard push token, and
+`Messaging.clearLiveActivities()` for Live Activity push-to-start tokens. Both sync their token state
+to Edge under the *current* ECID, so both must run, and be given time to reach Edge, before the ECID
+changes.
+
+- **`MobileCore.setPushIdentifier(nil)`** clears the device's standard push token by syncing an empty
+  (`""`) token to the current profile.
+- **`Messaging.clearLiveActivities()`** revokes previously-registered Live Activity tokens and stops
+  token collection entirely. It sends an empty (`""`) push-to-start token to Edge for every stored
+  token, cancels the SDK's ActivityKit listeners, and clears the local token stores.
+
+```swift
+MobileCore.setPushIdentifier(nil)
+Messaging.clearLiveActivities()
+```
+
+> **Important**: Both calls dispatch their Edge events asynchronously. If also calling
+> `MobileCore.resetIdentities()`, call both of the above first and wait for the clears to reach Edge
+> before resetting. Calling `resetIdentities()` immediately afterward can race that dispatch: if the
+> new ECID is assigned before a clear's request is sent, Edge attaches the *new* ECID to it and the
+> clear is applied to the wrong profile. After the reset completes, call
+> `MobileCore.setPushIdentifier(_:)` with the current device token and `registerLiveActivities(_:)`
+> again so both tokens are re-collected and synced to the new profile.
+
+#### Example: clearing tokens around a `resetIdentities()` call
+
+```swift
+// 1. Clear tokens so the empty values are synced to the *current* (old) profile.
+MobileCore.setPushIdentifier(nil)
+Messaging.clearLiveActivities()
+
+// 2. Wait for both clears' Edge events to be sent before changing identities. Without this delay,
+//    resetIdentities() can run first and the clears would be sent under the new ECID instead.
+DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+    MobileCore.resetIdentities()
+
+    // 3. Re-sync both tokens to the new profile.
+    MobileCore.setPushIdentifier(currentDeviceToken)
+    Messaging.registerLiveActivities([FoodDeliveryLiveActivityAttributes.self])
+}
+```
+
 ## Examples
 
 The test app in this repository demonstrates Live Activity implementation with multiple use cases:
