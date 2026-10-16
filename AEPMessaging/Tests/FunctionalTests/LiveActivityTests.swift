@@ -750,8 +750,10 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA, opEvent.type)
         XCTAssertEqual(EventSource.requestContent, opEvent.source)
 
-        guard let starts = opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_START] as? [[String: Any]] else {
-            XCTFail("Missing liveActivityStart array in operational-data event")
+        XCTAssertNil(opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_START], "liveActivityStart must be nested under tokens")
+        let tokens = opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_TOKENS] as? [String: Any]
+        guard let starts = tokens?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_START] as? [[String: Any]] else {
+            XCTFail("Missing tokens.liveActivityStart array in operational-data event")
             return
         }
         let matchingEntry = starts.first { entry in
@@ -767,8 +769,10 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA, opEvent.type)
         XCTAssertEqual(EventSource.requestContent, opEvent.source)
 
-        guard let updates = opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_UPDATE] as? [[String: Any]] else {
-            XCTFail("Missing liveActivityUpdate array in operational-data event")
+        XCTAssertNil(opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_UPDATE], "liveActivityUpdate must be nested under tokens")
+        let tokens = opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_TOKENS] as? [String: Any]
+        guard let updates = tokens?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_UPDATE] as? [[String: Any]] else {
+            XCTFail("Missing tokens.liveActivityUpdate array in operational-data event")
             return
         }
         let matchingEntry = updates.first { entry in

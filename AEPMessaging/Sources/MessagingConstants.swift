@@ -172,8 +172,10 @@ enum MessagingConstants {
                     static let UPDATE_TOKEN = "isLiveActivityUpdateTokenEvent"
 
                     // MARK: Consent-independent operational-data forwarding keys
-                    // Top-level keys carried by the `generic.operationalData` event. The Launch rule resolves
-                    // the bare whole-value tokens {%liveActivityStart%} / {%liveActivityUpdate%} against these.
+                    // Keys carried by the `generic.operationalData` event. The token arrays are nested under `tokens`;
+                    // the `forward-operational-data` rule consequence copies the exact paths
+                    // `tokens.liveActivityStart` / `tokens.liveActivityUpdate`.
+                    static let OPERATIONAL_DATA_TOKENS = "tokens"
                     static let OPERATIONAL_DATA_START = "liveActivityStart"
                     static let OPERATIONAL_DATA_UPDATE = "liveActivityUpdate"
                     /// Value key used in a `liveActivityStart` element ({ "attributeType": <type>, "value": <token> }).

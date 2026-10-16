@@ -698,6 +698,9 @@ public class Messaging: NSObject, Extension {
     /// not duplicate them. When consent is pending ("p"), no ("n"), or not-yet-known (nil), the normal Edge flow is
     /// dropped or held by the Consent/Edge extensions, so we forward the tokens through this consent-independent path.
     ///
+    /// Event data shape:
+    /// `{ "tokens": { "liveActivityStart": [{ "attributeType", "value" }], "liveActivityUpdate": [{ "liveActivityID", "token" }] } }`
+    ///
     /// - Parameters:
     ///   - liveActivityStart: array of `{ "attributeType": <type>, "value": <token> }` objects for push-to-start tokens
     ///   - liveActivityUpdate: array of `{ "liveActivityID": <id>, "token": <token> }` objects for update tokens
@@ -710,19 +713,20 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        var data: [String: Any] = [:]
+        var tokens: [String: Any] = [:]
         if let liveActivityStart = liveActivityStart, !liveActivityStart.isEmpty {
-            data[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_START] = liveActivityStart
+            tokens[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_START] = liveActivityStart
         }
         if let liveActivityUpdate = liveActivityUpdate, !liveActivityUpdate.isEmpty {
-            data[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_UPDATE] = liveActivityUpdate
+            tokens[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_UPDATE] = liveActivityUpdate
         }
 
         // Nothing to forward if both arrays are nil/empty.
-        guard !data.isEmpty else {
+        guard !tokens.isEmpty else {
             return
         }
 
+        let data: [String: Any] = [MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_TOKENS: tokens]
         let operationalDataEvent = event.createChainedEvent(
             name: MessagingConstants.Event.Name.LiveActivity.SYNC_OPERATIONAL_DATA,
             type: MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA,
