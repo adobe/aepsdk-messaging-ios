@@ -431,6 +431,15 @@ enum MessagingConstants {
             static let ECID = "ECID"
             static let ID = "id"
         }
+
+        enum EdgeConsent {
+            static let NAME = "com.adobe.edge.consent"
+        }
+
+        enum EventHub {
+            static let NAME = "com.adobe.module.eventhub"
+            static let EXTENSIONS = "extensions"
+        }
     }
 
     enum PushNotification {

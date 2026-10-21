@@ -545,8 +545,12 @@ public class Messaging: NSObject, Extension {
 
             sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: token, event: event)
 
-            // ADDITIVE (consent-independent path): also forward the update token via the operational-data event.
-            // This does not replace the normal flow above; it runs alongside it.
+            // ADDITIVE (consent-independent path): when collect consent is not "y", also forward the update token
+            // via the operational-data event. This does not replace the normal flow above; it runs alongside it.
+            guard !isCollectConsentYes(for: event) else {
+                Log.trace(label: MessagingConstants.LOG_TAG, "Collect consent is 'y'. The update token will not be forwarded via the operational-data event.")
+                return
+            }
             forwardLiveActivityTokensBypassConsent(
                 liveActivityUpdate: [[
                     MessagingConstants.XDM.LiveActivity.ID: liveActivityID,
@@ -738,8 +742,12 @@ public class Messaging: NSObject, Extension {
         }
         sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
 
-        // ADDITIVE (consent-independent path): also forward all current push-to-start tokens via the
-        // operational-data event. This runs alongside the normal flow above.
+        // ADDITIVE (consent-independent path): when collect consent is not "y", also forward all current
+        // push-to-start tokens via the operational-data event. This runs alongside the normal flow above.
+        guard !isCollectConsentYes(for: event) else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Collect consent is 'y'. Push-to-start tokens will not be forwarded via the operational-data event.")
+            return
+        }
         let startArray: [[String: Any]] = tokenMap.map { attributeType, pushToStartToken in
             [
                 MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
@@ -749,11 +757,31 @@ public class Messaging: NSObject, Extension {
         forwardLiveActivityTokensBypassConsent(liveActivityStart: startArray, event: event)
     }
 
+    /// Returns `true` if collect consent is `"y"` for the provided `event`, mirroring how the Edge extension resolves it:
+    /// - If the Edge Consent XDM shared state is available, consent is `"y"` only when `consents.collect.val` is `"y"`;
+    ///   any other or missing value is treated as not granted (`"n"` or pending).
+    /// - If it is unavailable and the Edge Consent extension is registered, consent is pending (not `"y"`).
+    /// - If the Edge Consent extension is not registered, Edge defaults collect consent to `"y"`.
+    private func isCollectConsentYes(for event: Event) -> Bool {
+        if let consentSharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeConsent.NAME, event: event)?.value {
+            let consents = consentSharedState[MessagingConstants.Event.Data.Key.Consent.CONSENTS] as? [String: Any]
+            let collect = consents?[MessagingConstants.Event.Data.Key.Consent.COLLECT] as? [String: Any]
+            return collect?[MessagingConstants.Event.Data.Key.Consent.VAL] as? String == MessagingConstants.Event.Data.Key.Consent.YES
+        }
+
+        let registeredExtensions = getSharedState(extensionName: MessagingConstants.SharedState.EventHub.NAME, event: event)?
+            .value?[MessagingConstants.SharedState.EventHub.EXTENSIONS] as? [String: Any]
+        let isConsentRegistered = registeredExtensions?[MessagingConstants.SharedState.EdgeConsent.NAME] != nil
+        return !isConsentRegistered
+    }
+
     /// Forwards Live Activity tokens to the Launch Rules Engine via a `generic.operationalData` event so they can be
     /// synced to the consent-independent device-attributes endpoint.
     ///
     /// This is an ADDITIVE path that runs alongside the normal (consent-gated) Edge flow; it never replaces it.
-    /// Tokens are forwarded regardless of collect consent; Edge Identity deduplicates values it has already synced.
+    /// Push-to-start and update tokens are forwarded only while collect consent is not `"y"` (`"n"` or pending);
+    /// empty push-to-start tokens from `clearLiveActivities` are always forwarded.
+    /// Edge Identity deduplicates values it has already synced.
     ///
     /// Event data shape:
     /// `{ "tokens": { "liveActivityStart": [{ "attributeType", "value" }], "liveActivityUpdate": [{ "liveActivityID", "token" }] } }`
