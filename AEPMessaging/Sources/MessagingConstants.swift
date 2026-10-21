@@ -74,7 +74,6 @@ enum MessagingConstants {
         }
 
         enum Name {
-            static let DEVICE_ATTRIBUTES_CONFIRMED = "Device attributes confirmed"
             static let MESSAGE_INTERACTION = "Messaging interaction event"
             static let PUSH_NOTIFICATION_INTERACTION = "Push notification interaction event"
             static let PUSH_PROFILE_EDGE = "Push notification token profile Edge event"
@@ -133,6 +132,8 @@ enum MessagingConstants {
                 static let XDM = "xdm"
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
+                /// Tokens dictionary carried by the device attributes confirmation event dispatched by Edge Identity.
+                static let DEVICE_ATTRIBUTES_TOKENS = "tokens"
                 static let ENDING_EVENT_ID = "endingEventId"
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"

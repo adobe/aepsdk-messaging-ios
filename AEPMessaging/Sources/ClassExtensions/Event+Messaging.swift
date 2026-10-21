@@ -303,7 +303,6 @@ extension Event {
 
     var isDeviceAttributesConfirmedEvent: Bool {
         isMessagingType && source == EventSource.responseContent
-            && name == MessagingConstants.Event.Name.DEVICE_ATTRIBUTES_CONFIRMED
     }
 
     var isLiveActivityUpdateTokenEvent: Bool {

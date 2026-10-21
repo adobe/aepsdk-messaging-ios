@@ -2492,13 +2492,28 @@ class MessagingTests: XCTestCase {
 
     func testConfirmedDeviceTokensIgnoreUnrelatedAndMalformedEvents() {
         stateManager.pushIdentifier = "previous"
+        // Messaging response events without a tokens dictionary (e.g. propositions or push tracking responses).
+        mockRuntime.simulateComingEvents(Event(name: "Device attributes confirmed", type: EventType.messaging,
+                                              source: EventSource.responseContent, data: ["propositions": []]))
         mockRuntime.simulateComingEvents(Event(name: "unrelated", type: EventType.messaging,
-                                              source: EventSource.responseContent, data: ["tokens": ["pushNotification": "new"]]))
+                                              source: EventSource.responseContent, data: nil))
+        // tokens present but not a dictionary
+        mockRuntime.simulateComingEvents(Event(name: "Device attributes confirmed", type: EventType.messaging,
+                                              source: EventSource.responseContent, data: ["tokens": "pushNotification"]))
         mockRuntime.simulateComingEvents(confirmedDeviceTokens([
             "pushNotification": NSNull(), "liveActivityStart": [["value": "bad"]],
             "liveActivityUpdate": [["token": "bad"]]
         ]))
         XCTAssertEqual("previous", stateManager.pushIdentifier)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func testConfirmedDeviceTokensAreHandledRegardlessOfEventName() {
+        mockRuntime.simulateComingEvents(Event(name: "Any event name", type: EventType.messaging,
+                                              source: EventSource.responseContent,
+                                              data: ["tokens": ["pushNotification": "renamed-push"]]))
+        XCTAssertEqual("renamed-push", stateManager.pushIdentifier)
+        XCTAssertEqual("renamed-push", mockRuntime.firstSharedState?["pushidentifier"] as? String)
         XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
     }
 

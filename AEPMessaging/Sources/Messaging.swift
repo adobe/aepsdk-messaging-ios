@@ -397,8 +397,9 @@ public class Messaging: NSObject, Extension {
 
     private func handleDeviceAttributesConfirmed(_ event: Event) {
         guard event.isDeviceAttributesConfirmedEvent else { return }
-        guard let tokens = event.data?["tokens"] as? [String: Any] else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Confirmed device attributes contain no valid tokens dictionary.")
+        // Other Messaging response events (e.g. propositions or push tracking responses) carry no tokens dictionary.
+        guard let tokens = event.data?[MessagingConstants.Event.Data.Key.DEVICE_ATTRIBUTES_TOKENS] as? [String: Any] else {
+            Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring Messaging response event without a valid device attributes tokens dictionary.")
             return
         }
         var updated = false
