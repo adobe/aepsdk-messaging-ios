@@ -16,7 +16,7 @@ enum MessagingConstants {
     static let LOG_TAG = "Messaging"
     static let EXTENSION_NAME = "com.adobe.messaging"
 
-    static let EXTENSION_VERSION = "5.17.0"
+    static let EXTENSION_VERSION = "5.18.0"
     static let FRIENDLY_NAME = "Messaging"
     static let RULES_ENGINE_NAME = EXTENSION_NAME + ".rulesengine"
     static let CONTENT_CARD_RULES_ENGINE_NAME = EXTENSION_NAME + "ContentCard" + ".rulesengine"
@@ -67,6 +67,12 @@ enum MessagingConstants {
     }
 
     enum Event {
+        enum EventType {
+            /// Event type used to forward Live Activity tokens to the Launch Rules Engine via the
+            /// consent-independent operational-data path.
+            static let GENERIC_OPERATIONAL_DATA = "com.adobe.eventType.generic.operationalData"
+        }
+
         enum Name {
             static let MESSAGE_INTERACTION = "Messaging interaction event"
             static let PUSH_NOTIFICATION_INTERACTION = "Push notification interaction event"
@@ -95,6 +101,8 @@ enum MessagingConstants {
                 static let START_EDGE = "Live Activity start to Edge"
                 static let UPDATE_TOKEN = "Live Activity update token"
                 static let UPDATE_TOKEN_EDGE = "Live Activity update token to Edge"
+                /// Name of the consent-independent operational-data event that forwards Live Activity tokens.
+                static let SYNC_OPERATIONAL_DATA = "Sync Operational Data"
             }
         }
 
@@ -164,6 +172,20 @@ enum MessagingConstants {
                     static let TRACK_START = "isLiveActivityTrackStartEvent"
                     static let TRACK_STATE = "isLiveActivityTrackStateEvent"
                     static let UPDATE_TOKEN = "isLiveActivityUpdateTokenEvent"
+
+                    // MARK: Consent-independent operational-data forwarding keys
+                    // Keys carried by the `generic.operationalData` event and by the operational data confirmation
+                    // event from Edge Identity. The tokens are nested under `tokens`; the `forward-operational-data`
+                    // rule consequence copies the exact paths `tokens.liveActivityStart` / `tokens.liveActivityUpdate`.
+                    static let OPERATIONAL_DATA_TOKENS = "tokens"
+                    static let OPERATIONAL_DATA_PUSH_NOTIFICATION = "pushNotification"
+                    static let OPERATIONAL_DATA_START = "liveActivityStart"
+                    static let OPERATIONAL_DATA_UPDATE = "liveActivityUpdate"
+                    /// Value key used in a `liveActivityStart` element ({ "attributeType": <type>, "value": <token> }).
+                    static let VALUE = "value"
+                    /// Keys used in a `liveActivityUpdate` element ({ "liveActivityID": <id>, "token": <token> }).
+                    static let LIVE_ACTIVITY_ID = "liveActivityID"
+                    static let TOKEN = "token"
                 }
 
                 enum Feed {
@@ -411,6 +433,15 @@ enum MessagingConstants {
             static let IDENTITY_MAP = "identityMap"
             static let ECID = "ECID"
             static let ID = "id"
+        }
+
+        enum EdgeConsent {
+            static let NAME = "com.adobe.edge.consent"
+        }
+
+        enum EventHub {
+            static let NAME = "com.adobe.module.eventhub"
+            static let EXTENSIONS = "extensions"
         }
     }
 

@@ -38,6 +38,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         messaging = Messaging(runtime: mockRuntime)
         messaging.onRegistered()
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+        // Collect consent "n" by default so the consent-independent operational-data forward is exercised.
+        simulateCollectConsent("n")
         MobileCore.setLogLevel(.trace)
     }
 
@@ -67,8 +69,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         ])
         simulateEventWithSharedStates(event)
 
-        // Both tokens are sent in a single edge event
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        // Both tokens are sent in a single edge event, plus the additive consent-independent operational-data event
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
@@ -204,8 +206,10 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         mockConfigurationAndEdgeIdentitySharedStates(at: event, ecid: "")
         mockRuntime.simulateComingEvents(event)
 
-        // verify no edge event is dispatched
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        // verify no edge event is dispatched; the operational-data forward (collect consent "n") does not need the ECID
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.allSatisfy { $0.type != EventType.edge })
+        verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 0)
 
         // verify shared state is still created
         verifyPushToStartSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
@@ -335,8 +339,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         )
         simulateEventWithSharedStates(event)
 
-        // Edge call still sent but no shared state dispatched
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        // Edge call still sent (plus the additive consent-independent operational-data event) but no shared state dispatched
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
     }
 
@@ -609,6 +613,103 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         XCTAssertNotNil(channelActivities[CHANNEL_ID_2], "Ongoing channel should remain")
     }
 
+    // MARK: - Operational-data forward consent gating Tests
+
+    func test_LiveActivity_PushToStart_ConsentYes_DoesNotForwardOperationalData() {
+        simulateCollectConsent("y")
+
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        XCTAssertEqual(EventType.edge, mockRuntime.dispatchedEvents.first?.type)
+        XCTAssertTrue(dispatchedOperationalDataEvents().isEmpty)
+        verifyPushToStartSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
+    }
+
+    func test_LiveActivity_UpdateToken_ConsentYes_DoesNotForwardOperationalData() {
+        simulateCollectConsent("y")
+
+        simulateEventWithSharedStates(createUpdateTokenEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID))
+
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        XCTAssertEqual(EventType.edge, mockRuntime.dispatchedEvents.first?.type)
+        XCTAssertTrue(dispatchedOperationalDataEvents().isEmpty)
+        verifyUpdateTokenSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID)
+    }
+
+    func test_LiveActivity_PushToStart_ConsentPending_ForwardsOperationalData() {
+        simulateCollectConsent("p")
+
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+
+        verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
+    }
+
+    func test_LiveActivity_UpdateToken_ConsentPending_ForwardsOperationalData() {
+        simulateCollectConsent("p")
+
+        simulateEventWithSharedStates(createUpdateTokenEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID))
+
+        verifyUpdateTokenEdgeEvent(token: PUSH_TO_START_TOKEN, liveActivityID: LIVE_ACTIVITY_ID)
+    }
+
+    func test_LiveActivity_ConsentStateWithoutCollectValue_TreatedAsPending_Forwards() {
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeConsent.NAME,
+                                           data: (value: [MessagingConstants.Event.Data.Key.Consent.CONSENTS: [String: Any]()], status: .set))
+
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+
+        verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
+    }
+
+    func test_LiveActivity_NoConsentState_ConsentRegistered_TreatedAsPending_Forwards() {
+        removeCollectConsent()
+        simulateEventHubExtensions([MessagingConstants.SharedState.EdgeConsent.NAME: ["version": "5.0.0"]])
+
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
+
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+        simulateEventWithSharedStates(createUpdateTokenEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID))
+        verifyUpdateTokenEdgeEvent(token: PUSH_TO_START_TOKEN, liveActivityID: LIVE_ACTIVITY_ID)
+    }
+
+    func test_LiveActivity_NoConsentState_ConsentNotRegistered_TreatedAsYes_DoesNotForward() {
+        removeCollectConsent()
+        simulateEventHubExtensions([MessagingConstants.SharedState.EdgeIdentity.NAME: ["version": "5.0.0"]])
+
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        simulateEventWithSharedStates(createUpdateTokenEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, liveActivityID: LIVE_ACTIVITY_ID))
+
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.allSatisfy { $0.type == EventType.edge })
+        XCTAssertTrue(dispatchedOperationalDataEvents().isEmpty)
+    }
+
+    func test_LiveActivity_ConsentChangesFromNoToYes_StopsForwarding() {
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        XCTAssertEqual(1, dispatchedOperationalDataEvents().count)
+
+        simulateCollectConsent("y")
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+        simulateEventWithSharedStates(createPushToStartEvent(token: "newPushToStartToken", attributeType: ATTRIBUTE_TYPE))
+
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        XCTAssertTrue(dispatchedOperationalDataEvents().isEmpty)
+    }
+
+    func test_ClearLiveActivities_ConsentNo_DoesNotForwardOperationalData() {
+        // Collect consent is "n" (setUp): clearing still only sends the consent-gated Edge event with the empty token.
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        simulateEventWithSharedStates(createClearLiveActivitiesEvent())
+
+        verifyPushToStartEdgeEvent(token: "", attributeType: ATTRIBUTE_TYPE, expectedEventCount: 1)
+        XCTAssertTrue(dispatchedOperationalDataEvents().isEmpty)
+        verifyLiveActivitySharedStateCleared()
+    }
+
     // MARK: - Clear Live Activities Tests
 
     func test_ClearLiveActivities_SendsEmptyPushToStartToken() {
@@ -619,8 +720,9 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         // clear live activities
         simulateEventWithSharedStates(createClearLiveActivitiesEvent())
 
-        // a single push-to-start edge event is sent with an empty token (revokes on the current profile)
-        verifyPushToStartEdgeEvent(token: "", attributeType: ATTRIBUTE_TYPE)
+        // a single push-to-start edge event is sent with an empty token (revokes on the current profile);
+        // clearing is Edge-only and does not forward through the operational-data path
+        verifyPushToStartEdgeEvent(token: "", attributeType: ATTRIBUTE_TYPE, expectedEventCount: 1)
 
         // the push-to-start token store is cleared locally as part of the full teardown
         verifyLiveActivitySharedStateCleared()
@@ -747,10 +849,54 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
 
-        // the update stream later delivers the SAME token in a separate batch -> de-duplicated
+        // the update stream later delivers the SAME token in a separate batch -> the Edge event is de-duplicated;
+        // only the operational-data forward (collect consent "n") is sent again, and Edge Identity de-duplicates it
         simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count, "Unchanged token should not be re-sent with optimizePushSync enabled")
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count, "Unchanged token should not be re-sent to Edge with optimizePushSync enabled")
+        verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 0)
         XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_LiveActivity_PushToStart_UnchangedToken_ConsentNo_ForwardIsRetried() {
+        // first forward never reached Edge (rule dropped it, app killed, or network failure)
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // next launch: the same token is unchanged, so the consent-gated Edge flow is skipped but the forward is retried
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.allSatisfy { $0.type != EventType.edge })
+        verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 0)
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_LiveActivity_PushToStart_UnchangedToken_ConsentYes_DispatchesNothing() {
+        simulateCollectConsent("y")
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+
+        // existing flow is unchanged: no Edge event, no shared state, and no forward because consent is "y"
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_LiveActivity_PushToStart_UnchangedToken_ForwardsFullTokenSet() {
+        let secondType = "TestLiveActivityAttributes2"
+        simulateEventWithSharedStates(createBatchedPushToStartEvent(tokens: [
+            (token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE),
+            (token: "secondToken", attributeType: secondType)
+        ]))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // only one type is re-delivered, unchanged: the forward still carries every stored token
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 0)
+        verifyOperationalDataStartEvent(token: "secondToken", attributeType: secondType, at: 0)
     }
 
     func test_LiveActivity_PushToStart_SameTokenAgain_OptimizeDisabled_IsResent() {
@@ -829,10 +975,11 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         simulateEvent(createPushIdentifierEvent(token: PUSH_TOKEN), ecid: ecidB)
         simulateEvent(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE), ecid: ecidB)
 
-        // real tokens are re-synced (not denylisted) to ECID_B
-        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        // real tokens are re-synced (not denylisted) to ECID_B, plus the additive operational-data forward
+        XCTAssertEqual(3, mockRuntime.dispatchedEvents.count)
         verifyPushTokenDetails(mockRuntime.dispatchedEvents[0], token: PUSH_TOKEN, ecid: ecidB)
         verifyPushToStartDetails(mockRuntime.dispatchedEvents[1], token: PUSH_TO_START_TOKEN, ecid: ecidB)
+        verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 2)
 
         // final shared state holds the re-synced push identifier and push-to-start token
         guard let finalState = mockRuntime.createdSharedStates.last ?? nil else {
@@ -863,12 +1010,14 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
             simulateEvent(createPushIdentifierEvent(token: PUSH_TOKEN), ecid: newEcid)
             simulateEvent(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE), ecid: newEcid)
 
-            XCTAssertEqual(4, mockRuntime.dispatchedEvents.count, "Unexpected event count in iteration \(iteration)")
-            guard mockRuntime.dispatchedEvents.count == 4 else { return }
+            // logout (2 Edge clears) + login (push and push-to-start Edge events, plus the operational-data forward)
+            XCTAssertEqual(5, mockRuntime.dispatchedEvents.count, "Unexpected event count in iteration \(iteration)")
+            guard mockRuntime.dispatchedEvents.count == 5 else { return }
             verifyPushTokenDetails(mockRuntime.dispatchedEvents[0], token: "", ecid: oldEcid)
             verifyPushToStartDetails(mockRuntime.dispatchedEvents[1], token: "", ecid: oldEcid)
             verifyPushTokenDetails(mockRuntime.dispatchedEvents[2], token: PUSH_TOKEN, ecid: newEcid)
             verifyPushToStartDetails(mockRuntime.dispatchedEvents[3], token: PUSH_TO_START_TOKEN, ecid: newEcid)
+            verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 4)
         }
     }
 
@@ -1001,8 +1150,9 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         )
     }
 
-    private func verifyPushToStartEdgeEvent(token: String, attributeType: String) {
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+    private func verifyPushToStartEdgeEvent(token: String, attributeType: String, expectedEventCount: Int = 2) {
+        // By default, the normal (consent-gated) Edge event plus the additive consent-independent operational-data event.
+        XCTAssertEqual(expectedEventCount, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
@@ -1032,7 +1182,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     }
 
     private func verifyUpdateTokenEdgeEvent(token: String, liveActivityID: String) {
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        // The normal (consent-gated) Edge event plus the additive consent-independent operational-data event.
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
@@ -1049,6 +1200,46 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         }
         """
         assertExactMatch(expected: expectedJSON, actual: edgeEvent)
+
+        verifyOperationalDataUpdateEvent(token: token, liveActivityID: liveActivityID)
+    }
+
+    /// Verifies the additive `generic.operationalData` event forwarded for a push-to-start token.
+    private func verifyOperationalDataStartEvent(token: String, attributeType: String, at index: Int = 1) {
+        let opEvent = mockRuntime.dispatchedEvents[index]
+        XCTAssertEqual(MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA, opEvent.type)
+        XCTAssertEqual(EventSource.requestContent, opEvent.source)
+
+        XCTAssertNil(opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_START], "liveActivityStart must be nested under tokens")
+        let tokens = opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_TOKENS] as? [String: Any]
+        guard let starts = tokens?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_START] as? [[String: Any]] else {
+            XCTFail("Missing tokens.liveActivityStart array in operational-data event")
+            return
+        }
+        let matchingEntry = starts.first { entry in
+            (entry["attributeType"] as? String) == attributeType &&
+            (entry["value"] as? String) == token
+        }
+        XCTAssertNotNil(matchingEntry, "Expected liveActivityStart to include attributeType=\(attributeType) with value=\(token). Actual: \(starts)")
+    }
+
+    /// Verifies the additive `generic.operationalData` event forwarded for an update token.
+    private func verifyOperationalDataUpdateEvent(token: String, liveActivityID: String) {
+        let opEvent = mockRuntime.dispatchedEvents[1]
+        XCTAssertEqual(MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA, opEvent.type)
+        XCTAssertEqual(EventSource.requestContent, opEvent.source)
+
+        XCTAssertNil(opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_UPDATE], "liveActivityUpdate must be nested under tokens")
+        let tokens = opEvent.data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_TOKENS] as? [String: Any]
+        guard let updates = tokens?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_UPDATE] as? [[String: Any]] else {
+            XCTFail("Missing tokens.liveActivityUpdate array in operational-data event")
+            return
+        }
+        let matchingEntry = updates.first { entry in
+            (entry["liveActivityID"] as? String) == liveActivityID &&
+            (entry["token"] as? String) == token
+        }
+        XCTAssertNotNil(matchingEntry, "Expected liveActivityUpdate to include liveActivityID=\(liveActivityID) with token=\(token). Actual: \(updates)")
     }
 
     private func verifyPushToStartSharedState(token: String, attributeType: String) {
@@ -1151,6 +1342,34 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
     private func simulateEventWithSharedStates(_ event: Event) {
         mockConfigurationAndEdgeIdentitySharedStates(at: event)
         mockRuntime.simulateComingEvents(event)
+    }
+
+    private func simulateCollectConsent(_ value: String) {
+        mockRuntime.simulateXDMSharedState(
+            for: MessagingConstants.SharedState.EdgeConsent.NAME,
+            data: (value: [
+                MessagingConstants.Event.Data.Key.Consent.CONSENTS: [
+                    MessagingConstants.Event.Data.Key.Consent.COLLECT: [
+                        MessagingConstants.Event.Data.Key.Consent.VAL: value
+                    ]
+                ]
+            ], status: .set)
+        )
+    }
+
+    private func removeCollectConsent() {
+        mockRuntime.mockedXdmSharedStates.removeValue(forKey: MessagingConstants.SharedState.EdgeConsent.NAME)
+    }
+
+    private func simulateEventHubExtensions(_ extensions: [String: Any]) {
+        mockRuntime.simulateSharedState(
+            for: MessagingConstants.SharedState.EventHub.NAME,
+            data: (value: [MessagingConstants.SharedState.EventHub.EXTENSIONS: extensions], status: .set)
+        )
+    }
+
+    private func dispatchedOperationalDataEvents() -> [Event] {
+        mockRuntime.dispatchedEvents.filter { $0.type == MessagingConstants.Event.EventType.GENERIC_OPERATIONAL_DATA }
     }
 
     private func createClearLiveActivitiesEvent() -> Event {
