@@ -206,8 +206,10 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         mockConfigurationAndEdgeIdentitySharedStates(at: event, ecid: "")
         mockRuntime.simulateComingEvents(event)
 
-        // verify no edge event is dispatched
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
+        // verify no edge event is dispatched; the operational-data forward (collect consent "n") does not need the ECID
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.allSatisfy { $0.type != EventType.edge })
+        verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 0)
 
         // verify shared state is still created
         verifyPushToStartSharedState(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
@@ -696,14 +698,16 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         XCTAssertTrue(dispatchedOperationalDataEvents().isEmpty)
     }
 
-    func test_ClearLiveActivities_ConsentYes_StillForwardsEmptyPushToStartToken() {
+    func test_ClearLiveActivities_ConsentNo_DoesNotForwardOperationalData() {
+        // Collect consent is "n" (setUp): clearing still only sends the consent-gated Edge event with the empty token.
         simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
-        simulateCollectConsent("y")
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
 
         simulateEventWithSharedStates(createClearLiveActivitiesEvent())
 
-        verifyPushToStartEdgeEvent(token: "", attributeType: ATTRIBUTE_TYPE)
+        verifyPushToStartEdgeEvent(token: "", attributeType: ATTRIBUTE_TYPE, expectedEventCount: 1)
+        XCTAssertTrue(dispatchedOperationalDataEvents().isEmpty)
+        verifyLiveActivitySharedStateCleared()
     }
 
     // MARK: - Clear Live Activities Tests
@@ -716,9 +720,9 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         // clear live activities
         simulateEventWithSharedStates(createClearLiveActivitiesEvent())
 
-        // a push-to-start edge event is sent with an empty token (revokes on the current profile), plus the
-        // additive operational-data event forwarding the same empty token
-        verifyPushToStartEdgeEvent(token: "", attributeType: ATTRIBUTE_TYPE)
+        // a single push-to-start edge event is sent with an empty token (revokes on the current profile);
+        // clearing is Edge-only and does not forward through the operational-data path
+        verifyPushToStartEdgeEvent(token: "", attributeType: ATTRIBUTE_TYPE, expectedEventCount: 1)
 
         // the push-to-start token store is cleared locally as part of the full teardown
         verifyLiveActivitySharedStateCleared()
@@ -764,16 +768,12 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         // clear live activities
         simulateEventWithSharedStates(createClearLiveActivitiesEvent())
 
-        // only a push-to-start edge event is sent (with an empty token), plus the operational-data forward of
-        // the same empty push-to-start token; update tokens are neither sent nor forwarded
+        // only a push-to-start edge event is sent (with an empty token); update tokens are not sent
         let pushToStartEvents = mockRuntime.dispatchedEvents.filter {
             (($0.data?["xdm"] as? [String: Any])?["eventType"] as? String) == "liveActivity.pushToStart"
         }
-        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
         XCTAssertEqual(1, pushToStartEvents.count)
-        verifyOperationalDataStartEvent(token: "", attributeType: ATTRIBUTE_TYPE)
-        let forwardedTokens = mockRuntime.dispatchedEvents[1].data?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_TOKENS] as? [String: Any]
-        XCTAssertNil(forwardedTokens?[MessagingConstants.Event.Data.Key.LiveActivity.OPERATIONAL_DATA_UPDATE])
 
         // push-to-start token is empty
         if let data = pushToStartEvents.first?.data?["data"] as? [String: Any],
@@ -849,10 +849,54 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         verifyPushToStartEdgeEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE)
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
 
-        // the update stream later delivers the SAME token in a separate batch -> de-duplicated
+        // the update stream later delivers the SAME token in a separate batch -> the Edge event is de-duplicated;
+        // only the operational-data forward (collect consent "n") is sent again, and Edge Identity de-duplicates it
         simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
-        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count, "Unchanged token should not be re-sent with optimizePushSync enabled")
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count, "Unchanged token should not be re-sent to Edge with optimizePushSync enabled")
+        verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 0)
         XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_LiveActivity_PushToStart_UnchangedToken_ConsentNo_ForwardIsRetried() {
+        // first forward never reached Edge (rule dropped it, app killed, or network failure)
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // next launch: the same token is unchanged, so the consent-gated Edge flow is skipped but the forward is retried
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.allSatisfy { $0.type != EventType.edge })
+        verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 0)
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_LiveActivity_PushToStart_UnchangedToken_ConsentYes_DispatchesNothing() {
+        simulateCollectConsent("y")
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+
+        // existing flow is unchanged: no Edge event, no shared state, and no forward because consent is "y"
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+        XCTAssertEqual(0, mockRuntime.createdSharedStates.count)
+    }
+
+    func test_LiveActivity_PushToStart_UnchangedToken_ForwardsFullTokenSet() {
+        let secondType = "TestLiveActivityAttributes2"
+        simulateEventWithSharedStates(createBatchedPushToStartEvent(tokens: [
+            (token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE),
+            (token: "secondToken", attributeType: secondType)
+        ]))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        // only one type is re-delivered, unchanged: the forward still carries every stored token
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
+        verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 0)
+        verifyOperationalDataStartEvent(token: "secondToken", attributeType: secondType, at: 0)
     }
 
     func test_LiveActivity_PushToStart_SameTokenAgain_OptimizeDisabled_IsResent() {
@@ -894,10 +938,8 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         )
         mockRuntime.simulateComingEvents(clearEvent)
 
-        // no push-to-start edge event was sent because the ECID was unavailable; the operational-data
-        // forward of the empty token does not need the ECID, so it is still dispatched
-        XCTAssertEqual(1, mockRuntime.dispatchedEvents.count)
-        verifyOperationalDataStartEvent(token: "", attributeType: ATTRIBUTE_TYPE, at: 0)
+        // no push-to-start edge event was sent because the ECID was unavailable
+        XCTAssertEqual(0, mockRuntime.dispatchedEvents.count)
 
         // the local push-to-start token store is still cleared (shared state is empty)
         verifyLiveActivitySharedStateCleared()
@@ -923,12 +965,10 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         simulateEvent(createClearLiveActivitiesEvent(), ecid: ecidA)
         simulateEvent(createResetIdentitiesEvent(), ecid: ecidA)
 
-        // empty tokens are synced (denylisted) to ECID_A only, plus the operational-data forward of the empty
-        // push-to-start token; reset has nothing left to re-sync
-        XCTAssertEqual(3, mockRuntime.dispatchedEvents.count)
+        // empty tokens are synced (denylisted) to ECID_A only; reset has nothing left to re-sync
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
         verifyPushTokenDetails(mockRuntime.dispatchedEvents[0], token: "", ecid: ecidA)
         verifyPushToStartDetails(mockRuntime.dispatchedEvents[1], token: "", ecid: ecidA)
-        verifyOperationalDataStartEvent(token: "", attributeType: ATTRIBUTE_TYPE, at: 2)
         mockRuntime.resetDispatchedEventAndCreatedSharedStates()
 
         // login as ECID_B with the same device tokens
@@ -970,15 +1010,14 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
             simulateEvent(createPushIdentifierEvent(token: PUSH_TOKEN), ecid: newEcid)
             simulateEvent(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE), ecid: newEcid)
 
-            // logout (2 Edge clears + empty push-to-start forward) + login (2 Edge events + push-to-start forward)
-            XCTAssertEqual(6, mockRuntime.dispatchedEvents.count, "Unexpected event count in iteration \(iteration)")
-            guard mockRuntime.dispatchedEvents.count == 6 else { return }
+            // logout (2 Edge clears) + login (push and push-to-start Edge events, plus the operational-data forward)
+            XCTAssertEqual(5, mockRuntime.dispatchedEvents.count, "Unexpected event count in iteration \(iteration)")
+            guard mockRuntime.dispatchedEvents.count == 5 else { return }
             verifyPushTokenDetails(mockRuntime.dispatchedEvents[0], token: "", ecid: oldEcid)
             verifyPushToStartDetails(mockRuntime.dispatchedEvents[1], token: "", ecid: oldEcid)
-            verifyOperationalDataStartEvent(token: "", attributeType: ATTRIBUTE_TYPE, at: 2)
-            verifyPushTokenDetails(mockRuntime.dispatchedEvents[3], token: PUSH_TOKEN, ecid: newEcid)
-            verifyPushToStartDetails(mockRuntime.dispatchedEvents[4], token: PUSH_TO_START_TOKEN, ecid: newEcid)
-            verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 5)
+            verifyPushTokenDetails(mockRuntime.dispatchedEvents[2], token: PUSH_TOKEN, ecid: newEcid)
+            verifyPushToStartDetails(mockRuntime.dispatchedEvents[3], token: PUSH_TO_START_TOKEN, ecid: newEcid)
+            verifyOperationalDataStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE, at: 4)
         }
     }
 
@@ -1111,9 +1150,9 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         )
     }
 
-    private func verifyPushToStartEdgeEvent(token: String, attributeType: String) {
-        // The normal (consent-gated) Edge event plus the additive consent-independent operational-data event.
-        XCTAssertEqual(2, mockRuntime.dispatchedEvents.count)
+    private func verifyPushToStartEdgeEvent(token: String, attributeType: String, expectedEventCount: Int = 2) {
+        // By default, the normal (consent-gated) Edge event plus the additive consent-independent operational-data event.
+        XCTAssertEqual(expectedEventCount, mockRuntime.dispatchedEvents.count)
         let edgeEvent = mockRuntime.dispatchedEvents[0]
         XCTAssertEqual(EventType.edge, edgeEvent.type)
         XCTAssertEqual(EventSource.requestContent, edgeEvent.source)
@@ -1140,8 +1179,6 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         XCTAssertNotNil(matchingEntry, "Expected push-to-start details to include attributeType=\(attributeType) with token=\(token). Actual: \(details)")
         // Empty (cleared) tokens are sent as denylisted; real tokens are not.
         XCTAssertEqual(token.isEmpty, matchingEntry?["denylisted"] as? Bool)
-
-        verifyOperationalDataStartEvent(token: token, attributeType: attributeType)
     }
 
     private func verifyUpdateTokenEdgeEvent(token: String, liveActivityID: String) {

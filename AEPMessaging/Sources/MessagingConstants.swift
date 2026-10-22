@@ -132,8 +132,6 @@ enum MessagingConstants {
                 static let XDM = "xdm"
                 static let PROPOSITIONS = "propositions"
                 static let RESPONSE_ERROR = "responseerror"
-                /// Tokens dictionary carried by the device attributes confirmation event dispatched by Edge Identity.
-                static let DEVICE_ATTRIBUTES_TOKENS = "tokens"
                 static let ENDING_EVENT_ID = "endingEventId"
                 static let TRIGGERED_CONSEQUENCE = "triggeredconsequence"
                 static let ID = "id"
@@ -176,14 +174,18 @@ enum MessagingConstants {
                     static let UPDATE_TOKEN = "isLiveActivityUpdateTokenEvent"
 
                     // MARK: Consent-independent operational-data forwarding keys
-                    // Keys carried by the `generic.operationalData` event. The token arrays are nested under `tokens`;
-                    // the `forward-operational-data` rule consequence copies the exact paths
-                    // `tokens.liveActivityStart` / `tokens.liveActivityUpdate`.
+                    // Keys carried by the `generic.operationalData` event and by the operational data confirmation
+                    // event from Edge Identity. The tokens are nested under `tokens`; the `forward-operational-data`
+                    // rule consequence copies the exact paths `tokens.liveActivityStart` / `tokens.liveActivityUpdate`.
                     static let OPERATIONAL_DATA_TOKENS = "tokens"
+                    static let OPERATIONAL_DATA_PUSH_NOTIFICATION = "pushNotification"
                     static let OPERATIONAL_DATA_START = "liveActivityStart"
                     static let OPERATIONAL_DATA_UPDATE = "liveActivityUpdate"
                     /// Value key used in a `liveActivityStart` element ({ "attributeType": <type>, "value": <token> }).
                     static let VALUE = "value"
+                    /// Keys used in a `liveActivityUpdate` element ({ "liveActivityID": <id>, "token": <token> }).
+                    static let LIVE_ACTIVITY_ID = "liveActivityID"
+                    static let TOKEN = "token"
                 }
 
                 enum Feed {

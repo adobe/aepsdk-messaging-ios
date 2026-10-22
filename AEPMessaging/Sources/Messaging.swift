@@ -397,24 +397,31 @@ public class Messaging: NSObject, Extension {
 
     private func handleDeviceAttributesConfirmed(_ event: Event) {
         guard event.isDeviceAttributesConfirmedEvent else { return }
+        typealias Keys = MessagingConstants.Event.Data.Key.LiveActivity
         // Other Messaging response events (e.g. propositions or push tracking responses) carry no tokens dictionary.
-        guard let tokens = event.data?[MessagingConstants.Event.Data.Key.DEVICE_ATTRIBUTES_TOKENS] as? [String: Any] else {
+        guard let tokens = event.data?[Keys.OPERATIONAL_DATA_TOKENS] as? [String: Any] else {
             Log.trace(label: MessagingConstants.LOG_TAG, "Ignoring Messaging response event without a valid device attributes tokens dictionary.")
             return
         }
         var updated = false
-        if let push = tokens["pushNotification"] as? String {
+        if let push = tokens[Keys.OPERATIONAL_DATA_PUSH_NOTIFICATION] as? String {
             stateManager.pushIdentifier = push
             lastPushTokenSyncTimestamp = event.timestamp
             updated = true
-        } else if tokens["pushNotification"] != nil {
+        } else if tokens[Keys.OPERATIONAL_DATA_PUSH_NOTIFICATION] != nil {
             Log.warning(label: MessagingConstants.LOG_TAG, "Ignoring confirmed push token: expected a string.")
         }
-        if let starts = tokens["liveActivityStart"] as? [[String: Any]] {
+        if let starts = tokens[Keys.OPERATIONAL_DATA_START] as? [[String: Any]] {
             for entry in starts {
-                guard let type = entry["attributeType"] as? String, !type.isEmpty,
-                      let token = entry["value"] as? String else {
+                guard let type = entry[Keys.ATTRIBUTE_TYPE] as? String, !type.isEmpty,
+                      let token = entry[Keys.VALUE] as? String else {
                     Log.warning(label: MessagingConstants.LOG_TAG, "Ignoring confirmed push-to-start entry: attributeType and value are required.")
+                    continue
+                }
+                // An empty value (e.g. a cleared token) is neither stored nor used to remove the stored token, so a
+                // late confirmation cannot bring back an entry after `clearLiveActivities`.
+                guard !token.isEmpty else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring confirmed push-to-start entry for '\(type)': the value is empty.")
                     continue
                 }
                 let existing = stateManager.pushToStartTokenStore.value(for: type)
@@ -422,18 +429,18 @@ public class Messaging: NSObject, Extension {
                     .init(firstIssued: existing?.firstIssued ?? event.timestamp, token: token), id: type)
                 updated = true
             }
-        } else if tokens["liveActivityStart"] != nil {
+        } else if tokens[Keys.OPERATIONAL_DATA_START] != nil {
             Log.warning(label: MessagingConstants.LOG_TAG, "Ignoring confirmed push-to-start tokens: expected an array of entries.")
         }
-        if let updates = tokens["liveActivityUpdate"] as? [[String: Any]] {
+        if let updates = tokens[Keys.OPERATIONAL_DATA_UPDATE] as? [[String: Any]] {
             for entry in updates {
-                guard let id = entry["liveActivityID"] as? String, !id.isEmpty,
-                      let token = entry["token"] as? String else {
+                guard let id = entry[Keys.LIVE_ACTIVITY_ID] as? String, !id.isEmpty,
+                      let token = entry[Keys.TOKEN] as? String else {
                     Log.warning(label: MessagingConstants.LOG_TAG, "Ignoring confirmed update entry: liveActivityID and token are required.")
                     continue
                 }
                 let existing = stateManager.updateTokenStore.value(for: id)
-                guard let type = existing?.attributeType ?? (entry["attributeType"] as? String), !type.isEmpty else {
+                guard let type = existing?.attributeType ?? (entry[Keys.ATTRIBUTE_TYPE] as? String), !type.isEmpty else {
                     Log.warning(label: MessagingConstants.LOG_TAG, "Cannot store confirmed update token for '\(id)': attributeType is required for an unknown activity.")
                     continue
                 }
@@ -441,7 +448,7 @@ public class Messaging: NSObject, Extension {
                     .init(attributeType: type, firstIssued: existing?.firstIssued ?? event.timestamp, token: token), id: id)
                 updated = true
             }
-        } else if tokens["liveActivityUpdate"] != nil {
+        } else if tokens[Keys.OPERATIONAL_DATA_UPDATE] != nil {
             Log.warning(label: MessagingConstants.LOG_TAG, "Ignoring confirmed update tokens: expected an array of entries.")
         }
         if updated {
@@ -548,17 +555,17 @@ public class Messaging: NSObject, Extension {
 
             // ADDITIVE (consent-independent path): when collect consent is not "y", also forward the update token
             // via the operational-data event. This does not replace the normal flow above; it runs alongside it.
-            guard !isCollectConsentYes(for: event) else {
+            if isCollectConsentYes(for: event) {
                 Log.trace(label: MessagingConstants.LOG_TAG, "Collect consent is 'y'. The update token will not be forwarded via the operational-data event.")
-                return
+            } else {
+                forwardLiveActivityTokensBypassConsent(
+                    liveActivityUpdate: [[
+                        MessagingConstants.Event.Data.Key.LiveActivity.LIVE_ACTIVITY_ID: liveActivityID,
+                        MessagingConstants.Event.Data.Key.LiveActivity.TOKEN: token
+                    ]],
+                    event: event
+                )
             }
-            forwardLiveActivityTokensBypassConsent(
-                liveActivityUpdate: [[
-                    MessagingConstants.XDM.LiveActivity.ID: liveActivityID,
-                    MessagingConstants.XDM.Push.TOKEN: token
-                ]],
-                event: event
-            )
             return
         }
 
@@ -729,33 +736,36 @@ public class Messaging: NSObject, Extension {
             hasChanges = hasChanges || didChange
         }
 
-        guard shouldSyncPushToStartTokens(event: event, hasChanges: hasChanges) else {
-            return
-        }
-
-        runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
-
-        // Get all current tokens and send them to Edge
         let tokenMap = stateManager.pushToStartTokenStore.all()
-        guard let ecid = retrieveECID(from: edgeIdentitySharedState) else {
-            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
-            return
+
+        // Existing (consent-gated) flow: unchanged. Republish shared state and send all current tokens to Edge only
+        // when the push-to-start sync rules allow it.
+        if shouldSyncPushToStartTokens(event: event, hasChanges: hasChanges) {
+            runtime.createSharedState(data: stateManager.buildMessagingSharedState(), event: event)
+
+            if let ecid = retrieveECID(from: edgeIdentitySharedState) {
+                sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
+            } else {
+                Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process event (\(event.id.uuidString)) because the ECID is not available.")
+            }
         }
-        sendLiveActivityPushToStartTokens(ecid: ecid, tokenMap: tokenMap, event: event)
 
         // ADDITIVE (consent-independent path): when collect consent is not "y", also forward all current
-        // push-to-start tokens via the operational-data event. This runs alongside the normal flow above.
-        guard !isCollectConsentYes(for: event) else {
+        // push-to-start tokens via the operational-data event. This runs alongside the normal flow above and is not
+        // gated by `shouldSyncPushToStartTokens` or the ECID: the tokens are stored before we know a forward reached
+        // Edge, so an unchanged token must still be forwarded to retry a forward that never got through. Edge Identity
+        // drops values it has already confirmed.
+        if isCollectConsentYes(for: event) {
             Log.trace(label: MessagingConstants.LOG_TAG, "Collect consent is 'y'. Push-to-start tokens will not be forwarded via the operational-data event.")
-            return
+        } else {
+            let startArray: [[String: Any]] = tokenMap.map { attributeType, pushToStartToken in
+                [
+                    MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
+                    MessagingConstants.Event.Data.Key.LiveActivity.VALUE: pushToStartToken.token
+                ]
+            }
+            forwardLiveActivityTokensBypassConsent(liveActivityStart: startArray, event: event)
         }
-        let startArray: [[String: Any]] = tokenMap.map { attributeType, pushToStartToken in
-            [
-                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
-                MessagingConstants.Event.Data.Key.LiveActivity.VALUE: pushToStartToken.token
-            ]
-        }
-        forwardLiveActivityTokensBypassConsent(liveActivityStart: startArray, event: event)
     }
 
     /// Returns `true` if collect consent is `"y"` for the provided `event`, mirroring how the Edge extension resolves it:
@@ -763,6 +773,11 @@ public class Messaging: NSObject, Extension {
     ///   any other or missing value is treated as not granted (`"n"` or pending).
     /// - If it is unavailable and the Edge Consent extension is registered, consent is pending (not `"y"`).
     /// - If the Edge Consent extension is not registered, Edge defaults collect consent to `"y"`.
+    ///
+    /// Note: this mirrors the collect consent resolution in the AEPEdge extension (`Edge.getConsentForEvent`,
+    /// `ConsentStatus.getCollectConsentOrDefault` and the "Consent extension not registered" default in
+    /// `EdgeState.bootupIfNeeded`). If Edge changes that logic, update this method to match, otherwise tokens could be
+    /// forwarded through both paths or through neither.
     private func isCollectConsentYes(for event: Event) -> Bool {
         if let consentSharedState = getXDMSharedState(extensionName: MessagingConstants.SharedState.EdgeConsent.NAME, event: event)?.value {
             let consents = consentSharedState[MessagingConstants.Event.Data.Key.Consent.CONSENTS] as? [String: Any]
@@ -780,9 +795,9 @@ public class Messaging: NSObject, Extension {
     /// synced to the consent-independent device-attributes endpoint.
     ///
     /// This is an ADDITIVE path that runs alongside the normal (consent-gated) Edge flow; it never replaces it.
-    /// Push-to-start and update tokens are forwarded only while collect consent is not `"y"` (`"n"` or pending);
-    /// empty push-to-start tokens from `clearLiveActivities` are always forwarded.
-    /// Edge Identity deduplicates values it has already synced.
+    /// Push-to-start and update tokens are forwarded only while collect consent is not `"y"` (`"n"` or pending).
+    /// `clearLiveActivities` does not forward anything; Edge Identity clears its synced push-to-start tokens when it
+    /// receives the clear Live Activities event. Edge Identity deduplicates values it has already synced.
     ///
     /// Event data shape:
     /// `{ "tokens": { "liveActivityStart": [{ "attributeType", "value" }], "liveActivityUpdate": [{ "liveActivityID", "token" }] } }`
@@ -864,19 +879,9 @@ public class Messaging: NSObject, Extension {
                 Log.warning(label: MessagingConstants.LOG_TAG,
                             "Unable to send empty push-to-start tokens for event (\(event.id.uuidString)) because the ECID is unavailable. Local tokens will still be cleared.")
             }
-
-            // ADDITIVE (consent-independent path): also forward the empty push-to-start tokens via the
-            // operational-data event so tokens synced through that path are cleared too. It does not need the ECID.
-            let clearedStartArray: [[String: Any]] = pushToStartTokens.keys.map { attributeType in
-                [
-                    MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: attributeType,
-                    MessagingConstants.Event.Data.Key.LiveActivity.VALUE: ""
-                ]
-            }
-            forwardLiveActivityTokensBypassConsent(liveActivityStart: clearedStartArray, event: event)
         }
 
-        // Update tokens and channel activities are not sent to Edge or forwarded; they are only cleared locally.
+        // Update tokens and channel activities are not sent to Edge; they are only cleared locally.
 
         // Fully tear down local Live Activity state. The customer must call
         // registerLiveActivities() again to resume token collection.

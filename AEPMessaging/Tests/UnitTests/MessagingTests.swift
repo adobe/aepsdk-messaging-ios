@@ -2493,12 +2493,12 @@ class MessagingTests: XCTestCase {
     func testConfirmedDeviceTokensIgnoreUnrelatedAndMalformedEvents() {
         stateManager.pushIdentifier = "previous"
         // Messaging response events without a tokens dictionary (e.g. propositions or push tracking responses).
-        mockRuntime.simulateComingEvents(Event(name: "Device attributes confirmed", type: EventType.messaging,
+        mockRuntime.simulateComingEvents(Event(name: "Operational data confirmed", type: EventType.messaging,
                                               source: EventSource.responseContent, data: ["propositions": []]))
         mockRuntime.simulateComingEvents(Event(name: "unrelated", type: EventType.messaging,
                                               source: EventSource.responseContent, data: nil))
         // tokens present but not a dictionary
-        mockRuntime.simulateComingEvents(Event(name: "Device attributes confirmed", type: EventType.messaging,
+        mockRuntime.simulateComingEvents(Event(name: "Operational data confirmed", type: EventType.messaging,
                                               source: EventSource.responseContent, data: ["tokens": "pushNotification"]))
         mockRuntime.simulateComingEvents(confirmedDeviceTokens([
             "pushNotification": NSNull(), "liveActivityStart": [["value": "bad"]],
@@ -2517,8 +2517,43 @@ class MessagingTests: XCTestCase {
         XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
     }
 
+    func testEmptyConfirmedPushToStartTokenIsNeitherStoredNorRemoved() {
+        prepareConfirmedTokenAPIs()
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityStart": [["attributeType": "GameScore", "value": "start-token"]]
+        ]))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityStart": [["attributeType": "GameScore", "value": ""]]
+        ]))
+
+        XCTAssertEqual("start-token", stateManager.pushToStartTokenStore.value(for: "GameScore")?.token)
+        XCTAssertTrue(mockRuntime.createdSharedStates.isEmpty)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func testEmptyConfirmedPushToStartTokenAfterClearIsNotStored() {
+        prepareConfirmedTokenAPIs()
+
+        // A late confirmation of an empty token arrives after clearLiveActivities emptied the store.
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityStart": [
+                ["attributeType": "GameScore", "value": ""],
+                ["attributeType": "Other", "value": "other-token"]
+            ]
+        ]))
+
+        XCTAssertNil(stateManager.pushToStartTokenStore.value(for: "GameScore"))
+        XCTAssertEqual("other-token", stateManager.pushToStartTokenStore.value(for: "Other")?.token)
+        let liveActivity = mockRuntime.firstSharedState?["liveActivity"] as? [String: Any]
+        let starts = liveActivity?["pushToStartTokens"] as? [String: Any]
+        XCTAssertNil(starts?["GameScore"])
+        XCTAssertNotNil(starts?["Other"])
+    }
+
     private func confirmedDeviceTokens(_ tokens: [String: Any]) -> Event {
-        Event(name: "Device attributes confirmed", type: EventType.messaging,
+        Event(name: "Operational data confirmed", type: EventType.messaging,
               source: EventSource.responseContent, data: ["tokens": tokens])
     }
 
