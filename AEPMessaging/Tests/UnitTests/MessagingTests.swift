@@ -70,6 +70,7 @@ class MessagingTests: XCTestCase {
         for id in stateManager.pushToStartTokenStore.all().keys {
             stateManager.pushToStartTokenStore.remove(id: id)
         }
+        stateManager.updateTokenStore.clear()
     }
     
     /// validate the extension is registered without any error
@@ -78,8 +79,8 @@ class MessagingTests: XCTestCase {
     }
     
     /// validate that 9 listeners are registered onRegister
-    func testOnRegistered_tenListenersAreRegistered() {
-        XCTAssertEqual(mockRuntime.listeners.count, 10)
+    func testOnRegistered_elevenListenersAreRegistered() {
+        XCTAssertEqual(mockRuntime.listeners.count, 11)
     }
     
     func testOnUnregisteredCallable() throws {
@@ -2409,6 +2410,189 @@ class MessagingTests: XCTestCase {
         // during the first readyForEvent hydration path.
         XCTAssertTrue(mockCache.getCalled,
                       "Cache must have been queried for persisted content cards during readyForEvent")
+    }
+
+    func testConfirmedDeviceTokensUpdateCachePersistenceAndSharedStateWithoutEdgeDispatch() throws {
+        // Other suites can leave a non-persisting mock as the shared datastore; use a real in-memory store so rehydration is verifiable.
+        let originalDataStore = ServiceProvider.shared.namedKeyValueService
+        ServiceProvider.shared.namedKeyValueService = MockDataStore()
+        defer { ServiceProvider.shared.namedKeyValueService = originalDataStore }
+        let issued = Date().addingTimeInterval(-1)
+        stateManager.pushIdentifier = "old-push"
+        stateManager.pushToStartTokenStore.set(.init(firstIssued: issued, token: "old-start"), id: "BypassA")
+        stateManager.updateTokenStore.set(
+            .init(attributeType: "OriginalType", firstIssued: issued, token: "old-update"), id: "bypass-known")
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "pushNotification": "new-push",
+            "liveActivityStart": [["attributeType": "BypassA", "value": "new-start"]],
+            "liveActivityUpdate": [
+                ["liveActivityID": "bypass-known", "token": "new-update", "attributeType": "DoNotOverwrite"],
+                ["liveActivityID": "bypass-new", "token": "new-token", "attributeType": "NewType"]
+            ]
+        ]))
+        XCTAssertEqual("new-push", stateManager.pushIdentifier)
+        XCTAssertEqual("new-start", stateManager.pushToStartTokenStore.value(for: "BypassA")?.token)
+        XCTAssertEqual(issued, stateManager.pushToStartTokenStore.value(for: "BypassA")?.firstIssued)
+        let known = try XCTUnwrap(stateManager.updateTokenStore.value(for: "bypass-known"))
+        XCTAssertEqual("new-update", known.token)
+        XCTAssertEqual("OriginalType", known.attributeType)
+        XCTAssertEqual(issued, known.firstIssued)
+        // an activity Messaging does not track is not added from a confirmation, even with an attributeType
+        XCTAssertNil(stateManager.updateTokenStore.value(for: "bypass-new"))
+        let restored = MessagingStateManager()
+        XCTAssertEqual("new-push", restored.pushIdentifier)
+        XCTAssertEqual("new-start", restored.pushToStartTokenStore.value(for: "BypassA")?.token)
+        XCTAssertEqual("new-update", restored.updateTokenStore.value(for: "bypass-known")?.token)
+        XCTAssertNil(restored.updateTokenStore.value(for: "bypass-new"))
+        let shared = try XCTUnwrap(mockRuntime.firstSharedState)
+        XCTAssertEqual("new-push", shared["pushidentifier"] as? String)
+        let liveActivity = try XCTUnwrap(shared["liveActivity"] as? [String: Any])
+        let starts = try XCTUnwrap(liveActivity["pushToStartTokens"] as? [String: [String: Any]])
+        XCTAssertEqual("new-start", starts["BypassA"]?["token"] as? String)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func testMatchingTokenAPIsAfterBypassConfirmationDoNotDispatchEdge() {
+        prepareConfirmedTokenAPIs()
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "pushNotification": "bypass-push",
+            "liveActivityStart": [["attributeType": "BypassA", "value": "bypass-start"]],
+            "liveActivityUpdate": [["liveActivityID": "bypass-id", "token": "bypass-update", "attributeType": "BypassA"]]
+        ]))
+        for _ in 0..<2 {
+            mockRuntime.simulateComingEvents(Event(name: "Set push", type: EventType.genericIdentity,
+                                                  source: EventSource.requestContent, data: ["pushidentifier": "bypass-push"]))
+            mockRuntime.simulateComingEvents(makeBatchedPushToStartEvent(tokens: [("bypass-start", "BypassA")]))
+        }
+        XCTAssertTrue(mockRuntime.dispatchedEvents.filter { $0.type == EventType.edge }.isEmpty)
+        mockRuntime.simulateComingEvents(Event(name: "Set push", type: EventType.genericIdentity,
+                                              source: EventSource.requestContent, data: ["pushidentifier": "changed-push"]))
+        mockRuntime.simulateComingEvents(makeBatchedPushToStartEvent(tokens: [("changed-start", "BypassA")]))
+        XCTAssertEqual(2, mockRuntime.dispatchedEvents.filter { $0.type == EventType.edge }.count)
+    }
+
+    func testEmptyConfirmedPushTokenClearsOwnerAndDoesNotResend() {
+        prepareConfirmedTokenAPIs()
+        stateManager.pushIdentifier = "previous"
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens(["pushNotification": ""]))
+        XCTAssertNil(stateManager.pushIdentifier)
+        XCTAssertNil(MessagingStateManager().pushIdentifier)
+        XCTAssertNil(mockRuntime.firstSharedState?["pushidentifier"])
+        mockRuntime.simulateComingEvents(Event(name: "Clear push", type: EventType.genericIdentity,
+                                              source: EventSource.requestContent, data: ["pushidentifier": ""]))
+        XCTAssertTrue(mockRuntime.dispatchedEvents.filter { $0.type == EventType.edge }.isEmpty)
+    }
+
+    func testConfirmedUpdateTokenForEndedActivityIsNotStored() {
+        stateManager.updateTokenStore.set(
+            .init(attributeType: "GameScore", firstIssued: Date(), token: "update-token"), id: "ended-id")
+        // the activity ends or is dismissed before the confirmation arrives
+        stateManager.updateTokenStore.remove(id: "ended-id")
+
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityUpdate": [["liveActivityID": "ended-id", "token": "update-token", "attributeType": "GameScore"]]
+        ]))
+
+        XCTAssertNil(stateManager.updateTokenStore.value(for: "ended-id"))
+        XCTAssertTrue(mockRuntime.createdSharedStates.isEmpty)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func testConfirmedUpdateTokenAfterResetIdentitiesIsNotStored() {
+        stateManager.updateTokenStore.set(
+            .init(attributeType: "GameScore", firstIssued: Date(), token: "update-token"), id: "reset-id")
+        mockRuntime.simulateComingEvents(Event(name: "Reset Identities", type: EventType.genericIdentity,
+                                               source: EventSource.requestReset, data: nil))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityUpdate": [["liveActivityID": "reset-id", "token": "update-token", "attributeType": "GameScore"]]
+        ]))
+
+        XCTAssertTrue(stateManager.updateTokenStore.all().isEmpty)
+        XCTAssertTrue(mockRuntime.createdSharedStates.isEmpty)
+    }
+
+    func testConfirmedUnknownActivityWithoutAttributeTypeIsNotStored() {
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityUpdate": [["liveActivityID": "bypass-unknown", "token": "token"]]
+        ]))
+        XCTAssertNil(stateManager.updateTokenStore.value(for: "bypass-unknown"))
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func testConfirmedDeviceTokensIgnoreUnrelatedAndMalformedEvents() {
+        stateManager.pushIdentifier = "previous"
+        // Messaging response events without a tokens dictionary (e.g. propositions or push tracking responses).
+        mockRuntime.simulateComingEvents(Event(name: "Operational data confirmed", type: EventType.messaging,
+                                              source: EventSource.responseContent, data: ["propositions": []]))
+        mockRuntime.simulateComingEvents(Event(name: "unrelated", type: EventType.messaging,
+                                              source: EventSource.responseContent, data: nil))
+        // tokens present but not a dictionary
+        mockRuntime.simulateComingEvents(Event(name: "Operational data confirmed", type: EventType.messaging,
+                                              source: EventSource.responseContent, data: ["tokens": "pushNotification"]))
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "pushNotification": NSNull(), "liveActivityStart": [["value": "bad"]],
+            "liveActivityUpdate": [["token": "bad"]]
+        ]))
+        XCTAssertEqual("previous", stateManager.pushIdentifier)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func testConfirmedDeviceTokensAreHandledRegardlessOfEventName() {
+        mockRuntime.simulateComingEvents(Event(name: "Any event name", type: EventType.messaging,
+                                              source: EventSource.responseContent,
+                                              data: ["tokens": ["pushNotification": "renamed-push"]]))
+        XCTAssertEqual("renamed-push", stateManager.pushIdentifier)
+        XCTAssertEqual("renamed-push", mockRuntime.firstSharedState?["pushidentifier"] as? String)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func testEmptyConfirmedPushToStartTokenIsNeitherStoredNorRemoved() {
+        prepareConfirmedTokenAPIs()
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityStart": [["attributeType": "GameScore", "value": "start-token"]]
+        ]))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityStart": [["attributeType": "GameScore", "value": ""]]
+        ]))
+
+        XCTAssertEqual("start-token", stateManager.pushToStartTokenStore.value(for: "GameScore")?.token)
+        XCTAssertTrue(mockRuntime.createdSharedStates.isEmpty)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func testEmptyConfirmedPushToStartTokenAfterClearIsNotStored() {
+        prepareConfirmedTokenAPIs()
+
+        // A late confirmation of an empty token arrives after clearLiveActivities emptied the store.
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityStart": [
+                ["attributeType": "GameScore", "value": ""],
+                ["attributeType": "Other", "value": "other-token"]
+            ]
+        ]))
+
+        XCTAssertNil(stateManager.pushToStartTokenStore.value(for: "GameScore"))
+        XCTAssertEqual("other-token", stateManager.pushToStartTokenStore.value(for: "Other")?.token)
+        let liveActivity = mockRuntime.firstSharedState?["liveActivity"] as? [String: Any]
+        let starts = liveActivity?["pushToStartTokens"] as? [String: Any]
+        XCTAssertNil(starts?["GameScore"])
+        XCTAssertNotNil(starts?["Other"])
+    }
+
+    private func confirmedDeviceTokens(_ tokens: [String: Any]) -> Event {
+        Event(name: "Operational data confirmed", type: EventType.messaging,
+              source: EventSource.responseContent, data: ["tokens": tokens])
+    }
+
+    private func prepareConfirmedTokenAPIs() {
+        mockRuntime.simulateSharedState(for: MessagingConstants.SharedState.Configuration.NAME,
+                                        data: (value: [MessagingConstants.SharedState.Configuration.OPTIMIZE_PUSH_SYNC: true], status: .set))
+        mockRuntime.simulateXDMSharedState(for: MessagingConstants.SharedState.EdgeIdentity.NAME,
+                                           data: (value: SampleEdgeIdentityState, status: .set))
     }
 
     // MARK: Private methods
