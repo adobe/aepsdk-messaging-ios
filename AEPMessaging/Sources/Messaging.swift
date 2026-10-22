@@ -439,13 +439,14 @@ public class Messaging: NSObject, Extension {
                     Log.warning(label: MessagingConstants.LOG_TAG, "Ignoring confirmed update entry: liveActivityID and token are required.")
                     continue
                 }
-                let existing = stateManager.updateTokenStore.value(for: id)
-                guard let type = existing?.attributeType ?? (entry[Keys.ATTRIBUTE_TYPE] as? String), !type.isEmpty else {
-                    Log.warning(label: MessagingConstants.LOG_TAG, "Cannot store confirmed update token for '\(id)': attributeType is required for an unknown activity.")
+                // Only update activities Messaging still tracks, so a late confirmation cannot bring back an activity
+                // that has ended, been dismissed, or been cleared by `resetIdentities` / `clearLiveActivities`.
+                guard let existing = stateManager.updateTokenStore.value(for: id) else {
+                    Log.debug(label: MessagingConstants.LOG_TAG, "Ignoring confirmed update token for '\(id)': the Live Activity is no longer tracked.")
                     continue
                 }
                 stateManager.updateTokenStore.set(
-                    .init(attributeType: type, firstIssued: existing?.firstIssued ?? event.timestamp, token: token), id: id)
+                    .init(attributeType: existing.attributeType, firstIssued: existing.firstIssued, token: token), id: id)
                 updated = true
             }
         } else if tokens[Keys.OPERATIONAL_DATA_UPDATE] != nil {

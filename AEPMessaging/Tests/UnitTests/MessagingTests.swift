@@ -2437,12 +2437,13 @@ class MessagingTests: XCTestCase {
         XCTAssertEqual("new-update", known.token)
         XCTAssertEqual("OriginalType", known.attributeType)
         XCTAssertEqual(issued, known.firstIssued)
-        XCTAssertEqual("NewType", stateManager.updateTokenStore.value(for: "bypass-new")?.attributeType)
+        // an activity Messaging does not track is not added from a confirmation, even with an attributeType
+        XCTAssertNil(stateManager.updateTokenStore.value(for: "bypass-new"))
         let restored = MessagingStateManager()
         XCTAssertEqual("new-push", restored.pushIdentifier)
         XCTAssertEqual("new-start", restored.pushToStartTokenStore.value(for: "BypassA")?.token)
         XCTAssertEqual("new-update", restored.updateTokenStore.value(for: "bypass-known")?.token)
-        XCTAssertEqual("new-token", restored.updateTokenStore.value(for: "bypass-new")?.token)
+        XCTAssertNil(restored.updateTokenStore.value(for: "bypass-new"))
         let shared = try XCTUnwrap(mockRuntime.firstSharedState)
         XCTAssertEqual("new-push", shared["pushidentifier"] as? String)
         let liveActivity = try XCTUnwrap(shared["liveActivity"] as? [String: Any])
@@ -2480,6 +2481,36 @@ class MessagingTests: XCTestCase {
         mockRuntime.simulateComingEvents(Event(name: "Clear push", type: EventType.genericIdentity,
                                               source: EventSource.requestContent, data: ["pushidentifier": ""]))
         XCTAssertTrue(mockRuntime.dispatchedEvents.filter { $0.type == EventType.edge }.isEmpty)
+    }
+
+    func testConfirmedUpdateTokenForEndedActivityIsNotStored() {
+        stateManager.updateTokenStore.set(
+            .init(attributeType: "GameScore", firstIssued: Date(), token: "update-token"), id: "ended-id")
+        // the activity ends or is dismissed before the confirmation arrives
+        stateManager.updateTokenStore.remove(id: "ended-id")
+
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityUpdate": [["liveActivityID": "ended-id", "token": "update-token", "attributeType": "GameScore"]]
+        ]))
+
+        XCTAssertNil(stateManager.updateTokenStore.value(for: "ended-id"))
+        XCTAssertTrue(mockRuntime.createdSharedStates.isEmpty)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func testConfirmedUpdateTokenAfterResetIdentitiesIsNotStored() {
+        stateManager.updateTokenStore.set(
+            .init(attributeType: "GameScore", firstIssued: Date(), token: "update-token"), id: "reset-id")
+        mockRuntime.simulateComingEvents(Event(name: "Reset Identities", type: EventType.genericIdentity,
+                                               source: EventSource.requestReset, data: nil))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+
+        mockRuntime.simulateComingEvents(confirmedDeviceTokens([
+            "liveActivityUpdate": [["liveActivityID": "reset-id", "token": "update-token", "attributeType": "GameScore"]]
+        ]))
+
+        XCTAssertTrue(stateManager.updateTokenStore.all().isEmpty)
+        XCTAssertTrue(mockRuntime.createdSharedStates.isEmpty)
     }
 
     func testConfirmedUnknownActivityWithoutAttributeTypeIsNotStored() {
