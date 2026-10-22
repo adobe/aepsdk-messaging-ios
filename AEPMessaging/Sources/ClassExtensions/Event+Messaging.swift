@@ -301,6 +301,10 @@ extension Event {
 
     // MARK: - Live Activity events
 
+    var isDeviceAttributesConfirmedEvent: Bool {
+        isMessagingType && source == EventSource.responseContent
+    }
+
     var isLiveActivityUpdateTokenEvent: Bool {
         isMessagingType && isRequestContentSource && liveActivityUpdateTokenFlag
     }
