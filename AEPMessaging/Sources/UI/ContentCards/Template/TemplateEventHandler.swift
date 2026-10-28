@@ -13,6 +13,8 @@
 import Foundation
 
 @available(iOS 15.0, *)
+// Templates trigger these from SwiftUI view actions on main, and they forward to the main actor listener protocols, so the handler is MainActor too.
+@MainActor
 protocol TemplateEventHandler: AnyObject {
     /// Called when the templated content card appears on the screen
     func onDisplay()
