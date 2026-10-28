@@ -158,8 +158,12 @@ public class InboxUI: Identifiable, ObservableObject {
             
             // Then get the updated propositions
             Messaging.getPropositionsForSurfaces([self.surface]) { propositionDict, error in
+                // The inbox, the propositions and the completion are handed off to main and not used again on the SDK queue, so sending these non Sendable values is safe.
+                nonisolated(unsafe) let inbox = self
+                nonisolated(unsafe) let propositionDict = propositionDict
+                nonisolated(unsafe) let completion = completion
                 DispatchQueue.main.async {
-                    self.processInboxPropositions(propositionDict, error: error)
+                    inbox.processInboxPropositions(propositionDict, error: error)
                     completion()
                 }
             }

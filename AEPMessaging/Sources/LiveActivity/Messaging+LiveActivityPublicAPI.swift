@@ -283,14 +283,19 @@ public extension Messaging {
 
             // Remove this task from storage when the sequence ends.
             defer {
+                // Copy the child tasks before the closure so the new Task captures an immutable array instead of the mutable local.
+                let tasksToCancel = childTasks
                 Task {
                     // Cancel any child tasks spawned by this activity updates task
-                    childTasks.forEach { $0.cancel() }
+                    tasksToCancel.forEach { $0.cancel() }
                     await activityUpdateTaskStore.removeIfCurrent(for: attributeType, id: entryId)
                 }
             }
 
-            for await activity in Activity<T>.activityUpdates {
+            for await newActivity in Activity<T>.activityUpdates {
+                // Activity<T> is not Sendable for a generic T. ActivityKit activities are safe to read from any task, so the child tasks below share it through nonisolated(unsafe).
+                nonisolated(unsafe) let activity = newActivity
+
                 // Dispatch Live Activity start tracking event
                 dispatchStartEvent(activity: activity)
 
