@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => 'https://github.com/adobe/aepsdk-messaging-ios.git', :tag => s.version.to_s }
   
   s.platform = :ios, "15.0"
-  s.swift_version = '5.1'
+  s.swift_version = '5.10'
 
   s.pod_target_xcconfig = { 'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES' }
   s.dependency 'AEPCore', '>= 5.13.0', '< 6.0.0'
