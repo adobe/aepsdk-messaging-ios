@@ -57,8 +57,6 @@
 		09F5D9402B5CF35F00117437 /* PropositionInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F5D93F2B5CF35F00117437 /* PropositionInteraction.swift */; };
 		0A9D155B84174774B6F6DD11 /* LayoutSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A301B4C9BC74A618FBA92EC /* LayoutSettingsTests.swift */; };
 		0F0F12972F910FBB00C2198C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F12962F910FBB00C2198C /* SettingsView.swift */; };
-		0F0F12982F910FBB00C2198C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F12962F910FBB00C2198C /* SettingsView.swift */; };
-		0F0F12992F910FBB00C2198C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F12962F910FBB00C2198C /* SettingsView.swift */; };
 		0F630F3F2F0ED2DE0080688A /* LiveActivityBatchTokenCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F630F3E2F0ED2DE0080688A /* LiveActivityBatchTokenCollector.swift */; };
 		4CAAA00420250001000AA001 /* LiveActivityOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CAAA00420250002000AA001 /* LiveActivityOperationQueue.swift */; };
 		109659B997B843E2933FFADD /* AEPMessagingNotificationHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17C712A4BE9744C2B77101B3 /* AEPMessagingNotificationHelperTests.swift */; };
@@ -3436,7 +3434,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0F0F12982F910FBB00C2198C /* SettingsView.swift in Sources */,
 				2414ED892899BA080036D505 /* ViewController.m in Sources */,
 				2414ED832899BA080036D505 /* AppDelegate.m in Sources */,
 				2414ED942899BA0A0036D505 /* main.m in Sources */,
@@ -3501,7 +3498,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0F0F12992F910FBB00C2198C /* SettingsView.swift in Sources */,
 				D63FC3AC2E00DACB00037B50 /* String+DataConversion.swift in Sources */,
 				92859411252287C600B2BE47 /* ViewController.swift in Sources */,
 				92859412252287C600B2BE47 /* AppDelegate.swift in Sources */,
