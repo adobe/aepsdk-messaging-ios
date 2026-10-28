@@ -32,7 +32,7 @@ targets:
     type: framework
     sources: Sources
     platform: iOS
-    deploymentTarget: "12.0"
+    deploymentTarget: "15.0"
     settings:
       GENERATE_INFOPLIST_FILE: YES
 " >>project.yml
@@ -41,7 +41,7 @@ xcodegen generate
 
 # Create a Podfile with our pod as dependency.
 echo "
-platform :ios, '12.0'
+platform :ios, '15.0'
 target '$PROJECT_NAME' do
   use_frameworks!
   pod 'AEPMessaging', :path => '../AEPMessaging.podspec'
