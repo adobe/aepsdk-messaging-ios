@@ -392,6 +392,8 @@ private extension AirplaneTrackingLiveActivityView {
         guard let sliderValue = activityValues[activity.id] else { return }
         let intPercentage = Int(sliderValue * 100)
         
+        // Activity is not Sendable for these attribute types. It is only used inside this Task, so passing it in is safe.
+        nonisolated(unsafe) let activity = activity
         Task {
             let updatedState = AirplaneTrackingAttributes.ContentState(
                 journeyProgress: intPercentage
@@ -404,6 +406,8 @@ private extension AirplaneTrackingLiveActivityView {
     
     /// End a specific activity
     func endSelectedActivity(activity: Activity<AirplaneTrackingAttributes>, immediate: Bool) {
+        // Activity is not Sendable for these attribute types. It is only used inside this Task, so passing it in is safe.
+        nonisolated(unsafe) let activity = activity
         Task {
             if immediate {
                 await activity.end(dismissalPolicy: .immediate)

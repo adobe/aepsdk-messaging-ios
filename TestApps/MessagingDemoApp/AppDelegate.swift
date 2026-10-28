@@ -21,8 +21,10 @@ import AEPSignal
 import UIKit
 import UserNotifications
 
-@UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+// UIApplicationMain is deprecated and an error in Swift 6, so the app uses the main attribute instead.
+@main
+// The notification delegate is not main actor annotated but UIKit calls it on main, so preconcurrency lets the main actor AppDelegate conform.
+class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency UNUserNotificationCenterDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         MobileCore.setLogLevel(.trace)

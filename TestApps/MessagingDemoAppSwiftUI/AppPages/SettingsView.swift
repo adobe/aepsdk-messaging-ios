@@ -398,8 +398,10 @@ struct SettingsView: View {
         lastAction = "Sending experience event (ECID: \(ecidPrefix), Email: \(emails))..."
 
         Edge.sendEvent(experienceEvent: experienceEvent) { handles in
+            // SDK callbacks run on a background queue so UI state is updated on main. Only the count is needed there, so we pass that Sendable value instead.
+            let handleCount = handles.count
             DispatchQueue.main.async {
-                lastAction = "Sent experience event (ECID: \(ecidPrefix), Email: \(emails)). Received \(handles.count) response handle(s)."
+                lastAction = "Sent experience event (ECID: \(ecidPrefix), Email: \(emails)). Received \(handleCount) response handle(s)."
             }
         }
     }
@@ -544,6 +546,8 @@ struct SettingsView: View {
     private func readConsent() {
         isLoading = true
         Consent.getConsents { consents, error in
+            // SDK callbacks run on a background queue so UI state is updated on main. The consents are only read there, so passing them across is safe.
+            nonisolated(unsafe) let consents = consents
             DispatchQueue.main.async {
                 isLoading = false
                 guard error == nil, let consents = consents else {

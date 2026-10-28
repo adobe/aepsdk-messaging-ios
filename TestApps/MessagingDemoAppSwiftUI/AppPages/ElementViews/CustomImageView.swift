@@ -34,12 +34,14 @@ class ImageLoader: ObservableObject {
             return
         }
         
+        // The loader is only updated on main after the download, so passing it into the Sendable URLSession and main queue closures is safe.
+        nonisolated(unsafe) let loader = self
         URLSession.shared.dataTask(with: url) { data, _, _ in
             guard let data = data else { return }
 
             DispatchQueue.main.async {
-                self.objectWillChange.send()
-                self.uiImage = UIImage(data: data)
+                loader.objectWillChange.send()
+                loader.uiImage = UIImage(data: data)
             }
         }.resume()
     }

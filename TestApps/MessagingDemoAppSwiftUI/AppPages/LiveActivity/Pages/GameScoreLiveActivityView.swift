@@ -325,6 +325,8 @@ private extension GameScoreLiveActivityView {
     func updateActivity(_ activity: Activity<GameScoreLiveActivityAttributes>) {
         guard let newScores = activityValues[activity.id] else { return }
         
+        // Activity is not Sendable for these attribute types. It is only used inside this Task, so passing it in is safe.
+        nonisolated(unsafe) let activity = activity
         Task {
             let updatedState = GameScoreLiveActivityAttributes.ContentState(
                 homeTeamScore: newScores.homeTeamScore,
@@ -339,6 +341,8 @@ private extension GameScoreLiveActivityView {
     
     /// End a specific activity
     func endSelectedActivity(activity: Activity<GameScoreLiveActivityAttributes>, immediate: Bool) {
+        // Activity is not Sendable for these attribute types. It is only used inside this Task, so passing it in is safe.
+        nonisolated(unsafe) let activity = activity
         Task {
             if immediate {
                 await activity.end(dismissalPolicy: .immediate)
