@@ -21,7 +21,8 @@ struct AEPButtonView: View {
     @ObservedObject var model: AEPButton
 
     /// Initializes a new instance of `AEPButtonView` with the provided model
-    init(model: AEPButton) {
+    // SwiftUI views are main actor isolated in Swift 6 but this init only stores the model, so it is nonisolated to let the view model build its view lazily from any context.
+    nonisolated init(model: AEPButton) {
         self.model = model
     }
 

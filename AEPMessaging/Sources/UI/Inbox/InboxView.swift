@@ -21,6 +21,11 @@ import Foundation
 @available(iOS 15.0, *)
 struct InboxView: View {
     @ObservedObject var inbox: InboxUI
+
+    // SwiftUI views are main actor isolated in Swift 6 but this init only stores the inbox, so it is nonisolated to let InboxUI.view build it from any context.
+    nonisolated init(inbox: InboxUI) {
+        self.inbox = inbox
+    }
     
     var body: some View {
         Group {

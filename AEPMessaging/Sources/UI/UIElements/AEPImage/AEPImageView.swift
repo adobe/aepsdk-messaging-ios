@@ -26,7 +26,8 @@ struct AEPImageView: View {
 
     /// Initializes a new instance of `AEPImageView` with the provided model
     /// - Parameter model: The `AEPImage` model containing information about the image to display.
-    init(model: AEPImage) {
+    // SwiftUI views are main actor isolated in Swift 6 but this init only stores the model, so it is nonisolated to let the view model build its view lazily from any context.
+    nonisolated init(model: AEPImage) {
         self.model = model
     }
 
