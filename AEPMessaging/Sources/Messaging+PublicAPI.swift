@@ -27,9 +27,10 @@ import UserNotifications
     ///   - urlHandler: An optional closure to handle the actionable URL from the push notification.
     ///   - closure : An optional callback with `PushTrackingStatus` representing the tracking status of the interacted notification
     @objc(handleNotificationResponse:urlHandler:closure:)
-    static func handleNotificationResponse(_ response: UNNotificationResponse,
-                                           urlHandler: ((URL) -> Bool)? = nil,
-                                           closure: ((PushTrackingStatus) -> Void)? = nil) {
+    // Callbacks run on an SDK background queue. Sendable tells Swift 6 apps not to assume main actor, and preconcurrency keeps existing callers compiling.
+    @preconcurrency static func handleNotificationResponse(_ response: UNNotificationResponse,
+                                                           urlHandler: (@Sendable (URL) -> Bool)? = nil,
+                                                           closure: (@Sendable (PushTrackingStatus) -> Void)? = nil) {
         let notificationRequest = response.notification.request
 
         // Checking if the message has the _xdm key that contains tracking information
@@ -107,7 +108,8 @@ import UserNotifications
     ///   - surfaces: An array of `Surface` objects.
     ///   - completion: An optional completion handler to be called once the proposition response has been processed by the Messaging extension
     @objc(updatePropositionsForSurfaces:completion:)
-    static func updatePropositionsForSurfaces(_ surfaces: [Surface], _ completion: ((Bool) -> Void)? = nil) {
+    // Callbacks run on an SDK background queue. Sendable tells Swift 6 apps not to assume main actor, and preconcurrency keeps existing callers compiling.
+    @preconcurrency static func updatePropositionsForSurfaces(_ surfaces: [Surface], _ completion: (@Sendable (Bool) -> Void)? = nil) {
         updatePropositionsForSurfaces(surfaces, withXdm: nil, andData: nil, completion)
     }
 
@@ -123,7 +125,8 @@ import UserNotifications
     ///   - data: An optional dictionary of custom free-form data to attach to the personalization request.
     ///   - completion: An optional completion handler to be called once the proposition response has been processed by the Messaging extension
     @objc(updatePropositionsForSurfaces:withXdm:andData:completion:)
-    static func updatePropositionsForSurfaces(_ surfaces: [Surface], withXdm xdm: [String: Any]?, andData data: [String: Any]? = nil, _ completion: ((Bool) -> Void)? = nil) {
+    // Callbacks run on an SDK background queue. Sendable tells Swift 6 apps not to assume main actor, and preconcurrency keeps existing callers compiling.
+    @preconcurrency static func updatePropositionsForSurfaces(_ surfaces: [Surface], withXdm xdm: [String: Any]?, andData data: [String: Any]? = nil, _ completion: (@Sendable (Bool) -> Void)? = nil) {
         let validSurfaces = surfaces
             .filter { $0.isValid }
 
@@ -165,7 +168,8 @@ import UserNotifications
     /// - Parameters:
     ///   - surfaces: An array of `Surface` objects.
     ///   - completion: The completion handler to be invoked with a dictionary containing the surface objects and the corresponding array of Proposition objects.
-    static func getPropositionsForSurfaces(_ surfaces: [Surface], _ completion: @escaping ([Surface: [Proposition]]?, Error?) -> Void) {
+    // Callbacks run on an SDK background queue. Sendable tells Swift 6 apps not to assume main actor, and preconcurrency keeps existing callers compiling.
+    @preconcurrency static func getPropositionsForSurfaces(_ surfaces: [Surface], _ completion: @escaping @Sendable ([Surface: [Proposition]]?, Error?) -> Void) {
         let validSurfaces = surfaces
             .filter { $0.isValid }
 
