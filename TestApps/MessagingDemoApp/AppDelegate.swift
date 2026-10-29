@@ -76,11 +76,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency UNUserNot
         // Ask for user permission
         center.requestAuthorization(options: [.badge, .sound, .alert]) { [weak self] granted, _ in
             guard granted else { return }
-            
-            center.delegate = self
-                        
-            self?.registerNotificationCategories()
+
+            // The authorization callback runs on a background queue, so the delegate, categories and remote registration are set up on main.
             DispatchQueue.main.async {
+                UNUserNotificationCenter.current().delegate = self
+                self?.registerNotificationCategories()
                 application.registerForRemoteNotifications()
             }
         }

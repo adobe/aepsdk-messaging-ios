@@ -50,7 +50,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
                 Assurance.startSession(url: URL(string: Constants.assuranceURL)!)
             }
             
-            self.registerForPushNotifications(application)
+            // The SDK calls this completion on a background queue, and push registration uses UIKit, so it is moved back to main.
+            DispatchQueue.main.async {
+                self.registerForPushNotifications(application)
+            }
             let cardSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
             let cbeSurface1 = Surface(path: Constants.SurfaceName.CBE_HTML)
             let cbeSurface2 = Surface(path: Constants.SurfaceName.CBE_JSON)

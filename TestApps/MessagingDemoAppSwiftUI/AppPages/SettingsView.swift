@@ -28,7 +28,8 @@ struct SettingsView: View {
     @State private var emailInput: String = ""
     @State private var currentEmails: [String] = []
 
-    private static let emailNamespace = "Email"
+    // Read from SDK callbacks on background queues, so this constant is nonisolated.
+    private nonisolated static let emailNamespace = "Email"
 
     enum CollectConsentValue: String {
         case yes = "y"
