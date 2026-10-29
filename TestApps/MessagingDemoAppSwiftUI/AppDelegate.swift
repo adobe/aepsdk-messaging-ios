@@ -35,7 +35,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             TokenCollector.self
         ]
         
-        MobileCore.registerExtensions(extensions) {
+        // AEPCore calls this completion on its own queue. Marking it Sendable stops Swift 6 from assuming main actor here, which crashed the app at launch.
+        nonisolated(unsafe) let appDelegate = self
+        nonisolated(unsafe) let application = application
+        MobileCore.registerExtensions(extensions) { @Sendable in
             MobileCore.configureWith(appId: Constants.APPID)
             
             if Constants.isStage {
@@ -50,7 +53,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
                 Assurance.startSession(url: URL(string: Constants.assuranceURL)!)
             }
             
-            self.registerForPushNotifications(application)
+            // Push registration uses UIKit, so it is moved back to the main thread.
+            DispatchQueue.main.async {
+                appDelegate.registerForPushNotifications(application)
+            }
             let cardSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
             let cbeSurface1 = Surface(path: Constants.SurfaceName.CBE_HTML)
             let cbeSurface2 = Surface(path: Constants.SurfaceName.CBE_JSON)
