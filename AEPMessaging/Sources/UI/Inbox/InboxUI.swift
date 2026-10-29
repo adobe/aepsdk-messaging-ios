@@ -282,6 +282,8 @@ public class InboxUI: Identifiable, ObservableObject {
     ///   - propositions: Array of content card propositions
     ///   - unreadIndicator: Optional unread indicator settings to apply to content cards
     /// - Returns: Array of successfully created ContentCardUI instances
+    // Called from processInboxPropositions on main and creates unread icons, which are MainActor, so it is isolated to the main actor.
+    @MainActor
     private func createContentCards(from propositions: [Proposition], unreadIndicator: UnreadIndicatorSettings? = nil) -> [ContentCardUI] {
         return propositions.compactMap { proposition in
             guard let contentCard = ContentCardUI.createInstance(
@@ -314,6 +316,8 @@ public class InboxUI: Identifiable, ObservableObject {
     /// - Parameters:
     ///   - card: The content card UI instance to configure
     ///   - settings: Optional unread indicator settings from inbox schema
+    // Creates the MainActor unread icon and is only called from createContentCards on main, so it is isolated to the main actor.
+    @MainActor
     private func applyUnreadIndicator(to card: ContentCardUI, with settings: UnreadIndicatorSettings?) {
         guard let settings = settings else { return }
         
