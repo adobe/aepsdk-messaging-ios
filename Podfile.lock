@@ -71,7 +71,7 @@ SPEC CHECKSUMS:
   AEPEdgeConsent: b5a54985b79ee0222b1f1fc4b0859f8b8afed07a
   AEPEdgeIdentity: 66f3314af3729c15d398fd71662a7702cb1e8cdf
   AEPLifecycle: 32d6c8cd249b543382f601ecf10567b901130727
-  AEPMessagingNotification: 16515b8b43847bff92069146826a15d4da4ad621
+  AEPMessagingNotification: e0a37015ac1ddbbd859551ef67bd6c78cb0d4367
   AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
   AEPServices: 3f728cc19c701438e5c62b1a2d89a278b37b6fc0
   AEPSignal: 8211d3f28b6dae01d201ef0e2f1e5b4234ff3447
