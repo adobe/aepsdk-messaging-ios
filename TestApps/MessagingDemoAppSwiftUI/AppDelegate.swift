@@ -19,10 +19,13 @@ import AEPLifecycle
 import AEPSignal
 import AEPMessaging
 
-final class AppDelegate: NSObject, UIApplicationDelegate {
+// The class never declared UNUserNotificationCenterDelegate, so the delegate cast was nil and notification taps never reached Messaging.handleNotificationResponse. Preconcurrency lets the main actor AppDelegate conform.
+final class AppDelegate: NSObject, UIApplicationDelegate, @preconcurrency UNUserNotificationCenterDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         MobileCore.setLogLevel(.trace)
+        // Set at launch so a tap that cold launches the app is also delivered to this delegate.
+        UNUserNotificationCenter.current().delegate = self
 
         let extensions = [
             Identity.self,
@@ -75,10 +78,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     func registerForPushNotifications(_ application : UIApplication) {
         let center = UNUserNotificationCenter.current()
         // Ask for user permission
-        center.requestAuthorization(options: [.badge, .sound, .alert]) { [weak self] granted, _ in
+        center.requestAuthorization(options: [.badge, .sound, .alert]) { granted, _ in
             guard granted else { return }
-            
-            center.delegate = self as? UNUserNotificationCenterDelegate
             
             DispatchQueue.main.async {
                 application.registerForRemoteNotifications()
