@@ -40,9 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency UNUserNot
             Assurance.self
         ]
 
-        // AEPCore calls this completion on its own queue. Marking it Sendable stops Swift 6 from assuming main actor here, which crashed the app at launch.
-        nonisolated(unsafe) let application = application
-        MobileCore.registerExtensions(extensions) { @Sendable in
+        MobileCore.registerExtensions(extensions) {
             // only start lifecycle if the application is not in the background
             DispatchQueue.main.async {
                 if application.applicationState != .background {
