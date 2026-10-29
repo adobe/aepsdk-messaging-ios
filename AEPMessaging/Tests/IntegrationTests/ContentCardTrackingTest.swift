@@ -49,7 +49,8 @@ class ContentCardTrackingTest : IntegrationTestBase {
          // download cards and simulate display
          let cards = try await getContentCardUI(homeSurface)
          let cardTemplate = try #require(cards.first?.template as? SmallImageTemplate)
-         cardTemplate.eventHandler?.onDisplay()
+         // TemplateEventHandler is MainActor for Swift 6, so the simulated UI events are sent on the main actor like SwiftUI would.
+         await MainActor.run { cardTemplate.eventHandler?.onDisplay() }
          
          // wait for network calls to complete
          try awaitNetworkCalls(latch: networkLatch)
@@ -70,7 +71,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          // download cards and simulate interaction
          let cards = try await getContentCardUI(homeSurface)
          let cardTemplate = try #require(cards.first?.template as? SmallImageTemplate)
-         cardTemplate.eventHandler?.onInteract(interactionId: "ButtonClicked", actionURL: nil)
+         await MainActor.run { cardTemplate.eventHandler?.onInteract(interactionId: "ButtonClicked", actionURL: nil) }
          
          // wait for network calls to complete
          try awaitNetworkCalls(latch: networkLatch)
@@ -91,7 +92,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          // download cards and simulate interaction
          let cards = try await getContentCardUI(homeSurface)
          let cardTemplate = try #require(cards.first?.template as? SmallImageTemplate)
-         cardTemplate.eventHandler?.onDismiss()
+         await MainActor.run { cardTemplate.eventHandler?.onDismiss() }
          
          // wait for network calls to complete
          try awaitNetworkCalls(latch: networkLatch)
@@ -112,7 +113,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          // download cards and simulate display
          let cards = try await getContentCardUI(homeSurface)
          let cardTemplate = try #require(cards.first?.template as? LargeImageTemplate)
-         cardTemplate.eventHandler?.onDisplay()
+         await MainActor.run { cardTemplate.eventHandler?.onDisplay() }
          
          // wait for network calls to complete
          try awaitNetworkCalls(latch: networkLatch)
@@ -133,7 +134,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          // download cards and simulate interaction
          let cards = try await getContentCardUI(homeSurface)
          let cardTemplate = try #require(cards.first?.template as? LargeImageTemplate)
-         cardTemplate.eventHandler?.onInteract(interactionId: "ButtonClicked", actionURL: nil)
+         await MainActor.run { cardTemplate.eventHandler?.onInteract(interactionId: "ButtonClicked", actionURL: nil) }
          
          // wait for network calls to complete
          try awaitNetworkCalls(latch: networkLatch)
@@ -154,7 +155,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
          // download cards and simulate interaction
          let cards = try await getContentCardUI(homeSurface)
          let cardTemplate = try #require(cards.first?.template as? LargeImageTemplate)
-         cardTemplate.eventHandler?.onDismiss()
+         await MainActor.run { cardTemplate.eventHandler?.onDismiss() }
          
          // wait for network calls to complete
          try awaitNetworkCalls(latch: networkLatch)
@@ -175,7 +176,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
         // download cards and simulate display
         let cards = try await getContentCardUI(homeSurface)
         let cardTemplate = try #require(cards.first?.template as? ImageOnlyTemplate)
-        cardTemplate.eventHandler?.onDisplay()
+        await MainActor.run { cardTemplate.eventHandler?.onDisplay() }
         
         // wait for network calls to complete
         try awaitNetworkCalls(latch: networkLatch)
@@ -196,7 +197,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
         // download cards and simulate interaction
         let cards = try await getContentCardUI(homeSurface)
         let cardTemplate = try #require(cards.first?.template as? ImageOnlyTemplate)
-        cardTemplate.eventHandler?.onInteract(interactionId: "ImageClicked", actionURL: nil)
+        await MainActor.run { cardTemplate.eventHandler?.onInteract(interactionId: "ImageClicked", actionURL: nil) }
         
         // wait for network calls to complete
         try awaitNetworkCalls(latch: networkLatch)
@@ -217,7 +218,7 @@ class ContentCardTrackingTest : IntegrationTestBase {
         // download cards and simulate dismiss
         let cards = try await getContentCardUI(homeSurface)
         let cardTemplate = try #require(cards.first?.template as? ImageOnlyTemplate)
-        cardTemplate.eventHandler?.onDismiss()
+        await MainActor.run { cardTemplate.eventHandler?.onDismiss() }
         
         // wait for network calls to complete
         try awaitNetworkCalls(latch: networkLatch)
