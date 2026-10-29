@@ -57,8 +57,6 @@
 		09F5D9402B5CF35F00117437 /* PropositionInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F5D93F2B5CF35F00117437 /* PropositionInteraction.swift */; };
 		0A9D155B84174774B6F6DD11 /* LayoutSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A301B4C9BC74A618FBA92EC /* LayoutSettingsTests.swift */; };
 		0F0F12972F910FBB00C2198C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F12962F910FBB00C2198C /* SettingsView.swift */; };
-		0F0F12982F910FBB00C2198C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F12962F910FBB00C2198C /* SettingsView.swift */; };
-		0F0F12992F910FBB00C2198C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F12962F910FBB00C2198C /* SettingsView.swift */; };
 		0F630F3F2F0ED2DE0080688A /* LiveActivityBatchTokenCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F630F3E2F0ED2DE0080688A /* LiveActivityBatchTokenCollector.swift */; };
 		4CAAA00420250001000AA001 /* LiveActivityOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CAAA00420250002000AA001 /* LiveActivityOperationQueue.swift */; };
 		109659B997B843E2933FFADD /* AEPMessagingNotificationHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17C712A4BE9744C2B77101B3 /* AEPMessagingNotificationHelperTests.swift */; };
@@ -3436,7 +3434,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0F0F12982F910FBB00C2198C /* SettingsView.swift in Sources */,
 				2414ED892899BA080036D505 /* ViewController.m in Sources */,
 				2414ED832899BA080036D505 /* AppDelegate.m in Sources */,
 				2414ED942899BA0A0036D505 /* main.m in Sources */,
@@ -3501,7 +3498,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0F0F12992F910FBB00C2198C /* SettingsView.swift in Sources */,
 				D63FC3AC2E00DACB00037B50 /* String+DataConversion.swift in Sources */,
 				92859411252287C600B2BE47 /* ViewController.swift in Sources */,
 				92859412252287C600B2BE47 /* AppDelegate.swift in Sources */,
@@ -4105,7 +4101,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TestApps/MessagingDemoAppSwiftUI/NotificationServiceInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationServiceSwiftUI;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.Messaging.TestApp.NotificationService;
 				PRODUCT_NAME = NotificationServiceSwiftUI;
@@ -4137,7 +4133,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4170,7 +4166,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4358,7 +4354,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FKGEE875K4;
 				INFOPLIST_FILE = TestApps/MessagingDemoApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4381,7 +4377,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FKGEE875K4;
 				INFOPLIST_FILE = TestApps/MessagingDemoApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4445,7 +4441,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -4500,7 +4496,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -4790,7 +4786,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AEPMessagingNotification/Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4833,7 +4829,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AEPMessagingNotification/Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5050,7 +5046,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AEPMessagingLiveActivity/Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5093,7 +5089,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AEPMessagingLiveActivity/Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5175,7 +5171,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TestApps/MessagingDemoAppSwiftUI/NotificationServiceInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationServiceSwiftUI;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.adobe.Messaging.TestApp.NotificationService;
 				PRODUCT_NAME = NotificationServiceSwiftUI;

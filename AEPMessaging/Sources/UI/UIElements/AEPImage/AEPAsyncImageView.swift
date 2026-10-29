@@ -111,11 +111,12 @@ struct AEPAsyncImageView<Content>: View where Content: View {
     /// It executes the provided closure on the main queue if the app is not in the background.
     ///
     /// - Parameter updatePhase: A closure that updates the UI depending on download result
-    private func handleDownloadResult(_ updatePhase: @escaping () -> Void) {
+    // Called from the URLSession callback on a background queue. It is nonisolated and takes a MainActor closure so the phase update always runs on main.
+    private nonisolated func handleDownloadResult(_ updatePhase: @escaping @MainActor @Sendable () -> Void) {
         if !AppStateManager.shared.isAppInBackground {
             Log.debug(label: UIConstants.LOG_TAG, "Updating downloaded image to content card.")
             DispatchQueue.main.async {
-                updatePhase()
+                MainActor.assumeIsolated { updatePhase() }
             }
         } else {
             Log.debug(label: UIConstants.LOG_TAG, "Preventing to apply downloaded image in background")

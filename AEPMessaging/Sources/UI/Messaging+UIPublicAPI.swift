@@ -23,10 +23,11 @@ public extension Messaging {
     ///   - completion: A completion handler that is called with a `Result` type containing either:
     ///     - success([ContentCardUI]):  An array of `ContentCardUI` objects if the operation is successful.
     ///     - failure(Error) : An error indicating the failure reason
-    static func getContentCardsUI(for surface: Surface,
-                                  customizer: ContentCardCustomizing? = nil,
-                                  listener: ContentCardUIEventListening? = nil,
-                                  _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
+    // Callbacks run on an SDK background queue. Sendable tells Swift 6 apps not to assume main actor, and preconcurrency keeps existing callers compiling.
+    @preconcurrency static func getContentCardsUI(for surface: Surface,
+                                                  customizer: ContentCardCustomizing? = nil,
+                                                  listener: ContentCardUIEventListening? = nil,
+                                                  _ completion: @escaping @Sendable (Result<[ContentCardUI], Error>) -> Void) {
         // Request propositions for the specified surface from Messaging extension.
         Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
             if let error = error {

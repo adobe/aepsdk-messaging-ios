@@ -85,11 +85,13 @@ struct CodeBasedView: View {
             
     private func fetchExperience() {
         Messaging.getPropositionsForSurfaces(surfaces) { propositionsDict, error in
-            showLoadingIndicator = false
-            if error != nil {
-                return
-            }
+            // SDK callbacks run on a background queue so UI state is updated on main. The propositions are only read there, so passing them across is safe.
+            nonisolated(unsafe) let propositionsDict = propositionsDict
             DispatchQueue.main.async {
+                showLoadingIndicator = false
+                if error != nil {
+                    return
+                }
                 self.propositions.propositionsDict = propositionsDict
             }
         }

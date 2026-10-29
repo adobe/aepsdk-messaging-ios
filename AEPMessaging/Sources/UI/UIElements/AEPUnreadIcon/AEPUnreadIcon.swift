@@ -34,6 +34,8 @@ public class AEPUnreadIcon: ObservableObject, AEPViewModel {
     /// Initializes an AEPUnreadIcon with the given settings
     /// - Parameters:
     ///   - settings: Settings for the unread icon from Inbox schema
+    // Builds a SwiftUI view modifier, which is main actor only in Swift 6. The inbox only creates icons on main, so this init is MainActor.
+    @MainActor
     init(settings: UnreadIndicatorSettings.UnreadIconSettings) {
         self.image = settings.image
         self.alignment = settings.placement.alignment

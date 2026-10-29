@@ -11,8 +11,8 @@ Pod::Spec.new do |s|
   s.author       = "Adobe Experience Platform Messaging SDK Team"
   s.source       = { :git => 'https://github.com/adobe/aepsdk-messaging-ios.git', :tag => s.version.to_s }
   
-  s.platform = :ios, "12.0"
-  s.swift_version = '5.1'
+  s.platform = :ios, "15.0"
+  s.swift_version = '5.10'
 
   s.source_files = 'AEPMessagingLiveActivity/Sources/**/*.swift'
 

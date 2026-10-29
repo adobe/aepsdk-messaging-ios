@@ -21,7 +21,8 @@ struct AEPTextView: View {
     @ObservedObject var model: AEPText
 
     /// Initializes a new instance of `AEPTextView` with the provided model
-    init(model: AEPText) {
+    // SwiftUI views are main actor isolated in Swift 6 but this init only stores the model, so it is nonisolated to let the view model build its view lazily from any context.
+    nonisolated init(model: AEPText) {
         self.model = model
     }
 

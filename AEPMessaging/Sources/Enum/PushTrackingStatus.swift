@@ -14,7 +14,8 @@ import Foundation
 
 /// Represents a specific outcome resulting from tracking push notification interaction
 @objc(AEPPushTrackingStatus)
-public enum PushTrackingStatus: Int {
+// Sendable so the status can be passed to Sendable completion handlers in Swift 6.
+public enum PushTrackingStatus: Int, Sendable {
     case trackingInitiated
     case noDatasetConfigured
     case noTrackingData

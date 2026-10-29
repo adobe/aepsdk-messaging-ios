@@ -17,7 +17,12 @@
 @available(iOS 15.0, *)
 struct AEPHStackView: View {
     /// The model containing the data about the button.
-    @ObservedObject var model = AEPHStack()
+    @ObservedObject var model: AEPHStack
+
+    // SwiftUI views are main actor isolated in Swift 6 but this init only stores the model, so it is nonisolated to let the view model build its view lazily from any context.
+    nonisolated init(model: AEPHStack) {
+        self.model = model
+    }
 
     /// The body of the view
     var body: some View {

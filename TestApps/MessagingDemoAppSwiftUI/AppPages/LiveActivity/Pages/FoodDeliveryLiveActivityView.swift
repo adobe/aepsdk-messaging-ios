@@ -322,6 +322,8 @@ private extension FoodDeliveryLiveActivityView {
     func updateActivity(_ activity: Activity<FoodDeliveryLiveActivityAttributes>) {
         guard let newStatus = activityStatuses[activity.id] else { return }
         
+        // Activity is not Sendable for these attribute types. It is only used inside this Task, so passing it in is safe.
+        nonisolated(unsafe) let activity = activity
         Task {
             let updatedState = FoodDeliveryLiveActivityAttributes.ContentState(
                 orderStatus: newStatus
@@ -333,6 +335,8 @@ private extension FoodDeliveryLiveActivityView {
     
     /// End a specific Food Delivery Live Activity
     func endActivity(_ activity: Activity<FoodDeliveryLiveActivityAttributes>, immediate: Bool) {
+        // Activity is not Sendable for these attribute types. It is only used inside this Task, so passing it in is safe.
+        nonisolated(unsafe) let activity = activity
         Task {
             if immediate {
                 await activity.end(dismissalPolicy: .immediate)
