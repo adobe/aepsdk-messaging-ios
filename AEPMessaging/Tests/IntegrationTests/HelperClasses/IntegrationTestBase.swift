@@ -41,6 +41,7 @@ class IntegrationTestBase {
         // clearCache() deletes the Edge SQLite database while Edge still has it open, causing
         // "vnode unlinked while in use" and cascading disk I/O failures in subsequent tests.
         Thread.sleep(forTimeInterval: 0.5)
+        // Temporary until AEPTestUtils clearCache() handles WAL databases. See sqliteDatabases below.
         closeCachedDataQueues()
         FileManager.default.clearCache()
         removeSQLiteSidecarFiles()
@@ -88,6 +89,7 @@ class IntegrationTestBase {
     /// private  helper methods
     ///**************************************************************
     
+    // Temporary workaround. This cleanup belongs in AEPTestUtils FileManager.clearCache() so every SDK gets it, and should be removed from here once AEPTestUtils closes cached data queues and deletes the WAL files itself.
     private static let sqliteDatabases = ["com.adobe.edge", "com.adobe.edge.consent", "com.adobe.edge.identity"]
 
     /// The previous test's Edge still holds its cached SQLite queue open. Close it before its files are deleted, otherwise SQLite reports "vnode unlinked while in use" and can crash the test process.
