@@ -16,6 +16,8 @@ import Foundation
 
 /// Protocol for listening to inbox-level events
 @available(iOS 15.0, *)
+// Main actor so Swift 6 SwiftUI views can conform; @preconcurrency keeps Swift 5 conformances compiling.
+@preconcurrency @MainActor
 public protocol InboxEventListening {
     /// Called when the inbox starts loading content
     func onLoading(_ inbox: InboxUI)

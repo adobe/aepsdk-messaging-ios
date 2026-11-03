@@ -20,9 +20,16 @@ struct AEPDismissButtonView: View {
     @ObservedObject public var model: AEPDismissButton
 
     /// Initializes a new instance of `AEPButtonView` with the provided model
+    // Only stores its input so the view can be built off main; Swift 5.10 rejects this as nonisolated, so it is gated to Swift 6 mode.
+    #if swift(>=6.0)
+    nonisolated init(model: AEPDismissButton) {
+        self.model = model
+    }
+    #else
     init(model: AEPDismissButton) {
         self.model = model
     }
+    #endif
 
     /// The body of the view
     var body: some View {

@@ -50,7 +50,8 @@ class ReadStatusManager {
     // MARK: - Singleton
     
     /// Shared instance for managing read status across the application
-    static let shared = ReadStatusManager()
+    // Only holds immutable, thread safe stores.
+    nonisolated(unsafe) static let shared = ReadStatusManager()
     
     // MARK: - Private Properties
     

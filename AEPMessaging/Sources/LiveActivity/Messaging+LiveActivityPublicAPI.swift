@@ -283,14 +283,19 @@ public extension Messaging {
 
             // Remove this task from storage when the sequence ends.
             defer {
+                // Swift 6 doesn't allow capturing a mutable local in a Task, so we capture a copy.
+                let tasksToCancel = childTasks
                 Task {
                     // Cancel any child tasks spawned by this activity updates task
-                    childTasks.forEach { $0.cancel() }
+                    tasksToCancel.forEach { $0.cancel() }
                     await activityUpdateTaskStore.removeIfCurrent(for: attributeType, id: entryId)
                 }
             }
 
-            for await activity in Activity<T>.activityUpdates {
+            for await newActivity in Activity<T>.activityUpdates {
+                // Activity<T> isn't Sendable for a generic T, but ActivityKit activities are safe to read from any task.
+                nonisolated(unsafe) let activity = newActivity
+
                 // Dispatch Live Activity start tracking event
                 dispatchStartEvent(activity: activity)
 

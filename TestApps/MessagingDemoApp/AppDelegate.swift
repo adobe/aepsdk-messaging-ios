@@ -21,8 +21,10 @@ import AEPSignal
 import UIKit
 import UserNotifications
 
-@UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+// UIApplicationMain is deprecated and an error in Swift 6, so the app uses the main attribute instead.
+@main
+// The notification delegate is not main actor annotated but UIKit calls it on main, so preconcurrency lets the main actor AppDelegate conform.
+class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency UNUserNotificationCenterDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         MobileCore.setLogLevel(.trace)
@@ -74,11 +76,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // Ask for user permission
         center.requestAuthorization(options: [.badge, .sound, .alert]) { [weak self] granted, _ in
             guard granted else { return }
-            
-            center.delegate = self
-                        
-            self?.registerNotificationCategories()
+
+            // The authorization callback runs on a background queue, so the delegate, categories and remote registration are set up on main.
             DispatchQueue.main.async {
+                UNUserNotificationCenter.current().delegate = self
+                self?.registerNotificationCategories()
                 application.registerForRemoteNotifications()
             }
         }

@@ -41,11 +41,9 @@ struct PushView: View {
 
     private func fetchInfo() {
         Identity.getExperienceCloudId { (ecid, error) in
-            if let error = error {
-                ECID = "Error Reading ECID: \(error.localizedDescription)"
-            } else {
-                ECID = ecid
-            }
+            // SDK callbacks run on a background queue so UI state is updated on main.
+            let text = error.map { "Error Reading ECID: \($0.localizedDescription)" } ?? ecid
+            DispatchQueue.main.async { ECID = text }
         }
         
         devicePushToken = UserDefaults.standard.string(forKey: "devicePushToken")

@@ -19,10 +19,13 @@ import AEPLifecycle
 import AEPSignal
 import AEPMessaging
 
-final class AppDelegate: NSObject, UIApplicationDelegate {
+// The class never declared UNUserNotificationCenterDelegate, so the delegate cast was nil and notification taps never reached Messaging.handleNotificationResponse. Preconcurrency lets the main actor AppDelegate conform.
+final class AppDelegate: NSObject, UIApplicationDelegate, @preconcurrency UNUserNotificationCenterDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         MobileCore.setLogLevel(.trace)
+        // Set at launch so a tap that cold launches the app is also delivered to this delegate.
+        UNUserNotificationCenter.current().delegate = self
 
         let extensions = [
             Identity.self,
@@ -50,7 +53,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
                 Assurance.startSession(url: URL(string: Constants.assuranceURL)!)
             }
             
-            self.registerForPushNotifications(application)
+            // The SDK calls this completion on a background queue, and push registration uses UIKit, so it is moved back to main.
+            DispatchQueue.main.async {
+                self.registerForPushNotifications(application)
+            }
             let cardSurface = Surface(path: Constants.SurfaceName.CONTENT_CARD)
             let cbeSurface1 = Surface(path: Constants.SurfaceName.CBE_HTML)
             let cbeSurface2 = Surface(path: Constants.SurfaceName.CBE_JSON)
@@ -72,10 +78,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     func registerForPushNotifications(_ application : UIApplication) {
         let center = UNUserNotificationCenter.current()
         // Ask for user permission
-        center.requestAuthorization(options: [.badge, .sound, .alert]) { [weak self] granted, _ in
+        center.requestAuthorization(options: [.badge, .sound, .alert]) { granted, _ in
             guard granted else { return }
-            
-            center.delegate = self as? UNUserNotificationCenterDelegate
             
             DispatchQueue.main.async {
                 application.registerForRemoteNotifications()

@@ -21,7 +21,8 @@ import AEPCore
 class TokenCollector: NSObject ,ObservableObject, Extension {
     
     // MARK: - Extension Properties
-    static var extensionVersion = "5.0.0"
+    // Swift 6 flags mutable statics as unsafe. The version is constant so it is a let.
+    static let extensionVersion = "5.0.0"
     var metadata: [String : String]?
     public var name = "com.adobe.sharedstateReader"
     public var friendlyName = "Share State Reader"
@@ -29,9 +30,10 @@ class TokenCollector: NSObject ,ObservableObject, Extension {
     
     // MARK: - Push Token Properties
     // Static properties to store push tokens for different Live Activities
-    static var gameScorePushToStartToken: String = ""
-    static var foodDeliveryPushToStartToken: String = ""
-    static var airplaneTrackingPushToStartToken: String = ""
+    // Swift 6 flags mutable statics as unsafe. These tokens are written by token update tasks and read for display in this demo app only, so we mark them nonisolated(unsafe).
+    nonisolated(unsafe) static var gameScorePushToStartToken: String = ""
+    nonisolated(unsafe) static var foodDeliveryPushToStartToken: String = ""
+    nonisolated(unsafe) static var airplaneTrackingPushToStartToken: String = ""
 
     // Attribute type identifiers for the demo app's Live Activities.
     static let gameScoreType = "GameScoreLiveActivityAttributes"

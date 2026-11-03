@@ -26,9 +26,16 @@ struct AEPImageView: View {
 
     /// Initializes a new instance of `AEPImageView` with the provided model
     /// - Parameter model: The `AEPImage` model containing information about the image to display.
+    // Only stores its input so the view can be built off main; Swift 5.10 rejects this as nonisolated, so it is gated to Swift 6 mode.
+    #if swift(>=6.0)
+    nonisolated init(model: AEPImage) {
+        self.model = model
+    }
+    #else
     init(model: AEPImage) {
         self.model = model
     }
+    #endif
 
     /// The body of the view
     var body: some View {

@@ -41,7 +41,10 @@ class IntegrationTestBase {
         // clearCache() deletes the Edge SQLite database while Edge still has it open, causing
         // "vnode unlinked while in use" and cascading disk I/O failures in subsequent tests.
         Thread.sleep(forTimeInterval: 0.5)
+        // Temporary until AEPTestUtils clearCache() handles WAL databases. See sqliteDatabases below.
+        closeCachedDataQueues()
         FileManager.default.clearCache()
+        removeSQLiteSidecarFiles()
         FileManager.default.clearDirectory()
         mockNetwork.clear()
         bootSDK()
@@ -86,6 +89,27 @@ class IntegrationTestBase {
     /// private  helper methods
     ///**************************************************************
     
+    // Temporary workaround. This cleanup belongs in AEPTestUtils FileManager.clearCache() so every SDK gets it, and should be removed from here once AEPTestUtils closes cached data queues and deletes the WAL files itself.
+    private static let sqliteDatabases = ["com.adobe.edge", "com.adobe.edge.consent", "com.adobe.edge.identity"]
+
+    /// The previous test's Edge still holds its cached SQLite queue open. Close it before its files are deleted, otherwise SQLite reports "vnode unlinked while in use" and can crash the test process.
+    private func closeCachedDataQueues() {
+        guard let dataQueueService = ServiceProvider.shared.dataQueueService as? DataQueueService else { return }
+        for database in Self.sqliteDatabases {
+            dataQueueService.store[database]?.close()
+        }
+    }
+
+    /// Edge 5.2.0 and later open their hit queue in SQLite WAL mode. clearCache() only deletes the main database file, so the leftover -wal and -shm files make the next test's database fail with a disk I/O error and Edge never starts. Remove them too.
+    private func removeSQLiteSidecarFiles() {
+        guard let cachesUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return }
+        for database in Self.sqliteDatabases {
+            for suffix in ["-wal", "-shm"] {
+                try? FileManager.default.removeItem(at: cachesUrl.appendingPathComponent(database + suffix))
+            }
+        }
+    }
+
     /// Boots the SDK by registering and configuring the required extension
     private func bootSDK() {
         ServiceProvider.shared.networkService = mockNetwork

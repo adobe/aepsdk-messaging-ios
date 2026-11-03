@@ -14,7 +14,7 @@ import Foundation
 
 /// Represents a specific outcome resulting from tracking push notification interaction
 @objc(AEPPushTrackingStatus)
-public enum PushTrackingStatus: Int {
+public enum PushTrackingStatus: Int, Sendable {
     case trackingInitiated
     case noDatasetConfigured
     case noTrackingData
