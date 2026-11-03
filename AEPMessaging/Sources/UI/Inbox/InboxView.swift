@@ -22,10 +22,16 @@ import Foundation
 struct InboxView: View {
     @ObservedObject var inbox: InboxUI
 
-    // Only stores the inbox, so InboxUI can build the view off main.
+    // Only stores its input so the view can be built off main; Swift 5.10 rejects this as nonisolated, so it is gated to Swift 6 mode.
+    #if swift(>=6.0)
     nonisolated init(inbox: InboxUI) {
         self.inbox = inbox
     }
+    #else
+    init(inbox: InboxUI) {
+        self.inbox = inbox
+    }
+    #endif
     
     var body: some View {
         Group {

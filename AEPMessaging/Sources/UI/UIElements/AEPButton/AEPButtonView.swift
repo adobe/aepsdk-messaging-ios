@@ -21,10 +21,16 @@ struct AEPButtonView: View {
     @ObservedObject var model: AEPButton
 
     /// Initializes a new instance of `AEPButtonView` with the provided model
-    // Only stores the model, so the view model can build its view off main.
+    // Only stores its input so the view can be built off main; Swift 5.10 rejects this as nonisolated, so it is gated to Swift 6 mode.
+    #if swift(>=6.0)
     nonisolated init(model: AEPButton) {
         self.model = model
     }
+    #else
+    init(model: AEPButton) {
+        self.model = model
+    }
+    #endif
 
     /// The body of the view
     var body: some View {
