@@ -99,7 +99,7 @@ extension Message: FullscreenMessageDelegate {
                 let link = queryParams[MessagingConstants.IAM.HTML.LINK],
                 let decodedLink = link.removingPercentEncoding, !decodedLink.isEmpty,
                 let deeplinkUrl = URL(string: decodedLink) {
-                // UIApplication is main actor only in Swift 6. WebKit calls this on main, so open directly there and hop to main otherwise.
+                // UIApplication is main actor only in Swift 6; WebKit usually calls this on main.
                 if Thread.isMainThread {
                     MainActor.assumeIsolated { UIApplication.shared.open(deeplinkUrl) }
                 } else {

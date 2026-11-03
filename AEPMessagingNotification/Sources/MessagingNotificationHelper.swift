@@ -22,7 +22,7 @@ public final class MessagingNotificationHelper: NSObject {
     @objc public static let mediaKey = "adb_media"
 
     // Overridable in unit tests to avoid real network calls.
-    // Swift 6 flags mutable statics as unsafe. It is only replaced by tests before any notification is processed so we mark it nonisolated(unsafe).
+    // Only replaced by tests.
     nonisolated(unsafe) static var urlSession: URLSession = .shared
 
     /// Processes a mutable notification content object by downloading and attaching any media
@@ -51,7 +51,7 @@ public final class MessagingNotificationHelper: NSObject {
         with content: UNMutableNotificationContent,
         contentHandler: @escaping (UNNotificationContent) -> Void
     ) {
-        // The handler and content are used once after the download finishes and never concurrently, so passing them into the Sendable download callback is safe.
+        // Used once after the download finishes, never concurrently.
         nonisolated(unsafe) let contentHandler = contentHandler
         nonisolated(unsafe) let content = content
         downloadAndAttachMedia(to: content) {
@@ -83,7 +83,6 @@ public final class MessagingNotificationHelper: NSObject {
             return
         }
 
-        // The content is only mutated inside the download callback before completion runs, so sharing it with the Sendable URLSession closure is safe.
         nonisolated(unsafe) let content = content
         urlSession.downloadTask(with: mediaURL) { tempURL, response, error in
             defer { completion() }

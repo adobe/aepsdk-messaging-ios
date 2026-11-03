@@ -90,10 +90,9 @@ public class BaseTemplate: ObservableObject {
 @available(iOS 15.0, *)
 private struct TemplateWrapperView<Content: View>: View {
     @ObservedObject var template: BaseTemplate
-    // The content builder is set once in init and only called from body on main, so it is nonisolated(unsafe) to allow the nonisolated init to assign it.
     nonisolated(unsafe) let content: () -> Content
 
-    // SwiftUI views are main actor isolated in Swift 6 but this init only stores its inputs, so it is nonisolated to let templates build the view from any context.
+    // Only stores its inputs, so templates can build the view off main.
     nonisolated init(template: BaseTemplate, content: @escaping () -> Content) {
         self.template = template
         self.content = content

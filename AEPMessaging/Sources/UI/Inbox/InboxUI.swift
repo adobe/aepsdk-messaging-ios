@@ -147,7 +147,7 @@ public class InboxUI: Identifiable, ObservableObject {
     /// - Parameter completion: Called when the refresh operation completes (success or failure)
     private func performRefresh(completion: @escaping () -> Void) {
         state = .loading
-        // The listener is MainActor and the inbox can be created or refreshed from any thread, so the loading callback is delivered on main.
+        // The listener is main actor and refresh can start off main.
         nonisolated(unsafe) let inbox = self
         if Thread.isMainThread {
             MainActor.assumeIsolated { inbox.listener?.onLoading(inbox) }
@@ -164,7 +164,7 @@ public class InboxUI: Identifiable, ObservableObject {
             
             // Then get the updated propositions
             Messaging.getPropositionsForSurfaces([self.surface]) { propositionDict, error in
-                // The inbox, the propositions and the completion are handed off to main and not used again on the SDK queue, so sending these non Sendable values is safe.
+                // Handed off to main and not used again on the SDK queue.
                 nonisolated(unsafe) let inbox = self
                 nonisolated(unsafe) let propositionDict = propositionDict
                 nonisolated(unsafe) let completion = completion
@@ -181,7 +181,6 @@ public class InboxUI: Identifiable, ObservableObject {
     /// - Parameters:
     ///   - propositionDict: Dictionary mapping surfaces to their propositions
     ///   - error: Optional error from the proposition fetch
-    // Runs on main after the propositions are fetched and notifies the MainActor listener, so it is isolated to the main actor.
     @MainActor
     private func processInboxPropositions(_ propositionDict: [Surface: [Proposition]]?, error: Error?) {
         // Handle fetch errors
@@ -257,7 +256,6 @@ public class InboxUI: Identifiable, ObservableObject {
     ///
     /// - Parameter proposition: The inbox (container-item) proposition
     /// - Returns: InboxSchemaData if extraction is successful, nil otherwise
-    // Called from processInboxPropositions on main and reports failures through handleError, so it is isolated to the main actor.
     @MainActor
     private func extractInboxSchemaData(from proposition: Proposition?) -> InboxSchemaData? {
         guard let proposition = proposition else {
@@ -282,7 +280,6 @@ public class InboxUI: Identifiable, ObservableObject {
     ///   - propositions: Array of content card propositions
     ///   - unreadIndicator: Optional unread indicator settings to apply to content cards
     /// - Returns: Array of successfully created ContentCardUI instances
-    // Called from processInboxPropositions on main and creates unread icons, which are MainActor, so it is isolated to the main actor.
     @MainActor
     private func createContentCards(from propositions: [Proposition], unreadIndicator: UnreadIndicatorSettings? = nil) -> [ContentCardUI] {
         return propositions.compactMap { proposition in
@@ -316,7 +313,6 @@ public class InboxUI: Identifiable, ObservableObject {
     /// - Parameters:
     ///   - card: The content card UI instance to configure
     ///   - settings: Optional unread indicator settings from inbox schema
-    // Creates the MainActor unread icon and is only called from createContentCards on main, so it is isolated to the main actor.
     @MainActor
     private func applyUnreadIndicator(to card: ContentCardUI, with settings: UnreadIndicatorSettings?) {
         guard let settings = settings else { return }
@@ -397,7 +393,6 @@ public class InboxUI: Identifiable, ObservableObject {
     /// - Parameters:
     ///   - error: The error that occurred
     ///   - message: Descriptive message for logging
-    // Notifies the MainActor listener and is only called from processInboxPropositions on main, so it is isolated to the main actor.
     @MainActor
     private func handleError(_ error: Error, message: String) {
         Log.error(label: UIConstants.LOG_TAG,
@@ -463,7 +458,7 @@ public class InboxUI: Identifiable, ObservableObject {
 @available(iOS 15.0, *)
 extension InboxUI: ContentCardUIEventListening {
     public func onCreate(_ card: ContentCardUI) {
-        // The listener is MainActor but this public method can be called from any thread, so the callback is delivered on main without changing the signature.
+        // Hop to main here, since marking this public method main actor would break Swift 5 callers.
         nonisolated(unsafe) let inbox = self
         nonisolated(unsafe) let card = card
         if Thread.isMainThread {

@@ -21,7 +21,7 @@ import Foundation
 class RefreshInAppHandler {
     
     /// Shared instance for use by public API and internal components
-    // Swift 6 flags non Sendable singletons as unsafe. All mutable state is serialized by the private queue so we mark it nonisolated(unsafe).
+    // All mutable state is serialized by the private queue.
     nonisolated(unsafe) static let shared = RefreshInAppHandler()
     
     /// Serial queue for thread-safe access to state

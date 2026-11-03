@@ -19,7 +19,7 @@ struct AEPVStackView: View {
     /// The model containing the vertical stacks data
     @ObservedObject var model: AEPVStack
 
-    // SwiftUI views are main actor isolated in Swift 6 but this init only stores the model, so it is nonisolated to let the view model build its view lazily from any context.
+    // Only stores the model, so the view model can build its view off main.
     nonisolated init(model: AEPVStack) {
         self.model = model
     }

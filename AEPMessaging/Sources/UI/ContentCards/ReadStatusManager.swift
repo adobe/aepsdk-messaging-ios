@@ -50,7 +50,7 @@ class ReadStatusManager {
     // MARK: - Singleton
     
     /// Shared instance for managing read status across the application
-    // Swift 6 flags non Sendable singletons as unsafe. The manager only holds immutable stores that are thread safe so we mark it nonisolated(unsafe).
+    // Only holds immutable, thread safe stores.
     nonisolated(unsafe) static let shared = ReadStatusManager()
     
     // MARK: - Private Properties

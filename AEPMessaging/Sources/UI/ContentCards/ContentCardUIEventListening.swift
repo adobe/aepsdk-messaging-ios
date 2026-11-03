@@ -13,7 +13,7 @@
 import Foundation
 
 @available(iOS 15.0, *)
-// Swift 6 apps implement this in SwiftUI views, which are main actor only. MainActor lets them conform without errors, and preconcurrency keeps existing Swift 5 conformances compiling.
+// Main actor so Swift 6 SwiftUI views can conform; @preconcurrency keeps Swift 5 conformances compiling.
 @preconcurrency @MainActor
 public protocol ContentCardUIEventListening {
     /// Called when the templated content card appears on the screen

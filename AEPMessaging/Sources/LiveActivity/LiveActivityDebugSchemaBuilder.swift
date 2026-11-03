@@ -279,7 +279,6 @@ final class LiveActivityDebugSchemaBuilder {
     }
 
     /// Registry for enum values - can be populated dynamically
-    // Swift 6 flags mutable statics as unsafe. The registry is only ever read so it is now an immutable let.
     private static let enumRegistry: [String: [String]] = [
         "LiveActivityOrigin": ["local", "remote"]
     ]

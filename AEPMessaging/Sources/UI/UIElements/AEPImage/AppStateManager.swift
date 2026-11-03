@@ -18,7 +18,7 @@ import UIKit
 // specifically tracking whether the app is currently in the background or foreground.
 final class AppStateManager {
     /// The shared instance of `AppStateManager` used to access the singleton instance throughout the app.
-    // Swift 6 flags non Sendable singletons as unsafe. The only state is a flag written on main by app lifecycle notifications so we mark it nonisolated(unsafe).
+    // Its only state is written on main by lifecycle notifications.
     nonisolated(unsafe) static let shared = AppStateManager()
 
     /// A Boolean value indicating whether the app is currently in the background.
