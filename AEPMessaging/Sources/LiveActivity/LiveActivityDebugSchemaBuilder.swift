@@ -240,7 +240,8 @@ final class LiveActivityDebugSchemaBuilder {
     private static func buildEnumSchema(value: Any, rawType: String) -> [String: Any] {
         // Try CaseIterable to enumerate values
         if let caseIterableType = type(of: value) as? any CaseIterable.Type {
-            let casesCollection = caseIterableType.allCases
+            // Swift 5.10 needs the existential coercion spelled out.
+            let casesCollection = caseIterableType.allCases as any Collection
             var enumValues: [String] = []
             let mirrorCases = Mirror(reflecting: casesCollection)
             for child in mirrorCases.children {
