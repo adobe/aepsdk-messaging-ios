@@ -244,6 +244,10 @@ DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
 }
 ```
 
+### Update tokens and consent changes
+
+When collect consent changes from `no` to `yes`, the SDK re-submits the update tokens of Live Activities that are still running, together with the push token and push-to-start tokens it already re-syncs. The tokens are re-submitted even if they have not changed, and your app does not need to call `registerLiveActivities(_:)` again for this. Activities that have ended, been dismissed, or been cleared with `clearLiveActivities()` are not re-submitted, and nothing is submitted if collect consent is no longer `yes` when the re-sync is processed.
+
 ## Examples
 
 The test app in this repository demonstrates Live Activity implementation with multiple use cases:
