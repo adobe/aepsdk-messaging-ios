@@ -534,6 +534,11 @@ public class Messaging: NSObject, Extension {
         }
 
         if event.isLiveActivityUpdateTokenEvent {
+            if event.isLiveActivityUpdateTokenResyncEvent {
+                handleLiveActivityUpdateTokenResync(event)
+                return
+            }
+
             guard let token = event.liveActivityUpdateToken, !token.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid token could not be found in the event.")
                 return
@@ -968,13 +973,35 @@ public class Messaging: NSObject, Extension {
 
         dispatchPersistedTokenResync(includePushToken: true,
                                      pushToStartTokens: stateManager.pushToStartTokenStore.all(),
+                                     updateTokens: stateManager.updateTokenStore.all(),
                                      event: event)
+    }
+
+    /// Submits the stored update token of one active Live Activity for an update-token event dispatched by the
+    /// consent re-sync. It never writes to the store or republishes the shared state, and it skips the
+    /// consent-bypass forward because collect consent must be "y" for it to send anything.
+    private func handleLiveActivityUpdateTokenResync(_ event: Event) {
+        guard let liveActivityID = event.liveActivityID, !liveActivityID.isEmpty else {
+            Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update token re-sync event (\(event.id.uuidString)) because a valid Live Activity ID could not be found in the event.")
+            return
+        }
+        guard isCollectConsentYes(for: event) else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Skipping update token re-sync for Live Activity '\(liveActivityID)' because collect consent is no longer 'y'.")
+            return
+        }
+        guard let storedToken = stateManager.updateTokenStore.value(for: liveActivityID) else {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Skipping update token re-sync for Live Activity '\(liveActivityID)' because it is no longer tracked.")
+            return
+        }
+
+        sendLiveActivityUpdateToken(liveActivityID: liveActivityID, token: storedToken.token, event: event)
     }
 
     /// Re-dispatches persisted tokens as Messaging events so they re-flow through `handleProcessEvent`
     /// using the current ECID. Shared by reset-identities and consent-granted flows.
     private func dispatchPersistedTokenResync(includePushToken: Bool,
                                               pushToStartTokens: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
+                                              updateTokens: [String: LiveActivity.UpdateToken] = [:],
                                               event: Event) {
         if !pushToStartTokens.isEmpty {
             // Cleared so the same-token equivalence guard does not drop the re-flow.
@@ -994,6 +1021,24 @@ public class Messaging: NSObject, Extension {
                     MessagingConstants.Event.Data.Key.LiveActivity.BATCHED_PUSH_TO_START_TOKENS: tokensArray
                 ])
             dispatch(event: resyncEvent)
+        }
+
+        if !updateTokens.isEmpty {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Re-syncing \(updateTokens.count) Live Activity update token(s).")
+            for (liveActivityID, tokenData) in updateTokens {
+                let updateTokenResyncEvent = Event(
+                    name: MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN_RESYNC,
+                    type: EventType.messaging,
+                    source: EventSource.requestContent,
+                    data: [
+                        MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN: true,
+                        MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN_RESYNC: true,
+                        MessagingConstants.XDM.Push.TOKEN: tokenData.token,
+                        MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: tokenData.attributeType,
+                        MessagingConstants.XDM.LiveActivity.ID: liveActivityID
+                    ])
+                dispatch(event: updateTokenResyncEvent)
+            }
         }
 
         // Cleared so `shouldSyncPushToken`'s same-token guard does not block the re-flow.

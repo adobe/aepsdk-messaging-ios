@@ -101,6 +101,7 @@ enum MessagingConstants {
                 static let START_EDGE = "Live Activity start to Edge"
                 static let UPDATE_TOKEN = "Live Activity update token"
                 static let UPDATE_TOKEN_EDGE = "Live Activity update token to Edge"
+                static let UPDATE_TOKEN_RESYNC = "Live Activity update token re-sync"
                 /// Name of the consent-independent operational-data event that forwards Live Activity tokens.
                 static let SYNC_OPERATIONAL_DATA = "Sync Operational Data"
             }
@@ -172,6 +173,8 @@ enum MessagingConstants {
                     static let TRACK_START = "isLiveActivityTrackStartEvent"
                     static let TRACK_STATE = "isLiveActivityTrackStateEvent"
                     static let UPDATE_TOKEN = "isLiveActivityUpdateTokenEvent"
+                    /// Marks an update-token event dispatched by the consent re-sync rather than by a token change.
+                    static let UPDATE_TOKEN_RESYNC = "isLiveActivityUpdateTokenResync"
 
                     // MARK: Consent-independent operational-data forwarding keys
                     // Keys carried by the `generic.operationalData` event and by the operational data confirmation

@@ -309,6 +309,11 @@ extension Event {
         isMessagingType && isRequestContentSource && liveActivityUpdateTokenFlag
     }
 
+    var isLiveActivityUpdateTokenResyncEvent: Bool {
+        isLiveActivityUpdateTokenEvent &&
+            (data?[MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN_RESYNC] as? Bool ?? false)
+    }
+
     var isLiveActivityPushToStartTokenEvent: Bool {
         isMessagingType && isRequestContentSource && liveActivityPushToStartTokenFlag
     }

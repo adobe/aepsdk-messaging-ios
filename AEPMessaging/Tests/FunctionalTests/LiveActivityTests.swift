@@ -1021,7 +1021,210 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         }
     }
 
+    // MARK: - Consent no -> yes update token re-sync Tests
+
+    func test_ConsentResync_OneTrackedToken_SendsStoredTokenWithLiveActivityID() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        simulateCollectConsent("y")
+
+        simulateConsentResyncEvent()
+
+        let resyncEvents = dispatchedUpdateTokenResyncEvents()
+        XCTAssertEqual(1, resyncEvents.count)
+        XCTAssertEqual("activity-A", resyncEvents.first?.liveActivityID)
+
+        processDispatchedUpdateTokenResyncEvents()
+
+        XCTAssertEqual(["activity-A": "token-A"], updateTokenEdgePairs())
+        XCTAssertEqual(1, updateTokenEdgeEventCount())
+        // consent is "y": no consent-independent forward, and the re-sync neither writes the store nor republishes state
+        XCTAssertTrue(dispatchedOperationalDataEvents().isEmpty)
+        XCTAssertTrue(mockRuntime.createdSharedStates.isEmpty)
+    }
+
+    func test_ConsentResync_MultipleTrackedTokens_SendsEachIdWithItsOwnToken() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        trackUpdateToken("token-B", liveActivityID: "activity-B")
+        trackUpdateToken("token-C", liveActivityID: "activity-C")
+        simulateCollectConsent("y")
+
+        simulateConsentResyncEvent()
+        XCTAssertEqual(3, dispatchedUpdateTokenResyncEvents().count)
+        processDispatchedUpdateTokenResyncEvents()
+
+        XCTAssertEqual(["activity-A": "token-A", "activity-B": "token-B", "activity-C": "token-C"], updateTokenEdgePairs())
+        XCTAssertEqual(3, updateTokenEdgeEventCount())
+    }
+
+    func test_ConsentResync_NoTrackedTokens_DispatchesNothing() {
+        simulateCollectConsent("y")
+
+        simulateConsentResyncEvent()
+
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func test_ConsentResync_FlagNotSet_DoesNotResyncUpdateTokens() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        simulateCollectConsent("y")
+
+        simulateConsentResyncEvent(resyncRequired: false)
+
+        XCTAssertTrue(dispatchedUpdateTokenResyncEvents().isEmpty)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func test_ConsentResync_YesNoYes_ResyncsAgainWithTheSameToken() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        simulateCollectConsent("y")
+        simulateConsentResyncEvent()
+        processDispatchedUpdateTokenResyncEvents()
+        XCTAssertEqual(["activity-A": "token-A"], updateTokenEdgePairs())
+
+        simulateCollectConsent("n")
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+        simulateCollectConsent("y")
+        simulateConsentResyncEvent()
+        processDispatchedUpdateTokenResyncEvents()
+
+        XCTAssertEqual(["activity-A": "token-A"], updateTokenEdgePairs())
+        XCTAssertEqual(1, updateTokenEdgeEventCount())
+    }
+
+    func test_ConsentResync_ActivityEndedBeforeResyncEventHandled_IsNotSentOrReAdded() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        trackUpdateToken("token-B", liveActivityID: "activity-B")
+        simulateCollectConsent("y")
+        simulateConsentResyncEvent()
+
+        let endedEvent = createStateEvent(state: MessagingConstants.LiveActivity.States.ENDED, liveActivityID: "activity-A", channelID: nil)
+        simulateEventWithSharedStates(endedEvent)
+        processDispatchedUpdateTokenResyncEvents()
+
+        XCTAssertEqual(["activity-B": "token-B"], updateTokenEdgePairs())
+
+        // a later consent grant still does not bring the ended activity back
+        simulateConsentResyncEvent()
+        processDispatchedUpdateTokenResyncEvents()
+        XCTAssertEqual(["activity-B": "token-B"], updateTokenEdgePairs())
+    }
+
+    func test_ConsentResync_TokenRefreshedBeforeResyncEventHandled_SendsNewestToken() {
+        trackUpdateToken("token-old", liveActivityID: "activity-A")
+        simulateCollectConsent("y")
+        simulateConsentResyncEvent()
+
+        simulateEventWithSharedStates(createUpdateTokenEvent(token: "token-new", attributeType: ATTRIBUTE_TYPE, liveActivityID: "activity-A"))
+        processDispatchedUpdateTokenResyncEvents()
+
+        XCTAssertEqual(["activity-A": "token-new"], updateTokenEdgePairs())
+        XCTAssertEqual(1, updateTokenEdgeEventCount())
+    }
+
+    func test_ConsentResync_ConsentRevokedBeforeResyncEventHandled_SendsNothing() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        simulateCollectConsent("y")
+        simulateConsentResyncEvent()
+
+        simulateCollectConsent("n")
+        processDispatchedUpdateTokenResyncEvents()
+
+        XCTAssertEqual(0, updateTokenEdgeEventCount())
+        XCTAssertTrue(dispatchedOperationalDataEvents().isEmpty)
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func test_ConsentResync_EndedRefreshedAndUnchangedActivities_EachHandledCorrectly() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        trackUpdateToken("token-B", liveActivityID: "activity-B")
+        trackUpdateToken("token-C", liveActivityID: "activity-C")
+        simulateCollectConsent("y")
+        simulateConsentResyncEvent()
+
+        simulateEventWithSharedStates(createStateEvent(state: MessagingConstants.LiveActivity.States.ENDED, liveActivityID: "activity-A", channelID: nil))
+        simulateEventWithSharedStates(createUpdateTokenEvent(token: "token-B2", attributeType: ATTRIBUTE_TYPE, liveActivityID: "activity-B"))
+        processDispatchedUpdateTokenResyncEvents()
+
+        XCTAssertEqual(["activity-B": "token-B2", "activity-C": "token-C"], updateTokenEdgePairs())
+        XCTAssertEqual(2, updateTokenEdgeEventCount())
+    }
+
+    func test_ConsentResync_AfterResetIdentities_DoesNotResyncClearedUpdateTokens() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        simulateEvent(createResetIdentitiesEvent(), ecid: ECID)
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+        simulateCollectConsent("y")
+
+        simulateConsentResyncEvent()
+
+        XCTAssertTrue(dispatchedUpdateTokenResyncEvents().isEmpty)
+    }
+
+    func test_ConsentResync_PushToStartAndUpdateTokens_BothAreResynced() {
+        simulateEventWithSharedStates(createPushToStartEvent(token: PUSH_TO_START_TOKEN, attributeType: ATTRIBUTE_TYPE))
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        simulateCollectConsent("y")
+
+        simulateConsentResyncEvent()
+
+        XCTAssertEqual(1, mockRuntime.dispatchedEvents.filter { $0.isLiveActivityPushToStartTokenEvent }.count)
+        XCTAssertEqual(1, dispatchedUpdateTokenResyncEvents().count)
+    }
+
     // MARK: - Helper Methods
+
+    private func simulateConsentResyncEvent(resyncRequired: Bool = true) {
+        var data: [String: Any] = [
+            MessagingConstants.Event.Data.Key.Consent.CONSENTS: [
+                MessagingConstants.Event.Data.Key.Consent.COLLECT: [
+                    MessagingConstants.Event.Data.Key.Consent.VAL: "y"
+                ]
+            ]
+        ]
+        if resyncRequired {
+            data[MessagingConstants.Event.Data.Key.Consent.COLLECT_CONSENT_RESYNC_REQUIRED] = true
+        }
+        mockRuntime.simulateComingEvents(Event(name: "Consent Preferences Updated",
+                                               type: EventType.edgeConsent,
+                                               source: EventSource.responseContent,
+                                               data: data))
+    }
+
+    /// Tracks an update token through the normal flow, then clears the dispatched events so only the re-sync is observed.
+    private func trackUpdateToken(_ token: String, liveActivityID: String) {
+        simulateEventWithSharedStates(createUpdateTokenEvent(token: token, attributeType: ATTRIBUTE_TYPE, liveActivityID: liveActivityID))
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+    }
+
+    private func dispatchedUpdateTokenResyncEvents() -> [Event] {
+        mockRuntime.dispatchedEvents.filter { $0.name == MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN_RESYNC }
+    }
+
+    /// The mock runtime does not route dispatched events back, so feed the re-sync events through the extension.
+    private func processDispatchedUpdateTokenResyncEvents() {
+        let resyncEvents = dispatchedUpdateTokenResyncEvents()
+        mockRuntime.resetDispatchedEventAndCreatedSharedStates()
+        resyncEvents.forEach { simulateEventWithSharedStates($0) }
+    }
+
+    private func updateTokenEdgeEvents() -> [Event] {
+        mockRuntime.dispatchedEvents.filter { $0.name == MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN_EDGE }
+    }
+
+    private func updateTokenEdgeEventCount() -> Int {
+        updateTokenEdgeEvents().count
+    }
+
+    private func updateTokenEdgePairs() -> [String: String] {
+        var pairs: [String: String] = [:]
+        for event in updateTokenEdgeEvents() {
+            let data = event.data?["data"] as? [String: Any]
+            if let id = data?["liveActivityID"] as? String, let token = data?["token"] as? String {
+                pairs[id] = token
+            }
+        }
+        return pairs
+    }
 
     private let PUSH_TOKEN = "mockPushToken"
 
