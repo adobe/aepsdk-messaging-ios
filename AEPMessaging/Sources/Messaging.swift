@@ -973,7 +973,7 @@ public class Messaging: NSObject, Extension {
 
         dispatchPersistedTokenResync(includePushToken: true,
                                      pushToStartTokens: stateManager.pushToStartTokenStore.all(),
-                                     updateTokens: stateManager.updateTokenStore.all(),
+                                     updateTokenLiveActivityIDs: stateManager.updateTokenStore.all().keys.sorted(),
                                      event: event)
     }
 
@@ -1001,7 +1001,7 @@ public class Messaging: NSObject, Extension {
     /// using the current ECID. Shared by reset-identities and consent-granted flows.
     private func dispatchPersistedTokenResync(includePushToken: Bool,
                                               pushToStartTokens: [LiveActivity.AttributeType: LiveActivity.PushToStartToken],
-                                              updateTokens: [String: LiveActivity.UpdateToken] = [:],
+                                              updateTokenLiveActivityIDs: [String] = [],
                                               event: Event) {
         if !pushToStartTokens.isEmpty {
             // Cleared so the same-token equivalence guard does not drop the re-flow.
@@ -1023,9 +1023,10 @@ public class Messaging: NSObject, Extension {
             dispatch(event: resyncEvent)
         }
 
-        if !updateTokens.isEmpty {
-            Log.debug(label: MessagingConstants.LOG_TAG, "Re-syncing \(updateTokens.count) Live Activity update token(s).")
-            for (liveActivityID, tokenData) in updateTokens {
+        if !updateTokenLiveActivityIDs.isEmpty {
+            Log.debug(label: MessagingConstants.LOG_TAG, "Re-syncing \(updateTokenLiveActivityIDs.count) Live Activity update token(s).")
+            for liveActivityID in updateTokenLiveActivityIDs {
+                // Only the ID is carried: the handler sends whatever token is stored for it when the event is handled.
                 let updateTokenResyncEvent = Event(
                     name: MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN_RESYNC,
                     type: EventType.messaging,
@@ -1033,8 +1034,6 @@ public class Messaging: NSObject, Extension {
                     data: [
                         MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN: true,
                         MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN_RESYNC: true,
-                        MessagingConstants.XDM.Push.TOKEN: tokenData.token,
-                        MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: tokenData.attributeType,
                         MessagingConstants.XDM.LiveActivity.ID: liveActivityID
                     ])
                 dispatch(event: updateTokenResyncEvent)

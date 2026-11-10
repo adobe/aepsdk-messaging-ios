@@ -1171,6 +1171,61 @@ class LiveActivityTests: XCTestCase, AnyCodableAsserts {
         XCTAssertEqual(1, dispatchedUpdateTokenResyncEvents().count)
     }
 
+    func test_ConsentResync_ConsentPendingWhenResyncEventHandled_SendsNothing() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        simulateCollectConsent("y")
+        simulateConsentResyncEvent()
+
+        simulateCollectConsent("p")
+        processDispatchedUpdateTokenResyncEvents()
+
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func test_ConsentResync_ConsentExtensionNotRegistered_TreatedAsYes_SendsStoredToken() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        simulateConsentResyncEvent()
+
+        removeCollectConsent()
+        simulateEventHubExtensions([:])
+        processDispatchedUpdateTokenResyncEvents()
+
+        XCTAssertEqual(["activity-A": "token-A"], updateTokenEdgePairs())
+        XCTAssertTrue(dispatchedOperationalDataEvents().isEmpty)
+    }
+
+    func test_ConsentResync_ResyncEventWithoutLiveActivityID_SendsNothing() {
+        trackUpdateToken("token-A", liveActivityID: "activity-A")
+        simulateCollectConsent("y")
+
+        simulateEventWithSharedStates(Event(name: MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN_RESYNC,
+                                            type: EventType.messaging,
+                                            source: EventSource.requestContent,
+                                            data: [
+                                                MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN: true,
+                                                MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN_RESYNC: true
+                                            ]))
+
+        XCTAssertTrue(mockRuntime.dispatchedEvents.isEmpty)
+    }
+
+    func test_UpdateTokenEvent_WithNonBooleanResyncFlag_IsHandledAsNormalTokenEvent() {
+        simulateCollectConsent("y")
+
+        simulateEventWithSharedStates(Event(name: MessagingConstants.Event.Name.LiveActivity.UPDATE_TOKEN,
+                                            type: EventType.messaging,
+                                            source: EventSource.requestContent,
+                                            data: [
+                                                MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN: true,
+                                                MessagingConstants.Event.Data.Key.LiveActivity.UPDATE_TOKEN_RESYNC: "true",
+                                                MessagingConstants.XDM.Push.TOKEN: "token-N",
+                                                MessagingConstants.Event.Data.Key.LiveActivity.ATTRIBUTE_TYPE: ATTRIBUTE_TYPE,
+                                                MessagingConstants.XDM.LiveActivity.ID: "activity-N"
+                                            ]))
+
+        XCTAssertEqual(["activity-N": "token-N"], updateTokenEdgePairs())
+    }
+
     // MARK: - Helper Methods
 
     private func simulateConsentResyncEvent(resyncRequired: Bool = true) {
