@@ -533,12 +533,12 @@ public class Messaging: NSObject, Extension {
             return
         }
 
-        if event.isLiveActivityUpdateTokenEvent {
-            if event.isLiveActivityUpdateTokenResyncEvent {
-                handleLiveActivityUpdateTokenResync(event)
-                return
-            }
+        if event.isLiveActivityUpdateTokenResyncEvent {
+            handleLiveActivityUpdateTokenResync(event)
+            return
+        }
 
+        if event.isLiveActivityUpdateTokenEvent {
             guard let token = event.liveActivityUpdateToken, !token.isEmpty else {
                 Log.warning(label: MessagingConstants.LOG_TAG, "Unable to process Live Activity update event (\(event.id.uuidString)) because a valid token could not be found in the event.")
                 return
