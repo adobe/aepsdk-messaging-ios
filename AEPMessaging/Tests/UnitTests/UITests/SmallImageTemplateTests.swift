@@ -15,6 +15,7 @@ import XCTest
 @testable import AEPMessaging
 
 @available(iOS 15.0, *)
+@MainActor
 final class SmallImageTemplateTests: XCTestCase {
     
     var emptyCustomizer = EmptyCustomizer()

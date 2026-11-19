@@ -18,15 +18,15 @@ set -e
 PROJECT_NAME=Swift6Consumer
 
 rm -rf $PROJECT_NAME
-mkdir -p $PROJECT_NAME/Sources/$PROJECT_NAME && cd $PROJECT_NAME
+mkdir -p $PROJECT_NAME/Sources/$PROJECT_NAME $PROJECT_NAME/Sources/MainActorConsumer && cd $PROJECT_NAME
 
 cat > Package.swift <<'EOF'
-// swift-tools-version:6.0
+// swift-tools-version:6.2
 import PackageDescription
 let package = Package(
     name: "Swift6Consumer",
     platforms: [.iOS(.v15)],
-    products: [.library(name: "Swift6Consumer", targets: ["Swift6Consumer"])],
+    products: [.library(name: "Swift6Consumer", targets: ["Swift6Consumer", "MainActorConsumer"])],
     dependencies: [.package(name: "AEPMessaging", path: "../")],
     targets: [
         .target(
@@ -36,6 +36,11 @@ let package = Package(
                 .product(name: "AEPMessagingNotification", package: "AEPMessaging")
             ],
             swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        .target(
+            name: "MainActorConsumer",
+            dependencies: [.product(name: "AEPMessaging", package: "AEPMessaging")],
+            swiftSettings: [.swiftLanguageMode(.v6), .defaultIsolation(MainActor.self)]
         )
     ]
 )
@@ -86,6 +91,57 @@ struct CardsScreen: View, ContentCardUIEventListening, InboxEventListening {
     func onCardDisplayed(_ card: ContentCardUI) {}
     func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool { false }
     func onCardCreated(_ card: ContentCardUI) {}
+}
+
+final class CardCoordinator: ContentCardUIEventListening, ContentCardCustomizing {
+    func customize(template: SmallImageTemplate) { template.title.textColor = .red }
+
+    func onDisplay(_ card: ContentCardUI) {}
+    func onDismiss(_ card: ContentCardUI) {}
+    func onInteract(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool { false }
+}
+
+final class InboxCoordinator: InboxEventListening, ContentCardCustomizing {
+    func customize(template: LargeImageTemplate) { template.title.textColor = .blue }
+
+    func onLoading(_ inbox: InboxUI) {}
+    func onSuccess(_ inbox: InboxUI) {}
+    func onError(_ inbox: InboxUI, _ error: Error) {}
+    func onCardDismissed(_ card: ContentCardUI) {}
+    func onCardDisplayed(_ card: ContentCardUI) {}
+    func onCardInteracted(_ card: ContentCardUI, _ interactionId: String, actionURL: URL?) -> Bool { false }
+    func onCardCreated(_ card: ContentCardUI) {}
+}
+
+struct StyledCardsScreen: View, ContentCardCustomizing {
+    var body: some View { Text("styled") }
+
+    func customize(template: ImageOnlyTemplate) {}
+}
+
+@MainActor
+func loadCustomizedCards(surface: Surface) -> InboxUI {
+    let cards = CardCoordinator()
+    Messaging.getContentCardsUI(for: surface, customizer: cards, listener: cards) { result in
+        let count = (try? result.get())?.count ?? 0
+        Task { @MainActor in print(count) }
+    }
+    Messaging.getContentCardsUI(for: surface, customizer: StyledCardsScreen()) { _ in }
+    let inbox = InboxCoordinator()
+    return InboxUI(surface: surface, customizer: inbox, listener: inbox)
+}
+EOF
+
+cat > Sources/MainActorConsumer/MainActorConsumer.swift <<'EOF'
+import AEPMessaging
+
+final class PlainCustomizer: ContentCardCustomizing {
+    func customize(template: SmallImageTemplate) { template.title.textColor = .red }
+}
+
+func loadCards(surface: Surface) -> InboxUI {
+    Messaging.getContentCardsUI(for: surface, customizer: PlainCustomizer()) { _ in }
+    return InboxUI(surface: surface, customizer: PlainCustomizer())
 }
 EOF
 

@@ -16,6 +16,7 @@ import XCTest
 @testable import AEPServices
 
 @available(iOS 15.0, *)
+@MainActor
 class ReadStatusManagerTests: XCTestCase {
     
     var manager: ReadStatusManager!

@@ -85,6 +85,7 @@ public class ContentCardUI: Identifiable {
     ///    - customizer: An optional object conforming to `ContentCardCustomizing` protocol that allows for custom styling of the content card
     ///    - listener: An optional object conforming to `ContentCardUIEventListening` protocol implemented by the host app to listen to UI events from the content card
     /// - Returns: An initialized `ContentCardUI` instance, or `nil` if unable to create template from proposition
+    @MainActor
     static func createInstance(with proposition: Proposition,
                                customizer: ContentCardCustomizing?,
                                listener: ContentCardUIEventListening?) -> ContentCardUI? {

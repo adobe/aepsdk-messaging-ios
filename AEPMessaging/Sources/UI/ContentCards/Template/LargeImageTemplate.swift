@@ -62,6 +62,7 @@ public class LargeImageTemplate: BaseTemplate, ContentCardTemplate {
     ///    - customizer: An object conforming to ContentCardCustomizing protocol that allows for
     ///                 custom styling of the content card
     /// - Returns: An initialized `LargeImageTemplate` or `nil` if the required title is missing.
+    @MainActor
     init?(_ schemaData: ContentCardSchemaData, _ customizer: ContentCardCustomizing? = nil) {
         guard let title = schemaData.title else {
             return nil

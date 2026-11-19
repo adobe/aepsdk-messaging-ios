@@ -15,6 +15,7 @@ import AEPServices
 @testable import AEPMessaging
 import SwiftUI
 
+@MainActor
 class UnreadStateTests: XCTestCase {
     
     var mockSchemaData: ContentCardSchemaData!

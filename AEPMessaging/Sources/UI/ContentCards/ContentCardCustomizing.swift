@@ -13,7 +13,9 @@
 import Foundation
 
 /// Protocol for customizing Content Card templates
+// Main actor to match the listener protocols; @preconcurrency keeps Swift 5 conformances compiling.
 @available(iOS 15.0, *)
+@preconcurrency @MainActor
 public protocol ContentCardCustomizing {
     /// Implement this function to customize content cards with SmallImageTemplate
     func customize(template: SmallImageTemplate)

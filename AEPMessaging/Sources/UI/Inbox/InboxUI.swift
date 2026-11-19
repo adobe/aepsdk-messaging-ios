@@ -331,6 +331,7 @@ public class InboxUI: Identifiable, ObservableObject {
     /// that were not available during the initial template creation.
     ///
     /// - Parameter card: The content card UI instance to customize
+    @MainActor
     private func applyCustomizer(to card: ContentCardUI) {
         guard let customizer = customizer else { return }
         
