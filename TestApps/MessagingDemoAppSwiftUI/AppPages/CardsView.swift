@@ -57,7 +57,8 @@ private final class EdgeNetworkSimulator: Networking {
     }
 
     // Singleton: install once, configure/clear as needed.
-    private static var _instance: EdgeNetworkSimulator?
+    // Swift 6 flags mutable statics as unsafe. The simulator is installed and cleared from the UI on main so we mark it nonisolated(unsafe).
+    nonisolated(unsafe) private static var _instance: EdgeNetworkSimulator?
     private let realService: Networking
 
     private(set) var current: Simulation?
@@ -537,6 +538,8 @@ struct CardsView: View, ContentCardUIEventListening {
         Messaging.getContentCardsUI(for: cardsSurface,
                                     customizer: CardCustomizer(),
                                     listener: self) { result in
+            // SDK callbacks run on a background queue so UI state is updated on main. The result is only read there, so passing it across is safe.
+            nonisolated(unsafe) let result = result
             DispatchQueue.main.async {
                 showLoadingIndicator = false
                 handleResult(result, source: "Persisted disk cache")
@@ -563,6 +566,8 @@ struct CardsView: View, ContentCardUIEventListening {
         Messaging.getContentCardsUI(for: cardsSurface,
                                     customizer: CardCustomizer(),
                                     listener: self) { result in
+            // SDK callbacks run on a background queue so UI state is updated on main. The result is only read there, so passing it across is safe.
+            nonisolated(unsafe) let result = result
             DispatchQueue.main.async {
                 showLoadingIndicator = false
                 handleResult(result, source: "cardsSurface")
@@ -573,6 +578,8 @@ struct CardsView: View, ContentCardUIEventListening {
     func logPropositions() {
         statusMessage = "Calling getPropositionsForSurfaces..."
         Messaging.getPropositionsForSurfaces([ cardsSurface]) { propositionDict, error in
+            // SDK callbacks run on a background queue so UI state is updated on main. The propositions are only read there, so passing them across is safe.
+            nonisolated(unsafe) let propositionDict = propositionDict
             DispatchQueue.main.async {
                 if let error = error {
                     propositionsLog = "ERROR: \(error)"

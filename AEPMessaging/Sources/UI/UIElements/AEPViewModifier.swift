@@ -21,10 +21,11 @@ import Foundation
 /// allowing for dynamic application of modifiers to views.
 @available(iOS 15.0, *)
 public struct AEPViewModifier: ViewModifier {
-    private let _body: (Content) -> any View
+    nonisolated(unsafe) private let _body: (Content) -> any View
 
     /// Initializes a new `AEPViewModifier` with the given SwiftUI view modifier.
-    public init<M: ViewModifier>(_ modifier: M) {
+    // Customizers can create modifiers off main; this only stores a closure.
+    public nonisolated init<M: ViewModifier>(_ modifier: M) {
         _body = { content in
             content.modifier(modifier)
         }

@@ -18,7 +18,8 @@ import Foundation
 public class Messaging: NSObject, Extension {
     // MARK: - Class members
 
-    public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
+    // Set once at load and only read afterwards.
+    nonisolated(unsafe) public static var extensionVersion: String = MessagingConstants.EXTENSION_VERSION
     public var name = MessagingConstants.EXTENSION_NAME
     public var friendlyName = MessagingConstants.FRIENDLY_NAME
     public var metadata: [String: String]?
@@ -31,7 +32,8 @@ public class Messaging: NSObject, Extension {
 
     // Queue for completion handlers providing thread-safe read/writing of the `completionHandlers` array
     private static let handlersQueue: DispatchQueue = .init(label: "com.adobe.messaging.completionHandlers.queue")
-    private static var _completionHandlers: [CompletionHandler] = []
+    // Access is serialized by handlersQueue.
+    nonisolated(unsafe) private static var _completionHandlers: [CompletionHandler] = []
     static var completionHandlers: [CompletionHandler] {
         get { handlersQueue.sync { self._completionHandlers } }
         set { handlersQueue.async { self._completionHandlers = newValue } }

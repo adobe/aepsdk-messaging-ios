@@ -18,7 +18,8 @@ import UIKit
 // specifically tracking whether the app is currently in the background or foreground.
 final class AppStateManager {
     /// The shared instance of `AppStateManager` used to access the singleton instance throughout the app.
-    static let shared = AppStateManager()
+    // Its only state is written on main by lifecycle notifications.
+    nonisolated(unsafe) static let shared = AppStateManager()
 
     /// A Boolean value indicating whether the app is currently in the background.
     private(set) var isAppInBackground = false

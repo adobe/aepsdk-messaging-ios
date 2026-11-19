@@ -12,10 +12,22 @@ workflows:
   build-test-deploy:
     jobs:
       - validate-code
-      - test-ios:
+      - test-ios-unit:
+          requires:
+            - validate-code
+      - test-ios-functional:
+          requires:
+            - validate-code
+      - test-ios-integration:
           requires:
             - validate-code
       - test-spm-podspec-archive:
+          requires:
+            - validate-code
+      - build-swift6:
+          requires:
+            - validate-code
+      - build-min-toolchain:
           requires:
             - validate-code
 
@@ -67,14 +79,14 @@ commands:
     steps:
       - macos/preboot-simulator:
           platform: "iOS"
-          version: "18.5"
-          device: "iPhone 16"
+          version: "27.0"
+          device: "iPhone 18 Pro"
 
 jobs:
   validate-code:
     resource_class: m4pro.medium
     macos:
-      xcode: 16.4.0 # Specify the Xcode version to use
+      xcode: 27.0.0 # Specify the Xcode version to use
 
     steps:
       - checkout
@@ -85,43 +97,49 @@ jobs:
           name: Lint Source Code
           command: make lint
 
-  test-ios:
+  test-ios-unit:
     resource_class: m4pro.medium
     macos:
-      xcode: 16.4.0 # Specify the Xcode version to use
+      xcode: 27.0.0 # Specify the Xcode version to use
 
     steps:
       - checkout
-
       - install_dependencies
-
       - prestart_ios_simulator
-
       - run:
           name: Run Unit Tests
           command: make unit-test
 
-      # Code coverage upload using Codecov
-      # See options explanation here: https://docs.codecov.com/docs/codecov-uploader
-      # - codecov/upload:
-      #     flags: aepmessaging-ios-tests
-      #     upload_name: Coverage Report for AEPMessaging iOS Tests
-      #     xtra_args: -c -v --xc --xp ./build/AEPMessaging.xcresult
+  test-ios-functional:
+    resource_class: m4pro.medium
+    macos:
+      xcode: 27.0.0 # Specify the Xcode version to use
 
+    steps:
+      - checkout
+      - install_dependencies
+      - prestart_ios_simulator
       - run:
           name: Run Functional Tests
           command: make functional-test
-          when: always # run even if unit tests fail
 
+  test-ios-integration:
+    resource_class: m4pro.medium
+    macos:
+      xcode: 27.0.0 # Specify the Xcode version to use
+
+    steps:
+      - checkout
+      - install_dependencies
+      - prestart_ios_simulator
       - run:
           name: Run Integration Tests
           command: make integration-test
-          when: always # run even if unit tests fail
 
   test-spm-podspec-archive:
     resource_class: m4pro.medium
     macos:
-      xcode: 16.4.0 # Specify the Xcode version to use
+      xcode: 27.0.0 # Specify the Xcode version to use
 
     steps:
       - checkout
@@ -148,3 +166,30 @@ jobs:
             if [ "${CIRCLE_BRANCH}" == "main" ] || [ "${CIRCLE_BRANCH}" == "staging" ]; then
               make test-SPM-integration
             fi
+
+  build-swift6:
+    resource_class: m4pro.medium
+    macos:
+      xcode: 27.0.0
+
+    steps:
+      - checkout
+      - install_dependencies
+      - run:
+          name: Build Messaging modules in Swift 6 language mode (dependencies keep their modes)
+          command: make build-swift6
+      - run:
+          name: Build Swift 6 consumer (plain closures and listeners from main actor code)
+          command: make test-swift6-consumer
+
+  build-min-toolchain:
+    resource_class: m4pro.medium
+    macos:
+      xcode: 15.4.0
+
+    steps:
+      - checkout
+      - install_dependencies
+      - run:
+          name: Build on minimum supported toolchain (Xcode 15.4 / Swift 5.10)
+          command: make build-min-toolchain

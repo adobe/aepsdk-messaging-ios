@@ -68,7 +68,8 @@ class ViewController: UIViewController {
             
             // access to the whole message from the parent
             let fullscreenMessage = message as? FullscreenMessage
-            let message = fullscreenMessage?.parent
+            // The message is captured by the JavaScript handler and the main queue hop below. It is only used on main, so sharing it with those closures is safe.
+            nonisolated(unsafe) let message = fullscreenMessage?.parent
 
             // in-line handling of javascript calls
             // see Assets/nativeMethodCallingSample.html for an example of how to call this method

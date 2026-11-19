@@ -55,6 +55,40 @@ class GetContentCardUITest : IntegrationTestBase {
             try await getContentCardUI(invalidSurface)
         }
     }
+
+    @Test("customizer and completion run on main")
+    @MainActor
+    func customizerRunsOnMain() async throws {
+        // setup
+        setContentCardResponse(fromFile: "MultipleCards")
+        let customizer = MainThreadCustomizer()
+
+        // test
+        Messaging.updatePropositionsForSurfaces([homeSurface])
+        let completionOnMain = try await withCheckedThrowingContinuation { continuation in
+            Messaging.getContentCardsUI(for: homeSurface, customizer: customizer) { result in
+                switch result {
+                case .success: continuation.resume(returning: Thread.isMainThread)
+                case .failure(let error): continuation.resume(throwing: error)
+                }
+            }
+        }
+
+        // verify
+        #expect(completionOnMain)
+        let calls = customizer.calls
+        #expect(calls.count == 4)
+        #expect(calls.allSatisfy { $0 })
+    }
+}
+
+@MainActor
+private final class MainThreadCustomizer: ContentCardCustomizing {
+    var calls: [Bool] = []
+
+    func customize(template: SmallImageTemplate) { calls.append(Thread.isMainThread) }
+    func customize(template: LargeImageTemplate) { calls.append(Thread.isMainThread) }
+    func customize(template: ImageOnlyTemplate) { calls.append(Thread.isMainThread) }
 }
 
 /// Covers the app-boot hydration path: `hydrateAllPersistedContentCards()`, which is invoked once from

@@ -13,6 +13,8 @@
 import Foundation
 
 @available(iOS 15.0, *)
+// Called from SwiftUI actions and forwards to the main actor listeners.
+@MainActor
 protocol TemplateEventHandler: AnyObject {
     /// Called when the templated content card appears on the screen
     func onDisplay()

@@ -17,6 +17,7 @@ import SwiftUI
 @testable import AEPCore
 
 @available(iOS 15.0, *)
+@MainActor
 class InboxUITests: XCTestCase {
 
     var inbox: InboxUI!

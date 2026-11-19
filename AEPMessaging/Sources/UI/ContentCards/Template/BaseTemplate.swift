@@ -90,7 +90,20 @@ public class BaseTemplate: ObservableObject {
 @available(iOS 15.0, *)
 private struct TemplateWrapperView<Content: View>: View {
     @ObservedObject var template: BaseTemplate
-    let content: () -> Content
+    nonisolated(unsafe) let content: () -> Content
+
+    // Only stores its input so the view can be built off main; Swift 5.10 rejects this as nonisolated, so it is gated to Swift 6 mode.
+    #if swift(>=6.0)
+    nonisolated init(template: BaseTemplate, content: @escaping () -> Content) {
+        self.template = template
+        self.content = content
+    }
+    #else
+    init(template: BaseTemplate, content: @escaping () -> Content) {
+        self.template = template
+        self.content = content
+    }
+    #endif
     
     var body: some View {
         content()

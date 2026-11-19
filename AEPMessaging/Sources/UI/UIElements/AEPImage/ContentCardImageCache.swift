@@ -20,7 +20,8 @@
 @available(iOS 15.0, *)
 enum ContentCardImageCache {
     /// The underlying cache used for storing images.
-    private static let cache = Cache(name: MessagingConstants.Caches.CONTENT_CARD_UI_CACHE_NAME)
+    // AEPServices Cache is backed by a thread safe store.
+    nonisolated(unsafe) private static let cache = Cache(name: MessagingConstants.Caches.CONTENT_CARD_UI_CACHE_NAME)
 
     /// Accessor to retrieve or store images in the cache by URL.
     ///

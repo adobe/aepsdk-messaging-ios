@@ -23,50 +23,68 @@ public extension Messaging {
     ///   - completion: A completion handler that is called with a `Result` type containing either:
     ///     - success([ContentCardUI]):  An array of `ContentCardUI` objects if the operation is successful.
     ///     - failure(Error) : An error indicating the failure reason
-    static func getContentCardsUI(for surface: Surface,
-                                  customizer: ContentCardCustomizing? = nil,
-                                  listener: ContentCardUIEventListening? = nil,
-                                  _ completion: @escaping (Result<[ContentCardUI], Error>) -> Void) {
+    // Called on main since cards and the customizer are main actor; @preconcurrency keeps old callers compiling.
+    @preconcurrency static func getContentCardsUI(for surface: Surface,
+                                                  customizer: ContentCardCustomizing? = nil,
+                                                  listener: ContentCardUIEventListening? = nil,
+                                                  _ completion: @escaping @Sendable (Result<[ContentCardUI], Error>) -> Void) {
         // Request propositions for the specified surface from Messaging extension.
         Messaging.getPropositionsForSurfaces([surface]) { propositionDict, error in
-            if let error = error {
-                Log.error(label: UIConstants.LOG_TAG,
-                          "Error retrieving content cards UI for surface, \(surface.uri). Error \(error)")
-                completion(.failure(error))
-                return
+            // Handed off to main and not used again on the SDK queue.
+            nonisolated(unsafe) let surface = surface
+            nonisolated(unsafe) let propositionDict = propositionDict
+            nonisolated(unsafe) let customizer = customizer
+            nonisolated(unsafe) let listener = listener
+            DispatchQueue.main.async {
+                buildContentCards(for: surface, propositionDict, error, customizer, listener, completion)
             }
-
-            var cards: [ContentCardUI] = []
-
-            // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
-            guard let propositions = propositionDict?[surface] else {
-                completion(.failure(ContentCardUIError.dataUnavailable))
-                return
-            }
-
-            for proposition in propositions {
-                // attempt to create a ContentCardUI instance with the schema data.
-                guard let contentCard = ContentCardUI.createInstance(with: proposition,
-                                                                     customizer: customizer,
-                                                                     listener: listener) else {
-                    Log.warning(label: UIConstants.LOG_TAG,
-                                "Failed to create ContentCardUI for proposition with ID: \(proposition.uniqueId)")
-                    continue
-                }
-
-                // append the successfully created content card to the cards array.
-                cards.append(contentCard)
-            }
-            
-            // Cleanup stale read status entries for this surface
-            // This ensures read statuses are removed when campaigns end
-            ReadStatusManager.shared.cleanupStaleReadStatus(
-                currentCards: cards,
-                surfaceUri: surface.uri
-            )
-
-            completion(.success(cards))
         }
+    }
+
+    @MainActor
+    private static func buildContentCards(for surface: Surface,
+                                          _ propositionDict: [Surface: [Proposition]]?,
+                                          _ error: Error?,
+                                          _ customizer: ContentCardCustomizing?,
+                                          _ listener: ContentCardUIEventListening?,
+                                          _ completion: @Sendable (Result<[ContentCardUI], Error>) -> Void) {
+        if let error = error {
+            Log.error(label: UIConstants.LOG_TAG,
+                      "Error retrieving content cards UI for surface, \(surface.uri). Error \(error)")
+            completion(.failure(error))
+            return
+        }
+
+        var cards: [ContentCardUI] = []
+
+        // unwrap the proposition items for the given surface. Bail out with error if unsuccessful
+        guard let propositions = propositionDict?[surface] else {
+            completion(.failure(ContentCardUIError.dataUnavailable))
+            return
+        }
+
+        for proposition in propositions {
+            // attempt to create a ContentCardUI instance with the schema data.
+            guard let contentCard = ContentCardUI.createInstance(with: proposition,
+                                                                 customizer: customizer,
+                                                                 listener: listener) else {
+                Log.warning(label: UIConstants.LOG_TAG,
+                            "Failed to create ContentCardUI for proposition with ID: \(proposition.uniqueId)")
+                continue
+            }
+
+            // append the successfully created content card to the cards array.
+            cards.append(contentCard)
+        }
+        
+        // Cleanup stale read status entries for this surface
+        // This ensures read statuses are removed when campaigns end
+        ReadStatusManager.shared.cleanupStaleReadStatus(
+            currentCards: cards,
+            surfaceUri: surface.uri
+        )
+
+        completion(.success(cards))
     }
     
     /// Retrieves a content card container UI for a given surface.

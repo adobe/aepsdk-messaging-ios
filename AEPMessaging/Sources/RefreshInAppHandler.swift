@@ -21,7 +21,8 @@ import Foundation
 class RefreshInAppHandler {
     
     /// Shared instance for use by public API and internal components
-    static let shared = RefreshInAppHandler()
+    // All mutable state is serialized by the private queue.
+    nonisolated(unsafe) static let shared = RefreshInAppHandler()
     
     /// Serial queue for thread-safe access to state
     private let queue = DispatchQueue(label: "com.adobe.messaging.refresh.queue")

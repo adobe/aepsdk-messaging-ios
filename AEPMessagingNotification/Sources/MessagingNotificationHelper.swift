@@ -22,7 +22,8 @@ public final class MessagingNotificationHelper: NSObject {
     @objc public static let mediaKey = "adb_media"
 
     // Overridable in unit tests to avoid real network calls.
-    static var urlSession: URLSession = .shared
+    // Only replaced by tests.
+    nonisolated(unsafe) static var urlSession: URLSession = .shared
 
     /// Processes a mutable notification content object by downloading and attaching any media
     /// specified in the AEP payload's `adb_media` field.
@@ -50,6 +51,9 @@ public final class MessagingNotificationHelper: NSObject {
         with content: UNMutableNotificationContent,
         contentHandler: @escaping (UNNotificationContent) -> Void
     ) {
+        // Used once after the download finishes, never concurrently.
+        nonisolated(unsafe) let contentHandler = contentHandler
+        nonisolated(unsafe) let content = content
         downloadAndAttachMedia(to: content) {
             contentHandler(content)
         }
@@ -60,7 +64,7 @@ public final class MessagingNotificationHelper: NSObject {
     private static let label = "MessagingNotificationHelper"
 
     private static func downloadAndAttachMedia(to content: UNMutableNotificationContent,
-                                               completion: @escaping () -> Void) {
+                                               completion: @escaping @Sendable () -> Void) {
         guard let mediaURLString = content.userInfo[mediaKey] as? String else {
             MessagingLog.debug(label: label, "No media URL found in notification payload — skipping media attachment.")
             completion()
@@ -79,6 +83,7 @@ public final class MessagingNotificationHelper: NSObject {
             return
         }
 
+        nonisolated(unsafe) let content = content
         urlSession.downloadTask(with: mediaURL) { tempURL, response, error in
             defer { completion() }
 

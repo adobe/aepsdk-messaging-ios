@@ -34,6 +34,7 @@ public class AEPUnreadIcon: ObservableObject, AEPViewModel {
     /// Initializes an AEPUnreadIcon with the given settings
     /// - Parameters:
     ///   - settings: Settings for the unread icon from Inbox schema
+    @MainActor
     init(settings: UnreadIndicatorSettings.UnreadIconSettings) {
         self.image = settings.image
         self.alignment = settings.placement.alignment
